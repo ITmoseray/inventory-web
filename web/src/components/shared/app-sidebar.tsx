@@ -164,6 +164,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             { title: "Returns", url: "/dashboard/sales/returns" },
           ],
         },
+      ],
+    },
     {
       label: "Relationships",
       items: [
