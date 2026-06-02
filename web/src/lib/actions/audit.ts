@@ -20,6 +20,7 @@ export async function logAudit(data: {
       data: {
         ...data,
         userId: session.user.id,
+        businessId: session.user.businessId,
       },
     });
   } catch (error) {
