@@ -234,7 +234,8 @@ export function ProcurementModal({
               <div className="p-2 bg-slate-100 dark:bg-slate-900/50 rounded-2xl flex items-center gap-3 border border-slate-200 dark:border-slate-800">
                 <div className="flex-1 relative">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Select onValueChange={(val) => {
+                  <Select onValueChange={(val: string | null) => {
+                    if (!val) return;
                     const product = products.find(p => p.id === val);
                     if (product) {
                       append({ 
@@ -311,7 +312,7 @@ export function ProcurementModal({
                           <td className="px-6 py-4">
                             <Select 
                               value={form.watch(`items.${index}.productId`)} 
-                              onValueChange={(val) => handleProductChange(index, val)}
+                              onValueChange={(val: string | null) => handleProductChange(index, val ?? "")}
                             >
                               <SelectTrigger className="h-10 border-transparent bg-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all rounded-lg font-bold">
                                 <SelectValue placeholder="Select product" />
