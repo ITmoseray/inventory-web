@@ -11,7 +11,7 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.AUTH_SECRET });
   const path = request.nextUrl.pathname;
   
-  console.log(`DEBUG: Middleware - Path: ${path}, Token exists: ${!!token}, Role: ${token?.role}`);
+  console.log(`DEBUG: Middleware - Path: ${path}, Token exists: ${!!token}, Role: ${token?.role}, Secret Loaded: ${!!process.env.AUTH_SECRET}`);
 
   // 1. If no token, redirect to login unless already there
   if (!token) {
