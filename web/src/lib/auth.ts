@@ -12,7 +12,7 @@ declare module "next-auth" {
       businessId: string;
       businessName: string;
       businessType: string;
-      trialEndDate: string | null;
+      trialEndDate: Date | null;
       role: string;
     } & DefaultSession["user"];
   }
@@ -43,7 +43,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.businessType = token.businessType as string;
       }
       if (token.trialEndDate && session.user) {
-        session.user.trialEndDate = token.trialEndDate as string;
+        session.user.trialEndDate = new Date(token.trialEndDate as string);
       }
       if (token.role && session.user) {
         session.user.role = token.role as string;
