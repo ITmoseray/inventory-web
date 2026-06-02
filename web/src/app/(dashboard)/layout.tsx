@@ -20,6 +20,7 @@ import { LogoutButton } from "@/components/shared/logout-button";
 import { TrialBanner } from "@/components/shared/trial-banner";
 import { RealTimeClock } from "@/components/shared/real-time-clock";
 import { QuickActions } from "@/components/shared/quick-actions";
+import { OnboardingTrigger } from "@/components/shared/onboarding-trigger";
 import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -80,6 +81,8 @@ export default async function DashboardLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
+          <OnboardingTrigger />
+          <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-slate-50 bg-white/50 backdrop-blur-md sticky top-0 z-40 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2">

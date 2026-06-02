@@ -5,6 +5,9 @@ interface CartItem {
   name: string;
   price: number;
   quantity: number;
+  isExternal?: boolean;
+  externalSourceName?: string;
+  externalCostPrice?: number;
 }
 
 interface POSState {

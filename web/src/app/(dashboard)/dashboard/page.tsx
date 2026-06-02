@@ -20,7 +20,8 @@ import {
   Receipt,
   Wallet,
   Smartphone as SmartphoneIcon,
-  Printer
+  Printer,
+  Book
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { cn, getIndustryColor } from "@/lib/utils";
@@ -114,9 +115,11 @@ export default function DashboardPage() {
   
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    const name = session?.user?.name?.split(' ')[0] || "Partner";
+    
+    if (hour < 12) return `Good Morning, ${name}`;
+    if (hour < 17) return `Good Afternoon, ${name}`;
+    return `Good Evening, ${name}`;
   };
 
   const getContextInfo = () => {
@@ -160,8 +163,8 @@ export default function DashboardPage() {
               <h2 className="text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 drop-shadow-sm">
                 {getGreeting()}
               </h2>
-              <h1 className="text-4xl md:text-6xl font-[1000] text-slate-900 dark:text-white tracking-tight leading-none">
-                {session?.user?.name || "Intelligence Hub"}
+              <h1 className="text-4xl md:text-6xl font-[1000] text-slate-900 dark:text-white tracking-tight leading-none italic uppercase">
+                Welcome <span className="text-indigo-600">Back</span>
               </h1>
            </div>
 
@@ -178,6 +181,13 @@ export default function DashboardPage() {
 
         <div className="flex items-center gap-4">
            <Button 
+             onClick={() => router.push("/dashboard/manual")}
+             variant="outline"
+             className="h-16 px-8 rounded-[2rem] border-slate-200 bg-white dark:bg-slate-900 font-black uppercase tracking-widest text-xs shadow-sm hover:bg-slate-50 transition-all hover:scale-[1.05] active:scale-95 gap-3"
+           >
+             <Book className="h-5 w-5 text-indigo-600" /> Manual
+           </Button>
+           <Button 
              onClick={() => router.push("/dashboard/pos")}
              className={cn("h-16 px-10 rounded-[2rem] text-white font-black uppercase tracking-widest text-xs shadow-2xl transition-all hover:scale-[1.05] active:scale-95", colors.primary)}
            >
@@ -187,7 +197,7 @@ export default function DashboardPage() {
       </motion.div>
       
       {/* KPI Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 md:gap-6 grid-cols-2 md:grid-cols-3 lg:grid-cols-5" id="dashboard-stats">
         <StatCard 
           title="Total Revenue" 
           value={stats.revenue} 

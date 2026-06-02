@@ -27,7 +27,8 @@ import {
   Building2,
   Wallet,
   Calculator,
-  UserCheck
+  UserCheck,
+  Book
 } from "lucide-react";
 
 import {
@@ -118,6 +119,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       label: "Intelligence",
       items: [
         { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
+        { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck },
         { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon },
         { title: "Reports", url: "/dashboard/reports", icon: BarChart3 },
       ]
@@ -216,6 +218,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             { title: "Settings", url: "/dashboard/system/settings" },
           ],
         },
+      ]
+    },
+    {
+      label: "Support",
+      items: [
+        { title: "System Manual", url: "/dashboard/manual", icon: Book },
       ]
     }
   ];

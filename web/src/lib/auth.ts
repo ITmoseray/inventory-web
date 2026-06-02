@@ -124,18 +124,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           console.log(`DEBUG: Login successful for: ${email}`);
 
-          // Check for email verification
-          if (user.role.name !== "SUPERADMIN" && !user.emailVerified) {
-             console.log(`DEBUG: Login denied. Email not verified for: ${email}`);
-             throw new Error("Please verify your email address before logging in.");
-          }
-          
-          // Check for manual approval
-          if (user.role.name !== "SUPERADMIN" && user.business.status.toLowerCase() !== "active") {
-            console.log(`DEBUG: Login denied. Business status is: ${user.business.status}`);
-            throw new Error("Account is pending approval. Please contact the administrator.");
-          }
-
           return {
             id: user.id,
             name: user.name,

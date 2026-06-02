@@ -26,7 +26,7 @@ export function QuickActions() {
   ];
 
   return (
-    <div className="fixed bottom-8 right-8 z-[150] flex flex-col items-end gap-4">
+    <div className="fixed bottom-24 right-8 z-30 flex flex-col items-end gap-4" id="quick-actions">
       <AnimatePresence>
         {isOpen && (
           <motion.div 

@@ -154,7 +154,7 @@ export default function ExpensesPage() {
                     </div>
                     <div className="space-y-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</Label>
-                       <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v})}>
+                       <Select value={formData.category} onValueChange={(v) => setFormData({...formData, category: v || "Rent"})}>
                           <SelectTrigger className="h-12 rounded-xl border-slate-200">
                              <SelectValue />
                           </SelectTrigger>

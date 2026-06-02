@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { usePOSStore } from "@/store/use-pos-store";
 import { useOfflineSync } from "@/hooks/use-offline-sync";
 import { db } from "@/lib/db";
@@ -73,6 +74,7 @@ import {
   XAxis, 
   Tooltip as ChartTooltip 
 } from "recharts";
+import { Badge } from "@/components/ui/badge";
 
 // Mock data for analytics intelligence
 const salesData = [
@@ -85,6 +87,7 @@ const salesData = [
 ];
 
 export default function POSPage() {
+  const router = useRouter();
   const { cart, addItem, removeItem, updateQuantity, clearCart } = usePOSStore();
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
   const [searchQuery, setSearchQuery] = useState("");
@@ -103,10 +106,21 @@ export default function POSPage() {
   const [isReceiptOpen, setIsReceiptOpen] = useState(false);
   const [lastSale, setLastSale] = useState<any>(null);
 
+  // Quick Source State
+  const [isQuickSourceOpen, setIsQuickSourceOpen] = useState(false);
+  const [quickSourceData, setQuickSourceData] = useState({
+    name: "",
+    salePrice: "",
+    costPrice: "",
+    sourceName: "",
+  });
+
   // Time & Shift State
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     fetchCustomers();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -141,14 +155,43 @@ export default function POSPage() {
   );
 
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
-  const itemCount = useMemo(() => cart.reduce((acc, item) => acc + item.quantity, 0), [cart]);
   const tax = total * 0.15; // 15% GST example
   const grandTotal = total + tax;
 
+// Live Analytics Logic
+  const pendingSales = useLiveQuery(() => db.pendingSales.toArray());
+  
+  const analytics = useMemo(() => {
+    if (!pendingSales) return { todayTotal: 0, chartData: [] };
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const todaysPending = pendingSales.filter(s => new Date(s.createdAt).getTime() >= today.getTime());
+    const total = todaysPending.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+    
+    // Group by hour for chart
+    const groups: Record<string, number> = {};
+    todaysPending.forEach(s => {
+      const hour = format(new Date(s.createdAt), "HH:00");
+      groups[hour] = (groups[hour] || 0) + (s.totalAmount || 0);
+    });
+    
+    const chartData = Object.entries(groups).map(([time, amount]) => ({ time, amount }))
+      .sort((a, b) => a.time.localeCompare(b.time));
+      
+    return { todayTotal: total, chartData };
+  }, [pendingSales]);
+
   async function handleCheckout() {
-    if (cart.length === 0) return;
+    console.log("DEBUG: Checkout button clicked, cart length:", cart.length);
+    if (cart.length === 0) {
+       toast.error("Cart is empty");
+       return;
+    }
     
     setLoading(true);
+    console.log("DEBUG: Processing checkout...");
     try {
       if ((paymentStatus === "UNPAID" || paymentStatus === "PARTIAL") && selectedCustomer === "WALKIN") {
          toast.error("Customer profile required for credit sales.");
@@ -158,10 +201,14 @@ export default function POSPage() {
 
       const saleData = {
         items: cart.map(item => ({
-          productId: item.id,
+          productId: item.isExternal ? undefined : item.id,
+          productName: item.name,
           quantity: item.quantity,
           unitPrice: item.price,
           total: item.price * item.quantity,
+          isExternalSourced: item.isExternal || false,
+          externalSourceName: item.externalSourceName,
+          externalCostPrice: item.externalCostPrice,
         })),
         totalAmount: grandTotal,
         paymentMethod,
@@ -169,6 +216,8 @@ export default function POSPage() {
         customerId: selectedCustomer === "WALKIN" ? undefined : selectedCustomer,
         amountPaid: paymentStatus === "PAID" ? grandTotal : amountPaid,
       };
+
+      console.log("DEBUG: Sale Data Prepared:", saleData);
 
       const currentCart = [...cart];
 
@@ -179,8 +228,10 @@ export default function POSPage() {
       });
 
       if (isOnline) {
+        console.log("DEBUG: Attempting cloud sync...");
         const result = await createSale(saleData);
         if (result.success) {
+          console.log("DEBUG: Cloud sync successful.");
           toast.success("Transaction finalized. Cloud synced.");
           setLastSale({
             ...result,
@@ -193,6 +244,7 @@ export default function POSPage() {
           setIsReceiptOpen(true);
         }
       } else {
+        console.log("DEBUG: Offline mode, saving locally.");
         toast.warning("Saved locally. Will sync when back online.");
         setLastSale({
             invoiceNumber: `LOCAL-${Date.now()}`,
@@ -212,11 +264,33 @@ export default function POSPage() {
       setPaymentStatus("PAID");
       setAmountPaid(0);
     } catch (error) {
-      console.error(error);
+      console.error("DEBUG: Checkout error:", error);
       toast.error("Checkout failed. Please try again.");
     } finally {
       setLoading(false);
+      console.log("DEBUG: Checkout process finished.");
     }
+  }
+
+  function handleQuickSourceSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!quickSourceData.name || !quickSourceData.salePrice || !quickSourceData.costPrice) {
+      toast.error("Please fill all required fields.");
+      return;
+    }
+    const item = {
+      id: `ext-${Date.now()}`,
+      name: quickSourceData.name,
+      price: parseFloat(quickSourceData.salePrice),
+      quantity: 1,
+      isExternal: true,
+      externalSourceName: quickSourceData.sourceName,
+      externalCostPrice: parseFloat(quickSourceData.costPrice),
+    };
+    addItem(item);
+    setIsQuickSourceOpen(false);
+    setQuickSourceData({ name: "", salePrice: "", costPrice: "", sourceName: "" });
+    toast.success("External asset added to cart.");
   }
 
   return (
@@ -256,7 +330,7 @@ export default function POSPage() {
               <Clock className="h-5 w-5 text-blue-500" />
             </div>
             <div className="text-lg font-bold text-slate-900 tracking-tight tabular-nums">
-              {format(currentTime, "HH:mm:ss")}
+              {isMounted ? format(currentTime, "HH:mm:ss") : "00:00:00"}
             </div>
           </div>
 
@@ -308,6 +382,12 @@ export default function POSPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
+              <Button 
+                onClick={() => setIsQuickSourceOpen(true)}
+                className="h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+              >
+                <Zap className="h-4 w-4" /> Quick Source
+              </Button>
               <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
                 <Button 
                   variant="ghost" 
@@ -436,20 +516,27 @@ export default function POSPage() {
           <div className="p-6 bg-slate-50 border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-2">
-                  <BarChart3 className="h-4 w-4 text-blue-500" />
-                  <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider">Sales Today</h4>
+                  <TrendingUp className="h-4 w-4 text-emerald-500" />
+                  <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider">Live Analytics</h4>
                </div>
-               <div className="text-emerald-600 font-bold text-xs">Le 24,500.00</div>
+               <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => router.push('/dashboard/reports')}
+                  className="h-8 text-[10px] font-bold uppercase tracking-widest text-indigo-600 hover:text-indigo-700"
+               >
+                  Full Report
+               </Button>
             </div>
 
             <div className="h-16 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={salesData}>
+                <LineChart data={analytics.chartData.length > 0 ? analytics.chartData : [{time: '00:00', amount: 0}, {time: '23:59', amount: 0}]}>
                   <Line 
                     type="monotone" 
                     dataKey="amount" 
-                    stroke="#2563eb" 
-                    strokeWidth={2} 
+                    stroke="#4f46e5" 
+                    strokeWidth={3} 
                     dot={false} 
                   />
                 </LineChart>
@@ -493,7 +580,12 @@ export default function POSPage() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <h6 className="font-bold text-slate-900 uppercase tracking-tight text-[11px] leading-tight mb-1 truncate">{item.name}</h6>
+                          <div className="flex items-center gap-2 mb-1">
+                             <h6 className="font-bold text-slate-900 uppercase tracking-tight text-[11px] leading-tight truncate">{item.name}</h6>
+                             {item.isExternal && (
+                                <Badge variant="outline" className="h-4 px-1.5 rounded bg-indigo-50 text-indigo-600 border-indigo-100 text-[8px] font-black uppercase tracking-tighter shrink-0">External</Badge>
+                             )}
+                          </div>
                           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
                              Le {item.price.toLocaleString()} per unit
                           </div>
@@ -618,20 +710,24 @@ export default function POSPage() {
               >
                 <Trash2 className="h-6 w-6" />
               </Button>
-              <Button 
+              <button
+                type="button"
                 disabled={loading || cart.length === 0}
                 onClick={handleCheckout}
-                className="flex-1 h-14 rounded-xl font-bold text-sm uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-3"
+                className="flex-1 h-14 rounded-xl font-bold text-sm uppercase tracking-widest bg-blue-600 text-white hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <RefreshCw className="h-6 w-6 animate-spin" />
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="h-6 w-6 animate-spin" />
+                    <span>Processing...</span>
+                  </div>
                 ) : (
                   <>
-                    <span>Checkout Now</span>
+                    <span>Checkout Now (Le {grandTotal.toLocaleString()})</span>
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -729,6 +825,82 @@ export default function POSPage() {
           >
               Close Receipt
            </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* QUICK SOURCE MODAL */}
+      <Dialog open={isQuickSourceOpen} onOpenChange={setIsQuickSourceOpen}>
+        <DialogContent className="sm:max-w-[450px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white text-slate-900">
+           <div className="bg-indigo-600 p-8 text-white">
+              <div className="flex items-center gap-3 mb-2">
+                 <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center shadow-inner">
+                    <Zap className="h-5 w-5 text-white" />
+                 </div>
+                 <h3 className="text-2xl font-black uppercase tracking-tight italic">Quick <span className="text-indigo-200">Source</span></h3>
+              </div>
+              <p className="text-indigo-100/80 font-bold text-[10px] uppercase tracking-[0.25em]">External Sourcing Protocol</p>
+           </div>
+
+           <form onSubmit={handleQuickSourceSubmit} className="p-8 space-y-6">
+              <div className="space-y-4">
+                 <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Item Designation</Label>
+                    <Input 
+                       placeholder="e.g. Laptop Power Adapter"
+                       required
+                       value={quickSourceData.name}
+                       onChange={(e) => setQuickSourceData({...quickSourceData, name: e.target.value})}
+                       className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
+                    />
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 text-indigo-600">Sourcing Cost (Le)</Label>
+                       <Input 
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          required
+                          value={quickSourceData.costPrice}
+                          onChange={(e) => setQuickSourceData({...quickSourceData, costPrice: e.target.value})}
+                          className="h-12 rounded-xl border-indigo-100 bg-indigo-50/30 focus:bg-white font-black text-indigo-600"
+                       />
+                    </div>
+                    <div className="space-y-1.5">
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1 text-emerald-600">Sale Price (Le)</Label>
+                       <Input 
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          required
+                          value={quickSourceData.salePrice}
+                          onChange={(e) => setQuickSourceData({...quickSourceData, salePrice: e.target.value})}
+                          className="h-12 rounded-xl border-emerald-100 bg-emerald-50/30 focus:bg-white font-black text-emerald-600"
+                       />
+                    </div>
+                 </div>
+
+                 <div className="space-y-1.5">
+                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-1">Source Establishment</Label>
+                    <Input 
+                       placeholder="e.g. Alpha Electronics (Optional)"
+                       value={quickSourceData.sourceName}
+                       onChange={(e) => setQuickSourceData({...quickSourceData, sourceName: e.target.value})}
+                       className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-medium"
+                    />
+                 </div>
+              </div>
+
+              <div className="flex gap-3 pt-4 border-t border-slate-50">
+                 <Button type="button" variant="ghost" className="flex-1 h-12 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400" onClick={() => setIsQuickSourceOpen(false)}>
+                    Abort
+                 </Button>
+                 <Button type="submit" className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20">
+                    Add to Cart
+                 </Button>
+              </div>
+           </form>
         </DialogContent>
       </Dialog>
     </div>

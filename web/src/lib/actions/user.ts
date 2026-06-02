@@ -80,20 +80,38 @@ export async function createUser(data: { name: string; email: string; password: 
       throw new Error("Professional plan is limited to 5 users. Please upgrade.");
     }
 
-    // 2. Hash Password
+    // 2. Check for duplicate email (Globally)
+    const existingUser = await globalPrisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (existingUser) {
+      throw new Error("A user with this email address already exists.");
+    }
+
+    // 3. Hash Password
     const passwordHash = await bcrypt.hash(data.password, 10);
     const verificationToken = generateVerificationToken();
 
-    const user = await prisma.user.create({
-      data: {
-        name: data.name,
-        email: data.email,
-        passwordHash,
-        roleId: data.roleId,
-        businessId: businessId,
-        verificationToken,
-      },
-    });
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          passwordHash,
+          roleId: data.roleId,
+          businessId: businessId,
+          verificationToken,
+        },
+      });
+    } catch (error: any) {
+      // Handle potential race condition unique constraint violation
+      if (error.code === 'P2002') {
+        throw new Error("A user with this email address already exists.");
+      }
+      throw error;
+    }
 
     // Send verification email
     await sendVerificationEmail(data.email, verificationToken);

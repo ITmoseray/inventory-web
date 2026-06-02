@@ -6,7 +6,16 @@ import { revalidatePath } from "next/cache";
 import { createNotification } from "./notification";
 
 export async function createSale(data: {
-  items: { productId: string; quantity: number; unitPrice: number; total: number }[];
+  items: { 
+    productId?: string; 
+    productName?: string; 
+    quantity: number; 
+    unitPrice: number; 
+    total: number;
+    isExternalSourced?: boolean;
+    externalSourceName?: string;
+    externalCostPrice?: number;
+  }[];
   totalAmount: number;
   paymentMethod: string;
   paymentStatus?: string;
@@ -21,7 +30,7 @@ export async function createSale(data: {
     const userId = session.user.id;
     const prisma = getTenantPrisma(businessId);
 
-    // Use a transaction to ensure both sale and stock update succeed or fail together
+    // Use a transaction to ensure sale, stock update, and expenses succeed together
     const sale = await prisma.$transaction(async (tx) => {
       // 1. Create the Sale record
       const newSale = await tx.sale.create({
@@ -30,17 +39,29 @@ export async function createSale(data: {
           totalAmount: data.totalAmount,
           paymentMethod: data.paymentMethod,
           paymentStatus: data.paymentStatus || "PAID",
+          status: "PENDING", // Initial status
           customerId: data.customerId,
           businessId: businessId,
           userId: userId,
           items: {
             create: data.items.map((item) => ({
-              productId: item.productId,
+              productId: item.productId || null,
+              productName: item.productName || null,
               quantity: item.quantity,
               unitPrice: item.unitPrice,
               total: item.total,
+              isExternalSourced: item.isExternalSourced || false,
+              externalSourceName: item.externalSourceName || null,
+              externalCostPrice: item.externalCostPrice || null,
             })),
           },
+          statusHistory: {
+            create: {
+              status: "PENDING",
+              note: "Order created",
+              userId: userId
+            }
+          }
         },
       });
 
@@ -62,6 +83,24 @@ export async function createSale(data: {
 
       // 3. Update Stock Levels and record Stock Movements
       for (const item of data.items) {
+        if (item.isExternalSourced) {
+          // 3a. Create automatic expense for external sourcing
+          await tx.expense.create({
+            data: {
+              description: `External Sourcing: ${item.productName} (Sale ${newSale.invoiceNumber})`,
+              amount: (item.externalCostPrice || 0) * item.quantity,
+              category: "COGS",
+              date: new Date(),
+              paymentMethod: "CASH",
+              businessId: businessId,
+              userId: userId,
+            }
+          });
+          continue; // Skip stock updates for external items
+        }
+
+        if (!item.productId) continue;
+
         const product = await tx.product.update({
           where: { id: item.productId },
           data: {
@@ -192,27 +231,51 @@ export async function getSales() {
     return sales.map(s => ({
       id: s.id,
       invoiceNumber: s.invoiceNumber,
-      totalAmount: s.totalAmount.toNumber(),
+      totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : (s.totalAmount as any).toNumber?.() || Number(s.totalAmount) || 0,
       paymentMethod: s.paymentMethod,
       paymentStatus: s.paymentStatus,
+      status: s.status,
       createdAt: s.createdAt.toISOString(),
       customerName: s.customer?.name || "Walk-in Customer",
       userName: s.user?.name || "System",
       items: s.items.map(item => ({
         id: item.id,
-        name: item.product?.name || "Unknown",
+        name: item.productName || item.product?.name || "Unknown",
         quantity: item.quantity,
-        unitPrice: item.unitPrice.toNumber(),
-        total: item.total.toNumber()
+        unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice) || 0,
+        total: typeof item.total === 'number' ? item.total : (item.total as any).toNumber?.() || Number(item.total) || 0
       }))
     }));
-  } catch (error) {
-    console.error("Failed to fetch sales history:", error);
-    throw error;
-  }
-}
+    } catch (error: any) {
+    console.error("SALES FETCH ERROR:", error);
+    throw new Error(`Sales Node Sync Failed: ${error.message}`);
+    }
+    }
 
-export async function getSalesByRange(start: Date, end: Date) {
+    export async function getOrderStatusHistory(saleId: string) {
+    try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    // Use global prisma to ensure access to all models including history
+    const history = await globalPrisma.orderStatusHistory.findMany({
+      where: { saleId },
+      orderBy: { createdAt: "desc" },
+      include: { user: { select: { name: true } } }
+    });
+
+    return history.map(h => ({
+      ...h,
+      createdAt: h.createdAt.toISOString(),
+      userName: h.user?.name || "System"
+    }));
+    } catch (error) {
+    console.error("Failed to fetch order status history:", error);
+    throw error;
+    }
+    }
+
+export async function getSalesHistoryByRange(start: Date, end: Date) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
@@ -226,15 +289,69 @@ export async function getSalesByRange(start: Date, end: Date) {
           lte: end
         }
       },
-      orderBy: { createdAt: "asc" }
+      orderBy: { createdAt: "desc" },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        },
+        customer: true,
+        user: true
+      }
     });
 
     return sales.map(s => ({
-      totalAmount: s.totalAmount.toNumber(),
-      createdAt: s.createdAt.toISOString()
+      id: s.id,
+      invoiceNumber: s.invoiceNumber,
+      totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : (s.totalAmount as any).toNumber?.() || Number(s.totalAmount) || 0,
+      paymentMethod: s.paymentMethod,
+      paymentStatus: s.paymentStatus,
+      status: s.status,
+      createdAt: s.createdAt.toISOString(),
+      customerName: s.customer?.name || "Walk-in Customer",
+      userName: s.user?.name || "System",
+      items: s.items.map(item => ({
+        id: item.id,
+        name: item.productName || item.product?.name || "Unknown",
+        quantity: item.quantity,
+        unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice) || 0,
+        total: typeof item.total === 'number' ? item.total : (item.total as any).toNumber?.() || Number(item.total) || 0
+      }))
     }));
-  } catch (error) {
-    console.error("Failed to fetch sales range:", error);
-    throw error;
+    } catch (error: any) {
+    console.error("SALES FETCH ERROR:", error);
+    throw new Error(`Sales Node Sync Failed: ${error.message}`);
+    }
+}
+
+export async function updateSaleStatus(saleId: string, status: string, note?: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
+
+    const businessId = session.user.businessId;
+    const userId = session.user.id;
+    const prisma = getTenantPrisma(businessId);
+
+    const updatedSale = await prisma.sale.update({
+      where: { id: saleId },
+      data: {
+        status: status.toUpperCase(),
+        statusHistory: {
+          create: {
+            status: status.toUpperCase(),
+            note: note || `Status updated to ${status}`,
+            userId: userId
+          }
+        }
+      }
+    });
+
+    revalidatePath("/dashboard/sales/orders");
+    return { success: true, status: updatedSale.status };
+  } catch (error: any) {
+    console.error("Failed to update sale status:", error);
+    throw new Error(`Failed to update order status: ${error.message}`);
   }
 }

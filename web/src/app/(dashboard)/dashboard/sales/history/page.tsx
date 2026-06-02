@@ -35,8 +35,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getSales } from "@/lib/actions/sale";
-import { format } from "date-fns";
+import { getSalesHistoryByRange } from "@/lib/actions/sale";
+import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay, startOfYear, endOfYear } from "date-fns";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -48,18 +55,60 @@ export default function SalesHistoryPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [filterRange, setFilterRange] = useState("TODAY");
 
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
 
   useEffect(() => {
     fetchSales();
-  }, []);
+  }, [filterRange]);
 
   async function fetchSales() {
     try {
       setLoading(true);
-      const data = await getSales();
+      const now = new Date();
+      let start: Date, end: Date;
+
+      switch (filterRange) {
+        case "TODAY":
+          start = startOfDay(now);
+          end = endOfDay(now);
+          break;
+        case "THIS_WEEK":
+          start = startOfWeek(now);
+          end = endOfWeek(now);
+          break;
+        case "LAST_TWO_WEEKS":
+          start = subDays(now, 14);
+          end = now;
+          break;
+        case "LAST_MONTH":
+          start = startOfMonth(subMonths(now, 1));
+          end = endOfMonth(subMonths(now, 1));
+          break;
+        case "LAST_THREE_MONTHS":
+          start = startOfMonth(subMonths(now, 3));
+          end = endOfMonth(now);
+          break;
+        case "LAST_SIX_MONTHS":
+          start = startOfMonth(subMonths(now, 6));
+          end = endOfMonth(now);
+          break;
+        case "THIS_YEAR":
+          start = startOfYear(now);
+          end = endOfYear(now);
+          break;
+        case "ALL_TIME":
+          start = new Date(2000, 0, 1);
+          end = now;
+          break;
+        default:
+          start = subDays(now, 30);
+          end = now;
+      }
+
+      const data = await getSalesHistoryByRange(start, end);
       setSales(data);
     } catch (error) {
       toast.error("Failed to sync ledger data.");
@@ -72,6 +121,17 @@ export default function SalesHistoryPage() {
     s.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.customerName.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  
+  const ranges = [
+    { label: "Today", value: "TODAY" },
+    { label: "This Week", value: "THIS_WEEK" },
+    { label: "Last 2 Weeks", value: "LAST_TWO_WEEKS" },
+    { label: "Last Month", value: "LAST_MONTH" },
+    { label: "Last 3 Months", value: "LAST_THREE_MONTHS" },
+    { label: "Last 6 Months", value: "LAST_SIX_MONTHS" },
+    { label: "This Year", value: "THIS_YEAR" },
+    { label: "All Sales", value: "ALL_TIME" },
+  ];
 
   return (
     <div className="space-y-8 p-6 md:p-10">
@@ -110,12 +170,14 @@ export default function SalesHistoryPage() {
                  />
               </div>
               <div className="flex gap-2">
-                 <Button variant="outline" className="h-12 w-12 rounded-2xl border-slate-200 flex items-center justify-center">
-                    <Filter className="h-4 w-4 text-slate-400" />
-                 </Button>
-                 <Button variant="outline" className="h-12 rounded-2xl border-slate-200 px-6 font-bold text-[10px] uppercase tracking-widest text-slate-500">
-                    Last 30 Days <ArrowUpDown className="ml-2 h-3 w-3" />
-                 </Button>
+                 <Select value={filterRange} onValueChange={setFilterRange}>
+                   <SelectTrigger className="h-12 rounded-2xl w-[180px] border-slate-200 bg-white font-bold text-[10px] uppercase tracking-widest text-slate-500">
+                     <SelectValue />
+                   </SelectTrigger>
+                   <SelectContent className="rounded-2xl border-slate-200 bg-white shadow-xl">
+                     {ranges.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
+                   </SelectContent>
+                 </Select>
               </div>
            </div>
         </CardHeader>

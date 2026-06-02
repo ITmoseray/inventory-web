@@ -66,6 +66,8 @@ export default function ProductsPage() {
     description: "",
     expiryDate: "",
     batchNumber: "",
+    type: "PRODUCT" as "PRODUCT" | "SERVICE",
+    isNetworkAvailable: false,
   });
 
   // Business Type Logic
@@ -104,8 +106,8 @@ export default function ProductsPage() {
       const data = {
         ...formData,
         unitPrice: parseFloat(formData.unitPrice),
-        stockQuantity: parseInt(formData.stockQuantity),
-        minStockLevel: parseInt(formData.minStockLevel),
+        stockQuantity: formData.type === "SERVICE" ? 0 : parseInt(formData.stockQuantity),
+        minStockLevel: formData.type === "SERVICE" ? 0 : parseInt(formData.minStockLevel),
         categoryId: formData.categoryId === "none" ? null : formData.categoryId,
         metadata: {
           expiryDate: isPharmacy ? formData.expiryDate : undefined,
@@ -119,7 +121,7 @@ export default function ProductsPage() {
         toast.success("Inventory item updated successfully.");
       } else {
         await createProduct(data);
-        toast.success("New product added to catalog.");
+        toast.success("New asset added to catalog.");
       }
       setIsDialogOpen(false);
       setEditingProduct(null);
@@ -141,6 +143,8 @@ export default function ProductsPage() {
       description: "",
       expiryDate: "",
       batchNumber: "",
+      type: "PRODUCT",
+      isNetworkAvailable: false,
     });
   }
 
@@ -169,6 +173,8 @@ export default function ProductsPage() {
       description: product.description || "",
       expiryDate: metadata.expiryDate || "",
       batchNumber: metadata.batchNumber || "",
+      type: product.type || "PRODUCT",
+      isNetworkAvailable: product.isNetworkAvailable || false,
     });
     setIsDialogOpen(true);
   }
@@ -209,6 +215,33 @@ export default function ProductsPage() {
                </div>
                <form onSubmit={handleSubmit} className="p-8 space-y-6">
                  <div className="grid grid-cols-2 gap-6">
+                   <div className="space-y-2">
+                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Type</Label>
+                     <Select 
+                       value={formData.type} 
+                       onValueChange={(val: any) => setFormData({ ...formData, type: val })}
+                     >
+                       <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold">
+                         <SelectValue />
+                       </SelectTrigger>
+                       <SelectContent className="rounded-xl border-slate-100">
+                         <SelectItem value="PRODUCT">Physical Product</SelectItem>
+                         <SelectItem value="SERVICE">Professional Service</SelectItem>
+                       </SelectContent>
+                     </Select>
+                   </div>
+                   <div className="space-y-2 flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
+                     <div className="space-y-0.5">
+                        <Label className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Network Exchange</Label>
+                        <p className="text-[9px] text-indigo-500 font-bold leading-tight">Allow other businesses to source this item</p>
+                     </div>
+                     <input 
+                       type="checkbox"
+                       checked={formData.isNetworkAvailable}
+                       onChange={(e) => setFormData({ ...formData, isNetworkAvailable: e.target.checked })}
+                       className="h-5 w-5 rounded-lg border-indigo-200 text-indigo-600 focus:ring-indigo-500"
+                     />
+                   </div>
                    <div className="space-y-2 col-span-2">
                      <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Designation</Label>
                      <Input
@@ -246,7 +279,9 @@ export default function ProductsPage() {
                      </Select>
                    </div>
                    <div className="space-y-2">
-                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Market Value (Le)</Label>
+                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                       {formData.type === "SERVICE" ? "Rate per Hour/Unit (Le)" : "Market Value (Le)"}
+                     </Label>
                      <Input
                        type="number"
                        step="0.01"
@@ -257,17 +292,19 @@ export default function ProductsPage() {
                        required
                      />
                    </div>
-                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In-Stock Volume</Label>
-                     <Input
-                       type="number"
-                       value={formData.stockQuantity}
-                       onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
-                       placeholder="0"
-                       className="h-12 rounded-xl border-slate-100 bg-slate-50 font-black"
-                       required
-                     />
-                   </div>
+                   {formData.type === "PRODUCT" && (
+                    <div className="space-y-2 animate-in slide-in-from-left-2 duration-300">
+                      <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In-Stock Volume</Label>
+                      <Input
+                        type="number"
+                        value={formData.stockQuantity}
+                        onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                        placeholder="0"
+                        className="h-12 rounded-xl border-slate-100 bg-slate-50 font-black"
+                        required
+                      />
+                    </div>
+                   )}
                    {isPharmacy && (
                      <>
                        <div className="space-y-2">
