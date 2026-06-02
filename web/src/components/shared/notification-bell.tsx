@@ -26,7 +26,7 @@ export function NotificationBell() {
     try {
       const data = await getNotifications();
       setNotifications(data);
-      setUnreadCount(data.filter(n => !n.isRead).length);
+      setUnreadCount(data.filter((n: any) => !n.isRead).length);
     } catch (error) {
       console.error(error);
     }
