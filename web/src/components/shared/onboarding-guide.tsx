@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useOnboardingStore } from "@/store/use-onboarding-store";
 import { Button } from "@/components/ui/button";
+import { Badge } from "../ui/badge";
 import { ChevronLeft, ChevronRight, X, Sparkles, Zap, Cpu, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
