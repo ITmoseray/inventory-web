@@ -199,7 +199,7 @@ export default function NotificationsPage() {
                              </Button>
                           )}
                           <DropdownMenu>
-                             <DropdownMenuTrigger asChild>
+                             <DropdownMenuTrigger>
                                 <Button variant="ghost" size="sm" className="h-10 w-10 rounded-xl">
                                    <MoreVertical size={16} className="text-slate-400" />
                                 </Button>

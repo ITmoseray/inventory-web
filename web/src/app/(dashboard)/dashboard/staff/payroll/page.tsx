@@ -153,27 +153,27 @@ export default function PayrollPage() {
               <form onSubmit={handleProcess} className="p-8 space-y-5">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Personnel</Label>
-                    <Select value={formData.userId} onValueChange={v => setFormData({...formData, userId: v})}>
+                    <Select value={formData.userId} onValueChange={(v: string | null) => setFormData({...formData, userId: v ?? ""})}>
                        <SelectTrigger className="h-12 rounded-xl">
                           <SelectValue />
                        </SelectTrigger>
                        <SelectContent className="rounded-xl">
-                          {users.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+                          {users.map((u: any) => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
                        </SelectContent>
                     </Select>
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Settlement Amount (Le)</Label>
-                    <Input required type="number" step="0.01" className="h-12 rounded-xl" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} />
+                    <Input required type="number" step="0.01" className="h-12 rounded-xl" value={formData.amount} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, amount: e.target.value})} />
                  </div>
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Period Start</Label>
-                       <Input type="date" className="h-12 rounded-xl" value={formData.periodStart} onChange={e => setFormData({...formData, periodStart: e.target.value})} />
+                       <Input type="date" className="h-12 rounded-xl" value={formData.periodStart} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, periodStart: e.target.value})} />
                     </div>
                     <div className="space-y-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Period End</Label>
-                       <Input type="date" className="h-12 rounded-xl" value={formData.periodEnd} onChange={e => setFormData({...formData, periodEnd: e.target.value})} />
+                       <Input type="date" className="h-12 rounded-xl" value={formData.periodEnd} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, periodEnd: e.target.value})} />
                     </div>
                  </div>
                  <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl mt-4", colors.primary)}>

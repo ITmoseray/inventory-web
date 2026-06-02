@@ -58,7 +58,7 @@ export default function RegisterPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="plan" className="text-xs font-black uppercase text-slate-500">Choose Plan</Label>
-                <Select value={formData.plan} onValueChange={(val) => setFormData({...formData, plan: val})}>
+                <Select value={formData.plan} onValueChange={(val: string | null) => setFormData({...formData, plan: val ?? "FREE"})}>
                   <SelectTrigger className="h-12 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
@@ -72,11 +72,11 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="businessName" className="text-xs font-black uppercase text-slate-500">Business Name</Label>
-                <Input id="businessName" value={formData.businessName} onChange={(e) => setFormData({...formData, businessName: e.target.value})} required className="h-12 rounded-xl" />
+                <Input id="businessName" value={formData.businessName} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, businessName: e.target.value})} required className="h-12 rounded-xl" />
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="businessType" className="text-xs font-black uppercase text-slate-500">Business Type</Label>
-                <Select value={formData.businessType} onValueChange={(val) => setFormData({...formData, businessType: val})}>
+                <Select value={formData.businessType} onValueChange={(val: string | null) => setFormData({...formData, businessType: val ?? "SHOP"})}>
                   <SelectTrigger className="h-12 rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="SHOP">General Shop</SelectItem>
@@ -89,11 +89,11 @@ export default function RegisterPage() {
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="email" className="text-xs font-black uppercase text-slate-500">Email</Label>
-                <Input id="email" type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required className="h-12 rounded-xl" />
+                <Input id="email" type="email" value={formData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, email: e.target.value})} required className="h-12 rounded-xl" />
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="password" className="text-xs font-black uppercase text-slate-500">Password</Label>
-                <Input id="password" type="password" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} required className="h-12 rounded-xl" />
+                <Input id="password" type="password" value={formData.password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, password: e.target.value})} required className="h-12 rounded-xl" />
               </div>
             </div>
 

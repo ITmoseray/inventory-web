@@ -64,7 +64,7 @@ export default function SettingsPage() {
 
   // Form States
   const [passData, setPassData] = useState({ current: "", new: "", confirm: "" });
-  const [userData, setUserData] = useState({ name: "", email: "", password: "", role: "STAFF" });
+  const [userData, setUserData] = useState({ name: "", email: "", password: "", roleId: "" });
 
   useEffect(() => {
     fetchData();
@@ -101,7 +101,7 @@ export default function SettingsPage() {
     try {
       await createUser(userData);
       toast.success(`User ${userData.name} invited to team`);
-      setUserData({ name: "", email: "", password: "", role: "STAFF" });
+      setUserData({ name: "", email: "", password: "", roleId: roles[0]?.id || "" });
       fetchData();
     } catch (error: any) {
       toast.error(error.message);
@@ -257,16 +257,16 @@ export default function SettingsPage() {
                        <div className="space-y-2">
                           <Label className="font-black text-slate-700 text-[10px] uppercase tracking-widest">Role Access</Label>
                           <Select 
-                            value={userData.role}
-                            onValueChange={val => setUserData({...userData, role: val})}
+                            value={userData.roleId}
+                            onValueChange={val => setUserData({...userData, roleId: val})}
                           >
                              <SelectTrigger className="h-11 rounded-xl bg-slate-50 border-slate-100">
                                 <SelectValue />
                              </SelectTrigger>
                              <SelectContent className="rounded-xl">
-                                <SelectItem value="STAFF">Employee</SelectItem>
-                                <SelectItem value="MANAGER">Manager</SelectItem>
-                                <SelectItem value="ADMIN">Co-Admin</SelectItem>
+                                {roles.map(r => (
+                                  <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                                ))}
                              </SelectContent>
                           </Select>
                        </div>

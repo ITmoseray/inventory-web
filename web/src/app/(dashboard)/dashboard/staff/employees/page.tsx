@@ -162,12 +162,12 @@ export default function EmployeesPage() {
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intelligence Role</Label>
-                    <Select value={formData.roleId} onValueChange={v => setFormData({...formData, roleId: v})}>
+                    <Select value={formData.roleId} onValueChange={(v: string | null) => setFormData({...formData, roleId: v ?? ""})}>
                        <SelectTrigger className="h-12 rounded-xl">
                           <SelectValue placeholder="Select Privilege Level" />
                        </SelectTrigger>
                        <SelectContent className="rounded-xl">
-                          {roles.map(r => (
+                          {roles.map((r: any) => (
                             <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
                           ))}
                        </SelectContent>
@@ -184,7 +184,7 @@ export default function EmployeesPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          {[
            { label: "Active Nodes", value: users.length.toString().padStart(2, '0'), icon: Users, color: "text-blue-500" },
-           { label: "Privileged Access", value: users.filter(u => u.roleName === 'ADMIN').length.toString().padStart(2, '0'), icon: ShieldCheck, color: "text-emerald-500" },
+           { label: "Privileged Access", value: users.filter((u: any) => u.roleName === 'ADMIN').length.toString().padStart(2, '0'), icon: ShieldCheck, color: "text-emerald-500" },
            { label: "Connectivity", value: "99.8%", icon: Activity, color: "text-indigo-500" },
            { label: "Pending Logs", value: "00", icon: Mail, color: "text-slate-400" }
          ].map((stat, i) => (
@@ -204,7 +204,7 @@ export default function EmployeesPage() {
                 placeholder="Search personnel or roles..." 
                 className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               />
            </div>
            <Button variant="outline" className="h-12 w-12 rounded-2xl border-slate-200 flex items-center justify-center">

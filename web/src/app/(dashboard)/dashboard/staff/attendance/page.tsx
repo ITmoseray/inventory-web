@@ -148,12 +148,12 @@ export default function AttendancePage() {
             <div className="space-y-6">
                <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Personnel</Label>
-                  <Select value={clockInData.userId} onValueChange={v => setClockInData({...clockInData, userId: v})}>
+                  <Select value={clockInData.userId} onValueChange={(v: string | null) => setClockInData({...clockInData, userId: v ?? ""})}>
                      <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-200">
                         <SelectValue placeholder={users.length > 0 ? "Select staff member..." : "No personnel nodes detected"} />
                      </SelectTrigger>
                      <SelectContent className="rounded-xl border-slate-200 bg-white">
-                        {users.map(u => (
+                        {users.map((u: any) => (
                           <SelectItem key={u.id} value={u.id} className="font-bold">{u.name}</SelectItem>
                         ))}
                      </SelectContent>
@@ -172,7 +172,7 @@ export default function AttendancePage() {
                     placeholder="e.g. Morning Shift Alpha..." 
                     className="h-12 rounded-xl"
                     value={clockInData.note}
-                    onChange={e => setClockInData({...clockInData, note: e.target.value})}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setClockInData({...clockInData, note: e.target.value})}
                   />
                </div>
             </div>
@@ -190,7 +190,7 @@ export default function AttendancePage() {
                     placeholder="Search personnel logs..." 
                     className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50"
                     value={searchQuery}
-                    onChange={e => setSearchQuery(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                   />
                </div>
                <Button variant="outline" className="h-12 rounded-2xl border-slate-200 px-6 font-bold text-[10px] uppercase tracking-widest text-slate-500">
