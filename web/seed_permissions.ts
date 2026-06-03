@@ -21,6 +21,21 @@ async function main() {
     { key: "accounting:edit" },
     { key: "system:settings" },
     { key: "system:audit_logs" },
+    
+    // Sidebar Menu Access Permissions
+    { key: "menu:overview" },
+    { key: "menu:intelligence_hub" },
+    { key: "menu:analytics" },
+    { key: "menu:reports" },
+    { key: "menu:inventory" },
+    { key: "menu:purchases" },
+    { key: "menu:sales" },
+    { key: "menu:customers" },
+    { key: "menu:accounting" },
+    { key: "menu:billing" },
+    { key: "menu:staff" },
+    { key: "menu:system" },
+    { key: "menu:manual" },
   ];
 
   for (const p of permissions) {

@@ -74,6 +74,19 @@ export default function SettingsPage() {
     fetchData();
   }, []);
 
+  // Sync permissions when role changes
+  useEffect(() => {
+    if (userData.roleId && roles.length > 0) {
+      const selectedRole = roles.find(r => r.id === userData.roleId);
+      if (selectedRole) {
+        setUserData(prev => ({
+          ...prev,
+          selectedPermissions: selectedRole.permissions.map((p: any) => p.id)
+        }));
+      }
+    }
+  }, [userData.roleId, roles]);
+
   async function fetchData() {
     try {
       setLoading(true);
@@ -292,13 +305,15 @@ export default function SettingsPage() {
                         
                         <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
                           {/* Grouped Permissions */}
-                          {["sales", "product", "inventory", "staff", "reports", "accounting", "system"].map((group) => {
+                          {["menu", "sales", "product", "inventory", "staff", "reports", "accounting", "system"].map((group) => {
                              const groupPermissions = permissions.filter(p => p.key.startsWith(group));
                              if (groupPermissions.length === 0) return null;
                              
+                             const groupLabel = group === "menu" ? "Navigation & Modules" : group + " Management";
+                             
                              return (
                                <div key={group} className="space-y-3">
-                                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 pb-1">{group} Management</div>
+                                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 pb-1">{groupLabel}</div>
                                   <div className="grid grid-cols-1 gap-2">
                                     {groupPermissions.map((p) => (
                                       <div key={p.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all group">
@@ -316,7 +331,9 @@ export default function SettingsPage() {
                                           className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
                                         />
                                         <Label htmlFor={p.id} className="text-[11px] font-bold text-slate-600 cursor-pointer group-hover:text-slate-900 transition-colors">
-                                          {p.key.split(":")[1].replace("_", " ")}
+                                          {group === "menu" 
+                                            ? "Access " + p.key.split(":")[1].replace("_", " ") + " Module"
+                                            : p.key.split(":")[1].replace("_", " ")}
                                         </Label>
                                       </div>
                                     ))}

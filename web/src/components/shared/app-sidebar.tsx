@@ -124,6 +124,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     url: string;
     icon?: any;
     hidden?: boolean;
+    permission?: string;
     items?: NavItem[];
   }
 
@@ -133,24 +134,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     items: NavItem[];
   }
 
+  const userPermissions = session?.user?.permissions || [];
+  const hasPermission = (permission?: string) => {
+    if (!permission) return true;
+    if (isAdmin) return true;
+    return userPermissions.includes(permission);
+  };
+
   const navGroups: NavGroup[] = [
     {
       label: "Intelligence",
       items: [
-        { title: "Overview", url: "/dashboard", icon: LayoutDashboard },
-        { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck, hidden: !isAdmin },
-        { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon, hidden: !isAdmin },
-        { title: "Reports", url: "/dashboard/reports", icon: BarChart3, hidden: !isAdmin },
+        { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+        { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck, permission: "menu:intelligence_hub" },
+        { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon, permission: "menu:analytics" },
+        { title: "Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:reports" },
       ]
     },
     {
       label: "Supply Chain",
-      hidden: !isAdmin,
       items: [
         {
           title: "Inventory",
           url: "/dashboard/inventory",
           icon: Package,
+          permission: "menu:inventory",
           items: [
             { title: "Products", url: "/dashboard/inventory/products" },
             { title: "Network Exchange", url: "/dashboard/inventory/network" },
@@ -161,15 +169,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           ],
         },
         {
-        title: "Purchases",
-        url: "/dashboard/purchases",
-        icon: Truck,
-        items: [
-          { title: "Suppliers", url: "/dashboard/purchases/suppliers" },
-          { title: "Purchase Orders", url: "/dashboard/purchases" },
-          { title: "Returns", url: "/dashboard/purchases/returns" },
-        ],
-        },      ]
+          title: "Purchases",
+          url: "/dashboard/purchases",
+          icon: Truck,
+          permission: "menu:purchases",
+          items: [
+            { title: "Suppliers", url: "/dashboard/purchases/suppliers" },
+            { title: "Purchase Orders", url: "/dashboard/purchases" },
+            { title: "Returns", url: "/dashboard/purchases/returns" },
+          ],
+        },
+      ]
     },
     {
       label: "Commerce",
@@ -178,6 +188,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "Sales",
           url: "/dashboard/sales",
           icon: ShoppingCart,
+          permission: "menu:sales",
           items: [
             { title: "Launch POS", url: "/dashboard/pos" },
             { title: "Sales History", url: "/dashboard/sales/history" },
@@ -195,35 +206,36 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: relConfig.title,
           url: "/dashboard/customers",
           icon: relConfig.icon,
+          permission: "menu:customers",
           items: relConfig.items,
         },
       ]
     },
     {
       label: "Finance",
-      hidden: !isAdmin,
       items: [
         {
           title: "Accounting",
           url: "/dashboard/accounting",
           icon: Wallet,
+          permission: "menu:accounting",
           items: [
             { title: "Expenses", url: "/dashboard/accounting/expenses" },
             { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
             { title: "Cash Flow", url: "/dashboard/accounting/cashflow" },
           ],
         },
-        { title: "Billing", url: "/dashboard/billing", icon: CreditCard },
+        { title: "Billing", url: "/dashboard/billing", icon: CreditCard, permission: "menu:billing" },
       ]
     },
     {
       label: "Administrative",
-      hidden: !isAdmin,
       items: [
         {
           title: "Team / HR",
           url: "/dashboard/staff",
           icon: UserCheck,
+          permission: "menu:staff",
           items: [
             { title: "Employees", url: "/dashboard/staff/employees" },
             { title: "Attendance", url: "/dashboard/staff/attendance" },
@@ -234,6 +246,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           title: "System",
           url: "/dashboard/system",
           icon: Settings,
+          permission: "menu:system",
           items: [
             { title: "Audit Logs", url: "/dashboard/system/logs" },
             { title: "Notifications", url: "/dashboard/system/notifications" },
@@ -245,10 +258,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     {
       label: "Support",
       items: [
-        { title: "System Manual", url: "/dashboard/manual", icon: Book },
+        { title: "System Manual", url: "/dashboard/manual", icon: Book, permission: "menu:manual" },
       ]
     }
-  ].filter(group => !group.hidden);
+  ].filter(group => {
+    // Filter items within group
+    group.items = group.items.filter(item => !item.hidden && hasPermission(item.permission));
+    // Filter group if no items left
+    return group.items.length > 0;
+  });
 
   if (!mounted) {
     return <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props} />;

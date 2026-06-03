@@ -15,6 +15,7 @@ declare module "next-auth" {
       businessType: string;
       trialEndDate: Date | null;
       role: string;
+      permissions: string[];
     } & DefaultSession["user"];
   }
 
@@ -24,6 +25,7 @@ declare module "next-auth" {
     businessType: string;
     trialEndDate: Date | null;
     role: string;
+    permissions: string[];
   }
 }
 
@@ -44,7 +46,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             where: { email },
             include: { 
               business: true,
-              role: true
+              role: { include: { permissions: true } }
             }
           });
           
@@ -61,6 +63,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             businessType: user.business.type,
             trialEndDate: user.business.trialEndDate,
             role: user.role.name,
+            permissions: user.role.permissions.map(p => p.key),
             emailVerified: user.emailVerified,
           };
         }
@@ -76,6 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.role && session.user) session.user.role = token.role as string;
       if (token.businessType && session.user) session.user.businessType = token.businessType as string;
       if (token.trialEndDate && session.user) session.user.trialEndDate = token.trialEndDate as Date;
+      if (token.permissions && session.user) session.user.permissions = token.permissions as string[];
       return session;
     },
     async jwt({ token, user }) {
@@ -85,6 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.role = (user as any).role;
         token.businessType = (user as any).businessType;
         token.trialEndDate = (user as any).trialEndDate;
+        token.permissions = (user as any).permissions;
       }
 
       // 2. Database-dependent impersonation logic
@@ -94,13 +99,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (impersonationTargetId && token.role === "SUPERADMIN") {
         const targetUser = await prisma.user.findUnique({
           where: { id: impersonationTargetId },
-          include: { business: true, role: true },
+          include: { business: true, role: { include: { permissions: true } } },
         });
 
         if (targetUser) {
           token.sub = targetUser.id;
           token.role = targetUser.role.name;
           token.businessId = targetUser.businessId;
+          token.permissions = targetUser.role.permissions.map(p => p.key);
         }
       }
       return token;

@@ -49,6 +49,7 @@ export async function getRoles() {
     const prisma = getTenantPrisma(session.user.businessId);
 
     return await prisma.role.findMany({
+      include: { permissions: true },
       orderBy: { name: "asc" }
     });
   } catch (error) {
