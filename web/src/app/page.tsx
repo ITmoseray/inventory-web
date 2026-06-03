@@ -80,10 +80,10 @@ export default function ProtechCloudHomepage() {
             Protech <span className="text-indigo-600">Inventory Cloud</span>
           </span>
         </Link>
-        
+
         <div className="hidden lg:flex items-center gap-10 ml-16">
           {["Features", "Solutions", "Pricing", "Resources", "Company"].map((item) => (
-            <Link key={item} href={`#${item.toLowerCase()}`} className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
+            <Link key={item} href={item === "Pricing" ? "/pricing" : `#${item.toLowerCase()}`} className="text-sm font-semibold text-slate-600 hover:text-indigo-600 transition-colors">
               {item}
             </Link>
           ))}

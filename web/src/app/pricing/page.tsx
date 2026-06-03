@@ -43,6 +43,9 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16 px-4">
       <div className="max-w-7xl mx-auto">
+        <Button variant="ghost" className="mb-6 -ml-4" onClick={() => window.history.back()}>
+          ← Back
+        </Button>
         {/* Trial Banner */}
         <div className="mb-12 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-sm">
