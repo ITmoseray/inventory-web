@@ -365,14 +365,14 @@ export default function POSPage() {
         </div>
       </header>
 
-      <div className="flex flex-1 overflow-hidden relative z-10">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-hidden relative z-10">
         
         {/* LEFT COLUMN: CATALOG & CART (70%) */}
-        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50">
+        <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 min-h-0">
           
           {/* SEARCH & FILTERS */}
-          <div className="p-6 pb-2 space-y-4 shrink-0">
-            <div className="flex gap-4">
+          <div className="p-4 sm:p-6 pb-2 space-y-4 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 relative group">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                 <Input 
@@ -382,29 +382,31 @@ export default function POSPage() {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Button 
-                onClick={() => setIsQuickSourceOpen(true)}
-                className="h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
-              >
-                <Zap className="h-4 w-4" /> Quick Source
-              </Button>
-              <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+              <div className="flex gap-2">
                 <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className={cn("h-10 w-10 rounded-lg transition-all", viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
-                  onClick={() => setViewMode('grid')}
+                  onClick={() => setIsQuickSourceOpen(true)}
+                  className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
                 >
-                  <LayoutGrid className="h-5 w-5" />
+                  <Zap className="h-4 w-4" /> Quick Source
                 </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className={cn("h-10 w-10 rounded-lg transition-all", viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
-                  onClick={() => setViewMode('list')}
-                >
-                  <List className="h-5 w-5" />
-                </Button>
+                <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={cn("h-10 w-10 rounded-lg transition-all", viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <LayoutGrid className="h-5 w-5" />
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    className={cn("h-10 w-10 rounded-lg transition-all", viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="h-5 w-5" />
+                  </Button>
+                </div>
               </div>
             </div>
 
@@ -413,7 +415,7 @@ export default function POSPage() {
                 variant="outline"
                 size="sm"
                 className={cn(
-                  "rounded-full px-6 h-9 font-bold text-[10px] uppercase tracking-wider transition-all",
+                  "rounded-full px-6 h-9 font-bold text-[10px] uppercase tracking-wider transition-all shrink-0",
                   selectedCategory === null ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 )}
                 onClick={() => setSelectedCategory(null)}
@@ -426,7 +428,7 @@ export default function POSPage() {
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "rounded-full px-6 h-9 font-bold text-[10px] uppercase tracking-wider transition-all",
+                    "rounded-full px-6 h-9 font-bold text-[10px] uppercase tracking-wider transition-all shrink-0",
                     selectedCategory === cat.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                   )}
                   onClick={() => setSelectedCategory(cat.id)}
@@ -439,12 +441,11 @@ export default function POSPage() {
           
           {/* CATALOG AREA */}
           <div 
-            className="flex-1 w-full overflow-y-auto px-2 sm:px-6 pb-24 custom-scrollbar border-4 border-red-500 bg-red-50"
-            style={{ display: 'flex', flexDirection: 'column', minHeight: '500px' }}
+            className="flex-1 w-full overflow-y-auto px-4 sm:px-6 pb-24 custom-scrollbar"
           >
             
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20 mt-2">
                 {!products ? (
                   Array.from({ length: 12 }).map((_, i) => <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-xl" />)
                 ) : filteredProducts?.length === 0 ? (
@@ -482,7 +483,7 @@ export default function POSPage() {
                 )}
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 mt-2">
                 {filteredProducts?.map((p) => (
                   <motion.div 
                     whileHover={{ x: 4, backgroundColor: 'rgba(248, 250, 252, 1)' }}
@@ -506,10 +507,10 @@ export default function POSPage() {
         </div>
 
         {/* RIGHT COLUMN: CART & CHECKOUT (30%) */}
-        <div className="w-full lg:w-[400px] bg-white border-l border-slate-200 flex flex-col shrink-0 relative z-20">
+        <div className="w-full lg:w-[400px] h-[50vh] lg:h-auto bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col shrink-0 relative z-20">
           
-          {/* SUMMARY MINI-CHART (Simplified) */}
-          <div className="p-6 bg-slate-50 border-b border-slate-200">
+          {/* SUMMARY MINI-CHART (Simplified) - HIDDEN ON MOBILE */}
+          <div className="hidden lg:block p-6 bg-slate-50 border-b border-slate-200">
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-2">
                   <TrendingUp className="h-4 w-4 text-emerald-500" />
@@ -538,8 +539,6 @@ export default function POSPage() {
                 </LineChart>
               </ResponsiveContainer>
             </div>
-          </div>
-          
           {/* CART LIST */}
           <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/50">
             <div className="flex items-center justify-between mb-4 px-1">
