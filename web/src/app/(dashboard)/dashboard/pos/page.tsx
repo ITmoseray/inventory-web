@@ -438,16 +438,15 @@ export default function POSPage() {
           </div>
           
           {/* CATALOG AREA */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-6 custom-scrollbar">
+          <div className="flex-1 overflow-y-auto px-2 sm:px-6 pb-20 custom-scrollbar min-h-[400px]">
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
                 {!products ? (
                   Array.from({ length: 12 }).map((_, i) => <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-xl" />)
                 ) : filteredProducts?.length === 0 ? (
-                  <div className="col-span-full text-center py-20 bg-white rounded-2xl border border-dashed border-slate-200">
-                    <Package className="h-12 w-12 text-slate-200 mx-auto mb-4" />
-                    <h3 className="text-lg font-bold text-slate-400">No products found</h3>
-                    <p className="text-sm text-slate-400 mt-1">Try a different search term or category.</p>
+                  <div className="col-span-full text-center py-10 bg-white rounded-2xl border border-dashed border-slate-200">
+                    <Package className="h-8 w-8 text-slate-200 mx-auto mb-2" />
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">No products found</h3>
                   </div>
                 ) : (
                   filteredProducts?.map((p) => (
