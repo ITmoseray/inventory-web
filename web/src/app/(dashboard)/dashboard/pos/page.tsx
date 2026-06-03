@@ -442,8 +442,6 @@ export default function POSPage() {
             className="flex-1 w-full overflow-y-auto px-2 sm:px-6 pb-24 custom-scrollbar"
             style={{ display: 'flex', flexDirection: 'column', minHeight: '500px' }}
           >
-            {console.log("DEBUG: Catalog container rendering...")}
-            {console.log("DEBUG: filteredProducts length:", filteredProducts?.length)}
             
             {viewMode === 'grid' ? (
               <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20">
