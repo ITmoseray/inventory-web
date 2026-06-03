@@ -38,6 +38,7 @@ import {
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
+import { PricingSection } from "@/components/shared/pricing-section";
 
 export default function ProtechCloudHomepage() {
   const containerRef = useRef(null);
@@ -185,6 +186,8 @@ export default function ProtechCloudHomepage() {
             </div>
           </div>
         </section>
+
+        <PricingSection />
 
         {/* 3. Products Section */}
         <section id="features" className="py-32 bg-white relative">

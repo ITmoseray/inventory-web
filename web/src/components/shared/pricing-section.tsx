@@ -1,6 +1,5 @@
 "use client";
 import React from 'react';
-import Link from 'next/link';
 import { Check, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -42,22 +41,19 @@ const plans = [
   },
 ];
 
-export default function PricingPage() {
+export function PricingSection() {
   const router = useRouter();
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16 px-4">
+    <div className="py-24 px-6 bg-slate-50 dark:bg-slate-950" id="pricing">
       <div className="max-w-7xl mx-auto">
-        <Link href="/" className="mb-6 -ml-4 inline-flex items-center text-slate-500 hover:text-slate-900 transition-colors">
-          ← Back
-        </Link>
         {/* Trial Banner */}
-        <div className="mb-12 text-center">
+        <div className="mb-16 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-sm">
             <Star className="h-4 w-4 fill-current" />
             <span>14-Day Free Trial available on all plans</span>
           </div>
-          <h1 className="text-5xl font-black tracking-tighter text-slate-900 dark:text-white mt-6 mb-4">Choose your growth plan</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">Transparent pricing for premium enterprise retail intelligence.</p>
+          <h2 className="text-4xl lg:text-6xl font-black tracking-tighter text-slate-900 dark:text-white mt-8 mb-6">Choose your growth plan</h2>
+          <p className="text-slate-600 dark:text-slate-400 text-lg max-w-2xl mx-auto">Transparent pricing for premium enterprise retail intelligence.</p>
         </div>
 
         {/* Pricing Cards */}
@@ -103,7 +99,7 @@ export default function PricingPage() {
         </div>
 
         {/* Contact Info */}
-        <div className="mt-16 text-center text-slate-600 dark:text-slate-400">
+        <div className="mt-20 text-center text-slate-600 dark:text-slate-400">
           <p className="font-bold">Need help choosing?</p>
           <p>Phone: <a href="tel:034955581" className="text-indigo-600 font-black hover:underline">034955581</a></p>
           <p>Email: <a href="mailto:protechassist36@gmail.com" className="text-indigo-600 font-black hover:underline">protechassist36@gmail.com</a></p>
