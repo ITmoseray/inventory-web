@@ -259,6 +259,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       label: "Support",
       items: [
         { title: "System Manual", url: "/dashboard/manual", icon: Book, permission: "menu:manual" },
+        { title: "Pricing Plans", url: "/pricing", icon: DollarSign, permission: "menu:system" },
       ]
     }
   ].filter(group => {
