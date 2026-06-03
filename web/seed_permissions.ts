@@ -7,8 +7,20 @@ async function main() {
     { key: "product:delete" },
     { key: "sales:create" },
     { key: "sales:view" },
+    { key: "sales:void" },
+    { key: "sales:history" },
+    { key: "inventory:view" },
+    { key: "inventory:edit" },
+    { key: "inventory:stock_adjust" },
     { key: "staff:view" },
     { key: "staff:edit" },
+    { key: "staff:payroll" },
+    { key: "reports:view" },
+    { key: "reports:export" },
+    { key: "accounting:view" },
+    { key: "accounting:edit" },
+    { key: "system:settings" },
+    { key: "system:audit_logs" },
   ];
 
   for (const p of permissions) {

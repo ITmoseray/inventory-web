@@ -285,26 +285,45 @@ export default function SettingsPage() {
                           </Select>
                        </div>
 
-                       <div className="space-y-2">
-                        <Label className="font-black text-slate-700 text-[10px] uppercase tracking-widest">Granular Permissions</Label>
-                        <div className="grid grid-cols-2 gap-2 mt-2">
-                          {permissions.map((p) => (
-                            <div key={p.id} className="flex items-center space-x-2">
-                              <Checkbox 
-                                id={p.id} 
-                                checked={userData.selectedPermissions.includes(p.id)}
-                                onCheckedChange={(checked) => {
-                                  setUserData(prev => ({
-                                    ...prev,
-                                    selectedPermissions: checked 
-                                      ? [...prev.selectedPermissions, p.id]
-                                      : prev.selectedPermissions.filter(id => id !== p.id)
-                                  }));
-                                }}
-                              />
-                              <Label htmlFor={p.id} className="text-xs cursor-pointer">{p.key}</Label>
-                            </div>
-                          ))}
+                       <div className="space-y-4">
+                        <Label className="font-black text-slate-700 text-[10px] uppercase tracking-widest flex items-center gap-2">
+                           <ShieldAlert className="h-3.5 w-3.5 text-indigo-600" /> Granular Access Control
+                        </Label>
+                        
+                        <div className="space-y-6 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
+                          {/* Grouped Permissions */}
+                          {["sales", "product", "inventory", "staff", "reports", "accounting", "system"].map((group) => {
+                             const groupPermissions = permissions.filter(p => p.key.startsWith(group));
+                             if (groupPermissions.length === 0) return null;
+                             
+                             return (
+                               <div key={group} className="space-y-3">
+                                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 pb-1">{group} Management</div>
+                                  <div className="grid grid-cols-1 gap-2">
+                                    {groupPermissions.map((p) => (
+                                      <div key={p.id} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white hover:shadow-sm transition-all group">
+                                        <Checkbox 
+                                          id={p.id} 
+                                          checked={userData.selectedPermissions.includes(p.id)}
+                                          onCheckedChange={(checked) => {
+                                            setUserData(prev => ({
+                                              ...prev,
+                                              selectedPermissions: checked 
+                                                ? [...prev.selectedPermissions, p.id]
+                                                : prev.selectedPermissions.filter(id => id !== p.id)
+                                            }));
+                                          }}
+                                          className="data-[state=checked]:bg-indigo-600 data-[state=checked]:border-indigo-600"
+                                        />
+                                        <Label htmlFor={p.id} className="text-[11px] font-bold text-slate-600 cursor-pointer group-hover:text-slate-900 transition-colors">
+                                          {p.key.split(":")[1].replace("_", " ")}
+                                        </Label>
+                                      </div>
+                                    ))}
+                                  </div>
+                               </div>
+                             );
+                          })}
                         </div>
                        </div>
 

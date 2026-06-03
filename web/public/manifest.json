@@ -4,7 +4,7 @@
   "description": "Premium Enterprise OS for Retail Intelligence and Inventory Management.",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#020617",
   "theme_color": "#4f46e5",
   "icons": [

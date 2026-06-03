@@ -370,52 +370,53 @@ export default function POSPage() {
         {/* LEFT COLUMN: CATALOG & CART (70%) */}
         <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 min-h-0">
           
-          {/* SEARCH & FILTERS */}
-          <div className="p-4 sm:p-6 pb-2 space-y-4 shrink-0">
-            <div className="flex flex-col sm:flex-row gap-4">
+          {/* SEARCH & FILTERS - Optimized for mobile */}
+          <div className="p-2 sm:p-6 pb-2 space-y-2 sm:space-y-4 shrink-0">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
               <div className="flex-1 relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-5 sm:w-5 text-slate-400" />
                 <Input 
-                  placeholder="Search products or scan barcode..." 
-                  className="h-12 pl-12 pr-4 rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:ring-blue-500/10 transition-all placeholder:text-slate-400" 
+                  placeholder="Search products..." 
+                  className="h-9 sm:h-12 pl-9 sm:pl-12 pr-4 rounded-lg sm:rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-[10px] sm:text-sm" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <div className="flex gap-2">
                 <Button 
+                  size="sm"
                   onClick={() => setIsQuickSourceOpen(true)}
-                  className="flex-1 sm:flex-none h-12 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
+                  className="flex-1 sm:flex-none h-9 sm:h-12 px-3 sm:px-6 rounded-lg sm:rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] sm:text-xs uppercase tracking-widest gap-1.5 sm:gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
                 >
-                  <Zap className="h-4 w-4" /> Quick Source
+                  <Zap className="h-3 w-3 sm:h-4 sm:w-4" /> Quick Source
                 </Button>
-                <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
+                <div className="flex bg-white p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-slate-200 shadow-sm shrink-0">
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className={cn("h-10 w-10 rounded-lg transition-all", viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
+                    className={cn("h-7 w-7 sm:h-10 sm:w-10 rounded-md sm:rounded-lg transition-all", viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
                     onClick={() => setViewMode('grid')}
                   >
-                    <LayoutGrid className="h-5 w-5" />
+                    <LayoutGrid className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                   </Button>
                   <Button 
                     variant="ghost" 
                     size="sm"
-                    className={cn("h-10 w-10 rounded-lg transition-all", viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
+                    className={cn("h-7 w-7 sm:h-10 sm:w-10 rounded-md sm:rounded-lg transition-all", viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
                     onClick={() => setViewMode('list')}
                   >
-                    <List className="h-5 w-5" />
+                    <List className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
                   </Button>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1.5 sm:pb-2 no-scrollbar">
               <Button 
                 variant="outline"
                 size="sm"
                 className={cn(
-                  "rounded-full px-6 h-9 font-bold text-[10px] uppercase tracking-wider transition-all shrink-0",
+                  "rounded-full px-3 sm:px-6 h-7 sm:h-9 font-bold text-[8px] sm:text-[10px] uppercase tracking-wider transition-all shrink-0",
                   selectedCategory === null ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 )}
                 onClick={() => setSelectedCategory(null)}
@@ -428,7 +429,7 @@ export default function POSPage() {
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "rounded-full px-6 h-9 font-bold text-[10px] uppercase tracking-wider transition-all shrink-0",
+                    "rounded-full px-3 sm:px-6 h-7 sm:h-9 font-bold text-[8px] sm:text-[10px] uppercase tracking-wider transition-all shrink-0",
                     selectedCategory === cat.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                   )}
                   onClick={() => setSelectedCategory(cat.id)}
@@ -441,17 +442,18 @@ export default function POSPage() {
           
           {/* CATALOG AREA */}
           <div 
-            className="flex-1 w-full overflow-y-auto px-4 sm:px-6 pb-24 custom-scrollbar"
+            className="flex-1 w-full overflow-y-auto px-2 sm:px-6 pb-24 custom-scrollbar"
           >
             
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20 mt-2">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20 mt-1 sm:mt-2">
                 {!products ? (
-                  Array.from({ length: 12 }).map((_, i) => <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-xl" />)
+                  Array.from({ length: 12 }).map((_, i) => <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-lg sm:rounded-xl" />)
                 ) : filteredProducts?.length === 0 ? (
-                  <div className="col-span-full text-center py-10 bg-white rounded-2xl border border-dashed border-slate-200">
-                    <Package className="h-8 w-8 text-slate-200 mx-auto mb-2" />
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">No products found</h3>
+                  <div className="col-span-full text-center py-8 sm:py-12 bg-white rounded-xl sm:rounded-2xl border border-dashed border-slate-200">
+                    <Package className="h-8 w-8 sm:h-10 sm:w-10 text-slate-200 mx-auto mb-2 sm:mb-3" />
+                    <h3 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 sm:mb-2">No products found</h3>
+                    <p className="text-[8px] sm:text-[10px] text-slate-400 px-4 sm:px-6 italic">If you just created a product, please click the "Sync" button in the top header.</p>
                   </div>
                 ) : (
                   filteredProducts?.map((p) => (
@@ -461,20 +463,20 @@ export default function POSPage() {
                       className="group"
                     >
                       <div 
-                        className="cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-400 transition-all h-full flex flex-col p-2 sm:p-3 shadow-sm relative overflow-hidden" 
+                        className="cursor-pointer bg-white rounded-lg sm:rounded-xl border border-slate-200 hover:border-blue-400 transition-all h-full flex flex-col p-1.5 sm:p-3 shadow-sm relative overflow-hidden" 
                         onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1 })}
                       >
-                        <div className="aspect-square bg-slate-50 rounded-lg mb-2 flex items-center justify-center relative overflow-hidden">
-                          <Package className="h-6 w-6 sm:h-8 sm:w-8 text-slate-200 group-hover:text-blue-200 transition-colors" />
+                        <div className="aspect-square bg-slate-50 rounded-md sm:rounded-lg mb-1.5 sm:mb-2 flex items-center justify-center relative overflow-hidden">
+                          <Package className="h-5 w-5 sm:h-8 sm:w-8 text-slate-200 group-hover:text-blue-200 transition-colors" />
                           {p.stockQuantity <= 5 && (
-                             <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-rose-500 text-white text-[8px] font-bold px-1 py-0.5 rounded uppercase">Low</div>
+                             <div className="absolute top-1 right-1 bg-rose-500 text-white text-[7px] sm:text-[8px] font-bold px-1 py-0.5 rounded uppercase">Low</div>
                            )}
                         </div>
 
                         <div className="flex-1 flex flex-col">
-                          <h3 className="font-bold text-[10px] sm:text-[11px] text-slate-900 uppercase tracking-tight line-clamp-2 leading-tight mb-1">{p.name}</h3>
+                          <h3 className="font-bold text-[9px] sm:text-[11px] text-slate-900 uppercase tracking-tight line-clamp-2 leading-tight mb-1">{p.name}</h3>
                           <div className="mt-auto">
-                            <div className="text-blue-600 font-bold text-xs sm:text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
+                            <div className="text-blue-600 font-bold text-[10px] sm:text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
                           </div>
                         </div>
                       </div>
@@ -483,22 +485,22 @@ export default function POSPage() {
                 )}
               </div>
             ) : (
-              <div className="space-y-2 mt-2">
+              <div className="space-y-1.5 sm:space-y-2 mt-1 sm:mt-2">
                 {filteredProducts?.map((p) => (
                   <motion.div 
                     whileHover={{ x: 4, backgroundColor: 'rgba(248, 250, 252, 1)' }}
                     whileTap={{ scale: 0.99 }}
                     key={p.id} 
-                    className="flex items-center gap-4 p-3 bg-white rounded-xl border border-slate-200 cursor-pointer group transition-all"
+                    className="flex items-center gap-2 sm:gap-4 p-1.5 sm:p-3 bg-white rounded-lg sm:rounded-xl border border-slate-200 cursor-pointer group transition-all"
                     onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1 })}
                   >
-                     <div className="h-12 w-12 bg-slate-50 rounded-lg flex items-center justify-center shrink-0 border border-slate-100">
-                        <Package className="h-6 w-6 text-slate-200" />
+                     <div className="h-8 w-8 sm:h-12 sm:w-12 bg-slate-50 rounded-md sm:rounded-lg flex items-center justify-center shrink-0 border border-slate-100">
+                        <Package className="h-4 w-4 sm:h-6 sm:w-6 text-slate-200" />
                      </div>
                      <div className="flex-1 min-w-0">
-                        <div className="font-bold text-slate-900 uppercase text-xs truncate">{p.name}</div>
+                        <div className="font-bold text-slate-900 uppercase text-[9px] sm:text-xs truncate">{p.name}</div>
                      </div>
-                     <div className="font-bold text-blue-600 text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
+                     <div className="font-bold text-blue-600 text-[10px] sm:text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
                   </motion.div>
                 ))}
               </div>
@@ -507,7 +509,7 @@ export default function POSPage() {
         </div>
 
         {/* RIGHT COLUMN: CART & CHECKOUT (30%) */}
-        <div className="w-full lg:w-[400px] h-[50vh] lg:h-auto bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col shrink-0 relative z-20">
+        <div className="w-full lg:w-[400px] h-[35vh] sm:h-[40vh] lg:h-auto bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col shrink-0 relative z-20">
           
           {/* SUMMARY MINI-CHART (Simplified) - HIDDEN ON MOBILE */}
           <div className="hidden lg:block p-6 bg-slate-50 border-b border-slate-200">
