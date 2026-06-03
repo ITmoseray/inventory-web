@@ -438,9 +438,15 @@ export default function POSPage() {
           </div>
           
           {/* CATALOG AREA */}
-          <div className="flex-1 overflow-y-auto px-2 sm:px-6 pb-20 custom-scrollbar min-h-[400px]">
+          <div 
+            className="flex-1 w-full overflow-y-auto px-2 sm:px-6 pb-24 custom-scrollbar"
+            style={{ display: 'flex', flexDirection: 'column', minHeight: '500px' }}
+          >
+            {console.log("DEBUG: Catalog container rendering...")}
+            {console.log("DEBUG: filteredProducts length:", filteredProducts?.length)}
+            
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+              <div className="grid grid-cols-2 gap-2 sm:gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20">
                 {!products ? (
                   Array.from({ length: 12 }).map((_, i) => <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-xl" />)
                 ) : filteredProducts?.length === 0 ? (
@@ -452,27 +458,24 @@ export default function POSPage() {
                   filteredProducts?.map((p) => (
                     <motion.div 
                       layout
-                      whileHover={{ y: -4 }}
-                      whileTap={{ scale: 0.98 }}
                       key={p.id}
                       className="group"
                     >
                       <div 
-                        className="cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-400 transition-all h-full flex flex-col p-3 shadow-sm relative overflow-hidden" 
+                        className="cursor-pointer bg-white rounded-xl border border-slate-200 hover:border-blue-400 transition-all h-full flex flex-col p-2 sm:p-3 shadow-sm relative overflow-hidden" 
                         onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1 })}
                       >
-                        <div className="aspect-square bg-slate-50 rounded-lg mb-3 flex items-center justify-center relative overflow-hidden">
-                          <Package className="h-8 w-8 text-slate-200 group-hover:text-blue-200 transition-colors" />
+                        <div className="aspect-square bg-slate-50 rounded-lg mb-2 flex items-center justify-center relative overflow-hidden">
+                          <Package className="h-6 w-6 sm:h-8 sm:w-8 text-slate-200 group-hover:text-blue-200 transition-colors" />
                           {p.stockQuantity <= 5 && (
-                             <div className="absolute top-2 right-2 bg-rose-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">Low Stock</div>
+                             <div className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-rose-500 text-white text-[8px] font-bold px-1 py-0.5 rounded uppercase">Low</div>
                            )}
                         </div>
 
                         <div className="flex-1 flex flex-col">
-                          <h3 className="font-bold text-[11px] text-slate-900 uppercase tracking-tight line-clamp-2 leading-tight mb-1">{p.name}</h3>
+                          <h3 className="font-bold text-[10px] sm:text-[11px] text-slate-900 uppercase tracking-tight line-clamp-2 leading-tight mb-1">{p.name}</h3>
                           <div className="mt-auto">
-                            <div className="text-blue-600 font-bold text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
-                            <div className="text-[9px] font-bold text-slate-400 uppercase mt-1">{p.stockQuantity} in stock</div>
+                            <div className="text-blue-600 font-bold text-xs sm:text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
                           </div>
                         </div>
                       </div>
@@ -495,12 +498,8 @@ export default function POSPage() {
                      </div>
                      <div className="flex-1 min-w-0">
                         <div className="font-bold text-slate-900 uppercase text-xs truncate">{p.name}</div>
-                        <div className="text-[10px] text-slate-400 font-medium">SKU: {p.sku || 'N/A'} • {p.stockQuantity} in stock</div>
                      </div>
                      <div className="font-bold text-blue-600 text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
-                     <div className="h-8 w-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                        <Plus className="h-4 w-4" />
-                     </div>
                   </motion.div>
                 ))}
               </div>
