@@ -251,7 +251,7 @@ export default function EmployeesPage() {
                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Actions</TableHead>
                </TableRow>
              </TableHeader>
-             <TableBody>
+                 <TableBody>
                {loading ? (
                  Array.from({ length: 3 }).map((_, i) => <TableRow key={i} className="h-24 border-b border-slate-50 animate-pulse"><TableCell colSpan={4} /></TableRow>)
                ) : filteredUsers.length === 0 ? (
@@ -266,24 +266,24 @@ export default function EmployeesPage() {
                      <TableCell className="px-8">
                         <div className="flex items-center gap-4">
                            <Avatar className="h-12 w-12 rounded-2xl border-2 border-white dark:border-slate-800 shadow-md">
-                              <AvatarFallback className={cn("rounded-2xl text-white font-black text-sm", colors.primary)}>{u.name?.charAt(0) || "U"}</AvatarFallback>
+                              <AvatarFallback className={cn("rounded-2xl text-white font-black text-sm", colors.primary)}>{String(u.name || "U").charAt(0)}</AvatarFallback>
                            </Avatar>
                            <div>
-                              <div className="font-black text-slate-900 dark:text-white tracking-tight">{u.name}</div>
+                              <div className="font-black text-slate-900 dark:text-white tracking-tight">{String(u.name || "")}</div>
                               <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                                 <Mail size={10} /> {u.email}
+                                 <Mail size={10} /> {String(u.email || "")}
                               </div>
                            </div>
                         </div>
                      </TableCell>
                      <TableCell>
                         <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
-                           u.roleName === 'ADMIN' ? "bg-indigo-500/10 text-indigo-600 border border-indigo-200/50" : "bg-slate-100 text-slate-600 border border-slate-200")}>
-                           <Shield size={10} /> {u.roleName}
+                           String(u.roleName || "") === 'ADMIN' ? "bg-indigo-500/10 text-indigo-600 border border-indigo-200/50" : "bg-slate-100 text-slate-600 border border-slate-200")}>
+                           <Shield size={10} /> {String(u.roleName || "Staff")}
                         </div>
                      </TableCell>
                      <TableCell>
-                        <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{format(new Date(u.createdAt), "MMM dd, yyyy")}</div>
+                        <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{u.createdAt ? format(new Date(u.createdAt), "MMM dd, yyyy") : ""}</div>
                      </TableCell>
                      <TableCell className="text-right pr-8">
                         <div className="flex justify-end gap-2">
@@ -292,7 +292,7 @@ export default function EmployeesPage() {
                            </Button>
                            <Button variant="ghost" size="sm" onClick={() => handleDelete(u.id)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-500 transition-all">
                               <Trash2 size={14} />
-                           </Button>
+                          </Button>
                         </div>
                      </TableCell>
                    </TableRow>
