@@ -204,7 +204,7 @@ export default function DashboardPage() {
       </motion.div>
       
       {/* KPI Cards */}
-      <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5" id="dashboard-stats">
+      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" id="dashboard-stats">
         <StatCard 
           title="Total Revenue" 
           value={stats.revenue} 
@@ -255,13 +255,13 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
+      <div className="grid gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-3">
         {/* Trend Chart */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.55 }}
-          className="lg:col-span-2"
+          className="lg:col-span-2 w-full overflow-hidden"
         >
           <TrendChart 
             data={chartData} 
