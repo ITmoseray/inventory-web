@@ -35,7 +35,26 @@ import { cn, getIndustryColor } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const PLANS = [
-// ...
+  {
+    id: "FREE",
+    name: "Essential",
+    price: "0",
+    features: ["1 Business Profile", "Up to 100 Products", "1 Admin User", "Offline POS Core"],
+  },
+  {
+    id: "BASIC",
+    name: "Professional",
+    price: "150,000",
+    features: ["Unlimited Products", "Up to 5 Staff Users", "Advanced Analytics", "Priority Sync"],
+  },
+  {
+    id: "PREMIUM",
+    name: "Hospitality",
+    price: "450,000",
+    features: ["Unlimited Team Users", "Restaurant Modules", "Pharmacy Guard", "24/7 VIP Support"],
+  },
+];
+
 export default function SettingsPage() {
   const { data: session } = useSession();
   const [subscription, setSubscription] = useState<any>(null);
