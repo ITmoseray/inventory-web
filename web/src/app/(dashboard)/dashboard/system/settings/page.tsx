@@ -29,35 +29,19 @@ import {
 import { toast } from "sonner";
 import { getSubscription, createSubscription } from "@/lib/actions/subscription";
 import { getUsers, createUser, deleteUser, changePassword, getRoles } from "@/lib/actions/user";
+import { getPermissions } from "@/lib/actions/role";
 import { useSession } from "next-auth/react";
 import { cn, getIndustryColor } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const PLANS = [
-  {
-    id: "FREE",
-    name: "Essential",
-    price: "0",
-    features: ["1 Business Profile", "Up to 100 Products", "1 Admin User", "Offline POS Core"],
-  },
-  {
-    id: "BASIC",
-    name: "Professional",
-    price: "150,000",
-    features: ["Unlimited Products", "Up to 5 Staff Users", "Advanced Analytics", "Priority Sync"],
-  },
-  {
-    id: "PREMIUM",
-    name: "Hospitality",
-    price: "450,000",
-    features: ["Unlimited Team Users", "Restaurant Modules", "Pharmacy Guard", "24/7 VIP Support"],
-  },
-];
-
+// ...
 export default function SettingsPage() {
   const { data: session } = useSession();
   const [subscription, setSubscription] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
+  const [permissions, setPermissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   const businessType = session?.user?.businessType || "SHOP";
@@ -74,14 +58,16 @@ export default function SettingsPage() {
   async function fetchData() {
     try {
       setLoading(true);
-      const [sub, team, rolesData] = await Promise.all([
+      const [sub, team, rolesData, permissionsData] = await Promise.all([
         getSubscription(), 
         getUsers(),
-        getRoles()
+        getRoles(),
+        getPermissions()
       ]);
       setSubscription(sub);
       setUsers(team);
       setRoles(rolesData);
+      setPermissions(permissionsData);
       if (rolesData.length > 0 && !userData.roleId) {
         setUserData(prev => ({ ...prev, roleId: rolesData[0].id }));
       }
