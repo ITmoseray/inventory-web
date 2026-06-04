@@ -57,7 +57,6 @@ export default function EmployeesPage() {
   const { data: session } = useSession();
   const [users, setUsers] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
-  const [permissions, setPermissions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -66,8 +65,7 @@ export default function EmployeesPage() {
     name: "",
     email: "",
     password: "",
-    roleId: "",
-    selectedPermissions: [] as string[]
+    roleId: ""
   });
 
   const businessType = session?.user?.businessType || "SHOP";
@@ -80,16 +78,16 @@ export default function EmployeesPage() {
   async function fetchData() {
     try {
       setLoading(true);
-      const [userData, rolesData, permissionsData] = await Promise.all([
+      const [userData, rolesData] = await Promise.all([
         getUsers(),
-        getRoles(),
-        getPermissions()
+        getRoles()
       ]);
       setUsers(userData);
       setRoles(rolesData);
-      setPermissions(permissionsData);
-      if (rolesData.length > 0 && !formData.roleId) {
-        setFormData(prev => ({ ...prev, roleId: rolesData[0].id }));
+      
+      const employeeRole = rolesData.find(r => r.name === "Employee");
+      if (employeeRole && !formData.roleId) {
+        setFormData(prev => ({ ...prev, roleId: employeeRole.id }));
       }
     } catch (error) {
       toast.error("Failed to sync personnel data.");
@@ -104,12 +102,15 @@ export default function EmployeesPage() {
       await createUser(formData);
       toast.success("Employee node initialized successfully.");
       setIsAddOpen(false);
-      setFormData({ name: "", email: "", password: "", roleId: roles[0]?.id || "", selectedPermissions: [] });
+      setFormData({ name: "", email: "", password: "", roleId: roles.find(r => r.name === "Employee")?.id || "" });
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to initialize employee node.");
     }
   }
+
+  // ... rest of the component (rest of the UI, excluding the permission checkbox logic) ...
+
 
   async function handleDelete(id: string) {
     if (!confirm("Are you sure you want to terminate this employee session?")) return;
@@ -181,29 +182,6 @@ export default function EmployeesPage() {
                           ))}
                        </SelectContent>
                     </Select>
-                 </div>
-                 
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Granular Permissions</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-2">
-                      {permissions.map((p) => (
-                        <div key={p.id} className="flex items-center space-x-2">
-                          <Checkbox 
-                            id={p.id} 
-                            checked={formData.selectedPermissions.includes(p.id)}
-                            onCheckedChange={(checked) => {
-                              setFormData(prev => ({
-                                ...prev,
-                                selectedPermissions: checked 
-                                  ? [...prev.selectedPermissions, p.id]
-                                  : prev.selectedPermissions.filter(id => id !== p.id)
-                              }));
-                            }}
-                          />
-                          <Label htmlFor={p.id} className="text-xs cursor-pointer">{p.key}</Label>
-                        </div>
-                      ))}
-                    </div>
                  </div>
 
                  <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl mt-4", colors.primary)}>

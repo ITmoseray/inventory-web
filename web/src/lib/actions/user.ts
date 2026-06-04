@@ -59,7 +59,7 @@ export async function getRoles() {
   }
 }
 
-export async function createUser(data: { name: string; email: string; password: string; roleId: string; selectedPermissions: string[] }) {
+export async function createUser(data: { name: string; email: string; password: string; roleId: string }) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
@@ -92,12 +92,30 @@ export async function createUser(data: { name: string; email: string; password: 
     const passwordHash = await bcrypt.hash(data.password, 10);
     const verificationToken = generateVerificationToken();
 
-    // 3. Update Role permissions based on selection
+    // 3. Find the 'Employee' role (or default to the provided one, but force limited permissions)
+    const employeeRole = await prisma.role.findFirst({
+        where: { name: "Employee" }
+    });
+
+    if (!employeeRole) throw new Error("Employee role not defined. Please contact admin.");
+
+    // 4. Force employee permissions
+    const restrictedPermissions = [
+        "sales", "products", "categories", "stock-history", "expiry-tracking", 
+        "suppliers", "sales-history", "sales-orders", "credit-sales", 
+        "returns", "notifications", "settings", "support", "manual"
+    ];
+    
+    // Find permission IDs for these keys (assuming they exist in the DB)
+    const permissions = await prisma.permission.findMany({
+        where: { key: { in: restrictedPermissions } }
+    });
+
     await prisma.role.update({
-      where: { id: data.roleId },
+      where: { id: employeeRole.id },
       data: {
         permissions: {
-          set: data.selectedPermissions.map(id => ({ id }))
+          set: permissions.map(p => ({ id: p.id }))
         }
       }
     });
@@ -107,7 +125,7 @@ export async function createUser(data: { name: string; email: string; password: 
         name: data.name,
         email: data.email,
         passwordHash,
-        roleId: data.roleId,
+        roleId: employeeRole.id,
         businessId: businessId,
         verificationToken,
       },
@@ -117,7 +135,7 @@ export async function createUser(data: { name: string; email: string; password: 
       action: "CREATE",
       entity: "USER",
       entityId: user.id,
-      newData: { name: user.name, email: user.email, roleId: user.roleId }
+      newData: { name: user.name, email: user.email, roleId: employeeRole.id }
     });
 
     await sendVerificationEmail(data.email, verificationToken);
