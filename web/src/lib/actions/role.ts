@@ -4,6 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
+export async function getRoles() {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  return await prisma.role.findMany({
+    where: { businessId: session.user.businessId },
+    include: { permissions: true }
+  });
+}
+
 export async function getPermissions() {
   return await prisma.permission.findMany({
     orderBy: { key: "asc" }

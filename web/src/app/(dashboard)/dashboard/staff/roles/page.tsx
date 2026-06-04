@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { getRoles, deleteRole, createRole, updateRole } from "@/lib/actions/user"; // assuming getRoles is here
+import { getRoles, deleteRole, createRole, updateRole } from "@/lib/actions/role";
 import { getPermissions } from "@/lib/actions/role";
 import { cn } from "@/lib/utils";
 
@@ -55,8 +55,7 @@ export default function RolesPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-black">Roles & Permissions</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="rounded-xl font-black"><Plus className="mr-2 h-4 w-4" /> Add Role</Button>
+          <DialogTrigger render={<Button className="rounded-xl font-black"><Plus className="mr-2 h-4 w-4" /> Add Role</Button>}>
           </DialogTrigger>
           <DialogContent className="max-w-xl">
              <form onSubmit={handleSubmit} className="space-y-4">
