@@ -178,7 +178,7 @@ export default function CreditSalesPage() {
          </div>
       </CardContent>
 
-      {/* Payment Dialog */
+      {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
         <DialogContent className="sm:max-w-md rounded-3xl p-8">
           <DialogHeader>
