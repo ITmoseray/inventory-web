@@ -92,33 +92,43 @@ export async function createUser(data: { name: string; email: string; password: 
     const passwordHash = await bcrypt.hash(data.password, 10);
     const verificationToken = generateVerificationToken();
 
-    // 3. Find the 'Employee' role (or default to the provided one, but force limited permissions)
-    const employeeRole = await prisma.role.findFirst({
-        where: { name: "Employee" }
+    // 3. Find/Create the 'Employee' role and ensure permissions
+    let employeeRole = await prisma.role.findFirst({
+        where: { businessId: businessId, name: "Employee" }
     });
 
-    if (!employeeRole) throw new Error("Employee role not defined. Please contact admin.");
-
-    // 4. Force employee permissions
     const restrictedPermissions = [
         "sales", "products", "categories", "stock-history", "expiry-tracking", 
         "suppliers", "sales-history", "sales-orders", "credit-sales", 
         "returns", "notifications", "settings", "support", "manual"
     ];
     
-    // Find permission IDs for these keys (assuming they exist in the DB)
+    // Find permission IDs for these keys
     const permissions = await prisma.permission.findMany({
         where: { key: { in: restrictedPermissions } }
     });
 
-    await prisma.role.update({
-      where: { id: employeeRole.id },
-      data: {
-        permissions: {
-          set: permissions.map(p => ({ id: p.id }))
-        }
-      }
-    });
+    if (!employeeRole) {
+        employeeRole = await prisma.role.create({
+            data: {
+                name: "Employee",
+                businessId: businessId,
+                permissions: {
+                    connect: permissions.map(p => ({ id: p.id }))
+                }
+            }
+        });
+    } else {
+        // Update permissions for existing Employee role
+        await prisma.role.update({
+            where: { id: employeeRole.id },
+            data: {
+                permissions: {
+                    set: permissions.map(p => ({ id: p.id }))
+                }
+            }
+        });
+    }
 
     const user = await prisma.user.create({
       data: {
