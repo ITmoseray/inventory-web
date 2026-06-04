@@ -2,40 +2,56 @@ import { prisma } from "./src/lib/prisma";
 
 async function main() {
   const permissions = [
-    { key: "product:create" },
-    { key: "product:edit" },
-    { key: "product:delete" },
-    { key: "sales:create" },
-    { key: "sales:view" },
-    { key: "sales:void" },
-    { key: "sales:history" },
-    { key: "inventory:view" },
-    { key: "inventory:edit" },
-    { key: "inventory:stock_adjust" },
-    { key: "staff:view" },
-    { key: "staff:edit" },
-    { key: "staff:payroll" },
-    { key: "reports:view" },
-    { key: "reports:export" },
-    { key: "accounting:view" },
-    { key: "accounting:edit" },
-    { key: "system:settings" },
-    { key: "system:audit_logs" },
-    
-    // Sidebar Menu Access Permissions
+    // Menu Access Permissions
     { key: "menu:overview" },
     { key: "menu:intelligence_hub" },
     { key: "menu:analytics" },
     { key: "menu:reports" },
+    
     { key: "menu:inventory" },
+    { key: "menu:inventory:products" },
+    { key: "menu:inventory:network" },
+    { key: "menu:inventory:categories" },
+    { key: "menu:inventory:batches" },
+    { key: "menu:inventory:history" },
+    { key: "menu:inventory:expiry" },
+    
     { key: "menu:purchases" },
+    { key: "menu:purchases:suppliers" },
+    { key: "menu:purchases:orders" },
+    { key: "menu:purchases:returns" },
+    
     { key: "menu:sales" },
+    { key: "menu:sales:pos" },
+    { key: "menu:sales:history" },
+    { key: "menu:sales:orders" },
+    { key: "menu:sales:credit" },
+    { key: "menu:sales:returns" },
+    
     { key: "menu:customers" },
+    { key: "menu:customers:registry" },
+    { key: "menu:customers:loyalty" },
+    { key: "menu:customers:profiles" },
+    
     { key: "menu:accounting" },
-    { key: "menu:billing" },
+    { key: "menu:accounting:expenses" },
+    { key: "menu:accounting:pl" },
+    { key: "menu:accounting:cashflow" },
+    { key: "menu:accounting:billing" },
+    
     { key: "menu:staff" },
+    { key: "menu:staff:employees" },
+    { key: "menu:staff:attendance" },
+    { key: "menu:staff:payroll" },
+    
     { key: "menu:system" },
-    { key: "menu:manual" },
+    { key: "menu:system:logs" },
+    { key: "menu:system:notifications" },
+    { key: "menu:system:settings" },
+    
+    { key: "menu:support" },
+    { key: "menu:support:manual" },
+    { key: "menu:support:pricing" },
   ];
 
   for (const p of permissions) {

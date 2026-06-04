@@ -17,7 +17,11 @@ export async function getProductProfitability(start: Date, end: Date) {
           paymentStatus: 'PAID'
         }
       },
-      include: {
+      select: {
+        productId: true,
+        productName: true,
+        quantity: true,
+        total: true,
         product: {
           select: { name: true, costPrice: true }
         }

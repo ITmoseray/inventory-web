@@ -98,10 +98,11 @@ export default function DashboardPage() {
 
       const todaysSales = sales.filter(s => isToday(new Date(s.createdAt)));
 
-      setRecentSales(sales);
+      const paidSales = sales.filter((s: any) => s.paymentStatus === 'PAID');
+      setRecentSales(paidSales);
       setStats({
         revenue: totalRevenue,
-        orders: sales.length,
+        orders: paidSales.length,
         skuCount: products.length,
         lowStock: lowStockCount,
         expiringItems: expiringCount,

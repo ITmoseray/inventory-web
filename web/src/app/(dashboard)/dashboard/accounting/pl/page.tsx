@@ -17,12 +17,17 @@ export default function ProfitLossPage() {
   useEffect(() => {
     const end = new Date();
     const start = subDays(end, 30);
+    console.log("DEBUG: Fetching P&L data...");
     Promise.all([
       getProfitLossData(start, end),
       getProductProfitability(start, end)
     ]).then(([pl, products]) => {
+      console.log("DEBUG: P&L Data received:", pl);
       setData(pl);
       setProductData(products);
+      setLoading(false);
+    }).catch(err => {
+      console.error("DEBUG: P&L Fetch Error:", err);
       setLoading(false);
     });
   }, []);

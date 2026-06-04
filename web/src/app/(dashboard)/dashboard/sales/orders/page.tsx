@@ -44,7 +44,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { getSalesOrderSummary } from "@/lib/actions/sales-summary";
+import { getSalesOrderSummaryAll } from "@/lib/actions/sales-summary-all";
 import { getSalesHistoryByRange, getOrderStatusHistory, updateSaleStatus } from "@/lib/actions/sale";
 import { getBusinessProfile } from "@/lib/actions/business";
 import Link from "next/link";
@@ -104,8 +104,9 @@ export default function SalesOrdersPage() {
           start = subDays(now, 30);
       }
       
+      // Fetch summary including all sales for breakdown, but filtering PAID revenue
       const [summaryData, salesData, businessData] = await Promise.all([
-        getSalesOrderSummary(start, end).catch(e => { console.error("Summary Sync Failed:", e); throw e; }),
+        getSalesOrderSummaryAll(start, end).catch(e => { console.error("Summary Sync Failed:", e); throw e; }),
         getSalesHistoryByRange(start, end).catch(e => { console.error("History Sync Failed:", e); throw e; }),
         getBusinessProfile().catch(e => { console.error("Business Profile Sync Failed:", e); throw e; })
       ]);
@@ -113,7 +114,7 @@ export default function SalesOrdersPage() {
       const paidSales = salesData.filter((s: any) => s.paymentStatus === 'PAID');
       const totalAmount = paidSales.reduce((sum: number, s: any) => sum + parseFloat(s.totalAmount), 0);
       
-      setSummary({ totalOrders: paidSales.length, totalAmount: totalAmount, statusSummary: summaryData.statusSummary });
+      setSummary({ totalOrders: salesData.length, totalAmount: totalAmount, statusSummary: summaryData.statusSummary });
       setSales(salesData);
       setBusiness(businessData);
     } catch (error: any) {

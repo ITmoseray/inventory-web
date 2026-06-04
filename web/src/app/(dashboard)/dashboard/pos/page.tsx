@@ -148,31 +148,31 @@ export default function POSPage() {
 
   const categories = useLiveQuery(() => db.categories.toArray());
 
-  const filteredProducts = products?.filter(p => 
+  const filteredProducts = useMemo(() => products?.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase())) ||
     ((p as any).barcode && (p as any).barcode.includes(searchQuery))
-  );
+  ), [products, searchQuery]);
 
   const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
   const tax = total * 0.15; // 15% GST example
   const grandTotal = total + tax;
 
 // Live Analytics Logic
-  const pendingSales = useLiveQuery(() => db.pendingSales.toArray());
+  const pendingSales = useLiveQuery(() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return db.pendingSales.where('createdAt').above(today.getTime()).toArray();
+  }, []);
   
   const analytics = useMemo(() => {
     if (!pendingSales) return { todayTotal: 0, chartData: [] };
     
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    
-    const todaysPending = pendingSales.filter(s => new Date(s.createdAt).getTime() >= today.getTime());
-    const total = todaysPending.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+    const total = pendingSales.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
     
     // Group by hour for chart
     const groups: Record<string, number> = {};
-    todaysPending.forEach(s => {
+    pendingSales.forEach(s => {
       const hour = format(new Date(s.createdAt), "HH:00");
       groups[hour] = (groups[hour] || 0) + (s.totalAmount || 0);
     });
