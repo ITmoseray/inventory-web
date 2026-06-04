@@ -39,20 +39,27 @@ export async function syncLowStockNotifications() {
     const notifiedTitles = new Set(recentlyNotified.map(n => n.title));
     let createdCount = 0;
 
-    for (const product of lowStockProducts) {
+    // Filter to products not yet notified recently
+    const productsToNotify = lowStockProducts.filter(p => !notifiedTitles.has(`Critical Low Stock: ${p.name}`));
+
+    if (productsToNotify.length > 0) {
+      const product = productsToNotify[0];
+      const otherCount = productsToNotify.length - 1;
       const alertTitle = `Critical Low Stock: ${product.name}`;
       
-      if (!notifiedTitles.has(alertTitle)) {
-        await createNotification({
-          title: alertTitle,
-          message: `Product "${product.name}" is at ${product.stockQuantity} units. Minimum required: ${product.minStockLevel}. Please restock immediately.`,
-          type: "ERROR"
-        });
-        
-        // We also create a special hidden tracking notification or just use the title to track
-        // Actually, let's just use the type "LOW_STOCK_CRITICAL" in createNotification
-        createdCount++;
+      let message = `Product "${product.name}" is at ${product.stockQuantity} units. Minimum required: ${product.minStockLevel}.`;
+      if (otherCount > 0) {
+        message += ` (Note: ${otherCount} other product(s) are also low on stock)`;
       }
+      message += ` Please restock immediately.`;
+
+      await createNotification({
+        title: alertTitle,
+        message: message,
+        type: "ERROR"
+      });
+      
+      createdCount = 1;
     }
 
     return { success: true, count: createdCount };

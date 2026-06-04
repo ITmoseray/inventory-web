@@ -30,8 +30,7 @@ export function ToastManager() {
 
   async function runSyncAndFetch() {
     try {
-      // 1. Trigger server-side stock scan (throttled to once every hour per client session to be safe, 
-      // though the server action already throttles to 4 hours)
+      // 1. Trigger server-side stock scan
       const now = Date.now();
       if (now - lastCheckRef.current > 60 * 60 * 1000) {
         await syncLowStockNotifications();
@@ -42,13 +41,17 @@ export function ToastManager() {
       const notifications = await getNotifications();
       const unread = notifications.filter((n: any) => !n.isRead);
 
-      // 3. Show toasts for new ones
-      unread.forEach((n: any) => {
-        if (!notifiedIdsRef.current.has(n.id)) {
-          showNotificationToast(n);
-          notifiedIdsRef.current.add(n.id);
+      // 3. Only show toast for the most recent unread notification if not already shown
+      if (unread.length > 0) {
+        // Sort by createdAt descending to get the newest
+        unread.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const latest = unread[0];
+
+        if (!notifiedIdsRef.current.has(latest.id)) {
+          showNotificationToast(latest);
+          notifiedIdsRef.current.add(latest.id);
         }
-      });
+      }
     } catch (error) {
       console.error("Toast Sync Error:", error);
     }
