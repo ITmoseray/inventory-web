@@ -49,7 +49,7 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
   return (
     <div className="space-y-4">
       {preview ? (
-        <div className="relative group w-full aspect-square max-w-[200px] mx-auto overflow-hidden rounded-2xl border-4 border-white dark:border-slate-800 shadow-xl">
+        <div className="relative group w-full aspect-square max-w-[200px] mx-auto overflow-hidden rounded-2xl border-4 border-white dark:border-slate-800 shadow-xl bg-[url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAGUlEQVQYV2NkYGD4z8DAwMgADYwD6CDGKIECACZ1DuoPs8YyAAAAAElFTkSuQmCC')] bg-repeat">
           <Image 
             src={preview} 
             alt="Preview" 
