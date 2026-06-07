@@ -1,7 +1,7 @@
 import { 
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
-  CreditCard, Book, DollarSign, UserCheck, ClipboardList 
+  CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, Pill, Stethoscope, Tag, Cpu
 } from "lucide-react";
 
 export const shopSidebarConfig = [
@@ -56,7 +56,7 @@ export const shopSidebarConfig = [
           { title: "Launch POS", url: "/dashboard/pos" },
           { title: "Sales History", url: "/dashboard/sales/history" },
           { title: "Sales Orders", url: "/dashboard/sales/orders" },
-          { title: "Credit Sales", url: "/dashboard/sales/credit" },
+          { title: "Credit Sales", url: "/dashboard/customers/debts" },
           { title: "Returns", url: "/dashboard/sales/returns" },
         ],
       },
