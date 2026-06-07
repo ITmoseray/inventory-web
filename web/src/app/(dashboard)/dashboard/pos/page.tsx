@@ -77,16 +77,6 @@ import {
 } from "recharts";
 import { Badge } from "@/components/ui/badge";
 
-// Mock data for analytics intelligence
-const salesData = [
-  { time: '08:00', amount: 450 },
-  { time: '10:00', amount: 890 },
-  { time: '12:00', amount: 1200 },
-  { time: '14:00', amount: 760 },
-  { time: '16:00', amount: 1450 },
-  { time: '18:00', amount: 980 },
-];
-
 export default function POSPage() {
   const router = useRouter();
   const cart = usePOSStore((state) => state.cart);
@@ -130,7 +120,6 @@ export default function POSPage() {
   useEffect(() => {
     setIsMounted(true);
     fetchCustomers();
-    // Trigger sync on mount to ensure local DB reflects latest server changes
     initialSync();
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -164,34 +153,8 @@ export default function POSPage() {
     ((p as any).barcode && (p as any).barcode.includes(searchQuery))
   ), [products, searchQuery]);
 
-  const total = useMemo(() => cart.reduce((sum, item) => sum + item.price * item.quantity, 0), [cart]);
-  const tax = total * 0.15; // 15% GST example
+  const tax = total * 0.15;
   const grandTotal = total + tax;
-
-// Live Analytics Logic
-  const pendingSales = useLiveQuery(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return db.pendingSales.where('createdAt').above(today.getTime()).toArray();
-  }, []);
-  
-  const analytics = useMemo(() => {
-    if (!pendingSales) return { todayTotal: 0, chartData: [] };
-    
-    const total = pendingSales.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
-    
-    // Group by hour for chart
-    const groups: Record<string, number> = {};
-    pendingSales.forEach(s => {
-      const hour = format(new Date(s.createdAt), "HH:00");
-      groups[hour] = (groups[hour] || 0) + (s.totalAmount || 0);
-    });
-    
-    const chartData = Object.entries(groups).map(([time, amount]) => ({ time, amount }))
-      .sort((a, b) => a.time.localeCompare(b.time));
-      
-    return { todayTotal: total, chartData };
-  }, [pendingSales]);
 
   async function handleCheckout() {
     if (cart.length === 0) {
@@ -225,7 +188,6 @@ export default function POSPage() {
         amountPaid: paymentStatus === "PAID" ? grandTotal : amountPaid,
       };
 
-      // Final stock check
       for (const item of cart) {
         if (!item.isExternal) {
           const p = products?.find(prod => prod.id === item.id);
@@ -308,362 +270,89 @@ export default function POSPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-white text-slate-900 rounded-xl border border-slate-200 overflow-hidden shadow-sm relative">
-      
-      {/* BACKGROUND DECOR */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 blur-[120px] rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-
-      {/* PROFESSIONAL HEADER */}
-      <header className="p-4 bg-white border-b border-slate-200 flex flex-col md:flex-row justify-between items-center shrink-0 z-20 gap-4">
-        <div className="flex items-center gap-4">
-          <motion.div 
-            whileHover={{ scale: 1.05 }}
-            className="h-12 w-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-md cursor-pointer"
-          >
-            <ShoppingCart className="h-6 w-6 text-white" />
-          </motion.div>
+    <div className="flex flex-col h-[100dvh] bg-white text-slate-900 overflow-hidden relative">
+      <header className="p-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 z-20">
+        <div className="flex items-center gap-2">
+          <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center shadow-md">
+            <ShoppingCart className="h-4 w-4 text-white" />
+          </div>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold tracking-tight text-slate-900">Point of Sale</h1>
-              <div className="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-[10px] font-bold text-slate-600 uppercase tracking-widest">Enterprise</div>
-            </div>
-            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mt-0.5 flex items-center gap-2">
-              <CheckCircle2 className="h-3 w-3 text-emerald-500" /> System Synchronized • {format(currentTime, "PPP")}
-            </p>
+            <h1 className="text-sm font-bold tracking-tight text-slate-900">POS</h1>
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="hidden xl:flex items-center gap-4 pr-4 border-r border-slate-200">
-            <div className="text-right">
-              <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none">Active Session</div>
-              <div className="text-sm font-bold text-slate-900 mt-1">Morning Shift Alpha</div>
-            </div>
-            <div className="h-10 w-10 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-200">
-              <Clock className="h-5 w-5 text-blue-500" />
-            </div>
-            <div className="text-lg font-bold text-slate-900 tracking-tight tabular-nums">
-              {isMounted ? format(currentTime, "HH:mm:ss") : "00:00:00"}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 cursor-pointer hover:bg-slate-100 transition-all group">
-              <div className="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center">
-                <Store className="h-4 w-4 text-slate-600" />
-              </div>
-              <div className="text-left">
-                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Branch</div>
-                <div className="text-xs font-bold text-slate-900">Main Terminal</div>
-              </div>
-              <ChevronDown className="h-4 w-4 text-slate-400 ml-1" />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button 
+        <div className="flex items-center gap-2">
+            <Button 
                 variant="outline" 
                 size="sm" 
                 onClick={initialSync} 
                 disabled={isSyncing} 
-                className="h-10 px-4 rounded-xl border-slate-200 bg-white text-slate-700 font-bold text-[10px] uppercase tracking-wider gap-2 hover:bg-slate-50 transition-all"
-              >
-                <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin")} />
+                className="h-8 px-3 rounded-lg border-slate-200 bg-white text-[9px] font-bold uppercase tracking-wider gap-1.5"
+            >
+                <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} />
                 Sync
-              </Button>
-              <div className="h-10 w-10 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-center cursor-pointer hover:bg-slate-100 transition-all">
-                <User className="h-5 w-5 text-slate-600" />
-              </div>
-            </div>
-          </div>
+            </Button>
         </div>
       </header>
 
       <div className="flex flex-col lg:flex-row flex-1 overflow-hidden relative z-10">
-        
-        {/* LEFT COLUMN: CATALOG & CART (70%) */}
         <div className="flex-1 flex flex-col overflow-hidden bg-slate-50 min-h-0">
-          
-          {/* SEARCH & FILTERS - Optimized for mobile */}
-          <div className="p-2 sm:p-6 pb-2 space-y-2 sm:space-y-4 shrink-0">
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
-              <div className="flex-1 relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-5 sm:w-5 text-slate-400" />
+          <div className="p-2 pb-1 space-y-1 shrink-0">
+            <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
                 <Input 
-                  placeholder="Search products..." 
-                  className="h-9 sm:h-12 pl-9 sm:pl-12 pr-4 rounded-lg sm:rounded-xl border-slate-200 bg-white text-slate-900 shadow-sm focus:ring-blue-500/10 transition-all placeholder:text-slate-400 text-[10px] sm:text-sm" 
+                  placeholder="Search..." 
+                  className="h-9 pl-8 pr-3 rounded-lg border-slate-200 bg-white text-[11px] shadow-sm" 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-              </div>
-              <div className="flex gap-2">
-                <Button 
-                  size="sm"
-                  onClick={() => setIsQuickSourceOpen(true)}
-                  className="flex-1 sm:flex-none h-9 sm:h-12 px-3 sm:px-6 rounded-lg sm:rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] sm:text-xs uppercase tracking-widest gap-1.5 sm:gap-2 shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
-                >
-                  <Zap className="h-3 w-3 sm:h-4 sm:w-4" /> Quick Source
-                </Button>
-                <div className="flex bg-white p-0.5 sm:p-1 rounded-lg sm:rounded-xl border border-slate-200 shadow-sm shrink-0">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className={cn("h-7 w-7 sm:h-10 sm:w-10 rounded-md sm:rounded-lg transition-all", viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
-                    onClick={() => setViewMode('grid')}
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className={cn("h-7 w-7 sm:h-10 sm:w-10 rounded-md sm:rounded-lg transition-all", viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500")}
-                    onClick={() => setViewMode('list')}
-                  >
-                    <List className="h-3.5 w-3.5 sm:h-5 sm:w-5" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1.5 sm:pb-2 no-scrollbar">
-              <Button 
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "rounded-full px-3 sm:px-6 h-7 sm:h-9 font-bold text-[8px] sm:text-[10px] uppercase tracking-wider transition-all shrink-0",
-                  selectedCategory === null ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                )}
-                onClick={() => setSelectedCategory(null)}
-              >
-                All Products
-              </Button>
-              {categories?.map((cat) => (
-                <Button 
-                  key={cat.id}
-                  variant="outline"
-                  size="sm"
-                  className={cn(
-                    "rounded-full px-3 sm:px-6 h-7 sm:h-9 font-bold text-[8px] sm:text-[10px] uppercase tracking-wider transition-all shrink-0",
-                    selectedCategory === cat.id ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
-                  )}
-                  onClick={() => setSelectedCategory(cat.id)}
-                >
-                  {cat.name}
-                </Button>
-              ))}
             </div>
           </div>
           
-          {/* CATALOG AREA */}
-          <div 
-            className="flex-1 w-full overflow-y-auto px-2 sm:px-6 pb-24 custom-scrollbar"
-          >
-            
-            {viewMode === 'grid' ? (
-              <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 pb-20 mt-1 sm:mt-2">
-                {!products ? (
-                  Array.from({ length: 12 }).map((_, i) => <div key={i} className="aspect-square bg-slate-100 animate-pulse rounded-lg sm:rounded-xl" />)
-                ) : filteredProducts?.length === 0 ? (
-                  <div className="col-span-full text-center py-8 sm:py-12 bg-white rounded-xl sm:rounded-2xl border border-dashed border-slate-200">
-                    <Package className="h-8 w-8 sm:h-10 sm:w-10 text-slate-200 mx-auto mb-2 sm:mb-3" />
-                    <h3 className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest mb-1 sm:mb-2">No products found</h3>
-                    <p className="text-[8px] sm:text-[10px] text-slate-400 px-4 sm:px-6 italic">If you just created a product, please click the "Sync" button in the top header.</p>
-                  </div>
-                ) : (
-                  filteredProducts?.map((p) => (
-                    <motion.div 
-                      layout
-                      key={p.id}
-                      className="group"
-                    >
-                      <div 
-                      className="cursor-pointer bg-white rounded-lg sm:rounded-xl border border-slate-200 hover:border-blue-400 transition-all h-full flex flex-col p-1.5 sm:p-3 shadow-sm relative overflow-hidden" 
-                      onClick={() => {
-                        if (p.stockQuantity <= 0) {
-                          toast.error("Product is out of stock!");
-                          return;
-                        }
-                        addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1, imageUrl: p.imageUrl });
-                      }}
-
-                      >
-                        <div className="aspect-square bg-slate-50 rounded-md sm:rounded-lg mb-1.5 sm:mb-2 flex items-center justify-center relative overflow-hidden">
-                          {p.imageUrl ? (
-                            <Image 
-                              src={p.imageUrl} 
-                              alt={p.name} 
-                              fill 
-                              className="object-cover transition-transform group-hover:scale-110"
-                              unoptimized 
-                            />
-                          ) : (
-
-                            <Package className="h-5 w-5 sm:h-8 sm:w-8 text-slate-200 group-hover:text-blue-200 transition-colors" />
-                          )}
-                          <div className="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-sm text-white text-[7px] sm:text-[8px] font-bold px-1.5 py-0.5 rounded uppercase z-10">Stock: {p.stockQuantity}</div>
-                          {p.stockQuantity <= 5 && (
-                             <div className="absolute top-1 right-1 bg-rose-500 text-white text-[7px] sm:text-[8px] font-bold px-1 py-0.5 rounded uppercase z-10">Low</div>
-                           )}
-                        </div>
-                        <div className="flex-1 flex flex-col">
-                          <h3 className="font-bold text-[9px] sm:text-[11px] text-slate-900 uppercase tracking-tight line-clamp-2 leading-tight mb-1">{p.name}</h3>
-                          <div className="mt-auto">
-                            <div className="text-blue-600 font-bold text-[10px] sm:text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))
-                )}
-              </div>
-            ) : (
-              <div className="space-y-1.5 sm:space-y-2 mt-1 sm:mt-2">
+          <div className="flex-1 w-full overflow-y-auto px-2 pb-32 custom-scrollbar">
+            <div className="grid grid-cols-3 gap-1.5 mt-1">
                 {filteredProducts?.map((p) => (
-                  <motion.div 
-                    whileHover={{ x: 4, backgroundColor: 'rgba(248, 250, 252, 1)' }}
-                    whileTap={{ scale: 0.99 }}
-                    key={p.id} 
-                    className="flex items-center gap-2 sm:gap-4 p-1.5 sm:p-3 bg-white rounded-lg sm:rounded-xl border border-slate-200 cursor-pointer group transition-all"
-                    onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1, imageUrl: p.imageUrl })}
-                  >
-                     <div className="relative h-8 w-8 sm:h-12 sm:w-12 bg-slate-50 rounded-md sm:rounded-lg flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden">
-                        {p.imageUrl ? (
-                          <Image 
-                            src={p.imageUrl} 
-                            alt={p.name} 
-                            fill 
-                            className="object-cover"
-                            unoptimized 
-                          />
-                        ) : (
-                          <Package className="h-4 w-4 sm:h-6 sm:w-6 text-slate-200" />
-                        )}
-                     </div>
-                     <div className="flex-1 min-w-0">
-                        <div className="font-bold text-slate-900 uppercase text-[9px] sm:text-xs truncate">{p.name}</div>
-                     </div>
-                     <div className="font-bold text-blue-600 text-[10px] sm:text-sm">Le {Math.round(p.unitPrice).toLocaleString()}</div>
-                  </motion.div>
+                    <div 
+                      key={p.id}
+                      className="bg-white rounded-lg border border-slate-200 p-1.5 flex flex-col items-center cursor-pointer hover:border-blue-400 transition-all" 
+                      onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1, imageUrl: p.imageUrl })}
+                    >
+                        <div className="relative aspect-square w-full rounded-md bg-slate-50 overflow-hidden mb-1">
+                          {p.imageUrl ? (
+                            <Image src={p.imageUrl} alt={p.name} fill className="object-cover" unoptimized />
+                          ) : (
+                            <Package className="h-6 w-6 text-slate-200 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                          )}
+                        </div>
+                        <span className="text-[9px] font-bold text-slate-900 uppercase text-center line-clamp-1 w-full">{p.name}</span>
+                        <span className="text-[9px] font-black text-blue-600">Le {Math.round(p.unitPrice).toLocaleString()}</span>
+                    </div>
                 ))}
-              </div>
-            )}
+            </div>
           </div>
         </div>
 
-        {/* RIGHT COLUMN: CART & CHECKOUT (30%) - Fixed on mobile as a sticky footer */}
-        <div className="fixed bottom-0 left-0 right-0 h-[35vh] lg:h-auto lg:static bg-white border-t lg:border-t-0 lg:border-l border-slate-200 flex flex-col z-20 shadow-[-4px_0_12px_rgba(0,0,0,0.05)]">
-          
-          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/50">
-            <div className="flex items-center justify-between mb-4 px-1">
-              <div className="flex items-center gap-2">
-                <ShoppingCart className="h-4 w-4 text-slate-400" />
-                <h5 className="font-bold text-[10px] text-slate-400 uppercase tracking-wider">Current Cart</h5>
-              </div>
-              {cart.length > 0 && (
-                <button onClick={clearCart} className="text-[9px] font-bold text-rose-500 uppercase tracking-wider hover:underline flex items-center gap-1.5">
-                   <Trash2 size={12} /> Clear Cart
-                </button>
-              )}
-            </div>
-
-            {cart.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                <div className="h-20 w-20 rounded-full border border-dashed border-slate-200 flex items-center justify-center mb-4">
-                  <ShoppingCart className="h-8 w-8 text-slate-200" />
-                </div>
-                <h6 className="font-bold text-slate-400 uppercase text-[10px] tracking-wider mb-2">Cart is empty</h6>
-                <p className="text-[9px] text-slate-400 font-medium uppercase tracking-wider max-w-[200px]">Select products from the catalog to start a sale.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <AnimatePresence mode="popLayout">
-                  {cart.map((item) => (
-                    <motion.div 
-                      layout
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      key={item.id} 
-                      className="p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-3 group"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="relative h-10 w-10 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-200">
-                             {item.imageUrl ? (
-                               <Image 
-                                 src={item.imageUrl} 
-                                 alt={item.name} 
-                                 fill 
-                                 className="object-cover"
-                                 unoptimized 
-                               />
-                             ) : (
-                               <Package size={16} className="text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-                             )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                               <h6 className="font-bold text-slate-900 uppercase tracking-tight text-[11px] leading-tight truncate">{item.name}</h6>
-                               {item.isExternal && (
-                                  <Badge variant="outline" className="h-4 px-1.5 rounded bg-indigo-50 text-indigo-600 border-indigo-100 text-[8px] font-black uppercase tracking-tighter shrink-0">External</Badge>
-                               )}
-                            </div>
-                            <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                               Le {Math.round(item.price).toLocaleString()} per unit
-                            </div>
-                          </div>
-                        </div>
-                        <button 
-                          onClick={() => removeItem(item.id)}
-                          className="h-7 w-7 rounded-lg bg-slate-50 border border-slate-100 text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all flex items-center justify-center flex-shrink-0"
-                        >
-                          <X size={14} />
-                        </button>
-                      </div>
-                      
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="text-lg font-bold text-slate-900 tracking-tight">
-                          Le {Math.round(item.price * item.quantity).toLocaleString()}
-                        </div>
-                        
-                        <div className="flex items-center gap-1 p-1 bg-slate-50 rounded-lg border border-slate-100">
-                          <button 
-                            type="button"
-                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="h-8 w-8 rounded-md bg-white border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-slate-50 transition-all active:scale-95"
-                          >
-                            <Minus size={14} />
-                          </button>
-                          
-                          <div className="w-10 text-center font-bold text-sm text-slate-900">
-                            {item.quantity}
-                          </div>
-
-                          <button 
-                            type="button"
-                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="h-8 w-8 rounded-md bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all active:scale-95"
-                          >
-                            <Plus size={14} />
-                          </button>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            )}
+        <div className="fixed bottom-0 left-0 right-0 h-[30dvh] bg-white border-t border-slate-200 flex flex-col z-50 shadow-[-4px_-4px_12px_rgba(0,0,0,0.05)]">
+          <div className="flex-1 overflow-y-auto p-2 space-y-1.5 bg-slate-50">
+             {cart.map((item) => (
+               <div key={item.id} className="flex items-center gap-2 bg-white p-1.5 rounded-lg border border-slate-100 text-[10px]">
+                  <div className="relative h-8 w-8 rounded bg-slate-100 overflow-hidden shrink-0">
+                      {item.imageUrl && <Image src={item.imageUrl} alt={item.name} fill className="object-cover" unoptimized />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                      <div className="font-bold truncate">{item.name}</div>
+                      <div className="text-slate-500">{item.quantity} x Le {Math.round(item.price).toLocaleString()}</div>
+                  </div>
+                  <div className="font-black text-slate-900">Le {Math.round(item.price * item.quantity).toLocaleString()}</div>
+               </div>
+             ))}
           </div>
           
-          {/* CHECKOUT AREA - Sticky at bottom */}
-          <div className="p-4 bg-white border-t border-slate-200 shrink-0">
-             <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-black uppercase tracking-widest text-slate-400">Total</span>
-                <span className="text-xl font-black text-slate-900 tabular-nums">Le {Math.round(total).toLocaleString()}</span>
-             </div>
+          <div className="p-2 border-t border-slate-200 shrink-0">
              <Button 
                 onClick={() => setIsCheckoutOpen(true)}
                 disabled={cart.length === 0}
-                className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-lg shadow-blue-600/20 transition-all active:scale-95"
+                className="w-full h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg active:scale-95 transition-all"
              >
                 Checkout Now (Le {Math.round(total).toLocaleString()})
              </Button>
@@ -671,7 +360,12 @@ export default function POSPage() {
         </div>
       </div>
       
-      {/* DIALOGS ... */}
+      <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+        <DialogContent className="sm:max-w-[400px] rounded-2xl bg-white p-6">
+            <h2 className="text-lg font-bold mb-4">Complete Sale</h2>
+            <Button onClick={handleCheckout} className="w-full h-12 rounded-xl bg-blue-600 text-white">Confirm Payment (Le {Math.round(grandTotal).toLocaleString()})</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
