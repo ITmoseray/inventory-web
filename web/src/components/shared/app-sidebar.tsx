@@ -78,10 +78,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const businessTypesString = session?.user?.businessType || "SHOP";
   const businessTypes = businessTypesString.split(',').filter(t => t !== "");
   const businessType = businessTypes[0] || "SHOP"; // Use the first type for display
+  
+  console.log("DEBUG Sidebar: types:", businessTypesString, "Detected:", businessTypes, "First:", businessType);
 
   // Use dynamic configuration: Merge items from all applicable types
   const navGroups = React.useMemo(() => {
     const configs = businessTypes.map(getSidebarConfig).filter(Boolean);
+    console.log("DEBUG Sidebar: configs to merge:", configs);
+    
     if (configs.length === 0) return [];
     
     // Merge all configurations
@@ -101,6 +105,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }
         });
     });
+    console.log("DEBUG Sidebar: merged groups:", merged);
     return merged;
   }, [businessTypesString]);
   

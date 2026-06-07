@@ -1,7 +1,8 @@
 import { 
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
-  CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, Pill, Stethoscope, Tag, Cpu
+  CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
+  Tag, Cpu, History, Pill, Stethoscope, Briefcase
 } from "lucide-react";
 
 export const shopSidebarConfig = [
@@ -66,12 +67,12 @@ export const shopSidebarConfig = [
     label: "Relationships",
     items: [
       { 
-        title: "Customer Registry", 
+        title: "Customers/CRM", 
         url: "/dashboard/customers", 
         icon: Users, 
         permission: "menu:customers",
         items: [
-            { title: "Registry", url: "/dashboard/customers" },
+            { title: "Customer Registry", url: "/dashboard/customers" },
             { title: "Loyalty Program", url: "/dashboard/customers/loyalty" },
             { title: "Purchase Profiles", url: "/dashboard/customers/profiles" },
         ]
