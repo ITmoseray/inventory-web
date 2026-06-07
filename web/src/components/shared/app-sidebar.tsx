@@ -69,6 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const businessTypesString = session?.user?.businessType || "SHOP";
   const businessTypes = businessTypesString.split(',').filter(t => t !== "");
+  const businessType = businessTypes[0] || "SHOP"; // Use the first type for display
 
   // Use dynamic configuration: Merge items from all applicable types
   const navGroups = React.useMemo(() => {
