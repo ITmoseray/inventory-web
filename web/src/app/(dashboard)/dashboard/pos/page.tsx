@@ -487,8 +487,15 @@ export default function POSPage() {
                       >
                         <div className="aspect-square bg-slate-50 rounded-md sm:rounded-lg mb-1.5 sm:mb-2 flex items-center justify-center relative overflow-hidden">
                           {p.imageUrl ? (
-                            <Image src={p.imageUrl} alt={p.name} fill className="object-cover transition-transform group-hover:scale-110" />
+                            <Image 
+                              src={p.imageUrl} 
+                              alt={p.name} 
+                              fill 
+                              className="object-cover transition-transform group-hover:scale-110"
+                              unoptimized 
+                            />
                           ) : (
+
                             <Package className="h-5 w-5 sm:h-8 sm:w-8 text-slate-200 group-hover:text-blue-200 transition-colors" />
                           )}
                           <div className="absolute top-1 left-1 bg-slate-900/80 backdrop-blur-sm text-white text-[7px] sm:text-[8px] font-bold px-1.5 py-0.5 rounded uppercase z-10">Stock: {p.stockQuantity}</div>
@@ -519,7 +526,13 @@ export default function POSPage() {
                   >
                      <div className="relative h-8 w-8 sm:h-12 sm:w-12 bg-slate-50 rounded-md sm:rounded-lg flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden">
                         {p.imageUrl ? (
-                          <Image src={p.imageUrl} alt={p.name} fill className="object-cover" />
+                          <Image 
+                            src={p.imageUrl} 
+                            alt={p.name} 
+                            fill 
+                            className="object-cover"
+                            unoptimized 
+                          />
                         ) : (
                           <Package className="h-4 w-4 sm:h-6 sm:w-6 text-slate-200" />
                         )}
@@ -607,7 +620,13 @@ export default function POSPage() {
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="relative h-10 w-10 rounded-lg bg-slate-100 flex-shrink-0 overflow-hidden border border-slate-200">
                              {item.imageUrl ? (
-                               <Image src={item.imageUrl} alt={item.name} fill className="object-cover" />
+                               <Image 
+                                 src={item.imageUrl} 
+                                 alt={item.name} 
+                                 fill 
+                                 className="object-cover"
+                                 unoptimized 
+                               />
                              ) : (
                                <Package size={16} className="text-slate-300 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
                              )}

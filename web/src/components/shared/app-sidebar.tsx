@@ -290,7 +290,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               render={<Link href="/dashboard" className="flex items-center gap-3" />}
             >
                 <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl shadow-xl shadow-primary/20 ring-4 ring-primary/5">
-                  <Image src={businessContext.logoUrl || "/images/logo2.jpeg"} alt="Logo" fill className="object-cover" />
+                  <Image 
+                    src={businessContext.logoUrl || "/images/logo2.jpeg"} 
+                    alt="Logo" 
+                    fill 
+                    className="object-cover"
+                    unoptimized 
+                  />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-black text-lg text-slate-900 dark:text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
@@ -308,7 +314,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-inner group cursor-pointer transition-all hover:border-primary/20 flex items-center gap-3">
               {businessContext.logoUrl && (
                 <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
-                  <Image src={businessContext.logoUrl} alt="Logo" fill className="object-cover" />
+                  <Image 
+                    src={businessContext.logoUrl} 
+                    alt="Logo" 
+                    fill 
+                    className="object-cover"
+                    unoptimized 
+                  />
                 </div>
               )}
               <div className="flex-1 min-w-0">

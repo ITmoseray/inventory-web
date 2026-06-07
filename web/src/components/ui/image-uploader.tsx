@@ -50,7 +50,13 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
     <div className="space-y-4">
       {preview ? (
         <div className="relative group w-full aspect-square max-w-[200px] mx-auto overflow-hidden rounded-2xl border-4 border-white dark:border-slate-800 shadow-xl">
-          <Image src={preview} alt="Preview" fill className="object-cover transition-transform group-hover:scale-105" />
+          <Image 
+            src={preview} 
+            alt="Preview" 
+            fill 
+            className="object-cover transition-transform group-hover:scale-105"
+            unoptimized 
+          />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <Button 
                 variant="destructive" 

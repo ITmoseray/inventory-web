@@ -445,7 +445,13 @@ export default function ProductsPage() {
                     <div className="flex items-center gap-4">
                       <div className="relative w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-inner group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-500 overflow-hidden">
                         {product.imageUrl ? (
-                          <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
+                          <Image 
+                            src={product.imageUrl} 
+                            alt={product.name} 
+                            fill 
+                            className="object-cover"
+                            unoptimized 
+                          />
                         ) : (
                           <Package className="h-6 w-6 text-slate-400 group-hover:text-primary transition-colors" />
                         )}

@@ -325,9 +325,24 @@ export function ProcurementModal({
                               <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
                                 {products.map((p) => (
                                   <SelectItem key={p.id} value={p.id}>
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-bold">{p.name}</span>
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 text-slate-500">{p.sku}</span>
+                                    <div className="flex items-center gap-3 py-1">
+                                      <div className="relative h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden border border-slate-200/50">
+                                        {p.imageUrl ? (
+                                          <Image 
+                                            src={p.imageUrl} 
+                                            alt={p.name} 
+                                            fill 
+                                            className="object-cover"
+                                            unoptimized 
+                                          />
+                                        ) : (
+                                          <Package size={14} className="text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+                                        )}
+                                      </div>
+                                      <div className="flex flex-col min-w-0">
+                                        <span className="font-bold text-sm truncate">{p.name}</span>
+                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU: {p.sku || "N/A"}</span>
+                                      </div>
                                     </div>
                                   </SelectItem>
                                 ))}
