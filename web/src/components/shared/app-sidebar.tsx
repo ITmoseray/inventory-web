@@ -176,7 +176,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     unoptimized 
                   />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
+                <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
                   <span className="font-black text-lg text-slate-900 dark:text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
                 </div>
@@ -184,7 +184,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
         
-        <div className="mt-8 mb-6 px-2">
+        <div className="mt-8 mb-6 px-2 group-data-[collapsible=icon]:hidden">
            <div className="flex items-center justify-between mb-2">
               <div className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em]">Context</div>
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
