@@ -63,19 +63,10 @@ export function LoadingProvider({ children }: { children: React.ReactNode }) {
         />
       </div>
 
-      {/* Page Content with smooth transition */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex flex-col min-h-full"
-        >
+      {/* Page Content - Removed full-app unmounting transition for stability */}
+      <div className="flex flex-col min-h-full">
           {children}
-        </motion.div>
-      </AnimatePresence>
+      </div>
     </LoadingContext.Provider>
   );
 }

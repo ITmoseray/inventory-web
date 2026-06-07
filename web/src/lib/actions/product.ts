@@ -33,6 +33,7 @@ export async function getProducts() {
       metadata: p.metadata,
       businessId: p.businessId,
       categoryId: p.categoryId,
+      imageUrl: p.imageUrl,
       createdAt: p.createdAt.toISOString(),
       updatedAt: p.updatedAt.toISOString(),
       category: p.category ? {

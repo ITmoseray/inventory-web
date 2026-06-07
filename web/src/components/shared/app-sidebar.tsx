@@ -70,12 +70,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   React.useEffect(() => {
     setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
     if (session?.user?.businessId) {
-      getBusinessContext(session.user.businessId).then(setBusinessContext);
-    } else {
+      getBusinessContext(session.user.businessId)
+        .then(setBusinessContext)
+        .catch(err => console.error("Failed to load business context:", err));
+    } else if (mounted) {
       setBusinessContext({ name: "Global Admin", logoUrl: null });
     }
-  }, [session]);
+  }, [session?.user?.businessId, mounted]);
 
   const getRelationshipsConfig = () => {
     switch(businessType) {
