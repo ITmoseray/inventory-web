@@ -50,6 +50,7 @@ import { barSidebarConfig } from "@/lib/sidebar-configs/bar";
 import { restaurantSidebarConfig } from "@/lib/sidebar-configs/restaurant";
 import { pharmacySidebarConfig } from "@/lib/sidebar-configs/pharmacy";
 import { supermarketSidebarConfig } from "@/lib/sidebar-configs/supermarket";
+import { shopSidebarConfig } from "@/lib/sidebar-configs/shop";
 
 // Helper to get config
 const getSidebarConfig = (type: string) => {
@@ -58,6 +59,7 @@ const getSidebarConfig = (type: string) => {
     case "RESTAURANT": return restaurantSidebarConfig;
     case "PHARMACY": return pharmacySidebarConfig;
     case "SUPERMARKET": return supermarketSidebarConfig;
+    case "SHOP": return shopSidebarConfig;
     default: return null; 
   }
 };
