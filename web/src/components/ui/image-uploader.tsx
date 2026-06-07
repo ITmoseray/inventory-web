@@ -29,6 +29,10 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
       formData.append("file", file);
       
       const imageUrl = await uploadAction(formData);
+      console.log("CLIENT DEBUG: Image URL received:", imageUrl);
+      if (!imageUrl) {
+        throw new Error("Server returned an empty image URL");
+      }
       setPreview(imageUrl);
       onChange(imageUrl);
       toast.success("Image uploaded successfully");

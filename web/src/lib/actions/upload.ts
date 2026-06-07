@@ -16,20 +16,21 @@ async function processAndSaveImage(file: File, subDir: string) {
   let sharpPipeline = sharp(buffer);
   
   if (subDir === "products") {
-    // For products, we try to create a clean 'floating' look
-    const metadata = await sharpPipeline.metadata();
-    
-    // We create a mask for pixels that are close to white (common in product photography)
-    // This isn't perfect for all images but works well for studio shots
-    const mask = await sharp(buffer)
-      .threshold(245) // Pixels > 245 become white, others black
-      .negate()       // Invert: light becomes black (transparent), dark becomes white (opaque)
-      .toBuffer();
+    try {
+      // For products, we try to create a clean 'floating' look
+      const mask = await sharp(buffer)
+        .threshold(245) 
+        .negate()       
+        .toBuffer();
 
-    sharpPipeline = sharp(buffer)
-      .ensureAlpha()
-      .joinChannel(mask) // Apply the mask as the alpha channel
-      .trim();           // Remove the resulting transparent padding
+      sharpPipeline = sharp(buffer)
+        .ensureAlpha()
+        .joinChannel(mask) 
+        .trim();           
+    } catch (err) {
+      console.error("Advanced processing failed, falling back to standard:", err);
+      sharpPipeline = sharp(buffer); // Fallback
+    }
   }
 
   const processedBuffer = await sharpPipeline
@@ -42,22 +43,12 @@ async function processAndSaveImage(file: File, subDir: string) {
 
   const fileName = `${Date.now()}-${file.name.split('.')[0].replace(/[^a-z0-9]/gi, '_').toLowerCase()}.webp`;
   
-  let baseDir = process.cwd();
-  let publicPath = "";
-  
-  // Check common project structures
-  if (fs.existsSync(path.join(baseDir, "web", "public"))) {
-    publicPath = path.join(baseDir, "web", "public", "uploads", subDir);
-  } else if (fs.existsSync(path.join(baseDir, "public"))) {
-    publicPath = path.join(baseDir, "public", "uploads", subDir);
-  } else if (baseDir.endsWith('web')) {
-     publicPath = path.join(baseDir, "public", "uploads", subDir);
-  } else {
-    // Ultimate fallback
-    publicPath = path.join(baseDir, "public", "uploads", subDir);
-  }
+  // FORCE path to be within the web/public directory
+  const rootDir = process.cwd();
+  // Ensure we are in the inventory root, then look for web/public
+  const publicPath = path.join(rootDir, "web", "public", "uploads", subDir);
 
-  console.log(`DEBUG: Target Path: ${publicPath}`);
+  console.log(`DEBUG: Forcing upload path to: ${publicPath}`);
   
   // Ensure directory exists
   if (!fs.existsSync(publicPath)) {
@@ -68,12 +59,26 @@ async function processAndSaveImage(file: File, subDir: string) {
   const finalFilePath = path.join(publicPath, fileName);
   await writeFile(finalFilePath, processedBuffer);
   
-  console.log(`DEBUG: Saved to: ${finalFilePath}`);
+  // Verify file was written
+  if (fs.existsSync(finalFilePath)) {
+    console.log(`DEBUG: SUCCESS! Image saved to: ${finalFilePath}`);
+  } else {
+    console.error(`DEBUG: FAILURE! File not found after write: ${finalFilePath}`);
+  }
 
+  // Next.js serves files from the public folder automatically, so the URL
+  // should be /uploads/subDir/fileName.
   return `/uploads/${subDir}/${fileName}`;
 }
 
 export async function uploadProductImage(formData: FormData) {
+  console.log("SERVER DEBUG: uploadProductImage HIT");
+  const fs = require('fs');
+  const path = require('path');
+  try {
+    fs.appendFileSync(path.join(process.cwd(), "hit.log"), `[${new Date().toISOString()}] HIT\n`);
+  } catch(e) {}
+
   const file = formData.get("file") as File;
   if (!file) throw new Error("No file uploaded");
 
