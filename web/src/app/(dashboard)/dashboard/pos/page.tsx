@@ -89,7 +89,13 @@ const salesData = [
 
 export default function POSPage() {
   const router = useRouter();
-  const { cart, addItem, removeItem, updateQuantity, clearCart } = usePOSStore();
+  const cart = usePOSStore((state) => state.cart);
+  const addItem = usePOSStore((state) => state.addItem);
+  const removeItem = usePOSStore((state) => state.removeItem);
+  const updateQuantity = usePOSStore((state) => state.updateQuantity);
+  const clearCart = usePOSStore((state) => state.clearCart);
+  const total = usePOSStore((state) => state.total);
+  
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
