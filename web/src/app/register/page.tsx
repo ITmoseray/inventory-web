@@ -22,6 +22,14 @@ import { uploadBusinessLogo } from "@/lib/actions/upload";
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    businessName: "",
+    email: "",
+    password: "",
+    businessType: "SHOP",
+    plan: "FREE",
+    logoUrl: "",
+  });
   
   const businessTypes = [
     { id: "SHOP", label: "General Retail" },
