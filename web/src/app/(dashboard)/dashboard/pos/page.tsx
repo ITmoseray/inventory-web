@@ -318,7 +318,6 @@ export default function POSPage() {
                       onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1, imageUrl: p.imageUrl })}
                     >
                         <div className="relative aspect-square w-full rounded-md bg-slate-50 overflow-hidden mb-1">
-                          {console.log("POS Product Image Debug:", p.name, p.imageUrl)}
                           {p.imageUrl ? (
                             <Image src={p.imageUrl} alt={p.name} fill className="object-cover" unoptimized />
                           ) : (
