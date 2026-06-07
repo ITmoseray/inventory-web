@@ -99,15 +99,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userRole = session?.user?.role || "STAFF";
   const isAdmin = userRole === "ADMIN" || userRole === "SUPERADMIN";
   const userPermissions = session?.user?.permissions || [];
+  
+  interface NavItem {
+    title: string;
+    url: string;
+    icon?: any;
+    hidden?: boolean;
+    permission?: string;
+    items?: NavItem[];
+  }
+
+  interface NavGroup {
+    label: string;
+    items: NavItem[];
+  }
+
   const hasPermission = (permission?: string) => {
     if (!permission) return true;
     if (isAdmin) return true;
     return userPermissions.includes(permission);
   };
 
-  const filteredNavGroups = navGroups.map(group => ({
+  const filteredNavGroups = (navGroups as NavGroup[]).map(group => ({
     ...group,
-    items: group.items.filter(item => hasPermission((item as any).permission))
+    items: group.items.filter((item: NavItem) => hasPermission(item.permission))
   })).filter(group => group.items.length > 0);
 
   React.useEffect(() => {
