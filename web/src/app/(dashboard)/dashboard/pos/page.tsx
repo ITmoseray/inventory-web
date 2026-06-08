@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { usePOSStore } from "@/store/use-pos-store";
 import { useOfflineSync } from "@/hooks/use-offline-sync";
