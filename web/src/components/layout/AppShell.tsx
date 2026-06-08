@@ -16,8 +16,8 @@ export function AppShell({ children }: AppShellProps) {
     <SidebarProvider canAccess={canAccess}>
       <AppSidebar />
       <SidebarInset className={cn(
-          "flex flex-1 flex-col w-full h-full min-h-[100dvh] overflow-x-hidden",
-          "px-3 sm:px-4 md:px-6 lg:px-8",
+          "flex flex-1 flex-col w-full h-full min-h-[100dvh] overflow-x-hidden transition-all duration-300",
+          "px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12",
           "pb-[env(safe-area-inset-bottom)]"
       )}>
         {children}

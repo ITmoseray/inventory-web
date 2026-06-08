@@ -36,6 +36,10 @@ import {
   deleteCategory,
 } from "@/lib/actions/category";
 
+import { ResponsiveTable } from "@/components/shared/responsive-table";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Package } from "lucide-react";
+
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +61,7 @@ export default function CategoriesPage() {
       const data = await getCategories();
       setCategories(data);
     } catch (error) {
-      toast.error("Failed to load categories");
+      toast.error("Cloud synchronization failed.");
     } finally {
       setLoading(false);
     }
@@ -68,28 +72,28 @@ export default function CategoriesPage() {
     try {
       if (editingCategory) {
         await updateCategory(editingCategory.id, formData);
-        toast.success("Category updated");
+        toast.success("Intelligence classification updated.");
       } else {
         await createCategory(formData);
-        toast.success("Category created");
+        toast.success("New node category established.");
       }
       setIsDialogOpen(false);
       setEditingCategory(null);
       setFormData({ name: "", description: "" });
       fetchCategories();
     } catch (error) {
-      toast.error("Failed to save category");
+      toast.error("Operation failed.");
     }
   }
 
   async function handleDelete(id: string) {
-    if (confirm("Are you sure you want to delete this category?")) {
+    if (confirm("Permanently purge this category node?")) {
       try {
         await deleteCategory(id);
-        toast.success("Category deleted");
+        toast.success("Category node removed.");
         fetchCategories();
       } catch (error) {
-        toast.error("Failed to delete category");
+        toast.error("Unauthorized deletion.");
       }
     }
   }
@@ -103,13 +107,32 @@ export default function CategoriesPage() {
     setIsDialogOpen(true);
   }
 
+  const columns = [
+    {
+      header: "Classification Name",
+      isMain: true,
+      accessor: (cat: any) => (
+        <div className="flex items-center gap-3">
+           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Package className="h-5 w-5 text-primary" />
+           </div>
+           <span className="font-black text-slate-800 dark:text-white uppercase tracking-tight">{cat.name}</span>
+        </div>
+      )
+    },
+    {
+      header: "Strategic Description",
+      accessor: (cat: any) => <span className="text-slate-500 font-bold text-xs">{cat.description || "No metadata provided."}</span>
+    }
+  ];
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 sm:space-y-10 animate-in fade-in duration-700 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-slate-900 font-black">Categories</h1>
-          <p className="text-sm text-muted-foreground font-medium">
-            Manage your product classifications
+          <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Classification <span className="text-primary">Hub</span></h1>
+          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">
+            Organize your strategic assets into logical intelligence nodes.
           </p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -120,45 +143,43 @@ export default function CategoriesPage() {
           }
         }}>
           <DialogTrigger render={
-            <Button className="rounded-xl bg-slate-900 font-bold gap-2">
-              <Plus className="h-4 w-4" />
-              Add Category
+            <Button className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-primary hover:scale-[1.02] transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/10">
+              <Plus className="h-4 w-4 mr-2" /> Initialize Category
             </Button>
           } />
-          <DialogContent className="rounded-[2rem] border-none shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-black">
-                {editingCategory ? "Edit Category" : "Add New Category"}
-              </DialogTitle>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4 pt-4">
+          <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+            <div className="bg-slate-900 p-8 text-white shrink-0">
+               <h3 className="text-2xl font-black uppercase tracking-tight">{editingCategory ? "Update Classification" : "Deploy New Classification"}</h3>
+               <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Classification Intelligence Node</p>
+            </div>
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white">
               <div className="space-y-2">
-                <Label htmlFor="name" className="font-bold text-slate-700">Category Name</Label>
+                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Node Designation</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. Beverages, Electronics"
-                  className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white"
+                  placeholder="e.g. CORE-INVENTORY"
+                  className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white font-black text-sm uppercase tracking-widest shadow-inner"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="font-bold text-slate-700">Description</Label>
+                <Label htmlFor="description" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Strategic Scope</Label>
                 <Input
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Optional details"
-                  className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white"
+                  placeholder="Optional architectural scope"
+                  className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
                 />
               </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button type="button" variant="ghost" className="font-bold" onClick={() => setIsDialogOpen(false)}>
-                  Cancel
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
+                <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400" onClick={() => setIsDialogOpen(false)}>
+                  Abort
                 </Button>
-                <Button type="submit" className="px-8 bg-primary font-black rounded-xl">
-                  {editingCategory ? "Update" : "Create"}
+                <Button type="submit" className="h-14 px-10 bg-slate-900 text-white rounded-2xl font-[1000] text-[10px] uppercase tracking-[0.25em] shadow-2xl transition-all hover:scale-[1.02]">
+                  {editingCategory ? "Commit Update" : "Establish Node"}
                 </Button>
               </div>
             </form>
@@ -166,61 +187,48 @@ export default function CategoriesPage() {
         </Dialog>
       </div>
 
-      <div className="rounded-[2rem] border-none bg-white shadow-xl shadow-slate-100/50 overflow-hidden">
-        <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="border-slate-50">
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-6">Name</TableHead>
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Description</TableHead>
-              <TableHead className="w-[100px] pr-6"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center">
-                  Loading categories...
-                </TableCell>
-              </TableRow>
-            ) : categories.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} className="h-24 text-center">
-                  No categories found.
-                </TableCell>
-              </TableRow>
-            ) : (
-              categories.map((category) => (
-                <TableRow key={category.id} className="hover:bg-slate-50/50 border-slate-50 group transition-colors">
-                  <TableCell className="font-bold text-slate-800 pl-6">{category.name}</TableCell>
-                  <TableCell className="text-slate-500 font-medium">{category.description || "-"}</TableCell>
-                  <TableCell className="pr-6">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger render={
-                        <Button variant="ghost" className="h-8 w-8 p-0 rounded-lg hover:bg-slate-100">
-                          <MoreVertical className="h-4 w-4 text-slate-400" />
-                        </Button>
-                      } />
-                      <DropdownMenuContent align="end" className="rounded-xl border-slate-100 shadow-xl">
-                        <DropdownMenuItem onClick={() => handleEdit(category)} className="font-bold gap-2">
-                          <Pencil className="h-3.5 w-3.5" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-rose-600 font-bold gap-2 focus:bg-rose-50 focus:text-rose-700"
-                          onClick={() => handleDelete(category.id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <ResponsiveTable 
+        data={categories}
+        columns={columns}
+        loading={loading}
+        onRowClick={handleEdit}
+        emptyState={
+          <EmptyState 
+            icon={Package}
+            title="No Classifications Identified"
+            description="Establish your first intelligence classification to organize your global asset inventory."
+            actionLabel="Initialize Category"
+            onAction={() => setIsDialogOpen(true)}
+          />
+        }
+        actions={(cat) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger render={
+              <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                <MoreVertical className="h-5 w-5 text-slate-400" />
+              </Button>
+            } />
+            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800">
+              <div className="px-3 py-2 border-b border-slate-50 dark:border-slate-800 mb-2">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Node Operations</p>
+              </div>
+              <DropdownMenuItem onClick={() => handleEdit(cat)} className="font-black text-[10px] uppercase tracking-widest gap-3 rounded-xl">
+                <Pencil className="h-4 w-4 text-slate-400" /> Modify Designation
+              </DropdownMenuItem>
+              <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
+              <DropdownMenuItem 
+                className="text-rose-600 font-black text-[10px] uppercase tracking-widest gap-3 focus:bg-rose-50 focus:text-rose-700 rounded-xl"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(cat.id);
+                }}
+              >
+                <Trash2 className="h-4 w-4" /> Purge Node
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      />
     </div>
   );
 }

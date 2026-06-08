@@ -45,13 +45,13 @@ export function StatCard({ title, value, prefix = "", description, icon: Icon, c
         
         <CardContent className="p-0">
           <div className="flex items-baseline gap-1.5">
-            <div className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">
+            <div className="text-3xl sm:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">
               {prefix}<CountUp value={displayValue} />
             </div>
           </div>
           
-          <div className="mt-6 flex flex-col gap-3">
-            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden">
+          <div className="mt-4 sm:mt-6 flex flex-col gap-2 sm:gap-3">
+            <div className="h-1 sm:h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden">
                <motion.div 
                  initial={{ width: 0 }}
                  animate={{ width: "85%" }}
@@ -60,8 +60,8 @@ export function StatCard({ title, value, prefix = "", description, icon: Icon, c
                />
             </div>
             <div className="flex items-center justify-between">
-               <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{description}</span>
-               <div className={cn("px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-tighter", bgClass, colorClass)}>+12.5%</div>
+               <span className="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{description}</span>
+               <div className={cn("px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-tighter", bgClass, colorClass)}>+12.5%</div>
             </div>
           </div>
         </CardContent>

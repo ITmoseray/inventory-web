@@ -50,6 +50,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TouchWrapper } from "@/components/layout/TouchWrapper";
+import { ResponsiveTable } from "@/components/shared/responsive-table";
 
 export default function ProductsPage() {
   const { data: session } = useSession();
@@ -112,6 +113,7 @@ export default function ProductsPage() {
       const data = {
         ...formData,
         unitPrice: parseFloat(formData.unitPrice),
+        costPrice: formData.costPrice ? parseFloat(formData.costPrice) : 0,
         stockQuantity: formData.type === "SERVICE" ? 0 : parseInt(formData.stockQuantity),
         minStockLevel: formData.type === "SERVICE" ? 0 : parseInt(formData.minStockLevel),
         categoryId: formData.categoryId === "none" ? null : formData.categoryId,
@@ -189,19 +191,101 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   }
 
+  const columns = [
+    {
+      header: "Product Intelligence",
+      isMain: true,
+      accessor: (product: any) => (
+        <div className="flex items-center gap-4">
+          <div className="relative w-10 sm:w-12 h-10 sm:h-12 rounded-xl sm:rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-inner group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-500 overflow-hidden">
+            {product.imageUrl ? (
+              <Image 
+                src={product.imageUrl} 
+                alt={product.name} 
+                fill 
+                className="object-cover"
+                unoptimized 
+              />
+            ) : (
+              <Package className="h-5 sm:h-6 w-5 sm:w-6 text-slate-400 group-hover:text-primary transition-colors" />
+            )}
+          </div>
+          <div className="flex flex-col">
+            <span className="font-black text-slate-800 dark:text-white text-xs sm:text-sm group-hover:text-primary transition-colors line-clamp-1">{product.name}</span>
+            <span className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">ID: {product.sku || "N/A"}</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "SKU / Signature",
+      isMeta: true,
+      isHiddenMobile: true,
+      accessor: (product: any) => <span className="font-mono text-[11px] font-black text-slate-500 dark:text-slate-400">{product.sku || "VOID"}</span>
+    },
+    {
+      header: "Classification",
+      isMeta: true,
+      accessor: (product: any) => (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[9px] font-black uppercase tracking-tighter group-hover:bg-primary group-hover:text-white transition-all duration-500">
+          {product.category?.name || "Uncategorized"}
+        </span>
+      )
+    },
+    {
+      header: "Stock Node",
+      accessor: (product: any) => (
+        <div className="flex flex-col items-center lg:items-start">
+           <span className={cn("font-black text-sm", product.stockQuantity <= product.minStockLevel ? "text-rose-600 animate-pulse" : "text-slate-800 dark:text-white")}>
+             {product.stockQuantity}
+           </span>
+           <div className="w-12 h-1 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden shadow-inner hidden lg:block">
+              <div 
+                className={cn("h-full transition-all duration-1000", product.stockQuantity <= product.minStockLevel ? "bg-rose-500" : "bg-emerald-500")} 
+                style={{ width: `${Math.min((product.stockQuantity / (product.minStockLevel * 4)) * 100, 100)}%` }} 
+              />
+           </div>
+        </div>
+      )
+    },
+    {
+      header: "Unit Value",
+      accessor: (product: any) => <span className="font-[1000] text-primary text-sm sm:text-base">Le {Math.round(parseFloat(product.unitPrice)).toLocaleString()}</span>
+    },
+    ...(isPharmacy ? [{
+      header: "Lifecycle",
+      accessor: (product: any) => {
+        const metadata = (product.metadata as any) || {};
+        return metadata.expiryDate ? (
+          <span className={cn(
+            "inline-flex items-center gap-2 px-2 py-1 rounded-xl text-[9px] font-black uppercase tracking-tighter shadow-sm",
+            new Date(metadata.expiryDate) < new Date() 
+              ? "bg-rose-50 text-rose-600 border border-rose-100" 
+              : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+          )}>
+            <div className={cn("h-1.5 w-1.5 rounded-full", new Date(metadata.expiryDate) < new Date() ? "bg-rose-500 animate-pulse" : "bg-emerald-500")} />
+            {new Date(metadata.expiryDate).toLocaleDateString()}
+          </span>
+        ) : (
+          <span className="text-[9px] font-bold text-slate-300 uppercase tracking-widest">N/A</span>
+        );
+      }
+    }] : [])
+  ];
+
   return (
-    <div className="space-y-6 animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-12">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">
-            {isBar ? "Bar Stock Catalog" : isPharmacy ? "Pharmacy Inventory" : "Inventory Catalog"}
+          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase italic">
+            {isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} <span className="text-primary">Catalog</span>
           </h1>
-          <p className="text-slate-500 font-medium uppercase tracking-widest text-[10px]">
+          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
             {isBar ? "Manage your drinks, spirits, and bar supplies." : "Manage your product SKU, pricing, and stock levels."}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-           <Button variant="outline" className="rounded-xl border-slate-200 font-bold gap-2 h-11 px-6 text-xs uppercase tracking-widest">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+           <Button variant="outline" className="rounded-2xl border-slate-200 dark:border-slate-800 font-black gap-2 h-14 px-8 text-[10px] uppercase tracking-widest hover:bg-white dark:hover:bg-slate-900 transition-all">
               <Download className="h-4 w-4 text-primary" /> Export Vault
            </Button>
            <Dialog open={isDialogOpen} onOpenChange={(open) => {
@@ -212,41 +296,39 @@ export default function ProductsPage() {
              }
            }}>
              <DialogTrigger render={
-               <Button className="h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 font-black text-xs uppercase tracking-[0.2em] gap-2 shadow-lg shadow-primary/20">
+               <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 font-black text-[10px] uppercase tracking-[0.2em] gap-2 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]">
                  <Plus className="h-4 w-4" /> New Asset
                </Button>
              } />
-             <DialogContent className="sm:max-w-[700px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col">
-               <div className="bg-slate-900 p-8 text-white shrink-0">
-                  <h3 className="text-2xl font-black uppercase tracking-tight">
+             <DialogContent className="sm:max-w-[700px] w-[95vw] sm:w-full rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col bg-white">
+               <div className="bg-slate-900 p-6 sm:p-8 text-white shrink-0">
+                  <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
                     {editingProduct ? "Modify Asset" : "Deploy New Asset"}
                   </h3>
-                  <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Inventory Intelligence Update</p>
+                  <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-[0.3em] mt-1">Inventory Intelligence Update</p>
                </div>
                <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden bg-white">
-                 <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-                   <div className="grid grid-cols-2 gap-6">
+                 <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                      <div className="space-y-2">
-                       <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Asset Type</Label>
-                       <TouchWrapper>
-                         <Select 
-                           value={formData.type} 
-                           onValueChange={(val: any) => setFormData({ ...formData, type: val })}
-                         >
-                           <SelectTrigger className="h-11 rounded-xl border-slate-100 bg-slate-50 font-bold">
-                             <SelectValue />
-                           </SelectTrigger>
-                           <SelectContent className="rounded-xl border-slate-100">
-                             <SelectItem value="PRODUCT">Physical Product</SelectItem>
-                             <SelectItem value="SERVICE">Professional Service</SelectItem>
-                           </SelectContent>
-                         </Select>
-                       </TouchWrapper>
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Type</Label>
+                       <Select 
+                         value={formData.type} 
+                         onValueChange={(val: any) => setFormData({ ...formData, type: val })}
+                       >
+                         <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold">
+                           <SelectValue />
+                         </SelectTrigger>
+                         <SelectContent className="rounded-xl border-slate-100">
+                           <SelectItem value="PRODUCT">Physical Product</SelectItem>
+                           <SelectItem value="SERVICE">Professional Service</SelectItem>
+                         </SelectContent>
+                       </Select>
                      </div>
                      <div className="space-y-2 flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
-                       <div className="space-y-0.5">
-                          <Label className="text-xs font-black text-indigo-900 uppercase tracking-widest">Network Exchange</Label>
-                          <p className="text-[10px] text-indigo-500 font-bold leading-tight">Allow other businesses to source this item</p>
+                       <div className="space-y-0.5 pr-2">
+                          <Label className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Network Exchange</Label>
+                          <p className="text-[9px] text-indigo-500 font-bold leading-tight">Sourcing availability</p>
                        </div>
                        <input 
                          type="checkbox"
@@ -255,25 +337,23 @@ export default function ProductsPage() {
                          className="h-6 w-6 rounded-lg border-indigo-200 text-indigo-600 focus:ring-indigo-500"
                        />
                      </div>
-                     <div className="space-y-2 col-span-2">
-                       <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Product Imagery</Label>
+                     <div className="space-y-2 sm:col-span-2">
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Imagery</Label>
                        <ImageUploader 
                          value={formData.imageUrl} 
                          onChange={(url) => setFormData({...formData, imageUrl: url})} 
                          uploadAction={uploadProductImage}
                        />
                      </div>
-                     <div className="space-y-2 col-span-2">
-                       <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Product Designation</Label>
-                       <TouchWrapper>
-                         <Input
-                           value={formData.name}
-                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                           placeholder={isBar ? "e.g. Star Beer 600ml" : "Enter designation"}
-                           className="h-11 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
-                           required
-                         />
-                       </TouchWrapper>
+                     <div className="space-y-2 sm:col-span-2">
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Designation</Label>
+                       <Input
+                         value={formData.name}
+                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
+                         placeholder={isBar ? "e.g. Star Beer 600ml" : "Enter designation"}
+                         className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
+                         required
+                       />
                      </div>
                      <div className="space-y-2">
                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SKU / Signature</Label>
@@ -302,9 +382,7 @@ export default function ProductsPage() {
                        </Select>
                      </div>
                      <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                         Cost Price (Le)
-                       </Label>
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cost (Le)</Label>
                        <Input
                          type="number"
                          step="0.01"
@@ -316,9 +394,7 @@ export default function ProductsPage() {
                        />
                      </div>
                      <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                         {formData.type === "SERVICE" ? "Rate per Hour/Unit (Le)" : "Selling Price (Le)"}
-                       </Label>
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selling (Le)</Label>
                        <Input
                          type="number"
                          step="0.01"
@@ -363,7 +439,7 @@ export default function ProductsPage() {
                      {isPharmacy && (
                        <>
                          <div className="space-y-2">
-                           <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiration Lifecycle</Label>
+                           <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiry</Label>
                            <Input
                              type="date"
                              value={formData.expiryDate}
@@ -372,7 +448,7 @@ export default function ProductsPage() {
                            />
                          </div>
                          <div className="space-y-2">
-                           <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Batch Identifier</Label>
+                           <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Batch ID</Label>
                            <Input
                              value={formData.batchNumber}
                              onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
@@ -384,11 +460,11 @@ export default function ProductsPage() {
                      )}
                    </div>
                  </div>
-                 <div className="flex justify-end gap-3 p-8 border-t border-slate-100 shrink-0 bg-slate-50/50">
-                   <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400" onClick={() => setIsDialogOpen(false)}>
+                 <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 sm:p-8 border-t border-slate-100 shrink-0 bg-slate-50/50">
+                   <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 order-2 sm:order-1" onClick={() => setIsDialogOpen(false)}>
                      Abort
                    </Button>
-                   <Button type="submit" className="h-12 px-10 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl active:scale-95 transition-all">
+                   <Button type="submit" className="h-12 px-10 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl active:scale-95 transition-all order-1 sm:order-2">
                      {editingProduct ? "Finalize Update" : "Deploy to Vault"}
                    </Button>
                  </div>
@@ -399,159 +475,70 @@ export default function ProductsPage() {
       </div>
 
       {/* Advanced Filtering */}
-      <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm p-4 rounded-3xl">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 sm:p-6 rounded-2xl sm:rounded-[2rem]">
+        <div className="flex flex-col md:flex-row gap-4">
            <div className="relative flex-1 group">
-             <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
              <Input 
                 placeholder="Filter by product name, SKU, or batch identifier..." 
-                className="pl-10 h-10 rounded-xl border-slate-100 bg-white focus:bg-white font-medium"
+                className="pl-12 h-12 rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:bg-white font-bold text-xs"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
              />
            </div>
-           <div className="flex gap-2">
-              <Button variant="ghost" className="rounded-xl gap-2 font-black text-slate-400 uppercase text-[10px] tracking-widest h-10 px-4 hover:bg-white hover:text-primary">
+           <div className="flex gap-2 shrink-0">
+              <Button variant="ghost" className="rounded-2xl gap-2 font-black text-slate-400 uppercase text-[10px] tracking-widest h-12 px-6 hover:bg-white dark:hover:bg-slate-800 hover:text-primary">
                  <Filter className="h-4 w-4" /> Filter
               </Button>
-              <Button variant="ghost" className="rounded-xl gap-2 font-black text-slate-400 uppercase text-[10px] tracking-widest h-10 px-4 hover:bg-white hover:text-primary">
+              <Button variant="ghost" className="rounded-2xl gap-2 font-black text-slate-400 uppercase text-[10px] tracking-widest h-12 px-6 hover:bg-white dark:hover:bg-slate-800 hover:text-primary">
                  <ArrowUpDown className="h-4 w-4" /> Sort
               </Button>
            </div>
         </div>
       </Card>
 
-      <div className="rounded-[2.5rem] border-none bg-white shadow-2xl shadow-slate-200/50 overflow-hidden">
-        <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="hover:bg-transparent border-slate-50 h-16">
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-[0.25em] pl-8">Product Intelligence</TableHead>
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-[0.25em]">SKU / Signature</TableHead>
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-[0.25em]">Classification</TableHead>
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-[0.25em] text-center">Stock Node</TableHead>
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-[0.25em]">Unit Value</TableHead>
-              {isPharmacy && <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-[0.25em]">Lifecycle</TableHead>}
-              <TableHead className="w-[80px] pr-8"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              [1,2,3,4,5].map(i => (
-                <TableRow key={i} className="border-slate-50 h-24">
-                  <TableCell colSpan={isPharmacy ? 7 : 6} className="px-8">
-                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-slate-50 animate-shimmer relative overflow-hidden" />
-                        <div className="space-y-2">
-                           <div className="w-48 h-4 bg-slate-50 rounded-lg animate-shimmer relative overflow-hidden" />
-                           <div className="w-32 h-2.5 bg-slate-50 rounded-lg animate-shimmer relative overflow-hidden" />
-                        </div>
-                     </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : filteredProducts.length === 0 ? (
-              <TableRow className="hover:bg-transparent border-none">
-                <TableCell colSpan={isPharmacy ? 7 : 6} className="p-0">
-                  <EmptyState 
-                    icon={Package}
-                    title="No Intelligence Nodes Found"
-                    description="Your inventory vault is currently empty. Initialize your first asset to begin tracking."
-                    actionLabel="Deploy First Asset"
-                    onAction={() => setIsDialogOpen(true)}
-                  />
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredProducts.map((product) => (
-                <TableRow key={product.id} className="hover:bg-slate-50/50 border-slate-50 h-20 group transition-all duration-300">
-                  <TableCell className="pl-8">
-                    <div className="flex items-center gap-4">
-                      <div className="relative w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shadow-inner group-hover:bg-primary/10 group-hover:scale-110 transition-all duration-500 overflow-hidden">
-                        {product.imageUrl ? (
-                          <Image 
-                            src={product.imageUrl} 
-                            alt={product.name} 
-                            fill 
-                            className="object-cover"
-                            unoptimized 
-                          />
-                        ) : (
-                          <Package className="h-6 w-6 text-slate-400 group-hover:text-primary transition-colors" />
-                        )}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="font-black text-slate-800 dark:text-white text-sm group-hover:text-primary transition-colors">{product.name}</span>
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-0.5">Created: {new Date(product.createdAt).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-[11px] font-black text-slate-500 dark:text-slate-400">{product.sku || "VOID"}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-[10px] font-black uppercase tracking-tighter group-hover:bg-primary group-hover:text-white transition-all duration-500">
-                      {product.category?.name || "Uncategorized"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex flex-col items-center">
-                       <span className={cn("font-black text-sm", product.stockQuantity <= product.minStockLevel ? "text-rose-600 animate-pulse" : "text-slate-800 dark:text-white")}>
-                         {product.stockQuantity}
-                       </span>
-                       <div className="w-12 h-1 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden shadow-inner">
-                          <div 
-                            className={cn("h-full transition-all duration-1000", product.stockQuantity <= product.minStockLevel ? "bg-rose-500" : "bg-emerald-500")} 
-                            style={{ width: `${Math.min((product.stockQuantity / (product.minStockLevel * 4)) * 100, 100)}%` }} 
-                          />
-                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-[1000] text-primary text-base">Le {Math.round(parseFloat(product.unitPrice)).toLocaleString()}</TableCell>
-                  {isPharmacy && (
-                    <TableCell>
-                      {product.metadata && (product.metadata as any).expiryDate ? (
-                        <span className={cn(
-                          "inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-tighter shadow-sm",
-                          new Date((product.metadata as any).expiryDate) < new Date() 
-                            ? "bg-rose-50 text-rose-600 border border-rose-100" 
-                            : "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                        )}>
-                          <div className={cn("h-1.5 w-1.5 rounded-full", new Date((product.metadata as any).expiryDate) < new Date() ? "bg-rose-500 animate-pulse" : "bg-emerald-500")} />
-                          {new Date((product.metadata as any).expiryDate).toLocaleDateString()}
-                        </span>
-                      ) : (
-                        <span className="text-[10px] font-bold text-slate-300 uppercase tracking-widest">N/A</span>
-                      )}
-                    </TableCell>
-                  )}
-                  <TableCell className="pr-8">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger render={
-                        <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-110 transition-all">
-                          <MoreVertical className="h-5 w-5 text-slate-400" />
-                        </Button>
-                      } />
-                      <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] p-2 shadow-2xl border-slate-100 dark:border-slate-800">
-                        <div className="px-3 py-2 border-b border-slate-50 dark:border-slate-800 mb-2">
-                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Action Hub</p>
-                        </div>
-                        <DropdownMenuItem onClick={() => handleEdit(product)} className="font-black text-xs uppercase tracking-widest gap-3 rounded-xl">
-                          <Pencil className="h-4 w-4 text-slate-400" /> Update Intelligence
-                        </DropdownMenuItem>
-                        <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
-                        <DropdownMenuItem 
-                          className="text-rose-600 font-black text-xs uppercase tracking-widest gap-3 focus:bg-rose-50 focus:text-rose-700 rounded-xl"
-                          onClick={() => handleDelete(product.id)}
-                        >
-                          <Trash2 className="h-4 w-4" /> Purge Asset
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <ResponsiveTable 
+        data={filteredProducts}
+        columns={columns}
+        loading={loading}
+        onRowClick={handleEdit}
+        emptyState={
+          <EmptyState 
+            icon={Package}
+            title="No Intelligence Nodes Found"
+            description="Your inventory vault is currently empty. Initialize your first asset to begin tracking."
+            actionLabel="Deploy First Asset"
+            onAction={() => setIsDialogOpen(true)}
+          />
+        }
+        actions={(product) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger render={
+              <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
+                <MoreVertical className="h-5 w-5 text-slate-400" />
+              </Button>
+            } />
+            <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800">
+              <div className="px-3 py-2 border-b border-slate-50 dark:border-slate-800 mb-2">
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Action Hub</p>
+              </div>
+              <DropdownMenuItem onClick={() => handleEdit(product)} className="font-black text-[10px] uppercase tracking-widest gap-3 rounded-xl">
+                <Pencil className="h-4 w-4 text-slate-400" /> Update Intelligence
+              </DropdownMenuItem>
+              <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
+              <DropdownMenuItem 
+                className="text-rose-600 font-black text-[10px] uppercase tracking-widest gap-3 focus:bg-rose-50 focus:text-rose-700 rounded-xl"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(product.id);
+                }}
+              >
+                <Trash2 className="h-4 w-4" /> Purge Asset
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      />
     </div>
   );
 }

@@ -126,32 +126,32 @@ export default function DashboardPage() {
   const context = getContextInfo();
 
   return (
-    <div className="relative min-h-full space-y-10 p-6 md:p-10 bg-slate-50/30 dark:bg-slate-950/50">
+    <div className="relative min-h-full space-y-8 md:space-y-12 p-4 sm:p-6 md:p-10 bg-slate-50/30 dark:bg-slate-950/50">
       {/* Dynamic Background Ornament */}
-      <div className={cn("absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.05] dark:opacity-[0.03] pointer-events-none", colors.primary)} />
+      <div className={cn("absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full blur-[120px] opacity-[0.05] dark:opacity-[0.03] pointer-events-none", colors.primary)} />
       
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-8"
+        className="flex flex-col xl:flex-row xl:items-end justify-between gap-8"
       >
         <div className="space-y-4">
-           <div className="flex flex-wrap items-center gap-4">
+           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 transition-all hover:scale-105">
                  <div className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-500 animate-pulse" />
-                 <span className="text-[10px] font-[1000] text-emerald-700 dark:text-emerald-500 uppercase tracking-widest">System Active</span>
+                 <span className="text-[9px] sm:text-[10px] font-[1000] text-emerald-700 dark:text-emerald-500 uppercase tracking-widest">System Active</span>
               </div>
               <div className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 dark:text-slate-500">
+              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-slate-400 dark:text-slate-500">
                 {format(new Date(), "EEEE, MMMM dd, yyyy")}
               </span>
            </div>
 
-           <div className="space-y-1">
-              <h2 className="text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 drop-shadow-sm">
+           <div className="space-y-2">
+              <h2 className="text-xs sm:text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 drop-shadow-sm">
                 {getGreeting()}
               </h2>
-              <h1 className="text-4xl md:text-6xl font-[1000] text-slate-900 dark:text-white tracking-tight leading-none italic uppercase">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-[1000] text-slate-900 dark:text-white tracking-tight leading-none italic uppercase">
                 Welcome <span className="text-indigo-600">Back</span>
               </h1>
            </div>
@@ -161,31 +161,31 @@ export default function DashboardPage() {
                  <context.icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-slate-900 dark:text-white font-[1000] text-sm uppercase tracking-widest">{context.label}</p>
-                <p className="text-slate-500 dark:text-slate-400 font-bold text-[10px] uppercase tracking-tighter">{context.sub}</p>
+                <p className="text-slate-900 dark:text-white font-[1000] text-xs sm:text-sm uppercase tracking-widest">{context.label}</p>
+                <p className="text-slate-500 dark:text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-tighter">{context.sub}</p>
               </div>
            </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
            <Button 
              onClick={() => router.push("/dashboard/manual")}
              variant="outline"
-             className="h-16 px-8 rounded-[2rem] border-slate-200 bg-white dark:bg-slate-900 font-black uppercase tracking-widest text-xs shadow-sm hover:bg-slate-50 transition-all hover:scale-[1.05] active:scale-95 gap-3"
+             className="h-14 sm:h-16 px-6 sm:px-8 rounded-2xl sm:rounded-[2rem] border-slate-200 bg-white dark:bg-slate-900 font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-sm hover:bg-slate-50 transition-all hover:scale-[1.05] active:scale-95 gap-3"
            >
              <Book className="h-5 w-5 text-indigo-600" /> Manual
            </Button>
            <Button 
              onClick={() => router.push("/dashboard/pos")}
-             className={cn("h-16 px-10 rounded-[2rem] text-white font-black uppercase tracking-widest text-xs shadow-2xl transition-all hover:scale-[1.05] active:scale-95", colors.primary)}
+             className={cn("h-14 sm:h-16 px-8 sm:px-10 rounded-2xl sm:rounded-[2rem] text-white font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-2xl transition-all hover:scale-[1.05] active:scale-95", colors.primary)}
            >
              <ShoppingCart className="mr-3 h-5 w-5" /> New Transaction
            </Button>
         </div>
       </motion.div>
       
-      {/* KPI Cards */}
-      <div className="grid gap-3 sm:gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5" id="dashboard-stats">
+      {/* KPI Cards: Responsive Grid 1/2/3/4 */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" id="dashboard-stats">
         <StatCard 
           title="Total Revenue" 
           value={stats.revenue} 
@@ -241,7 +241,7 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="grid gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-3">
+      <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
         {/* Trend Chart */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

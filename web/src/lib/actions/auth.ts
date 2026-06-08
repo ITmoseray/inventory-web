@@ -39,6 +39,19 @@ export async function registerBusiness(data: any) {
       tx.role.create({ data: { name: 'EMPLOYEE', businessId: business.id } }),
     ]);
 
+    // 2b. Auto-assign all permissions to ADMIN role
+    const allPermissions = await tx.permission.findMany();
+    if (allPermissions.length > 0) {
+      await tx.role.update({
+        where: { id: adminRole.id },
+        data: {
+          permissions: {
+            connect: allPermissions.map(p => ({ id: p.id }))
+          }
+        }
+      });
+    }
+
     // 3. Create Admin User with verification token
     const user = await tx.user.create({
       data: {

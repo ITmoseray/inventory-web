@@ -70,8 +70,27 @@ async function main() {
     { key: "menu:system:logs" },
     { key: "menu:system:notifications" },
     { key: "menu:system:settings" },
+    { key: "menu:system:permissions" },
+    { key: "menu:system:integrations" },
     
-    // 10. Support
+    // 10. Bar Specific
+    { key: "menu:bar:tabs" },
+    { key: "menu:bar:tables" },
+    { key: "menu:bar:reservations" },
+    { key: "menu:bar:happy-hour" },
+    { key: "menu:bar:orders" },
+
+    // 11. Pharmacy Specific
+    { key: "menu:prescriptions" },
+    { key: "menu:patients" },
+
+    // 12. Restaurant Specific
+    { key: "menu:kitchen" },
+    { key: "menu:tables" },
+    { key: "menu:reservations" },
+    { key: "menu:recipes" },
+    
+    // 13. Support
     { key: "menu:support" },
     { key: "menu:support:manual" },
     { key: "menu:support:pricing" },

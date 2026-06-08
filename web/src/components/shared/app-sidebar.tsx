@@ -85,7 +85,8 @@ const SidebarContentRenderer = ({
   session, 
   pathname 
 }: any) => {
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
   
   return (
     <>
@@ -106,7 +107,7 @@ const SidebarContentRenderer = ({
                     unoptimized 
                   />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none group-data-[collapsible=icon]:hidden">
+                <div className={cn("flex flex-col gap-0.5 leading-none transition-all duration-300", isCollapsed ? "opacity-0 w-0" : "opacity-100")}>
                   <span className="font-black text-lg text-slate-900 dark:text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
                   <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
                 </div>
@@ -114,7 +115,7 @@ const SidebarContentRenderer = ({
           </SidebarMenuItem>
         </SidebarMenu>
         
-        <div className="mt-8 mb-6 px-2 group-data-[collapsible=icon]:hidden">
+        <div className={cn("mt-8 mb-6 px-2 transition-all duration-300", isCollapsed ? "opacity-0 hidden" : "opacity-100")}>
            <div className="flex items-center justify-between mb-2">
               <div className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em]">Context</div>
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
@@ -141,6 +142,12 @@ const SidebarContentRenderer = ({
       
       <SidebarContent className="px-3 overflow-y-auto custom-scrollbar">
         <SidebarMenu className="gap-6 pb-8">
+          {filteredNavGroups.length === 0 && (
+             <div className="px-4 py-8 text-center">
+                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">No Intelligence Nodes Found</p>
+                <p className="text-[9px] text-slate-500 mt-2 italic">Check permissions or business type configuration.</p>
+             </div>
+          )}
           {filteredNavGroups.map((group: NavGroup) => (
             <div key={group.label} className="space-y-2">
               <div className="px-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em] mb-3">{group.label}</div>
@@ -179,6 +186,7 @@ const SidebarContentRenderer = ({
           ))}
         </SidebarMenu>
       </SidebarContent>
+
       <SidebarFooter className="p-4 border-t border-slate-100 dark:border-slate-800">
         <SidebarMenu>
           <SidebarMenuItem id="user-profile">
@@ -307,7 +315,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[80vw] p-0 bg-white">
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-white dark:bg-slate-950 border-r-0 shadow-2xl">
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>

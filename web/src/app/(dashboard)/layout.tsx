@@ -79,31 +79,31 @@ export default async function DashboardLayout({
           <OnboardingTrigger />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
-          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-slate-50 bg-white/50 backdrop-blur-md sticky top-0 z-40 px-6 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-slate-50 bg-white/50 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 lg:px-10 transition-all duration-300 ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
             <div className="flex items-center gap-2">
               <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
+              <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
+              <Breadcrumb className="hidden xs:block">
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/dashboard" className="font-bold text-slate-400">
+                    <BreadcrumbLink href="/dashboard" className="font-bold text-slate-400 hover:text-primary transition-colors">
                       Dashboard
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
                   <BreadcrumbItem>
-                    <BreadcrumbPage className="font-black text-slate-900">Intelligence Overview</BreadcrumbPage>
+                    <BreadcrumbPage className="font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter text-[10px] sm:text-xs">Intelligence Overview</BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
             </div>
 
-            <div className="flex items-center gap-6">
-               <div className="hidden lg:block">
+            <div className="flex items-center gap-3 sm:gap-6">
+               <div className="hidden xl:block">
                   <RealTimeClock />
                </div>
-               <div className="flex items-center gap-4 border-l border-slate-100 pl-6">
-                 <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
+               <div className="flex items-center gap-2 sm:gap-4 border-l border-slate-100 pl-3 sm:pl-6">
+                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                     <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">System Live</span>
                  </div>

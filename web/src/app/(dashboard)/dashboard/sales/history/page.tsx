@@ -47,6 +47,7 @@ import {
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { ResponsiveTable } from "@/components/shared/responsive-table";
 
 export default function SalesHistoryPage() {
   const { data: session } = useSession();
@@ -157,9 +158,65 @@ export default function SalesHistoryPage() {
     window.print();
   };
 
+  const columns = [
+    {
+      header: "Invoice ID",
+      isMain: true,
+      accessor: (sale: any) => (
+        <div>
+          <div className="font-black text-slate-900 dark:text-white tracking-tight">{sale.invoiceNumber}</div>
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+             <User size={10} className="text-primary" /> {sale.userName}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "Date/Time",
+      isMeta: true,
+      accessor: (sale: any) => (
+        <div>
+          <div className="text-[10px] sm:text-xs font-bold text-slate-600 dark:text-slate-400">{format(new Date(sale.createdAt), "MMM dd, yyyy")}</div>
+          <div className="text-[9px] sm:text-[10px] font-medium text-slate-400">{format(new Date(sale.createdAt), "HH:mm")}</div>
+        </div>
+      )
+    },
+    {
+      header: "Customer Node",
+      accessor: (sale: any) => (
+        <div>
+          <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">{sale.customerName}</div>
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Retail Client</div>
+        </div>
+      )
+    },
+    {
+      header: "Total Yield",
+      isMeta: true,
+      accessor: (sale: any) => (
+        <div>
+          <div className="text-base sm:text-lg font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(sale.totalAmount).toLocaleString()}</div>
+          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+             {sale.paymentMethod === 'CASH' ? <Wallet size={10} /> : <SmartphoneIcon size={10} />}
+             {sale.paymentMethod}
+          </div>
+        </div>
+      )
+    },
+    {
+      header: "Status",
+      accessor: (sale: any) => (
+        <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
+          sale.paymentStatus === 'PAID' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400")}>
+          {sale.paymentStatus}
+        </div>
+      )
+    }
+  ];
+
   return (
-    <div className="space-y-8 p-6 md:p-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="space-y-6 sm:space-y-10 p-4 sm:p-6 md:p-10 animate-in fade-in duration-700 pb-20">
+      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
         <div>
            <div className="flex items-center gap-2 mb-2">
               <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
@@ -167,137 +224,74 @@ export default function SalesHistoryPage() {
               </div>
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Commerce Intelligence</span>
            </div>
-           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Sales History</h1>
-           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Audit and track every finalized transaction across your network.</p>
+           <h1 className="text-3xl sm:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight uppercase italic">Sales <span className="text-primary">History</span></h1>
+           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Audit and track every finalized transaction across your network.</p>
         </div>
 
-        <div className="flex gap-3 w-full md:w-auto">
-           <Button variant="outline" className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 gap-2 font-bold uppercase text-[10px] tracking-widest" onClick={handleExportCSV}>
-              <FileDown className="h-4 w-4" /> Export CSV
+        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
+           <Button variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-black uppercase text-[10px] tracking-widest" onClick={handleExportCSV}>
+              <FileDown className="h-4 w-4 text-primary" /> Export CSV Vault
            </Button>
-           <Button className={cn("flex-1 md:flex-none h-12 rounded-xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl", colors.primary)} onClick={handlePrint}>
-              <Printer className="h-4 w-4 mr-2" /> Print Report
+           <Button className={cn("h-14 px-8 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl", colors.primary)} onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" /> Print System Report
            </Button>
         </div>
       </div>
 
-      <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden">
-        <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50">
-           <div className="flex flex-col md:flex-row gap-4 justify-between">
-              <div className="relative flex-1 max-w-md group">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-                 <Input 
-                   placeholder="Search invoice or customer..." 
-                   className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all"
-                   value={searchQuery}
-                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-                 />
-              </div>
-              <div className="flex gap-2">
-                 <Select value={filterRange} onValueChange={(val: string | null) => setFilterRange(val ?? "TODAY")}>
-                   <SelectTrigger className="h-12 rounded-2xl w-[180px] border-slate-200 bg-white font-bold text-[10px] uppercase tracking-widest text-slate-500">
-                     <SelectValue />
-                   </SelectTrigger>
-                   <SelectContent className="rounded-2xl border-slate-200 bg-white shadow-xl">
-                     {ranges.map((r: any) => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}
-                   </SelectContent>
-                 </Select>
-              </div>
-           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-           <div className="w-full overflow-x-auto">
-              <Table className="min-w-[600px]">
-                <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                  <TableRow className="hover:bg-transparent border-none">
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Invoice ID</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Date/Time</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Customer Node</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Total Yield</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {loading ? (
-                    Array.from({ length: 5 }).map((_, i) => (
-                      <TableRow key={i} className="border-b border-slate-50 dark:border-slate-800">
-                        <TableCell colSpan={5} className="h-20 text-center">
-                          <div className="flex items-center justify-center gap-2 text-slate-300 animate-pulse">
-                            <div className="h-4 w-4 rounded-full bg-slate-100 dark:bg-slate-800" />
-                            <div className="h-4 w-32 rounded bg-slate-100 dark:bg-slate-800" />
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : filteredSales.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="h-64 text-center">
-                        <div className="space-y-4">
-                           <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto">
-                              <Receipt className="h-8 w-8 text-slate-200" />
-                           </div>
-                           <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No matching nodes detected</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredSales.map((sale) => (
-                      <TableRow 
-                        key={sale.id} 
-                        className="group cursor-pointer hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800/50"
-                        onClick={() => {
-                          setSelectedSale(sale);
-                          setIsDetailsOpen(true);
-                        }}
-                      >
-                        <TableCell className="px-8 h-20">
-                          <div className="font-black text-slate-900 dark:text-white tracking-tight">{sale.invoiceNumber}</div>
-                          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                             <User size={10} className="text-primary" /> {sale.userName}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{format(new Date(sale.createdAt), "MMM dd, yyyy")}</div>
-                          <div className="text-[10px] font-medium text-slate-400">{format(new Date(sale.createdAt), "HH:mm")}</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">{sale.customerName}</div>
-                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Retail Client</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="text-lg font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(sale.totalAmount).toLocaleString()}</div>
-                          <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                             {sale.paymentMethod === 'CASH' ? <Wallet size={10} /> : <SmartphoneIcon size={10} />}
-                             {sale.paymentMethod}
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-right pr-8">
-                          <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
-                            sale.paymentStatus === 'PAID' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400")}>
-                            {sale.paymentStatus}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-           </div>
-        </CardContent>
+      <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 sm:p-6 rounded-2xl sm:rounded-[2rem]">
+        <div className="flex flex-col md:flex-row gap-4 justify-between">
+            <div className="relative flex-1 group">
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+               <Input 
+                 placeholder="Search invoice or customer..." 
+                 className="h-12 sm:h-14 pl-12 rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:bg-white transition-all font-bold text-xs"
+                 value={searchQuery}
+                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
+               />
+            </div>
+            <div className="flex gap-2">
+               <Select value={filterRange} onValueChange={(val: string | null) => setFilterRange(val ?? "TODAY")}>
+                 <SelectTrigger className="h-12 sm:h-14 rounded-2xl w-full md:w-[220px] border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest text-slate-500 shadow-sm">
+                   <SelectValue />
+                 </SelectTrigger>
+                 <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
+                   {ranges.map((r: any) => <SelectItem key={r.value} value={r.value} className="font-bold py-3 uppercase tracking-widest text-[10px]">{r.label}</SelectItem>)}
+                 </SelectContent>
+               </Select>
+            </div>
+        </div>
       </Card>
+
+      <ResponsiveTable 
+        data={filteredSales}
+        columns={columns}
+        loading={loading}
+        onRowClick={(sale) => {
+          setSelectedSale(sale);
+          setIsDetailsOpen(true);
+        }}
+        emptyState={
+          <div className="h-64 flex flex-col items-center justify-center text-center space-y-4 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-inner">
+             <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto">
+                <Receipt className="h-8 w-8 text-slate-200 dark:text-slate-600" />
+             </div>
+             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No matching nodes detected</p>
+          </div>
+        }
+      />
 
       {/* DETAIL VIEW MODAL */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[500px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white text-slate-900">
-           <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                 <Receipt size={120} />
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
+           <div className="bg-slate-900 p-8 text-white relative overflow-hidden shrink-0">
+              <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
+                 <Receipt size={180} />
               </div>
               <div className="relative z-10 space-y-1">
                  <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Invoice Intelligence</div>
-                 <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic">{selectedSale?.invoiceNumber}</h3>
-                 <div className="flex items-center gap-3 pt-2">
-                    <div className={cn("px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest", 
+                 <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none">{selectedSale?.invoiceNumber}</h3>
+                 <div className="flex items-center gap-3 pt-4">
+                    <div className={cn("px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest", 
                        selectedSale?.paymentStatus === 'PAID' ? "bg-emerald-500 text-white" : "bg-amber-500 text-white")}>
                        {selectedSale?.paymentStatus}
                     </div>
@@ -307,19 +301,19 @@ export default function SalesHistoryPage() {
               </div>
            </div>
 
-           <div className="p-8 space-y-8 bg-white max-h-[60vh] overflow-y-auto custom-scrollbar">
+           <div className="p-8 space-y-8 bg-white dark:bg-slate-950 max-h-[60vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-4">
-                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 pb-2">Line Item Breakdown</h4>
+                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 pb-2">Line Item Breakdown</h4>
                  <div className="space-y-4">
                     {selectedSale?.items.map((item: any, i: number) => (
                        <div key={i} className="flex justify-between items-start group">
                           <div className="flex-1">
-                             <div className="text-xs font-black text-slate-900 uppercase tracking-tight mb-1">{item.name}</div>
+                             <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight mb-1">{item.name}</div>
                              <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
                                 {item.quantity} x Le {Math.round(item.unitPrice).toLocaleString()}
                              </div>
                           </div>
-                          <div className="text-sm font-[1000] text-slate-900 tracking-tighter">
+                          <div className="text-sm font-[1000] text-slate-900 dark:text-white tracking-tighter">
                              Le {Math.round(item.total).toLocaleString()}
                           </div>
                        </div>
@@ -327,24 +321,24 @@ export default function SalesHistoryPage() {
                  </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-100 space-y-3">
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3">
                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     <span>Transaction Subtotal</span>
-                    <span className="text-slate-900">Le {Math.round(selectedSale?.totalAmount / 1.15).toLocaleString()}</span>
+                    <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount / 1.15).toLocaleString()}</span>
                  </div>
                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     <span>Tax Applied (15%)</span>
-                    <span className="text-slate-900">Le {Math.round(selectedSale?.totalAmount - (selectedSale?.totalAmount / 1.15)).toLocaleString()}</span>
+                    <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount - (selectedSale?.totalAmount / 1.15)).toLocaleString()}</span>
                  </div>
-                 <div className="h-px bg-slate-100 w-full my-2" />
+                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full my-2" />
                  <div className="flex justify-between items-end pt-2">
                     <div className="space-y-1">
                        <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">Final Settlement</span>
-                       <div className="text-4xl font-[1000] text-slate-900 tracking-tighter">Le {Math.round(selectedSale?.totalAmount).toLocaleString()}</div>
+                       <div className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(selectedSale?.totalAmount).toLocaleString()}</div>
                     </div>
                     <div className="flex flex-col items-end gap-1">
                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Method</span>
-                       <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                       <div className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
                           {selectedSale?.paymentMethod === 'CASH' ? <Wallet size={12} className="text-blue-500" /> : <SmartphoneIcon size={12} className="text-emerald-500" />}
                           {selectedSale?.paymentMethod}
                        </div>
@@ -353,11 +347,11 @@ export default function SalesHistoryPage() {
               </div>
            </div>
 
-           <div className="p-8 pt-0 flex gap-4 bg-white relative z-10">
-              <Button variant="outline" className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-500 hover:bg-slate-50 border-slate-200 transition-all flex gap-2" onClick={handlePrint}>
+           <div className="p-8 pt-0 flex gap-4 bg-white dark:bg-slate-950 relative z-10">
+              <Button variant="outline" className="flex-1 h-16 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 border-slate-200 dark:border-slate-800 transition-all flex gap-2" onClick={handlePrint}>
                  <Printer className="h-4 w-4" /> Print Copy
               </Button>
-              <Button onClick={() => setIsDetailsOpen(false)} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-xl transition-all">
+              <Button onClick={() => setIsDetailsOpen(false)} className="flex-1 h-16 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-xl transition-all">
                  Close View
               </Button>
            </div>

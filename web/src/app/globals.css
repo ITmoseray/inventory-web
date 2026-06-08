@@ -10,21 +10,40 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
   
-  /* Spacing Tokens (Mandatory) */
+  /* Enterprise Breakpoints */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 480px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1440px;
+  --breakpoint-2xl: 1920px;
+
+  /* Spacing Tokens (Fluid) */
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
   --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
   --spacing-6: 1.5rem;
   --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
   --spacing-12: 3rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-32: 8rem;
   
-  /* Typography Scale */
-  --text-xs: 0.75rem;
-  --text-sm: 0.875rem;
-  --text-base: 1rem;
-  --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
+  /* Typography Scale (Fluid via clamp) */
+  --text-xs: clamp(0.7rem, 0.65rem + 0.25vw, 0.75rem);
+  --text-sm: clamp(0.8rem, 0.75rem + 0.25vw, 0.875rem);
+  --text-base: clamp(0.9rem, 0.85rem + 0.25vw, 1rem);
+  --text-lg: clamp(1.05rem, 1rem + 0.25vw, 1.125rem);
+  --text-xl: clamp(1.15rem, 1.1rem + 0.25vw, 1.25rem);
+  --text-2xl: clamp(1.35rem, 1.25rem + 0.5vw, 1.5rem);
+  --text-3xl: clamp(1.65rem, 1.5rem + 0.75vw, 1.875rem);
+  --text-4xl: clamp(2rem, 1.75rem + 1.25vw, 2.25rem);
+  --text-5xl: clamp(2.5rem, 2rem + 2.5vw, 3rem);
+  --text-6xl: clamp(3rem, 2.5rem + 3.75vw, 4rem);
 
   /* ... rest of existing variables ... */
   --color-sidebar-primary: var(--sidebar-primary);
@@ -195,4 +214,28 @@
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
-}
+
+  /* Enterprise Responsive Utilities */
+  .kpi-grid {
+    @apply grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  /* Custom Touch-Friendly Scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 dark:bg-slate-800 rounded-full hover:bg-slate-300 dark:hover:bg-slate-700 transition-colors;
+  }
+
+  /* Prevent overscroll bounce on mobile but allow fluid scrolling */
+  .overscroll-contain {
+    overscroll-behavior: contain;
+  }
+  }
