@@ -19,32 +19,38 @@ export async function getProducts() {
       orderBy: { createdAt: "desc" },
     });
 
-    return products.map(p => ({
-      id: p.id,
-      name: p.name,
-      sku: p.sku,
-      description: p.description,
-      barcode: p.barcode,
-      unitPrice: p.unitPrice.toNumber(),
-      costPrice: p.costPrice?.toNumber() || null,
-      stockQuantity: p.stockQuantity,
-      minStockLevel: p.minStockLevel,
-      status: p.status,
-      metadata: p.metadata,
-      businessId: p.businessId,
-      categoryId: p.categoryId,
-      imageUrl: p.imageUrl,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      category: p.category ? {
-        id: p.category.id,
-        name: p.category.name,
-        description: p.category.description,
-        businessId: p.category.businessId,
-        createdAt: p.category.createdAt.toISOString(),
-        updatedAt: p.category.updatedAt.toISOString(),
-      } : null,
-    }));
+    return products.map(p => {
+      let status: "LOW" | "CRITICAL" | "OK" = "OK";
+      if (p.stockQuantity === 0) status = "CRITICAL";
+      else if (p.stockQuantity <= p.minStockLevel) status = "LOW";
+      
+      return {
+        id: p.id,
+        name: p.name,
+        sku: p.sku,
+        description: p.description,
+        barcode: p.barcode,
+        unitPrice: p.unitPrice.toNumber(),
+        costPrice: p.costPrice?.toNumber() || null,
+        stockQuantity: p.stockQuantity,
+        minStockLevel: p.minStockLevel,
+        status: status, // Server-side computed status
+        metadata: p.metadata,
+        businessId: p.businessId,
+        categoryId: p.categoryId,
+        imageUrl: p.imageUrl,
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt.toISOString(),
+        category: p.category ? {
+          id: p.category.id,
+          name: p.category.name,
+          description: p.category.description,
+          businessId: p.category.businessId,
+          createdAt: p.category.createdAt.toISOString(),
+          updatedAt: p.category.updatedAt.toISOString(),
+        } : null,
+      };
+    });
   } catch (error) {
     console.error("Failed to fetch products:", error);
     throw error;

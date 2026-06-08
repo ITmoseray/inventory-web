@@ -1,9 +1,5 @@
-import { AppSidebar } from "@/components/shared/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { AppShell } from "@/components/layout/AppShell";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
@@ -13,7 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { AuthProvider } from "@/components/providers/auth-provider";
 import { Bell } from "lucide-react";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { ToastManager } from "@/components/shared/toast-manager";
@@ -23,7 +18,7 @@ import { RealTimeClock } from "@/components/shared/real-time-clock";
 import { QuickActions } from "@/components/shared/quick-actions";
 import { OnboardingTrigger } from "@/components/shared/onboarding-trigger";
 import { redirect } from "next/navigation";
-import { auth, signOut } from "@/lib/auth";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -79,10 +74,8 @@ export default async function DashboardLayout({
   }
 
   return (
-      <SidebarProvider>
-        <ToastManager />
-        <AppSidebar />
-        <SidebarInset>
+      <AppShell>
+          <ToastManager />
           <OnboardingTrigger />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
@@ -119,11 +112,10 @@ export default async function DashboardLayout({
                </div>
             </div>
           </header>
-          <main className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <main className="flex-1">
             {children}
           </main>
           <QuickActions />
-        </SidebarInset>
-      </SidebarProvider>
+      </AppShell>
   );
 }

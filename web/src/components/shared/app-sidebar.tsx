@@ -2,22 +2,9 @@
 
 import * as React from "react";
 import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  BarChart3,
-  Settings,
-  ChevronRight,
-  LogOut,
-  Bell,
-  ShieldCheck,
-  Activity as ActivityIcon,
-  CreditCard,
-  Wallet,
-  UserCheck,
-  Book,
-  DollarSign
+  LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
+  ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
+  CreditCard, Wallet, UserCheck, Book, DollarSign
 } from "lucide-react";
 
 import {
@@ -29,6 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   DropdownMenu,
@@ -45,6 +33,14 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { getBusinessContext } from "@/lib/actions/auth";
 import { motion } from "framer-motion";
+import { usePermissions } from "@/hooks/use-permissions";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
 import { barSidebarConfig } from "@/lib/sidebar-configs/bar";
 import { restaurantSidebarConfig } from "@/lib/sidebar-configs/restaurant";
@@ -55,7 +51,6 @@ import { boutiqueSidebarConfig } from "@/lib/sidebar-configs/boutique";
 import { electronicsSidebarConfig } from "@/lib/sidebar-configs/electronics";
 import { warehouseSidebarConfig } from "@/lib/sidebar-configs/warehouse";
 
-// Helper to get config
 const getSidebarConfig = (type: string) => {
   switch (type) {
     case "BAR": return barSidebarConfig;
@@ -70,102 +65,37 @@ const getSidebarConfig = (type: string) => {
   }
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
-  const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
-  const [mounted, setMounted] = React.useState(false);
-  const pathname = usePathname();
-  const businessTypesString = session?.user?.businessType || "SHOP";
-  const businessTypes = businessTypesString.split(',').filter(t => t !== "");
-  const businessType = businessTypes[0] || "SHOP"; // Use the first type for display
-  
-  console.log("DEBUG Sidebar: types:", businessTypesString, "Detected:", businessTypes, "First:", businessType);
-
-  // Use dynamic configuration: Merge items from all applicable types
-  const navGroups = React.useMemo(() => {
-    const configs = businessTypes.map(getSidebarConfig).filter(Boolean);
-    console.log("DEBUG Sidebar: configs to merge:", configs);
-    
-    if (configs.length === 0) return [];
-    
-    // Merge all configurations
-    const merged: any[] = [];
-    configs.forEach(config => {
-        config?.forEach(group => {
-            const existingGroup = merged.find(g => g.label === group.label);
-            if (existingGroup) {
-                // Merge items, avoiding duplicates by title
-                group.items.forEach(item => {
-                    if (!existingGroup.items.find((i: any) => i.title === item.title)) {
-                        existingGroup.items.push(item);
-                    }
-                });
-            } else {
-                merged.push({...group, items: [...group.items]});
-            }
-        });
-    });
-    console.log("DEBUG Sidebar: merged groups:", merged);
-    return merged;
-  }, [businessTypesString]);
-  
-  // Need to filter groups based on user permissions
-  const userRole = session?.user?.role || "STAFF";
-  const isAdmin = userRole === "ADMIN" || userRole === "SUPERADMIN";
-  const userPermissions = session?.user?.permissions || [];
-  
-  interface NavItem {
+interface NavItem {
     title: string;
     url: string;
     icon?: any;
-    hidden?: boolean;
     permission?: string;
     items?: NavItem[];
-  }
+}
 
-  interface NavGroup {
+interface NavGroup {
     label: string;
     items: NavItem[];
-  }
+}
 
-  const hasPermission = (permission?: string) => {
-    if (!permission) return true;
-    if (isAdmin) return true;
-    return userPermissions.includes(permission);
-  };
-
-  const filteredNavGroups = (navGroups as NavGroup[]).map(group => ({
-    ...group,
-    items: group.items.filter((item: NavItem) => hasPermission(item.permission))
-  })).filter(group => group.items.length > 0);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  React.useEffect(() => {
-    if (session?.user?.businessId) {
-      getBusinessContext(session.user.businessId)
-        .then(setBusinessContext)
-        .catch(err => console.error("Failed to load business context:", err));
-    } else if (mounted) {
-      setBusinessContext({ name: "Global Admin", logoUrl: null });
-    }
-  }, [session?.user?.businessId, mounted]);
-
-  if (!mounted) {
-    return <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props} />;
-  }
-
+const SidebarContentRenderer = ({ 
+  filteredNavGroups, 
+  businessContext, 
+  businessType, 
+  session, 
+  pathname 
+}: any) => {
+  const { setOpenMobile } = useSidebar();
+  
   return (
-    <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props}>
+    <>
       <SidebarHeader className="pt-8 px-4 pb-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
               size="lg" 
               className="hover:bg-transparent px-0"
-              render={<Link href="/dashboard" className="flex items-center gap-3" />}
+              render={<Link href="/dashboard" className="flex items-center gap-3" onClick={() => setOpenMobile(false)} />}
             >
                 <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl shadow-xl shadow-primary/20 ring-4 ring-primary/5">
                   <Image 
@@ -209,18 +139,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
       
-      <SidebarContent className="px-3">
+      <SidebarContent className="px-3 overflow-y-auto custom-scrollbar">
         <SidebarMenu className="gap-6 pb-8">
-          {filteredNavGroups.map((group) => (
+          {filteredNavGroups.map((group: NavGroup) => (
             <div key={group.label} className="space-y-2">
               <div className="px-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em] mb-3">{group.label}</div>
               <div className="space-y-1">
-                {group.items.map((item: any) => {
-                  const isActive = pathname.startsWith(item.url) && (item.url !== "/dashboard" || pathname === "/dashboard");
-                  const Icon = item.icon;
-
-                  // Recursive function to render items and sub-items
-                  const renderItem = (navItem: any, isSubItem = false) => {
+                {group.items.map((item: NavItem) => {
+                  const renderItem = (navItem: NavItem, isSubItem = false) => {
                      const Icon = navItem.icon;
                      const isActive = pathname.startsWith(navItem.url) && (navItem.url !== "/dashboard" || pathname === "/dashboard");
 
@@ -236,20 +162,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                                   ? "bg-slate-900 text-white shadow-xl dark:bg-indigo-600 dark:shadow-indigo-500/20" 
                                   : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]"
                               )}
-                              render={<Link href={navItem.url} />}
+                              render={<Link href={navItem.url} onClick={() => setOpenMobile(false)} />}
                           >
                               {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", isActive ? "text-white" : "text-slate-400 dark:text-slate-500 group-hover/btn:text-primary")} />}
                               <span>{navItem.title}</span>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
-                        {navItem.items && navItem.items.map((subItem: any) => renderItem(subItem, true))}
+                        {navItem.items && navItem.items.map((subItem: NavItem) => renderItem(subItem, true))}
                       </React.Fragment>
                      );
                   };
-
                   return renderItem(item);
                 })}
-
               </div>
             </div>
           ))}
@@ -311,7 +235,84 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
+    </>
+  );
+};
+
+export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+  const { canAccess, openMobile, setOpenMobile } = useSidebar();
+  const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
+  const [mounted, setMounted] = React.useState(false);
+  const pathname = usePathname();
+  const businessTypesString = session?.user?.businessType || "SHOP";
+  const businessTypes = businessTypesString.split(',').filter(t => t !== "");
+  const businessType = businessTypes[0] || "SHOP"; 
+  
+  const navGroups = React.useMemo(() => {
+    const configs = businessTypes.map(getSidebarConfig).filter(Boolean);
+    if (configs.length === 0) return [];
+    const merged: NavGroup[] = [];
+    configs.forEach(config => {
+        config?.forEach(group => {
+            const existingGroup = merged.find(g => g.label === group.label);
+            if (existingGroup) {
+                group.items.forEach(item => {
+                    if (!existingGroup.items.find((i: any) => i.title === item.title)) {
+                        existingGroup.items.push(item);
+                    }
+                });
+            } else {
+                merged.push({...group, items: [...group.items]});
+            }
+        });
+    });
+    return merged;
+  }, [businessTypesString]);
+  
+  const filteredNavGroups = navGroups.map(group => ({
+    ...group,
+    items: group.items.filter((item: NavItem) => canAccess(item.permission))
+  })).filter(group => group.items.length > 0);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (session?.user?.businessId) {
+      getBusinessContext(session.user.businessId)
+        .then(setBusinessContext)
+        .catch(err => console.error("Failed to load business context:", err));
+    } else if (mounted) {
+      setBusinessContext({ name: "Global Admin", logoUrl: null });
+    }
+  }, [session?.user?.businessId, mounted]);
+
+  if (!mounted) {
+    return <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props} />;
+  }
+
+  return (
+    <>
+      {/* Mobile Drawer */}
+      <Sheet open={openMobile} onOpenChange={setOpenMobile}>
+        <SheetContent side="left" className="w-[80vw] p-0 bg-white">
+          <SheetHeader className="sr-only">
+             <SheetTitle>Mobile Navigation</SheetTitle>
+             <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
+          </SheetHeader>
+          <div className="flex h-full flex-col">
+             <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
+          </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop/Tablet Sidebar */}
+      <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm hidden md:flex" {...props}>
+          <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
+          <SidebarRail />
+      </Sidebar>
+    </>
   );
 }

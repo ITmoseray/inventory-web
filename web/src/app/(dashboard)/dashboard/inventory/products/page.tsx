@@ -49,6 +49,7 @@ import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { EmptyState } from "@/components/shared/empty-state";
+import { TouchWrapper } from "@/components/layout/TouchWrapper";
 
 export default function ProductsPage() {
   const { data: session } = useSession();
@@ -226,34 +227,36 @@ export default function ProductsPage() {
                  <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
                    <div className="grid grid-cols-2 gap-6">
                      <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Type</Label>
-                       <Select 
-                         value={formData.type} 
-                         onValueChange={(val: any) => setFormData({ ...formData, type: val })}
-                       >
-                         <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold">
-                           <SelectValue />
-                         </SelectTrigger>
-                         <SelectContent className="rounded-xl border-slate-100">
-                           <SelectItem value="PRODUCT">Physical Product</SelectItem>
-                           <SelectItem value="SERVICE">Professional Service</SelectItem>
-                         </SelectContent>
-                       </Select>
+                       <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Asset Type</Label>
+                       <TouchWrapper>
+                         <Select 
+                           value={formData.type} 
+                           onValueChange={(val: any) => setFormData({ ...formData, type: val })}
+                         >
+                           <SelectTrigger className="h-11 rounded-xl border-slate-100 bg-slate-50 font-bold">
+                             <SelectValue />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-xl border-slate-100">
+                             <SelectItem value="PRODUCT">Physical Product</SelectItem>
+                             <SelectItem value="SERVICE">Professional Service</SelectItem>
+                           </SelectContent>
+                         </Select>
+                       </TouchWrapper>
                      </div>
                      <div className="space-y-2 flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
                        <div className="space-y-0.5">
-                          <Label className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Network Exchange</Label>
-                          <p className="text-[9px] text-indigo-500 font-bold leading-tight">Allow other businesses to source this item</p>
+                          <Label className="text-xs font-black text-indigo-900 uppercase tracking-widest">Network Exchange</Label>
+                          <p className="text-[10px] text-indigo-500 font-bold leading-tight">Allow other businesses to source this item</p>
                        </div>
                        <input 
                          type="checkbox"
                          checked={formData.isNetworkAvailable}
                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, isNetworkAvailable: e.target.checked })}
-                         className="h-5 w-5 rounded-lg border-indigo-200 text-indigo-600 focus:ring-indigo-500"
+                         className="h-6 w-6 rounded-lg border-indigo-200 text-indigo-600 focus:ring-indigo-500"
                        />
                      </div>
                      <div className="space-y-2 col-span-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Imagery</Label>
+                       <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Product Imagery</Label>
                        <ImageUploader 
                          value={formData.imageUrl} 
                          onChange={(url) => setFormData({...formData, imageUrl: url})} 
@@ -261,14 +264,16 @@ export default function ProductsPage() {
                        />
                      </div>
                      <div className="space-y-2 col-span-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Designation</Label>
-                       <Input
-                         value={formData.name}
-                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
-                         placeholder={isBar ? "e.g. Star Beer 600ml" : "Enter designation"}
-                         className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
-                         required
-                       />
+                       <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Product Designation</Label>
+                       <TouchWrapper>
+                         <Input
+                           value={formData.name}
+                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
+                           placeholder={isBar ? "e.g. Star Beer 600ml" : "Enter designation"}
+                           className="h-11 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
+                           required
+                         />
+                       </TouchWrapper>
                      </div>
                      <div className="space-y-2">
                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SKU / Signature</Label>

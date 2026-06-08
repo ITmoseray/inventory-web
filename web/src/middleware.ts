@@ -41,9 +41,9 @@ export default auth((req) => {
   }
 
   // 4. Protect SuperAdmin routes for non-SuperAdmins
-  if (path.startsWith('/super-admin')) {
+  if (path.startsWith('/super-admin') && role !== 'SUPERADMIN') {
     console.log("DEBUG: Blocking non-SuperAdmin from super-admin route");
-    return NextResponse.redirect(new URL('/dashboard', req.url));
+    return NextResponse.redirect(new URL('/access-denied', req.url));
   }
 
   // 4b. Enforce Trial Expiration
@@ -71,5 +71,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/super-admin/:path*', '/api/:path*', '/login', '/register', '/'],
+  matcher: ['/dashboard/:path*', '/super-admin/:path*', '/api/:path*', '/login', '/register', '/', '/access-denied'],
 };
