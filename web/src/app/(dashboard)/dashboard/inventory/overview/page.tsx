@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getInventoryOverview, getFastMovingProducts } from "@/lib/actions/inventory";
 import { Package, AlertTriangle, TrendingUp, DollarSign } from "lucide-react";
+import { ModuleHeader } from "@/components/layout/ModuleHeader";
 
 export default async function InventoryOverviewPage() {
   const [overview, fastMoving] = await Promise.all([
@@ -10,7 +11,7 @@ export default async function InventoryOverviewPage() {
 
   return (
     <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-black uppercase tracking-tight">Inventory Intelligence Overview</h1>
+      <ModuleHeader title="Inventory Intelligence Overview" description="High-level asset performance and stock status" />
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>

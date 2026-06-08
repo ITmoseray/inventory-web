@@ -1,6 +1,7 @@
 import { ResponsiveTable } from "@/components/shared/responsive-table";
 import { getLowStockProducts } from "@/lib/actions/inventory";
 import { Badge } from "@/components/ui/badge";
+import { ModuleHeader } from "@/components/layout/ModuleHeader";
 import React from "react";
 
 // Assuming ResponsiveTable uses this Column interface
@@ -33,7 +34,7 @@ export default async function LowStockPage() {
 
   return (
       <div className="p-6">
-        <h1 className="text-2xl font-black mb-6 uppercase tracking-tight">Low Stock Alerts</h1>
+        <ModuleHeader title="Low Stock Alerts" description="Items requiring immediate attention" />
         <ResponsiveTable data={products} columns={columns} />
       </div>
   );

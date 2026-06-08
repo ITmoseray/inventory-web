@@ -1,5 +1,6 @@
 import { ResponsiveTable } from "@/components/shared/responsive-table";
 import { getStockMovements } from "@/lib/actions/inventory";
+import { ModuleHeader } from "@/components/layout/ModuleHeader";
 
 export default async function MovementsPage() {
   const movements = await getStockMovements();
@@ -13,7 +14,7 @@ export default async function MovementsPage() {
 
   return (
       <div className="p-6">
-        <h1 className="text-2xl font-black mb-6 uppercase tracking-tight">Stock Movement History</h1>
+        <ModuleHeader title="Stock Movement History" description="Audit trail of all inventory events" />
         <ResponsiveTable data={movements} columns={columns} />
       </div>
   );
