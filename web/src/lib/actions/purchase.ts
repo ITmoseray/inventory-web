@@ -61,15 +61,17 @@ export async function createPurchase(data: {
           },
         });
 
-        // Resolve any critical low stock notifications for this product
+        // Resolve any low stock notifications for this product (CRITICAL or LOW)
+        console.log(`DEBUG: Checking stock for ${product.name}: ${product.stockQuantity} > ${product.minStockLevel}`);
         if (product.stockQuantity > product.minStockLevel) {
-          await tx.$executeRawUnsafe(`
+          const result = await tx.$executeRawUnsafe(`
             UPDATE "Notification" 
             SET "isRead" = true, "updatedAt" = NOW()
             WHERE "businessId" = $1 
-            AND "title" = $2
+            AND ("title" = $2 OR "title" = $3)
             AND "isRead" = false
-          `, businessId, `Critical Low Stock: ${product.name}`);
+          `, businessId, `Critical Low Stock: ${product.name}`, `Low Stock: ${product.name}`);
+          console.log(`DEBUG: Notification update result:`, result);
         }
       }
 
