@@ -270,10 +270,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return merged;
   }, [businessTypesString]);
   
-  const filteredNavGroups = navGroups.map(group => ({
-    ...group,
-    items: group.items.filter((item: NavItem) => canAccess(item.permission))
-  })).filter(group => group.items.length > 0);
+  const filteredNavGroups = navGroups.map(group => {
+      const filteredItems = group.items.filter((item: NavItem) => {
+          const allowed = canAccess(item.permission);
+          console.log(`DEBUG Sidebar: Item: ${item.title}, Permission: ${item.permission}, Allowed: ${allowed}`);
+          return allowed;
+      });
+      return { ...group, items: filteredItems };
+  }).filter(group => {
+      const hasItems = group.items.length > 0;
+      console.log(`DEBUG Sidebar: Group: ${group.label}, HasItems: ${hasItems}`);
+      return hasItems;
+  });
+
+  console.log("DEBUG Sidebar: Filtered Groups count:", filteredNavGroups.length);
 
   React.useEffect(() => {
     setMounted(true);
