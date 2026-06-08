@@ -10,6 +10,8 @@ export async function createSale(data: {
     productId?: string; 
     productName?: string; 
     quantity: number; 
+    unitId?: string; // Add unitId
+    ratio?: number; // Add ratio
     unitPrice: number; 
     total: number;
     isExternalSourced?: boolean;
@@ -103,11 +105,14 @@ export async function createSale(data: {
 
         if (!item.productId) continue;
 
+        // Apply conversion ratio
+        const deductionQuantity = item.quantity * (item.ratio || 1);
+
         const product = await tx.product.update({
           where: { id: item.productId },
           data: {
             stockQuantity: {
-              decrement: item.quantity,
+              decrement: deductionQuantity,
             },
           },
         });
@@ -124,7 +129,7 @@ export async function createSale(data: {
         await tx.stockMovement.create({
           data: {
             productId: item.productId,
-            quantity: item.quantity,
+            quantity: deductionQuantity,
             type: "OUT",
             reason: `Sale ${newSale.invoiceNumber}`,
             businessId: businessId,

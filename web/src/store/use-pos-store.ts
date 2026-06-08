@@ -9,6 +9,8 @@ interface CartItem {
   isExternal?: boolean;
   externalSourceName?: string;
   externalCostPrice?: number;
+  unitId?: string; // Extension for unit conversion
+  ratio?: number; // Extension for unit conversion
 }
 
 interface POSState {

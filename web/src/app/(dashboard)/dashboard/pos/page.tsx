@@ -53,7 +53,7 @@ import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 
 // Elite Product Card
-const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: any }) => {
+const ProductCard = React.memo(({ p, onProductClick }: { p: any, onProductClick: (p: any) => void }) => {
   const isLowStock = p.stockQuantity <= p.minStockLevel;
   const stockPercentage = Math.min((p.stockQuantity / (p.minStockLevel * 5)) * 100, 100);
 
@@ -61,7 +61,7 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: any }) => {
     <motion.div 
       layout
       whileTap={{ scale: 0.97 }}
-      onClick={() => addItem({ id: p.id, name: p.name, price: p.unitPrice, quantity: 1, imageUrl: p.imageUrl })}
+      onClick={() => onProductClick(p)}
       className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-3 sm:p-4 flex flex-col items-center hover:border-primary/40 transition-all cursor-pointer shadow-sm hover:shadow-2xl hover:shadow-primary/5 group relative overflow-hidden" 
     >
       <div className="relative aspect-square w-full rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden mb-3 sm:mb-4 shadow-inner border border-slate-100 dark:border-slate-800">
@@ -119,17 +119,28 @@ ProductCard.displayName = "ProductCard";
 export default function POSPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const cart = usePOSStore((state) => state.cart);
-  const addItem = usePOSStore((state) => state.addItem);
-  const removeItem = usePOSStore((state) => state.removeItem);
-  const updateQuantity = usePOSStore((state) => state.updateQuantity);
-  const clearCart = usePOSStore((state) => state.clearCart);
-  
-  const total = usePOSStore((state) => state.total);
-  const tax = usePOSStore((state) => state.tax);
-  const grandTotal = usePOSStore((state) => state.grandTotal);
-  
+  const { cart, addItem, removeItem, updateQuantity, clearCart } = usePOSStore();
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
+
+  const [isUnitSelectorOpen, setIsUnitSelectorOpen] = useState(false);
+  
+  const handleProductClick = (product: any) => {
+    setSelectedProduct(product);
+    setIsUnitSelectorOpen(true);
+  };
+  
+  const handleUnitSelect = (unit: any, quantity: number) => {
+    const isBaseUnit = unit.id === "base";
+    addItem({
+       id: isBaseUnit ? selectedProduct.id : `${selectedProduct.id}-${unit.id}`,
+       name: `${selectedProduct.name} (${unit.name})`,
+       price: Number(unit.sellingPrice),
+       quantity: quantity,
+       imageUrl: selectedProduct.imageUrl,
+       unitId: isBaseUnit ? undefined : unit.id,
+       ratio: isBaseUnit ? 1 : Number(unit.ratio),
+    });
+  };
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -184,19 +195,27 @@ export default function POSPage() {
     
     setLoading(true);
     try {
+      if ((paymentStatus === "UNPAID" || paymentStatus === "PARTIAL") && selectedCustomer === "WALKIN") {
+         toast.error("Customer profile required for credit sales.");
+         setLoading(false);
+         return;
+      }
+
       const saleData = {
         items: cart.map(item => ({
           productId: item.isExternal ? undefined : item.id,
           productName: item.name,
           quantity: item.quantity,
+          unitId: item.unitId,
+          ratio: item.ratio,
           unitPrice: item.price,
           total: item.price * item.quantity,
         })),
         totalAmount: grandTotal,
         paymentMethod,
-        paymentStatus: "PAID",
+        paymentStatus,
         customerId: selectedCustomer === "WALKIN" ? undefined : selectedCustomer,
-        amountPaid: grandTotal,
+        amountPaid: paymentStatus === "PAID" ? grandTotal : amountPaid,
       };
 
       const result = await createSale(saleData);
@@ -212,6 +231,29 @@ export default function POSPage() {
       setLoading(false);
     }
   }
+
+  // ... (inside the catalog rendering loop)
+  <div className="grid grid-cols-2 gap-2 mt-1">
+      {filteredProducts?.map((p) => (
+          <ProductCard key={p.id} p={p} onProductClick={handleProductClick} />
+      ))}
+  </div>
+  
+  {/* Unit Selector Modal */}
+  {selectedProduct && (
+    <UnitSelectorModal 
+        product={{
+            id: selectedProduct.id,
+            name: selectedProduct.name,
+            unitPrice: Number(selectedProduct.unitPrice),
+            baseUnit: selectedProduct.baseUnit,
+            units: selectedProduct.units
+        }}
+        open={isUnitSelectorOpen}
+        onOpenChange={setIsUnitSelectorOpen}
+        onSelect={handleUnitSelect}
+    />
+  )}
 
   return (
     <div className="flex flex-col xl:flex-row h-[100dvh] bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">

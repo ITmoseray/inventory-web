@@ -9,6 +9,8 @@ export interface LocalProduct {
   categoryId: string | null;
   imageUrl?: string;
   metadata: any;
+  baseUnit: string;
+  units: any[];
 }
 
 export interface LocalCategory {
@@ -42,7 +44,7 @@ export class OfflineDB extends Dexie {
 
   constructor() {
     super('UniversalBusinessPOS');
-    this.version(1).stores({
+    this.version(2).stores({
       products: 'id, name, sku, categoryId',
       categories: 'id, name',
       pendingSales: '++id, createdAt, synced'

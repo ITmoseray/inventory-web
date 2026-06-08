@@ -75,6 +75,7 @@ export default function ProductsPage() {
     type: "PRODUCT" as "PRODUCT" | "SERVICE",
     isNetworkAvailable: false,
     imageUrl: "",
+    units: [] as any[] // Explicitly allow units array
   });
 
   // Business Type Logic
@@ -155,6 +156,7 @@ export default function ProductsPage() {
       type: "PRODUCT",
       isNetworkAvailable: false,
       imageUrl: "",
+      units: [] // Initialize empty units array
     });
   }
 

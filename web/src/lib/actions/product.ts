@@ -97,7 +97,9 @@ export async function createProduct(data: any) {
       status, 
       categoryId, 
       metadata,
-      imageUrl
+      imageUrl,
+      baseUnit,
+      units // New units field
     } = data;
 
     const product = await prisma.product.create({
@@ -114,7 +116,17 @@ export async function createProduct(data: any) {
         categoryId,
         metadata: metadata || {},
         businessId: session.user.businessId,
-        imageUrl
+        imageUrl,
+        baseUnit,
+        units: {
+          create: units?.map((u: any) => ({
+            name: u.name,
+            ratio: u.ratio,
+            sellingPrice: u.sellingPrice,
+            costPrice: u.costPrice,
+            barcode: u.barcode
+          })) || []
+        }
       },
     });
 

@@ -50,9 +50,11 @@ export function useOfflineSync() {
         name: p.name,
         sku: p.sku,
         unitPrice: parseFloat(p.unitPrice),
-        stockQuantity: p.stockQuantity,
+        stockQuantity: parseFloat(p.stockQuantity),
         categoryId: p.categoryId,
         metadata: p.metadata,
+        baseUnit: p.baseUnit || "Unit",
+        units: p.units || [],
       })));
 
       await db.categories.clear();

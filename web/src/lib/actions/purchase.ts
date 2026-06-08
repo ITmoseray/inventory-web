@@ -6,7 +6,7 @@ import { revalidatePath } from "next/cache";
 
 export async function createPurchase(data: {
   supplierId?: string;
-  items: { productId: string; quantity: number; unitCost: number; total: number }[];
+  items: { productId: string; unitId?: string; quantity: number; unitCost: number; total: number }[];
   totalAmount: number;
   invoiceNumber?: string;
 }) {
@@ -29,6 +29,7 @@ export async function createPurchase(data: {
           items: {
             create: data.items.map((item) => ({
               productId: item.productId,
+              unitId: item.unitId, // Save unitId
               quantity: item.quantity,
               unitCost: item.unitCost,
               total: item.total,
@@ -40,11 +41,23 @@ export async function createPurchase(data: {
 
       // 2. Update Stock Levels and record Stock Movements
       for (const item of data.items) {
+        let actualQuantity = item.quantity;
+        
+        // Convert to base units if unitId is provided
+        if (item.unitId) {
+          const unit = await tx.productUnit.findUnique({
+             where: { id: item.unitId }
+          });
+          if (unit) {
+            actualQuantity = item.quantity * unit.ratio.toNumber();
+          }
+        }
+
         const product = await tx.product.update({
           where: { id: item.productId, businessId: businessId },
           data: {
             stockQuantity: {
-              increment: item.quantity,
+              increment: actualQuantity,
             },
             costPrice: item.unitCost, // Update cost price to the latest purchase price
           },
@@ -53,7 +66,7 @@ export async function createPurchase(data: {
         await tx.stockMovement.create({
           data: {
             productId: item.productId,
-            quantity: item.quantity,
+            quantity: actualQuantity,
             type: "IN",
             reason: `Purchase ${newPurchase.invoiceNumber}`,
             businessId: businessId,
