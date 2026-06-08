@@ -248,18 +248,30 @@ const SidebarContentRenderer = ({
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const { canAccess, openMobile, setOpenMobile } = useSidebar();
   const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
   const [mounted, setMounted] = React.useState(false);
   const pathname = usePathname();
+
   const businessTypesString = session?.user?.businessType || "SHOP";
   const businessTypes = businessTypesString.split(',').filter(t => t !== "");
   const businessType = businessTypes[0] || "SHOP"; 
   
+  console.log("DEBUG Sidebar Session:", {
+     status,
+     role: session?.user?.role,
+     businessType: session?.user?.businessType,
+     permissionsCount: session?.user?.permissions?.length || 0,
+     permissions: session?.user?.permissions
+  });
+
   const navGroups = React.useMemo(() => {
     const configs = businessTypes.map(getSidebarConfig).filter(Boolean);
-    if (configs.length === 0) return [];
+    if (configs.length === 0) {
+      console.warn("DEBUG Sidebar: No configurations found for types:", businessTypes);
+      return [];
+    }
     const merged: NavGroup[] = [];
     configs.forEach(config => {
         config?.forEach(group => {
@@ -278,18 +290,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return merged;
   }, [businessTypesString]);
   
-  const filteredNavGroups = navGroups.map(group => {
+  const filteredNavGroups = React.useMemo(() => {
+    if (status === "loading") return [];
+    
+    return navGroups.map(group => {
       const filteredItems = group.items.filter((item: NavItem) => {
           const allowed = canAccess(item.permission);
-          console.log(`DEBUG Sidebar: Item: ${item.title}, Permission: ${item.permission}, Allowed: ${allowed}`);
           return allowed;
       });
       return { ...group, items: filteredItems };
-  }).filter(group => {
-      const hasItems = group.items.length > 0;
-      console.log(`DEBUG Sidebar: Group: ${group.label}, HasItems: ${hasItems}`);
-      return hasItems;
-  });
+    }).filter(group => group.items.length > 0);
+  }, [navGroups, canAccess, status]);
 
   console.log("DEBUG Sidebar: Filtered Groups count:", filteredNavGroups.length);
 
@@ -302,13 +313,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       getBusinessContext(session.user.businessId)
         .then(setBusinessContext)
         .catch(err => console.error("Failed to load business context:", err));
-    } else if (mounted) {
+    } else if (mounted && status === "authenticated") {
       setBusinessContext({ name: "Global Admin", logoUrl: null });
     }
-  }, [session?.user?.businessId, mounted]);
+  }, [session?.user?.businessId, mounted, status]);
 
-  if (!mounted) {
-    return <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props} />;
+  if (!mounted || status === "loading") {
+    return <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props}>
+      <div className="p-8 flex items-center justify-center h-full">
+         <div className="h-6 w-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    </Sidebar>;
   }
 
   return (

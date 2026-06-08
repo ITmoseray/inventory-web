@@ -82,7 +82,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.permissions && session.user) session.user.permissions = token.permissions as string[];
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       // 1. Basic population from login
       if (user) {
         token.businessId = (user as any).businessId;
@@ -92,7 +92,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.permissions = (user as any).permissions;
       }
 
-      // 2. Database-dependent impersonation logic
+      // 2. Auto-refresh permissions if missing or empty
+      if (trigger === "update" || (token.sub && (!token.permissions || (token.permissions as string[]).length === 0))) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.sub as string },
+            include: { role: { include: { permissions: true } }, business: true }
+          });
+          if (dbUser) {
+            token.role = dbUser.role.name;
+            token.permissions = dbUser.role.permissions.map(p => p.key);
+            token.businessType = dbUser.business.type;
+            token.businessId = dbUser.businessId;
+          }
+        } catch (error) {
+          console.error("JWT Permission Refresh Error:", error);
+        }
+      }
+
+      // 3. Database-dependent impersonation logic
       const cookieStore = await cookies();
       const impersonationTargetId = cookieStore.get("impersonation_target")?.value;
 

@@ -334,94 +334,94 @@ export default function DashboardPage() {
         >
           <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
              <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-900/30">
-                <div className="flex items-center justify-between">
-                   <div className="space-y-1">
-                      <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Activity</CardTitle>
-                      <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Live ledger stream</CardDescription>
+                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                      <div className="space-y-1">
+                         <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Activity</CardTitle>
+                         <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Live ledger stream</CardDescription>
+                      </div>
+                      <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-white dark:hover:bg-slate-800 self-start sm:self-auto" onClick={() => router.push("/dashboard/sales/history")}>
+                         History Explorer <ArrowRight className="ml-2 h-3.5 w-3.5" />
+                      </Button>
                    </div>
-                   <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-white dark:hover:bg-slate-800" onClick={() => router.push("/dashboard/sales/history")}>
-                      History Explorer <ArrowRight className="ml-2 h-3.5 w-3.5" />
-                   </Button>
-                </div>
-             </CardHeader>
-             <CardContent className="p-0">
-                {loading ? (
-                  <div className="p-20 flex flex-col items-center justify-center gap-6">
-                     <div className="relative">
-                        <div className="h-12 w-12 border-4 border-slate-100 border-t-primary rounded-full animate-spin" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                           <Activity className="h-4 w-4 text-primary animate-pulse" />
+                </CardHeader>
+                <CardContent className="p-0">
+                   {loading ? (
+                     <div className="p-20 flex flex-col items-center justify-center gap-6">
+                        <div className="relative">
+                           <div className="h-12 w-12 border-4 border-slate-100 border-t-primary rounded-full animate-spin" />
+                           <div className="absolute inset-0 flex items-center justify-center">
+                              <Activity className="h-4 w-4 text-primary animate-pulse" />
+                           </div>
+                        </div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] animate-pulse">Syncing African Trade Nodes...</p>
+                     </div>
+                   ) : recentSales.length === 0 ? (
+                     <div className="p-20 text-center space-y-6">
+                        <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border border-slate-100 dark:border-slate-700/50">
+                           <History className="h-8 w-8 text-slate-200" />
+                        </div>
+                        <div className="space-y-2">
+                           <p className="text-sm text-slate-400 font-bold uppercase tracking-widest leading-relaxed">No Intelligence entries found <br /> in the current cycle</p>
+                           <Button variant="outline" className="h-10 rounded-xl border-slate-200 text-[10px] font-black uppercase tracking-widest" onClick={() => router.push("/dashboard/pos")}>Initialize First Sale</Button>
                         </div>
                      </div>
-                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em] animate-pulse">Syncing African Trade Nodes...</p>
-                  </div>
-                ) : recentSales.length === 0 ? (
-                  <div className="p-20 text-center space-y-6">
-                     <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto shadow-inner border border-slate-100 dark:border-slate-700/50">
-                        <History className="h-8 w-8 text-slate-200" />
-                     </div>
-                     <div className="space-y-2">
-                        <p className="text-sm text-slate-400 font-bold uppercase tracking-widest leading-relaxed">No Intelligence entries found <br /> in the current cycle</p>
-                        <Button variant="outline" className="h-10 rounded-xl border-slate-200 text-[10px] font-black uppercase tracking-widest" onClick={() => router.push("/dashboard/pos")}>Initialize First Sale</Button>
-                     </div>
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
-                     {recentSales.slice(0, 6).map((sale: any, idx) => (
-                       <motion.div 
-                         initial={{ opacity: 0, y: 10 }}
-                         animate={{ opacity: 1, y: 0 }}
-                         transition={{ delay: 0.8 + (idx * 0.05), ease: "easeOut" }}
-                         key={sale.id} 
-                         className="p-6 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all duration-500 group/item cursor-pointer"
-                         onClick={() => {
-                            setSelectedSale(sale);
-                            setIsDetailsOpen(true);
-                         }}
-                       >
-                          <div className="flex items-center gap-5">
-                             <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center shadow-lg shadow-black/[0.02] border border-white dark:border-slate-800 transition-transform duration-500 group-hover/item:scale-110 group-hover/item:rotate-3", colors.secondary)}>
-                                <Activity className={cn("h-6 w-6", colors.text)} />
-                             </div>
-                             <div>
-                                <div className="font-black text-lg text-slate-900 dark:text-white tracking-tight group-hover/item:text-primary transition-colors">{sale.invoiceNumber}</div>
-                                <div className="flex items-center gap-3 text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-0.5">
-                                   <div className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {format(new Date(sale.createdAt), "HH:mm")}</div>
-                                   <div className="h-1 w-1 rounded-full bg-slate-200 dark:bg-slate-700" />
-                                   <span className="text-slate-500 font-bold italic">{sale.paymentMethod}</span>
+                   ) : (
+                     <div className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
+                        {recentSales.slice(0, 6).map((sale: any, idx) => (
+                          <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.8 + (idx * 0.05), ease: "easeOut" }}
+                            key={sale.id} 
+                            className="p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all duration-500 group/item cursor-pointer gap-4"
+                            onClick={() => {
+                               setSelectedSale(sale);
+                               setIsDetailsOpen(true);
+                            }}
+                          >
+                             <div className="flex items-center gap-3 sm:gap-5">
+                                <div className={cn("h-10 w-10 sm:h-14 sm:w-14 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg shadow-black/[0.02] border border-white dark:border-slate-800 transition-transform duration-500 group-hover/item:scale-110 group-hover/item:rotate-3 shrink-0", colors.secondary)}>
+                                   <Activity className={cn("h-4 w-4 sm:h-6 sm:w-6", colors.text)} />
+                                </div>
+                                <div className="min-w-0">
+                                   <div className="font-black text-sm sm:text-lg text-slate-900 dark:text-white tracking-tight group-hover/item:text-primary transition-colors truncate">{sale.invoiceNumber}</div>
+                                   <div className="flex items-center gap-2 sm:gap-3 text-[8px] sm:text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-0.5">
+                                      <div className="flex items-center gap-1.5"><Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> {format(new Date(sale.createdAt), "HH:mm")}</div>
+                                      <div className="h-1 w-1 rounded-full bg-slate-200 dark:bg-slate-700" />
+                                      <span className="text-slate-500 font-bold italic">{sale.paymentMethod}</span>
+                                   </div>
                                 </div>
                              </div>
-                          </div>
-                          <div className="flex flex-col items-end gap-1.5">
-                             <div className="font-[1000] text-xl text-slate-900 dark:text-white tracking-tighter">
-                                Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}
+                             <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1.5 border-t sm:border-t-0 pt-3 sm:pt-0 border-slate-50 dark:border-slate-800/50">
+                                <div className="font-[1000] text-lg sm:text-xl text-slate-900 dark:text-white tracking-tighter shrink-0">
+                                   Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}
+                                </div>
+                                <div className={cn("px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[8px] sm:text-[9px] font-[1000] uppercase tracking-widest shadow-sm shrink-0", 
+                                   sale.paymentStatus === "PAID" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400")}>
+                                   {sale.paymentStatus}
+                                </div>
                              </div>
-                             <div className={cn("px-2.5 py-1 rounded-lg text-[9px] font-[1000] uppercase tracking-widest shadow-sm", 
-                                sale.paymentStatus === "PAID" ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400")}>
-                                {sale.paymentStatus}
-                             </div>
-                          </div>
-                       </motion.div>
-                     ))}
-                  </div>
-                )}
-             </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Intelligence Promotion */}
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.9 }}
-        >
-          <Card className="group border-none bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-indigo-500/10 relative overflow-hidden h-full flex flex-col justify-center">
-             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none group-hover:scale-150 transition-transform duration-700" />
-             <Sparkles className="h-10 w-10 mb-6 text-primary animate-pulse" />
-             <h3 className="text-2xl font-[1000] tracking-tight mb-3 uppercase italic text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">Protech Forecast</h3>
-             <p className="text-slate-400 text-[10px] font-bold leading-relaxed uppercase tracking-[0.15em] mb-8">
-               Our neural predictive engines are analyzing your stock velocity. Upgrade to unlock advanced trade forecasting and demand simulation.
-             </p>
+                          </motion.div>
+                        ))}
+                     </div>
+                   )}
+                </CardContent>
+             </Card>
+           </motion.div>
+   
+           {/* Intelligence Promotion */}
+           <motion.div 
+             initial={{ opacity: 0, x: 20 }}
+             animate={{ opacity: 1, x: 0 }}
+             transition={{ delay: 0.9 }}
+           >
+             <Card className="group border-none bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 rounded-[2.5rem] p-6 sm:p-10 text-white shadow-2xl shadow-indigo-500/10 relative overflow-hidden h-full flex flex-col justify-center">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none group-hover:scale-150 transition-transform duration-700" />
+                <Sparkles className="h-8 w-8 sm:h-10 sm:w-10 mb-4 sm:mb-6 text-primary animate-pulse" />
+                <h3 className="text-xl sm:text-2xl font-[1000] tracking-tight mb-2 sm:mb-3 uppercase italic text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">Protech Forecast</h3>
+                <p className="text-slate-400 text-[9px] sm:text-[10px] font-bold leading-relaxed uppercase tracking-[0.15em] mb-6 sm:mb-8">
+                  Our neural predictive engines are analyzing your stock velocity. Upgrade to unlock advanced trade forecasting and demand simulation.
+                </p>
              <Button 
                onClick={() => {
                  toast.info("Generating predictive demand models...");
