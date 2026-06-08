@@ -28,7 +28,13 @@ export default auth((req) => {
 
   // 2. If session is present, don't let them go back to login/register/root
   if (path.startsWith('/login') || path.startsWith('/register') || path === '/') {
-    console.log("DEBUG: Middleware - Session present, redirecting based on role:", role);
+    console.log("DEBUG: Middleware - Session present, checking if redirect is needed");
+    
+    // If they are on /register and don't have a businessId, let them stay to complete registration
+    if (path.startsWith('/register') && !businessId && role !== 'SUPERADMIN') {
+      return NextResponse.next();
+    }
+
     if (role === 'SUPERADMIN') {
       return NextResponse.redirect(new URL('/super-admin', req.url));
     }
