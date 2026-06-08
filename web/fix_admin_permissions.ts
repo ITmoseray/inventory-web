@@ -21,13 +21,18 @@ async function main() {
     return;
   }
 
-  const adminRoles = await prisma.role.findMany({
-    where: { name: 'ADMIN' }
+  const targetRoles = await prisma.role.findMany({
+    where: { 
+      OR: [
+        { name: 'ADMIN' },
+        { name: 'SUPERADMIN' }
+      ]
+    }
   });
 
-  console.log(`🔍 Found ${adminRoles.length} ADMIN roles.`);
+  console.log(`🔍 Found ${targetRoles.length} target roles (ADMIN/SUPERADMIN).`);
 
-  for (const role of adminRoles) {
+  for (const role of targetRoles) {
     await prisma.role.update({
       where: { id: role.id },
       data: {
@@ -36,7 +41,7 @@ async function main() {
         }
       }
     });
-    console.log(`✅ Assigned ${allPermissions.length} permissions to role: ${role.id} (${role.businessId})`);
+    console.log(`✅ Assigned ${allPermissions.length} permissions to role: ${role.name} (${role.id})`);
   }
 
   console.log('🏁 Admin Permission Fix complete.');
