@@ -78,6 +78,8 @@ export async function createPurchase(data: {
 
     revalidatePath("/dashboard/inventory/products");
     revalidatePath("/dashboard/inventory/purchases");
+    revalidatePath("/dashboard/inventory/low-stock");
+    revalidatePath("/dashboard/inventory/overview");
     
     return { 
       success: true, 
