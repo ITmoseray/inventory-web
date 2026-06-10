@@ -2,13 +2,9 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const config: NextConfig = {
+  // Standard Next.js server-side build (not static export)
   turbopack: {},
-  images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'images.unsplash.com' },
-      { protocol: 'https', hostname: 'i.pravatar.cc' },
-    ],
-  },
+  
   typescript: {
     ignoreBuildErrors: true,
   },
