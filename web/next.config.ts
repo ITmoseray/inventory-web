@@ -2,11 +2,13 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const config: NextConfig = {
-  // Removed output: 'export' to support dynamic Server Actions, Auth, and API routes
-  // Required for /login, /register, and /setup-organization to function correctly
-  
   turbopack: {},
-  
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: 'i.pravatar.cc' },
+    ],
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

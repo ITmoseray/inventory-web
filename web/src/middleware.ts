@@ -12,8 +12,8 @@ export default auth((req) => {
   
   console.log(`DEBUG: Middleware - Path: ${path}, Session exists: ${!!session}, Role: ${role}`);
 
-  // 0. Explicitly allow Auth API routes
-  if (path.startsWith('/api/auth')) {
+  // 0. Explicitly allow Auth API routes and static PWA assets
+  if (path.startsWith('/api/auth') || path === '/manifest.json' || path === '/sw.js') {
     return NextResponse.next();
   }
 
