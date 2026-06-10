@@ -25,6 +25,8 @@ export const shopSidebarConfig = [
         permission: "menu:inventory",
         items: [
           { title: "Products", url: "/dashboard/inventory/products" },
+          { title: "Inventory Adjustments", url: "/dashboard/inventory/adjustments" },
+          { title: "Packages", url: "/dashboard/inventory/packages" },
           { title: "Network Exchange", url: "/dashboard/inventory/network" },
           { title: "Categories", url: "/dashboard/inventory/categories" },
           { title: "Batches", url: "/dashboard/inventory/batches" },

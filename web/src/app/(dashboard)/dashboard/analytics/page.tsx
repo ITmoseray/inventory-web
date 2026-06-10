@@ -34,6 +34,7 @@ import {
 import { useSession } from "next-auth/react";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { toast } from "sonner";
+import { NeuralAnalyst } from "@/components/dashboard/neural-analyst";
 
 export const dynamic = "force-dynamic";
 
@@ -132,7 +133,11 @@ export default function AnalyticsPage() {
 
   const handleDeploy = () => {
     console.log("Tactical deployment sequence engaged...");
-    alert("Intelligence Deployment Sequence: Initiated. Check your notifications.");
+    // Auto-scroll to Neural Analyst
+    const element = document.getElementById('neural-analyst-node');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
     
     toast("Syncing with African Trade Nodes...", {
       description: "Establishing neural link with regional hubs.",
@@ -160,7 +165,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="p-6 md:p-10 space-y-10 relative overflow-hidden bg-slate-50/30 dark:bg-slate-950/50">
+    <div className="p-6 md:p-10 space-y-10 relative overflow-hidden bg-slate-50/30 dark:bg-slate-950/50 pb-20">
       {/* Background Glows */}
       <div className={cn("absolute -top-24 -right-24 w-96 h-96 blur-[120px] opacity-[0.07] rounded-full pointer-events-none", colors.primary)} />
       <div className="absolute top-1/2 -left-24 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
@@ -201,6 +206,11 @@ export default function AnalyticsPage() {
            </Button>
         </div>
       </motion.div>
+
+      {/* Neural Analyst Hub */}
+      <div id="neural-analyst-node">
+         <NeuralAnalyst />
+      </div>
 
       {/* Primary Intelligence Row */}
       <div className="grid gap-8 lg:grid-cols-3">

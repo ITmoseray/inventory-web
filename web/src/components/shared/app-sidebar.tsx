@@ -87,6 +87,26 @@ const SidebarContentRenderer = ({
 }: any) => {
   const { setOpenMobile, state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
+
+  // Auto-expand the active section on mount or pathname change
+  React.useEffect(() => {
+    filteredNavGroups.forEach((group: NavGroup) => {
+      group.items.forEach((item: NavItem) => {
+        if (item.items?.some(sub => pathname.startsWith(sub.url))) {
+          if (!expandedItems.includes(item.title)) {
+            setExpandedItems(prev => [...prev, item.title]);
+          }
+        }
+      });
+    });
+  }, [pathname, filteredNavGroups]);
+
+  const toggleExpand = (title: string) => {
+    setExpandedItems(prev => 
+      prev.includes(title) ? prev.filter(t => t !== title) : [...prev, title]
+    );
+  };
   
   return (
     <>
@@ -158,36 +178,79 @@ const SidebarContentRenderer = ({
           )}
           {filteredNavGroups.map((group: NavGroup) => (
             <div key={group.label} className="space-y-2">
-              <div className="px-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em] mb-3">{group.label}</div>
+              <div className={cn("px-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
               <div className="space-y-1">
                 {group.items.map((item: NavItem) => {
-                  const renderItem = (navItem: NavItem, isSubItem = false) => {
-                     const Icon = navItem.icon;
-                     const isActive = pathname.startsWith(navItem.url) && (navItem.url !== "/dashboard" || pathname === "/dashboard");
+                  const hasChildren = item.items && item.items.length > 0;
+                  const isExpanded = expandedItems.includes(item.title);
+                  const Icon = item.icon;
+                  const isActive = pathname.startsWith(item.url) && (item.url !== "/dashboard" || pathname === "/dashboard");
 
-                     return (
-                      <React.Fragment key={navItem.title}>
-                        <SidebarMenuItem className={isSubItem ? "pl-4" : ""}>
-                          <SidebarMenuButton 
-                              tooltip={navItem.title} 
-                              isActive={isActive}
-                              className={cn(
-                              "h-11 rounded-xl transition-all duration-300 font-bold px-4 group/btn",
-                              isActive 
-                                  ? "bg-slate-900 text-white shadow-xl dark:bg-indigo-600 dark:shadow-indigo-500/20" 
-                                  : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]"
-                              )}
-                              render={<Link href={navItem.url} onClick={() => setOpenMobile(false)} />}
-                          >
-                              {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", isActive ? "text-white" : "text-slate-400 dark:text-slate-500 group-hover/btn:text-primary")} />}
-                              <span>{navItem.title}</span>
-                          </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        {navItem.items && navItem.items.map((subItem: NavItem) => renderItem(subItem, true))}
-                      </React.Fragment>
-                     );
-                  };
-                  return renderItem(item);
+                  return (
+                    <div key={item.title} className="space-y-1">
+                      <SidebarMenuItem>
+                        <SidebarMenuButton 
+                          tooltip={item.title} 
+                          isActive={isActive && !hasChildren}
+                          onClick={() => hasChildren ? toggleExpand(item.title) : setOpenMobile(false)}
+                          className={cn(
+                            "h-11 rounded-xl transition-all duration-300 font-bold px-4 group/btn",
+                            isActive && !hasChildren
+                              ? "bg-slate-900 text-white shadow-xl dark:bg-indigo-600 dark:shadow-indigo-500/20" 
+                              : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]",
+                            hasChildren && isExpanded && "bg-slate-50 dark:bg-slate-900/50"
+                          )}
+                          render={!hasChildren ? <Link href={item.url} /> : undefined}
+                        >
+                          <div className="flex items-center gap-4 flex-1">
+                            {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", (isActive && !hasChildren) ? "text-white" : "text-slate-400 dark:text-slate-50 group-hover/btn:text-primary")} />}
+                            <span className="truncate">{item.title}</span>
+                          </div>
+                          {hasChildren && (
+                            <ChevronRight className={cn(
+                              "size-4 text-slate-300 transition-transform duration-300",
+                              isExpanded && "rotate-90"
+                            )} />
+                          )}
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      {hasChildren && (
+                        <AnimatePresence initial={false}>
+                          {isExpanded && !isCollapsed && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <div className="pl-9 pr-2 py-1 space-y-1 border-l border-slate-100 dark:border-slate-800 ml-6">
+                                {item.items?.map((subItem) => {
+                                  const isSubActive = pathname === subItem.url;
+                                  return (
+                                    <Link 
+                                      key={subItem.title} 
+                                      href={subItem.url}
+                                      onClick={() => setOpenMobile(false)}
+                                      className={cn(
+                                        "block px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
+                                        isSubActive 
+                                          ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/30" 
+                                          : "text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900"
+                                      )}
+                                    >
+                                      {subItem.title}
+                                    </Link>
+                                  );
+                                })}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      )}
+                    </div>
+                  );
                 })}
               </div>
             </div>

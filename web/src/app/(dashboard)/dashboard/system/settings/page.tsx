@@ -1,286 +1,251 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { 
-  CreditCard, 
-  Shield, 
-  Settings, 
-  User, 
-  Building, 
-  Check, 
-  Lock, 
-  UserPlus, 
-  Trash2, 
-  ShieldAlert,
-  Save
+  Settings, Search, X, Building, Users, ShieldCheck, 
+  Globe, CreditCard, Layout, Zap, Bell, FileText, 
+  ShoppingCart, Package, Truck, MessageSquare, Database, 
+  Smartphone, Share2, Code2, Calculator, Percent, Clock,
+  ArrowRight, Landmark, Briefcase, Plus, Menu, Sparkles,
+  MapPin, Coins, Hash, Mail, Tag, Play, History, Box, 
+  Wallet, Activity, Edit, Receipt, Undo, FileSpreadsheet,
+  Layers, Scan, Terminal
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { toast } from "sonner";
-import { getSubscription, createSubscription } from "@/lib/actions/subscription";
-import { getUsers, createUser, deleteUser, changePassword, getRoles } from "@/lib/actions/user";
-import { getPermissions } from "@/lib/actions/role";
-import { useSession } from "next-auth/react";
-import { cn, getIndustryColor } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
-const PLANS = [
+const SETTINGS_GROUPS = [
   {
-    id: "FREE",
-    name: "Essential",
-    price: "0",
-    features: ["1 Business Profile", "Up to 100 Products", "1 Admin User", "Offline POS Core"],
+    title: "Organization Settings",
+    icon: Building,
+    items: [
+      { name: "Organization Profile", icon: Building },
+      { name: "Branding", icon: Sparkles },
+      { name: "Locations", icon: MapPin },
+      { name: "AI Integration", icon: Zap },
+      { name: "Manage Subscription", icon: CreditCard }
+    ]
   },
   {
-    id: "BASIC",
-    name: "Professional",
-    price: "150,000",
-    features: ["Unlimited Products", "Up to 5 Staff Users", "Advanced Analytics", "Priority Sync"],
+    title: "Users & Roles",
+    icon: Users,
+    items: [
+      { name: "Users", icon: Users },
+      { name: "Roles", icon: ShieldCheck },
+      { name: "User Preferences", icon: Settings }
+    ]
   },
   {
-    id: "PREMIUM",
-    name: "Hospitality",
-    price: "450,000",
-    features: ["Unlimited Team Users", "Restaurant Modules", "Pharmacy Guard", "24/7 VIP Support"],
+    title: "Taxes & Compliance",
+    icon: Calculator,
+    items: [
+      { name: "Taxes", icon: Percent }
+    ]
   },
+  {
+    title: "Setup & Configurations",
+    icon: Layout,
+    items: [
+      { name: "General", icon: Globe },
+      { name: "Currencies", icon: Coins },
+      { name: "Payment Terms New", icon: Clock },
+      { name: "Reminders", icon: Bell },
+      { name: "Customer Portal", icon: Users },
+      { name: "Vendor Portal", icon: Truck }
+    ]
+  },
+  {
+    title: "Customization",
+    icon: Edit,
+    items: [
+      { name: "Transaction Number Series", icon: Hash },
+      { name: "PDF Templates", icon: FileText },
+      { name: "Email Notifications", icon: Mail },
+      { name: "Reporting Tags", icon: Tag },
+      { name: "Web Tabs", icon: Globe }
+    ]
+  },
+  {
+    title: "Automation",
+    icon: Zap,
+    items: [
+      { name: "Workflow Rules", icon: Settings },
+      { name: "Workflow Actions", icon: Play },
+      { name: "Workflow Logs", icon: History },
+      { name: "Schedules", icon: Calendar }
+    ]
+  },
+  {
+    title: "Module Settings",
+    icon: Box,
+    items: [
+      { name: "Customers and Vendors", icon: Users },
+      { name: "Items & Inventory", icon: Package },
+      { name: "Units of Measurement", icon: Layers },
+      { name: "Inventory Adjustments", icon: Edit },
+      { name: "Packages & Shipments", icon: Truck },
+      { name: "Online Payments", icon: CreditCard },
+      { name: "Sales Orders & Invoices", icon: ShoppingCart },
+      { name: "Sales Returns & Credits", icon: Undo },
+      { name: "Purchases & Expenses", icon: Wallet },
+      { name: "Custom Modules", icon: Layout }
+    ]
+  },
+  {
+    title: "Integrations & Marketplace",
+    icon: Share2,
+    items: [
+      { name: "WhatsApp & SMS", icon: MessageSquare },
+      { name: "Shipping Partners", icon: Truck },
+      { name: "eCommerce & Shopping Cart", icon: ShoppingCart },
+      { name: "Accounting Apps", icon: Calculator },
+      { name: "Marketplace", icon: Globe }
+    ]
+  },
+  {
+    title: "Developer Space",
+    icon: Code2,
+    items: [
+      { name: "Widgets & SDK", icon: Code2 },
+      { name: "Incoming Webhooks", icon: Zap },
+      { name: "API Usage", icon: Activity },
+      { name: "Signals", icon: Bell }
+    ]
+  },
+  {
+    title: "Data Management",
+    icon: Database,
+    items: [
+      { name: "Deluge Components Usage", icon: Terminal },
+      { name: "Web Forms", icon: FileSpreadsheet },
+      { name: "Audit Trail", icon: History },
+      { name: "Backup & Recovery", icon: Database }
+    ]
+  }
 ];
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
-  const [subscription, setSubscription] = useState<any>(null);
-  const [users, setUsers] = useState<any[]>([]);
-  const [roles, setRoles] = useState<any[]>([]);
-  const [permissions, setPermissions] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  const businessType = session?.user?.businessType || "SHOP";
-  const colors = getIndustryColor(businessType);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // Form States
-  const [passData, setPassData] = useState({ current: "", new: "", confirm: "" });
-  const [userData, setUserData] = useState({ name: "", email: "", password: "", roleId: "", selectedPermissions: [] as string[] });
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  // Sync permissions when role changes
-  useEffect(() => {
-    if (userData.roleId && roles.length > 0) {
-      const selectedRole = roles.find(r => r.id === userData.roleId);
-      if (selectedRole) {
-        setUserData(prev => ({
-          ...prev,
-          selectedPermissions: selectedRole.permissions.map((p: any) => p.id)
-        }));
-      }
-    }
-  }, [userData.roleId, roles]);
-
-  async function fetchData() {
-    try {
-      setLoading(true);
-      const [sub, team, rolesData, permissionsData] = await Promise.all([
-        getSubscription(), 
-        getUsers(),
-        getRoles(),
-        getPermissions()
-      ]);
-      setSubscription(sub);
-      setUsers(team);
-      setRoles(rolesData);
-      setPermissions(permissionsData || []);
-      
-      if (rolesData.length > 0 && !userData.roleId) {
-        setUserData(prev => ({ ...prev, roleId: rolesData[0].id }));
-      }
-    } catch (error: any) {
-      console.error("Settings Fetch Error:", error);
-      toast.error("Cloud synchronization failed: " + error.message);
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handlePasswordChange(e: React.FormEvent) {
-    e.preventDefault();
-    if (passData.new !== passData.confirm) return toast.error("New passwords do not match");
-    
-    try {
-      await changePassword({ current: passData.current, new: passData.new });
-      toast.success("Security credentials updated");
-      setPassData({ current: "", new: "", confirm: "" });
-    } catch (error: any) {
-      toast.error(error.message);
-    }
-  }
-
-  async function handleAddUser(e: React.FormEvent) {
-    e.preventDefault();
-    try {
-      await createUser(userData);
-      toast.success(`User ${userData.name} invited to team`);
-      setUserData({ name: "", email: "", password: "", roleId: roles[0]?.id || "", selectedPermissions: [] });
-      fetchData();
-    } catch (error: any) {
-      toast.error(error.message);
-    }
-  }
-
-  async function handleDeleteUser(id: string) {
-    if (!confirm("Remove this user from your business?")) return;
-    try {
-      await deleteUser(id);
-      toast.success("User access revoked");
-      fetchData();
-    } catch (error: any) {
-      toast.error(error.message);
-    }
-  }
-
-  async function handleUpgrade(planId: string) {
-    try {
-      const endDate = new Date();
-      endDate.setMonth(endDate.getMonth() + 1);
-
-      await createSubscription({
-        plan: planId,
-        endDate: endDate,
-        amount: planId === "BASIC" ? 150000 : 450000,
-      });
-
-      toast.success(`Upgraded to ${planId} Plan!`);
-      fetchData();
-    } catch (error) {
-      toast.error("Subscription failed");
-    }
-  }
+  const filteredGroups = SETTINGS_GROUPS.map(group => ({
+    ...group,
+    items: group.items.filter(item => 
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      group.title.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(group => group.items.length > 0);
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
-      <div className="flex items-center gap-4">
-         <div className={cn("p-3 rounded-2xl text-white shadow-xl", colors.primary)}>
-            <Settings className="h-6 w-6" />
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 pb-20">
+      
+      {/* Settings Top Bar */}
+      <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80">
+         <div className="flex items-center gap-6 flex-1">
+            <div className="flex items-center gap-3">
+               <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
+                  <Settings className="h-5 w-5 text-white" />
+               </div>
+               <div>
+                  <h1 className="text-sm font-black uppercase tracking-[0.4em] text-indigo-600">All Settings</h1>
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tech Enterprise Node</p>
+               </div>
+            </div>
+
+            <div className="relative w-full max-w-xl group">
+               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+               <input 
+                 type="text" 
+                 placeholder="Search settings ( / )" 
+                 value={searchQuery}
+                 onChange={(e) => setSearchQuery(e.target.value)}
+                 className="w-full h-11 bg-slate-50 dark:bg-slate-800 rounded-xl border-none pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all"
+               />
+            </div>
          </div>
-         <div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900">System Control</h1>
-            <p className="text-slate-500 font-bold uppercase text-[10px] tracking-[0.2em]">Administration & Enterprise Scaling</p>
+
+         <div className="flex items-center gap-6">
+            <Link href="/dashboard">
+               <Button variant="outline" className="h-11 px-6 rounded-xl border-slate-200 font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-slate-50 transition-all">
+                  <X className="h-4 w-4" /> Close Settings
+               </Button>
+            </Link>
          </div>
-      </div>
+      </header>
 
-      <Tabs defaultValue="security" className="space-y-6">
-        <TabsList className="bg-slate-100 p-1 rounded-2xl">
-          <TabsTrigger value="security" className="rounded-xl font-black text-[10px] uppercase tracking-widest px-6 data-[state=active]:shadow-lg">
-            <Lock className="mr-2 h-4 w-4" /> Security
-          </TabsTrigger>
-          <TabsTrigger value="subscription" className="rounded-xl font-black text-[10px] uppercase tracking-widest px-6 data-[state=active]:shadow-lg">
-            <CreditCard className="mr-2 h-4 w-4" /> Billing
-          </TabsTrigger>
-        </TabsList>
+      {/* Main Grid Content */}
+      <main className="max-w-[1400px] mx-auto p-12">
+         
+         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 gap-y-20">
+            {filteredGroups.map((group, groupIdx) => (
+              <motion.div 
+                key={group.title}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: groupIdx * 0.05 }}
+                className="space-y-8"
+              >
+                 <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
+                       <group.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic">{group.title}</h3>
+                 </div>
 
-        {/* Security / Password Change */}
-        <TabsContent value="security">
-           <Card className="border-none shadow-2xl shadow-slate-200/50 rounded-[2.5rem] max-w-2xl">
-              <CardHeader className="p-8 pb-4">
-                 <CardTitle className="text-2xl font-black">Security Credentials</CardTitle>
-                 <CardDescription className="font-bold text-slate-400">Securely update your account password</CardDescription>
-              </CardHeader>
-              <form onSubmit={handlePasswordChange}>
-                 <CardContent className="p-8 pt-4 space-y-6">
-                    <div className="space-y-2">
-                       <Label className="font-black text-slate-700 text-xs uppercase tracking-widest pl-1">Current Password</Label>
-                       <Input 
-                         type="password" 
-                         value={passData.current}
-                         onChange={e => setPassData({...passData, current: e.target.value})}
-                         className="h-12 rounded-xl bg-slate-50 border-slate-100 focus:bg-white" 
-                         required
-                       />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                       <div className="space-y-2">
-                          <Label className="font-black text-slate-700 text-xs uppercase tracking-widest pl-1">New Password</Label>
-                          <Input 
-                            type="password" 
-                            value={passData.new}
-                            onChange={e => setPassData({...passData, new: e.target.value})}
-                            className="h-12 rounded-xl bg-slate-50 border-slate-100 focus:bg-white font-black" 
-                            required
-                          />
-                       </div>
-                       <div className="space-y-2">
-                          <Label className="font-black text-slate-700 text-xs uppercase tracking-widest pl-1">Confirm New</Label>
-                          <Input 
-                            type="password" 
-                            value={passData.confirm}
-                            onChange={e => setPassData({...passData, confirm: e.target.value})}
-                            className="h-12 rounded-xl bg-slate-50 border-slate-100 focus:bg-white font-black" 
-                            required
-                          />
-                       </div>
-                    </div>
-                 </CardContent>
-                 <CardFooter className="p-8 pt-0">
-                    <Button type="submit" className={cn("px-8 h-12 rounded-xl font-black text-xs uppercase tracking-widest shadow-xl", colors.primary, colors.glow)}>
-                       <Save className="mr-2 h-4 w-4" /> Save New Credentials
-                    </Button>
-                 </CardFooter>
-              </form>
-           </Card>
-        </TabsContent>
+                 <div className="flex flex-col gap-1 pl-1">
+                    {group.items.map((item, itemIdx) => (
+                      <button 
+                        key={item.name}
+                        className="group flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-left"
+                      >
+                         <div className="flex items-center gap-4">
+                            <item.icon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                            <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{item.name}</span>
+                         </div>
+                         <ArrowRight className="h-3 w-3 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                      </button>
+                    ))}
+                 </div>
+              </motion.div>
+            ))}
+         </div>
 
-        {/* Subscription Tab */}
-        <TabsContent value="subscription">
-           <div className="grid gap-8 lg:grid-cols-3 max-w-7xl mx-auto py-4">
-              {PLANS.map((p: any) => {
-                const isActive = (subscription?.plan || "FREE") === p.id;
-                return (
-                  <Card key={p.id} className={cn(
-                    "p-12 rounded-[3.5rem] border-4 flex flex-col bg-white transition-all duration-700",
-                    isActive ? "border-primary shadow-2xl shadow-primary/20 scale-105 z-10" : "border-slate-50 hover:shadow-xl"
-                  )}>
-                    <div className="flex justify-between items-start mb-4">
-                       <h3 className="text-3xl font-black tracking-tighter text-slate-900">{p.name}</h3>
-                       {isActive && (
-                         <div className="bg-primary text-white text-[9px] font-black uppercase px-3 py-1 rounded-full tracking-widest shadow-lg">Active</div>
-                       )}
+         {/* Extended Marketplace Promo */}
+         <section className="mt-32 p-16 rounded-[3rem] bg-slate-900 text-white overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
+            <div className="grid lg:grid-cols-2 gap-20 items-center relative z-10">
+               <div className="space-y-8">
+                  <div className="flex items-center gap-3">
+                     <Landmark className="h-6 w-6 text-indigo-400" />
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Marketplace Ecosystem</span>
+                  </div>
+                  <h2 className="text-5xl font-black tracking-tighter uppercase italic leading-[0.9]">
+                    Extend your Protech <br /><span className="text-indigo-400">Capabilities!</span>
+                  </h2>
+                  <p className="text-slate-400 font-medium text-lg leading-relaxed max-w-md uppercase tracking-tight text-[12px]">
+                    Connect your favorite apps and streamline your workflow with our extensive integration library.
+                  </p>
+                  <Button className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-[0.3em] text-[11px] hover:scale-105 transition-all shadow-2xl">Explore Marketplace</Button>
+               </div>
+               
+               <div className="flex flex-wrap gap-4 items-center justify-center p-12 bg-white/5 rounded-[3rem] border border-white/10 backdrop-blur-xl">
+                  {[1, 2, 3, 4, 5, 6].map(i => (
+                    <div key={i} className="h-20 w-32 bg-white/10 rounded-2xl flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
+                       <Plus className="h-6 w-6 text-slate-500" />
                     </div>
-                    <div className="text-4xl font-[1000] mb-10 text-slate-900 tracking-tighter">
-                      Le {p.price}<span className="text-xs font-black text-slate-300 ml-2">/ month</span>
-                    </div>
-                    <ul className="space-y-6 mb-12 flex-1">
-                      {p.features.map((f: string) => (
-                        <li key={f} className="flex items-center gap-4 text-xs font-black text-slate-700">
-                          <Check className={cn("h-4 w-4 shrink-0", isActive ? "text-primary" : "text-slate-200")} /> {f}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button 
-                      onClick={() => handleUpgrade(p.id)}
-                      disabled={isActive || p.id === "FREE"}
-                      className={cn(
-                        "h-16 rounded-2xl font-black text-lg transition-all shadow-xl",
-                        isActive ? "bg-slate-100 text-slate-400" : "bg-slate-900 text-white hover:bg-primary"
-                      )}
-                    >
-                      {isActive ? "Current Plan" : "Upgrade Business"}
-                    </Button>
-                  </Card>
-                );
-              })}
-           </div>
-        </TabsContent>
-      </Tabs>
+                  ))}
+               </div>
+            </div>
+         </section>
+
+         <footer className="mt-32 pt-12 border-t border-slate-100 dark:border-slate-800 text-center">
+            <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em] italic">© 2026, Protech Assist (SL) Limited. Global Network Operations Center.</p>
+         </footer>
+      </main>
+
     </div>
   );
 }

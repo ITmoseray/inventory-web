@@ -88,6 +88,14 @@ export async function registerBusiness(data: any) {
   return result;
 }
 
+export async function checkUserExists(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    select: { id: true, email: true }
+  });
+  return !!user;
+}
+
 export async function getBusinessContext(businessId: string) {
   const business = await prisma.business.findUnique({
     where: { id: businessId },

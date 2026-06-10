@@ -9,7 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Bell } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { ToastManager } from "@/components/shared/toast-manager";
 import { LogoutButton } from "@/components/shared/logout-button";
@@ -79,36 +79,38 @@ export default async function DashboardLayout({
           <OnboardingTrigger />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
-          <header className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-slate-50 bg-white/50 backdrop-blur-md sticky top-0 z-40 px-4 md:px-8 lg:px-10 transition-all duration-300 ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-            <div className="flex items-center gap-2">
+          <header className="flex h-20 shrink-0 items-center justify-between gap-6 border-b border-slate-100 bg-white sticky top-0 z-40 px-4 md:px-8 transition-all">
+            <div className="flex items-center gap-6 flex-1">
               <SidebarTrigger className="-ml-1" />
-              <Separator orientation="vertical" className="mr-2 h-4 hidden sm:block" />
-              <Breadcrumb className="hidden xs:block">
-                <BreadcrumbList>
-                  <BreadcrumbItem className="hidden md:block">
-                    <BreadcrumbLink href="/dashboard" className="font-bold text-slate-400 hover:text-primary transition-colors">
-                      Dashboard
-                    </BreadcrumbLink>
-                  </BreadcrumbItem>
-                  <BreadcrumbSeparator className="hidden md:block" />
-                  <BreadcrumbItem>
-                    <BreadcrumbPage className="font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter text-[10px] sm:text-xs">Intelligence Overview</BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb>
+              <div className="hidden xs:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100">
+                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
+                   {session?.user?.business?.name || "Tech Enterprise"}
+                 </span>
+              </div>
+              <div className="relative w-full max-w-md group hidden md:block">
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                 <input 
+                   type="text" 
+                   placeholder="Search in Customers ( / )" 
+                   className="w-full h-11 bg-slate-50 rounded-xl border-none pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all"
+                 />
+              </div>
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-6">
-               <div className="hidden xl:block">
-                  <RealTimeClock />
-               </div>
-               <div className="flex items-center gap-2 sm:gap-4 border-l border-slate-100 pl-3 sm:pl-6">
-                 <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-black text-emerald-600 uppercase tracking-tighter">System Live</span>
-                 </div>
-                 <NotificationBell />
-                 <LogoutButton />
+            <div className="flex items-center gap-6">
+               <NotificationBell />
+               <div className="flex items-center gap-3 pl-6 border-l border-slate-100">
+                  <div className="text-right hidden sm:block">
+                     <p className="text-xs font-[1000] text-slate-900 leading-none">
+                        {session?.user?.name || "strangesteven001"}
+                     </p>
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Admin Account</p>
+                  </div>
+                  <div className="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-indigo-600 font-black text-sm">
+                     {(session?.user?.name || "S").charAt(0).toUpperCase()}
+                  </div>
+                  <LogoutButton />
                </div>
             </div>
           </header>
