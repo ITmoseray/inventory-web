@@ -2,9 +2,11 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const config: NextConfig = {
-  // Disable Turbopack for Cloudflare build compatibility if needed, 
-  // though Cloudflare build happens in their CI.
-  // Standard webpack build is safer for the adapter.
+  // REMOVED: output: 'export' (Required for Auth/API)
+  
+  // Explicitly set Turbopack config to empty
+  turbopack: {},
+  
   typescript: {
     ignoreBuildErrors: true,
   },
