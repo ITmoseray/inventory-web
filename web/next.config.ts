@@ -11,6 +11,7 @@ const config: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  productionBrowserSourceMaps: true, // Enabled for debugging production error
 };
 
 const nextConfig = withPWA({
