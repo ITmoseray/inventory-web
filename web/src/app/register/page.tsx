@@ -24,6 +24,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { registerBusiness, checkUserExists } from "@/lib/actions/auth";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,

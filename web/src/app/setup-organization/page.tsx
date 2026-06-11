@@ -37,6 +37,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
@@ -470,8 +471,4 @@ function Loader2(props: any) {
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </svg>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
 }
