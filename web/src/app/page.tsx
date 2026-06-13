@@ -179,7 +179,7 @@ export default function ProtechCloudHomepage() {
                 className="relative hidden lg:block"
               >
                  <div className="relative bg-white rounded-[3rem] border-[16px] border-slate-900 shadow-[0_80px_120px_-30px_rgba(0,0,0,0.3)] overflow-hidden aspect-[16/11] z-20 group">
-                    <Image src="/images/1000001630.jpg" alt="Dashboard" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                    <Image src="/images/dashboard-preview-2.png" alt="Dashboard" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/10 to-transparent pointer-events-none" />
                  </div>
                  {/* Decorative Elements */}

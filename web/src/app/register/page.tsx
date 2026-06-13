@@ -120,7 +120,7 @@ export default function RegisterPage() {
     <div className="flex min-h-screen bg-white font-sans overflow-hidden">
       
       {/* Left Column: Social Proof & Stats */}
-      <div className="hidden lg:flex w-[45%] bg-slate-900 text-white relative flex-col justify-between p-20 overflow-hidden">
+      <div className="hidden lg:flex w-[45%] bg-slate-900 text-white relative flex-col justify-between p-12 xl:p-20 overflow-y-auto h-screen sticky top-0">
         {/* Decorative elements */}
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
