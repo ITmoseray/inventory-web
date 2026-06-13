@@ -1,17 +1,31 @@
 import { PrismaClient } from "@prisma/client";
+import { PrismaNeon } from "@prisma/adapter-neon";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import ws from "ws";
+
+// Standard configuration for Neon serverless
+if (typeof window === "undefined") {
+  neonConfig.webSocketConstructor = ws;
+}
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// Prisma 7 handles the URL via prisma.config.ts automatically
+// Initialize Neon Pool
+// prisma.config.ts handles DATABASE_URL from environment variables
+const connectionString = process.env.DATABASE_URL!;
+const pool = new Pool({ connectionString });
+const adapter = new PrismaNeon(pool);
+
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
+    adapter,
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
-// If you still need the tenant-scoped prisma, update it to use the new 'prisma' client
+// Tenant-scoped prisma
 export const getTenantPrisma = (businessId: string) => {
   return prisma.$extends({
     query: {
