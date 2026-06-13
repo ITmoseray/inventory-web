@@ -8,6 +8,11 @@ const config: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },
   productionBrowserSourceMaps: true, // Enabled for debugging production error
   images: {
     remotePatterns: [
