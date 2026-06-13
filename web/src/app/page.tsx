@@ -183,7 +183,7 @@ export default function ProtechCloudHomepage() {
                 className="relative hidden lg:block"
               >
                  <div className="relative bg-white rounded-[3rem] border-[16px] border-slate-900 shadow-[0_80px_120px_-30px_rgba(0,0,0,0.3)] overflow-hidden aspect-[16/11] z-20 group">
-                    <Image src="/images/dashboard-preview-2.png" alt="Dashboard" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
+                    <Image src="/images/1000001630.jpg" alt="Dashboard" fill className="object-cover transition-transform duration-1000 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-900/10 to-transparent pointer-events-none" />
                  </div>
                  {/* Decorative Elements */}
@@ -340,6 +340,79 @@ export default function ProtechCloudHomepage() {
         </section>
 
         <PricingSection />
+
+        {/* 6.5. Social Proof & Impact: Real World Results */}
+        <section className="py-32 bg-slate-50">
+           <div className="container px-6 mx-auto">
+              <div className="grid lg:grid-cols-2 gap-20 items-center">
+                 <div className="space-y-12">
+                    <div className="space-y-6">
+                       <div className="text-indigo-600 font-black text-[10px] uppercase tracking-[0.5em]">Real-World Impact</div>
+                       <h2 className="text-5xl lg:text-7xl font-black tracking-tight text-slate-900 leading-none">
+                          Trusted by <span className="text-indigo-600 italic font-light">Industry Leaders.</span>
+                       </h2>
+                       <p className="text-xl text-slate-500 font-medium max-w-xl">
+                          More than 75% of our customers report lasting operational impacts within the first 30 days of implementation.
+                       </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                       {[
+                         { value: "1-3 hrs", label: "Saved in order processing daily", icon: Clock, faces: false },
+                         { value: "20-30%", label: "Reduction in inventory wastage", icon: TrendingUp, faces: true },
+                       ].map((stat, i) => (
+                         <div key={i} className="p-8 rounded-[2rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50">
+                            <div className="flex justify-between items-start mb-6">
+                               <div className="h-12 w-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                                  <stat.icon className="h-6 w-6" />
+                               </div>
+                               {stat.faces && (
+                                 <div className="flex -space-x-2">
+                                    {[1,2,3,4].map(f => (
+                                      <div key={f} className="h-6 w-6 rounded-full border-2 border-white bg-indigo-50 flex items-center justify-center shadow-sm">
+                                         <Users className="h-3 w-3 text-indigo-600" />
+                                      </div>
+                                    ))}
+                                 </div>
+                               )}
+                            </div>
+                            <div className="text-4xl font-black text-slate-900 mb-2 tracking-tighter">{stat.value}</div>
+                            <div className="text-[10px] font-black uppercase tracking-widest text-slate-400">{stat.label}</div>
+                         </div>
+                       ))}
+                    </div>
+                 </div>
+
+                 <div className="relative">
+                    <div className="absolute -inset-10 bg-indigo-600/5 rounded-full blur-[100px] -z-10" />
+                    <div className="bg-slate-900 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden group">
+                       <Quote className="absolute top-10 right-10 h-32 w-32 text-white/5 -rotate-12 transition-transform group-hover:rotate-0 duration-700" />
+                       
+                       <div className="relative z-10 space-y-10">
+                          <h3 className="text-3xl lg:text-4xl font-black text-white leading-tight italic tracking-tight">
+                             "The multi-branch control changed how we operate. Real-time tracking is a lifesaver for our distribution network."
+                          </h3>
+                          
+                          <div className="flex items-center gap-6">
+                             <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-2xl relative">
+                                <Image 
+                                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&h=300&auto=format&fit=crop" 
+                                  alt="Mariatu Bangura" 
+                                  fill
+                                  className="object-cover"
+                                />
+                             </div>
+                             <div>
+                                <p className="text-xl font-black text-white tracking-tight">Mariatu Bangura</p>
+                                <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mt-1">CEO, West End Distributors</p>
+                             </div>
+                          </div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </section>
 
         {/* 7. Final Call to Action */}
         <section className="py-32 bg-slate-900 relative overflow-hidden">

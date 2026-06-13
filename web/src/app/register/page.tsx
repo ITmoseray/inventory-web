@@ -50,9 +50,9 @@ const SOCIAL_PROOF = [
 ];
 
 const IMPACT_STATS = [
-  { label: "saved in order processing time", value: "1-3 hrs per day" },
-  { label: "reduction in inventory costs", value: "20-30%" },
-  { label: "of manual tasks automated", value: "30-50%" }
+  { label: "saved in order processing time", value: "1-3 hrs per day", faces: false },
+  { label: "reduction in inventory costs", value: "20-30%", faces: true },
+  { label: "of manual tasks automated", value: "30-50%", faces: false }
 ];
 
 const FEATURES = [
@@ -125,33 +125,33 @@ export default function RegisterPage() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10">
-          <Link href="/" className="flex items-center gap-4 mb-20 group">
-             <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-xl shadow-indigo-600/20 group-hover:scale-110 transition-transform">
-                <Package className="h-6 w-6" />
+          <Link href="/" className="flex items-center gap-4 mb-16 group">
+             <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-600/40 group-hover:scale-110 transition-transform duration-500">
+                <Package className="h-7 w-7" />
              </div>
              <div className="flex flex-col">
-                <span className="font-black text-2xl tracking-tighter">Protech <span className="text-indigo-400 italic">Assist</span></span>
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">Enterprise Inventory OS</span>
+                <span className="font-black text-3xl tracking-tighter leading-none">Protech <span className="text-indigo-400 italic">Assist</span></span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mt-2 leading-none">Enterprise Inventory OS</span>
              </div>
           </Link>
 
           <AnimatePresence mode="wait">
             <motion.div
               key={currentProofIndex}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="space-y-10"
             >
               <div className="relative">
-                <Quote className="h-20 w-20 text-indigo-600/20 absolute -top-10 -left-10" />
-                <h2 className="text-4xl font-black leading-tight tracking-tight uppercase italic relative z-10">
+                <Quote className="h-24 w-24 text-indigo-600/10 absolute -top-12 -left-12" />
+                <h2 className="text-4xl lg:text-5xl font-black leading-[0.95] tracking-tight uppercase italic relative z-10 text-white">
                   {SOCIAL_PROOF[currentProofIndex].quote}
                 </h2>
               </div>
               
-              <div className="flex items-center gap-6">
-                 <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-indigo-600 shadow-xl">
+              <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                 <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-2xl">
                     <Image 
                       src={SOCIAL_PROOF[currentProofIndex].image} 
                       alt={SOCIAL_PROOF[currentProofIndex].author} 
@@ -161,8 +161,8 @@ export default function RegisterPage() {
                     />
                  </div>
                  <div>
-                    <p className="font-black text-xl tracking-tight">{SOCIAL_PROOF[currentProofIndex].author}</p>
-                    <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest mt-1">
+                    <p className="font-black text-xl tracking-tight text-white">{SOCIAL_PROOF[currentProofIndex].author}</p>
+                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mt-1">
                       {SOCIAL_PROOF[currentProofIndex].role}
                     </p>
                  </div>
@@ -171,20 +171,35 @@ export default function RegisterPage() {
           </AnimatePresence>
         </div>
 
-        <div className="relative z-10 space-y-16">
-          <div className="space-y-6">
-            <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400">
-              More than 75% of our customers have lasting impacts*
-            </p>
-            <div className="grid grid-cols-1 gap-8">
+        <div className="relative z-10 space-y-12">
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-indigo-600/20 border border-indigo-600/30">
+               <div className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
+               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300">
+                 More than 75% customer impact rate*
+               </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
               {IMPACT_STATS.map((stat, i) => (
-                <div key={i} className="flex items-center gap-6 group">
-                   <div className="h-12 w-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xl text-indigo-400 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                <div key={i} className="flex items-center gap-6 group p-4 rounded-2xl hover:bg-white/5 transition-colors">
+                   <div className="h-14 w-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-indigo-600/20 transition-all group-hover:scale-110">
                       {i + 1}
                    </div>
-                   <div>
-                      <p className="text-2xl font-black tracking-tighter">{stat.value}</p>
-                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mt-1">{stat.label}</p>
+                   <div className="flex-1">
+                      <div className="flex justify-between items-center w-full">
+                         <p className="text-3xl font-black tracking-tighter text-white leading-none">{stat.value}</p>
+                         {stat.faces && (
+                            <div className="flex -space-x-2">
+                               {[1,2,3,4].map(f => (
+                                 <div key={f} className="h-6 w-6 rounded-full border-2 border-slate-900 bg-indigo-600/20 flex items-center justify-center">
+                                    <Users className="h-3 w-3 text-indigo-400" />
+                                 </div>
+                               ))}
+                            </div>
+                         )}
+                      </div>
+                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mt-2">{stat.label}</p>
                    </div>
                 </div>
               ))}
