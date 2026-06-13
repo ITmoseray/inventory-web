@@ -8,9 +8,6 @@ const config: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   productionBrowserSourceMaps: true, // Enabled for debugging production error
   images: {
     remotePatterns: [
