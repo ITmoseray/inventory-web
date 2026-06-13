@@ -31,6 +31,7 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  secret: process.env.AUTH_SECRET,
   trustHost: true,
   cookies: {
     sessionToken: {
@@ -40,7 +41,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: 'lax',
         path: '/',
         secure: process.env.NODE_ENV === "production",
-        domain: process.env.NODE_ENV === "production" ? '.vercel.app' : undefined,
       },
     },
   },
