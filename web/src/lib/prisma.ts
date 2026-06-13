@@ -8,26 +8,22 @@ if (typeof window === "undefined") {
   neonConfig.webSocketConstructor = ws;
 }
 
-// DIAGNOSTIC LOG
-console.log("--- DIAGNOSTIC: Checking DATABASE_URL ---");
-console.log("DATABASE_URL is set:", !!process.env.DATABASE_URL);
-if (process.env.DATABASE_URL) {
-  console.log("DATABASE_URL prefix:", process.env.DATABASE_URL.substring(0, 15) + "...");
-} else {
-  console.error("CRITICAL: DATABASE_URL is NOT defined in process.env!");
-}
-// END DIAGNOSTIC
-
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
+// Explicitly ensure we are reading from process.env at the moment of initialization
 const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error("DATABASE_URL is not set in environment variables!");
+}
+
 const pool = new Pool({ connectionString });
 const adapter = new PrismaNeon(pool);
 
 const prismaClient = new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-  });
+  adapter,
+  log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+});
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prismaClient;
 
