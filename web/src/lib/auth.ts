@@ -66,6 +66,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             throw new Error("Invalid email or password.");
           }
 
+          if (user.status !== 'active') {
+            throw new Error("Your account is not active. Please contact the administrator.");
+          }
+
           return {
             id: user.id,
             name: user.name,
