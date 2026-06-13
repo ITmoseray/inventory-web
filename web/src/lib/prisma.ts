@@ -10,11 +10,11 @@ if (typeof window === "undefined") {
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// Explicitly ensure we are reading from process.env at the moment of initialization
-const connectionString = process.env.DATABASE_URL?.trim();
+// Diagnostic: Hardcoding the connection string to verify Render environment loading
+const connectionString = "postgresql://neondb_owner:npg_AzHb8mwg0qBo@ep-patient-wind-at25rg23-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require";
 
 if (!connectionString) {
-  throw new Error("DATABASE_URL is not set in environment variables!");
+  throw new Error("DATABASE_URL is not set!");
 }
 
 const pool = new Pool({ connectionString });
