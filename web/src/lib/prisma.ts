@@ -13,6 +13,8 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 // Read from process.env at the moment of initialization
 const connectionString = process.env.DATABASE_URL?.trim();
 
+console.log("DATABASE_URL loaded:", !!connectionString);
+
 if (!connectionString) {
   throw new Error("DATABASE_URL is not set in environment variables!");
 }

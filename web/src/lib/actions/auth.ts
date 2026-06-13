@@ -6,7 +6,7 @@ import { BusinessType } from "@prisma/client";
 import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
 
 export async function registerBusiness(data: any) {
-  const { businessName, email, password, businessType, plan, logoUrl } = data;
+  const { businessName, email, password, businessType, plan, logoUrl, phone } = data;
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -21,6 +21,7 @@ export async function registerBusiness(data: any) {
     const business = await tx.business.create({
       data: {
         name: businessName,
+        phone: phone, // Added phone field here
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: businessType as BusinessType,
         plan: plan,
