@@ -11,7 +11,7 @@ if (typeof window === "undefined") {
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 // Explicitly ensure we are reading from process.env at the moment of initialization
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL?.trim();
 
 if (!connectionString) {
   throw new Error("DATABASE_URL is not set in environment variables!");
