@@ -38,11 +38,12 @@ import {
   Palette,
   MessageSquare,
   Search,
-  CheckCircle2,
+  CheckCircle2, 
   Headphones,
   ExternalLink,
-  Utensils
-} from "lucide-react";
+  Utensils,
+  Quote
+  } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useRef, useState } from "react";
@@ -87,11 +88,11 @@ export default function ProtechCloudHomepage() {
             <Image src="/images/logo.jpeg" alt="Protech Logo" fill className="object-cover" />
           </div>
           <div className="flex flex-col">
-            <span className="font-black text-xl tracking-tighter text-slate-900 leading-none">
-              ENTERPRISE
+            <span className="font-black text-2xl tracking-tighter text-slate-900 leading-none">
+              Protech <span className="text-indigo-600 italic">Assist</span>
             </span>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600 leading-none mt-1">
-              Inventory OS
+            <span className="text-[9px] font-black uppercase tracking-[0.4em] text-indigo-500 leading-none mt-1.5">
+              Enterprise Inventory OS
             </span>
           </div>
         </Link>
@@ -137,42 +138,37 @@ export default function ProtechCloudHomepage() {
                    Trusted by Businesses Across Sierra Leone
                 </motion.div>
                 
-                <motion.h1 variants={itemVariants} className="text-6xl lg:text-8xl font-black tracking-tight text-slate-900 leading-[0.95] mb-10">
-                   Africa's Smartest <span className="text-indigo-600 italic">Business Management</span> Platform.
+                <motion.h1 variants={itemVariants} className="text-6xl lg:text-9xl font-black tracking-tight text-slate-900 leading-[0.9] mb-10">
+                   Africa's Most Advanced <br /> <span className="text-indigo-600 italic">Enterprise Inventory OS.</span>
                 </motion.h1>
                 
-                <motion.p variants={itemVariants} className="text-xl text-slate-500 max-w-xl leading-relaxed mb-12 font-medium">
-                  Built by Protech Assist (SL) Limited to help retailers, pharmacies, and distributors manage every aspect of their business from one powerful cloud platform.
+                <motion.p variants={itemVariants} className="text-xl text-slate-500 max-w-2xl leading-relaxed mb-12 font-medium">
+                  Designed by Protech Assist (SL) Limited to provide mission-critical intelligence for retail, wholesale, and distribution enterprises across the continent.
                 </motion.p>
                 
-                <motion.div variants={itemVariants} className="grid grid-cols-2 gap-x-8 gap-y-4 mb-14">
-                   {[
-                     "Real-Time Tracking", "Point of Sale (POS)", 
-                     "Multi-Branch Control", "Customer & Supplier CRM",
-                     "Profit & Loss Reporting", "Barcode & Batch Tracking",
-                     "Secure Cloud Backup", "Online & Offline Mode"
-                   ].map((point, i) => (
-                     <div key={i} className="flex items-center gap-3">
-                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
-                        <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">{point}</span>
-                     </div>
-                   ))}
-                </motion.div>
-
-                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5">
+                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 mb-20">
                   <Link 
                     href="/register" 
-                    className="h-18 px-12 text-sm font-black uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-2xl shadow-indigo-600/20 transition-all flex items-center justify-center group"
+                    className="h-20 px-12 text-sm font-black uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-2xl shadow-indigo-600/20 transition-all flex items-center justify-center group"
                   >
                     Start Free Trial
                     <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <button 
                     onClick={() => setIsDemoModalOpen(true)}
-                    className="h-18 px-12 text-sm font-black uppercase tracking-[0.2em] border-2 border-slate-200 bg-white hover:border-slate-900 text-slate-900 rounded-2xl transition-all flex items-center justify-center"
+                    className="h-20 px-12 text-sm font-black uppercase tracking-[0.2em] border-2 border-slate-200 bg-white hover:border-slate-900 text-slate-900 rounded-2xl transition-all flex items-center justify-center"
                   >
                     Book a Live Demo
                   </button>
+                </motion.div>
+
+                <motion.div variants={itemVariants} className="space-y-6">
+                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Trusted by industry leaders in</p>
+                   <div className="flex flex-wrap gap-x-12 gap-y-6 opacity-40 grayscale">
+                      {["PHARMACEUTICALS", "WHOLESALE", "RETAIL", "DISTRIBUTION", "LOGISTICS"].map(brand => (
+                        <span key={brand} className="text-xs font-black tracking-[0.3em]">{brand}</span>
+                      ))}
+                   </div>
                 </motion.div>
               </motion.div>
 
@@ -247,7 +243,7 @@ export default function ProtechCloudHomepage() {
                  <p className="text-xl text-slate-500 font-medium">Manage every department from one unified dashboard with real-time intelligence.</p>
               </div>
 
-              <div className="grid lg:grid-cols-4 gap-4">
+              <div className="grid lg:grid-cols-4 gap-6">
                  {[
                    { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box },
                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart },
@@ -258,11 +254,17 @@ export default function ProtechCloudHomepage() {
                    { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe },
                    { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers },
                  ].map((mod, i) => (
-                   <div key={i} className="group p-8 rounded-[2rem] bg-slate-50 border border-transparent hover:border-slate-200 hover:bg-white transition-all duration-300">
-                      <mod.icon className="h-8 w-8 text-slate-400 mb-6 group-hover:text-indigo-600 transition-colors" />
-                      <h4 className="text-xl font-black mb-2 text-slate-900 tracking-tight">{mod.title}</h4>
+                   <motion.div 
+                     whileHover={{ y: -5 }}
+                     key={i} 
+                     className="group p-10 rounded-[2.5rem] bg-white border border-slate-100 shadow-xl shadow-slate-200/50 hover:shadow-indigo-600/10 transition-all duration-500"
+                   >
+                      <div className="h-14 w-14 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 mb-8 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+                         <mod.icon className="h-6 w-6" />
+                      </div>
+                      <h4 className="text-xl font-black mb-4 text-slate-900 tracking-tight uppercase italic">{mod.title}</h4>
                       <p className="text-sm text-slate-500 font-medium leading-relaxed">{mod.desc}</p>
-                   </div>
+                   </motion.div>
                  ))}
               </div>
            </div>

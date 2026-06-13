@@ -18,7 +18,8 @@ import {
   Globe,
   Lock,
   MessageSquare,
-  AlertCircle
+  AlertCircle,
+  Users
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -125,44 +126,43 @@ export default function RegisterPage() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-[100px] translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10">
-          <Link href="/" className="flex items-center gap-4 mb-16 group">
-             <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-600/40 group-hover:scale-110 transition-transform duration-500">
-                <Package className="h-7 w-7" />
+          <Link href="/" className="flex items-center gap-4 mb-12 lg:mb-20 group">
+             <div className="h-16 w-16 bg-indigo-600 rounded-[1.5rem] flex items-center justify-center shadow-2xl shadow-indigo-600/40 group-hover:scale-110 transition-transform duration-500">
+                <Package className="h-8 w-8" />
              </div>
              <div className="flex flex-col">
-                <span className="font-black text-3xl tracking-tighter leading-none">Protech <span className="text-indigo-400 italic">Assist</span></span>
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mt-2 leading-none">Enterprise Inventory OS</span>
+                <span className="font-black text-4xl tracking-tighter leading-none">PROTECH <span className="text-indigo-400 italic">ASSIST</span></span>
+                <span className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400 mt-3 leading-none">ENTERPRISE INVENTORY OS</span>
              </div>
           </Link>
 
           <AnimatePresence mode="wait">
             <motion.div
               key={currentProofIndex}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="space-y-10"
+              exit={{ opacity: 0, y: -30 }}
+              className="space-y-12"
             >
               <div className="relative">
-                <Quote className="h-24 w-24 text-indigo-600/10 absolute -top-12 -left-12" />
-                <h2 className="text-4xl lg:text-5xl font-black leading-[0.95] tracking-tight uppercase italic relative z-10 text-white">
-                  {SOCIAL_PROOF[currentProofIndex].quote}
+                <Quote className="h-32 w-32 text-indigo-600/10 absolute -top-16 -left-16" />
+                <h2 className="text-5xl lg:text-6xl font-black leading-[0.9] tracking-tight uppercase italic relative z-10 text-white">
+                   {SOCIAL_PROOF[currentProofIndex].quote}
                 </h2>
               </div>
               
-              <div className="flex items-center gap-6 p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                 <div className="h-16 w-16 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-2xl">
+              <div className="flex items-center gap-6 p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-md">
+                 <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-2xl relative">
                     <Image 
                       src={SOCIAL_PROOF[currentProofIndex].image} 
                       alt={SOCIAL_PROOF[currentProofIndex].author} 
-                      width={64} 
-                      height={64} 
+                      fill
                       className="object-cover"
                     />
                  </div>
                  <div>
-                    <p className="font-black text-xl tracking-tight text-white">{SOCIAL_PROOF[currentProofIndex].author}</p>
-                    <p className="text-[10px] font-black text-indigo-400 uppercase tracking-[0.2em] mt-1">
+                    <p className="font-black text-2xl tracking-tight text-white">{SOCIAL_PROOF[currentProofIndex].author}</p>
+                    <p className="text-xs font-black text-indigo-400 uppercase tracking-[0.3em] mt-2">
                       {SOCIAL_PROOF[currentProofIndex].role}
                     </p>
                  </div>
@@ -171,66 +171,68 @@ export default function RegisterPage() {
           </AnimatePresence>
         </div>
 
-        <div className="relative z-10 space-y-12">
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-indigo-600/20 border border-indigo-600/30">
+        <div className="relative z-10 space-y-12 mt-12">
+          <div className="space-y-10">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-indigo-600/20 border border-indigo-600/30">
                <div className="h-2 w-2 rounded-full bg-indigo-400 animate-pulse" />
-               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-300">
-                 More than 75% customer impact rate*
+               <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-200">
+                 Global Intelligence Impact Rate: 75%
                </p>
             </div>
 
-            <div className="grid grid-cols-1 gap-6">
+            <div className="grid grid-cols-1 gap-8">
               {IMPACT_STATS.map((stat, i) => (
-                <div key={i} className="flex items-center gap-6 group p-4 rounded-2xl hover:bg-white/5 transition-colors">
-                   <div className="h-14 w-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-lg shadow-indigo-600/20 transition-all group-hover:scale-110">
+                <div key={i} className="flex items-center gap-8 group p-6 rounded-3xl hover:bg-white/5 transition-all duration-500 border border-transparent hover:border-white/5">
+                   <div className="h-16 w-16 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-3xl shadow-xl shadow-indigo-600/30 transition-all group-hover:scale-110 group-hover:rotate-6">
                       {i + 1}
                    </div>
                    <div className="flex-1">
-                      <div className="flex justify-between items-center w-full">
-                         <p className="text-3xl font-black tracking-tighter text-white leading-none">{stat.value}</p>
+                      <div className="flex justify-between items-center w-full mb-3">
+                         <p className="text-4xl font-black tracking-tighter text-white leading-none">{stat.value}</p>
                          {stat.faces && (
-                            <div className="flex -space-x-2">
-                               {[1,2,3,4].map(f => (
-                                 <div key={f} className="h-6 w-6 rounded-full border-2 border-slate-900 bg-indigo-600/20 flex items-center justify-center">
-                                    <Users className="h-3 w-3 text-indigo-400" />
+                            <div className="flex -space-x-3">
+                               {[1,2,3,4,5].map(f => (
+                                 <div key={f} className="h-8 w-8 rounded-full border-2 border-slate-900 bg-indigo-600/20 flex items-center justify-center backdrop-blur-sm">
+                                    <Users className="h-4 w-4 text-indigo-300" />
                                  </div>
                                ))}
                             </div>
                          )}
                       </div>
-                      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 mt-2">{stat.label}</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">{stat.label}</p>
                    </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="pt-10 border-t border-white/5 grid grid-cols-3 gap-8">
-             {FEATURES.map((f, i) => (
-               <div key={i} className="space-y-3">
-                  <div className="h-1 w-full bg-indigo-600/20 rounded-full overflow-hidden">
-                     <motion.div 
-                       initial={{ width: 0 }}
-                       animate={{ width: "100%" }}
-                       transition={{ duration: 2, delay: i * 0.5 }}
-                       className="h-full bg-indigo-600"
-                     />
-                  </div>
-                  <h4 className="text-[10px] font-black uppercase tracking-widest text-white">{f.title}</h4>
-               </div>
-             ))}
+          <div className="pt-12 border-t border-white/10 flex items-center justify-between gap-10 opacity-60 grayscale hover:opacity-100 hover:grayscale-0 transition-all">
+             <div className="flex flex-col gap-2">
+                <ShieldCheck className="h-6 w-6 text-indigo-400" />
+                <span className="text-[8px] font-black uppercase tracking-[0.2em]">AES-256 SECURE</span>
+             </div>
+             <div className="flex flex-col gap-2">
+                <Zap className="h-6 w-6 text-indigo-400" />
+                <span className="text-[8px] font-black uppercase tracking-[0.2em]">99.9% UPTIME</span>
+             </div>
+             <div className="flex flex-col gap-2 text-right">
+                <Globe className="h-6 w-6 text-indigo-400 ml-auto" />
+                <span className="text-[8px] font-black uppercase tracking-[0.2em]">GLOBAL CLOUD</span>
+             </div>
           </div>
         </div>
       </div>
 
       {/* Right Column: Registration Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-20 bg-slate-50/30 overflow-y-auto">
-        <div className="w-full max-w-md space-y-12">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-24 bg-slate-50/50 overflow-y-auto min-h-screen">
+        <div className="w-full max-w-md space-y-16 py-12 lg:py-0">
           
-          <div className="space-y-4">
-             <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic">Let's get <span className="text-indigo-600">started</span></h1>
-             <p className="text-slate-500 font-medium">Join thousands of customers preferring Protech Inventory.</p>
+          <div className="space-y-6">
+             <div className="h-1 w-20 bg-indigo-600 rounded-full" />
+             <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-[0.85]">
+                UNLEASH <br /> <span className="text-indigo-600">INTELLIGENCE.</span>
+             </h1>
+             <p className="text-lg text-slate-500 font-bold uppercase tracking-tight">Deploy your enterprise node in seconds.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">

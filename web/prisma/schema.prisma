@@ -1,62 +1,59 @@
 generator client {
   provider        = "prisma-client-js"
-  engineType      = "library"
   previewFeatures = ["driverAdapters"]
+  engineType      = "library"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
-// --- Global / Platform Models ---
-
 model Business {
-  id                  String            @id @default(cuid())
+  id                  String               @id @default(cuid())
   name                String
-  slug                String            @unique
+  slug                String               @unique
+  logoUrl             String?
+  type                BusinessType         @default(SHOP)
+  plan                SubscriptionPlan     @default(FREE)
+  status              String               @default("PENDING")
+  trialStartDate      DateTime?            @default(now())
+  trialEndDate        DateTime?
+  enabledModules      String[]             @default([])
+  currency            String               @default("SLL")
+  timezone            String               @default("UTC")
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  registrationReceipt String?
+  address             String?
   email               String?
   phone               String?
-  address             String?
-  logoUrl             String?
-  type                BusinessType      @default(SHOP)
-  plan                SubscriptionPlan  @default(FREE)
-  status              String            @default("PENDING") // Changed default to PENDING
-  registrationReceipt String? // Field for receipt upload/link
-  trialStartDate      DateTime?         @default(now())
-  trialEndDate        DateTime?
-  enabledModules      String[]          @default([])
-  currency            String            @default("SLL")
-  timezone            String            @default("UTC")
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  flutterwaveRef      String?
+  subscriptionStatus  String               @default("INACTIVE")
+  attendance          Attendance[]
   auditLogs           AuditLog[]
+  batches             Batch[]
   categories          Category[]
   customers           Customer[]
   debts               Debt[]
+  expenses            Expense[]
+  invoices            Invoice[]
+  loyaltyCampaigns    LoyaltyCampaign[]
+  loyaltyTiers        LoyaltyTier[]
   notifications       Notification[]
+  orderStatusHistory  OrderStatusHistory[]
+  payments            Payment[]
+  payrolls            Payroll[]
   products            Product[]
   purchases           Purchase[]
   purchaseItems       PurchaseItem[]
   restaurantTables    RestaurantTable[]
+  roles               Role[]
   sales               Sale[]
   saleItems           SaleItem[]
   stockMovements      StockMovement[]
   subscriptions       Subscription[]
-  batches             Batch[] // Added opposite relation
-  invoices            Invoice[]
-  payments            Payment[]
   suppliers           Supplier[]
   users               User[]
-  roles               Role[]
-  expenses            Expense[]
-  attendance          Attendance[]
-  payrolls            Payroll[]
-  loyaltyTiers        LoyaltyTier[]
-  loyaltyCampaigns    LoyaltyCampaign[]
-  orderStatusHistory  OrderStatusHistory[]
-  
-  flutterwaveRef      String?
-  subscriptionStatus  String    @default("INACTIVE")
 
   @@index([slug])
 }
@@ -64,28 +61,29 @@ model Business {
 model User {
   id                 String               @id @default(cuid())
   name               String?
+  username           String?              @unique
   email              String               @unique
   passwordHash       String
   status             String               @default("active")
-  emailVerified      DateTime?
-  verificationToken  String?
-  salary             Decimal?             @db.Decimal(10, 2)
-  hourlyRate         Decimal?             @db.Decimal(10, 2)
   businessId         String
-  roleId             String
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
   deletedAt          DateTime?
+  roleId             String
+  hourlyRate         Decimal?             @db.Decimal(10, 2)
+  salary             Decimal?             @db.Decimal(10, 2)
+  emailVerified      DateTime?
+  verificationToken  String?
+  attendance         Attendance[]
   auditLogs          AuditLog[]
+  expenses           Expense[]
+  orderStatusHistory OrderStatusHistory[]
+  payrolls           Payroll[]
   purchases          Purchase[]
   sales              Sale[]
   stockMovements     StockMovement[]
-  expenses           Expense[]
-  attendance         Attendance[]
-  payrolls           Payroll[]
-  orderStatusHistory OrderStatusHistory[]
   business           Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  role               Role                 @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  role               Role                 @relation(fields: [roleId], references: [id])
 
   @@index([businessId])
   @@index([roleId])
@@ -98,14 +96,13 @@ model Attendance {
   businessId String
   clockIn    DateTime  @default(now())
   clockOut   DateTime?
-  status     String    @default("PRESENT") // e.g., "ON_TIME", "LATE", "ABSENT"
+  status     String    @default("PRESENT")
   note       String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([userId])
@@ -116,7 +113,7 @@ model Payroll {
   userId        String
   businessId    String
   amount        Decimal   @db.Decimal(10, 2)
-  status        String    @default("PENDING") // PENDING, PAID
+  status        String    @default("PENDING")
   periodStart   DateTime
   periodEnd     DateTime
   paymentDate   DateTime?
@@ -124,9 +121,8 @@ model Payroll {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
-
-  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([userId])
@@ -139,19 +135,17 @@ model Role {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   business    Business?    @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  permissions Permission[]
   users       User[]
+  permissions Permission[] @relation("PermissionToRole")
 
   @@unique([businessId, name])
 }
 
 model Permission {
   id    String @id @default(cuid())
-  key   String @unique // e.g., "product:create"
-  roles Role[]
+  key   String @unique
+  roles Role[] @relation("PermissionToRole")
 }
-
-// --- Tenant-Owned Models ---
 
 model Category {
   id          String    @id @default(cuid())
@@ -174,30 +168,27 @@ model Product {
   sku                String?
   description        String?
   barcode            String?
-  type               ProductType     @default(PRODUCT)
   unitPrice          Decimal         @db.Decimal(10, 2)
   costPrice          Decimal?        @db.Decimal(10, 2)
   stockQuantity      Decimal         @default(0) @db.Decimal(10, 2)
   minStockLevel      Int             @default(10)
   status             String          @default("active")
-  isNetworkAvailable Boolean         @default(false)
-  originalProductId  String?
-  originalBusinessId String?
   metadata           Json?
   businessId         String
   categoryId         String?
-  imageUrl           String?
-  
-  // New Fields
-  baseUnit           String          @default("Unit")
-  units              ProductUnit[]
-
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
   deletedAt          DateTime?
-  business           Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  category           Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  isNetworkAvailable Boolean         @default(false)
+  originalBusinessId String?
+  originalProductId  String?
+  type               ProductType     @default(PRODUCT)
+  imageUrl           String?
+  baseUnit           String          @default("Unit")
   batches            Batch[]
+  business           Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category           Category?       @relation(fields: [categoryId], references: [id])
+  units              ProductUnit[]
   purchaseItems      PurchaseItem[]
   saleItems          SaleItem[]
   stockMovements     StockMovement[]
@@ -208,18 +199,17 @@ model Product {
 }
 
 model ProductUnit {
-  id            String   @id @default(cuid())
-  productId     String
-  name          String
-  ratio         Decimal  @db.Decimal(10, 4)
-  sellingPrice  Decimal  @db.Decimal(10, 2)
-  costPrice     Decimal? @db.Decimal(10, 2)
-  barcode       String?
-  
-  product       Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
+  id           String   @id @default(cuid())
+  productId    String
+  name         String
+  ratio        Decimal  @db.Decimal(10, 4)
+  sellingPrice Decimal  @db.Decimal(10, 2)
+  costPrice    Decimal? @db.Decimal(10, 2)
+  barcode      String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
   @@index([productId])
 }
 
@@ -234,9 +224,8 @@ model Batch {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   deletedAt         DateTime?
-
-  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business          Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product           Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([productId, batchNumber])
   @@index([businessId, expiryDate])
@@ -290,14 +279,14 @@ model Sale {
   customerId    String?
   tableId       String?
   createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @updatedAt
   deletedAt     DateTime?
+  updatedAt     DateTime             @updatedAt
   debt          Debt?
   statusHistory OrderStatusHistory[]
   business      Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customer      Customer?            @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  table         RestaurantTable?     @relation(fields: [tableId], references: [id], onDelete: SetNull)
-  user          User                 @relation(fields: [userId], references: [id], onDelete: Restrict)
+  customer      Customer?            @relation(fields: [customerId], references: [id])
+  table         RestaurantTable?     @relation(fields: [tableId], references: [id])
+  user          User                 @relation(fields: [userId], references: [id])
   items         SaleItem[]
 
   @@index([businessId])
@@ -305,38 +294,37 @@ model Sale {
 }
 
 model OrderStatusHistory {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   saleId     String
   status     String
   note       String?
   userId     String
+  createdAt  DateTime  @default(now())
   businessId String?
-  createdAt  DateTime @default(now())
-
-  sale     Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
-  business Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  sale       Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  user       User      @relation(fields: [userId], references: [id])
 
   @@index([saleId])
   @@index([businessId])
 }
 
 model SaleItem {
-  id                 String   @id @default(cuid())
+  id                 String    @id @default(cuid())
   saleId             String
   productId          String?
-  productName        String? // Name for external or one-time items
   quantity           Int
-  unitPrice          Decimal  @db.Decimal(10, 2)
-  total              Decimal  @db.Decimal(10, 2)
-  isExternalSourced  Boolean  @default(false)
+  unitPrice          Decimal   @db.Decimal(10, 2)
+  total              Decimal   @db.Decimal(10, 2)
+  status             String    @default("pending")
+  externalCostPrice  Decimal?  @db.Decimal(10, 2)
   externalSourceName String?
-  externalCostPrice  Decimal? @db.Decimal(10, 2)
-  status             String   @default("pending")
+  isExternalSourced  Boolean   @default(false)
+  productName        String?
   businessId         String?
-  product            Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-  sale               Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
   business           Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product            Product?  @relation(fields: [productId], references: [id])
+  sale               Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
 }
@@ -370,8 +358,8 @@ model Purchase {
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
   business      Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  supplier      Supplier?      @relation(fields: [supplierId], references: [id], onDelete: SetNull)
-  user          User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  supplier      Supplier?      @relation(fields: [supplierId], references: [id])
+  user          User           @relation(fields: [userId], references: [id])
   items         PurchaseItem[]
 
   @@index([businessId])
@@ -379,17 +367,17 @@ model Purchase {
 }
 
 model PurchaseItem {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   purchaseId String
   productId  String
-  unitId     String? // Added unitId
   quantity   Int
-  unitCost   Decimal  @db.Decimal(10, 2)
-  total      Decimal  @db.Decimal(10, 2)
+  unitCost   Decimal   @db.Decimal(10, 2)
+  total      Decimal   @db.Decimal(10, 2)
   businessId String?
-  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  purchase   Purchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  unitId     String?
   business   Business? @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product    Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  purchase   Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
 }
@@ -403,11 +391,11 @@ model StockMovement {
   businessId String
   userId     String
   createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
   deletedAt  DateTime?
+  updatedAt  DateTime          @updatedAt
   business   Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
   product    Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user       User              @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user       User              @relation(fields: [userId], references: [id])
 
   @@index([businessId, productId])
   @@index([businessId, deletedAt])
@@ -427,7 +415,7 @@ model Debt {
   deletedAt   DateTime?
   business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   customer    Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  sale        Sale?         @relation(fields: [saleId], references: [id], onDelete: SetNull)
+  sale        Sale?         @relation(fields: [saleId], references: [id])
   payments    DebtPayment[]
 
   @@index([businessId, customerId])
@@ -439,11 +427,11 @@ model DebtPayment {
   debtId        String
   amount        Decimal   @db.Decimal(10, 2)
   paymentMethod String    @default("CASH")
-  note          String?
   businessId    String
   createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
+  updatedAt     DateTime  @updatedAt
+  note          String?
   debt          Debt      @relation(fields: [debtId], references: [id], onDelete: Cascade)
 
   @@index([businessId, deletedAt])
@@ -459,10 +447,10 @@ model AuditLog {
   userId     String
   businessId String
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
+  updatedAt  DateTime  @updatedAt
   business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user       User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user       User      @relation(fields: [userId], references: [id])
 
   @@index([businessId])
 }
@@ -475,8 +463,8 @@ model Notification {
   isRead     Boolean   @default(false)
   businessId String
   createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
+  updatedAt  DateTime  @updatedAt
   business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
@@ -498,12 +486,12 @@ model Subscription {
 }
 
 model LoyaltyTier {
-  id          String   @id @default(cuid())
-  name        String
-  multiplier  Float
-  discount    Float
-  businessId  String
-  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  name       String
+  multiplier Float
+  discount   Float
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model LoyaltyCampaign {
@@ -512,8 +500,8 @@ model LoyaltyCampaign {
   targetCluster String
   status        String   @default("DRAFT")
   businessId    String
-  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
   createdAt     DateTime @default(now())
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 }
 
 model Invoice {
@@ -553,7 +541,7 @@ model Expense {
   id            String    @id @default(cuid())
   description   String
   amount        Decimal   @db.Decimal(10, 2)
-  category      String // e.g., "Rent", "Utilities", "Salaries"
+  category      String
   date          DateTime  @default(now())
   paymentMethod String    @default("CASH")
   businessId    String
@@ -562,7 +550,7 @@ model Expense {
   updatedAt     DateTime  @updatedAt
   deletedAt     DateTime?
   business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user          User      @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user          User      @relation(fields: [userId], references: [id])
 
   @@index([businessId])
 }

@@ -167,15 +167,15 @@ export default function LoginPage() {
 
               <form onSubmit={handleNextStep} className="space-y-8">
                 <div className="space-y-2">
-                  <Label className="font-black text-[9px] uppercase tracking-[0.3em] text-slate-400 ml-1">Email Address</Label>
+                  <Label className="font-black text-[9px] uppercase tracking-[0.3em] text-slate-400 ml-1">Email or Username</Label>
                   <div className="relative group">
                     <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
                     <Input 
-                      type="email" 
+                      type="text" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="h-16 pl-14 rounded-2xl bg-slate-50 border-slate-100 text-lg font-bold focus:ring-4 focus:ring-indigo-600/10 transition-all"
-                      placeholder="name@company.com"
+                      placeholder="Email or Username"
                       required
                       autoFocus
                     />
