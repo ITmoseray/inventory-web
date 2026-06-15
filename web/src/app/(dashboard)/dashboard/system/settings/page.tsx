@@ -9,7 +9,7 @@ import {
   ArrowRight, Landmark, Briefcase, Plus, Menu, Sparkles,
   MapPin, Coins, Hash, Mail, Tag, Play, History, Box, 
   Wallet, Activity, Edit, Receipt, Undo, FileSpreadsheet,
-  Layers, Scan, Terminal
+  Layers, Scan, Terminal, Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
