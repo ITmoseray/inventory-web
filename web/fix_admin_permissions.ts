@@ -3,14 +3,36 @@ import path from 'path';
 dotenv.config({ path: path.resolve(__dirname, '.env') });
 
 import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
+import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
+import { Pool as PgPool } from "pg";
+import ws from "ws";
 
-const connectionString = process.env.DATABASE_URL;
-const pool = new pg.Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set.");
+  }
 
-const prisma = new PrismaClient({ adapter });
+  let adapter;
+  if (connectionString.includes("neon.tech")) {
+    neonConfig.webSocketConstructor = ws;
+    const pool = new NeonPool({ connectionString });
+    adapter = new PrismaNeon(pool);
+  } else {
+    const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
+    const pool = new PgPool({ 
+      connectionString,
+      ssl: isLocal ? false : { rejectUnauthorized: false }
+    });
+    adapter = new PrismaPg(pool);
+  }
+
+  return new PrismaClient({ adapter });
+};
+
+const prisma = createPrismaClient();
 
 async function main() {
   console.log('🚀 Starting Admin Permission Fix...');

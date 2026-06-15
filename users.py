@@ -2,12 +2,14 @@ import customtkinter as ctk
 from tkinter import ttk, messagebox
 import pymysql
 
+from database import Database
 from config import ROLES
 
 class UsersWindow(ctk.CTkFrame):
     def __init__(self, parent_frame, user_data):
         super().__init__(parent_frame)
         self.user_data = user_data
+        self.db = Database()
         # Create a container frame inside parent_frame
         self.container = ctk.CTkFrame(parent_frame)
         self.container.grid(row=0, column=0, sticky="nsew")
@@ -17,22 +19,6 @@ class UsersWindow(ctk.CTkFrame):
         # Initialize UI components
         self.create_widgets()
       
-    def get_db_connection(self):
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='Trovegs35',
-                database='inventory_db',
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            return connection
-        except pymysql.Error as e:
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
-
     def create_widgets(self):
         # Title Label
         self.title_label = ctk.CTkLabel(self.container, text="Users Management", 
@@ -89,20 +75,6 @@ class UsersWindow(ctk.CTkFrame):
         # Load initial data
         self.refresh_users()
 
-    def get_db_connection(self):
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='Trovegs35',
-                database='inventory_db'
-            )
-            return connection
-        except pymysql.Error as e:
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
-
     def show_context_menu(self, event):
         """Display right-click context menu"""
         # Select item on right click
@@ -129,7 +101,7 @@ class UsersWindow(ctk.CTkFrame):
             
         user_id = self.tree.item(selected[0])["values"][0]
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -172,12 +144,10 @@ class UsersWindow(ctk.CTkFrame):
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
-        finally:
-            connection.close()
-
+        
     def refresh_users(self):
         """Load all users from database into treeview"""
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
 
@@ -195,13 +165,11 @@ class UsersWindow(ctk.CTkFrame):
                     self.tree.insert("", "end", values=(user['id'], user['username'], user['role']))
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error loading users: {e}")
-        finally:
-            connection.close()
 
     def search_users(self):
         """Search users by username"""
         search_term = self.search_entry.get().strip()
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
 
@@ -222,8 +190,6 @@ class UsersWindow(ctk.CTkFrame):
                     self.tree.insert("", "end", values=(user['id'], user['username'], user['role']))
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error searching users: {e}")
-        finally:
-            connection.close()
 
     def add_user(self):
         """Open dialog to add a new user"""
@@ -293,7 +259,7 @@ class UsersWindow(ctk.CTkFrame):
                 messagebox.showerror("Input Error", "Username and password are required!")
                 return
 
-            connection = self.get_db_connection()
+            connection = self.db.connect()
             if not connection:
                 return
 
@@ -309,8 +275,6 @@ class UsersWindow(ctk.CTkFrame):
                     self.refresh_users()
             except pymysql.Error as e:
                 messagebox.showerror("Database Error", f"Error adding user: {e}")
-            finally:
-                connection.close()
 
         def cancel():
             dialog.destroy()
@@ -396,7 +360,7 @@ class UsersWindow(ctk.CTkFrame):
                 messagebox.showerror("Input Error", "Username is required!")
                 return
 
-            connection = self.get_db_connection()
+            connection = self.db.connect()
             if not connection:
                 return
 
@@ -418,8 +382,6 @@ class UsersWindow(ctk.CTkFrame):
                     self.refresh_users()
             except pymysql.Error as e:
                 messagebox.showerror("Database Error", f"Error updating user: {e}")
-            finally:
-                connection.close()
 
         def cancel():
             dialog.destroy()
@@ -446,7 +408,7 @@ class UsersWindow(ctk.CTkFrame):
                                   f"Are you sure you want to delete user '{username}'?"):
             return
 
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
 
@@ -458,5 +420,3 @@ class UsersWindow(ctk.CTkFrame):
                 self.refresh_users()
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error deleting user: {e}")
-        finally:
-            connection.close()

@@ -2,11 +2,13 @@ import customtkinter as ctk
 from tkinter import ttk, messagebox
 import pymysql
 from config import DB_CONFIG
+from database import Database
 
 class SettingsWindow(ctk.CTkFrame):
     def __init__(self, parent_frame, user_data):
         super().__init__(parent_frame)
         self.user_data = user_data
+        self.db = Database()
         
         # Create a container frame inside parent_frame
         self.container = ctk.CTkFrame(parent_frame)
@@ -19,21 +21,6 @@ class SettingsWindow(ctk.CTkFrame):
         # Initialize UI components
         self.create_widgets()
     
-    def get_db_connection(self):
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host=DB_CONFIG['host'],
-                user=DB_CONFIG['user'],
-                password=DB_CONFIG['password'],
-                database=DB_CONFIG['database'],
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            return connection
-        except pymysql.Error as e:
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
     
     def create_widgets(self):
         # Title Label
@@ -171,12 +158,12 @@ class SettingsWindow(ctk.CTkFrame):
             messagebox.showerror("Input Error", "Name and email are required!")
             return
             
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
         try:
-            with connection.cursor() as cursor:
+            with connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Check if user settings exist
                 cursor.execute(
                     "SELECT id FROM user_settings WHERE user_id=%s",
@@ -223,12 +210,12 @@ class SettingsWindow(ctk.CTkFrame):
             messagebox.showerror("Input Error", "New passwords do not match!")
             return
             
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
         try:
-            with connection.cursor() as cursor:
+            with connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Verify current password - hash it first
                 from utils import hash_password
                 hashed_current_pass = hash_password(current_pass)
@@ -268,12 +255,12 @@ class SettingsWindow(ctk.CTkFrame):
         ctk.set_appearance_mode(theme)
         
         # Save theme preference to database
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
         try:
-            with connection.cursor() as cursor:
+            with connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Check if user settings exist
                 cursor.execute(
                     "SELECT id FROM user_settings WHERE user_id=%s",

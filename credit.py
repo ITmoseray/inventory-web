@@ -212,7 +212,7 @@ class CreditWindow(ctk.CTkFrame):
             details_frame.pack(fill="both", expand=True, padx=20, pady=10)
 
             # Fetch sale details from database
-            connection = self.db.connection
+            connection = self.db.connect()
             if not connection:
                 messagebox.showerror("Database Error", "Failed to connect to database")
                 return
@@ -290,7 +290,7 @@ class CreditWindow(ctk.CTkFrame):
     def check_credits_table(self):
         """Check if credits table exists and has the required columns"""
         try:
-            connection = self.db.connection
+            connection = self.db.connect()
             if not connection:
                 return
 
@@ -397,7 +397,7 @@ class CreditWindow(ctk.CTkFrame):
 
         try:
             # Get database connection using the db object
-            connection = self.db.connection
+            connection = self.db.connect()
             if not connection:
                 messagebox.showerror("Database Error", "Failed to connect to database")
                 return
@@ -478,22 +478,6 @@ class CreditWindow(ctk.CTkFrame):
             print(f"Debug: Unexpected error: {e}")  # Debug print
             messagebox.showerror("Error", f"Unexpected error loading credits: {e}")
 
-    def get_db_connection(self):
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='Trovegs35',
-                database='inventory_db',
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            return connection
-        except pymysql.Error as e:
-            print(f"Debug: Connection error: {e}")  # Debug print
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
 
     def show_credit_sale_window(self):
         """Show window to complete a sale on credit"""
@@ -943,21 +927,6 @@ class CreditWindow(ctk.CTkFrame):
         try:
             # Get credit_id and sale_id (Sale ID is at index 1 in treeview)
             values = self.tree.item(selected[0])['values']
-            credit_id = values[0]
-            sale_id = values[1]
-            
-            # 1. Update credit status
-            self.db.execute_query("UPDATE credits SET status = 'Paid' WHERE id = %s", (credit_id,))
-            
-            # 2. Update corresponding sales status
-            self.db.execute_query("UPDATE sales SET payment_status = 'Paid' WHERE id = %s", (sale_id,))
-            
-            messagebox.showinfo("Success", "Payment completed! Credit and Sale records updated.")
-            self.load_credits()
-            
-        except Exception as e:
-            messagebox.showerror("Error", f"Failed to complete payment: {str(e)}")
-         values = self.tree.item(selected[0])['values']
             credit_id = values[0]
             sale_id = values[1]
             

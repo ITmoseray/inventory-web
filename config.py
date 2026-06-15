@@ -41,6 +41,7 @@ DB_CONFIG = {
     'user': os.getenv('DB_USER', 'root'),
     'password': os.getenv('DB_PASSWORD'),
     'database': os.getenv('DB_NAME', 'inventory_db'),
+    'port': os.getenv('DB_PORT', 3306),
     'charset': 'utf8mb4',
     'cursorclass': pymysql.cursors.DictCursor
 }

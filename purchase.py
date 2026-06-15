@@ -5,12 +5,14 @@ from tkinter import ttk, messagebox
 import pymysql
 from datetime import datetime
 from utils import format_currency
+from database import Database
 
 
 class PurchaseWindow(ctk.CTkFrame):
     def __init__(self, parent_frame, user_data):
         super().__init__(parent_frame)
         self.user_data = user_data
+        self.db = Database()
         
         # Create a container frame inside parent_frame
         self.container = ctk.CTkFrame(parent_frame)
@@ -116,7 +118,7 @@ class PurchaseWindow(ctk.CTkFrame):
             
         pur_id = self.tree.item(selected[0])["values"][0]
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -173,19 +175,6 @@ class PurchaseWindow(ctk.CTkFrame):
         finally:
             connection.close()
 
-    def get_db_connection(self):
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='Trovegs35',
-                database='inventory_db'
-            )
-            return connection
-        except pymysql.Error as e:
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
     
     def refresh_purchases(self):
         """Load all purchases from database into treeview"""
@@ -193,7 +182,7 @@ class PurchaseWindow(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -228,7 +217,7 @@ class PurchaseWindow(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -255,7 +244,7 @@ class PurchaseWindow(ctk.CTkFrame):
     
     def get_products(self):
         """Get all products from database for dropdown"""
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return []
             
@@ -276,7 +265,7 @@ class PurchaseWindow(ctk.CTkFrame):
     
     def get_suppliers(self):
         """Get all suppliers from database for dropdown"""
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return []
             
@@ -424,7 +413,7 @@ class PurchaseWindow(ctk.CTkFrame):
                 total_amount = quantity * price
                 purchase_number = f"PUR-{datetime.now().strftime('%Y%m%d%H%M%S')}"
                 
-                connection = self.get_db_connection()
+                connection = self.db.connect()
                 if not connection:
                     return
                 
@@ -476,7 +465,7 @@ class PurchaseWindow(ctk.CTkFrame):
         purchase_id = self.tree.item(selected_item[0])["values"][0]
         
         # Get purchase details from database
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -613,7 +602,7 @@ class PurchaseWindow(ctk.CTkFrame):
                 # Calculate total amount
                 total_amount = quantity * price
                 
-                connection = self.get_db_connection()
+                connection = self.db.connect()
                 if not connection:
                     return
                 
@@ -679,7 +668,7 @@ class PurchaseWindow(ctk.CTkFrame):
         purchase_id = self.tree.item(selected_item[0])["values"][0]
         
         # Get purchase details for inventory adjustment
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
         

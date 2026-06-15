@@ -1,31 +1,47 @@
-import dotenv from 'dotenv';
-import path from 'path';
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
 import { PrismaClient } from '@prisma/client';
+import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
+import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
+import { Pool as PgPool } from "pg";
+import ws from "ws";
 import bcrypt from 'bcrypt';
 
-const connectionString = process.env.DATABASE_URL;
-const pool = new pg.Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error("DATABASE_URL is not set for seeding.");
+  }
 
-const prisma = new PrismaClient({ adapter });
+  let adapter;
+  if (connectionString.includes("neon.tech")) {
+    neonConfig.webSocketConstructor = ws;
+    const pool = new NeonPool({ connectionString });
+    adapter = new PrismaNeon(pool);
+  } else {
+    const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
+    const pool = new PgPool({ 
+      connectionString,
+      ssl: isLocal ? false : { rejectUnauthorized: false }
+    });
+    adapter = new PrismaPg(pool);
+  }
+
+  return new PrismaClient({ adapter });
+};
+
+const prisma = createPrismaClient();
 
 async function main() {
-  // Debug logging
-  console.log('DEBUG: SUPER_ADMIN_PASSWORD is', process.env.SUPER_ADMIN_PASSWORD ? 'SET' : 'NOT SET');
-
+  console.log('🚀 Starting Super Admin seeding...');
+  
   const adminEmail = process.env.SUPER_ADMIN_EMAIL || 'admin@protechnexus.com';
   const adminPassword = process.env.SUPER_ADMIN_PASSWORD;
 
   if (!adminPassword) {
     console.error('❌ Error: SUPER_ADMIN_PASSWORD environment variable is not set.');
+    console.log('💡 Tip: Set this in your Render environment variables.');
     process.exit(1);
   }
-
-  console.log('🚀 Starting Super Admin seeding...');
 
   try {
     // 1. Create a System Business
@@ -58,17 +74,15 @@ async function main() {
     await prisma.user.upsert({
       where: { email: adminEmail },
       update: {
-        role: { connect: { id: superAdminRole.id } },
+        roleId: superAdminRole.id,
         passwordHash: hashedPassword,
       },
       create: {
         email: adminEmail,
         name: 'Nexus System Admin',
         passwordHash: hashedPassword,
-        role: { connect: { id: superAdminRole.id } },
-        business: {
-          connect: { id: systemBusiness.id }
-        }
+        roleId: superAdminRole.id,
+        businessId: systemBusiness.id,
       },
     });
 

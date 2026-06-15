@@ -20,28 +20,18 @@ class Database:
     def connect(self):
         try:
             if not self.connection or not self.connection.open:
-                # First connect without database to create it if needed
-                temp_config = DB_CONFIG.copy()
-                db_name = temp_config.pop('database')
+                # Connect using configuration from config.py
                 self.connection = pymysql.connect(
-                    **temp_config,
-                    connect_timeout=30,
-                    read_timeout=30,
-                    write_timeout=30
+                    host=DB_CONFIG.get('host', 'localhost'),
+                    user=DB_CONFIG.get('user', 'root'),
+                    password=DB_CONFIG.get('password'),
+                    database=DB_CONFIG.get('database', 'inventory_db'),
+                    port=int(DB_CONFIG.get('port', 3306)),
+                    charset='utf8mb4',
+                    cursorclass=pymysql.cursors.DictCursor,
+                    connect_timeout=30
                 )
-                
-                # Create database if it doesn't exist
-                with self.connection.cursor() as cursor:
-                    cursor.execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
-                    cursor.execute(f"USE {db_name}")
-                
-                # Now reconnect with the database
-                self.connection = pymysql.connect(
-                    **DB_CONFIG,
-                    connect_timeout=30,
-                    read_timeout=30,
-                    write_timeout=30
-                )
+                logger.info("Successfully connected to the database")
             return self.connection
         except Error as e:
             logger.error(f"Error connecting to database: {e}")

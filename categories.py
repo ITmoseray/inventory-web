@@ -3,6 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import pymysql
 import pymysql.cursors
+from database import Database
 from typing import Optional, Dict, Any, Callable
 
 class CategoriesWindow(ctk.CTkFrame):
@@ -10,6 +11,7 @@ class CategoriesWindow(ctk.CTkFrame):
         super().__init__(parent_frame)
         self.user_data = user_data
         self.on_category_change = on_category_change  # Store the callback function
+        self.db = Database()
         
         # Create a container frame inside parent_frame
         self.container = ctk.CTkFrame(parent_frame)
@@ -85,22 +87,6 @@ class CategoriesWindow(ctk.CTkFrame):
         # Load initial data
         self.refresh_categories()
     
-    def get_db_connection(self) -> Optional[pymysql.Connection]:
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='Trovegs35',
-                database='inventory_db',
-                charset='utf8mb4',
-                cursorclass=pymysql.cursors.DictCursor
-            )
-            return connection
-        except pymysql.Error as e:
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
-    
     def show_context_menu(self, event):
         """Display right-click context menu"""
         # Select item on right click
@@ -127,7 +113,7 @@ class CategoriesWindow(ctk.CTkFrame):
             
         cat_id = self.tree.item(selected[0])["values"][0]
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -170,8 +156,6 @@ class CategoriesWindow(ctk.CTkFrame):
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
-        finally:
-            connection.close()
 
     def refresh_categories(self):
         """Load all categories from database into treeview"""
@@ -179,7 +163,7 @@ class CategoriesWindow(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -196,8 +180,6 @@ class CategoriesWindow(ctk.CTkFrame):
                     ))
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error fetching categories: {e}")
-        finally:
-            connection.close()
     
     def search_categories(self):
         """Filter categories by name"""
@@ -210,7 +192,7 @@ class CategoriesWindow(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -228,8 +210,6 @@ class CategoriesWindow(ctk.CTkFrame):
                     ))
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error searching categories: {e}")
-        finally:
-            connection.close()
     
     def add_category(self):
         """Open dialog to add a new category"""
@@ -288,7 +268,7 @@ class CategoriesWindow(ctk.CTkFrame):
                 messagebox.showerror("Input Error", "Category name is required!")
                 return
             
-            connection = self.get_db_connection()
+            connection = self.db.connect()
             if not connection:
                 return
             
@@ -308,8 +288,6 @@ class CategoriesWindow(ctk.CTkFrame):
                         self.on_category_change()
             except pymysql.Error as e:
                 messagebox.showerror("Database Error", f"Error adding category: {e}")
-            finally:
-                connection.close()
         
         def cancel():
             dialog.destroy()
@@ -391,7 +369,7 @@ class CategoriesWindow(ctk.CTkFrame):
                 messagebox.showerror("Input Error", "Category name is required!")
                 return
             
-            connection = self.get_db_connection()
+            connection = self.db.connect()
             if not connection:
                 return
             
@@ -411,8 +389,6 @@ class CategoriesWindow(ctk.CTkFrame):
                         self.on_category_change()
             except pymysql.Error as e:
                 messagebox.showerror("Database Error", f"Error updating category: {e}")
-            finally:
-                connection.close()
         
         def cancel():
             dialog.destroy()
@@ -436,7 +412,7 @@ class CategoriesWindow(ctk.CTkFrame):
         # Get selected category ID
         category_id = self.tree.item(selected_item[0])["values"][0]
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
         
@@ -465,5 +441,3 @@ class CategoriesWindow(ctk.CTkFrame):
                     self.on_category_change()
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error deleting category: {e}")
-        finally:
-            connection.close()

@@ -3,11 +3,13 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import ttk, messagebox
 import pymysql
+from database import Database
 
 class SuppliersWindow(ctk.CTkFrame):
     def __init__(self, parent_frame, user_data):
         super().__init__(parent_frame)
         self.user_data = user_data
+        self.db = Database()
         
         # Create a container frame inside parent_frame
         self.container = ctk.CTkFrame(parent_frame)
@@ -82,20 +84,6 @@ class SuppliersWindow(ctk.CTkFrame):
         # Load initial data
         self.refresh_suppliers()
     
-    def get_db_connection(self):
-        """Create and return a database connection"""
-        try:
-            connection = pymysql.connect(
-                host='localhost',
-                user='root',
-                password='Trovegs35',
-                database='inventory_db'
-            )
-            return connection
-        except pymysql.Error as e:
-            messagebox.showerror("Database Error", f"Error connecting to database: {e}")
-            return None
-    
     def show_context_menu(self, event):
         """Display right-click context menu"""
         # Select item on right click
@@ -122,7 +110,7 @@ class SuppliersWindow(ctk.CTkFrame):
             
         sup_id = self.tree.item(selected[0])["values"][0]
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -167,8 +155,6 @@ class SuppliersWindow(ctk.CTkFrame):
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
-        finally:
-            connection.close()
 
     def refresh_suppliers(self):
         """Load all suppliers from database into treeview"""
@@ -176,7 +162,7 @@ class SuppliersWindow(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -190,8 +176,6 @@ class SuppliersWindow(ctk.CTkFrame):
                     self.tree.insert("", "end", values=supplier)
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error fetching suppliers: {e}")
-        finally:
-            connection.close()
     
     def search_suppliers(self):
         """Filter suppliers by name"""
@@ -204,7 +188,7 @@ class SuppliersWindow(ctk.CTkFrame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
             
@@ -218,8 +202,6 @@ class SuppliersWindow(ctk.CTkFrame):
                     self.tree.insert("", "end", values=supplier)
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error searching suppliers: {e}")
-        finally:
-            connection.close()
     
     def add_supplier(self):
         """Open dialog to add a new supplier"""
@@ -296,7 +278,7 @@ class SuppliersWindow(ctk.CTkFrame):
                 messagebox.showerror("Input Error", "Supplier name is required!")
                 return
             
-            connection = self.get_db_connection()
+            connection = self.db.connect()
             if not connection:
                 return
             
@@ -314,8 +296,6 @@ class SuppliersWindow(ctk.CTkFrame):
                     self.refresh_suppliers()
             except pymysql.Error as e:
                 messagebox.showerror("Database Error", f"Error adding supplier: {e}")
-            finally:
-                connection.close()
         
         def cancel():
             dialog.destroy()
@@ -415,7 +395,7 @@ class SuppliersWindow(ctk.CTkFrame):
                 messagebox.showerror("Input Error", "Supplier name is required!")
                 return
             
-            connection = self.get_db_connection()
+            connection = self.db.connect()
             if not connection:
                 return
             
@@ -433,8 +413,6 @@ class SuppliersWindow(ctk.CTkFrame):
                     self.refresh_suppliers()
             except pymysql.Error as e:
                 messagebox.showerror("Database Error", f"Error updating supplier: {e}")
-            finally:
-                connection.close()
         
         def cancel():
             dialog.destroy()
@@ -457,7 +435,7 @@ class SuppliersWindow(ctk.CTkFrame):
         supplier_id = self.tree.item(selected_item[0])["values"][0]
         
         # Check if supplier is being used by products
-        connection = self.get_db_connection()
+        connection = self.db.connect()
         if not connection:
             return
         
@@ -481,5 +459,3 @@ class SuppliersWindow(ctk.CTkFrame):
                 self.refresh_suppliers()
         except pymysql.Error as e:
             messagebox.showerror("Database Error", f"Error deleting supplier: {e}")
-        finally:
-            connection.close()
