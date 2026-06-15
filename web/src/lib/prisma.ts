@@ -9,23 +9,33 @@ const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 const createPrismaClient = () => {
   const connectionString = process.env.DATABASE_URL;
+  
   if (!connectionString) {
-    // During build, DATABASE_URL might be missing. 
-    // We can return a dummy or just let it fail if it's actually needed.
-    // For Next.js build, we might need to handle this gracefully.
+    console.warn("⚠️ DATABASE_URL is not set. PrismaClient may fail at runtime.");
     return new PrismaClient({
       log: ["error"],
     });
   }
+
+  // Mask sensitive info in log
+  const maskedUrl = connectionString.replace(/:([^:@]+)@/, ":****@");
+  console.log(`🔌 Initializing Prisma with connection: ${maskedUrl}`);
 
   let adapter;
   if (connectionString.includes("neon.tech")) {
     neonConfig.webSocketConstructor = ws;
     const pool = new NeonPool({ connectionString });
     adapter = new PrismaNeon(pool);
+    console.log("🚀 Using Neon Driver Adapter");
   } else {
-    const pool = new PgPool({ connectionString });
+    // For local or standard Postgres, use pg pool with SSL if needed
+    const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
+    const pool = new PgPool({ 
+      connectionString,
+      ssl: isLocal ? false : { rejectUnauthorized: false }
+    });
     adapter = new PrismaPg(pool);
+    console.log(`🐘 Using Standard Postgres Driver Adapter (${isLocal ? 'local' : 'remote'})`);
   }
 
   return new PrismaClient({
