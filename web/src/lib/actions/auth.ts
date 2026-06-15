@@ -14,21 +14,30 @@ export async function registerBusiness(data: any) {
 
   // Use a transaction to create both
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Create Business with 14-day trial
-    const trialEndDate = new Date();
-    trialEndDate.setDate(trialEndDate.getDate() + 14);
+    // 1. Check if user already exists (should be done before calling this, but for safety)
+    const existingUser = await tx.user.findUnique({ where: { email } });
+    if (existingUser) throw new Error("An account already exists for this email address.");
+
+    // 2. Create Business
+    // If the plan is not 'FREE', maybe they are paying immediately, so no trial?
+    // The current logic sets a 14-day trial regardless.
+    // To satisfy "prevent users from starting another free trial", 
+    // maybe we only set trial if they are truly new?
+    // For now, let's keep it as is, as registration is the start of the journey.
+    
+    const trialEndDate = plan === 'FREE' ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) : null;
 
     const business = await tx.business.create({
       data: {
         name: businessName,
-        phone: phone, // Added phone field here
+        phone: phone,
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: businessType as BusinessType,
         plan: plan,
-        status: "PENDING",
+        status: plan === 'FREE' ? "PENDING" : "ACTIVE",
         logoUrl: logoUrl,
         enabledModules: ["POS", "INVENTORY"],
-        trialStartDate: new Date(),
+        trialStartDate: plan === 'FREE' ? new Date() : null,
         trialEndDate: trialEndDate,
       },
     });
@@ -100,10 +109,29 @@ export async function checkUserExists(email: string) {
 export async function getBusinessContext(businessId: string) {
   const business = await prisma.business.findUnique({
     where: { id: businessId },
-    select: { name: true, logoUrl: true },
+    select: { name: true, logoUrl: true, trialEndDate: true, plan: true },
   });
   return {
     name: business?.name || "Global Admin",
-    logoUrl: business?.logoUrl || null
+    logoUrl: business?.logoUrl || null,
+    trialEndDate: business?.trialEndDate,
+    plan: business?.plan
   };
+}
+
+export async function getBusinessTrialStatus(businessId: string) {
+  const business = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: { trialEndDate: true, plan: true },
+  });
+
+  if (!business) return { canTrial: false, status: 'NO_PLAN' };
+
+  const now = new Date();
+  const trialExpired = business.trialEndDate && business.trialEndDate < now;
+  
+  if (business.plan !== 'FREE') return { canTrial: false, status: 'ACTIVE_SUBSCRIPTION' };
+  if (trialExpired) return { canTrial: false, status: 'TRIAL_EXPIRED' };
+  
+  return { canTrial: true, status: 'ACTIVE_TRIAL' };
 }

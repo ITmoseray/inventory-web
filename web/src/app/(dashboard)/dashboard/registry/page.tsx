@@ -123,7 +123,8 @@ export default function RegistryHubPage() {
                <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600"><Users size={20} /></div>
             </CardHeader>
             <CardContent className="p-0">
-               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">{data?.stats.totalEntities || 0}</div>
+               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">{data?.stats?.totalEntities || 0}</div>
+
                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Verified business partners</p>
             </CardContent>
          </Card>

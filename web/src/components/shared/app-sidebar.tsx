@@ -323,17 +323,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { canAccess, openMobile, setOpenMobile } = useSidebar();
   const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
   const [mounted, setMounted] = React.useState(false);
-  const [hasRefreshed, setHasRefreshed] = React.useState(false);
+  const hasRefreshedRef = React.useRef(false);
   const pathname = usePathname();
 
   // 1. Auto-refresh session if permissions are empty but user is authenticated
   React.useEffect(() => {
-    if (status === "authenticated" && (!session?.user?.permissions || session.user.permissions.length === 0) && !hasRefreshed) {
+    if (status === "authenticated" && (!session?.user?.permissions || session.user.permissions.length === 0) && !hasRefreshedRef.current) {
        console.log("DEBUG Sidebar: Zero permissions detected. Triggering session refresh...");
-       setHasRefreshed(true);
+       hasRefreshedRef.current = true;
        update(); // NextAuth session update
     }
-  }, [session, status, update, hasRefreshed]);
+  }, [session, status, update]);
 
   const businessTypesString = session?.user?.businessType || "SHOP";
   const businessTypes = businessTypesString.split(',').filter(t => t !== "");

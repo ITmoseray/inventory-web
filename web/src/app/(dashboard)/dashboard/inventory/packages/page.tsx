@@ -122,7 +122,7 @@ export default function PackagesPage() {
                             Note: If created for a 'Draft' order, the order automatically updates to 'Confirmed'.
                          </li>
                       </ul>
-                      <button className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all mt-4">
+                      <button className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-2 hover:gap-3 transition-all mt-4" onClick={() => router.push("/dashboard/help")}>
                         Learn More <ExternalLink className="h-3 w-3" />
                       </button>
                    </div>

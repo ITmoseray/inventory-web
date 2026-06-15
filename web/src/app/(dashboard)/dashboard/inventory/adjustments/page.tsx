@@ -61,12 +61,14 @@ export default function InventoryAdjustmentsPage() {
                 <Plus className="mr-3 h-5 w-5 group-hover:scale-125 transition-transform" />
                 Create Adjustment
              </Button>
-             <Button 
+             <Button
                variant="outline"
                className="h-16 px-10 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all"
+               onClick={() => { /* Logic to show history, e.g., setHasData(true) or router.push */ }}
              >
                 <History className="mr-3 h-4 w-4" /> View History
              </Button>
+
           </div>
 
           {/* Quick Help Node */}

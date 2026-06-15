@@ -1,113 +1,64 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Check, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation';
+import { PricingClientButton } from '@/components/pricing/PricingClientButton';
+import { PricingCalculator } from '@/components/pricing/PricingCalculator';
 
 const plans = [
-  {
-    name: 'Basic',
-    price: '200',
-    description: 'Perfect for small shops starting out.',
-    features: ['1 User', 'Up to 500 Products', 'Stock Management', 'Sales Recording', 'Basic Reports'],
-    cta: 'Start Free Trial',
-    popular: false,
-  },
-  {
-    name: 'Standard',
-    price: '500',
-    description: 'For growing businesses.',
-    features: ['Up to 5 Users', 'Up to 5,000 Products', 'Supplier Management', 'Purchase Orders', 'Low Stock Alerts', 'Sales & Inventory Reports'],
-    cta: 'Start Free Trial',
-    popular: false,
-  },
-  {
-    name: 'Business',
-    price: '1,000',
-    description: 'Everything you need to scale.',
-    features: ['Up to 15 Users', 'Unlimited Products', 'Customer Management', 'Profit & Loss Reports', 'Barcode Support', 'Branch Reporting'],
-    cta: 'Start Free Trial',
-    popular: true,
-  },
-  {
-    name: 'Enterprise',
-    price: '2,500+',
-    description: 'For large-scale operations.',
-    features: ['Unlimited Users', 'Multi-Branch Management', 'Role-Based Access Control', 'API Integration', 'Custom Features', 'Dedicated Support'],
-    cta: 'Contact Sales',
-    popular: false,
-  },
+  { name: 'Free', price: 0, orders: '50 orders', users: '1 user', locations: '2 locations', features: ['Composite items', 'Dropshipment', 'Backordering', 'Item groups'], popular: false },
+  { name: 'Standard', price: 29, orders: '500 orders', users: '2 users', locations: '2 locations', features: ['Composite items', 'Dropshipment', 'Backordering', 'Item groups', 'Customer portal'], popular: false },
+  { name: 'Professional', price: 79, orders: '3000 orders', users: '2 users', locations: '4 locations', features: ['Everything in Standard +', 'Serial number tracking', 'Batch tracking', 'Vendor portal'], popular: true },
+  { name: 'Premium', price: 129, orders: '7500 orders', users: '2 users', locations: '6 locations', features: ['Everything in Professional +', 'Contextual chat', 'UoM conversion', 'Customization & Automation'], popular: false },
+  { name: 'Enterprise', price: 249, orders: '15000 orders', users: '7 users', locations: '10 locations', features: ['Everything in Premium +', 'Zoho Analytics', 'Multi-currency'], popular: false },
 ];
 
 export default function PricingPage() {
-  const router = useRouter();
+  const [selectedPlan, setSelectedPlan] = useState(plans[1]); // Default to Standard
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <Link href="/" className="mb-6 -ml-4 inline-flex items-center text-slate-500 hover:text-slate-900 transition-colors">
           ← Back
         </Link>
-        {/* Trial Banner */}
         <div className="mb-12 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold text-sm">
-            <Star className="h-4 w-4 fill-current" />
-            <span>14-Day Free Trial available on all plans</span>
-          </div>
-          <h1 className="text-5xl font-black tracking-tighter text-slate-900 dark:text-white mt-6 mb-4">Choose your growth plan</h1>
-          <p className="text-slate-600 dark:text-slate-400 text-lg">Transparent pricing for premium enterprise retail intelligence.</p>
+          <h1 className="text-5xl font-black tracking-tighter text-slate-900 dark:text-white mb-4">Choose your growth plan</h1>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
           {plans.map((plan) => (
-            <Card 
-              key={plan.name} 
-              className={cn(
-                "relative flex flex-col transition-all duration-300 hover:shadow-2xl border-2",
-                plan.popular ? "border-indigo-600 shadow-xl scale-105" : "border-slate-200 dark:border-slate-800"
-              )}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-lg">
-                  Most Popular
-                </div>
-              )}
+            <Card key={plan.name} className={cn("relative flex flex-col transition-all duration-300 border-2", plan.popular ? "border-indigo-600 shadow-xl" : "border-slate-200")}>
               <CardHeader>
                 <CardTitle className="text-2xl font-black">{plan.name}</CardTitle>
-                <CardDescription className="text-slate-500">{plan.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-1">
-                <div className="text-4xl font-black mb-6">NLe {plan.price}<span className="text-sm font-medium text-slate-500">/month</span></div>
-                <ul className="space-y-3">
+                <div className="text-4xl font-black mb-4">NLe {plan.price}<span className="text-sm font-medium text-slate-500">/mo</span></div>
+                <div className="text-xs font-bold text-slate-900 space-y-1 mb-4">
+                    <p>{plan.orders}</p>
+                    <p>{plan.users}</p>
+                    <p>{plan.locations}</p>
+                </div>
+                <ul className="space-y-1">
                   {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                      <Check className="h-4 w-4 text-indigo-600" />
+                    <li key={feature} className="flex items-center gap-1 text-[10px] text-slate-700">
+                      <Check className="h-3 w-3 text-indigo-600" />
                       {feature}
                     </li>
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Button 
-                  onClick={() => router.push(plan.name === 'Enterprise' ? 'mailto:protechassist36@gmail.com' : '/register')}
-                  className={cn("w-full h-12 font-bold", plan.popular ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-900 dark:bg-white dark:text-slate-900")}
-                >
-                  {plan.cta}
-                </Button>
+              <CardFooter className="flex flex-col gap-2">
+                <Button className="w-full" onClick={() => setSelectedPlan(plan)}>Select</Button>
+                <Button variant="ghost" size="sm" className="w-full text-xs" onClick={() => setSelectedPlan(plan)}>Customize</Button>
               </CardFooter>
             </Card>
           ))}
         </div>
-
-        {/* Contact Info */}
-        <div className="mt-16 text-center text-slate-600 dark:text-slate-400">
-          <p className="font-bold">Need help choosing?</p>
-          <p>Phone: <a href="tel:034955581" className="text-indigo-600 font-black hover:underline">034955581</a></p>
-          <p>Email: <a href="mailto:protechassist36@gmail.com" className="text-indigo-600 font-black hover:underline">protechassist36@gmail.com</a></p>
-        </div>
+        <PricingCalculator basePrice={selectedPlan.price} />
       </div>
     </div>
   );

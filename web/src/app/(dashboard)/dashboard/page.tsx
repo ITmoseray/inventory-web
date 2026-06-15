@@ -1,58 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { 
-  Package, 
-  ShoppingCart, 
-  Users, 
-  TrendingUp, 
-  DollarSign,
-  AlertCircle,
-  Sparkles,
-  History,
-  Clock,
-  ArrowRight,
-  Activity,
-  Receipt,
-  Wallet,
-  Smartphone as SmartphoneIcon,
-  Printer,
-  Book,
-  CheckCircle2,
-  ChevronRight,
-  Plus,
-  Play,
-  HelpCircle,
-  Globe,
-  Truck,
-  CreditCard,
-  Settings,
-  MessageCircle,
-  FileText,
-  Smartphone,
-  Layout,
-  Zap,
-  Box,
-  MapPin,
-  Calendar,
-  Filter,
-  Search,
-  Menu,
-  X,
-  ShieldCheck
-} from "lucide-react";
-import { useSession } from "next-auth/react";
-import { cn, getIndustryColor } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { getRecentSales } from "@/lib/actions/sale";
-import { getDashboardStats } from "@/lib/actions/dashboard";
-import { useRouter } from "next/navigation";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { TrendChart } from "@/components/dashboard/trend-chart";
-import { format, subDays } from "date-fns";
-import { motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
+// ... (rest of imports)
 import {
   Dialog,
   DialogContent,
@@ -63,8 +14,20 @@ const TABS = ["Dashboard", "Getting Started", "Recent Updates"];
 
 export default function DashboardPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("Dashboard");
+  
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+        const formattedTab = tab.split("-").map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(" ");
+        if (TABS.includes(formattedTab)) {
+            setActiveTab(formattedTab);
+        }
+    }
+  }, [searchParams]);
+  // ... (rest of the component)
   const [recentSales, setRecentSales] = useState<any[]>([]);
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
@@ -448,7 +411,7 @@ export default function DashboardPage() {
                            </div>
                         </div>
                         <div className="flex items-center gap-8">
-                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2">
+                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2" onClick={() => router.push("/dashboard/inventory/products/new")}>
                               <Plus className="h-3 w-3" /> Quick Create
                            </Button>
                            <div className="text-right">

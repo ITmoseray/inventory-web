@@ -127,7 +127,7 @@ export default function LoginPage() {
           window.location.href = "/super-admin";
         } else {
           toast.success("Login successful");
-          window.location.href = "/dashboard";
+          window.location.href = "/dashboard?tab=getting-started";
         }
       }
     } catch (error) {
