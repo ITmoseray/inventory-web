@@ -1,22 +1,46 @@
 import nodemailer from "nodemailer";
 import { v4 as uuidv4 } from "uuid";
 
-const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT || "587"),
-  secure: process.env.SMTP_SECURE === "true",
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASSWORD,
-  },
-  tls: {
-    rejectUnauthorized: false, // Bypass self-signed certificate issues
-  },
-});
+/**
+ * Creates a nodemailer transporter using environment variables.
+ * We create this dynamically to ensure environment variables are loaded.
+ */
+const getTransporter = () => {
+  const host = process.env.SMTP_HOST;
+  const port = parseInt(process.env.SMTP_PORT || "587");
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASSWORD;
+
+  if (!host || !user || !pass) {
+    console.warn("⚠️ SMTP configuration is incomplete. Verification emails will fail.");
+    console.log(`Current config - Host: ${host || 'MISSING'}, Port: ${port}, User: ${user ? 'SET' : 'MISSING'}`);
+    return null;
+  }
+
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: process.env.SMTP_SECURE === "true" || port === 465,
+    auth: {
+      user,
+      pass,
+    },
+    tls: {
+      rejectUnauthorized: false,
+    },
+  });
+};
 
 export const sendVerificationEmail = async (email: string, token: string) => {
   const domain = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const verificationLink = `${domain}/verify-email?token=${token}`;
+  
+  const transporter = getTransporter();
+  
+  if (!transporter) {
+    console.error("❌ Cannot send email: SMTP transporter not initialized. Check your environment variables (SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD).");
+    return;
+  }
 
   const mailOptions = {
     from: process.env.SMTP_FROM || '"Protech System" <no-reply@protech.com>',
@@ -36,11 +60,13 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Verification email sent to ${email}`);
+    console.log(`✅ Verification email sent to ${email}`);
   } catch (error) {
-    console.error("Failed to send verification email:", error);
-    // We don't throw here to avoid failing the whole registration if email fails
-    // In a production app, you might want to handle this differently
+    console.error("❌ Failed to send verification email:", error);
+    // Log more specific info for debugging
+    if (error instanceof Error) {
+      console.error(`Error details: ${error.message}`);
+    }
   }
 };
 

@@ -7,6 +7,18 @@ export const authConfig: NextAuthConfig = {
   pages: {
     signIn: "/login",
   },
+  trustHost: true,
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
+  },
   providers: [], // No providers here to keep it edge-safe
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
@@ -14,11 +26,6 @@ export const authConfig: NextAuthConfig = {
       return true; // We handle redirection in the custom middleware wrapper
     },
     async session({ session, token }) {
-      console.log("SESSION CALLBACK", {
-        sub: token.sub,
-        role: token.role,
-      });
-
       if (token.sub && session.user) session.user.id = token.sub as string;
       if (token.businessId && session.user) session.user.businessId = token.businessId as string;
       if (token.role && session.user) session.user.role = token.role as string;
@@ -28,11 +35,6 @@ export const authConfig: NextAuthConfig = {
       return session;
     },
     async jwt({ token, user }) {
-      console.log("JWT CALLBACK", {
-        hasUser: !!user,
-        email: user?.email,
-      });
-
       if (user) {
         token.businessId = (user as any).businessId;
         token.role = (user as any).role;
