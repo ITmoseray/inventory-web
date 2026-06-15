@@ -32,7 +32,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { getBusinessContext } from "@/lib/actions/auth";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { usePermissions } from "@/hooks/use-permissions";
 import {
   Sheet,
