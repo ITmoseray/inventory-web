@@ -1,27 +1,41 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
-import { Pool, neonConfig } from "@neondatabase/serverless";
+import { PrismaPg } from "@prisma/adapter-pg";
+import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
+import { Pool as PgPool } from "pg";
 import ws from "ws";
-
-// Standard configuration for Neon serverless
-if (typeof window === "undefined") {
-  neonConfig.webSocketConstructor = ws;
-}
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// Initialize Neon Pool
-// prisma.config.ts handles DATABASE_URL from environment variables
-const connectionString = process.env.DATABASE_URL!;
-const pool = new Pool({ connectionString });
-const adapter = new PrismaNeon(pool);
+const createPrismaClient = () => {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    // During build, DATABASE_URL might be missing. 
+    // We can return a dummy or just let it fail if it's actually needed.
+    // For Next.js build, we might need to handle this gracefully.
+    return new PrismaClient({
+      log: ["error"],
+    });
+  }
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
+  let adapter;
+  if (connectionString.includes("neon.tech")) {
+    neonConfig.webSocketConstructor = ws;
+    const pool = new NeonPool({ connectionString });
+    adapter = new PrismaNeon(pool);
+  } else {
+    const pool = new PgPool({ connectionString });
+    adapter = new PrismaPg(pool);
+  }
+
+  return new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
   });
+};
+
+export const prisma =
+  globalForPrisma.prisma || createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
@@ -31,32 +45,32 @@ export const getTenantPrisma = (businessId: string) => {
     query: {
       $allModels: {
         async findMany({ model, args, query }) {
-          if (model === 'Business' || model === 'Permission') return query(args);
+          if (model === 'Business' || model === 'Permission' || model === 'Role') return query(args);
           args.where = { ...args.where, businessId };
           return query(args);
         },
         async findUnique({ model, args, query }) {
-          if (model === 'Business' || model === 'Permission') return query(args);
+          if (model === 'Business' || model === 'Permission' || model === 'Role') return query(args);
           args.where = { ...args.where, businessId };
           return query(args);
         },
         async findFirst({ model, args, query }) {
-          if (model === 'Business' || model === 'Permission') return query(args);
+          if (model === 'Business' || model === 'Permission' || model === 'Role') return query(args);
           args.where = { ...args.where, businessId };
           return query(args);
         },
         async update({ model, args, query }) {
-          if (model === 'Business' || model === 'Permission') return query(args);
+          if (model === 'Business' || model === 'Permission' || model === 'Role') return query(args);
           args.where = { ...args.where, businessId };
           return query(args);
         },
         async delete({ model, args, query }) {
-          if (model === 'Business' || model === 'Permission') return query(args);
+          if (model === 'Business' || model === 'Permission' || model === 'Role') return query(args);
           args.where = { ...args.where, businessId };
           return query(args);
         },
         async count({ model, args, query }) {
-          if (model === 'Business' || model === 'Permission') return query(args);
+          if (model === 'Business' || model === 'Permission' || model === 'Role') return query(args);
           args.where = { ...args.where, businessId };
           return query(args);
         },
