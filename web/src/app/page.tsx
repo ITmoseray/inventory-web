@@ -404,17 +404,10 @@ export default function ProtechCloudHomepage() {
                           </h3>
                           
                           <div className="flex items-center gap-6">
-                             <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-2xl relative">
-                                <Image 
-                                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&h=300&auto=format&fit=crop" 
-                                  alt="Mariatu Bangura" 
-                                  fill
-                                  className="object-cover"
-                                />
-                             </div>
+
                              <div>
-                                <p className="text-xl font-black text-white tracking-tight">Mariatu Bangura</p>
-                                <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mt-1">CEO, West End Distributors</p>
+                                <p className="text-xl font-black text-white tracking-tight">Aminata Bangura</p>
+                                <p className="text-xs font-bold text-indigo-400 uppercase tracking-[0.2em] mt-1">CEO, Eastside Pharmacy</p>
                              </div>
                           </div>
                        </div>

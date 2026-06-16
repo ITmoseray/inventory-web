@@ -38,15 +38,13 @@ import {
 const SOCIAL_PROOF = [
   {
     quote: "With Protech Inventory, you can actually organize your business and scale without fear.",
-    author: "Raghav Sukhadia",
-    role: "Director, Sunkool Automotive Films",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=300&h=300&auto=format&fit=crop"
+    author: "Alpha Sesay",
+    role: "Proprietor, Freetown Tech Solutions"
   },
   {
     quote: "The multi-branch control changed how we operate. Real-time tracking is a lifesaver.",
-    author: "Mariatu Bangura",
-    role: "CEO, West End Distributors",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=300&h=300&auto=format&fit=crop"
+    author: "Aminata Bangura",
+    role: "CEO, Eastside Pharmacy"
   }
 ];
 
@@ -152,14 +150,7 @@ export default function RegisterPage() {
               </div>
               
               <div className="flex items-center gap-6 p-8 rounded-[2.5rem] bg-white/5 border border-white/10 backdrop-blur-md">
-                 <div className="h-20 w-20 rounded-2xl overflow-hidden border-2 border-indigo-500 shadow-2xl relative">
-                    <Image 
-                      src={SOCIAL_PROOF[currentProofIndex].image} 
-                      alt={SOCIAL_PROOF[currentProofIndex].author} 
-                      fill
-                      className="object-cover"
-                    />
-                 </div>
+
                  <div>
                     <p className="font-black text-2xl tracking-tight text-white">{SOCIAL_PROOF[currentProofIndex].author}</p>
                     <p className="text-xs font-black text-indigo-400 uppercase tracking-[0.3em] mt-2">
