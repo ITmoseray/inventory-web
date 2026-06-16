@@ -12,14 +12,14 @@ export async function syncLowStockNotifications() {
     const businessId = session.user.businessId;
 
     // 1. Find products with low stock
-    const lowStockProducts = await prisma.product.findMany({
+    const allProducts = await prisma.product.findMany({
       where: {
         businessId,
-        stockQuantity: {
-          lte: prisma.product.fields.minStockLevel
-        }
       }
     });
+
+    const lowStockProducts = allProducts.filter(p => p.stockQuantity <= p.minStockLevel);
+
 
     if (lowStockProducts.length === 0) return { success: true, count: 0 };
 
