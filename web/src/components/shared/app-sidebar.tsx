@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
-  CreditCard, Wallet, UserCheck, Book, DollarSign
+  CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle
 } from "lucide-react";
 
 import {
