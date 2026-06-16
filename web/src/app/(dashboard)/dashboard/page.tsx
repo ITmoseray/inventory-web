@@ -3,14 +3,27 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { format, subDays } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-// ... (rest of imports)
 import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
 import Image from "next/image";
+import { 
+  Plus, Box, Users, FileText, ShoppingCart, Truck, Globe, ShieldCheck, 
+  CreditCard, MapPin, Activity, Sparkles, History, Clock, ArrowRight, 
+  Play, MessageCircle, Wallet, Smartphone, SmartphoneIcon, Printer, Receipt, 
+  DollarSign, AlertCircle, Package, Book, Zap
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+import { getRecentSales } from "@/lib/actions/sale";
+import { getDashboardStats } from "@/lib/actions/dashboard";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { TrendChart } from "@/components/dashboard/trend-chart";
 
 const TABS = ["Dashboard", "Getting Started", "Recent Updates"];
 
