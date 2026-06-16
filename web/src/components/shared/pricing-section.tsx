@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { ManualPaymentModal } from './manual-payment-modal';
+import { useSession } from 'next-auth/react';
 
 const plans = [
   {
@@ -26,7 +27,7 @@ const plans = [
   },
   {
     name: 'Business',
-    price: '1,000',
+    price: '1000',
     description: 'Everything you need to scale.',
     features: ['Up to 15 Users', 'Unlimited Products', 'Customer Management', 'Profit & Loss Reports', 'Barcode Support', 'Branch Reporting'],
     cta: 'Start Free Trial',
@@ -34,7 +35,7 @@ const plans = [
   },
   {
     name: 'Enterprise',
-    price: '2,500+',
+    price: '2500+',
     description: 'For large-scale operations.',
     features: ['Unlimited Users', 'Multi-Branch Management', 'Role-Based Access Control', 'API Integration', 'Custom Features', 'Dedicated Support'],
     cta: 'Contact Sales',
@@ -43,8 +44,12 @@ const plans = [
 ];
 
 export function PricingSection() {
+  const { data: session } = useSession();
   const router = useRouter();
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+
+  const hasUsedTrial = !!session?.user?.trialEndDate;
+  const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
 
   return (
     <div className="py-24 px-6 bg-slate-50 dark:bg-slate-950" id="pricing">
@@ -92,12 +97,17 @@ export function PricingSection() {
               <CardFooter>
                 <Button 
                   onClick={() => {
-                    if (plan.name === 'Basic') return router.push('/register');
-                    setSelectedPlan(plan.name);
+                    if (!session) return router.push('/register');
+                    if (isTrialExpired || hasUsedTrial) {
+                        setSelectedPlan(plan.name);
+                    } else {
+                        if (plan.name === 'Basic') return router.push('/register');
+                        setSelectedPlan(plan.name);
+                    }
                   }}
                   className={cn("w-full h-12 font-bold", plan.popular ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-900 dark:bg-white dark:text-slate-900")}
                 >
-                  {plan.cta}
+                  {isTrialExpired || hasUsedTrial ? "Upgrade Now" : plan.cta}
                 </Button>
               </CardFooter>
             </Card>

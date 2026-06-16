@@ -19,13 +19,12 @@ export async function registerBusiness(data: any) {
     if (existingUser) throw new Error("An account already exists for this email address.");
 
     // 2. Create Business
-    // If the plan is not 'FREE', maybe they are paying immediately, so no trial?
-    // The current logic sets a 14-day trial regardless.
+    // The current logic sets a 7-day trial for FREE plans.
     // To satisfy "prevent users from starting another free trial", 
     // maybe we only set trial if they are truly new?
     // For now, let's keep it as is, as registration is the start of the journey.
     
-    const trialEndDate = plan === 'FREE' ? new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) : null;
+    const trialEndDate = plan === 'FREE' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : null;
 
     const business = await tx.business.create({
       data: {

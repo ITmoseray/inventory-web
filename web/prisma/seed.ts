@@ -5,6 +5,9 @@ import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
 import { Pool as PgPool } from "pg";
 import ws from "ws";
 import bcrypt from 'bcrypt';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
 
 const createPrismaClient = () => {
   const connectionString = process.env.DATABASE_URL;
@@ -12,19 +15,11 @@ const createPrismaClient = () => {
     throw new Error("DATABASE_URL is not set for seeding.");
   }
 
-  let adapter;
-  if (connectionString.includes("neon.tech")) {
-    neonConfig.webSocketConstructor = ws;
-    const pool = new NeonPool({ connectionString });
-    adapter = new PrismaNeon(pool);
-  } else {
-    const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
-    const pool = new PgPool({ 
-      connectionString,
-      ssl: isLocal ? false : { rejectUnauthorized: false }
-    });
-    adapter = new PrismaPg(pool);
-  }
+  const pool = new PgPool({ 
+    connectionString,
+    ssl: { rejectUnauthorized: false }
+  });
+  const adapter = new PrismaPg(pool);
 
   return new PrismaClient({ adapter });
 };

@@ -476,27 +476,27 @@ export default function POSPage() {
       
       {/* SECURE CHECKOUT MODAL */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[4rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
-            <div className="bg-slate-950 p-10 sm:p-14 text-white relative overflow-hidden shrink-0">
+        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem] sm:rounded-[4rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[95vh] flex flex-col">
+            <div className="bg-slate-950 p-6 sm:p-10 text-white relative overflow-hidden shrink-0">
                <div className="absolute -top-10 -right-10 p-10 opacity-[0.03] rotate-12">
                   <ShieldCheck size={400} />
                </div>
                <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-               <div className="relative z-10 space-y-3">
+               <div className="relative z-10 space-y-2">
                   <div className="flex items-center gap-3">
-                     <Badge variant="outline" className="bg-indigo-500/10 border-indigo-500/30 text-indigo-400 text-[10px] font-black rounded-xl h-8 px-5 uppercase tracking-[0.3em]">Secure Terminal</Badge>
+                     <Badge variant="outline" className="bg-indigo-500/10 border-indigo-500/30 text-indigo-400 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em]">Secure Terminal</Badge>
                      <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
                   </div>
-                  <h3 className="text-4xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none">Global <span className="text-indigo-500 underline underline-offset-8 decoration-white/10">Settlement</span></h3>
-                  <div className="flex items-center gap-4 pt-6">
+                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none">Global <span className="text-indigo-500 underline underline-offset-8 decoration-white/10">Settlement</span></h3>
+                  <div className="flex items-center gap-4 pt-4 sm:pt-6">
                      <div className="flex -space-x-4">
                         {cart.slice(0, 3).map((item, i) => (
-                           <div key={i} className="h-12 w-12 rounded-2xl border-4 border-slate-950 bg-slate-900 overflow-hidden shadow-2xl relative">
+                           <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-slate-900 overflow-hidden shadow-2xl relative">
                               {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
                            </div>
                         ))}
                         {cart.length > 3 && (
-                           <div className="h-12 w-12 rounded-2xl border-4 border-slate-950 bg-indigo-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl">+{cart.length - 3}</div>
+                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-indigo-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl">+{cart.length - 3}</div>
                         )}
                      </div>
                      <div className="h-8 w-px bg-slate-800" />
@@ -508,9 +508,9 @@ export default function POSPage() {
                </div>
             </div>
 
-            <div className="p-10 sm:p-14 space-y-12 bg-white dark:bg-slate-950 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div className="p-6 sm:p-10 space-y-8 sm:space-y-12 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
                {/* Customer Node Selection */}
-               <div className="space-y-5">
+               <div className="space-y-4 sm:space-y-5">
                   <div className="flex items-center justify-between px-2">
                      <div className="flex items-center gap-3">
                         <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600">
@@ -521,7 +521,7 @@ export default function POSPage() {
                      <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Intelligence Node</button>
                   </div>
                   <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
-                    <SelectTrigger className="h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-inner px-8 focus:ring-primary/20 transition-all">
+                    <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-inner px-6 sm:px-8 focus:ring-primary/20 transition-all">
                       <SelectValue placeholder="Identify Transacting Node" />
                     </SelectTrigger>
                     <SelectContent className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-2xl p-2">
@@ -534,14 +534,14 @@ export default function POSPage() {
                </div>
 
                {/* Settlement Vector Matrix */}
-               <div className="space-y-6">
+               <div className="space-y-4 sm:space-y-6">
                   <div className="flex items-center gap-3 px-2">
                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600">
                         <Banknote size={18} />
                      </div>
                      <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Settlement Matrix</Label>
                   </div>
-                  <div className="grid grid-cols-3 gap-5">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-5">
                      {[
                        { id: 'CASH', label: 'Paper Currency', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50' },
                        { id: 'MOBILE_MONEY', label: 'Neural Digital', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50' },
@@ -551,14 +551,14 @@ export default function POSPage() {
                          key={m.id}
                          onClick={() => setPaymentMethod(m.id as any)}
                          className={cn(
-                           "flex flex-col items-center justify-center gap-5 p-8 rounded-[2.5rem] border-2 transition-all active:scale-90 shadow-sm relative group overflow-hidden",
+                           "flex flex-col items-center justify-center gap-3 sm:gap-5 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 transition-all active:scale-90 shadow-sm relative group overflow-hidden",
                            paymentMethod === m.id 
                              ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-2xl scale-105 z-10" 
                              : "bg-white dark:bg-slate-900 border-slate-50 dark:border-slate-800 text-slate-400 " + m.bg
                          )}
                        >
-                         <m.icon size={32} className={cn("transition-transform group-hover:scale-110", paymentMethod === m.id ? "" : m.color)} />
-                         <span className="text-[10px] font-[1000] uppercase tracking-[0.2em] text-center leading-tight">{m.label}</span>
+                         <m.icon className={cn("h-6 w-6 sm:h-8 sm:w-8 transition-transform group-hover:scale-110", paymentMethod === m.id ? "" : m.color)} />
+                         <span className="text-[9px] sm:text-[10px] font-[1000] uppercase tracking-[0.2em] text-center leading-tight">{m.label}</span>
                          {paymentMethod === m.id && (
                            <motion.div layoutId="paymentActive" className="absolute top-3 right-3 h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
                          )}
@@ -568,14 +568,14 @@ export default function POSPage() {
                </div>
 
                {/* Settlement Stats Analytics */}
-               <div className="p-10 rounded-[3rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+               <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-[0.05] group-hover:scale-110 transition-transform duration-700">
                      <TrendingUp size={150} />
                   </div>
-                  <div className="space-y-6 relative z-10">
+                  <div className="space-y-4 sm:space-y-6 relative z-10">
                      <div className="flex justify-between items-center">
                         <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Settlement Debt</span>
-                        <span className="text-3xl font-[1000] tracking-tighter">Le {Math.round(grandTotal).toLocaleString()}</span>
+                        <span className="text-2xl sm:text-3xl font-[1000] tracking-tighter">Le {Math.round(grandTotal).toLocaleString()}</span>
                      </div>
                      <div className="h-px bg-white/10 w-full" />
                      <div className="flex justify-between items-center">
@@ -583,16 +583,16 @@ export default function POSPage() {
                            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                            <span className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.4em]">Resolved Balance</span>
                         </div>
-                        <span className="text-3xl font-[1000] text-emerald-500 tracking-tighter">Le 0</span>
+                        <span className="text-2xl sm:text-3xl font-[1000] text-emerald-500 tracking-tighter">Le 0</span>
                      </div>
                   </div>
                </div>
             </div>
 
-            <div className="p-10 sm:p-14 pt-0 flex flex-col sm:flex-row gap-5 bg-white dark:bg-slate-950 relative z-10">
+            <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0">
                <Button 
                   variant="outline" 
-                  className="flex-1 h-20 rounded-[2rem] font-black uppercase text-[11px] tracking-[0.3em] text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" 
+                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm" 
                   onClick={() => setIsCheckoutOpen(false)}
                >
                   Purge Session
@@ -600,7 +600,7 @@ export default function POSPage() {
                <Button 
                   onClick={handleCheckout} 
                   disabled={loading}
-                  className="flex-[2] h-20 rounded-[2rem] bg-slate-900 dark:bg-primary text-white font-[1000] uppercase text-[11px] tracking-[0.4em] shadow-2xl shadow-primary/20 hover:scale-[1.03] transition-all group gap-4 active:scale-95"
+                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-slate-900 dark:bg-primary text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-2xl shadow-primary/20 hover:scale-[1.03] transition-all group gap-4 active:scale-95"
                >
                   {loading ? <RefreshCw className="animate-spin" /> : (
                     <>Commit Neural Settlement <ArrowRight className="group-hover:translate-x-2 transition-transform" /></>

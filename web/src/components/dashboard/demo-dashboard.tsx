@@ -138,9 +138,9 @@ export function DemoDashboard() {
                 Your premium trial plan ends today.
               </p>
               <div className="hidden sm:block h-3 w-px bg-slate-200" />
-              <button className="text-sm font-black text-indigo-600 uppercase tracking-widest hover:underline flex items-center gap-1">
+              <Link href="/pricing" className="text-sm font-black text-indigo-600 uppercase tracking-widest hover:underline flex items-center gap-1">
                 Subscribe Now <ArrowRight className="h-3 w-3" />
-              </button>
+              </Link>
             </div>
           </div>
           <button className="p-1.5 hover:bg-amber-200/50 rounded-full transition-colors text-amber-600">

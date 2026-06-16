@@ -17,7 +17,7 @@ export default function SettlementPage() {
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-slate-50/50 min-h-screen">
+    <div className="p-8 pb-24 space-y-8 bg-slate-50/50 min-h-screen">
       <div className="space-y-1">
         <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Secure Terminal</h1>
         <p className="text-indigo-600 font-black uppercase tracking-[0.3em] text-xs">Global Settlement</p>
@@ -29,9 +29,6 @@ export default function SettlementPage() {
         </div>
         <div className="px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 font-black text-xs uppercase tracking-widest shadow-sm">
           Ready for cryptographic commitment
-        </div>
-        <div className="px-4 py-2 bg-slate-900 text-white rounded-xl font-black text-xs uppercase tracking-widest shadow-sm">
-          cutting off
         </div>
         <Button className="rounded-xl font-black uppercase tracking-widest text-xs">
           <Plus className="mr-2 h-4 w-4" /> New Intelligence Node

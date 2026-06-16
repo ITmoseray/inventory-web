@@ -69,28 +69,33 @@ export default function EnhancedSuperAdminDashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-950 p-6 md:p-12 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 p-4 md:p-8 lg:p-12 relative overflow-x-hidden">
       {/* Immersive Background Decorations */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-500/5 blur-[160px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-blue-500/5 blur-[160px] rounded-full pointer-events-none" />
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none" />
 
       {/* Global Header */}
-      <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-16 relative z-10">
-         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex items-center gap-6">
-            <div className="relative h-20 w-20 rounded-[2rem] overflow-hidden border-4 border-slate-900 shadow-2xl shadow-indigo-500/20 rotate-3">
+      <div className="flex flex-col xl:flex-row items-center justify-between gap-8 mb-16 relative z-10">
+         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
+            <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border-4 border-slate-900 shadow-2xl shadow-indigo-500/20 rotate-3 flex-shrink-0">
                <Image src="/images/logo2.jpeg" alt="Protech Logo" fill className="object-cover" />
             </div>
             <div className="space-y-1">
-               <h1 className="text-4xl md:text-5xl font-[1000] text-white tracking-tighter uppercase italic">Protech Smart Inventory <span className="text-indigo-500">Super Control</span></h1>
-               <div className="flex items-center gap-2">
+               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-[1000] text-white tracking-tighter uppercase italic leading-tight">Protech Smart Inventory <span className="text-indigo-500">Super Control</span></h1>
+               <div className="flex items-center justify-center sm:justify-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   <p className="text-slate-400 font-black text-[10px] uppercase tracking-[0.3em]">Centralized Infrastructure Command</p>
                </div>
             </div>
          </motion.div>
          
-         <div className="flex items-center gap-4">
+         <div className="flex flex-wrap items-center justify-center gap-4">
+            <Link href="/dashboard/system/profile">
+               <Button variant="outline" className="h-14 px-6 rounded-2xl border-slate-800 bg-slate-900/50 text-indigo-400 hover:bg-indigo-500/10 hover:border-indigo-500/50 font-black text-xs uppercase tracking-widest transition-all">
+                  <ShieldCheck className="mr-3 h-4 w-4" /> Security Settings
+               </Button>
+            </Link>
             <div className="px-5 py-2.5 rounded-2xl bg-slate-900/50 border border-slate-800 backdrop-blur-xl text-right">
                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Commanding</p>
                <p className="text-sm font-black text-white mt-1 uppercase tracking-tighter">Nexus System Admin</p>
@@ -111,29 +116,29 @@ export default function EnhancedSuperAdminDashboard() {
       {/* Tactical Hub */}
       <div className="grid gap-8 lg:grid-cols-3 relative z-10">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="lg:col-span-2">
-           <Card className="border-slate-800/50 bg-slate-900/40 backdrop-blur-xl rounded-[3rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.4)] h-full">
-             <CardHeader className="p-0 pb-10">
+           <Card className="border-slate-800/50 bg-slate-900/40 backdrop-blur-xl rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-[0_50px_100px_rgba(0,0,0,0.4)] h-full">
+             <CardHeader className="p-0 pb-6 md:pb-10">
                 <div className="flex items-center gap-3 mb-2">
                    <Terminal className="h-5 w-5 text-indigo-500" />
-                   <CardTitle className="text-2xl font-[1000] text-white uppercase tracking-tighter">Command Operations</CardTitle>
+                   <CardTitle className="text-xl md:text-2xl font-[1000] text-white uppercase tracking-tighter">Command Operations</CardTitle>
                 </div>
                 <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Global tenant & security management</CardDescription>
              </CardHeader>
-             <CardContent className="p-0 grid md:grid-cols-2 gap-6">
+             <CardContent className="p-0 grid sm:grid-cols-2 gap-4 md:gap-6">
                 <Link 
                    href="/super-admin/businesses"
-                   className="group p-8 rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white transition-all hover:-translate-y-2 shadow-2xl shadow-indigo-600/20"
+                   className="group p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white transition-all hover:-translate-y-2 shadow-2xl shadow-indigo-600/20"
                 >
-                   <Globe className="mb-6 h-10 w-10 opacity-50 group-hover:scale-125 transition-transform" />
-                   <h4 className="text-2xl font-black uppercase tracking-tight">Tenant Vault</h4>
+                   <Globe className="mb-4 md:mb-6 h-8 w-8 md:h-10 md:w-10 opacity-50 group-hover:scale-125 transition-transform" />
+                   <h4 className="text-xl md:text-2xl font-black uppercase tracking-tight">Tenant Vault</h4>
                    <p className="text-indigo-100 text-[10px] font-bold uppercase tracking-widest mt-2">Manage all registered businesses</p>
                 </Link>
                 <Link 
                    href="/super-admin/logs"
-                   className="group p-8 rounded-[2rem] bg-slate-950 border-2 border-slate-900 hover:border-indigo-500/50 text-white transition-all hover:-translate-y-2"
+                   className="group p-6 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-slate-950 border-2 border-slate-900 hover:border-indigo-500/50 text-white transition-all hover:-translate-y-2"
                 >
-                   <ShieldCheck className="mb-6 h-10 w-10 text-slate-700 group-hover:text-indigo-500 transition-colors" />
-                   <h4 className="text-2xl font-black uppercase tracking-tight">Security Node</h4>
+                   <ShieldCheck className="mb-4 md:mb-6 h-8 w-8 md:h-10 md:w-10 text-slate-700 group-hover:text-indigo-500 transition-colors" />
+                   <h4 className="text-xl md:text-2xl font-black uppercase tracking-tight">Security Node</h4>
                    <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest mt-2">Platform audit & threat monitoring</p>
                 </Link>
              </CardContent>
@@ -141,12 +146,12 @@ export default function EnhancedSuperAdminDashboard() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-           <Card className="border-slate-800/50 bg-slate-900/40 backdrop-blur-xl rounded-[3rem] p-10 shadow-[0_50px_100px_rgba(0,0,0,0.4)] h-full">
-             <CardHeader className="p-0 pb-8">
-                <CardTitle className="text-xl font-black text-white uppercase tracking-tighter">Infrastructure Status</CardTitle>
+           <Card className="border-slate-800/50 bg-slate-900/40 backdrop-blur-xl rounded-[2rem] md:rounded-[3rem] p-6 md:p-10 shadow-[0_50px_100px_rgba(0,0,0,0.4)] h-full">
+             <CardHeader className="p-0 pb-6 md:pb-8">
+                <CardTitle className="text-lg md:text-xl font-black text-white uppercase tracking-tighter">Infrastructure Status</CardTitle>
                 <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Live system health</CardDescription>
              </CardHeader>
-             <CardContent className="p-0 space-y-6">
+             <CardContent className="p-0 space-y-4 md:space-y-6">
                 {[
                   { label: "API Global Gateway", status: "Operational", color: "text-emerald-500" },
                   { label: "Database Main Cluster", status: "Healthy", color: "text-emerald-500" },

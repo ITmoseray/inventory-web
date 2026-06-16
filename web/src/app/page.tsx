@@ -46,9 +46,10 @@ import {
   } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { PricingSection } from "@/components/shared/pricing-section";
 import { ExpertPopup } from "@/components/shared/expert-popup";
+import { useSession } from "next-auth/react";
 import {
   Dialog,
   DialogContent,
@@ -58,8 +59,15 @@ import {
 } from "@/components/ui/dialog";
 
 export default function ProtechCloudHomepage() {
+  const { data: session } = useSession();
   const containerRef = useRef(null);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+
+  const hasUsedTrial = !!session?.user?.trialEndDate;
+  const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
+
+  const ctaText = isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Start Free Trial";
+  const ctaHref = isTrialExpired || hasUsedTrial ? "/pricing" : "/register";
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -110,10 +118,10 @@ export default function ProtechCloudHomepage() {
             Login
           </Link>
           <Link 
-            href="/register" 
+            href={ctaHref} 
             className="h-12 px-8 rounded-xl bg-slate-900 hover:bg-indigo-600 text-white text-[11px] font-black uppercase tracking-[0.2em] shadow-xl shadow-slate-900/10 transition-all hover:-translate-y-1 flex items-center justify-center"
           >
-            Start Free Trial
+            {ctaText}
           </Link>
         </div>
       </nav>
@@ -148,10 +156,10 @@ export default function ProtechCloudHomepage() {
                 
                 <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-5 mb-20">
                   <Link 
-                    href="/register" 
+                    href={ctaHref} 
                     className="h-20 px-12 text-sm font-black uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl shadow-2xl shadow-indigo-600/20 transition-all flex items-center justify-center group"
                   >
-                    Start Free Trial
+                    {ctaText}
                     <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <button 
@@ -428,10 +436,10 @@ export default function ProtechCloudHomepage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                  <Link 
-                   href="/register" 
+                   href={ctaHref} 
                    className="h-20 px-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black uppercase tracking-[0.4em] shadow-2xl transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
                  >
-                   Start Free Trial Today
+                   {ctaText} Today
                  </Link>
                  <button 
                    onClick={() => setIsDemoModalOpen(true)}

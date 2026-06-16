@@ -292,6 +292,10 @@ const SidebarContentRenderer = ({
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account Node</p>
                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 truncate mt-0.5">{session?.user?.email}</p>
                 </div>
+                <DropdownMenuItem render={<Link href="/dashboard/system/profile" className="flex items-center w-full" />}>
+                    <UserCircle className="mr-3 size-4 text-slate-400" />
+                    Security & Profile
+                </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/dashboard/system/settings" className="flex items-center w-full" />}>
                     <Settings className="mr-3 size-4 text-slate-400" />
                     Settings Configuration

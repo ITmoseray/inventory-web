@@ -36,7 +36,7 @@ const SETTINGS_GROUPS = [
     items: [
       { name: "Users", icon: Users },
       { name: "Roles", icon: ShieldCheck },
-      { name: "User Preferences", icon: Settings }
+      { name: "User Preferences", icon: Settings, url: "/dashboard/system/profile" }
     ]
   },
   {
@@ -196,18 +196,38 @@ export default function SettingsPage() {
                  </div>
 
                  <div className="flex flex-col gap-1 pl-1">
-                    {group.items.map((item, itemIdx) => (
-                      <button 
-                        key={item.name}
-                        className="group flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-left"
-                      >
-                         <div className="flex items-center gap-4">
-                            <item.icon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
-                            <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{item.name}</span>
-                         </div>
-                         <ArrowRight className="h-3 w-3 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                      </button>
-                    ))}
+                    {group.items.map((item: any, itemIdx) => {
+                      const content = (
+                         <>
+                            <div className="flex items-center gap-4">
+                               <item.icon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
+                               <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{item.name}</span>
+                            </div>
+                            <ArrowRight className="h-3 w-3 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                         </>
+                      );
+
+                      if (item.url) {
+                        return (
+                          <Link 
+                            key={item.name}
+                            href={item.url}
+                            className="group flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-left"
+                          >
+                             {content}
+                          </Link>
+                        );
+                      }
+
+                      return (
+                        <button 
+                          key={item.name}
+                          className="group flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-left"
+                        >
+                           {content}
+                        </button>
+                      );
+                    })}
                  </div>
               </motion.div>
             ))}
