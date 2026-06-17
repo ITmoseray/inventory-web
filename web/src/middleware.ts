@@ -43,8 +43,20 @@ export default auth((req) => {
       return injectCORS(NextResponse.redirect(new URL('/access-denied', req.url)));
     }
 
-    if (role !== 'SUPERADMIN' && !businessId && path.startsWith('/dashboard')) {
-      return injectCORS(NextResponse.redirect(new URL('/setup-organization', req.url)));
+    if (role !== 'SUPERADMIN') {
+      // Trial expiration check
+      const trialEndDate = session.user.trialEndDate;
+      const isTrialExpired = trialEndDate && new Date(trialEndDate) < new Date();
+      
+      // If trial is expired and they are trying to access dashboard
+      // Allow pricing, login, and static assets
+      if (isTrialExpired && path.startsWith('/dashboard') && !path.startsWith('/dashboard/pricing')) {
+         return injectCORS(NextResponse.redirect(new URL('/trial-expired', req.url)));
+      }
+
+      if (!businessId && path.startsWith('/dashboard')) {
+        return injectCORS(NextResponse.redirect(new URL('/setup-organization', req.url)));
+      }
     }
   }
 

@@ -48,11 +48,42 @@ export async function updateBusinessPlan(businessId: string, plan: any) {
 
 export async function approveBusiness(businessId: string) {
   await checkSuperAdmin();
+  const business = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: { trialEndDate: true }
+  });
+
+  const now = new Date();
+  const data: any = { status: "ACTIVE" };
+
+  // If trial is expired, give them a fresh 7 days upon approval
+  if (business?.trialEndDate && business.trialEndDate < now) {
+    data.trialEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  }
+
   await prisma.business.update({
     where: { id: businessId },
-    data: { status: "ACTIVE" },
+    data,
   });
   revalidatePath("/super-admin/businesses");
+  revalidatePath("/super-admin/approvals");
+}
+
+export async function extendTrial(businessId: string, days: number = 7) {
+  await checkSuperAdmin();
+  const now = new Date();
+  
+  await prisma.business.update({
+    where: { id: businessId },
+    data: {
+      trialEndDate: new Date(now.getTime() + days * 24 * 60 * 60 * 1000),
+      status: "ACTIVE",
+      subscriptionStatus: "INACTIVE" // Ensuring they are still in trial mode
+    }
+  });
+  
+  revalidatePath("/super-admin/businesses");
+  revalidatePath("/super-admin/approvals");
 }
 
 export async function deleteBusiness(businessId: string) {
@@ -63,6 +94,7 @@ export async function deleteBusiness(businessId: string) {
       where: { id: businessId },
     });
     revalidatePath("/super-admin/businesses");
+    revalidatePath("/super-admin/approvals");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete business:", error);
@@ -147,7 +179,7 @@ export async function getAuditLogs() {
 
 export async function getSystemStats() {
   await checkSuperAdmin();
-  const [businessCount, userCount, totalSales, activeSubscriptions] = await Promise.all([
+  const [businessCount, userCount, totalSales, activeSubscriptions, pendingApprovals] = await Promise.all([
     prisma.business.count(),
     prisma.user.count(),
     prisma.sale.aggregate({
@@ -155,6 +187,17 @@ export async function getSystemStats() {
     }),
     prisma.subscription.count({
         where: { status: 'active' }
+    }),
+    prisma.business.count({
+      where: {
+        OR: [
+          { status: "PENDING" },
+          { 
+            trialEndDate: { lt: new Date() },
+            subscriptionStatus: "INACTIVE"
+          }
+        ]
+      }
     })
   ]);
 
@@ -162,6 +205,81 @@ export async function getSystemStats() {
     businessCount,
     userCount,
     revenue: Number(totalSales._sum.totalAmount) || 0,
-    activeSubscriptions
+    activeSubscriptions,
+    pendingApprovals
   };
+}
+
+export async function getPendingTrialApprovals() {
+  await checkSuperAdmin();
+  const now = new Date();
+  
+  const pending = await prisma.business.findMany({
+    where: {
+      OR: [
+        { status: "PENDING" },
+        { 
+          trialEndDate: { lt: now },
+          subscriptionStatus: "INACTIVE"
+        }
+      ]
+    },
+    include: {
+      _count: {
+        select: {
+          users: true,
+          products: true,
+          sales: true,
+        }
+      }
+    },
+    orderBy: { updatedAt: "desc" }
+  });
+
+  return pending.map(b => ({
+    ...b,
+    createdAt: b.createdAt.toISOString(),
+    updatedAt: b.updatedAt.toISOString(),
+    trialEndDate: b.trialEndDate?.toISOString() || null,
+    isExpired: b.trialEndDate ? new Date(b.trialEndDate) < now : false
+  }));
+}
+
+export async function getEcosystemHealth() {
+  await checkSuperAdmin();
+  
+  // Mock data for trends
+  return {
+    growth: [
+      { name: "Jan", tenants: 10 },
+      { name: "Feb", tenants: 25 },
+      { name: "Mar", tenants: 45 },
+      { name: "Apr", tenants: 80 },
+      { name: "May", tenants: 120 },
+      { name: "Jun", tenants: 180 },
+    ],
+    revenue: [
+      { name: "Mon", value: 4000 },
+      { name: "Tue", value: 3000 },
+      { name: "Wed", value: 2000 },
+      { name: "Thu", value: 2780 },
+      { name: "Fri", value: 1890 },
+      { name: "Sat", value: 2390 },
+      { name: "Sun", value: 3490 },
+    ]
+  };
+}
+
+export async function globalBroadcast(message: string) {
+  await checkSuperAdmin();
+  console.log(`[GLOBAL BROADCAST]: ${message}`);
+  // In a real app, this would create a notification for all businesses
+  return { success: true };
+}
+
+export async function toggleMaintenanceMode(enabled: boolean) {
+  await checkSuperAdmin();
+  console.log(`[MAINTENANCE MODE]: ${enabled}`);
+  // This would update a global setting in DB
+  return { success: true, enabled };
 }

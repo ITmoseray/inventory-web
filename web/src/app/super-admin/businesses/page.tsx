@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Globe, Search, MoreVertical, KeyRound, UserCheck, CheckCircle, Trash2 } from "lucide-react";
+import { 
+  Globe, Search, MoreVertical, KeyRound, UserCheck, 
+  CheckCircle, Trash2, ArrowLeft, Filter, Zap, Shield
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { GlassCard } from "@/components/super-admin/glass-card";
 import {
   Table,
   TableBody,
@@ -20,11 +23,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { getAllBusinesses, updateBusinessPlan, resetTenantAdminPassword, startImpersonation, approveBusiness, deleteBusiness } from "@/lib/actions/super-admin";
+import { 
+  getAllBusinesses, 
+  updateBusinessPlan, 
+  resetTenantAdminPassword, 
+  startImpersonation, 
+  approveBusiness, 
+  deleteBusiness 
+} from "@/lib/actions/super-admin";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
-export default function BusinessesPage() {
+export default function TenantVault() {
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -39,7 +51,7 @@ export default function BusinessesPage() {
       const data = await getAllBusinesses();
       setBusinesses(data);
     } catch (error) {
-      toast.error("Failed to load business directory.");
+      toast.error("Failed to sync with ecosystem registry.");
     } finally {
       setLoading(false);
     }
@@ -48,31 +60,31 @@ export default function BusinessesPage() {
   async function handlePlanChange(businessId: string, plan: string) {
     try {
       await updateBusinessPlan(businessId, plan);
-      toast.success(`Plan updated to ${plan}`);
+      toast.success(`Node license upgraded to ${plan}`);
       fetchBusinesses();
     } catch (error) {
-      toast.error("Update failed.");
+      toast.error("License upgrade failed.");
     }
   }
 
   async function handleApprove(businessId: string) {
     try {
       await approveBusiness(businessId);
-      toast.success("Business activated successfully.");
+      toast.success("Ecosystem node activated successfully.");
       fetchBusinesses();
     } catch (error) {
-      toast.error("Approval failed.");
+      toast.error("Activation failed.");
     }
   }
 
   async function handleDelete(businessId: string, name: string) {
-    if (window.confirm(`CRITICAL ACTION: Are you sure you want to permanently delete "${name}" and ALL its intelligence data (products, sales, users, etc.)? This cannot be undone.`)) {
+    if (window.confirm(`CRITICAL: Purge all data for "${name}"? This action is irreversible.`)) {
       try {
         await deleteBusiness(businessId);
-        toast.success(`Business "${name}" purged from ecosystem.`);
+        toast.success(`Node "${name}" has been decommissioned.`);
         fetchBusinesses();
       } catch (error: any) {
-        toast.error(error.message || "Deletion failed.");
+        toast.error(error.message || "Decommissioning failed.");
       }
     }
   }
@@ -80,19 +92,19 @@ export default function BusinessesPage() {
   async function handleResetPassword(businessId: string) {
     try {
       const { email, newPassword } = await resetTenantAdminPassword(businessId);
-      toast.success(`Password reset for ${email}. New password: ${newPassword}`, { duration: 10000 });
+      toast.success(`Access credentials reset for ${email}. Key: ${newPassword}`, { duration: 10000 });
     } catch (error) {
-      toast.error("Password reset failed.");
+      toast.error("Credential reset failed.");
     }
   }
 
   async function handleImpersonate(businessId: string) {
     try {
       const admin = await startImpersonation(businessId);
-      toast.success(`Impersonation active for ${admin.email}. Redirecting...`);
+      toast.success(`Impersonating ${admin.email}. Redirecting to local node...`);
       window.location.href = "/dashboard";
     } catch (error) {
-      toast.error("Impersonation failed.");
+      toast.error("Sub-node access failed.");
     }
   }
 
@@ -102,134 +114,166 @@ export default function BusinessesPage() {
   );
 
   return (
-    <div className="space-y-6 p-4 md:p-8 animate-in fade-in duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-           <h1 className="text-2xl md:text-3xl font-[1000] tracking-tight text-slate-900">Ecosystem Registry</h1>
-           <p className="text-slate-500 font-medium text-sm md:text-base">Monitoring and licensing management for all tenant nodes.</p>
+    <div className="p-4 md:p-8 lg:p-12 text-slate-200">
+      <div className="max-w-7xl mx-auto space-y-12">
+        
+        {/* Navigation & Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+           <div className="space-y-2">
+              <Link href="/super-admin" className="flex items-center gap-2 text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors mb-4">
+                 <ArrowLeft className="h-3 w-3" /> Back to Nexus
+              </Link>
+              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-white uppercase italic">Tenant <span className="text-indigo-500">Vault</span></h1>
+              <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">Operational node registry & license management</p>
+           </div>
+           
+           <div className="flex gap-4">
+              <GlassCard className="p-1 px-4 flex items-center gap-3 bg-slate-900/20 border-slate-800">
+                 <Filter className="h-4 w-4 text-slate-500" />
+                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filters Active: 0</span>
+              </GlassCard>
+           </div>
         </div>
-      </div>
 
-      <Card className="border-none shadow-sm bg-white p-4 rounded-2xl md:rounded-3xl">
-        <div className="relative group">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-          <Input 
-            placeholder="Search by business name or slug..." 
-            className="pl-10 h-10 rounded-xl border-slate-100 bg-slate-50 focus:bg-white"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
-      </Card>
+        {/* Search Bar */}
+        <GlassCard className="p-4 bg-slate-900/40">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
+            <Input 
+              placeholder="Search by intelligence node name or slug..." 
+              className="pl-12 h-14 rounded-2xl border-slate-800 bg-slate-950/50 text-white font-bold placeholder:text-slate-700 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </GlassCard>
 
-      <div className="rounded-[1.5rem] md:rounded-[2rem] border-none bg-white shadow-xl overflow-x-auto">
-        <div className="min-w-[800px] lg:min-w-full">
-          <Table>
-            <TableHeader className="bg-slate-50">
-              <TableRow className="hover:bg-transparent border-slate-100">
-                <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-8">Business Intel</TableHead>
-                <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Plan & Status</TableHead>
-                <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-center">Metrics</TableHead>
-                <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Established</TableHead>
-                <TableHead className="w-[80px] pr-8"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                [1,2,3].map(i => (
-                  <TableRow key={i} className="border-slate-50">
-                    <TableCell colSpan={5} className="h-20 animate-pulse bg-slate-50/50" />
-                  </TableRow>
-                ))
-              ) : filtered.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-32 text-center text-slate-400 font-bold italic">No businesses found.</TableCell>
+        {/* Tenants Table */}
+        <GlassCard className="overflow-hidden border-slate-800/50">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-slate-900/50">
+                <TableRow className="hover:bg-transparent border-slate-800">
+                  <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest pl-10 h-16">Node Identification</TableHead>
+                  <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-16">Intelligence Level</TableHead>
+                  <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest text-center h-16">Matrix Stats</TableHead>
+                  <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-16">Timestamp</TableHead>
+                  <TableHead className="w-[80px] pr-10 h-16"></TableHead>
                 </TableRow>
-              ) : (
-                filtered.map((b) => (
-                  <TableRow key={b.id} className="hover:bg-slate-50/50 border-slate-50 group transition-colors">
-                    <TableCell className="pl-8">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 font-black flex-shrink-0">
-                          {b.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex flex-col">
-                          <span className="font-black text-slate-800 text-sm">{b.name}</span>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">slug: {b.slug}</span>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-1">
-                        <span className={cn(
-                          "inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black uppercase w-fit",
-                          b.plan === 'PREMIUM' ? "bg-indigo-600 text-white" : 
-                          b.plan === 'STANDARD' ? "bg-blue-500 text-white" : "bg-slate-100 text-slate-600"
-                        )}>
-                          {b.plan}
-                        </span>
-                        <span className={cn(
-                          "text-[10px] font-bold uppercase",
-                          b.status === 'ACTIVE' ? "text-emerald-500" : "text-amber-500"
-                        )}>{b.status}</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center justify-center gap-4">
-                         <div className="flex flex-col items-center">
-                            <span className="text-xs font-black text-slate-700">{b._count.products}</span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase">SKUs</span>
-                         </div>
-                         <div className="flex flex-col items-center">
-                            <span className="text-xs font-black text-slate-700">{b._count.sales}</span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase">Sales</span>
-                         </div>
-                         <div className="flex flex-col items-center">
-                            <span className="text-xs font-black text-slate-700">{b._count.users}</span>
-                            <span className="text-[8px] font-bold text-slate-400 uppercase">Staff</span>
-                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs font-bold text-slate-600">
-                         {format(new Date(b.createdAt), "MMM dd, yyyy")}
-                      </div>
-                    </TableCell>
-                    <TableCell className="pr-8">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0 rounded-lg">
-                            <MoreVertical className="h-4 w-4 text-slate-400" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl shadow-xl border-slate-100">
-                          {b.status === 'PENDING' && (
-                             <DropdownMenuItem onClick={() => handleApprove(b.id)} className="font-bold text-emerald-600 gap-2">
-                               <CheckCircle className="h-4 w-4" /> Approve Business
-                             </DropdownMenuItem>
-                          )}
-                          <DropdownMenuItem onClick={() => handlePlanChange(b.id, "FREE")} className="font-bold">Downgrade to FREE</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handlePlanChange(b.id, "BASIC")} className="font-bold">Switch to BASIC</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handlePlanChange(b.id, "STANDARD")} className="font-bold">Switch to STANDARD</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handlePlanChange(b.id, "PREMIUM")} className="font-black text-indigo-600">Upgrade to PREMIUM</DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleResetPassword(b.id)} className="font-bold text-rose-600 gap-2">
-                            <KeyRound className="h-4 w-4" /> Reset Admin Password
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleImpersonate(b.id)} className="font-bold text-amber-600 gap-2">
-                            <UserCheck className="h-4 w-4" /> Impersonate Admin
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(b.id, b.name)} className="font-bold text-rose-600 gap-2">
-                            <Trash2 className="h-4 w-4" /> Delete Business Intel
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  [1,2,3,4,5].map(i => (
+                    <TableRow key={i} className="border-slate-900">
+                      <TableCell colSpan={5} className="h-24 p-0">
+                         <div className="h-full w-full bg-slate-900/20 animate-pulse" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : filtered.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="h-48 text-center">
+                       <div className="flex flex-col items-center gap-4">
+                          <Globe className="h-12 w-12 text-slate-800 animate-pulse" />
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No operational nodes detected in this sector.</p>
+                       </div>
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                ) : (
+                  filtered.map((b) => (
+                    <TableRow key={b.id} className="hover:bg-white/5 border-slate-900 group transition-all">
+                      <TableCell className="pl-10 py-6">
+                        <div className="flex items-center gap-5">
+                          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-black text-xl shadow-lg shadow-indigo-500/5 group-hover:scale-110 transition-transform">
+                            {b.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="font-black text-white text-lg tracking-tight group-hover:text-indigo-400 transition-colors">{b.name}</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">SLUG: {b.slug}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-2">
+                          <div className={cn(
+                            "inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase w-fit tracking-widest shadow-lg",
+                            b.plan === 'PREMIUM' ? "bg-indigo-600 text-white shadow-indigo-600/20" : 
+                            b.plan === 'STANDARD' ? "bg-blue-600 text-white shadow-blue-600/20" : "bg-slate-800 text-slate-400"
+                          )}>
+                            {b.plan === 'PREMIUM' && <Zap className="h-3 w-3 mr-1.5 fill-current" />}
+                            {b.plan}
+                          </div>
+                          <div className="flex items-center gap-2">
+                             <div className={cn("h-1.5 w-1.5 rounded-full animate-pulse", b.status === 'ACTIVE' ? "bg-emerald-500 shadow-[0_0_8px_#10b981]" : "bg-amber-500 shadow-[0_0_8px_#f59e0b]")} />
+                             <span className={cn(
+                               "text-[10px] font-black uppercase tracking-widest italic",
+                               b.status === 'ACTIVE' ? "text-emerald-500" : "text-amber-500"
+                             )}>{b.status}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center justify-center gap-6">
+                           <div className="flex flex-col items-center">
+                              <span className="text-sm font-black text-white">{b._count.products}</span>
+                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">SKUs</span>
+                           </div>
+                           <div className="flex flex-col items-center">
+                              <span className="text-sm font-black text-white">{b._count.sales}</span>
+                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Trans</span>
+                           </div>
+                           <div className="flex flex-col items-center">
+                              <span className="text-sm font-black text-white">{b._count.users}</span>
+                              <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Staff</span>
+                           </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                           {format(new Date(b.createdAt), "dd MMM yyyy")}
+                        </div>
+                      </TableCell>
+                      <TableCell className="pr-10">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white/5">
+                              <MoreVertical className="h-5 w-5 text-slate-600" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] bg-slate-900 border-slate-800 text-slate-200 p-2 shadow-2xl backdrop-blur-xl">
+                            {b.status === 'PENDING' && (
+                               <DropdownMenuItem onClick={() => handleApprove(b.id)} className="rounded-xl p-3 font-black text-emerald-500 focus:bg-emerald-500/10 focus:text-emerald-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                                 <CheckCircle className="h-4 w-4 mr-3" /> Activate Node
+                               </DropdownMenuItem>
+                            )}
+                            <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">License Control</div>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "FREE")} className="rounded-xl p-3 font-bold text-slate-400 focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Downgrade: FREE</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "BASIC")} className="rounded-xl p-3 font-bold text-slate-400 focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: BASIC</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "STANDARD")} className="rounded-xl p-3 font-bold text-slate-400 focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: STANDARD</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "PREMIUM")} className="rounded-xl p-3 font-black text-indigo-500 focus:bg-indigo-500/10 focus:text-indigo-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Upgrade: PREMIUM</DropdownMenuItem>
+                            
+                            <div className="h-px bg-slate-800 my-2" />
+                            <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Matrix Override</div>
+                            
+                            <DropdownMenuItem onClick={() => handleResetPassword(b.id)} className="rounded-xl p-3 font-black text-rose-500 focus:bg-rose-500/10 focus:text-rose-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                              <KeyRound className="h-4 w-4 mr-3" /> Reset Node Key
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleImpersonate(b.id)} className="rounded-xl p-3 font-black text-amber-500 focus:bg-amber-500/10 focus:text-amber-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                              <UserCheck className="h-4 w-4 mr-3" /> Sub-node Entry
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDelete(b.id, b.name)} className="rounded-xl p-3 font-black text-rose-600 focus:bg-rose-900/20 focus:text-rose-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                              <Trash2 className="h-4 w-4 mr-3" /> Purge Node
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </GlassCard>
       </div>
     </div>
   );
