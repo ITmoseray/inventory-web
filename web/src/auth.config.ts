@@ -1,23 +1,13 @@
 import type { NextAuthConfig } from "next-auth";
 
 export const authConfig: NextAuthConfig = {
+  secret: process.env.AUTH_SECRET,
+  trustHost: true,
   session: {
     strategy: "jwt",
   },
   pages: {
     signIn: "/login",
-  },
-  trustHost: true,
-  cookies: {
-    sessionToken: {
-      name: process.env.NODE_ENV === "production" ? `__Secure-next-auth.session-token` : `next-auth.session-token`,
-      options: {
-        httpOnly: true,
-        sameSite: 'lax',
-        path: '/',
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
   },
   providers: [], // No providers here to keep it edge-safe
   callbacks: {

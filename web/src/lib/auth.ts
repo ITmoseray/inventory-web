@@ -31,10 +31,12 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  debug: true,
   secret: process.env.AUTH_SECRET,
   providers: [
     CredentialsProvider({
       async authorize(credentials) {
+        console.log("SERVER AUTH: Authorize Attempt", { email: credentials?.email });
         const parsedCredentials = z
           .object({ email: z.string(), password: z.string().min(6) })
           .safeParse(credentials);
@@ -42,39 +44,53 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (parsedCredentials.success) {
           const { email, password } = parsedCredentials.data;
           
-          const user = await prisma.user.findFirst({ 
-            where: { 
-              OR: [
-                { email: email },
-                { username: email }
-              ]
-            },
-            include: { 
-              business: true,
-              role: { include: { permissions: true } }
+          try {
+            const user = await prisma.user.findFirst({ 
+              where: { 
+                OR: [
+                  { email: email },
+                  { username: email }
+                ]
+              },
+              include: { 
+                business: true,
+                role: { include: { permissions: true } }
+              }
+            });
+            
+            if (!user) {
+              console.warn("SERVER AUTH: User not found", { email });
+              throw new Error("Invalid email, username or password.");
             }
-          });
-          
-          if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
-            throw new Error("Invalid email, username or password.");
-          }
 
-          if (user.status !== 'active') {
-            throw new Error("Your account is not active. Please contact the administrator.");
-          }
+            const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+            if (!passwordMatch) {
+              console.warn("SERVER AUTH: Password mismatch", { email });
+              throw new Error("Invalid email, username or password.");
+            }
 
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            businessId: user.businessId,
-            businessName: user.business.name,
-            businessType: user.business.type,
-            trialEndDate: user.business.trialEndDate,
-            role: user.role.name,
-            permissions: user.role.permissions.map(p => p.key),
-            emailVerified: user.emailVerified,
-          };
+            if (user.status !== 'active') {
+              console.warn("SERVER AUTH: Account inactive", { email });
+              throw new Error("Your account is not active. Please contact the administrator.");
+            }
+
+            console.log("SERVER AUTH: Authorization Success", { email, role: user.role.name });
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              businessId: user.businessId,
+              businessName: user.business.name,
+              businessType: user.business.type,
+              trialEndDate: user.business.trialEndDate,
+              role: user.role.name,
+              permissions: user.role.permissions.map(p => p.key),
+              emailVerified: user.emailVerified,
+            };
+          } catch (error) {
+            console.error("SERVER AUTH: Authorize Exception", error);
+            throw error;
+          }
         }
         return null;
       },
@@ -143,6 +159,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
+      /*
       // 3. Database-dependent impersonation logic
       const cookieStore = await cookies();
       const impersonationTargetId = cookieStore.get("impersonation_target")?.value;
@@ -160,6 +177,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.permissions = targetUser.role.permissions.map(p => p.key);
         }
       }
+      */
       return token;
     },
   },
