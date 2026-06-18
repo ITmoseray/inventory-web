@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { BusinessProvider } from "@/components/providers/business-provider";
 import { LoadingProvider } from "@/components/providers/loading-provider";
 import { Suspense } from "react";
 import { GlobalThemeToggle } from "@/components/shared/global-theme-toggle";
@@ -50,9 +51,11 @@ export default function RootLayout({
           <AuthProvider>
             <Suspense>
               <LoadingProvider>
-                <SplashScreenWrapper>
-                  {children}
-                </SplashScreenWrapper>
+                <BusinessProvider>
+                  <SplashScreenWrapper>
+                    {children}
+                  </SplashScreenWrapper>
+                </BusinessProvider>
               </LoadingProvider>
             </Suspense>
             <GlobalThemeToggle />

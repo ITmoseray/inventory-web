@@ -48,6 +48,7 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { PricingSection } from "@/components/shared/pricing-section";
+import { BusinessHubSection } from "@/components/BusinessHubSection";
 import { ExpertPopup } from "@/components/shared/expert-popup";
 import { useSession } from "next-auth/react";
 import {
@@ -106,8 +107,8 @@ export default function ProtechCloudHomepage() {
         </Link>
 
         <div className="hidden lg:flex items-center gap-10 ml-20">
-          {["Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
-            <Link key={item} href={`#${item.toLowerCase()}`} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-indigo-600 transition-colors">
+          {["Features", "Solutions", "Services", "Business Hub", "Pricing", "Security"].map((item) => (
+            <Link key={item} href={item === "Business Hub" ? "/business-hub" : `#${item.toLowerCase()}`} className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 hover:text-indigo-600 transition-colors">
               {item}
             </Link>
           ))}
@@ -197,6 +198,8 @@ export default function ProtechCloudHomepage() {
             </div>
           </div>
         </section>
+
+        <BusinessHubSection />
 
         {/* 3. Corporate Services: Protech Assist Full Stack */}
         <section id="services" className="py-32 bg-slate-50 relative overflow-hidden">
