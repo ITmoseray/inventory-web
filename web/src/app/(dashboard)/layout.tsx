@@ -1,15 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, Zap } from "lucide-react";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { ToastManager } from "@/components/shared/toast-manager";
 import { LogoutButton } from "@/components/shared/logout-button";
@@ -17,6 +9,8 @@ import { TrialBanner } from "@/components/shared/trial-banner";
 import { RealTimeClock } from "@/components/shared/real-time-clock";
 import { QuickActions } from "@/components/shared/quick-actions";
 import { OnboardingTrigger } from "@/components/shared/onboarding-trigger";
+import { BusinessSwitcher } from "@/components/shared/business-switcher";
+import { DynamicBreadcrumb } from "@/components/shared/dynamic-breadcrumb";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -82,12 +76,10 @@ export default async function DashboardLayout({
           <header className="flex h-20 shrink-0 items-center justify-between gap-6 border-b border-slate-100 bg-white sticky top-0 z-40 px-4 md:px-8 transition-all">
             <div className="flex items-center gap-6 flex-1">
               <SidebarTrigger className="-ml-1" />
-              <div className="hidden xs:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100">
-                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                 <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
-                   {session?.user?.business?.name || "Tech Enterprise"}
-                 </span>
-              </div>
+              <BusinessSwitcher 
+                currentBusinessId={session?.user?.businessId} 
+                currentBusinessName={session?.user?.businessName} 
+              />
               <div className="relative w-full max-w-md group hidden md:block">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
                  <input 
@@ -99,22 +91,27 @@ export default async function DashboardLayout({
             </div>
 
             <div className="flex items-center gap-6">
+               <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 shadow-sm">
+                  <Zap className="h-3 w-3 text-indigo-600 animate-pulse" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600">Context Active</span>
+               </div>
                <NotificationBell />
                <div className="flex items-center gap-3 pl-6 border-l border-slate-100">
                   <div className="text-right hidden sm:block">
                      <p className="text-xs font-[1000] text-slate-900 leading-none">
-                        {session?.user?.name || "strangesteven001"}
+                        {session?.user?.name || "User Account"}
                      </p>
-                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Admin Account</p>
+                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{session?.user?.role || "Member"} Account</p>
                   </div>
-                  <div className="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-indigo-600 font-black text-sm">
+                  <div className="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-indigo-600 font-black text-sm shadow-inner">
                      {(session?.user?.name || "S").charAt(0).toUpperCase()}
                   </div>
                   <LogoutButton />
                </div>
             </div>
           </header>
-          <main className="flex-1">
+          <main className="flex-1 px-4 md:px-8 py-6">
+            <DynamicBreadcrumb />
             {children}
           </main>
           <QuickActions />

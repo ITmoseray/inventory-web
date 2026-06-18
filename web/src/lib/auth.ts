@@ -160,25 +160,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      /*
       // 3. Database-dependent impersonation logic
-      const cookieStore = await cookies();
-      const impersonationTargetId = cookieStore.get("impersonation_target")?.value;
+      try {
+        const cookieStore = await cookies();
+        const impersonationTargetId = cookieStore.get("impersonation_target")?.value;
 
-      if (impersonationTargetId && token.role === "SUPERADMIN") {
-        const targetUser = await prisma.user.findUnique({
-          where: { id: impersonationTargetId },
-          include: { business: true, role: { include: { permissions: true } } },
-        });
+        if (impersonationTargetId && token.role === "SUPERADMIN") {
+          console.log(`SERVER AUTH: Impersonation detected for targetId: ${impersonationTargetId}`);
+          const targetUser = await prisma.user.findUnique({
+            where: { id: impersonationTargetId },
+            include: { business: true, role: { include: { permissions: true } } },
+          });
 
-        if (targetUser) {
-          token.sub = targetUser.id;
-          token.role = targetUser.role.name;
-          token.businessId = targetUser.businessId;
-          token.permissions = targetUser.role.permissions.map(p => p.key);
+          if (targetUser) {
+            token.sub = targetUser.id;
+            token.role = targetUser.role.name;
+            token.businessId = targetUser.businessId;
+            token.businessName = targetUser.business.name;
+            token.businessType = targetUser.business.type;
+            token.permissions = targetUser.role.permissions.map(p => p.key);
+            console.log(`SERVER AUTH: Impersonation Active - Target: ${targetUser.email}, Business: ${targetUser.business.name}`);
+          }
         }
+      } catch (error) {
+        console.error("SERVER AUTH: Impersonation Cookie Error:", error);
       }
-      */
+
       return token;
     },
   },
