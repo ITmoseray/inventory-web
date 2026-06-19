@@ -41,7 +41,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
       newCart = [...cart, { ...item }];
     }
     const total = newCart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tax = total * 0.15;
+    const tax = total * 0;
     set({ 
         cart: newCart,
         total,
@@ -68,7 +68,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
       newCart = get().cart.map((i) => (i.id === id ? { ...i, quantity } : i));
     }
     const total = newCart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tax = total * 0.15;
+    const tax = total * 0;
     set({
         cart: newCart,
         total,
