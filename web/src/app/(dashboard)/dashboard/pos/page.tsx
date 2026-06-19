@@ -63,7 +63,7 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
       layout
       whileTap={{ scale: 0.97 }}
       onClick={() => addItem({ ...p, quantity: 1, price: p.unitPrice })}
-      className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-3 sm:p-4 flex flex-col items-center hover:border-primary/40 transition-all cursor-pointer sha[...]
+      className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-3 sm:p-4 flex flex-col items-center hover:border-primary/40 transition-all cursor-pointer shadow-lg"
     >
       <div className="relative aspect-square w-full rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden mb-3 sm:mb-4 shadow-inner border border-slate-100 dark:border-slate-800">
         {p.imageUrl ? (
@@ -82,7 +82,7 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            )}
         </div>
         
-        <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white shadow-2xl opacity-0 translate-y-4 group-hover:opac[...]
+        <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
           <Plus size={24} />
         </div>
       </div>
@@ -219,16 +219,16 @@ export default function POSPage() {
     <div className="flex flex-col xl:flex-row h-[100dvh] bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
       {/* Product Selection Area */}
       <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 xl:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
-        <header className="p-6 sm:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0 relative bg-white dark:b[...]
+        <header className="p-6 sm:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0 relative bg-white dark:bg-slate-900">
           <div className="flex items-center gap-6">
              <div className="relative group">
-                <div className="h-16 w-16 rounded-[2rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transf[...]
+                <div className="h-16 w-16 rounded-[2rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
                   <ShoppingCart className="h-8 w-8 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-emerald-500 border-4 border-white dark:border-slate-900 animate-pulse" />
              </div>
              <div>
-                <h1 className="text-3xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Commerce <span className="text-primary underline decoration-indi[...]
+                <h1 className="text-3xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Commerce <span className="text-primary underline decoration-indigo-50">Hub</span></h1>
                 <div className="flex items-center gap-2 mt-2">
                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">{isOnline ? "Neural Network Linked" : "Local Engine Mode"}</p>
@@ -236,11 +236,11 @@ export default function POSPage() {
              </div>
           </div>
           <div className="flex items-center gap-3 w-full lg:w-auto">
-             <Button variant="outline" size="lg" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 bg-white da[...]
+             <Button variant="outline" size="lg" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-xs uppercase tracking-widest gap-2">
                 <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />
                 African Trade Sync
              </Button>
-             <Button onClick={() => router.back()} variant="ghost" className="h-14 w-14 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-al[...]
+             <Button onClick={() => router.back()} variant="ghost" className="h-14 w-14 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50">
                 <X size={24} />
              </Button>
           </div>
@@ -254,12 +254,12 @@ export default function POSPage() {
               </div>
               <Input 
                 placeholder="Scan identification or search assets by name/SKU..." 
-                className="h-16 pl-16 pr-8 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-800 font-black text-sm uppercas[...]
+                className="h-16 pl-16 pr-8 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-800 font-black text-sm uppercase tracking-widest shadow-sm focus:shadow-md transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-sla[...]
+              <div className="absolute right-5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
                  <div className="h-1.5 w-1.5 rounded-full bg-slate-300 animate-pulse" />
                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Scanner Ready</span>
               </div>
@@ -295,13 +295,13 @@ export default function POSPage() {
         <div className="flex-1 overflow-y-auto px-6 sm:px-10 pb-48 xl:pb-10 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
            {filteredProducts?.length === 0 ? (
              <div className="h-full flex flex-col items-center justify-center text-center p-12 space-y-8">
-                <div className="h-32 w-32 bg-white dark:bg-slate-900 rounded-[3rem] flex items-center justify-center shadow-2xl border border-slate-50 dark:border-slate-800 relative overflow-hidd[...]
+                <div className="h-32 w-32 bg-white dark:bg-slate-900 rounded-[3rem] flex items-center justify-center shadow-2xl border border-slate-50 dark:border-slate-800 relative overflow-hidden">
                    <div className="absolute inset-0 bg-grid-pattern opacity-5" />
                    <Package className="h-12 w-12 text-slate-100 dark:text-slate-800 animate-pulse relative z-10" />
                 </div>
                 <div className="space-y-3">
                    <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Deficit</h3>
-                   <p className="text-[10px] text-slate-400 font-[1000] uppercase tracking-[0.3em] max-w-[280px] leading-relaxed">No asset signatures match your current query in the Africa trade [...]
+                   <p className="text-[10px] text-slate-400 font-[1000] uppercase tracking-[0.3em] max-w-[280px] leading-relaxed">No asset signatures match your current query in the Africa trade vault</p>
                 </div>
              </div>
            ) : (
@@ -321,7 +321,7 @@ export default function POSPage() {
 
       {/* The Intelligence Ledger (Cart) */}
       <div className={cn(
-        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 xl:w-[550px] shadow-[-20px_0_50px_rgba(0,0,0,0.1)] xl:shadow-none border-t xl:border-t-0 xl:border-l border-slat[...]
+        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 xl:w-[550px] shadow-[-20px_0_50px_rgba(0,0,0,0.1)] xl:shadow-none border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-slate-800 transition-all duration-300 xl:overflow-hidden flex flex-col",
         isCartVisible ? "h-[90vh] xl:h-full translate-y-0" : "h-[90px] xl:h-full translate-y-0"
       )}>
         {/* Cart Header (Mobile Toggle) */}
@@ -331,11 +331,11 @@ export default function POSPage() {
         >
            <div className="flex items-center gap-5">
               <div className="relative group">
-                 <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center shadow-2xl transition-all duration-500", cart.length > 0 ? "bg-primary text-white scale-110" : "bg[...]
+                 <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center shadow-2xl transition-all duration-500", cart.length > 0 ? "bg-primary text-white scale-110" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
                    <Receipt className="h-7 w-7" />
                  </div>
                  {cart.length > 0 && (
-                   <span className="absolute -top-2 -right-2 h-7 w-7 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-[1000] flex items-center justify-center [...]
+                   <span className="absolute -top-2 -right-2 h-7 w-7 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-lg">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                    </span>
                  )}
@@ -365,7 +365,7 @@ export default function POSPage() {
               </Button>
               <Button 
                 variant="ghost" 
-                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-200 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all border border-transparent hover:border[...]
+                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-200 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50"
                 onClick={() => clearCart()}
                 title="Purge Active Ledger"
               >
@@ -397,26 +397,26 @@ export default function POSPage() {
                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
                    className="flex items-center gap-6 bg-white dark:bg-slate-900 p-5 rounded-[2rem] shadow-xl shadow-black/[0.02] border border-slate-50 dark:border-slate-800 relative group"
                  >
-                    <div className="relative h-20 w-20 rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800 shadow-inner group-hover:sc[...]
-                        {item.imageUrl ? <Image src={item.imageUrl} alt={item.name} fill className="object-cover" unoptimized /> : <Package size={28} className="text-slate-100 dark:text-slate-800[...]
+                    <div className="relative h-20 w-20 rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800 shadow-inner group-hover:scale-105 transition-transform duration-300">
+                        {item.imageUrl ? <Image src={item.imageUrl} alt={item.name} fill className="object-cover" unoptimized /> : <Package size={28} className="text-slate-100 dark:text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
                     </div>
                     <div className="flex-1 min-w-0 space-y-3">
                         <div className="flex flex-col gap-0.5">
-                           <div className="font-black text-xs sm:text-sm text-slate-900 dark:text-white uppercase truncate tracking-tight group-hover:text-primary transition-colors">{item.name}</[...]
+                           <div className="font-black text-xs sm:text-sm text-slate-900 dark:text-white uppercase truncate tracking-tight group-hover:text-primary transition-colors">{item.name}</div>
                            <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Node: {item.id.toString().slice(-6)}</div>
                         </div>
                         <div className="flex items-center gap-4">
                            <div className="flex items-center bg-slate-50 dark:bg-slate-950 rounded-2xl p-1 shadow-inner border border-slate-100 dark:border-slate-800">
                               <button 
                                   onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 transition-all sh[...]
+                                  className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all shadow-sm"
                               >
                                   <Minus size={16} />
                               </button>
                               <span className="text-[12px] font-black w-10 text-center text-slate-900 dark:text-white">{item.quantity}</span>
                               <button 
                                   onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-indigo-50 transition-all s[...]
+                                  className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all shadow-sm"
                               >
                                   <Plus size={16} />
                               </button>
@@ -464,7 +464,7 @@ export default function POSPage() {
            <Button 
               onClick={() => setIsCheckoutOpen(true)}
               disabled={cart.length === 0}
-              className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-primary font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl shadow-primary/30 hover:[...]
+              className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-primary font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl shadow-primary/30 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
            >
               Execute Settlement Node <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" />
            </Button>
@@ -481,19 +481,19 @@ export default function POSPage() {
                <div className="absolute inset-0 bg-grid-pattern opacity-5" />
                <div className="relative z-10 space-y-2">
                   <div className="flex items-center gap-3">
-                     <Badge variant="outline" className="bg-indigo-500/10 border-indigo-500/30 text-indigo-400 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em]">Secure Termin[...]
+                     <Badge variant="outline" className="bg-indigo-500/10 border-indigo-500/30 text-indigo-400 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em]">Secure Terminal</Badge>
                      <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
                   </div>
-                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none">Global <span className="text-indigo-500 underline underline-offset-8 decoration-w[...]
+                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none">Global <span className="text-indigo-500 underline underline-offset-8 decoration-white/10">Checkout</span></h3>
                   <div className="flex items-center gap-4 pt-4 sm:pt-6">
                      <div className="flex -space-x-4">
                         {cart.slice(0, 3).map((item, i) => (
                            <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-slate-900 overflow-hidden shadow-2xl relative">
-                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-slate-800 absolute top-1/2 left-1/[...]
+                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
                            </div>
                         ))}
                         {cart.length > 3 && (
-                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-indigo-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl">+[...]
+                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-indigo-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl">+{cart.length - 3}</div>
                         )}
                      </div>
                      <div className="h-8 w-px bg-slate-800" />
@@ -518,7 +518,7 @@ export default function POSPage() {
                      <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Intelligence Node</button>
                   </div>
                   <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
-                    <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shado[...]
+                    <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-sm">
                       <SelectValue placeholder="Identify Transacting Node" />
                     </SelectTrigger>
                     <SelectContent className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-2xl p-2">
@@ -548,7 +548,7 @@ export default function POSPage() {
                          key={m.id}
                          onClick={() => setPaymentMethod(m.id as any)}
                          className={cn(
-                           "flex flex-col items-center justify-center gap-3 sm:gap-5 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 transition-all active:scale-90 shadow-sm relative gro[...]
+                           "flex flex-col items-center justify-center gap-3 sm:gap-5 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 transition-all active:scale-90 shadow-sm relative group overflow-hidden",
                            paymentMethod === m.id 
                              ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-2xl scale-105 z-10" 
                              : "bg-white dark:bg-slate-900 border-slate-50 dark:border-slate-800 text-slate-400 " + m.bg
@@ -589,7 +589,7 @@ export default function POSPage() {
             <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0">
                <Button 
                   variant="outline" 
-                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-400 border-slate-200 dark:border-sl[...]
+                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-600 dark:hover:text-slate-300"
                   onClick={() => setIsCheckoutOpen(false)}
                >
                   Purge Session
@@ -597,7 +597,7 @@ export default function POSPage() {
                <Button 
                   onClick={handleCheckout} 
                   disabled={loading}
-                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-slate-900 dark:bg-primary text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] sha[...]
+                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-slate-900 dark:bg-primary text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-2xl hover:shadow-xl disabled:opacity-50 transition-all"
                >
                   {loading ? <RefreshCw className="animate-spin" /> : (
                     <>Commit Neural Settlement <ArrowRight className="group-hover:translate-x-2 transition-transform" /></>
