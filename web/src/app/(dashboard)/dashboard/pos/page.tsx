@@ -541,7 +541,7 @@ export default function POSPage() {
                   <div className="grid grid-cols-3 gap-3 sm:gap-5">
                      {[
                        { id: 'CASH', label: 'Paper Currency', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50' },
-                       { id: 'MOBILE_MONEY', label: 'Neural Digital', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50' },
+                       { id: 'NEURAL_DIGITAL', label: 'Mobile Money', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50' },
                        { id: 'CARD', label: 'Asset Card', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50' }
                      ].map((m) => (
                        <button
