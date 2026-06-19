@@ -446,10 +446,7 @@ export default function POSPage() {
                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] group-hover:text-primary transition-colors">Subtotal Settlement</span>
                  <span className="text-sm font-[1000] text-slate-700 dark:text-slate-300 tracking-tighter">Le {Math.round(total).toLocaleString()}</span>
               </div>
-              <div className="flex justify-between items-center group">
-                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] group-hover:text-primary transition-colors">Assessed Tax (15%)</span>
-                 <span className="text-sm font-[1000] text-slate-700 dark:text-slate-300 tracking-tighter">Le {Math.round(tax).toLocaleString()}</span>
-              </div>
+            
               <div className="h-px bg-slate-50 dark:bg-slate-800 w-full my-6" />
               <div className="flex justify-between items-end relative">
                  <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-primary rounded-full hidden sm:block" />
