@@ -133,8 +133,8 @@ export async function prepareLowStockEvent(product: any) {
   return {
     productId: product.id,
     productName: product.name,
-    stockQuantity: product.stockQuantity,
-    severity: product.stockQuantity === 0 ? "CRITICAL" : "LOW",
+    stockQuantity: Number(product.stockQuantity),
+    severity: Number(product.stockQuantity) === 0 ? "CRITICAL" : "LOW",
     timestamp: new Date().toISOString(),
   };
 }
@@ -158,8 +158,8 @@ export async function getLowStockProducts() {
   return products.map(p => ({
     id: p.id,
     name: p.name,
-    stockQuantity: p.stockQuantity,
-    minStockLevel: p.minStockLevel,
-    status: p.stockQuantity === 0 ? "CRITICAL" : "LOW"
+    stockQuantity: Number(p.stockQuantity),
+    minStockLevel: Number(p.minStockLevel),
+    status: Number(p.stockQuantity) === 0 ? "CRITICAL" : "LOW"
   }));
 }

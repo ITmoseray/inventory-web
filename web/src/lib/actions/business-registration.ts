@@ -2,7 +2,6 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
 
 export async function createBusiness(data: {
   name: string;
@@ -35,7 +34,6 @@ export async function createBusiness(data: {
       },
     });
 
-    revalidatePath("/business-hub");
     return { success: true, businessId: business.id };
   } catch (error) {
     console.error("Failed to create business:", error);

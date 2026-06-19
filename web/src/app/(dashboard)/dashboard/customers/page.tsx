@@ -160,7 +160,7 @@ export default function CustomersPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-8">
         <div className="flex items-center gap-4">
            <DropdownMenu onOpenChange={(open) => !open && setViewSearch("")}>
-              <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger render={
                  <button className="group flex items-center gap-3 outline-none focus:outline-none text-left">
                     <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform">
                        <Users className="h-5 w-5" />
@@ -172,7 +172,7 @@ export default function CustomersPage() {
                        </h1>
                     </div>
                  </button>
-              </DropdownMenuTrigger>
+              } />
               <DropdownMenuContent className="rounded-[2.5rem] border-slate-100 shadow-2xl p-4 min-w-[320px] bg-white animate-in zoom-in-95 duration-200" sideOffset={20}>
                  <div className="relative mb-4 px-2">
                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300" />
@@ -449,11 +449,13 @@ export default function CustomersPage() {
                     </TableCell>
                     <TableCell className="pr-8 text-right">
                       <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-transparent hover:border-slate-100">
-                            <MoreVertical className="h-5 w-5 text-slate-400" />
-                          </Button>
-                        </DropdownMenuTrigger>
+                        <DropdownMenuTrigger
+                          render={
+                            <button className="h-10 w-10 p-0 rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-transparent hover:border-slate-100 inline-flex items-center justify-center">
+                              <MoreVertical className="h-5 w-5 text-slate-400" />
+                            </button>
+                          }
+                        />
                         <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl p-2 w-48">
                           <DropdownMenuItem onClick={() => handleEdit(customer)} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] gap-3">
                             <Pencil className="h-4 w-4 text-indigo-600" /> Edit Node

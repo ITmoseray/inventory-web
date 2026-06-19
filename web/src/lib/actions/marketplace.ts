@@ -21,9 +21,26 @@ export async function getPublicProducts() {
     });
 
     return products.map(p => ({
-      ...p,
+      id: p.id,
+      name: p.name,
+      sku: p.sku,
+      description: p.description,
+      barcode: p.barcode,
       unitPrice: p.unitPrice.toNumber(),
+      costPrice: p.costPrice?.toNumber() ?? null,
+      stockQuantity: Number(p.stockQuantity),
+      minStockLevel: Number(p.minStockLevel),
+      status: p.status,
+      metadata: p.metadata,
+      businessId: p.businessId,
+      categoryId: p.categoryId,
+      imageUrl: p.imageUrl,
+      baseUnit: p.baseUnit,
+      isNetworkAvailable: p.isNetworkAvailable,
+      deletedAt: p.deletedAt?.toISOString() ?? null,
       createdAt: p.createdAt.toISOString(),
+      updatedAt: p.updatedAt.toISOString(),
+      business: p.business,
       businessName: p.business?.name || "Unknown Business"
     }));
   } catch (error) {

@@ -136,7 +136,7 @@ export default function RegistryHubPage() {
                <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600"><Star size={20} /></div>
             </CardHeader>
             <CardContent className="p-0">
-               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">{(data?.stats.globalReliability || 0).toFixed(1)}%</div>
+               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">{(data?.stats?.globalReliability || 0).toFixed(1)}%</div>
                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4 italic">Aggregate network reliability</p>
             </CardContent>
          </Card>
@@ -148,7 +148,7 @@ export default function RegistryHubPage() {
                <div className="h-12 w-12 rounded-2xl bg-slate-950 dark:bg-slate-800 flex items-center justify-center text-white"><TrendingUp size={20} /></div>
             </CardHeader>
             <CardContent className="p-0 relative z-10">
-               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">NLe {(data?.stats.totalTradeVolume || 0).toLocaleString()}</div>
+               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">NLe {(data?.stats?.totalTradeVolume || 0).toLocaleString()}</div>
                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Total transaction value</p>
             </CardContent>
          </Card>

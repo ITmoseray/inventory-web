@@ -22,7 +22,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const targetEmail = 'strangesteven001@gmail.com';
-  const newPassword = 'Trovegs34@';
+  const newPassword = 'Trovegs35@';
   
   console.log(`🚀 Promoting ${targetEmail} to SUPERADMIN in the live database...`);
 

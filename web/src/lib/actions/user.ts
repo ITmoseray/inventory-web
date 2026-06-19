@@ -20,7 +20,7 @@ export async function getUsers() {
     
     // Using globalPrisma directly to ensure latest model detection
     const users = await globalPrisma.user.findMany({
-      where: { businessId },
+      where: { businessId, deletedAt: null },
       orderBy: { createdAt: "desc" },
       include: {
         role: true
@@ -28,13 +28,22 @@ export async function getUsers() {
     });
 
     return users.map(u => ({
-      ...u,
-      salary: u.salary?.toNumber() || null,
-      hourlyRate: u.hourlyRate?.toNumber() || null,
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      phone: u.phone ?? null,
+      department: u.department ?? null,
+      jobTitle: u.jobTitle ?? null,
+      imageUrl: u.imageUrl ?? null,
+      isActive: u.isActive,
+      businessId: u.businessId,
+      roleId: u.roleId ?? null,
       roleName: u.role?.name || "No Role",
+      salary: u.salary?.toNumber() ?? null,
+      hourlyRate: u.hourlyRate?.toNumber() ?? null,
       createdAt: u.createdAt.toISOString(),
       updatedAt: u.updatedAt.toISOString(),
-      deletedAt: u.deletedAt?.toISOString() || null,
+      deletedAt: u.deletedAt?.toISOString() ?? null,
     }));
   } catch (error: any) {
     console.error("USER ERROR (getUsers):", error);
@@ -96,10 +105,10 @@ export async function createUser(data: { name: string; email: string; password: 
     const passwordHash = await bcrypt.hash(data.password, 10);
     const verificationToken = generateVerificationToken();
 
-    // 3. Find/Create the 'Employee' role and ensure permissions
-    console.log("DEBUG: Searching for Employee role...");
+    // 3. Find/Create the 'EMPLOYEE' role and ensure permissions
+    console.log("DEBUG: Searching for Employee/EMPLOYEE role...");
     let employeeRole = await prisma.role.findFirst({
-        where: { businessId: businessId, name: "Employee" }
+        where: { businessId: businessId, name: { in: ["EMPLOYEE", "Employee"] } }
     });
 
     const restrictedPermissions = [
@@ -133,7 +142,7 @@ export async function createUser(data: { name: string; email: string; password: 
         console.log("DEBUG: Employee role not found, creating it...");
         employeeRole = await prisma.role.create({
             data: {
-                name: "Employee",
+                name: "EMPLOYEE",
                 businessId: businessId,
                 permissions: {
                     connect: permissions.map(p => ({ id: p.id }))
@@ -154,12 +163,27 @@ export async function createUser(data: { name: string; email: string; password: 
         });
     }
 
+    // Determine target role id
+    let targetRoleId = data.roleId;
+    if (targetRoleId) {
+      const selectedRole = await prisma.role.findUnique({
+        where: { id: targetRoleId }
+      });
+      if (selectedRole) {
+        targetRoleId = selectedRole.id;
+      } else {
+        targetRoleId = employeeRole.id;
+      }
+    } else {
+      targetRoleId = employeeRole.id;
+    }
+
     const user = await prisma.user.create({
       data: {
         name: data.name,
         email: data.email,
         passwordHash,
-        roleId: employeeRole.id,
+        roleId: targetRoleId,
         businessId: businessId,
         verificationToken,
       },
@@ -170,7 +194,7 @@ export async function createUser(data: { name: string; email: string; password: 
       action: "CREATE",
       entity: "USER",
       entityId: user.id,
-      newData: { name: user.name, email: user.email, roleId: employeeRole.id }
+      newData: { name: user.name, email: user.email, roleId: targetRoleId }
     });
 
     await sendVerificationEmail(data.email, verificationToken);
@@ -264,8 +288,9 @@ export async function deleteUser(id: string) {
 
     const prisma = getTenantPrisma(session.user.businessId);
 
-    await prisma.user.delete({
+    await prisma.user.update({
       where: { id, businessId: session.user.businessId },
+      data: { deletedAt: new Date(), status: "inactive" }
     });
 
     await logAudit({

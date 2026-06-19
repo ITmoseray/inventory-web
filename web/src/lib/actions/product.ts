@@ -35,8 +35,8 @@ export async function getProducts() {
         barcode: p.barcode,
         unitPrice: p.unitPrice.toNumber(),
         costPrice: p.costPrice?.toNumber() || null,
-        stockQuantity: p.stockQuantity,
-        minStockLevel: p.minStockLevel,
+        stockQuantity: Number(p.stockQuantity),
+        minStockLevel: Number(p.minStockLevel),
         status: status, // Server-side computed status
         metadata: p.metadata,
         businessId: p.businessId,
@@ -44,9 +44,15 @@ export async function getProducts() {
         imageUrl: p.imageUrl,
         baseUnit: p.baseUnit,
         units: p.units.map(u => ({
-          ...u,
+          id: u.id,
+          productId: u.productId,
+          name: u.name,
+          ratio: Number(u.ratio),
           sellingPrice: u.sellingPrice.toNumber(),
-          costPrice: u.costPrice?.toNumber() || null
+          costPrice: u.costPrice?.toNumber() ?? null,
+          barcode: u.barcode,
+          createdAt: u.createdAt.toISOString(),
+          updatedAt: u.updatedAt.toISOString(),
         })),
         createdAt: p.createdAt.toISOString(),
         updatedAt: p.updatedAt.toISOString(),
@@ -163,9 +169,21 @@ export async function createProduct(data: any) {
     revalidatePath("/dashboard/inventory/products");
     
     return {
-      ...product,
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      description: product.description,
+      barcode: product.barcode,
       unitPrice: product.unitPrice.toNumber(),
-      costPrice: product.costPrice?.toNumber() || null,
+      costPrice: product.costPrice?.toNumber() ?? null,
+      stockQuantity: Number(product.stockQuantity),
+      minStockLevel: Number(product.minStockLevel),
+      status: product.status,
+      metadata: product.metadata,
+      businessId: product.businessId,
+      categoryId: product.categoryId,
+      imageUrl: product.imageUrl,
+      baseUnit: product.baseUnit,
       createdAt: product.createdAt.toISOString(),
       updatedAt: product.updatedAt.toISOString(),
     };
@@ -279,9 +297,21 @@ export async function updateProduct(id: string, data: any) {
     revalidatePath("/dashboard/inventory/products");
     
     return {
-      ...product,
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      description: product.description,
+      barcode: product.barcode,
       unitPrice: product.unitPrice.toNumber(),
-      costPrice: product.costPrice?.toNumber() || null,
+      costPrice: product.costPrice?.toNumber() ?? null,
+      stockQuantity: Number(product.stockQuantity),
+      minStockLevel: Number(product.minStockLevel),
+      status: product.status,
+      metadata: product.metadata,
+      businessId: product.businessId,
+      categoryId: product.categoryId,
+      imageUrl: product.imageUrl,
+      baseUnit: product.baseUnit,
       createdAt: product.createdAt.toISOString(),
       updatedAt: product.updatedAt.toISOString(),
     };

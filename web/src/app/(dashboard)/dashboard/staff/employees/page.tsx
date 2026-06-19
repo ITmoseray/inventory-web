@@ -85,7 +85,7 @@ export default function EmployeesPage() {
       setUsers(userData);
       setRoles(rolesData);
       
-      const employeeRole = rolesData.find(r => r.name === "Employee");
+      const employeeRole = rolesData.find(r => r.name.toUpperCase() === "EMPLOYEE" || r.name === "Employee");
       if (employeeRole && !formData.roleId) {
         setFormData(prev => ({ ...prev, roleId: employeeRole.id }));
       }
@@ -102,7 +102,7 @@ export default function EmployeesPage() {
       await createUser(formData);
       toast.success("Employee node initialized successfully.");
       setIsAddOpen(false);
-      setFormData({ name: "", email: "", password: "", roleId: roles.find(r => r.name === "Employee")?.id || "" });
+      setFormData({ name: "", email: "", password: "", roleId: roles.find(r => r.name.toUpperCase() === "EMPLOYEE" || r.name === "Employee")?.id || "" });
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to initialize employee node.");

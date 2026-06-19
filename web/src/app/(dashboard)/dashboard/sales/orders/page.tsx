@@ -159,19 +159,21 @@ export default function SalesOrdersPage() {
       <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80 text-slate-900">
          <div className="flex items-center gap-8 flex-1">
             <DropdownMenu onOpenChange={(open) => !open && setViewSearch("")}>
-               <DropdownMenuTrigger asChild>
-                  <button className="group flex items-center gap-3 outline-none focus:outline-none text-left">
-                     <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform">
-                        <ShoppingCart className="h-5 w-5" />
-                     </div>
-                     <div>
-                        <h1 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none flex items-center gap-3">
-                           {activeView.label}
-                           <ChevronDown className="h-5 w-5 text-indigo-600 group-hover:translate-y-0.5 transition-transform" />
-                        </h1>
-                     </div>
-                  </button>
-               </DropdownMenuTrigger>
+               <DropdownMenuTrigger
+                  render={
+                     <button className="group flex items-center gap-3 outline-none focus:outline-none text-left">
+                        <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform">
+                           <ShoppingCart className="h-5 w-5" />
+                        </div>
+                        <div>
+                           <h1 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none flex items-center gap-3">
+                              {activeView.label}
+                              <ChevronDown className="h-5 w-5 text-indigo-600 group-hover:translate-y-0.5 transition-transform" />
+                           </h1>
+                        </div>
+                     </button>
+                  }
+               />
                <DropdownMenuContent className="rounded-[2.5rem] border-slate-100 shadow-2xl p-4 min-w-[350px] bg-white animate-in zoom-in-95 duration-200" sideOffset={20}>
                   <div className="relative mb-4 px-2">
                      <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300" />
@@ -321,11 +323,13 @@ export default function SalesOrdersPage() {
            <div className="flex items-center gap-3">
               {/* Customize Columns Button */}
               <DropdownMenu>
-                 <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="h-11 w-11 p-0 rounded-xl border-slate-100 bg-white shadow-sm hover:bg-slate-50">
-                       <Layout className="h-5 w-5 text-slate-400" />
-                    </Button>
-                 </DropdownMenuTrigger>
+                 <DropdownMenuTrigger
+                    render={
+                       <button className="h-11 w-11 p-0 rounded-xl border border-slate-100 bg-white shadow-sm hover:bg-slate-50 inline-flex items-center justify-center">
+                          <Layout className="h-5 w-5 text-slate-400" />
+                       </button>
+                    }
+                 />
                  <DropdownMenuContent className="rounded-2xl border-slate-100 shadow-2xl p-4 w-64 bg-white">
                     <div className="space-y-4">
                        <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 italic px-1">Table Controls</p>

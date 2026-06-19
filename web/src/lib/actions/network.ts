@@ -35,12 +35,29 @@ export async function getNetworkRegistry() {
     });
 
     return items.map(item => ({
-      ...item,
+      id: item.id,
+      name: item.name,
+      sku: item.sku,
+      description: item.description,
+      barcode: item.barcode,
       unitPrice: item.unitPrice.toNumber(),
-      costPrice: item.costPrice?.toNumber() || null,
+      costPrice: item.costPrice?.toNumber() ?? null,
+      stockQuantity: Number(item.stockQuantity),
+      minStockLevel: Number(item.minStockLevel),
+      status: item.status,
+      metadata: item.metadata,
+      businessId: item.businessId,
+      categoryId: item.categoryId,
+      imageUrl: item.imageUrl,
+      baseUnit: item.baseUnit,
+      isNetworkAvailable: item.isNetworkAvailable,
+      originalBusinessId: item.originalBusinessId,
+      type: item.type,
+      deletedAt: item.deletedAt?.toISOString() ?? null,
       createdAt: item.createdAt.toISOString(),
       updatedAt: item.updatedAt.toISOString(),
-      deletedAt: item.deletedAt?.toISOString() || null,
+      business: item.business,
+      category: item.category,
     }));
   } catch (error) {
     console.error("Failed to fetch network registry:", error);
@@ -98,9 +115,26 @@ export async function sourceItem(productId: string) {
     revalidatePath("/dashboard/inventory/network");
 
     return {
-      ...newItem,
+      id: newItem.id,
+      name: newItem.name,
+      sku: newItem.sku ?? null,
+      description: newItem.description ?? null,
+      barcode: newItem.barcode ?? null,
       unitPrice: newItem.unitPrice.toNumber(),
-      costPrice: newItem.costPrice?.toNumber() || null,
+      costPrice: newItem.costPrice?.toNumber() ?? null,
+      stockQuantity: Number(newItem.stockQuantity),
+      minStockLevel: Number(newItem.minStockLevel),
+      status: newItem.status,
+      metadata: newItem.metadata,
+      businessId: newItem.businessId,
+      categoryId: newItem.categoryId ?? null,
+      imageUrl: newItem.imageUrl ?? null,
+      baseUnit: newItem.baseUnit ?? null,
+      type: newItem.type,
+      isNetworkAvailable: newItem.isNetworkAvailable,
+      originalProductId: newItem.originalProductId ?? null,
+      originalBusinessId: newItem.originalBusinessId ?? null,
+      deletedAt: newItem.deletedAt?.toISOString() ?? null,
       createdAt: newItem.createdAt.toISOString(),
       updatedAt: newItem.updatedAt.toISOString(),
     };

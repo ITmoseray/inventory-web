@@ -1,9 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Building2, Plus, Globe } from "lucide-react";
+import { Check, ChevronsUpDown, Building2, Globe } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -58,24 +57,29 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="w-[200px] h-11 justify-between rounded-xl bg-slate-50 border-slate-100 hover:bg-white hover:border-indigo-200 transition-all px-3"
-        >
-          <div className="flex items-center gap-2 overflow-hidden">
-            <div className="h-6 w-6 rounded-lg bg-indigo-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-white uppercase">
+      <PopoverTrigger
+        render={
+          <button
+            type="button"
+            className={cn(
+              "w-[200px] h-11 inline-flex items-center justify-between rounded-xl",
+              "bg-slate-50 border border-slate-100 px-3",
+              "hover:bg-white hover:border-indigo-200 transition-all",
+              "text-sm font-medium"
+            )}
+          >
+            <div className="flex items-center gap-2 overflow-hidden">
+              <div className="h-6 w-6 rounded-lg bg-indigo-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-white uppercase">
                 {currentBusinessName?.charAt(0) || "B"}
+              </div>
+              <span className="truncate text-[10px] font-black uppercase tracking-widest text-slate-600">
+                {currentBusinessName || "Select Business"}
+              </span>
             </div>
-            <span className="truncate text-[10px] font-black uppercase tracking-widest text-slate-600">
-              {currentBusinessName || "Select Business"}
-            </span>
-          </div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </button>
+        }
+      />
       <PopoverContent className="w-[240px] p-0 rounded-2xl border-slate-100 shadow-2xl overflow-hidden">
         <Command className="bg-white">
           <div className="px-3 py-2 border-b border-slate-50">
@@ -117,13 +121,6 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
           </CommandList>
           <CommandSeparator />
           <CommandGroup>
-            <CommandItem
-              onSelect={() => router.push("/business-hub/onboarding")}
-              className="py-3 px-3 cursor-pointer rounded-xl hover:bg-indigo-50 text-indigo-600 transition-colors"
-            >
-              <Plus className="mr-3 h-4 w-4" />
-              <span className="text-xs font-bold">New Business Entity</span>
-            </CommandItem>
             <CommandItem
               onSelect={() => router.push("/marketplace")}
               className="py-3 px-3 cursor-pointer rounded-xl hover:bg-slate-50 text-slate-600 transition-colors"

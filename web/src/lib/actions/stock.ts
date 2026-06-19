@@ -19,18 +19,27 @@ export async function getExpiringBatches() {
     });
     
     return batches.map(b => ({
-      ...b,
+      id: b.id,
+      batchNumber: b.batchNumber,
+      quantity: b.quantity,
+      businessId: b.businessId,
+      productId: b.productId,
       createdAt: b.createdAt.toISOString(),
       updatedAt: b.updatedAt.toISOString(),
-      expiryDate: b.expiryDate?.toISOString() || null,
-      manufacturingDate: b.manufacturingDate?.toISOString() || null,
+      expiryDate: b.expiryDate?.toISOString() ?? null,
+      manufacturingDate: b.manufacturingDate?.toISOString() ?? null,
+      // Explicitly pick only plain scalars — no Decimal objects
       product: b.product ? {
-        ...b.product,
+        id: b.product.id,
+        name: b.product.name,
+        sku: b.product.sku ?? null,
         unitPrice: b.product.unitPrice.toNumber(),
-        costPrice: b.product.costPrice?.toNumber() || null,
-        createdAt: b.product.createdAt.toISOString(),
-        updatedAt: b.product.updatedAt.toISOString(),
-        deletedAt: b.product.deletedAt?.toISOString() || null,
+        costPrice: b.product.costPrice?.toNumber() ?? null,
+        stockQuantity: Number(b.product.stockQuantity),
+        minStockLevel: b.product.minStockLevel,
+        status: b.product.status,
+        imageUrl: b.product.imageUrl ?? null,
+        baseUnit: b.product.baseUnit,
       } : null
     }));
   } catch (error) {
@@ -58,16 +67,30 @@ export async function getStockMovements() {
     });
 
     return movements.map(m => ({
-      ...m,
+      id: m.id,
+      productId: m.productId,
+      quantity: m.quantity,
+      type: m.type,
+      reason: m.reason ?? null,
+      businessId: m.businessId,
+      userId: m.userId ?? null,
       createdAt: m.createdAt.toISOString(),
       updatedAt: m.updatedAt.toISOString(),
+      user: m.user ?? null,
       product: m.product ? {
-        ...m.product,
+        id: m.product.id,
+        name: m.product.name,
+        sku: m.product.sku ?? null,
         unitPrice: m.product.unitPrice.toNumber(),
-        costPrice: m.product.costPrice?.toNumber() || null,
+        costPrice: m.product.costPrice?.toNumber() ?? null,
+        stockQuantity: Number(m.product.stockQuantity),
+        minStockLevel: Number(m.product.minStockLevel),
+        status: m.product.status,
+        imageUrl: m.product.imageUrl ?? null,
+        baseUnit: m.product.baseUnit ?? null,
         createdAt: m.product.createdAt.toISOString(),
         updatedAt: m.product.updatedAt.toISOString(),
-        deletedAt: m.product.deletedAt?.toISOString() || null,
+        deletedAt: m.product.deletedAt?.toISOString() ?? null,
       } : null
     }));
   } catch (error) {

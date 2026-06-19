@@ -26,12 +26,14 @@ export function DynamicBreadcrumb() {
     <Breadcrumb className="mb-6">
       <BreadcrumbList className="gap-2">
         <BreadcrumbItem>
-          <BreadcrumbLink asChild>
-            <Link href="/dashboard" className="flex items-center gap-1.5 hover:text-indigo-600 transition-colors">
-              <Home className="h-3.5 w-3.5" />
-              <span className="text-[10px] font-black uppercase tracking-widest">Home</span>
-            </Link>
-          </BreadcrumbLink>
+          <BreadcrumbLink
+            render={
+              <Link href="/dashboard" className="flex items-center gap-1.5 hover:text-indigo-600 transition-colors">
+                <Home className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Home</span>
+              </Link>
+            }
+          />
         </BreadcrumbItem>
         
         {pathSegments.map((segment, index) => {
@@ -50,11 +52,13 @@ export function DynamicBreadcrumb() {
                     {label}
                   </BreadcrumbPage>
                 ) : (
-                  <BreadcrumbLink asChild>
-                    <Link href={href} className="text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 transition-colors">
-                      {label}
-                    </Link>
-                  </BreadcrumbLink>
+                  <BreadcrumbLink
+                    render={
+                      <Link href={href} className="text-[10px] font-black uppercase tracking-widest hover:text-indigo-600 transition-colors">
+                        {label}
+                      </Link>
+                    }
+                  />
                 )}
               </BreadcrumbItem>
             </React.Fragment>

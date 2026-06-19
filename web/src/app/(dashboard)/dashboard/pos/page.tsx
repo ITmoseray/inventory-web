@@ -29,7 +29,10 @@ import {
   ArrowRight,
   ChevronDown,
   Activity,
-  Clock
+  Clock,
+  HandCoins,
+  AlertTriangle,
+  CheckCircle2
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn, getIndustryColor } from "@/lib/utils";
@@ -128,9 +131,10 @@ export default function POSPage() {
 
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string | "WALKIN">("WALKIN");
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "MOBILE_MONEY" | "CARD">("CASH");
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "MOBILE_MONEY" | "CARD" | "CREDIT">("CASH");
   const [paymentStatus, setPaymentStatus] = useState<"PAID" | "UNPAID" | "PARTIAL">("PAID");
   const [amountPaid, setAmountPaid] = useState<number>(0);
+  const [creditAmountPaid, setCreditAmountPaid] = useState<string>(""); // partial payment on credit
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
@@ -175,11 +179,18 @@ export default function POSPage() {
     
     setLoading(true);
     try {
-      if ((paymentStatus === "UNPAID" || paymentStatus === "PARTIAL") && selectedCustomer === "WALKIN") {
-         toast.error("Customer profile required for credit sales.");
+      const isCredit = paymentMethod === "CREDIT";
+
+      if (isCredit && selectedCustomer === "WALKIN") {
+         toast.error("A registered customer profile is required for credit sales.");
          setLoading(false);
          return;
       }
+
+      const partialPaid = isCredit ? (parseFloat(creditAmountPaid) || 0) : grandTotal;
+      const creditPayStatus: "PAID" | "UNPAID" | "PARTIAL" = isCredit
+        ? (partialPaid <= 0 ? "UNPAID" : partialPaid >= grandTotal ? "PAID" : "PARTIAL")
+        : "PAID";
 
       const saleData = {
         items: cart.map(item => ({
@@ -192,18 +203,23 @@ export default function POSPage() {
           total: item.price * item.quantity,
         })),
         totalAmount: grandTotal,
-        paymentMethod,
-        paymentStatus,
+        paymentMethod: isCredit ? "CREDIT" : paymentMethod,
+        paymentStatus: isCredit ? creditPayStatus : "PAID",
         customerId: selectedCustomer === "WALKIN" ? undefined : selectedCustomer,
-        amountPaid: paymentStatus === "PAID" ? grandTotal : amountPaid,
+        amountPaid: isCredit ? partialPaid : grandTotal,
       };
 
       const result = await createSale(saleData);
       if (result.success) {
-        toast.success("Transaction finalized.");
+        const msg = isCredit && creditPayStatus !== "PAID"
+          ? `Credit sale recorded. Outstanding: Le ${Math.round(grandTotal - partialPaid).toLocaleString()}`
+          : "Transaction finalized.";
+        toast.success(msg);
         clearCart();
         setIsCheckoutOpen(false);
         setIsCartVisible(false);
+        setCreditAmountPaid("");
+        setPaymentMethod("CASH");
       }
     } catch (error) {
       toast.error("Checkout failed.");
@@ -535,23 +551,27 @@ export default function POSPage() {
                      </div>
                      <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Settlement Matrix</Label>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 sm:gap-5">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                      {[
-                       { id: 'CASH', label: 'Paper Currency', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50' },
-                       { id: 'NEURAL_DIGITAL', label: 'Mobile Money', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50' },
-                       { id: 'CARD', label: 'Asset Card', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50' }
+                       { id: 'CASH', label: 'Paper Currency', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20', active: 'bg-emerald-600' },
+                       { id: 'MOBILE_MONEY', label: 'Mobile Money', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50 dark:hover:bg-blue-950/20', active: 'bg-blue-600' },
+                       { id: 'CARD', label: 'Asset Card', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/20', active: 'bg-indigo-600' },
+                       { id: 'CREDIT', label: 'On Credit', icon: HandCoins, color: 'text-amber-500', bg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20', active: 'bg-amber-500' },
                      ].map((m) => (
                        <button
                          key={m.id}
-                         onClick={() => setPaymentMethod(m.id as any)}
+                         onClick={() => {
+                           setPaymentMethod(m.id as any);
+                           if (m.id !== 'CREDIT') setCreditAmountPaid("");
+                         }}
                          className={cn(
-                           "flex flex-col items-center justify-center gap-3 sm:gap-5 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border-2 transition-all active:scale-90 shadow-sm relative group overflow-hidden",
+                           "flex flex-col items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all active:scale-90 shadow-sm relative group overflow-hidden",
                            paymentMethod === m.id 
                              ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-2xl scale-105 z-10" 
                              : "bg-white dark:bg-slate-900 border-slate-50 dark:border-slate-800 text-slate-400 " + m.bg
                          )}
                        >
-                         <m.icon className={cn("h-6 w-6 sm:h-8 sm:w-8 transition-transform group-hover:scale-110", paymentMethod === m.id ? "" : m.color)} />
+                         <m.icon className={cn("h-6 w-6 sm:h-7 sm:w-7 transition-transform group-hover:scale-110", paymentMethod === m.id ? "" : m.color)} />
                          <span className="text-[9px] sm:text-[10px] font-[1000] uppercase tracking-[0.2em] text-center leading-tight">{m.label}</span>
                          {paymentMethod === m.id && (
                            <motion.div layoutId="paymentActive" className="absolute top-3 right-3 h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
@@ -559,6 +579,62 @@ export default function POSPage() {
                        </button>
                      ))}
                   </div>
+
+                  {/* Credit Panel */}
+                  {paymentMethod === 'CREDIT' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/20 p-6 sm:p-8 space-y-5"
+                    >
+                      {selectedCustomer === 'WALKIN' ? (
+                        <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400">
+                          <AlertTriangle size={18} className="shrink-0" />
+                          <p className="text-[11px] font-black uppercase tracking-widest leading-relaxed">
+                            A registered customer is required to issue credit. Select a customer above.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-3">
+                            <CheckCircle2 size={18} className="text-amber-500 shrink-0" />
+                            <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">Credit Sale — Debt will be recorded</p>
+                          </div>
+                          <div className="space-y-3">
+                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Upfront Payment (optional)</Label>
+                            <div className="relative">
+                              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[11px] font-black text-slate-400">Le</span>
+                              <Input
+                                type="number"
+                                min="0"
+                                max={grandTotal}
+                                placeholder="0"
+                                value={creditAmountPaid}
+                                onChange={(e) => setCreditAmountPaid(e.target.value)}
+                                className="pl-10 h-14 rounded-2xl border-amber-100 dark:border-amber-900/40 bg-white dark:bg-slate-900 font-black text-sm text-right tracking-widest"
+                              />
+                            </div>
+                          </div>
+                          <div className="pt-2 space-y-3 border-t border-amber-100 dark:border-amber-900/30">
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Owed</span>
+                              <span className="text-sm font-[1000] text-slate-800 dark:text-white tracking-tighter">Le {Math.round(grandTotal).toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Upfront Paid</span>
+                              <span className="text-sm font-[1000] text-emerald-600 tracking-tighter">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
+                            </div>
+                            <div className="flex justify-between items-center pt-2 border-t border-amber-200 dark:border-amber-900/40">
+                              <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Outstanding Debt</span>
+                              <span className="text-lg font-[1000] text-amber-600 dark:text-amber-400 tracking-tighter">
+                                Le {Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}
+                              </span>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  )}
                </div>
 
                {/* Settlement Stats Analytics */}
@@ -574,11 +650,24 @@ export default function POSPage() {
                      <div className="h-px bg-white/10 w-full" />
                      <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                           <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                           <span className="text-[11px] font-black text-emerald-500 uppercase tracking-[0.4em]">Resolved Balance</span>
+                           <div className={cn("h-2 w-2 rounded-full animate-pulse", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "bg-amber-400" : "bg-emerald-500")} />
+                           <span className={cn("text-[11px] font-black uppercase tracking-[0.4em]", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "text-amber-400" : "text-emerald-500")}>
+                             {paymentMethod === 'CREDIT' ? 'Credit Outstanding' : 'Resolved Balance'}
+                           </span>
                         </div>
-                        <span className="text-2xl sm:text-3xl font-[1000] text-emerald-500 tracking-tighter">Le 0</span>
+                        <span className={cn("text-2xl sm:text-3xl font-[1000] tracking-tighter", paymentMethod === 'CREDIT' ? "text-amber-400" : "text-emerald-500")}>
+                          {paymentMethod === 'CREDIT'
+                            ? `Le ${Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}`
+                            : 'Le 0'
+                          }
+                        </span>
                      </div>
+                     {paymentMethod === 'CREDIT' && (parseFloat(creditAmountPaid) || 0) > 0 && (
+                       <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                         <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Upfront Collected</span>
+                         <span className="text-xl font-[1000] text-emerald-400 tracking-tighter">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
+                       </div>
+                     )}
                   </div>
                </div>
             </div>
