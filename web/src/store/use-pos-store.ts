@@ -52,7 +52,7 @@ export const usePOSStore = create<POSState>((set, get) => ({
   removeItem: (id) => {
     const newCart = get().cart.filter((i) => i.id !== id);
     const total = newCart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tax = total * 0.15;
+    const tax = total * 0;
     set({ 
         cart: newCart,
         total,
