@@ -135,9 +135,6 @@ export default function POSPage() {
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
 
-  const businessType = session?.user?.businessType || "SHOP";
-  const colors = getIndustryColor(businessType) || {};
-
   useEffect(() => {
     fetchCustomers();
     initialSync();
