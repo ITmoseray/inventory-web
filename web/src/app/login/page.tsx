@@ -359,7 +359,11 @@ export default function LoginPage() {
              </div>
              
              <div className="flex gap-4 w-full">
-                <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-100 text-[10px] font-black uppercase tracking-widest flex gap-2">
+                <Button 
+                  onClick={() => signIn("google")}
+                  variant="outline" 
+                  className="flex-1 h-12 rounded-xl border-slate-100 text-[10px] font-black uppercase tracking-widest flex gap-2"
+                >
                    <Image src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width={14} height={14} /> Google
                 </Button>
                 <Button variant="outline" className="flex-1 h-12 rounded-xl border-slate-100 text-[10px] font-black uppercase tracking-widest flex gap-2">

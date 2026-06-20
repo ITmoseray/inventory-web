@@ -10,7 +10,7 @@ export function LogoutButton() {
       variant="ghost" 
       size="icon" 
       className="h-8 w-8 rounded-xl bg-rose-50 border border-rose-100 text-rose-600 hover:bg-rose-100 transition-colors"
-      onClick={() => signOut()}
+      onClick={() => signOut({ redirectTo: "/login" })}
       title="Log out"
     >
       <LogOut className="h-4 w-4" />

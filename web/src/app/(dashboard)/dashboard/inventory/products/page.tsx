@@ -51,6 +51,7 @@ import { motion } from "framer-motion";
 import { EmptyState } from "@/components/shared/empty-state";
 import { TouchWrapper } from "@/components/layout/TouchWrapper";
 import { ResponsiveTable } from "@/components/shared/responsive-table";
+import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function ProductsPage() {
   const { data: session } = useSession();
@@ -310,13 +311,16 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-12">
       <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase italic">
-            {isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} <span className="text-primary">Catalog</span>
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
-            {isBar ? "Manage your drinks, spirits, and bar supplies." : "Manage your product SKU, pricing, and stock levels."}
-          </p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase italic">
+              {isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} <span className="text-primary">Catalog</span>
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
+              {isBar ? "Manage your drinks, spirits, and bar supplies." : "Manage your product SKU, pricing, and stock levels."}
+            </p>
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
            <Button variant="outline" className="rounded-2xl border-slate-200 dark:border-slate-800 font-black gap-2 h-14 px-8 text-[10px] uppercase tracking-widest hover:bg-white dark:hover:bg-slate-900 transition-all">

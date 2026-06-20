@@ -29,6 +29,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { BackButton } from "@/components/layout/ModuleHeader";
 import {
   getCategories,
   createCategory,
@@ -129,11 +130,14 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6 sm:space-y-10 animate-in fade-in duration-700 pb-12">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Classification <span className="text-primary">Hub</span></h1>
-          <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">
-            Organize your strategic assets into logical intelligence nodes.
-          </p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Classification <span className="text-primary">Hub</span></h1>
+            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">
+              Organize your strategic assets into logical intelligence nodes.
+            </p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);

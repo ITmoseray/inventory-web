@@ -26,6 +26,11 @@ const config: NextConfig = {
       },
     ],
   },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
 };
 
 const nextConfig = withPWA({

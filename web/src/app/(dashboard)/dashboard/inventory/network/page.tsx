@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { getNetworkRegistry, sourceItem } from "@/lib/actions/network";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function NetworkSourcingPage() {
   const [items, setItems] = useState<any[]>([]);
@@ -59,11 +60,14 @@ export default function NetworkSourcingPage() {
   return (
     <div className="space-y-8 p-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-           <h1 className="text-4xl font-[1000] tracking-tighter text-slate-900 uppercase italic">
-             Protech <span className="text-indigo-600">Network Exchange</span>
-           </h1>
-           <p className="text-slate-500 font-medium mt-1">Discover and source inventory or services from the ecosystem.</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+             <h1 className="text-4xl font-[1000] tracking-tighter text-slate-900 uppercase italic">
+               Protech <span className="text-indigo-600">Network Exchange</span>
+             </h1>
+             <p className="text-slate-500 font-medium mt-1">Discover and source inventory or services from the ecosystem.</p>
+          </div>
         </div>
       </div>
 

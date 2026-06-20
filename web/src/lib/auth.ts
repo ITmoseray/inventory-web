@@ -1,7 +1,9 @@
 import NextAuth, { type DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { authConfig } from "../auth.config";
@@ -34,6 +36,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: true,
   secret: process.env.AUTH_SECRET,
   providers: [
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     CredentialsProvider({
       async authorize(credentials) {
         console.log("SERVER AUTH: Authorize Attempt", { email: credentials?.email });
@@ -98,6 +104,71 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
+    async signIn({ user, account, profile }) {
+      if (account?.provider === "google" && user.email) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          });
+
+          if (!dbUser) {
+            console.log(`Google Auth: User ${user.email} not found in DB. Creating new business and user account.`);
+            
+            const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
+            const trialEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            
+            await prisma.$transaction(async (tx) => {
+              const business = await tx.business.create({
+                data: {
+                  name: `${user.name || "Google User"}'s Enterprise`,
+                  slug: `${(user.name || "google-user").toLowerCase().replace(/ /g, "-")}-${Math.random().toString(36).substring(7)}`,
+                  type: "SHOP",
+                  plan: "FREE",
+                  status: "ACTIVE",
+                  enabledModules: ["POS", "INVENTORY"],
+                  trialStartDate: new Date(),
+                  trialEndDate: trialEndDate,
+                },
+              });
+
+              const [adminRole] = await Promise.all([
+                tx.role.create({ data: { name: 'ADMIN', businessId: business.id } }),
+                tx.role.create({ data: { name: 'MANAGER', businessId: business.id } }),
+                tx.role.create({ data: { name: 'EMPLOYEE', businessId: business.id } }),
+              ]);
+
+              const allPermissions = await tx.permission.findMany();
+              if (allPermissions.length > 0) {
+                await tx.role.update({
+                  where: { id: adminRole.id },
+                  data: {
+                    permissions: {
+                      connect: allPermissions.map(p => ({ id: p.id }))
+                    }
+                  }
+                });
+              }
+
+              await tx.user.create({
+                data: {
+                  email: user.email!,
+                  passwordHash,
+                  name: user.name || "Google User",
+                  roleId: adminRole.id,
+                  businessId: business.id,
+                  emailVerified: new Date(),
+                },
+              });
+            });
+            console.log(`Google Auth: Successfully created business and user for ${user.email}`);
+          }
+        } catch (error) {
+          console.error("Google Auth: Error in signIn callback during findOrCreate:", error);
+          return false;
+        }
+      }
+      return true;
+    },
     async session({ session, token }) {
       console.log("SERVER AUTH: Session Callback Start", { sub: token.sub, role: token.role });
       
@@ -133,12 +204,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       if (trigger === "update" || (lookupKey && (!token.permissions || (token.permissions as string[]).length === 0))) {
         try {
-          console.log(`SERVER AUTH: Refreshing permissions for lookupKey: ${lookupKey}`);
+          console.log(`SERVER AUTH: Refreshing permissions (sub: ${token.sub}, email: ${token.email})`);
           const dbUser = await prisma.user.findFirst({
             where: { 
               OR: [
-                { id: lookupKey },
-                { email: lookupKey }
+                ...(token.sub ? [{ id: token.sub }] : []),
+                ...(token.email ? [{ email: token.email }] : [])
               ]
             },
             include: { role: { include: { permissions: true } }, business: true }
@@ -153,7 +224,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.trialEndDate = dbUser.business.trialEndDate;
             console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);
           } else {
-            console.error(`SERVER AUTH: DB User not found for lookupKey: ${lookupKey}`);
+            console.error(`SERVER AUTH: DB User not found for sub: ${token.sub}, email: ${token.email}`);
           }
         } catch (error) {
           console.error("SERVER AUTH: JWT Permission Refresh Error:", error);

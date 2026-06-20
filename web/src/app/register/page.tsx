@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -341,7 +342,11 @@ export default function RegisterPage() {
              </div>
 
              <div className="grid grid-cols-2 gap-4">
-                <Button variant="outline" className="h-12 rounded-xl border-slate-200 font-bold text-xs flex gap-2">
+                <Button 
+                  onClick={() => signIn("google")}
+                  variant="outline" 
+                  className="h-12 rounded-xl border-slate-200 font-bold text-xs flex gap-2"
+                >
                    <Image src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width={16} height={16} /> Google
                 </Button>
                 <Button variant="outline" className="h-12 rounded-xl border-slate-200 font-bold text-xs flex gap-2">

@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { format, addDays, isPast, isBefore } from "date-fns";
 import { cn } from "@/lib/utils";
 import { getExpiringBatches } from "@/lib/actions/stock";
+import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function ExpiryTrackingPage() {
   const [batches, setBatches] = useState<any[]>([]);
@@ -40,7 +41,8 @@ export default function ExpiryTrackingPage() {
 
   return (
     <div className="space-y-6 p-8 animate-in fade-in duration-700">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-4">
+        <BackButton />
         <h1 className="text-3xl font-[1000] tracking-tight text-slate-900 dark:text-white">Expiry Tracking</h1>
       </div>
 

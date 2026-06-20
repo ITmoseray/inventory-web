@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function InventoryAdjustmentsPage() {
   const router = useRouter();
@@ -26,12 +27,16 @@ export default function InventoryAdjustmentsPage() {
 
   if (!hasData) {
     return (
-      <div className="min-h-[calc(100vh-120px)] flex flex-col items-center justify-center p-8 bg-slate-50/50 dark:bg-slate-950/50">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-2xl w-full text-center space-y-12"
-        >
+      <div className="p-8 space-y-6 bg-slate-50/50 dark:bg-slate-950/50 min-h-[calc(100vh-120px)]">
+        <div className="flex items-center">
+          <BackButton />
+        </div>
+        <div className="flex flex-col items-center justify-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl w-full text-center space-y-12"
+          >
           {/* Animated Illustration Node */}
           <div className="relative mx-auto w-40 h-40">
              <div className="absolute inset-0 bg-indigo-600 rounded-[3rem] rotate-12 opacity-10 animate-pulse" />
@@ -89,14 +94,17 @@ export default function InventoryAdjustmentsPage() {
              </div>
           </div>
         </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="p-8 space-y-8">
-       {/* Real implementation would go here */}
-       <h1>Inventory Adjustments List</h1>
+       <div className="flex items-center gap-4">
+          <BackButton />
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Inventory Adjustments List</h1>
+       </div>
     </div>
   );
 }

@@ -2,7 +2,8 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
-  Tag, Cpu, History, Pill, Stethoscope, Briefcase, Bell, Utensils, Beer, CalendarCheck
+  Tag, Cpu, History, Pill, Stethoscope, Briefcase, Bell, Utensils, Beer, CalendarCheck,
+  MessageSquare
 } from "lucide-react";
 
 export const shopSidebarConfig = [
@@ -11,6 +12,7 @@ export const shopSidebarConfig = [
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
       { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck, permission: "menu:intelligence:hub" },
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon, permission: "menu:intelligence:analytics" },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },
     ]

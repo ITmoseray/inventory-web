@@ -118,7 +118,7 @@ export default function NexusSuperControl() {
                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Commanding</span>
                <span className="text-sm font-black text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
             </div>
-            <Button onClick={() => signOut()} className="h-14 px-8 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all">
+            <Button onClick={() => signOut({ redirectTo: "/login" })} className="h-14 px-8 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all">
                <LogOut className="mr-3 h-4 w-4" /> Terminate Node
             </Button>
          </div>

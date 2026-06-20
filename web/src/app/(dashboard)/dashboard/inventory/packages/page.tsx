@@ -19,6 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function PackagesPage() {
   const router = useRouter();
@@ -34,12 +35,16 @@ export default function PackagesPage() {
 
   if (!hasData) {
     return (
-      <div className="min-h-[calc(100vh-120px)] flex flex-col items-center justify-center p-8 bg-slate-50/50 dark:bg-slate-950/50 overflow-y-auto custom-scrollbar">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="max-w-4xl w-full text-center space-y-16 py-12"
-        >
+      <div className="p-8 space-y-6 bg-slate-50/50 dark:bg-slate-950/50 min-h-[calc(100vh-120px)] overflow-y-auto custom-scrollbar">
+        <div className="flex items-center">
+          <BackButton />
+        </div>
+        <div className="flex flex-col items-center justify-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-4xl w-full text-center space-y-16 py-12"
+          >
           {/* Main Visual Header */}
           <div className="space-y-8">
             <div className="relative mx-auto w-32 h-32">
@@ -130,13 +135,17 @@ export default function PackagesPage() {
              </div>
           </div>
         </motion.div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
-       <h1>Packages Inventory</h1>
+    <div className="p-8 space-y-8">
+       <div className="flex items-center gap-4">
+          <BackButton />
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Packages Inventory</h1>
+       </div>
     </div>
   );
 }

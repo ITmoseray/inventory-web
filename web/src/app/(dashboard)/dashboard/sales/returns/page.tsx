@@ -79,7 +79,7 @@ export default function SalesReturnsPage() {
            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Monitor and manage reversed transactions and stock reinstatements.</p>
         </div>
 
-        <Button onClick={() => router.push("/dashboard/inventory/history")} className={cn("h-12 px-8 rounded-xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl", colors.primary)}>
+        <Button onClick={() => router.push("/dashboard/purchases/returns")} className={cn("h-12 px-8 rounded-xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl", colors.primary)}>
            <Plus className="h-4 w-4 mr-2" /> Initialize Return
         </Button>
       </div>

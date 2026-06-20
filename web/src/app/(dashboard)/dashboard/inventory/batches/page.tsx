@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { format, differenceInDays, isPast } from "date-fns";
 import { cn } from "@/lib/utils";
+import { BackButton } from "@/components/layout/ModuleHeader";
 import {
   getBatches,
   getProductsForBatch,
@@ -206,16 +207,19 @@ export default function BatchesPage() {
     <div className="space-y-6 p-6 md:p-8 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-[900] tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40">
-              <FlaskConical className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
-            </div>
-            Batch Management
-          </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
-            Track product batches, quantities, and expiry dates
-          </p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div>
+            <h1 className="text-3xl font-[900] tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-indigo-100 dark:bg-indigo-900/40">
+                <FlaskConical className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+              </div>
+              Batch Management
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 mt-1 text-sm">
+              Track product batches, quantities, and expiry dates
+            </p>
+          </div>
         </div>
         <Button
           onClick={() => { resetForm(); setOpen(true); }}

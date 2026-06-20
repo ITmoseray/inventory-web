@@ -81,7 +81,7 @@ export function NeuralAnalyst() {
                     {status === "ACTIVE" && <Sparkles className="h-4 w-4 text-amber-400 animate-bounce" />}
                  </CardTitle>
                  <CardDescription className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">
-                    Local Intelligence Node {version ? `v${version}` : "v1.0"}
+                    {version?.includes("Cloud") ? "Cloud Intelligence Node" : "Local Intelligence Node"} {version ? `(${version})` : ""}
                  </CardDescription>
               </div>
            </div>
@@ -182,7 +182,7 @@ export function NeuralAnalyst() {
              <div className="space-y-1">
                 <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest">Neural Sync Failed</p>
                 <p className="text-[9px] text-rose-500/70 font-bold uppercase leading-relaxed">
-                   Local AI engine (Ollama) not detected. Ensure service is active and 'llama3' is pulled.
+                   AI engine not detected. To activate, please configure a `GEMINI_API_KEY` in your `.env` file, or run Ollama locally with the `llama3` model pulled.
                 </p>
              </div>
           </div>

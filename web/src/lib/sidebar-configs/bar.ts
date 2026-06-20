@@ -11,7 +11,8 @@ import {
   CalendarCheck,
   Wallet,
   UserCheck,
-  FileText
+  FileText,
+  MessageSquare
 } from "lucide-react";
 
 export const barSidebarConfig = [
@@ -19,6 +20,7 @@ export const barSidebarConfig = [
     label: "Intelligence",
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Today's Sales", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:sales" },
       { title: "Revenue Summary", url: "/dashboard/analytics", icon: Wallet, permission: "menu:intelligence:analytics" },
       { title: "Low Stock Alerts", url: "/dashboard/inventory/batches", icon: ClipboardList, permission: "menu:inventory" },

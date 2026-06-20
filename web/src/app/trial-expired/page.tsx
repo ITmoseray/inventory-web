@@ -89,7 +89,7 @@ export default function TrialExpiredPage() {
                     <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} /> {isSyncing ? "Syncing..." : "Sync Node Status"}
                   </button>
                   <button 
-                      onClick={() => signOut({ callbackUrl: '/login' })}
+                      onClick={() => signOut({ redirectTo: '/login' })}
                       className="flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-rose-500 uppercase tracking-[0.3em] transition-colors"
                   >
                       <LogOut className="h-3 w-3" /> Deauthorize Session

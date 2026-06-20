@@ -32,6 +32,7 @@ import { cn, getIndustryColor } from "@/lib/utils";
 import { format } from "date-fns";
 import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
+import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function StockHistoryPage() {
   const { data: session } = useSession();
@@ -89,21 +90,24 @@ export default function StockHistoryPage() {
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col md:flex-row md:items-end justify-between gap-6"
       >
-        <div className="space-y-2">
-           <div className="flex items-center gap-3">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-500">
-                Inventory Analytics
-              </span>
-              <div className="h-px w-8 bg-slate-200 dark:bg-slate-800" />
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500 animate-pulse" />
-                 <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-600 uppercase tracking-tighter">Live Ledger</span>
-              </div>
-           </div>
-           <h1 className="text-4xl md:text-5xl font-[1000] text-slate-900 dark:text-white tracking-tight">
-             Movement Ledger
-           </h1>
-           <p className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-[0.15em]">Trace every item lifecycle across your entire supply chain.</p>
+        <div className="flex items-center gap-4">
+          <BackButton />
+          <div className="space-y-2">
+             <div className="flex items-center gap-3">
+                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 dark:text-slate-500">
+                  Inventory Analytics
+                </span>
+                <div className="h-px w-8 bg-slate-200 dark:bg-slate-800" />
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500 animate-pulse" />
+                   <span className="text-[9px] font-black text-emerald-700 dark:text-emerald-600 uppercase tracking-tighter">Live Ledger</span>
+                </div>
+             </div>
+             <h1 className="text-4xl md:text-5xl font-[1000] text-slate-900 dark:text-white tracking-tight">
+               Movement Ledger
+             </h1>
+             <p className="text-slate-500 dark:text-slate-400 font-bold text-xs uppercase tracking-[0.15em]">Trace every item lifecycle across your entire supply chain.</p>
+          </div>
         </div>
       </motion.div>
 

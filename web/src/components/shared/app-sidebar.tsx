@@ -309,7 +309,7 @@ const SidebarContentRenderer = ({
                    </DropdownMenuItem>
                 )}
                 <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
-                <DropdownMenuItem onClick={() => signOut()} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30">
+                <DropdownMenuItem onClick={() => signOut({ redirectTo: "/login" })} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30">
                   <LogOut className="mr-3 size-4" />
                   Terminate Session
                 </DropdownMenuItem>
