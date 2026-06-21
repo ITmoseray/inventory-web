@@ -29,7 +29,7 @@ export const shopSidebarConfig = [
           { title: "Products", url: "/dashboard/inventory/products" },
           { title: "Inventory Adjustments", url: "/dashboard/inventory/adjustments" },
           { title: "Packages", url: "/dashboard/inventory/packages" },
-          { title: "Secure Terminal", url: "/dashboard/settlement" },
+          { title: "Secure Terminal", url: "/dashboard/system/terminal" },
           { title: "Network Exchange", url: "/dashboard/inventory/network" },
           { title: "Categories", url: "/dashboard/inventory/categories" },
           { title: "Batches", url: "/dashboard/inventory/batches" },

@@ -18,6 +18,7 @@ import {
   DollarSign, AlertCircle, Package, Book, Zap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { getRecentSales } from "@/lib/actions/sale";
@@ -46,6 +47,8 @@ export default function DashboardPage() {
   const [recentSales, setRecentSales] = useState<any[]>([]);
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedUpdate, setSelectedUpdate] = useState<any>(null);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [stats, setStats] = useState({
     revenue: 0,
     orders: 0,
@@ -60,6 +63,24 @@ export default function DashboardPage() {
   // Getting Started State
   const [setupProgress, setSetupProgress] = useState(0);
   const [activeSetupStep, setActiveSetupStep] = useState(0);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [webinarModalOpen, setWebinarModalOpen] = useState(false);
+  const [demoModalOpen, setDemoModalOpen] = useState(false);
+  const [demoForm, setDemoForm] = useState({ name: "", email: "", phone: "", notes: "" });
+  const [demoSubmitting, setDemoSubmitting] = useState(false);
+
+  const handleDemoSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDemoSubmitting(true);
+    setTimeout(() => {
+      setDemoSubmitting(false);
+      setDemoModalOpen(false);
+      setDemoForm({ name: "", email: "", phone: "", notes: "" });
+      toast.success("Demo request submitted successfully!", {
+        description: "Our product engineers will contact you shortly to schedule your walkthrough."
+      });
+    }, 1500);
+  };
 
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
@@ -120,16 +141,16 @@ export default function DashboardPage() {
       title: "Configure your Inventory", 
       desc: "Add the goods or services that your business deals within Protech Inventory. You can also create an Item with Variants or combine multiple items into one by creating a composite item.",
       actions: [
-        { label: "Create an item", href: "/dashboard/inventory/products/new", icon: Plus },
-        { label: "Create a composite item", href: "/dashboard/inventory/composite/new", icon: Box }
+        { label: "Create an item", href: "/dashboard/inventory/products", icon: Plus },
+        { label: "Create a composite item", href: "/dashboard/inventory/products", icon: Box }
       ]
     },
     { 
       title: "Configure the Purchases module", 
       desc: "Set up your suppliers and manage your incoming stock orders effectively.",
       actions: [
-        { label: "Add a supplier", href: "/dashboard/purchases/suppliers/new", icon: Users },
-        { label: "Create purchase order", href: "/dashboard/purchases/orders/new", icon: FileText }
+        { label: "Add a supplier", href: "/dashboard/purchases/suppliers", icon: Users },
+        { label: "Create purchase order", href: "/dashboard/purchases", icon: FileText }
       ]
     },
     { 
@@ -137,7 +158,7 @@ export default function DashboardPage() {
       desc: "Streamline your sales process with automated invoicing and fast POS checkout.",
       actions: [
         { label: "Open POS", href: "/dashboard/pos", icon: ShoppingCart },
-        { label: "Add customer", href: "/dashboard/customers/new", icon: Users }
+        { label: "Add customer", href: "/dashboard/customers", icon: Users }
       ]
     },
     { 
@@ -150,13 +171,44 @@ export default function DashboardPage() {
   ];
 
   const USEFUL_FEATURES = [
-    { title: "Sales Channels", desc: "Integrate with shopping carts like Shopify, Amazon, and eBay.", icon: Globe },
-    { title: "Shipping Integrations", desc: "Deliver packages and monitor them every step of the way.", icon: Truck },
-    { title: "Roles and Permissions", desc: "Invite users and choose granular role-based access control.", icon: ShieldCheck },
-    { title: "Customer Portal", desc: "Self-service portal for customers to manage transactions.", icon: Users },
-    { title: "Online Payments", desc: "Receive payments via popular gateways like Orange Money or Stripe.", icon: CreditCard },
-    { title: "Locations", desc: "Organize your business and warehouse locations into a structured hierarchy.", icon: MapPin },
+    { 
+      title: "Sales Channels", 
+      desc: "Integrate with shopping carts like Shopify, Amazon, and eBay.", 
+      icon: Globe,
+      onClick: () => toast.info("Sales channel integrations (Shopify, Amazon, eBay) can be configured under System Settings.")
+    },
+    { 
+      title: "Shipping Integrations", 
+      desc: "Deliver packages and monitor them every step of the way.", 
+      icon: Truck,
+      onClick: () => toast.info("Shipping APIs (DHL, FedEx, UPS) are currently being audited for security compliance.")
+    },
+    { 
+      title: "Roles and Permissions", 
+      desc: "Invite users and choose granular role-based access control.", 
+      icon: ShieldCheck,
+      onClick: () => router.push("/dashboard/system/settings")
+    },
+    { 
+      title: "Customer Portal", 
+      desc: "Self-service portal for customers to manage transactions.", 
+      icon: Users,
+      onClick: () => router.push("/dashboard/customers")
+    },
+    { 
+      title: "Online Payments", 
+      desc: "Receive payments via popular gateways like Orange Money or Stripe.", 
+      icon: CreditCard,
+      onClick: () => router.push("/dashboard/billing")
+    },
+    { 
+      title: "Locations", 
+      desc: "Organize your business and warehouse locations into a structured hierarchy.", 
+      icon: MapPin,
+      onClick: () => router.push("/dashboard/system/settings")
+    },
   ];
+
 
   return (
     <div className="relative min-h-full pb-8 sm:p-6 md:p-10 bg-slate-50/30 dark:bg-slate-950/50 space-y-10">
@@ -403,7 +455,7 @@ export default function DashboardPage() {
             className="space-y-12"
           >
             {/* Welcome Banner */}
-            <div className="flex flex-col lg:flex-row gap-12">
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                <div className="flex-1 space-y-8">
                   <div>
                     <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
@@ -415,7 +467,7 @@ export default function DashboardPage() {
 
                   {/* Setup Checklist */}
                   <Card className="border-none bg-white dark:bg-slate-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] rounded-[2.5rem] overflow-hidden">
-                     <div className="p-10 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-slate-50/30 dark:bg-slate-900/30">
+                     <div className="p-5 md:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/30 dark:bg-slate-900/30">
                         <div className="flex items-center gap-4">
                            <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                               <Zap className="h-5 w-5 fill-current" />
@@ -425,15 +477,15 @@ export default function DashboardPage() {
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Phase 01 Configuration</p>
                            </div>
                         </div>
-                        <div className="flex items-center gap-8">
-                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2" onClick={() => router.push("/dashboard/inventory/products/new")}>
+                        <div className="flex flex-wrap items-center gap-4">
+                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2" onClick={() => router.push("/dashboard/inventory/products")}>
                               <Plus className="h-3 w-3" /> Quick Create
                            </Button>
-                           <div className="text-right">
+                           <div className="text-left sm:text-right">
                               <div className="flex items-center gap-3 mb-2">
-                                 <span className="text-3xl font-[1000] text-indigo-600 italic tracking-tighter">{setupProgress}% Completed</span>
+                                 <span className="text-xl sm:text-3xl font-[1000] text-indigo-600 italic tracking-tighter">{setupProgress}% Completed</span>
                               </div>
-                              <div className="w-48 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                              <div className="w-full sm:w-48 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                  <motion.div initial={{ width: 0 }} animate={{ width: `${setupProgress}%` }} className="h-full bg-indigo-600 rounded-full" />
                               </div>
                            </div>
@@ -446,7 +498,7 @@ export default function DashboardPage() {
                              key={i}
                              onClick={() => setActiveSetupStep(i)}
                              className={cn(
-                               "p-6 flex flex-col items-center text-center gap-3 transition-all relative group",
+                               "p-6 flex flex-col items-center text-center gap-3 transition-all relative group cursor-pointer",
                                activeSetupStep === i ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800"
                              )}
                            >
@@ -465,7 +517,7 @@ export default function DashboardPage() {
                         ))}
                      </div>
 
-                     <div className="p-12 space-y-10">
+                     <div className="p-5 md:p-12 space-y-8 md:space-y-10">
                         <div className="flex flex-col md:flex-row gap-12 items-start">
                            <div className="flex-1 space-y-6">
                               <h4 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic">{SETUP_STEPS[activeSetupStep].title}</h4>
@@ -481,13 +533,16 @@ export default function DashboardPage() {
                                  <Button variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50" onClick={() => {
                                    const newProgress = Math.min(100, setupProgress + 25);
                                    setSetupProgress(newProgress);
-                                   toast.success("Progress updated! Keep going.");
+                                   toast.success(`Step "${SETUP_STEPS[activeSetupStep].title}" marked as completed!`);
+                                   if (activeSetupStep < SETUP_STEPS.length - 1) {
+                                     setActiveSetupStep(activeSetupStep + 1);
+                                   }
                                  }}>
                                     Mark as completed
                                  </Button>
                               </div>
                            </div>
-                           <div className="w-full md:w-[280px] h-[180px] bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group cursor-pointer relative overflow-hidden">
+                           <div onClick={() => setVideoModalOpen(true)} className="w-full md:w-[280px] h-[160px] md:h-[180px] bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group cursor-pointer relative overflow-hidden shrink-0">
                               <div className="absolute inset-0 bg-indigo-600 opacity-0 group-hover:opacity-5 transition-opacity" />
                               <div className="h-16 w-16 bg-white dark:bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-indigo-600 relative z-10 group-hover:scale-110 transition-transform">
                                  <Play className="h-6 w-6 fill-current ml-1" />
@@ -500,12 +555,12 @@ export default function DashboardPage() {
                </div>
 
                {/* Features Grid & Resource Links */}
-               <div className="w-full lg:w-[450px] space-y-12">
+               <div className="w-full lg:w-[420px] xl:w-[450px] shrink-0 space-y-10 lg:space-y-12">
                   <div className="p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
                      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                      <h3 className="text-xl font-black uppercase tracking-tight italic mb-8 relative z-10">Have a question?</h3>
                      <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-8 relative z-10">Write to us at <span className="text-indigo-400">support.africa@protechassist.com</span> and we'll answer you.</p>
-                     <Button className="w-full h-14 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 relative z-10">
+                     <Button onClick={() => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Inquiry")} className="w-full h-14 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 relative z-10">
                         <MessageCircle className="mr-3 h-4 w-4" /> Mail us
                      </Button>
                   </div>
@@ -513,8 +568,8 @@ export default function DashboardPage() {
                   <div className="space-y-6">
                      <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600 italic ml-1">Expert Assistance</h4>
                      {[
-                       { title: "Want to understand all we offer?", desc: "Request a demo with one of our product experts.", action: "Request a Demo", icon: Users },
-                       { title: "Learn more from our webinars", desc: "Gain in-depth understanding from our collection.", action: "Watch our Webinar", icon: Play },
+                       { title: "Want to understand all we offer?", desc: "Request a demo with one of our product experts.", action: "Request a Demo", icon: Users, onClick: () => setDemoModalOpen(true) },
+                       { title: "Learn more from our webinars", desc: "Gain in-depth understanding from our collection.", action: "Watch our Webinar", icon: Play, onClick: () => setWebinarModalOpen(true) },
                      ].map((item, i) => (
                        <Card key={i} className="border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 rounded-[2rem] hover:shadow-xl transition-all duration-500 group">
                           <div className="flex gap-6 items-center">
@@ -524,7 +579,7 @@ export default function DashboardPage() {
                              <div className="flex-1 min-w-0">
                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{item.title}</p>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">{item.desc}</p>
-                                <button className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-3 transition-all">
+                                <button onClick={item.onClick} className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-3 transition-all cursor-pointer">
                                    {item.action} <ArrowRight className="h-3 w-3" />
                                 </button>
                              </div>
@@ -553,7 +608,7 @@ export default function DashboardPage() {
                              <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic">{feature.title}</h4>
                              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{feature.desc}</p>
                           </div>
-                          <button className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] flex items-center gap-2 group-hover:gap-3 transition-all">
+                          <button onClick={feature.onClick} className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] flex items-center gap-2 group-hover:gap-3 transition-all cursor-pointer">
                              Learn More <ArrowRight className="h-4 w-4" />
                           </button>
                        </CardContent>
@@ -563,17 +618,17 @@ export default function DashboardPage() {
             </div>
 
             {/* Mobile Promo & QR */}
-            <section className="bg-slate-900 rounded-[3rem] p-16 text-white overflow-hidden relative group">
+            <section className="bg-slate-900 rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-16 text-white overflow-hidden relative group">
                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-[2s]" />
-               <div className="grid lg:grid-cols-2 gap-20 items-center relative z-10">
+               <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center relative z-10">
                   <div>
                      <h2 className="text-5xl font-black tracking-tight uppercase italic mb-8 leading-[0.9]">Manage inventory <br /><span className="text-indigo-400">on the go!</span></h2>
                      <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12 max-w-md">Experience the ease of managing your inventory with the Protech mobile app for Android & iOS.</p>
                      <div className="flex flex-wrap gap-6">
-                        <Button className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
+                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
                            <Smartphone className="h-5 w-5" /> Google Play
                         </Button>
-                        <Button className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
+                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
                            <SmartphoneIcon className="h-5 w-5" /> App Store
                         </Button>
                      </div>
@@ -594,19 +649,55 @@ export default function DashboardPage() {
             {/* Other Apps & Footer Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pt-12 border-t border-slate-100 dark:border-slate-800">
                {[
-                 { title: "Other Protech Apps", items: ["Accounting", "Ecommerce", "Subscription Billing", "Expense Reporting", "CRM"] },
-                 { title: "Help & Support", items: ["Contact Support", "Help Documentation", "Register for webinars", "FAQ"] },
-                 { title: "Quick Links", items: ["Getting Started", "Mobile apps", "Add-ons", "What's New?"] },
-                 { title: "Talk to us", items: ["Sierra Leone: +232 34 955581", "United Kingdom: +44 800...", "Australia: +61 1800..."], italic: true },
+                 { 
+                   title: "Other Protech Apps", 
+                   items: [
+                     { label: "Accounting", onClick: () => router.push("/dashboard/accounting/expenses") },
+                     { label: "Ecommerce", onClick: () => toast.info("Ecommerce channel integrations are offline in free trial.") },
+                     { label: "Subscription Billing", onClick: () => router.push("/dashboard/billing") },
+                     { label: "Expense Reporting", onClick: () => router.push("/dashboard/accounting/expenses") },
+                     { label: "CRM", onClick: () => router.push("/dashboard/customers") }
+                   ] 
+                 },
+                 { 
+                   title: "Help & Support", 
+                   items: [
+                     { label: "Contact Support", onClick: () => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Request") },
+                     { label: "Help Documentation", onClick: () => router.push("/dashboard/manual") },
+                     { label: "Register for webinars", onClick: () => toast.success("Successfully registered for next Saturday's Protech Webinar!") },
+                     { label: "FAQ", onClick: () => router.push("/dashboard/manual") }
+                   ] 
+                 },
+                 { 
+                   title: "Quick Links", 
+                   items: [
+                     { label: "Getting Started", onClick: () => setActiveTab("Getting Started") },
+                     { label: "Mobile apps", onClick: () => toast.info("Download the app from the store using the badges below.") },
+                     { label: "Add-ons", onClick: () => toast.info("Add-ons module coming soon.") },
+                     { label: "What's New?", onClick: () => setActiveTab("Recent Updates") }
+                   ] 
+                 },
+                 { 
+                   title: "Talk to us", 
+                   items: [
+                     { label: "Sierra Leone: +232 34 955581", onClick: () => window.open("tel:+23234955581") },
+                     { label: "United Kingdom: +44 800...", onClick: () => toast.info("UK line is active for Premium customers.") },
+                     { label: "Australia: +61 1800...", onClick: () => toast.info("Australia line is active for Premium customers.") }
+                   ], 
+                   italic: true 
+                 },
                ].map((section, i) => (
                  <div key={i} className="space-y-6">
                     <h5 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{section.title}</h5>
                     <ul className="space-y-4">
                        {section.items.map((item, j) => (
                          <li key={j}>
-                            <a href="#" className={cn("text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors", section.italic && "italic")}>
-                               {item}
-                            </a>
+                            <button 
+                              onClick={item.onClick}
+                              className={cn("text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors text-left cursor-pointer", section.italic && "italic")}
+                            >
+                               {item.label}
+                            </button>
                          </li>
                        ))}
                     </ul>
@@ -626,7 +717,7 @@ export default function DashboardPage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="max-w-4xl space-y-12 pb-20"
+            className="w-full max-w-4xl space-y-12 pb-20 overflow-hidden"
           >
              {[
                { date: "28 April 2026", title: "Add as Credit Option for Bill Payment Deletion", desc: "We have enhanced bill payment deletion. You can now retain the amount as a Vendor Credit by selecting the Dissociate and Add as Credit option, allowing it to be applied to future bills." },
@@ -642,16 +733,25 @@ export default function DashboardPage() {
                { date: "24 March 2026", title: "Quick Assembly Option in Assemblies", desc: "Instantly assemble component items using the Quick Assembly option without interrupting the workflow." },
                { date: "18 March 2026", title: "Introducing Profit Margin", desc: "The Profit Margin feature is now available across all editions with configurable user access and permissions." },
              ].map((update, i) => (
-               <div key={i} className="flex gap-10 group">
-                  <div className="flex flex-col items-center">
-                     <div className="h-5 w-5 rounded-full bg-indigo-600 shadow-[0_0_20px_rgba(79,70,229,0.5)] group-hover:scale-125 transition-transform" />
+               <div key={i} className="flex gap-4 sm:gap-10 group">
+                  <div className="flex flex-col items-center shrink-0">
+                     <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-indigo-600 shadow-[0_0_20px_rgba(79,70,229,0.5)] group-hover:scale-125 transition-transform mt-1" />
                      <div className="flex-1 w-px bg-slate-200 dark:bg-slate-800 mt-4" />
                   </div>
-                  <div className="pb-16">
+                  <div className="pb-10 sm:pb-16 min-w-0">
                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{update.date}</span>
-                     <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic mt-2 mb-4 group-hover:text-indigo-600 transition-colors leading-tight">{update.title}</h3>
+                     <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic mt-2 mb-4 group-hover:text-indigo-600 transition-colors leading-tight">{update.title}</h3>
                      <p className="text-slate-500 dark:text-slate-400 font-medium text-base leading-relaxed max-w-2xl">{update.desc}</p>
-                     <Button variant="outline" className="mt-8 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest px-8 h-12 hover:bg-slate-50">Read More</Button>
+                      <Button 
+                        onClick={() => {
+                          setSelectedUpdate(update);
+                          setIsUpdateOpen(true);
+                        }}
+                        variant="outline" 
+                        className="mt-8 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest px-8 h-12 hover:bg-slate-50"
+                      >
+                        Read More
+                      </Button>
                   </div>
                </div>
              ))}
@@ -661,9 +761,9 @@ export default function DashboardPage() {
                    More Updates
                 </Button>
                 
-                <section className="w-full bg-slate-900 rounded-[3rem] p-16 text-white overflow-hidden relative group">
+                <section className="w-full bg-slate-900 rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-16 text-white overflow-hidden relative group">
                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-                   <div className="grid lg:grid-cols-2 gap-20 items-center relative z-10">
+                   <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center relative z-10">
                       <div>
                          <h2 className="text-5xl font-black tracking-tight uppercase italic mb-8 leading-[0.9]">Manage inventory <br /><span className="text-indigo-400">on the go!</span></h2>
                          <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12 max-w-md">Experience the ease of managing your inventory with the mobile app.</p>
@@ -691,19 +791,55 @@ export default function DashboardPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pt-12 w-full">
                    {[
-                     { title: "Other Protech Apps", items: ["Accounting", "Ecommerce", "Subscription Billing", "Expense Reporting"] },
-                     { title: "Help & Support", items: ["Contact Support", "Help Documentation", "Webinars", "FAQ"] },
-                     { title: "Quick Links", items: ["Getting Started", "Mobile apps", "Add-ons", "What's New?"] },
-                     { title: "Talk to us", items: ["USA: +1 844...", "UK: +44 800...", "AU: +61 1800..."], italic: true },
+                     { 
+                       title: "Other Protech Apps", 
+                       items: [
+                         { label: "Accounting", onClick: () => router.push("/dashboard/accounting/expenses") },
+                         { label: "Ecommerce", onClick: () => toast.info("Ecommerce channel integrations are offline in free trial.") },
+                         { label: "Subscription Billing", onClick: () => router.push("/dashboard/billing") },
+                         { label: "Expense Reporting", onClick: () => router.push("/dashboard/accounting/expenses") },
+                         { label: "CRM", onClick: () => router.push("/dashboard/customers") }
+                       ] 
+                     },
+                     { 
+                       title: "Help & Support", 
+                       items: [
+                         { label: "Contact Support", onClick: () => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Request") },
+                         { label: "Help Documentation", onClick: () => router.push("/dashboard/manual") },
+                         { label: "Register for webinars", onClick: () => toast.success("Successfully registered for next Saturday's Protech Webinar!") },
+                         { label: "FAQ", onClick: () => router.push("/dashboard/manual") }
+                       ] 
+                     },
+                     { 
+                       title: "Quick Links", 
+                       items: [
+                         { label: "Getting Started", onClick: () => setActiveTab("Getting Started") },
+                         { label: "Mobile apps", onClick: () => toast.info("Download the app from the store using the badges below.") },
+                         { label: "Add-ons", onClick: () => toast.info("Add-ons module coming soon.") },
+                         { label: "What's New?", onClick: () => setActiveTab("Recent Updates") }
+                       ] 
+                     },
+                     { 
+                       title: "Talk to us", 
+                       items: [
+                         { label: "USA: +1 844...", onClick: () => toast.info("USA line is active for Premium customers.") },
+                         { label: "UK: +44 800...", onClick: () => toast.info("UK line is active for Premium customers.") },
+                         { label: "AU: +61 1800...", onClick: () => toast.info("Australia line is active for Premium customers.") }
+                       ], 
+                       italic: true 
+                     },
                    ].map((section, i) => (
                      <div key={i} className="space-y-6">
                         <h5 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{section.title}</h5>
                         <ul className="space-y-4">
                            {section.items.map((item, j) => (
                              <li key={j}>
-                                <a href="#" className={cn("text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors", section.italic && "italic")}>
-                                   {item}
-                                </a>
+                                <button 
+                                  onClick={item.onClick}
+                                  className={cn("text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors text-left cursor-pointer", section.italic && "italic")}
+                                >
+                                   {item.label}
+                                </button>
                              </li>
                            ))}
                         </ul>
@@ -794,6 +930,162 @@ export default function DashboardPage() {
                  Terminate View
               </Button>
            </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* VIDEO GUIDE DIALOG */}
+      <Dialog open={videoModalOpen} onOpenChange={setVideoModalOpen}>
+        <DialogContent className="sm:max-w-[800px] rounded-[3rem] border-none bg-slate-950 text-white p-0 overflow-hidden shadow-2xl">
+          <div className="p-10 space-y-6">
+            <h3 className="text-2xl font-[1000] tracking-tight uppercase italic text-indigo-400">Protech Inventory Walkthrough</h3>
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center">
+              <iframe 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                title="Product Walkthrough Guide"
+                className="absolute inset-0 w-full h-full border-none"
+                allowFullScreen
+              />
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Duration: 2 mins 45s</p>
+              <Button onClick={() => setVideoModalOpen(false)} className="h-12 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black uppercase text-[10px] tracking-widest">Close Guide</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* WEBINAR PLAYER DIALOG */}
+      <Dialog open={webinarModalOpen} onOpenChange={setWebinarModalOpen}>
+        <DialogContent className="sm:max-w-[800px] rounded-[3rem] border-none bg-slate-950 text-white p-0 overflow-hidden shadow-2xl">
+          <div className="p-10 space-y-6">
+            <h3 className="text-2xl font-[1000] tracking-tight uppercase italic text-indigo-400">Webinar: Scaling West African Retail</h3>
+            <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center">
+              <iframe 
+                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                title="Webinar Video Player"
+                className="absolute inset-0 w-full h-full border-none"
+                allowFullScreen
+              />
+            </div>
+            <div className="flex justify-between items-center">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Recorded Webinar Session</p>
+              <Button onClick={() => setWebinarModalOpen(false)} className="h-12 px-6 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black uppercase text-[10px] tracking-widest">Close Player</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* REQUEST A DEMO DIALOG */}
+      <Dialog open={demoModalOpen} onOpenChange={setDemoModalOpen}>
+        <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white text-slate-900">
+          <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <Users size={140} />
+            </div>
+            <div className="relative z-10 space-y-2">
+              <div className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 italic">Expert Assistance</div>
+              <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none">Schedule a Demo</h3>
+              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.15em] pt-2">Unlock the full power of Protech Inventory OS with our engineering team.</p>
+            </div>
+          </div>
+          <form onSubmit={handleDemoSubmit} className="p-10 space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Full Name</label>
+                <Input 
+                  type="text" 
+                  required 
+                  value={demoForm.name} 
+                  onChange={(e) => setDemoForm({...demoForm, name: e.target.value})}
+                  placeholder="Steven Strange" 
+                  className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Email Address</label>
+                <Input 
+                  type="email" 
+                  required 
+                  value={demoForm.email} 
+                  onChange={(e) => setDemoForm({...demoForm, email: e.target.value})}
+                  placeholder="steven@company.com" 
+                  className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Contact Number</label>
+                <Input 
+                  type="tel" 
+                  required 
+                  value={demoForm.phone} 
+                  onChange={(e) => setDemoForm({...demoForm, phone: e.target.value})}
+                  placeholder="+232 34 955581" 
+                  className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Specific Requirements (Optional)</label>
+                <textarea 
+                  value={demoForm.notes} 
+                  onChange={(e) => setDemoForm({...demoForm, notes: e.target.value})}
+                  placeholder="Tell us about your business size, locations, or migration requirements..." 
+                  className="w-full p-4 min-h-[100px] rounded-xl bg-slate-50 border border-slate-100 text-sm font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-slate-900"
+                />
+              </div>
+            </div>
+            <div className="flex gap-4 pt-4">
+              <Button type="button" variant="outline" onClick={() => setDemoModalOpen(false)} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-500 border-slate-100 hover:bg-slate-50">
+                Cancel
+              </Button>
+              <Button type="submit" disabled={demoSubmitting} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-2xl">
+                {demoSubmitting ? "Scheduling..." : "Submit Request"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+      {/* RELEASE UPDATE DETAILS DIALOG */}
+      <Dialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen}>
+        <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white text-slate-900">
+          <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-5">
+              <Sparkles size={140} />
+            </div>
+            <div className="relative z-10 space-y-2">
+              <div className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 italic">System Release Note</div>
+              <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none">{selectedUpdate?.title}</h3>
+              <div className="flex items-center gap-4 pt-4">
+                <div className="px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest bg-emerald-500 text-white">
+                  Deployed
+                </div>
+                <div className="h-1.5 w-1.5 rounded-full bg-slate-700" />
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{selectedUpdate?.date}</span>
+              </div>
+            </div>
+          </div>
+          <div className="p-10 space-y-8 bg-white">
+            <div className="space-y-4">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 pb-4">Update Details</h4>
+              <p className="text-slate-700 font-medium text-sm leading-relaxed uppercase">
+                {selectedUpdate?.desc}
+              </p>
+            </div>
+            <div className="pt-6 border-t border-slate-50 space-y-4">
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <span>Release Version</span>
+                <span className="text-slate-900 font-black">v2.6.4-beta</span>
+              </div>
+              <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                <span>Scope Impact</span>
+                <span className="text-indigo-600 font-black">Enterprise Node</span>
+              </div>
+            </div>
+            <div className="pt-4 flex gap-4">
+              <Button onClick={() => setIsUpdateOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-2xl">
+                Close Update View
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

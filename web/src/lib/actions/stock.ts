@@ -140,6 +140,8 @@ export async function adjustStock(data: {
     });
 
     revalidatePath("/dashboard/inventory/products");
+    revalidatePath("/dashboard/inventory/adjustments");
+    revalidatePath("/dashboard/inventory/history");
     return { success: true };
   } catch (error) {
     console.error("Failed to adjust stock:", error);

@@ -51,7 +51,9 @@ export async function createCategory(data: { name: string; description?: string 
 
 export async function updateCategory(id: string, data: { name: string; description?: string }) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.businessId || (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN")) {
+    throw new Error("Unauthorized");
+  }
 
   const category = await prisma.category.update({
     where: { id, businessId: session.user.businessId },
@@ -68,7 +70,9 @@ export async function updateCategory(id: string, data: { name: string; descripti
 
 export async function deleteCategory(id: string) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.businessId || (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN")) {
+    throw new Error("Unauthorized");
+  }
 
   await prisma.category.delete({
     where: { id, businessId: session.user.businessId },

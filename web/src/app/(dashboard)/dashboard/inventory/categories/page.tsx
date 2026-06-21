@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Plus, Pencil, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,6 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -42,10 +44,16 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Package } from "lucide-react";
 
 export default function CategoriesPage() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN";
+  
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<any>(null);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; category: any | null }>({
+    open: false, category: null
+  });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -88,18 +96,22 @@ export default function CategoriesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (confirm("Permanently purge this category node?")) {
-      try {
-        await deleteCategory(id);
-        toast.success("Category node removed.");
-        fetchCategories();
-      } catch (error) {
-        toast.error("Unauthorized deletion.");
-      }
+    if (!isAdmin) {
+      toast.error("Unauthorized deletion.");
+      return;
+    }
+    try {
+      await deleteCategory(id);
+      toast.success("Category node removed.");
+      fetchCategories();
+      setDeleteDialog({ open: false, category: null });
+    } catch (error) {
+      toast.error("Unauthorized deletion.");
     }
   }
 
   function handleEdit(category: any) {
+    if (!isAdmin) return;
     setEditingCategory(category);
     setFormData({
       name: category.name,
@@ -195,7 +207,7 @@ export default function CategoriesPage() {
         data={categories}
         columns={columns}
         loading={loading}
-        onRowClick={handleEdit}
+        onRowClick={isAdmin ? handleEdit : undefined}
         emptyState={
           <EmptyState 
             icon={Package}
@@ -205,7 +217,7 @@ export default function CategoriesPage() {
             onAction={() => setIsDialogOpen(true)}
           />
         }
-        actions={(cat) => (
+        actions={isAdmin ? (cat) => (
           <DropdownMenu>
             <DropdownMenuTrigger render={
               <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
@@ -224,15 +236,40 @@ export default function CategoriesPage() {
                 className="text-rose-600 font-black text-[10px] uppercase tracking-widest gap-3 focus:bg-rose-50 focus:text-rose-700 rounded-xl"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete(cat.id);
+                  setDeleteDialog({ open: true, category: cat });
                 }}
               >
                 <Trash2 className="h-4 w-4" /> Purge Node
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        )}
+        ) : undefined}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog(d => ({ ...d, open }))}>
+        <DialogContent className="sm:max-w-sm rounded-3xl dark:bg-slate-900 border-0 shadow-2xl bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-rose-500" /> Confirm Deletion
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <p className="text-slate-600 dark:text-slate-400 font-medium">
+              Are you sure you want to delete category{" "}
+              <span className="font-black text-slate-900 dark:text-white">{deleteDialog.category?.name}</span>?
+              This action cannot be undone.
+            </p>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="ghost" onClick={() => setDeleteDialog({ open: false, category: null })} className="rounded-xl">Cancel</Button>
+            <Button onClick={() => deleteDialog.category && handleDelete(deleteDialog.category.id)}
+              className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold px-6">
+              <Trash2 className="mr-2 h-4 w-4" /> Delete Category
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
