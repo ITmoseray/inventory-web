@@ -27,13 +27,13 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
         <div className="p-8 space-y-6">
           <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Orange Money Number</p>
-            <p className="text-lg font-black text-slate-900">073019699</p>
+            <p className="text-lg font-black text-slate-900 dark:text-white">073019699</p>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Account Name</p>
-            <p className="text-lg font-black text-slate-900">ProTech Assist</p>
+            <p className="text-lg font-black text-slate-900 dark:text-white">ProTech Assist</p>
           </div>
 
           <div className="space-y-3">
-            <h4 className="font-black text-xs uppercase tracking-widest text-slate-900">Next Steps:</h4>
+            <h4 className="font-black text-xs uppercase tracking-widest text-slate-900 dark:text-white">Next Steps:</h4>
             <ul className="space-y-2 text-[10px] font-bold text-slate-600 list-decimal list-inside">
               <li>Make the payment to the number above.</li>
               <li>Take a screenshot of the payment receipt.</li>

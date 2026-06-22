@@ -45,7 +45,9 @@ import {
   deleteProduct,
 } from "@/lib/actions/product";
 import { getCategories } from "@/lib/actions/category";
+import { getFastMovingProducts } from "@/lib/actions/inventory";
 import { useSession } from "next-auth/react";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -55,8 +57,11 @@ import { BackButton } from "@/components/layout/ModuleHeader";
 
 export default function ProductsPage() {
   const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN";
+
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [fastMovingProducts, setFastMovingProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -92,12 +97,14 @@ export default function ProductsPage() {
   async function fetchData() {
     try {
       setLoading(true);
-      const [productsData, categoriesData] = await Promise.all([
+      const [productsData, categoriesData, fastMovingData] = await Promise.all([
         getProducts(),
         getCategories(),
+        getFastMovingProducts(),
       ]);
       setProducts(productsData);
       setCategories(categoriesData);
+      setFastMovingProducts(fastMovingData);
     } catch (error) {
       toast.error("Cloud synchronization failed.");
     } finally {
@@ -320,6 +327,14 @@ export default function ProductsPage() {
             <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">
               {isBar ? "Manage your drinks, spirits, and bar supplies." : "Manage your product SKU, pricing, and stock levels."}
             </p>
+            {fastMovingProducts.length > 0 && (
+              <div className="mt-4 flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 rounded-xl w-fit border border-amber-100 dark:border-amber-500/20">
+                <Star className="h-4 w-4 text-amber-500" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                  Most Selling Asset: {fastMovingProducts[0].name}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -647,7 +662,7 @@ export default function ProductsPage() {
         data={filteredProducts}
         columns={columns}
         loading={loading}
-        onRowClick={handleEdit}
+        onRowClick={isAdmin ? handleEdit : undefined}
         emptyState={
           <EmptyState 
             icon={Package}
@@ -657,7 +672,7 @@ export default function ProductsPage() {
             onAction={() => setIsDialogOpen(true)}
           />
         }
-        actions={(product) => (
+        actions={isAdmin ? ((product) => (
           <DropdownMenu>
             <DropdownMenuTrigger render={
               <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">
@@ -683,7 +698,7 @@ export default function ProductsPage() {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        )}
+        )) : undefined}
       />
     </div>
   );

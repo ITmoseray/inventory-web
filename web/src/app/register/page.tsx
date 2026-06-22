@@ -28,6 +28,8 @@ import Link from "next/link";
 import { registerBusiness, checkUserExists } from "@/lib/actions/auth";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { uploadBusinessLogo } from "@/lib/actions/upload";
 import {
   Dialog,
   DialogContent,
@@ -76,6 +78,7 @@ export default function RegisterPage() {
     password: "",
     businessType: "SHOP",
     plan: "FREE",
+    logoUrl: "",
   });
 
   useEffect(() => {
@@ -221,13 +224,23 @@ export default function RegisterPage() {
           
           <div className="space-y-6">
              <div className="h-1 w-20 bg-indigo-600 rounded-full" />
-             <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter uppercase italic leading-[0.85]">
+             <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-[0.85]">
                 UNLEASH <br /> <span className="text-indigo-600">INTELLIGENCE.</span>
              </h1>
              <p className="text-lg text-slate-500 font-bold uppercase tracking-tight">Deploy your enterprise node in seconds.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Logo</Label>
+              <ImageUploader 
+                value={formData.logoUrl} 
+                onChange={(url) => setFormData({...formData, logoUrl: url})} 
+                uploadAction={uploadBusinessLogo} 
+                label="Upload Company Logo"
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="businessName" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Company Name</Label>
               <div className="relative">
@@ -304,7 +317,7 @@ export default function RegisterPage() {
                <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 border border-slate-100">
                   <div className="flex items-center gap-3">
                      <span className="text-xl">🇸🇱</span>
-                     <span className="text-sm font-black text-slate-900">Sierra Leone</span>
+                     <span className="text-sm font-black text-slate-900 dark:text-white">Sierra Leone</span>
                   </div>
                   <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">US Data Center</span>
                </div>
@@ -371,11 +384,11 @@ export default function RegisterPage() {
                <div className="h-14 w-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 mb-6">
                   <ShieldCheck className="h-8 w-8" />
                </div>
-              <DialogTitle className="text-2xl font-[1000] tracking-tight text-slate-900 uppercase italic leading-tight">
+              <DialogTitle className="text-2xl font-[1000] tracking-tight text-slate-900 dark:text-white uppercase italic leading-tight">
                 Account Already <span className="text-rose-600">Exists</span>
               </DialogTitle>
               <DialogDescription className="text-slate-500 font-medium text-sm mt-4 leading-relaxed">
-                We found a <span className="font-black text-slate-900">Protech account</span> already existing with the email address <span className="text-indigo-600 font-black">{formData.email}</span>.
+                We found a <span className="font-black text-slate-900 dark:text-white">Protech account</span> already existing with the email address <span className="text-indigo-600 font-black">{formData.email}</span>.
                 <br /><br />
                 Do you want to link your Google account with your existing Protech account for faster sign-in?
               </DialogDescription>

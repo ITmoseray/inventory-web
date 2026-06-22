@@ -140,7 +140,7 @@ export default function SetupOrganizationPage() {
              </div>
 
              <div className="space-y-2">
-                <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">
+                <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">
                   Welcome <span className="text-indigo-600">{session?.user?.name || "User"}</span>
                 </h2>
                 <p className="text-slate-500 font-medium text-lg leading-relaxed">
@@ -153,7 +153,7 @@ export default function SetupOrganizationPage() {
              <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
              
              <div className="mb-10">
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight italic">Set up your organization profile</h3>
+                <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic">Set up your organization profile</h3>
                 <div className="h-1 w-12 bg-indigo-600 rounded-full mt-4" />
              </div>
 
@@ -400,7 +400,7 @@ export default function SetupOrganizationPage() {
                </div>
 
                <div className="space-y-4">
-                  <h2 className="text-3xl font-[1000] text-slate-900 uppercase tracking-tight italic leading-tight">
+                  <h2 className="text-3xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-tight">
                     Welcome aboard <br /> <span className="text-indigo-600">{session?.user?.name || "Explorer"}!</span>
                   </h2>
                   <p className="text-slate-500 font-medium text-sm leading-relaxed max-w-sm mx-auto">
@@ -419,7 +419,7 @@ export default function SetupOrganizationPage() {
                   
                   <button 
                     onClick={handleManualExplore}
-                    className="w-full h-14 rounded-2xl border-2 border-slate-100 hover:border-slate-900 text-slate-400 hover:text-slate-900 font-black uppercase tracking-widest text-[10px] transition-all"
+                    className="w-full h-14 rounded-2xl border-2 border-slate-100 hover:border-slate-900 text-slate-400 hover:text-slate-900 dark:text-white font-black uppercase tracking-widest text-[10px] transition-all"
                   >
                     No thanks, I'll explore it.
                   </button>

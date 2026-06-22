@@ -45,7 +45,7 @@ import {
   Quote
   } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import { PricingSection } from "@/components/shared/pricing-section";
 import { ExpertPopup } from "@/components/shared/expert-popup";
@@ -62,6 +62,34 @@ export default function ProtechCloudHomepage() {
   const { data: session } = useSession();
   const containerRef = useRef(null);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
+  const [currentText, setCurrentText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const words = ["Enterprise OS.", "Retail Engine.", "Wholesale Hub.", "Logistics Core."];
+
+  useEffect(() => {
+    const currentWord = words[currentWordIndex];
+    let timeout: NodeJS.Timeout;
+
+    if (isDeleting) {
+      timeout = setTimeout(() => {
+        setCurrentText(currentWord.substring(0, currentText.length - 1));
+        if (currentText.length === 0) {
+          setIsDeleting(false);
+          setCurrentWordIndex((prev) => (prev + 1) % words.length);
+        }
+      }, 50); // Fast delete speed
+    } else {
+      timeout = setTimeout(() => {
+        setCurrentText(currentWord.substring(0, currentText.length + 1));
+        if (currentText.length === currentWord.length) {
+          timeout = setTimeout(() => setIsDeleting(true), 2500); // Pause reading time
+        }
+      }, 100); // Typing speed
+    }
+
+    return () => clearTimeout(timeout);
+  }, [currentText, isDeleting, currentWordIndex, words]);
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
@@ -89,11 +117,11 @@ export default function ProtechCloudHomepage() {
   return (
     <div ref={containerRef} className="flex flex-col min-h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-slate-100 selection:bg-indigo-650/10 dark:selection:bg-indigo-600/30 selection:text-indigo-600 dark:selection:text-white overflow-x-hidden font-sans relative">
       
-      {/* Background ambient mesh gradients */}
-      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-50/50 dark:bg-indigo-600/10 rounded-full blur-[140px] -z-20 translate-x-1/3 -translate-y-1/3 pointer-events-none" />
-      <div className="absolute top-[400px] left-0 w-[600px] h-[600px] bg-purple-50/50 dark:bg-purple-600/10 rounded-full blur-[130px] -z-20 -translate-x-1/4 pointer-events-none" />
-      <div className="absolute top-[1200px] right-1/4 w-[700px] h-[700px] bg-fuchsia-50/30 dark:bg-fuchsia-600/5 rounded-full blur-[150px] -z-20 pointer-events-none" />
-      <div className="absolute bottom-[200px] left-1/4 w-[600px] h-[600px] bg-emerald-50/30 dark:bg-emerald-600/5 rounded-full blur-[130px] -z-20 pointer-events-none" />
+      {/* Intense Neon Background ambient mesh gradients */}
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-50/50 dark:bg-indigo-500/30 rounded-full blur-[140px] -z-20 translate-x-1/3 -translate-y-1/3 pointer-events-none animate-pulse" />
+      <div className="absolute top-[400px] left-0 w-[600px] h-[600px] bg-purple-50/50 dark:bg-purple-500/20 rounded-full blur-[130px] -z-20 -translate-x-1/4 pointer-events-none animate-pulse" style={{ animationDelay: '2s' }} />
+      <div className="absolute top-[1200px] right-1/4 w-[700px] h-[700px] bg-fuchsia-50/30 dark:bg-fuchsia-500/20 rounded-full blur-[150px] -z-20 pointer-events-none animate-pulse" style={{ animationDelay: '4s' }} />
+      <div className="absolute bottom-[200px] left-1/4 w-[600px] h-[600px] bg-emerald-50/30 dark:bg-cyan-500/20 rounded-full blur-[130px] -z-20 pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
       {/* Glowing dot grid pattern backdrop */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#f1f5f9_1px,transparent_1px),linear-gradient(to_bottom,#f1f5f9_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-70 dark:opacity-[0.12] -z-10 pointer-events-none" />
@@ -153,11 +181,14 @@ export default function ProtechCloudHomepage() {
                    Trusted by Businesses Across Sierra Leone
                 </motion.div>
                 
-                <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-[1000] tracking-tight text-slate-900 dark:text-white leading-[1.05] mb-8 uppercase">
+                <motion.h1 variants={itemVariants} className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-[1000] tracking-tight text-slate-900 dark:text-white leading-[1.05] mb-8 uppercase dark:drop-shadow-[0_0_15px_rgba(99,102,241,0.5)]">
                    Africa's Most <br /> Advanced <br />
-                   <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent italic">
-                     Enterprise OS.
-                   </span>
+                   <div className="min-h-[2.5em] md:min-h-[1.2em] relative flex flex-wrap items-center">
+                       <span className="bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:via-purple-300 dark:to-cyan-400 bg-clip-text text-transparent italic dark:drop-shadow-[0_0_25px_rgba(168,85,247,0.8)]">
+                         {currentText}
+                       </span>
+                       <span className="text-indigo-600 dark:text-cyan-400 animate-[pulse_0.8s_ease-in-out_infinite] font-mono ml-1 -translate-y-1 inline-block leading-none">_</span>
+                   </div>
                 </motion.h1>
                 
                 <motion.p variants={itemVariants} className="text-lg lg:text-xl text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed mb-10 font-normal">
@@ -167,27 +198,19 @@ export default function ProtechCloudHomepage() {
                 <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 mb-16">
                   <Link 
                     href={ctaHref} 
-                    className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center group font-bold"
+                    className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 dark:shadow-[0_0_30px_rgba(99,102,241,0.6)] dark:hover:shadow-[0_0_50px_rgba(99,102,241,0.9)] dark:border dark:border-indigo-400/50 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center group font-bold"
                   >
                     {ctaText}
                     <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                   <button 
                     onClick={() => setIsDemoModalOpen(true)}
-                    className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-slate-900 dark:hover:border-slate-700 text-slate-900 dark:text-slate-200 rounded-xl transition-all flex items-center justify-center font-bold"
+                    className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] border border-slate-200 dark:border-cyan-500/50 bg-white dark:bg-cyan-950/30 hover:border-slate-900 dark:hover:border-cyan-400 dark:hover:shadow-[0_0_30px_rgba(6,182,212,0.4)] text-slate-900 dark:text-cyan-50 rounded-xl transition-all flex items-center justify-center font-bold"
                   >
                     Book a Live Demo
                   </button>
                 </motion.div>
 
-                <motion.div variants={itemVariants} className="space-y-4">
-                   <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">Trusted by industry leaders in</p>
-                   <div className="flex flex-wrap gap-x-6 gap-y-3 opacity-80">
-                      {["PHARMACEUTICALS", "WHOLESALE", "RETAIL", "DISTRIBUTION", "LOGISTICS"].map(brand => (
-                        <span key={brand} className="text-[9px] font-bold tracking-[0.2em] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-900 bg-slate-50 dark:bg-slate-950/50 px-3 py-1 rounded-md">{brand}</span>
-                      ))}
-                   </div>
-                </motion.div>
               </motion.div>
 
               <motion.div 
@@ -196,7 +219,7 @@ export default function ProtechCloudHomepage() {
                 transition={{ delay: 0.4, duration: 0.8 }}
                 className="relative hidden lg:block"
               >
-                 <div className="relative bg-slate-50 dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl dark:shadow-[0_0_50px_rgba(99,102,241,0.15)] overflow-hidden aspect-[16/11] z-20 group">
+                 <div className="relative bg-slate-50 dark:bg-slate-950 rounded-3xl border border-slate-200 dark:border-indigo-500/50 shadow-2xl dark:shadow-[0_0_80px_rgba(99,102,241,0.4)] overflow-hidden aspect-[16/11] z-20 group">
                     <Image src="/images/dashboard-preview-2.png" alt="Dashboard" fill className="object-cover transition-transform duration-1000 group-hover:scale-102" />
                     <div className="absolute inset-0 bg-gradient-to-tr from-slate-950/10 to-transparent pointer-events-none" />
                  </div>
@@ -205,6 +228,29 @@ export default function ProtechCloudHomepage() {
                  <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-purple-500/10 rounded-full blur-3xl -z-10" />
               </motion.div>
             </div>
+            
+            {/* Infinite Scrolling Neon Marquee */}
+            <div className="mt-24 lg:mt-32 w-full overflow-hidden relative">
+               <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+               <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+               <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 text-center mb-8">Trusted by industry leaders in</p>
+               <motion.div 
+                 animate={{ x: ["0%", "-50%"] }} 
+                 transition={{ ease: "linear", duration: 120, repeat: Infinity }} 
+                 className="flex whitespace-nowrap items-center w-max"
+               >
+                 {[...Array(2)].map((_, idx) => (
+                   <div key={idx} className="flex gap-16 pr-16 items-center">
+                      {["Retail", "Supermarkets", "Pharmacies", "Bars & Restaurants", "Wholesale", "Hardware", "Distribution", "Schools", "NGOs", "Manufacturing"].map((brand, i) => (
+                        <span key={i} className="text-xl md:text-3xl font-[1000] uppercase tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-cyan-400 dark:from-indigo-400 dark:to-cyan-300 dark:drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">
+                          {brand}
+                        </span>
+                      ))}
+                   </div>
+                 ))}
+               </motion.div>
+            </div>
+
           </div>
         </section>
 

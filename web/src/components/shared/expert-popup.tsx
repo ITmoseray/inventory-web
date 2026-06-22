@@ -62,7 +62,7 @@ export function ExpertPopup() {
                      Executive Support
                    </span>
                 </div>
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 leading-none tracking-tighter uppercase italic">
+                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white leading-none tracking-tighter uppercase italic">
                   New to <br /> <span className="text-indigo-600 font-light">Protech OS?</span>
                 </h3>
               </div>

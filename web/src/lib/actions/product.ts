@@ -197,6 +197,10 @@ export async function updateProduct(id: string, data: any) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
+    
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+      throw new Error("Unauthorized: Only administrators can modify this data.");
+    }
 
     const { 
       name, 
@@ -325,6 +329,10 @@ export async function deleteProduct(id: string) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+      throw new Error("Unauthorized: Only administrators can modify this data.");
+    }
 
     await prisma.product.delete({
       where: { id, businessId: session.user.businessId },

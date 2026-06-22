@@ -52,6 +52,7 @@ export function useOfflineSync() {
         unitPrice: parseFloat(p.unitPrice),
         stockQuantity: parseFloat(p.stockQuantity),
         categoryId: p.categoryId,
+        imageUrl: p.imageUrl,
         metadata: p.metadata,
         baseUnit: p.baseUnit || "Unit",
         units: p.units || [],

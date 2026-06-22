@@ -52,7 +52,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 py-16 px-4">
       <div className="max-w-7xl mx-auto">
-        <Link href="/" className="mb-6 -ml-4 inline-flex items-center text-slate-500 hover:text-slate-900 transition-colors">
+        <Link href="/" className="mb-6 -ml-4 inline-flex items-center text-slate-500 hover:text-slate-900 dark:text-white transition-colors">
           ← Back
         </Link>
         <div className="mb-12 text-center">

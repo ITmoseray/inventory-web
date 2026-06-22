@@ -18,15 +18,15 @@ export function RealTimeClock() {
 
   if (!mounted) {
     return (
-      <div className="flex items-center gap-6 opacity-0">
-        <div className="flex flex-col items-end">
+      <div className="flex items-center gap-2 md:gap-6 opacity-0">
+        <div className="hidden lg:flex flex-col items-end">
           <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] leading-none mb-1">...</span>
           <span className="text-sm font-bold text-slate-400">...</span>
         </div>
-        <div className="h-10 w-px bg-slate-100 hidden sm:block" />
-        <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100">
-          <Clock className="h-5 w-5 text-primary" />
-          <span className="text-xl font-[1000] text-slate-900 tracking-tighter tabular-nums">00:00:00</span>
+        <div className="h-10 w-px bg-slate-100 hidden lg:block" />
+        <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-slate-100">
+          <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+          <span className="text-xs md:text-xl font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">00:00:00</span>
         </div>
       </div>
     );
@@ -58,8 +58,8 @@ export function RealTimeClock() {
   };
 
   return (
-    <div className="flex items-center gap-6 animate-in fade-in duration-1000">
-      <div className="flex flex-col items-end">
+    <div className="flex items-center gap-2 md:gap-6 animate-in fade-in duration-1000">
+      <div className="hidden lg:flex flex-col items-end">
         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] leading-none mb-1">
           {getGreeting()}
         </span>
@@ -68,11 +68,11 @@ export function RealTimeClock() {
         </span>
       </div>
       
-      <div className="h-10 w-px bg-slate-100 hidden sm:block" />
+      <div className="h-10 w-px bg-slate-100 hidden lg:block" />
       
-      <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-2xl border border-slate-100 shadow-inner group transition-all hover:bg-white hover:shadow-md">
-        <Clock className="h-5 w-5 text-primary animate-pulse" />
-        <span className="text-xl font-[1000] text-slate-900 tracking-tighter tabular-nums">
+      <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-slate-100 shadow-inner group transition-all hover:bg-white hover:shadow-md">
+        <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary animate-pulse" />
+        <span className="text-xs md:text-xl font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">
           {formatTime(time)}
         </span>
       </div>

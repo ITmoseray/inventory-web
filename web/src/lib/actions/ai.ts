@@ -208,3 +208,81 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
     throw new Error(error.message || "Failed to route message through neural chat node.");
   }
 }
+
+export async function getWelcomeUpdate() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const [stats, products] = await Promise.all([
+      getDashboardStats(),
+      getProducts()
+    ]);
+
+    const lowStockItems = products.filter(p => p.status === "LOW" || p.status === "CRITICAL");
+    const businessType = session.user.businessType || "Retail";
+
+    const prompt = `
+      System Context: African Trade Intelligence Node (Protech Inventory OS)
+      Industry: ${businessType}
+      User Name: ${session.user.name || "Commander"}
+      
+      Operational Stats:
+      - Total Revenue: Le ${stats.revenue.toLocaleString()}
+      - Today's Orders: ${stats.orders}
+      - Managed Catalog: ${stats.skuCount} SKUs
+      - Stock Alerts: ${stats.lowStock} items below threshold
+      
+      Critical Stock Issues (Top 3):
+      ${lowStockItems.slice(0, 3).map(p => `- ${p.name}: ${p.stockQuantity} remaining`).join("\n")}
+      
+      Task: Write a short, engaging 2-sentence welcome message for the business owner. 
+      Instructions:
+      1. Greet them by name.
+      2. Provide a quick, high-level update or insight about their business based on the stats above.
+      3. Maintain a professional, futuristic, and slightly "cybernetic" tone.
+      4. Keep it very concise.
+    `;
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        }),
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error(`Gemini API connection failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.candidates?.[0]?.content?.parts?.[0]?.text || "Welcome back to the neural link.";
+    }
+
+    // Fallback to local Ollama
+    const response = await fetch("http://localhost:11434/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "llama3",
+        prompt: prompt,
+        stream: false
+      }),
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Ollama connection failed.");
+    }
+
+    const result = await response.json();
+    return result.response;
+  } catch (error: any) {
+    console.error("Neural Welcome Error:", error);
+    return "Welcome back. Neural link synchronization complete.";
+  }
+}

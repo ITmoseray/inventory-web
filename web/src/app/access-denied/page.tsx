@@ -10,7 +10,7 @@ export default function AccessDeniedPage() {
       <div className="rounded-full bg-rose-100 p-6 mb-6">
         <ShieldAlert className="h-12 w-12 text-rose-600" />
       </div>
-      <h1 className="text-4xl font-black text-slate-900 mb-2 uppercase tracking-tight">Access Restricted</h1>
+      <h1 className="text-4xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-tight">Access Restricted</h1>
       <p className="text-slate-500 font-medium max-w-sm mb-8">
         You do not have the necessary permissions to access this module. Please contact your administrator if you believe this is an error.
       </p>

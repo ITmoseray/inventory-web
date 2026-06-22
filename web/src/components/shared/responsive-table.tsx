@@ -77,7 +77,7 @@ export function ResponsiveTable<T extends { id: string | number }>({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05 }}
                   className={cn(
-                    "group h-20 border-slate-50 dark:border-slate-800/50 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all cursor-pointer",
+                    "group h-20 border-slate-50 dark:border-slate-800/50 transition-all duration-300 cursor-pointer relative z-0 hover:z-10 hover:bg-blue-50/80 dark:hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/5 hover:border-blue-200 dark:hover:border-blue-500/30 hover:scale-[1.005]",
                     rowClassName
                   )}
                   onClick={() => onRowClick?.(item)}
@@ -110,7 +110,7 @@ export function ResponsiveTable<T extends { id: string | number }>({
               transition={{ delay: idx * 0.05 }}
               onClick={() => onRowClick?.(item)}
               className={cn(
-                "relative overflow-hidden p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-all",
+                "relative overflow-hidden p-6 rounded-[2rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm active:scale-[0.98] transition-all duration-300 hover:border-blue-300 dark:hover:border-blue-500/40 hover:shadow-xl hover:shadow-blue-500/10 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 hover:-translate-y-1",
                 rowClassName
               )}
             >

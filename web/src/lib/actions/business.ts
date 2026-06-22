@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { Business } from "@prisma/client";
 
 export async function getUserBusinesses() {
   try {
@@ -88,6 +89,45 @@ export async function switchBusiness(businessId: string) {
     return { success: true };
   } catch (error: any) {
     console.error("SWITCH BUSINESS ERROR:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+export async function getCurrentBusiness() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const business = await prisma.business.findUnique({
+      where: { id: session.user.businessId }
+    });
+
+    return business;
+  } catch (error) {
+    console.error("GET CURRENT BUSINESS ERROR:", error);
+    return null;
+  }
+}
+
+export async function updateBusiness(data: { name?: string; phone?: string; logoUrl?: string }) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const updated = await prisma.business.update({
+      where: { id: session.user.businessId },
+      data: {
+        name: data.name,
+        phone: data.phone,
+        logoUrl: data.logoUrl
+      }
+    });
+
+    revalidatePath("/dashboard/system/settings/business");
+    revalidatePath("/dashboard");
+    return { success: true, business: updated };
+  } catch (error: any) {
+    console.error("UPDATE BUSINESS ERROR:", error);
     return { success: false, error: error.message };
   }
 }

@@ -83,7 +83,7 @@ export default function DebtsPage() {
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 font-[1000]">Credit & Debt Ledger</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white font-[1000]">Credit & Debt Ledger</h1>
           <p className="text-slate-500 font-medium">Track customer balances and manage account receivables.</p>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function DebtsPage() {
               </div>
               <div>
                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Settled This Month</div>
-                 <div className="text-2xl font-black text-slate-900">Le {Math.round(debts.filter(d => d.status === 'PAID').reduce((sum, d) => sum + d.paidAmount, 0)).toLocaleString()}</div>
+                 <div className="text-2xl font-black text-slate-900 dark:text-white">Le {Math.round(debts.filter(d => d.status === 'PAID').reduce((sum, d) => sum + d.paidAmount, 0)).toLocaleString()}</div>
               </div>
            </CardContent>
         </Card>
@@ -118,7 +118,7 @@ export default function DebtsPage() {
               </div>
               <div>
                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Overdue Accounts</div>
-                 <div className="text-2xl font-black text-slate-900">{debts.filter(d => d.dueDate && new Date(d.dueDate) < new Date() && d.status !== 'PAID').length}</div>
+                 <div className="text-2xl font-black text-slate-900 dark:text-white">{debts.filter(d => d.dueDate && new Date(d.dueDate) < new Date() && d.status !== 'PAID').length}</div>
               </div>
            </CardContent>
         </Card>
@@ -169,14 +169,14 @@ export default function DebtsPage() {
                         <User className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-black text-slate-800 text-sm">{debt.customer.name}</span>
+                        <span className="font-black text-slate-800 dark:text-white text-sm">{debt.customer.name}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase">{debt.sale?.invoiceNumber || "Opening Balance"}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-0.5">
-                      <div className="text-sm font-black text-slate-900">Le {Math.round(debt.totalAmount - debt.paidAmount).toLocaleString()} <span className="text-[10px] text-slate-400 font-bold uppercase ml-1">Left</span></div>
+                      <div className="text-sm font-black text-slate-900 dark:text-white">Le {Math.round(debt.totalAmount - debt.paidAmount).toLocaleString()} <span className="text-[10px] text-slate-400 font-bold uppercase ml-1">Left</span></div>
                       <div className="text-[10px] font-bold text-slate-400 uppercase">Total: Le {Math.round(debt.totalAmount).toLocaleString()}</div>
                     </div>
                   </TableCell>

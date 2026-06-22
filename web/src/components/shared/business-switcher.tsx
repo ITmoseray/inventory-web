@@ -62,7 +62,7 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
           <button
             type="button"
             className={cn(
-              "w-[200px] h-11 inline-flex items-center justify-between rounded-xl",
+              "w-auto md:w-[200px] h-11 inline-flex items-center justify-center md:justify-between rounded-xl",
               "bg-slate-50 border border-slate-100 px-3",
               "hover:bg-white hover:border-indigo-200 transition-all",
               "text-sm font-medium"
@@ -72,11 +72,11 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
               <div className="h-6 w-6 rounded-lg bg-indigo-600 flex items-center justify-center flex-shrink-0 text-[10px] font-bold text-white uppercase">
                 {currentBusinessName?.charAt(0) || "B"}
               </div>
-              <span className="truncate text-[10px] font-black uppercase tracking-widest text-slate-600">
+              <span className="hidden md:inline truncate text-[10px] font-black uppercase tracking-widest text-slate-600">
                 {currentBusinessName || "Select Business"}
               </span>
             </div>
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            <ChevronsUpDown className="hidden md:block ml-2 h-4 w-4 shrink-0 opacity-50" />
           </button>
         }
       />
@@ -106,7 +106,7 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
                         )}
                     </div>
                     <div className="flex flex-col min-w-0">
-                        <span className="text-[11px] font-bold text-slate-900 truncate">{business.name}</span>
+                        <span className="text-[11px] font-bold text-slate-900 dark:text-white truncate">{business.name}</span>
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest truncate">{business.type}</span>
                     </div>
                   </div>

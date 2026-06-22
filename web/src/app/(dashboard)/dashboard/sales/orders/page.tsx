@@ -156,7 +156,7 @@ export default function SalesOrdersPage() {
     <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans animate-in fade-in duration-700 pb-20">
       
       {/* Header with View Switcher */}
-      <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80 text-slate-900">
+      <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80 text-slate-900 dark:text-white">
          <div className="flex items-center gap-8 flex-1">
             <DropdownMenu onOpenChange={(open) => !open && setViewSearch("")}>
                <DropdownMenuTrigger
@@ -276,7 +276,7 @@ export default function SalesOrdersPage() {
 
       {/* View Order Stats Board (Active for all status-specific views) */}
       {isStatusView && (
-        <div className="px-8 pt-8 animate-in slide-in-from-top duration-500 text-slate-900">
+        <div className="px-8 pt-8 animate-in slide-in-from-top duration-500 text-slate-900 dark:text-white">
            <div className="p-8 bg-slate-50 dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-600/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               
@@ -393,7 +393,7 @@ export default function SalesOrdersPage() {
                     <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-right pr-8">Amount</TableHead>
                  </TableRow>
               </TableHeader>
-              <TableBody className="divide-y divide-slate-50 dark:divide-slate-800 text-slate-900">
+              <TableBody className="divide-y divide-slate-50 dark:divide-slate-800 text-slate-900 dark:text-white">
                 {loading ? (
                    [1,2,3].map(i => <TableRow key={i} className="h-20 animate-pulse bg-slate-50/20 border-none" />)
                 ) : filteredSales.length === 0 ? (
@@ -547,13 +547,13 @@ export default function SalesOrdersPage() {
                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600 italic">Address Mapping</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <div className="space-y-4">
-                          <Label className="text-[11px] font-[1000] uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                          <Label className="text-[11px] font-[1000] uppercase tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                              <MapPin className="h-3.5 w-3.5 text-indigo-400" /> Billing Address
                           </Label>
                           <Input placeholder="Search billing zone..." className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
                        </div>
                        <div className="space-y-4">
-                          <Label className="text-[11px] font-[1000] uppercase tracking-tight text-slate-900 flex items-center gap-2">
+                          <Label className="text-[11px] font-[1000] uppercase tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                              <Truck className="h-3.5 w-3.5 text-indigo-400" /> Shipping Address
                           </Label>
                           <Input placeholder="Search shipping zone..." className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />

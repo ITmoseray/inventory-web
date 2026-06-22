@@ -127,7 +127,7 @@ export default function SuppliersPage() {
     <div className="space-y-6 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 font-[1000]">Supplier Network</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white font-[1000]">Supplier Network</h1>
           <p className="text-slate-500 font-medium">Manage your vendors and supply chain partners.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -251,14 +251,14 @@ export default function SuppliersPage() {
                         <Truck className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col">
-                        <span className="font-black text-slate-800 text-sm">{supplier.name}</span>
+                        <span className="font-black text-slate-800 dark:text-white text-sm">{supplier.name}</span>
                         <span className="text-[10px] font-bold text-slate-400 uppercase">Registered: {new Date(supplier.createdAt).toLocaleDateString()}</span>
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
-                      <div className="text-xs font-bold text-slate-800">{supplier.contact || "No primary contact"}</div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-white">{supplier.contact || "No primary contact"}</div>
                       <div className="flex items-center gap-3">
                         {supplier.phone && <div className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Phone className="h-3 w-3" /> {supplier.phone}</div>}
                         {supplier.email && <div className="text-[10px] font-bold text-slate-500 flex items-center gap-1"><Mail className="h-3 w-3" /> {supplier.email}</div>}

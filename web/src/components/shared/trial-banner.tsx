@@ -38,7 +38,7 @@ export function TrialBanner() {
           <Info className={cn("h-4 w-4", isExpired ? "text-rose-600" : "text-amber-600")} />
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-          <p className="text-sm font-bold text-slate-800">
+          <p className="text-sm font-bold text-slate-800 dark:text-white">
             {isExpired 
               ? "Your premium trial plan has expired." 
               : `Your premium trial plan ends in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.`

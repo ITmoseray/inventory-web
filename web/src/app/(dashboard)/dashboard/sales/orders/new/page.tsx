@@ -106,7 +106,7 @@ export default function NewSalesOrderPage() {
            </Link>
            <div className="h-10 w-px bg-slate-200 hidden md:block" />
            <div>
-              <h1 className="text-xl md:text-3xl font-[1000] uppercase tracking-tighter italic text-slate-900 leading-none">Initiate <span className="text-indigo-600">Protocol</span></h1>
+              <h1 className="text-xl md:text-3xl font-[1000] uppercase tracking-tighter italic text-slate-900 dark:text-white leading-none">Initiate <span className="text-indigo-600">Protocol</span></h1>
               <p className="text-[9px] md:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 md:mt-2">Commercial Instance Deployment</p>
            </div>
         </div>
@@ -123,7 +123,7 @@ export default function NewSalesOrderPage() {
             <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-full translate-x-1/2 -translate-y-1/2" />
             <div className="flex items-center gap-4 mb-6 border-b border-slate-50 pb-4">
                <User className="text-indigo-600" size={20} />
-               <h2 className="text-lg font-black uppercase tracking-widest italic text-slate-900">Identity <span className="text-indigo-600">Hub</span></h2>
+               <h2 className="text-lg font-black uppercase tracking-widest italic text-slate-900 dark:text-white">Identity <span className="text-indigo-600">Hub</span></h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -158,7 +158,7 @@ export default function NewSalesOrderPage() {
           <Card className="rounded-[2rem] border-none shadow-sm bg-white p-6 md:p-10 overflow-visible">
             <div className="flex items-center gap-4 mb-6 border-b border-slate-50 pb-4">
                <Box className="text-indigo-600" size={20} />
-               <h2 className="text-lg font-black uppercase tracking-widest italic text-slate-900">Itemization <span className="text-indigo-600">Nodes</span></h2>
+               <h2 className="text-lg font-black uppercase tracking-widest italic text-slate-900 dark:text-white">Itemization <span className="text-indigo-600">Nodes</span></h2>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end mb-8">
@@ -214,11 +214,11 @@ export default function NewSalesOrderPage() {
                         className="flex justify-between items-center p-4 bg-slate-50 border border-slate-100 rounded-xl group hover:bg-white hover:shadow-lg transition-all"
                       >
                          <div>
-                               <div className="font-black text-slate-900 uppercase text-xs tracking-tight">{item.name}</div>
+                               <div className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-tight">{item.name}</div>
                                <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 italic">{item.quantity} x {item.price.toLocaleString()}</div>
                          </div>
                          <div className="flex items-center gap-4">
-                            <div className="text-sm font-[1000] text-slate-950 italic">{(item.price * item.quantity).toLocaleString()}</div>
+                            <div className="text-sm font-[1000] text-slate-950 dark:text-white italic">{(item.price * item.quantity).toLocaleString()}</div>
                             <Button variant="ghost" size="icon" onClick={() => removeItem(i)} className="h-8 w-8 text-rose-300 hover:text-rose-600">
                                <Trash2 size={16} />
                             </Button>

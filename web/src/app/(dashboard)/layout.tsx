@@ -11,6 +11,7 @@ import { QuickActions } from "@/components/shared/quick-actions";
 import { OnboardingTrigger } from "@/components/shared/onboarding-trigger";
 import { BusinessSwitcher } from "@/components/shared/business-switcher";
 import { DynamicBreadcrumb } from "@/components/shared/dynamic-breadcrumb";
+import { GlobalSearch } from "@/components/shared/global-search";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -53,7 +54,7 @@ export default async function DashboardLayout({
                <div className="h-12 w-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <Bell className="h-6 w-6" />
                </div>
-               <h2 className="text-xl font-black text-slate-900">Session Expired</h2>
+               <h2 className="text-xl font-black text-slate-900 dark:text-white">Session Expired</h2>
                <p className="text-slate-500 font-medium max-w-xs">Your business profile was not found. This usually happens after a system reset.</p>
                <a href="/register" className="block w-full h-12 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center">
                  Register New Business
@@ -73,24 +74,18 @@ export default async function DashboardLayout({
           <OnboardingTrigger />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
-          <header className="flex h-20 shrink-0 items-center justify-between gap-6 border-b border-slate-100 bg-white sticky top-0 z-40 px-4 md:px-8 transition-all">
-            <div className="flex items-center gap-6 flex-1">
+          <header className="flex h-20 shrink-0 items-center justify-between gap-3 md:gap-6 border-b border-slate-100 bg-white sticky top-0 z-40 px-4 md:px-8 transition-all">
+            <div className="flex items-center gap-2 md:gap-6 flex-1">
               <SidebarTrigger className="-ml-1" />
               <BusinessSwitcher 
                 currentBusinessId={session?.user?.businessId} 
                 currentBusinessName={session?.user?.businessName} 
               />
-              <div className="relative w-full max-w-md group hidden md:block">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
-                 <input 
-                   type="text" 
-                   placeholder="Search in Customers ( / )" 
-                   className="w-full h-11 bg-slate-50 rounded-xl border-none pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all"
-                 />
-              </div>
+              <GlobalSearch />
             </div>
 
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3 md:gap-6">
+               <RealTimeClock />
                <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 shadow-sm">
                   <Zap className="h-3 w-3 text-indigo-600 animate-pulse" />
                   <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600">Context Active</span>
@@ -98,7 +93,7 @@ export default async function DashboardLayout({
                <NotificationBell />
                <div className="flex items-center gap-3 pl-6 border-l border-slate-100">
                   <div className="text-right hidden sm:block">
-                     <p className="text-xs font-[1000] text-slate-900 leading-none">
+                     <p className="text-xs font-[1000] text-slate-900 dark:text-white leading-none">
                         {session?.user?.name || "User Account"}
                      </p>
                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{session?.user?.role || "Member"} Account</p>

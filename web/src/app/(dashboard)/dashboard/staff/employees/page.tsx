@@ -245,7 +245,7 @@ export default function EmployeesPage() {
                filteredUsers.map((u) => {
                  console.log("DEBUG: Rendering user node:", u);
                  return (
-                 <TableRow key={u.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800/50 h-24">
+                 <TableRow key={u.id} className="group transition-all duration-300 cursor-pointer relative z-0 hover:z-10 hover:bg-blue-50/80 dark:hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/5 border-b border-slate-50 hover:border-blue-200 dark:border-slate-800/50 dark:hover:border-blue-500/30 hover:scale-[1.005] h-24">
                    <TableCell className="px-8">
                       <div className="flex items-center gap-4">
                          <Avatar className="h-12 w-12 rounded-2xl border-2 border-white dark:border-slate-800 shadow-md">
@@ -296,7 +296,7 @@ export default function EmployeesPage() {
                <p className="text-slate-400 text-xs font-bold leading-relaxed uppercase tracking-widest max-w-md">
                  Unlock AI-driven personnel optimization. Monitor node velocity, shift efficiency, and commerce contribution in real-time.
                </p>
-               <Button className="h-14 px-10 bg-primary text-white hover:bg-primary/90 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all group">
+               <Button className="h-14 px-10 bg-primary text-white dark:text-primary-foreground hover:bg-primary/90 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl shadow-primary/20 transition-all group">
                   Activate Hub <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                </Button>
             </div>

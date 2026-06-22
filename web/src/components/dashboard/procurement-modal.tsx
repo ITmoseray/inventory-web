@@ -509,7 +509,7 @@ export function ProcurementModal({
             <Button 
               disabled={loading || items.some(i => !i.productId)}
               onClick={form.handleSubmit(onSubmit)}
-              className="h-14 sm:h-12 px-10 bg-slate-900 dark:bg-primary text-white rounded-xl font-[1000] text-[10px] uppercase tracking-[0.25em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/10 flex items-center justify-center gap-2"
+              className="h-14 sm:h-12 px-10 bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground rounded-xl font-[1000] text-[10px] uppercase tracking-[0.25em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/10 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

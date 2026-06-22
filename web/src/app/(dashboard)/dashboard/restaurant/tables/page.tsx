@@ -104,7 +104,7 @@ export default function TablesPage() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Floor Management</h1>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">Floor Management</h1>
           <p className="text-slate-500 font-medium">Real-time status of your dining area and guest flow.</p>
         </div>
         <div className="flex items-center gap-3">
@@ -193,7 +193,7 @@ export default function TablesPage() {
             >
               <Card className={cn(
                 "group relative border-none shadow-sm hover:shadow-xl transition-all rounded-[2.5rem] overflow-hidden",
-                table.status === 'occupied' ? 'bg-primary text-white ring-4 ring-primary/10' : 'bg-white text-slate-900'
+                table.status === 'occupied' ? 'bg-primary text-white dark:text-primary-foreground ring-4 ring-primary/10' : 'bg-white text-slate-900'
               )}>
                 <CardContent className="p-8 flex flex-col items-center text-center h-full">
                   <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">

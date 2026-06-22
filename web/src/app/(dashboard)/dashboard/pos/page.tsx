@@ -31,9 +31,15 @@ import {
   Activity,
   Clock,
   HandCoins,
-  AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  Save,
+  History,
+  FileText,
+  Printer,
+  Download,
+  ScanLine
 } from "lucide-react";
+import domtoimage from "dom-to-image-more";
 import { toast } from "sonner";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -55,6 +61,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
 import { UnitSelectorModal } from "@/components/pos/UnitSelectorModal";
+import { ThermalReceipt } from "@/components/pos/ThermalReceipt";
+import { CameraScanner } from "@/components/shared/camera-scanner";
 
 // Elite Product Card
 const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) => void }) => {
@@ -85,7 +93,7 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            )}
         </div>
         
-        <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+        <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
           <Plus size={24} />
         </div>
       </div>
@@ -123,10 +131,15 @@ ProductCard.displayName = "ProductCard";
 export default function POSPage() {
   const { data: session } = useSession();
   const router = useRouter();
-  const { cart, addItem, removeItem, updateQuantity, clearCart, total, tax, grandTotal } = usePOSStore();
+  const { cart, addItem, removeItem, updateQuantity, clearCart, total, tax, grandTotal, heldCarts, holdCart, restoreCart, removeHeldCart } = usePOSStore();
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [showScanner, setShowScanner] = useState(false);
+
+  const handleCameraScan = (result: string) => {
+    if (result) setSearchQuery(result);
+  };
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -138,6 +151,10 @@ export default function POSPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
+  const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [receiptData, setReceiptData] = useState<any>(null);
+  const receiptRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchCustomers();
@@ -170,6 +187,34 @@ export default function POSPage() {
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
   ), [products, searchQuery]);
+
+  const handleSaveReceipt = async () => {
+    if (!receiptRef.current) return;
+    try {
+      const scale = 3;
+      const blob = await domtoimage.toBlob(receiptRef.current, {
+        width: receiptRef.current.clientWidth * scale,
+        height: receiptRef.current.clientHeight * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          width: `${receiptRef.current.clientWidth}px`,
+          height: `${receiptRef.current.clientHeight}px`,
+        },
+        quality: 1,
+      });
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `Receipt_${receiptData?.transactionId || "001"}.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+      toast.success("Receipt saved as image!");
+    } catch(e) {
+      toast.error("Failed to save receipt image");
+    }
+  };
 
   async function handleCheckout() {
     if (cart.length === 0) {
@@ -215,11 +260,30 @@ export default function POSPage() {
           ? `Credit sale recorded. Outstanding: Le ${Math.round(grandTotal - partialPaid).toLocaleString()}`
           : "Transaction finalized.";
         toast.success(msg);
+        
+        // Prepare Receipt
+        const customerObj = customers.find(c => c.id === selectedCustomer);
+        setReceiptData({
+          items: cart,
+          total: grandTotal,
+          paid: isCredit ? partialPaid : grandTotal,
+          paymentMethod: isCredit ? "CREDIT" : paymentMethod,
+          cashierName: session?.user?.name,
+          customerName: customerObj?.name || "WALKIN",
+          transactionId: result.saleId || undefined,
+          businessName: session?.user?.businessName
+        });
+
         clearCart();
         setIsCheckoutOpen(false);
         setIsCartVisible(false);
         setCreditAmountPaid("");
         setPaymentMethod("CASH");
+
+        // Open professional receipt modal after a tiny delay
+        setTimeout(() => {
+          setIsReceiptModalOpen(true);
+        }, 300);
       }
     } catch (error) {
       toast.error("Checkout failed.");
@@ -229,37 +293,56 @@ export default function POSPage() {
   }
 
   return (
-    <div className="flex flex-col xl:flex-row h-[100dvh] bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
+    <>
+      {/* Printable Receipt (Rendered off-screen for accurate snapshotting and printing) */}
+      <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none print:opacity-100 print:z-[9999]">
+        {receiptData && (
+          <ThermalReceipt 
+            ref={receiptRef}
+            items={receiptData.items}
+            total={receiptData.total}
+            paid={receiptData.paid}
+            paymentMethod={receiptData.paymentMethod}
+            cashierName={receiptData.cashierName}
+            customerName={receiptData.customerName}
+            transactionId={receiptData.transactionId}
+            businessName={receiptData.businessName}
+          />
+        )}
+      </div>
+
+      {/* Main App (Hidden from print) */}
+      <div className="flex flex-col xl:flex-row h-[100dvh] bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans print:hidden">
       {/* Product Selection Area */}
       <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 xl:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
-        <header className="p-6 sm:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 shrink-0 relative bg-white dark:bg-slate-900">
-          <div className="flex items-center gap-6">
+        <header className="p-4 sm:p-6 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-4">
              <div className="relative group">
-                <div className="h-16 w-16 rounded-[2rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
-                  <ShoppingCart className="h-8 w-8 text-white" />
+                <div className="h-12 w-12 rounded-[1.5rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                  <ShoppingCart className="h-6 w-6 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-emerald-500 border-4 border-white dark:border-slate-900 animate-pulse" />
+                <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-4 border-white dark:border-slate-900 animate-pulse" />
              </div>
              <div>
-                <h1 className="text-3xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Commerce <span className="text-primary underline decoration-indigo-50">Hub</span></h1>
-                <div className="flex items-center gap-2 mt-2">
+                <h1 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Commerce <span className="text-primary underline decoration-indigo-50">Hub</span></h1>
+                <div className="flex items-center gap-2 mt-1">
                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">{isOnline ? "Neural Network Linked" : "Local Engine Mode"}</p>
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">{isOnline ? "Neural Network Linked" : "Local Engine Mode"}</p>
                 </div>
              </div>
           </div>
-          <div className="flex items-center gap-3 w-full lg:w-auto">
-             <Button variant="outline" size="lg" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-xs uppercase tracking-widest gap-2">
+          <div className="flex items-center gap-2 w-full lg:w-auto">
+             <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest gap-2">
                 <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />
                 African Trade Sync
              </Button>
-             <Button onClick={() => router.back()} variant="ghost" className="h-14 w-14 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50">
-                <X size={24} />
+             <Button onClick={() => router.back()} variant="ghost" className="h-12 w-12 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50">
+                <X size={20} />
              </Button>
           </div>
         </header>
 
-        <div className="p-6 sm:p-10 space-y-6 shrink-0 bg-white dark:bg-slate-900 z-20">
+        <div className="p-4 sm:p-6 space-y-4 shrink-0 bg-white dark:bg-slate-900 z-20">
            <div className="relative group max-w-4xl mx-auto w-full">
               <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
                  <Search className="h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
@@ -272,9 +355,13 @@ export default function POSPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
               />
-              <div className="absolute right-5 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700">
-                 <div className="h-1.5 w-1.5 rounded-full bg-slate-300 animate-pulse" />
-                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Scanner Ready</span>
+              <div 
+                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm hover:shadow-md"
+                onClick={() => setShowScanner(true)}
+              >
+                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse hidden sm:block" />
+                 <ScanLine className="h-4 w-4 text-indigo-500 sm:hidden" />
+                 <span className="hidden sm:inline text-[8px] font-black text-slate-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors">Tap to Scan</span>
               </div>
            </div>
            
@@ -305,7 +392,7 @@ export default function POSPage() {
            </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 sm:px-10 pb-48 xl:pb-10 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-48 xl:pb-10 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
            {filteredProducts?.length === 0 ? (
              <div className="h-full flex flex-col items-center justify-center text-center p-12 space-y-8">
                 <div className="h-32 w-32 bg-white dark:bg-slate-900 rounded-[3rem] flex items-center justify-center shadow-2xl border border-slate-50 dark:border-slate-800 relative overflow-hidden">
@@ -344,7 +431,7 @@ export default function POSPage() {
         >
            <div className="flex items-center gap-5">
               <div className="relative group">
-                 <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center shadow-2xl transition-all duration-500", cart.length > 0 ? "bg-primary text-white scale-110" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
+                 <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center shadow-2xl transition-all duration-500", cart.length > 0 ? "bg-primary text-white dark:text-primary-foreground scale-110" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
                    <Receipt className="h-7 w-7" />
                  </div>
                  {cart.length > 0 && (
@@ -354,16 +441,16 @@ export default function POSPage() {
                  )}
               </div>
               <div>
-                 <h2 className="text-xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Intelligence <span className="text-primary">Ledger</span></h2>
+                 <h2 className="text-xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Current <span className="text-primary">Sale</span></h2>
                  <div className="flex items-center gap-2 mt-1.5">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Real-time Settlement Stream</p>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Cart Items</p>
                  </div>
               </div>
            </div>
            
            <div className="flex items-center gap-4">
               <div className="text-right mr-2 hidden sm:block">
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Accumulated Yield</p>
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Current Total</p>
                  <p className="text-2xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(total).toLocaleString()}</p>
               </div>
               <Button 
@@ -378,9 +465,31 @@ export default function POSPage() {
               </Button>
               <Button 
                 variant="ghost" 
-                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-200 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50"
+                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative"
+                onClick={() => setIsHeldCartsOpen(true)}
+                title="View Held Carts"
+              >
+                <History size={24} />
+                {heldCarts.length > 0 && (
+                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-500 text-white text-[10px] font-black flex items-center justify-center">
+                    {heldCarts.length}
+                  </span>
+                )}
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
+                onClick={() => holdCart("")}
+                disabled={cart.length === 0}
+                title="Hold Active Cart"
+              >
+                <Save size={24} />
+              </Button>
+              <Button 
+                variant="ghost" 
+                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
                 onClick={() => clearCart()}
-                title="Purge Active Ledger"
+                title="Clear Active Cart"
               >
                 <Trash2 size={24} />
               </Button>
@@ -396,8 +505,8 @@ export default function POSPage() {
                <div className="h-full flex flex-col items-center justify-center text-center p-10 space-y-6 opacity-30">
                   <Activity className="h-16 w-16 text-slate-400 animate-pulse" />
                   <div className="space-y-2">
-                     <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Listening for trade inputs...</p>
-                     <p className="text-[9px] font-bold text-slate-400 uppercase">Initialize terminal to begin ledger sync</p>
+                     <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Your cart is empty.</p>
+                     <p className="text-[9px] font-bold text-slate-400 uppercase">Add products to begin checkout</p>
                   </div>
                </div>
              ) : (
@@ -456,7 +565,7 @@ export default function POSPage() {
         <div className="p-8 sm:p-12 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 space-y-10 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.05)] xl:rounded-bl-[4rem]">
            <div className="space-y-4">
               <div className="flex justify-between items-center group">
-                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] group-hover:text-primary transition-colors">Subtotal Settlement</span>
+                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] group-hover:text-primary transition-colors">Subtotal</span>
                  <span className="text-sm font-[1000] text-slate-700 dark:text-slate-300 tracking-tighter">Le {Math.round(total).toLocaleString()}</span>
               </div>
             
@@ -464,12 +573,12 @@ export default function POSPage() {
               <div className="flex justify-between items-end relative">
                  <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-primary rounded-full hidden sm:block" />
                  <div>
-                    <p className="text-[11px] font-black text-primary uppercase tracking-[0.4em] leading-none mb-3">Grand Terminal Total</p>
+                    <p className="text-[11px] font-black text-primary uppercase tracking-[0.4em] leading-none mb-3">Grand Total</p>
                     <p className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">Le {Math.round(grandTotal).toLocaleString()}</p>
                  </div>
                  <div className="flex flex-col items-end gap-3">
                     <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.8)]" />
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Valid Transaction</span>
+                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Ready to Checkout</span>
                  </div>
               </div>
            </div>
@@ -479,7 +588,7 @@ export default function POSPage() {
               disabled={cart.length === 0}
               className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-primary font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl shadow-primary/30 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
            >
-              Execute Settlement Node <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" />
+              Proceed to Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" />
            </Button>
         </div>
       </div>
@@ -487,32 +596,34 @@ export default function POSPage() {
       {/* SECURE CHECKOUT MODAL */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
         <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem] sm:rounded-[4rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[95vh] flex flex-col">
-            <div className="bg-slate-950 p-6 sm:p-10 text-white relative overflow-hidden shrink-0">
-               <div className="absolute -top-10 -right-10 p-10 opacity-[0.03] rotate-12">
-                  <ShieldCheck size={400} />
-               </div>
-               <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-               <div className="relative z-10 space-y-2">
+            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-6 sm:p-10 text-white relative overflow-hidden shrink-0 border-b border-white/5">
+               <div className="absolute -top-20 -right-20 h-64 w-64 bg-indigo-500/20 rounded-full blur-[80px]" />
+               <div className="absolute top-10 left-10 h-32 w-32 bg-blue-500/10 rounded-full blur-[50px]" />
+               <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
+               
+               <div className="relative z-10 space-y-3">
                   <div className="flex items-center gap-3">
-                     <Badge variant="outline" className="bg-indigo-500/10 border-indigo-500/30 text-indigo-400 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em]">Secure Terminal</Badge>
-                     <div className="h-1.5 w-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                     <Badge variant="outline" className="bg-white/5 border-white/10 text-indigo-300 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em] backdrop-blur-md">Secure Checkout</Badge>
+                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
                   </div>
-                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none">Global <span className="text-indigo-500 underline underline-offset-8 decoration-white/10">Checkout</span></h3>
+                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-xl">
+                     Final <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Checkout</span>
+                  </h3>
                   <div className="flex items-center gap-4 pt-4 sm:pt-6">
-                     <div className="flex -space-x-4">
+                     <div className="flex -space-x-4 drop-shadow-2xl">
                         {cart.slice(0, 3).map((item, i) => (
-                           <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-slate-900 overflow-hidden shadow-2xl relative">
-                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                           <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-slate-800 overflow-hidden shadow-2xl relative ring-2 ring-white/10">
+                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-white/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
                            </div>
                         ))}
                         {cart.length > 3 && (
-                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-4 border-slate-950 bg-indigo-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl">+{cart.length - 3}</div>
+                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl ring-2 ring-white/10">+{cart.length - 3}</div>
                         )}
                      </div>
-                     <div className="h-8 w-px bg-slate-800" />
+                     <div className="h-8 w-px bg-white/10" />
                      <div className="flex flex-col">
-                        <span className="text-xs font-black text-white tracking-widest uppercase">{cart.length} Asset Clusters</span>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Ready for cryptographic commitment</span>
+                        <span className="text-xs font-black text-white tracking-widest uppercase">{cart.length} Items in Cart</span>
+                        <span className="text-[10px] font-bold text-indigo-200/70 uppercase tracking-widest mt-1">Ready for payment processing</span>
                      </div>
                   </div>
                </div>
@@ -526,16 +637,16 @@ export default function POSPage() {
                         <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600">
                            <User size={18} />
                         </div>
-                        <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Entity Resolution</Label>
+                        <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Customer Details</Label>
                      </div>
-                     <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Intelligence Node</button>
+                     <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Customer</button>
                   </div>
                   <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
                     <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-sm">
-                      <SelectValue placeholder="Identify Transacting Node" />
+                      <SelectValue placeholder="Select Customer" />
                     </SelectTrigger>
                     <SelectContent className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-2xl p-2">
-                      <SelectItem value="WALKIN" className="font-black uppercase tracking-widest py-4 text-xs rounded-xl focus:bg-primary/5">Anonymous Retail Node</SelectItem>
+                      <SelectItem value="WALKIN" className="font-black uppercase tracking-widest py-4 text-xs rounded-xl focus:bg-primary/5">Walk-in Customer</SelectItem>
                       {customers.map((c) => (
                         <SelectItem key={c.id} value={c.id} className="font-black uppercase tracking-widest py-4 text-xs rounded-xl focus:bg-primary/5">{c.name} ({c.phone})</SelectItem>
                       ))}
@@ -549,14 +660,14 @@ export default function POSPage() {
                      <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600">
                         <Banknote size={18} />
                      </div>
-                     <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Settlement Matrix</Label>
+                     <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Payment Method</Label>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                      {[
-                       { id: 'CASH', label: 'Paper Currency', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20', active: 'bg-emerald-600' },
-                       { id: 'MOBILE_MONEY', label: 'Mobile Money', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50 dark:hover:bg-blue-950/20', active: 'bg-blue-600' },
-                       { id: 'CARD', label: 'Asset Card', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/20', active: 'bg-indigo-600' },
-                       { id: 'CREDIT', label: 'On Credit', icon: HandCoins, color: 'text-amber-500', bg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20', active: 'bg-amber-500' },
+                       { id: 'CASH', label: 'CASH', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:border-emerald-200 dark:hover:border-emerald-800', active: 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-transparent text-white shadow-[0_10px_30px_rgba(52,211,153,0.4)]' },
+                       { id: 'MOBILE_MONEY', label: 'MOBILE MONEY', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-200 dark:hover:border-blue-800', active: 'bg-gradient-to-br from-blue-400 to-blue-600 border-transparent text-white shadow-[0_10px_30px_rgba(59,130,246,0.4)]' },
+                       { id: 'CARD', label: 'CARD', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800', active: 'bg-gradient-to-br from-indigo-400 to-indigo-600 border-transparent text-white shadow-[0_10px_30px_rgba(99,102,241,0.4)]' },
+                       { id: 'CREDIT', label: 'CREDIT', icon: HandCoins, color: 'text-amber-500', bg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-800', active: 'bg-gradient-to-br from-amber-400 to-amber-600 border-transparent text-white shadow-[0_10px_30px_rgba(245,158,11,0.4)]' },
                      ].map((m) => (
                        <button
                          key={m.id}
@@ -565,16 +676,19 @@ export default function POSPage() {
                            if (m.id !== 'CREDIT') setCreditAmountPaid("");
                          }}
                          className={cn(
-                           "flex flex-col items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all active:scale-90 shadow-sm relative group overflow-hidden",
+                           "flex flex-col items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all duration-300 active:scale-95 relative group overflow-hidden",
                            paymentMethod === m.id 
-                             ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 border-transparent shadow-2xl scale-105 z-10" 
-                             : "bg-white dark:bg-slate-900 border-slate-50 dark:border-slate-800 text-slate-400 " + m.bg
+                             ? m.active + " scale-105 z-10" 
+                             : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 " + m.bg
                          )}
                        >
-                         <m.icon className={cn("h-6 w-6 sm:h-7 sm:w-7 transition-transform group-hover:scale-110", paymentMethod === m.id ? "" : m.color)} />
-                         <span className="text-[9px] sm:text-[10px] font-[1000] uppercase tracking-[0.2em] text-center leading-tight">{m.label}</span>
+                         {paymentMethod !== m.id && (
+                            <div className="absolute inset-0 bg-slate-50 dark:bg-slate-800/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                         )}
+                         <m.icon className={cn("h-6 w-6 sm:h-7 sm:w-7 transition-transform duration-500 group-hover:scale-125 relative z-10", paymentMethod === m.id ? "text-white" : m.color)} />
+                         <span className={cn("text-[10px] font-[1000] uppercase tracking-[0.2em] text-center leading-tight relative z-10", paymentMethod === m.id ? "text-white" : "text-slate-600 dark:text-slate-400")}>{m.label}</span>
                          {paymentMethod === m.id && (
-                           <motion.div layoutId="paymentActive" className="absolute top-3 right-3 h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
+                           <motion.div layoutId="paymentActiveIndicator" className="absolute top-3 right-3 h-2 w-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
                          )}
                        </button>
                      ))}
@@ -638,24 +752,26 @@ export default function POSPage() {
                </div>
 
                {/* Settlement Stats Analytics */}
-               <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.05] group-hover:scale-110 transition-transform duration-700">
-                     <TrendingUp size={150} />
+               <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br from-slate-900 to-black text-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
+                     <TrendingUp size={180} />
                   </div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                  
                   <div className="space-y-4 sm:space-y-6 relative z-10">
                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Settlement Debt</span>
-                        <span className="text-2xl sm:text-3xl font-[1000] tracking-tighter">Le {Math.round(grandTotal).toLocaleString()}</span>
+                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] drop-shadow-md">Total Amount Due</span>
+                        <span className="text-3xl sm:text-5xl font-[1000] tracking-tighter drop-shadow-2xl">Le {Math.round(grandTotal).toLocaleString()}</span>
                      </div>
-                     <div className="h-px bg-white/10 w-full" />
+                     <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent w-full" />
                      <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                           <div className={cn("h-2 w-2 rounded-full animate-pulse", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "bg-amber-400" : "bg-emerald-500")} />
-                           <span className={cn("text-[11px] font-black uppercase tracking-[0.4em]", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "text-amber-400" : "text-emerald-500")}>
+                           <div className={cn("h-2.5 w-2.5 rounded-full animate-pulse shadow-lg", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "bg-amber-400 shadow-amber-400/50" : "bg-emerald-400 shadow-emerald-400/50")} />
+                           <span className={cn("text-[11px] font-black uppercase tracking-[0.4em]", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "text-amber-400" : "text-emerald-400")}>
                              {paymentMethod === 'CREDIT' ? 'Credit Outstanding' : 'Resolved Balance'}
                            </span>
                         </div>
-                        <span className={cn("text-2xl sm:text-3xl font-[1000] tracking-tighter", paymentMethod === 'CREDIT' ? "text-amber-400" : "text-emerald-500")}>
+                        <span className={cn("text-2xl sm:text-3xl font-[1000] tracking-tighter drop-shadow-xl", paymentMethod === 'CREDIT' ? "text-amber-400" : "text-emerald-400")}>
                           {paymentMethod === 'CREDIT'
                             ? `Le ${Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}`
                             : 'Le 0'
@@ -663,35 +779,142 @@ export default function POSPage() {
                         </span>
                      </div>
                      {paymentMethod === 'CREDIT' && (parseFloat(creditAmountPaid) || 0) > 0 && (
-                       <div className="flex justify-between items-center pt-2 border-t border-white/10">
-                         <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Upfront Collected</span>
-                         <span className="text-xl font-[1000] text-emerald-400 tracking-tighter">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
+                       <div className="flex justify-between items-center pt-3 border-t border-white/10">
+                         <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em]">Upfront Collected</span>
+                         <span className="text-xl font-[1000] text-emerald-400 tracking-tighter drop-shadow-md">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
                        </div>
                      )}
                   </div>
                </div>
             </div>
 
-            <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0">
+            <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-100 dark:border-slate-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                <Button 
                   variant="outline" 
-                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-600 dark:hover:text-slate-300"
+                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-500 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   onClick={() => setIsCheckoutOpen(false)}
                >
-                  Purge Session
+                  Cancel
                </Button>
                <Button 
                   onClick={handleCheckout} 
                   disabled={loading}
-                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-slate-900 dark:bg-primary text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-2xl hover:shadow-xl disabled:opacity-50 transition-all"
+                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-[0_10px_40px_rgba(79,70,229,0.4)] hover:shadow-[0_15px_50px_rgba(79,70,229,0.6)] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 bg-[length:200%_auto] animate-gradient"
                >
                   {loading ? <RefreshCw className="animate-spin" /> : (
-                    <>Commit Neural Settlement <ArrowRight className="group-hover:translate-x-2 transition-transform" /></>
+                    <span className="flex items-center gap-3 drop-shadow-md">Complete Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" /></span>
                   )}
                </Button>
             </div>
         </DialogContent>
       </Dialog>
-    </div>
+
+      {/* HELD CARTS MODAL */}
+      <Dialog open={isHeldCartsOpen} onOpenChange={setIsHeldCartsOpen}>
+        <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[2rem] border-none shadow-2xl p-6 sm:p-10 bg-white dark:bg-slate-950 flex flex-col gap-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Held Carts</h3>
+            <Badge variant="outline" className="text-indigo-500 border-indigo-500/30">{heldCarts.length} Paused</Badge>
+          </div>
+          
+          <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
+            {heldCarts.length === 0 ? (
+              <div className="text-center py-10 opacity-50">
+                <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">No ledgers on hold</p>
+              </div>
+            ) : (
+              heldCarts.map((hc) => (
+                <div key={hc.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex flex-col gap-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-black text-slate-900 dark:text-white">{hc.name}</p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-widest">{new Date(hc.timestamp).toLocaleTimeString()} - {hc.items.length} Assets</p>
+                    </div>
+                    <span className="text-sm font-[1000] text-primary">Le {Math.round(hc.total).toLocaleString()}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={() => {
+                        restoreCart(hc.id);
+                        setIsHeldCartsOpen(false);
+                      }}
+                      className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] tracking-widest uppercase rounded-xl"
+                    >
+                      Restore Session
+                    </Button>
+                    <Button 
+                      onClick={() => removeHeldCart(hc.id)}
+                      variant="outline"
+                      className="text-rose-500 hover:bg-rose-50 border-rose-100 hover:text-rose-600 font-black text-[10px] tracking-widest uppercase rounded-xl"
+                    >
+                      Discard
+                    </Button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* PROFESSIONAL RECEIPT MODAL */}
+      <Dialog open={isReceiptModalOpen} onOpenChange={setIsReceiptModalOpen}>
+        <DialogContent className="sm:max-w-[450px] w-[95vw] rounded-[2rem] border-none shadow-2xl p-6 sm:p-10 bg-slate-100 dark:bg-slate-900 flex flex-col items-center gap-6 print:hidden">
+          <div className="text-center space-y-2">
+            <div className="mx-auto h-16 w-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 size={32} />
+            </div>
+            <h3 className="text-2xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Success</h3>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Transaction has been finalized</p>
+          </div>
+          
+          <div className="w-full max-h-[40vh] overflow-y-auto custom-scrollbar bg-white dark:bg-white text-black p-4 rounded-xl shadow-inner border border-slate-200">
+             {/* Render a visual preview of the receipt component without refs */}
+             {receiptData && (
+               <ThermalReceipt 
+                 items={receiptData.items}
+                 total={receiptData.total}
+                 paid={receiptData.paid}
+                 paymentMethod={receiptData.paymentMethod}
+                 cashierName={receiptData.cashierName}
+                 customerName={receiptData.customerName}
+                 transactionId={receiptData.transactionId}
+                 businessName={receiptData.businessName}
+               />
+             )}
+          </div>
+
+          <div className="flex w-full gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+             <Button 
+               variant="outline"
+               onClick={() => setIsReceiptModalOpen(false)}
+               className="flex-1 h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase border-slate-300 dark:border-slate-700"
+             >
+               Dismiss
+             </Button>
+             <Button 
+               variant="outline"
+               onClick={handleSaveReceipt}
+               className="flex-1 h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase border-indigo-200 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+             >
+               <Download className="mr-2 h-4 w-4" /> Save
+             </Button>
+             <Button 
+               onClick={() => window.print()}
+               className="flex-[1.5] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 dark:bg-primary text-white shadow-xl hover:scale-105 transition-transform"
+             >
+               <Printer className="mr-2 h-4 w-4" /> Print
+             </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      </div>
+      <CameraScanner 
+        open={showScanner} 
+        onOpenChange={setShowScanner} 
+        onScan={handleCameraScan} 
+      />
+    </>
   );
 }

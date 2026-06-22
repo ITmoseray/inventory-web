@@ -20,6 +20,12 @@ export function InstallPWA() {
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
+
+      const lastDismissed = localStorage.getItem("pwa_prompt_dismissed_at");
+      if (lastDismissed && Date.now() - parseInt(lastDismissed) < 86400000) {
+        return; // Already dismissed within 24h
+      }
+
       setShowBanner(true);
     };
 
@@ -44,6 +50,11 @@ export function InstallPWA() {
     setDeferredPrompt(null);
   };
 
+  const handleDismiss = () => {
+    localStorage.setItem("pwa_prompt_dismissed_at", Date.now().toString());
+    setShowBanner(false);
+  };
+
   if (isInstalled || !showBanner) return null;
 
   return (
@@ -58,7 +69,7 @@ export function InstallPWA() {
           <div className="absolute -right-4 -top-4 h-24 w-24 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
           
           <button 
-            onClick={() => setShowBanner(false)}
+            onClick={handleDismiss}
             className="absolute top-4 right-4 text-white/50 hover:text-white transition-colors"
           >
             <X className="h-4 w-4" />
@@ -85,7 +96,7 @@ export function InstallPWA() {
              </Button>
              <Button 
                variant="ghost"
-               onClick={() => setShowBanner(false)}
+               onClick={handleDismiss}
                className="h-11 rounded-xl text-white hover:bg-white/10 font-black text-[10px] uppercase tracking-widest"
              >
                 Maybe Later

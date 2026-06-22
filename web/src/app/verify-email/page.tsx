@@ -44,7 +44,7 @@ function VerifyEmailContent() {
           {status === "success" && <CheckCircle2 className="h-12 w-12 text-emerald-500" />}
           {status === "error" && <XCircle className="h-12 w-12 text-rose-500" />}
         </div>
-        <CardTitle className="text-2xl font-black text-slate-900">
+        <CardTitle className="text-2xl font-black text-slate-900 dark:text-white">
           {status === "loading" && "Verifying Email"}
           {status === "success" && "Verification Complete"}
           {status === "error" && "Verification Failed"}

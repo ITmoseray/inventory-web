@@ -35,21 +35,21 @@ export default function BillingPage() {
   return (
     <div className="space-y-8 p-8 animate-in fade-in duration-700">
       <div>
-        <h1 className="text-3xl font-[1000] tracking-tight text-slate-900">Billing & Subscription</h1>
+        <h1 className="text-3xl font-[1000] tracking-tight text-slate-900 dark:text-white">Billing & Subscription</h1>
         <p className="text-slate-500 font-medium">Manage your subscription plan and view invoice history.</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
         <Card className="border-none shadow-xl bg-white rounded-3xl p-6">
           <CardHeader className="p-0 pb-4">
-            <CardTitle className="text-lg font-black text-slate-900">Current Plan</CardTitle>
+            <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Current Plan</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {subscription ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
                     <div>
-                        <div className="text-sm font-black text-slate-900 uppercase">{subscription.plan}</div>
+                        <div className="text-sm font-black text-slate-900 dark:text-white uppercase">{subscription.plan}</div>
                         <div className="text-xs font-bold text-slate-400">Expires {format(new Date(subscription.endDate), "PPP")}</div>
                     </div>
                     <span className={cn(
@@ -69,7 +69,7 @@ export default function BillingPage() {
 
       <Card className="border-none shadow-xl bg-white rounded-3xl overflow-hidden">
         <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
-          <CardTitle className="text-lg font-black text-slate-900">Invoice History</CardTitle>
+          <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Invoice History</CardTitle>
         </CardHeader>
         <Table>
           <TableHeader>
@@ -83,7 +83,7 @@ export default function BillingPage() {
             {invoices.map((invoice) => (
               <TableRow key={invoice.id}>
                 <TableCell className="font-bold text-slate-700">{format(new Date(invoice.createdAt), "PPP")}</TableCell>
-                <TableCell className="font-black text-slate-900">Le {Math.round(Number(invoice.amount)).toLocaleString()}</TableCell>
+                <TableCell className="font-black text-slate-900 dark:text-white">Le {Math.round(Number(invoice.amount)).toLocaleString()}</TableCell>
                 <TableCell>
                   <span className={cn(
                     "px-2 py-1 rounded-full text-[10px] font-black uppercase",

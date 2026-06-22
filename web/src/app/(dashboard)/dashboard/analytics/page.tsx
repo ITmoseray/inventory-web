@@ -280,7 +280,7 @@ export default function AnalyticsPage() {
                      <div key={cat.name} className="flex items-center justify-between group cursor-default">
                         <div className="flex items-center gap-3">
                            <div className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{cat.name}</span>
+                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-white dark:group-hover:text-white transition-colors">{cat.name}</span>
                         </div>
                         <span className="text-xs font-black text-slate-900 dark:text-white">{cat.value}</span>
                      </div>

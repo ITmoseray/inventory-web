@@ -15,7 +15,7 @@ import {
   Plus, Box, Users, FileText, ShoppingCart, Truck, Globe, ShieldCheck, 
   CreditCard, MapPin, Activity, Sparkles, History, Clock, ArrowRight, 
   Play, MessageCircle, Wallet, Smartphone, SmartphoneIcon, Printer, Receipt, 
-  DollarSign, AlertCircle, Package, Book, Zap
+  DollarSign, AlertCircle, Package, Book, Zap, Cpu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +23,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { getRecentSales } from "@/lib/actions/sale";
 import { getDashboardStats } from "@/lib/actions/dashboard";
+import { getWelcomeUpdate } from "@/lib/actions/ai";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 
@@ -56,7 +57,8 @@ export default function DashboardPage() {
     lowStock: 0,
     expiringItems: 0,
     activeTransactions: 0,
-    staffCount: 0
+    staffCount: 0,
+    topProducts: [] as any[]
   });
   const [loading, setLoading] = useState(true);
 
@@ -68,6 +70,11 @@ export default function DashboardPage() {
   const [demoModalOpen, setDemoModalOpen] = useState(false);
   const [demoForm, setDemoForm] = useState({ name: "", email: "", phone: "", notes: "" });
   const [demoSubmitting, setDemoSubmitting] = useState(false);
+
+  // AI Welcome State
+  const [welcomeUpdate, setWelcomeUpdate] = useState<string | null>(null);
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(false);
+  const [welcomeLoading, setWelcomeLoading] = useState(false);
 
   const handleDemoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -87,6 +94,26 @@ export default function DashboardPage() {
 
   useEffect(() => {
     fetchDashboardData();
+  }, [session]);
+
+  useEffect(() => {
+    async function fetchWelcome() {
+      if (session?.user && !sessionStorage.getItem("hasSeenWelcome")) {
+        setWelcomeLoading(true);
+        setIsWelcomeModalOpen(true);
+        try {
+          const update = await getWelcomeUpdate();
+          setWelcomeUpdate(update);
+          sessionStorage.setItem("hasSeenWelcome", "true");
+        } catch (err) {
+          console.error(err);
+          setIsWelcomeModalOpen(false);
+        } finally {
+          setWelcomeLoading(false);
+        }
+      }
+    }
+    fetchWelcome();
   }, [session]);
 
   // Derive chart data from last 7 days
@@ -264,13 +291,13 @@ export default function DashboardPage() {
       </motion.div>
 
       {/* Main Tab Switcher */}
-      <div className="flex items-center gap-8 border-b border-slate-200 dark:border-slate-800 relative z-10">
+      <div className="flex items-center gap-4 sm:gap-8 border-b border-slate-200 dark:border-slate-800 relative z-10 overflow-x-auto no-scrollbar pb-1">
          {TABS.map(tab => (
            <button 
              key={tab}
              onClick={() => setActiveTab(tab)}
              className={cn(
-               "pb-4 text-xs font-black uppercase tracking-widest transition-all relative",
+               "pb-4 text-xs font-black uppercase tracking-widest transition-all relative whitespace-nowrap shrink-0",
                activeTab === tab ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
              )}
            >
@@ -433,14 +460,76 @@ export default function DashboardPage() {
                 </Card>
               </div>
 
-              <Card className="border-none bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden flex flex-col justify-center">
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
-                 <Sparkles className="h-10 w-10 mb-6 text-primary animate-pulse" />
-                 <h3 className="text-2xl font-[1000] tracking-tight mb-3 uppercase italic leading-none">Protech Forecast</h3>
-                 <p className="text-slate-400 text-[10px] font-bold leading-relaxed uppercase tracking-[0.15em] mb-8">
-                   Our neural predictive engines are analyzing your stock velocity. Unlock advanced trade forecasting.
-                 </p>
-                 <Button onClick={() => router.push("/dashboard/analytics")} className="w-full h-14 bg-primary text-white font-black text-[10px] uppercase tracking-[0.25em] shadow-xl">Initialize Full Intelligence</Button>
+              <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm flex flex-col overflow-hidden h-full">
+                 <CardHeader className="p-8 pb-4">
+                    <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Top Performing SKUs</CardTitle>
+                    <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Highest volume products</CardDescription>
+                 </CardHeader>
+                 <CardContent className="p-8 pt-4 flex-1">
+                    {!stats.topProducts || stats.topProducts.length === 0 ? (
+                       <div className="h-full flex flex-col items-center justify-center space-y-4 text-center opacity-50">
+                          <Package className="h-10 w-10 text-slate-400" />
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No trade data yet</p>
+                       </div>
+                    ) : (
+                       <div className="space-y-4">
+                          {stats.topProducts.map((product, i) => (
+                             <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all cursor-pointer group" onClick={() => router.push("/dashboard/analytics")}>
+                                <div className="flex items-center gap-4 overflow-hidden">
+                                   <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border border-white dark:border-slate-700 shadow-sm", colors.secondary)}>
+                                      <span className={cn("text-lg font-black", colors.text)}>#{i + 1}</span>
+                                   </div>
+                                   <div className="min-w-0">
+                                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight truncate group-hover:text-primary transition-colors">{product.name}</p>
+                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 truncate mt-0.5">{product.category}</p>
+                                   </div>
+                                </div>
+                                <div className="text-right shrink-0 ml-4">
+                                   <p className="text-sm font-[1000] text-slate-900 dark:text-white">{product.quantitySold} units</p>
+                                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Le {product.revenue.toLocaleString()}</p>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    )}
+                 </CardContent>
+              </Card>
+            </div>
+
+            {/* Third Row: Staff Leaderboard */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm flex flex-col overflow-hidden h-full">
+                 <CardHeader className="p-8 pb-4">
+                    <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Staff Leaderboard</CardTitle>
+                    <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Top Revenue Generators</CardDescription>
+                 </CardHeader>
+                 <CardContent className="p-8 pt-4 flex-1">
+                    {!stats.topStaff || stats.topStaff.length === 0 ? (
+                       <div className="h-full flex flex-col items-center justify-center space-y-4 text-center opacity-50">
+                          <Users className="h-10 w-10 text-slate-400" />
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No staff sales data yet</p>
+                       </div>
+                    ) : (
+                       <div className="space-y-4">
+                          {stats.topStaff.map((staff: any, i: number) => (
+                             <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all group">
+                                <div className="flex items-center gap-4 overflow-hidden">
+                                   <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                                      <span className="text-lg font-black">#{i + 1}</span>
+                                   </div>
+                                   <div className="min-w-0">
+                                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight truncate group-hover:text-primary transition-colors">{staff.name}</p>
+                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 truncate mt-0.5">{staff.role}</p>
+                                   </div>
+                                </div>
+                                <div className="text-right shrink-0 ml-4">
+                                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Le {staff.revenue.toLocaleString()}</p>
+                                </div>
+                             </div>
+                          ))}
+                       </div>
+                    )}
+                 </CardContent>
               </Card>
             </div>
           </motion.div>
@@ -458,7 +547,7 @@ export default function DashboardPage() {
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                <div className="flex-1 space-y-8">
                   <div>
-                    <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
                     <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600 mt-4">Overview of Protech Inventory</p>
                     <p className="text-slate-500 font-medium text-lg mt-4 max-w-2xl leading-relaxed">
                       The easy-to-use inventory software that you can set up in no time! Let's get you up and running effectively.
@@ -492,7 +581,7 @@ export default function DashboardPage() {
                         </div>
                      </div>
 
-                     <div className="grid grid-cols-1 md:grid-cols-4 border-b border-slate-50 dark:border-slate-800">
+                     <div className="grid grid-cols-2 md:grid-cols-4 border-b border-slate-50 dark:border-slate-800">
                         {SETUP_STEPS.map((step, i) => (
                            <button 
                              key={i}
@@ -520,17 +609,17 @@ export default function DashboardPage() {
                      <div className="p-5 md:p-12 space-y-8 md:space-y-10">
                         <div className="flex flex-col md:flex-row gap-12 items-start">
                            <div className="flex-1 space-y-6">
-                              <h4 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic">{SETUP_STEPS[activeSetupStep].title}</h4>
-                              <p className="text-slate-500 dark:text-slate-400 font-medium text-lg leading-relaxed">{SETUP_STEPS[activeSetupStep].desc}</p>
+                              <h4 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic">{SETUP_STEPS[activeSetupStep].title}</h4>
+                              <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg leading-relaxed">{SETUP_STEPS[activeSetupStep].desc}</p>
                               
-                              <div className="flex flex-wrap gap-4 pt-4">
+                              <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-4">
                                  {SETUP_STEPS[activeSetupStep].actions.map((action, i) => (
-                                   <Button key={i} onClick={() => router.push(action.href)} className="h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 group">
+                                   <Button key={i} onClick={() => router.push(action.href)} className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 group">
                                       <action.icon className="mr-3 h-4 w-4 group-hover:scale-125 transition-transform" />
                                       {action.label}
                                    </Button>
                                  ))}
-                                 <Button variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50" onClick={() => {
+                                 <Button variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50" onClick={() => {
                                    const newProgress = Math.min(100, setupProgress + 25);
                                    setSetupProgress(newProgress);
                                    toast.success(`Step "${SETUP_STEPS[activeSetupStep].title}" marked as completed!`);
@@ -597,7 +686,7 @@ export default function DashboardPage() {
                   <div className="h-1 w-12 bg-indigo-600 rounded-full mt-4" />
                </div>
 
-               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
                   {USEFUL_FEATURES.map((feature, i) => (
                     <Card key={i} className="border-none bg-white dark:bg-slate-900 shadow-sm rounded-[2.5rem] hover:shadow-2xl transition-all duration-500 group">
                        <CardContent className="p-10 space-y-8">
@@ -621,14 +710,14 @@ export default function DashboardPage() {
             <section className="bg-slate-900 rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-16 text-white overflow-hidden relative group">
                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-[2s]" />
                <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center relative z-10">
-                  <div>
-                     <h2 className="text-5xl font-black tracking-tight uppercase italic mb-8 leading-[0.9]">Manage inventory <br /><span className="text-indigo-400">on the go!</span></h2>
-                     <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12 max-w-md">Experience the ease of managing your inventory with the Protech mobile app for Android & iOS.</p>
-                     <div className="flex flex-wrap gap-6">
-                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
+                   <div>
+                     <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase italic mb-6 sm:mb-8 leading-[1.1] sm:leading-[0.9]">Manage inventory <br className="hidden sm:block" /><span className="text-indigo-400">on the go!</span></h2>
+                     <p className="text-slate-400 font-medium text-base sm:text-lg leading-relaxed mb-8 sm:mb-12 max-w-md">Experience the ease of managing your inventory with the Protech mobile app for Android & iOS.</p>
+                     <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
+                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="w-full sm:w-auto h-14 sm:h-16 px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
                            <Smartphone className="h-5 w-5" /> Google Play
                         </Button>
-                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
+                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="w-full sm:w-auto h-14 sm:h-16 px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
                            <SmartphoneIcon className="h-5 w-5" /> App Store
                         </Button>
                      </div>
@@ -647,7 +736,7 @@ export default function DashboardPage() {
             </section>
 
             {/* Other Apps & Footer Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pt-12 border-t border-slate-100 dark:border-slate-800">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 pt-12 border-t border-slate-100 dark:border-slate-800">
                {[
                  { 
                    title: "Other Protech Apps", 
@@ -883,12 +972,12 @@ export default function DashboardPage() {
                     {selectedSale?.items.map((item: any, i: number) => (
                        <div key={i} className="flex justify-between items-start">
                           <div className="flex-1">
-                             <div className="text-sm font-black text-slate-900 uppercase tracking-tight mb-1">{item.product?.name || 'Unknown Product'}</div>
+                             <div className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight mb-1">{item.product?.name || 'Unknown Product'}</div>
                              <div className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">
                                 {item.quantity} x Le {Math.round(item.unitPrice).toLocaleString()}
                              </div>
                           </div>
-                          <div className="text-lg font-[1000] text-slate-900 tracking-tighter">
+                          <div className="text-lg font-[1000] text-slate-900 dark:text-white tracking-tighter">
                              Le {Math.round(item.total).toLocaleString()}
                           </div>
                        </div>
@@ -899,17 +988,17 @@ export default function DashboardPage() {
               <div className="pt-8 border-t border-slate-50 space-y-4">
                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     <span>Transaction Subtotal</span>
-                    <span className="text-slate-900">Le {Math.round(selectedSale?.totalAmount / 1.15).toLocaleString()}</span>
+                    <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount / 1.15).toLocaleString()}</span>
                  </div>
                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     <span>Tax Applied (15%)</span>
-                    <span className="text-slate-900">Le {Math.round(selectedSale?.totalAmount - (selectedSale?.totalAmount / 1.15)).toLocaleString()}</span>
+                    <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount - (selectedSale?.totalAmount / 1.15)).toLocaleString()}</span>
                  </div>
                  <div className="h-px bg-slate-50 w-full my-4" />
                  <div className="flex justify-between items-end pt-2">
                     <div className="space-y-1">
                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] italic">Final Settlement</span>
-                       <div className="text-5xl font-[1000] text-slate-900 tracking-tighter">Le {Math.round(selectedSale?.totalAmount).toLocaleString()}</div>
+                       <div className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(selectedSale?.totalAmount).toLocaleString()}</div>
                     </div>
                     <div className="flex flex-col items-end gap-2">
                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Auth Method</span>
@@ -1073,7 +1162,7 @@ export default function DashboardPage() {
             <div className="pt-6 border-t border-slate-50 space-y-4">
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <span>Release Version</span>
-                <span className="text-slate-900 font-black">v2.6.4-beta</span>
+                <span className="text-slate-900 dark:text-white font-black">v2.6.4-beta</span>
               </div>
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <span>Scope Impact</span>
@@ -1086,6 +1175,43 @@ export default function DashboardPage() {
               </Button>
             </div>
           </div>
+        </DialogContent>
+      </Dialog>
+      {/* AI Welcome Modal */}
+      <Dialog open={isWelcomeModalOpen} onOpenChange={setIsWelcomeModalOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-slate-900 border-slate-800 rounded-3xl shadow-[0_0_100px_rgba(79,74,133,0.3)]">
+           <div className="relative p-8 flex flex-col items-center text-center overflow-hidden">
+              <div className="absolute inset-0 bg-grid-white/[0.02]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/20 blur-[80px] rounded-full pointer-events-none" />
+              
+              <div className="relative h-20 w-20 rounded-3xl bg-slate-800/50 border border-slate-700 flex items-center justify-center mb-6 shadow-2xl backdrop-blur-md z-10">
+                 <div className="absolute inset-0 rounded-3xl border-2 border-primary/50 animate-pulse" />
+                 <Cpu className="h-10 w-10 text-primary" />
+              </div>
+
+              <h2 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 relative z-10">Neural <span className="text-primary">Update</span></h2>
+              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-8 relative z-10">System Synchronization Complete</p>
+
+              <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-6 border border-slate-700 w-full relative z-10 shadow-inner min-h-[100px] flex items-center justify-center">
+                 {welcomeLoading ? (
+                   <div className="flex flex-col items-center gap-3">
+                      <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Establishing Link...</span>
+                   </div>
+                 ) : (
+                   <p className="text-sm font-medium text-slate-200 leading-relaxed text-left w-full">
+                     {welcomeUpdate}
+                   </p>
+                 )}
+              </div>
+
+              <Button 
+                onClick={() => setIsWelcomeModalOpen(false)}
+                className="mt-8 h-14 w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 transition-all relative z-10"
+              >
+                Acknowledge
+              </Button>
+           </div>
         </DialogContent>
       </Dialog>
     </div>

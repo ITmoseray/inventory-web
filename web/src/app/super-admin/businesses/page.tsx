@@ -174,7 +174,7 @@ export default function TenantVault() {
                   <TableRow>
                     <TableCell colSpan={5} className="h-48 text-center">
                        <div className="flex flex-col items-center gap-4">
-                          <Globe className="h-12 w-12 text-slate-800 animate-pulse" />
+                          <Globe className="h-12 w-12 text-slate-800 dark:text-white animate-pulse" />
                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No operational nodes detected in this sector.</p>
                        </div>
                     </TableCell>

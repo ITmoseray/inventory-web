@@ -115,7 +115,7 @@ export default function AuditNexus() {
                   <TableRow>
                     <TableCell colSpan={4} className="h-64 text-center">
                        <div className="flex flex-col items-center gap-6">
-                          <Terminal className="h-16 w-16 text-slate-800 animate-pulse" />
+                          <Terminal className="h-16 w-16 text-slate-800 dark:text-white animate-pulse" />
                           <div className="space-y-1">
                              <p className="text-sm font-black text-slate-400 uppercase tracking-widest">No matching logs detected</p>
                              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest italic">All system nodes currently silent.</p>
@@ -133,7 +133,7 @@ export default function AuditNexus() {
                            </div>
                            <div className="space-y-0.5">
                               <div className="font-black text-white text-sm uppercase tracking-tight group-hover:text-rose-400 transition-colors">{log.action}</div>
-                              <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">{log.entity} <span className="text-slate-800 ml-1">ID: {log.entityId?.slice(-8)}</span></div>
+                              <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">{log.entity} <span className="text-slate-800 dark:text-white ml-1">ID: {log.entityId?.slice(-8)}</span></div>
                            </div>
                         </div>
                       </TableCell>

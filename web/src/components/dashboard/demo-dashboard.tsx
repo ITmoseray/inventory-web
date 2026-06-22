@@ -134,7 +134,7 @@ export function DemoDashboard() {
               <Info className="h-4 w-4 text-amber-600" />
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <p className="text-sm font-bold text-slate-800 text-slate-900">
+              <p className="text-sm font-bold text-slate-800 dark:text-white text-slate-900 dark:text-white">
                 Your premium trial plan ends today.
               </p>
               <div className="hidden sm:block h-3 w-px bg-slate-200" />
@@ -173,12 +173,12 @@ export function DemoDashboard() {
 
           <div className="flex items-center gap-6">
             <button className="relative p-2 rounded-full hover:bg-slate-50 transition-all group">
-               <Bell className="h-5 w-5 text-slate-400 group-hover:text-slate-900" />
+               <Bell className="h-5 w-5 text-slate-400 group-hover:text-slate-900 dark:text-white" />
                <div className="absolute top-2 right-2 h-2 w-2 bg-rose-500 rounded-full border-2 border-white" />
             </button>
             <div className="flex items-center gap-3 pl-6 border-l border-slate-100">
                <div className="text-right hidden sm:block">
-                  <p className="text-xs font-[1000] text-slate-900 leading-none">strangesteven001</p>
+                  <p className="text-xs font-[1000] text-slate-900 dark:text-white leading-none">strangesteven001</p>
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Admin Account</p>
                </div>
                <div className="h-10 w-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-indigo-600 font-black text-sm">
@@ -196,7 +196,7 @@ export function DemoDashboard() {
                 <div className="h-1.5 w-8 bg-indigo-600 rounded-full" />
                 <h2 className="text-xs font-black uppercase tracking-[0.4em] text-indigo-600">Home Intelligence</h2>
              </div>
-             <h1 className="text-5xl font-black text-slate-900 tracking-tighter uppercase italic">Hello, <span className="text-indigo-600">strangesteven001</span></h1>
+             <h1 className="text-5xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic">Hello, <span className="text-indigo-600">strangesteven001</span></h1>
           </div>
 
           {/* Tabs */}
@@ -243,7 +243,7 @@ export function DemoDashboard() {
                               </div>
                               <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Active</span>
                            </div>
-                           <p className="text-3xl font-black text-slate-900 tracking-tighter mb-1">{item.value}</p>
+                           <p className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter mb-1">{item.value}</p>
                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{item.label}</p>
                         </CardContent>
                      </Card>
@@ -323,7 +323,7 @@ export function DemoDashboard() {
                             <div key={vendor.name} className="flex items-center justify-between group cursor-pointer">
                                <div className="flex items-center gap-3">
                                   <div className="h-2 w-2 rounded-full" style={{ backgroundColor: vendor.color }} />
-                                  <span className="text-xs font-black text-slate-900 uppercase tracking-tight group-hover:text-indigo-600 transition-colors">{vendor.name}</span>
+                                  <span className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight group-hover:text-indigo-600 transition-colors">{vendor.name}</span>
                                </div>
                                <span className="text-xs font-[1000] text-slate-400 italic">{vendor.value}%</span>
                             </div>
@@ -356,12 +356,12 @@ export function DemoDashboard() {
                                        <Box className="h-6 w-6 text-slate-400" />
                                     </div>
                                     <div>
-                                       <h4 className="text-sm font-black text-slate-900 uppercase tracking-tight">{item.name}</h4>
+                                       <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.name}</h4>
                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">SKU: {item.sku}</p>
                                     </div>
                                  </div>
                                  <div className="text-right">
-                                    <p className="text-sm font-black text-slate-900 tracking-tighter">{item.qty}</p>
+                                    <p className="text-sm font-black text-slate-900 dark:text-white tracking-tighter">{item.qty}</p>
                                     <p className="text-[9px] font-black text-emerald-500 mt-1">+{item.growth}</p>
                                  </div>
                               </div>
@@ -395,8 +395,8 @@ export function DemoDashboard() {
                                  <tr key={i} className="hover:bg-slate-50 transition-colors">
                                     <td className="px-6 py-5 text-[10px] font-bold text-slate-500">{item.date}</td>
                                     <td className="px-6 py-5 text-[10px] font-black text-indigo-600">{item.id}</td>
-                                    <td className="px-6 py-5 text-[10px] font-black text-slate-900 uppercase tracking-tight">{item.vendor}</td>
-                                    <td className="px-6 py-5 text-[10px] font-black text-slate-900 text-right">{item.qty}</td>
+                                    <td className="px-6 py-5 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tight">{item.vendor}</td>
+                                    <td className="px-6 py-5 text-[10px] font-black text-slate-900 dark:text-white text-right">{item.qty}</td>
                                  </tr>
                                ))}
                             </tbody>
@@ -418,7 +418,7 @@ export function DemoDashboard() {
                 <div className="flex flex-col lg:flex-row gap-12">
                    <div className="flex-1 space-y-8">
                       <div>
-                        <h2 className="text-4xl font-black text-slate-900 tracking-tighter uppercase italic leading-none">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
+                        <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
                         <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600 mt-4">Overview of Protech Inventory</p>
                         <p className="text-slate-500 font-medium text-lg mt-4 max-w-2xl leading-relaxed">
                           The easy-to-use inventory software that you can set up in no time! Let's get you up and running effectively.
@@ -433,7 +433,7 @@ export function DemoDashboard() {
                                   <Zap className="h-5 w-5 fill-current" />
                                </div>
                                <div>
-                                  <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight italic">Let's get you up and running</h3>
+                                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic">Let's get you up and running</h3>
                                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Phase 01 Configuration</p>
                                </div>
                             </div>
@@ -457,7 +457,7 @@ export function DemoDashboard() {
                                  <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 group hover:border-indigo-200 transition-all cursor-pointer">
                                     <div className="flex items-center gap-4">
                                        <div className="h-8 w-8 rounded-full border-2 border-slate-200 flex items-center justify-center text-xs font-black text-slate-400 group-hover:border-indigo-600 group-hover:text-indigo-600">{i+1}</div>
-                                       <span className="text-sm font-black text-slate-900 uppercase tracking-tight">{step}</span>
+                                       <span className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">{step}</span>
                                     </div>
                                     <CheckCircle2 className="h-5 w-5 text-slate-200 group-hover:text-indigo-600" />
                                  </div>
@@ -499,7 +499,7 @@ export function DemoDashboard() {
                     </div>
                     <div className="pb-12">
                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{update.date}</span>
-                       <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mt-2 mb-4 group-hover:text-indigo-600 transition-colors">{update.title}</h3>
+                       <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mt-2 mb-4 group-hover:text-indigo-600 transition-colors">{update.title}</h3>
                        <p className="text-slate-500 font-medium leading-relaxed max-w-2xl">{update.desc}</p>
                        <Button variant="outline" className="mt-6 rounded-xl border-slate-200 text-[10px] font-black uppercase tracking-widest px-6">Read More</Button>
                     </div>

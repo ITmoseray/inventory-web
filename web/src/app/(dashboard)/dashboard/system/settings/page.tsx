@@ -23,19 +23,19 @@ const SETTINGS_GROUPS = [
     title: "Organization Settings",
     icon: Building,
     items: [
-      { name: "Organization Profile", icon: Building },
+      { name: "Organization Profile", icon: Building, url: "/dashboard/system/settings/business" },
       { name: "Branding", icon: Sparkles },
       { name: "Locations", icon: MapPin },
       { name: "AI Integration", icon: Zap },
-      { name: "Manage Subscription", icon: CreditCard }
+      { name: "Manage Subscription", icon: CreditCard, url: "/dashboard/billing" }
     ]
   },
   {
     title: "Users & Roles",
     icon: Users,
     items: [
-      { name: "Users", icon: Users },
-      { name: "Roles", icon: ShieldCheck },
+      { name: "Users", icon: Users, url: "/dashboard/staff/employees" },
+      { name: "Roles", icon: ShieldCheck, url: "/dashboard/staff/roles" },
       { name: "User Preferences", icon: Settings, url: "/dashboard/system/profile" }
     ]
   },
@@ -83,15 +83,15 @@ const SETTINGS_GROUPS = [
     title: "Module Settings",
     icon: Box,
     items: [
-      { name: "Customers and Vendors", icon: Users },
-      { name: "Items & Inventory", icon: Package },
+      { name: "Customers and Vendors", icon: Users, url: "/dashboard/customers" },
+      { name: "Items & Inventory", icon: Package, url: "/dashboard/inventory/products" },
       { name: "Units of Measurement", icon: Layers },
       { name: "Inventory Adjustments", icon: Edit },
-      { name: "Packages & Shipments", icon: Truck },
+      { name: "Packages & Shipments", icon: Truck, url: "/dashboard/inventory/packages" },
       { name: "Online Payments", icon: CreditCard },
-      { name: "Sales Orders & Invoices", icon: ShoppingCart },
-      { name: "Sales Returns & Credits", icon: Undo },
-      { name: "Purchases & Expenses", icon: Wallet },
+      { name: "Sales Orders & Invoices", icon: ShoppingCart, url: "/dashboard/sales/orders" },
+      { name: "Sales Returns & Credits", icon: Undo, url: "/dashboard/sales/returns" },
+      { name: "Purchases & Expenses", icon: Wallet, url: "/dashboard/purchases" },
       { name: "Custom Modules", icon: Layout }
     ]
   },
@@ -122,7 +122,7 @@ const SETTINGS_GROUPS = [
     items: [
       { name: "Deluge Components Usage", icon: Terminal },
       { name: "Web Forms", icon: FileSpreadsheet },
-      { name: "Audit Trail", icon: History },
+      { name: "Audit Trail", icon: History, url: "/dashboard/system/logs" },
       { name: "Backup & Recovery", icon: Database }
     ]
   }
@@ -177,7 +177,7 @@ export default function SettingsPage() {
       </header>
 
       {/* Main Grid Content */}
-      <main className="max-w-[1400px] mx-auto p-12">
+      <main className="max-w-[1400px] mx-auto p-4 sm:p-8 lg:p-12">
          
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-12 gap-y-20">
             {filteredGroups.map((group, groupIdx) => (
@@ -201,7 +201,7 @@ export default function SettingsPage() {
                          <>
                             <div className="flex items-center gap-4">
                                <item.icon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
-                               <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">{item.name}</span>
+                               <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-white dark:group-hover:text-white transition-colors">{item.name}</span>
                             </div>
                             <ArrowRight className="h-3 w-3 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                          </>
@@ -234,15 +234,15 @@ export default function SettingsPage() {
          </div>
 
          {/* Extended Marketplace Promo */}
-         <section className="mt-32 p-16 rounded-[3rem] bg-slate-900 text-white overflow-hidden relative group">
+         <section className="mt-32 p-8 md:p-12 lg:p-16 rounded-3xl md:rounded-[3rem] bg-slate-900 text-white overflow-hidden relative group">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
-            <div className="grid lg:grid-cols-2 gap-20 items-center relative z-10">
-               <div className="space-y-8">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center relative z-10">
+               <div className="space-y-6 lg:space-y-8">
                   <div className="flex items-center gap-3">
                      <Landmark className="h-6 w-6 text-indigo-400" />
                      <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Marketplace Ecosystem</span>
                   </div>
-                  <h2 className="text-5xl font-black tracking-tighter uppercase italic leading-[0.9]">
+                  <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase italic leading-[0.9]">
                     Extend your Protech <br /><span className="text-indigo-400">Capabilities!</span>
                   </h2>
                   <p className="text-slate-400 font-medium text-lg leading-relaxed max-w-md uppercase tracking-tight text-[12px]">
@@ -251,10 +251,10 @@ export default function SettingsPage() {
                   <Button className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-[0.3em] text-[11px] hover:scale-105 transition-all shadow-2xl">Explore Marketplace</Button>
                </div>
                
-               <div className="flex flex-wrap gap-4 items-center justify-center p-12 bg-white/5 rounded-[3rem] border border-white/10 backdrop-blur-xl">
+               <div className="flex flex-wrap gap-4 items-center justify-center p-6 lg:p-12 bg-white/5 rounded-3xl lg:rounded-[3rem] border border-white/10 backdrop-blur-xl">
                   {[1, 2, 3, 4, 5, 6].map(i => (
-                    <div key={i} className="h-20 w-32 bg-white/10 rounded-2xl flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
-                       <Plus className="h-6 w-6 text-slate-500" />
+                    <div key={i} className="h-16 lg:h-20 w-24 lg:w-32 bg-white/10 rounded-xl lg:rounded-2xl flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
+                       <Plus className="h-5 w-5 lg:h-6 lg:w-6 text-slate-500" />
                     </div>
                   ))}
                </div>

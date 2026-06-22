@@ -214,7 +214,7 @@ export default function LoginPage() {
                       </div>
                       <div className="min-w-0">
                          <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Account Node</p>
-                         <p className="text-sm font-black text-slate-900 truncate max-w-[180px]">{email}</p>
+                         <p className="text-sm font-black text-slate-900 dark:text-white truncate max-w-[180px]">{email}</p>
                       </div>
                    </div>
                    <button 
@@ -289,7 +289,7 @@ export default function LoginPage() {
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Protech Account</p>
                        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     </div>
-                    <p className="text-sm font-black text-slate-900">{email}</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white">{email}</p>
                  </div>
 
                  <div className="h-px bg-indigo-100" />
@@ -299,7 +299,7 @@ export default function LoginPage() {
                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Google Account</p>
                        <Image src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width={14} height={14} />
                     </div>
-                    <p className="text-sm font-black text-slate-900">{email}</p>
+                    <p className="text-sm font-black text-slate-900 dark:text-white">{email}</p>
                  </div>
               </div>
 

@@ -27,8 +27,10 @@ import {
   Bell,
   Clock,
   Zap,
-  Globe
+  Globe,
+  Download
 } from "lucide-react";
+import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -131,8 +133,54 @@ export default function UserManualPage() {
     }
   ];
 
+  const handleDownloadPDF = async () => {
+    toast.info("Analyzing next-gen CSS & Generating PDF... Please wait.");
+    try {
+      // @ts-ignore
+      const domtoimage = (await import('dom-to-image-more')).default;
+      const { jsPDF } = await import('jspdf');
+      
+      const element = document.getElementById('manual-content');
+      if (!element) return;
+      
+      // Use dom-to-image to perfectly capture modern CSS (oklab, color-mix, etc.) via SVG rendering
+      const dataUrl = await domtoimage.toPng(element, { 
+        quality: 0.95,
+        bgcolor: '#ffffff',
+        scale: 2 // Higher resolution
+      });
+      
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(dataUrl, 'PNG', 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pageHeight;
+
+      // Add subsequent pages if the content is longer than one A4 page
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight; // Shift the image up
+        pdf.addPage();
+        pdf.addImage(dataUrl, 'PNG', 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pageHeight;
+      }
+      
+      pdf.save('Protech_System_Manual.pdf');
+      toast.success("PDF downloaded successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate PDF");
+    }
+  };
+
   return (
-    <div className="min-h-full p-6 md:p-10 space-y-10 bg-slate-50/30 selection:bg-indigo-600/10 selection:text-indigo-600">
+    <div id="manual-content" className="min-h-full p-6 md:p-10 space-y-10 bg-slate-50/30 selection:bg-indigo-600/10 selection:text-indigo-600">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
@@ -142,14 +190,24 @@ export default function UserManualPage() {
               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 italic">Enterprise Documentation</span>
            </div>
            <div className="space-y-1">
-              <h1 className="text-4xl md:text-6xl font-[1000] tracking-tighter uppercase italic text-slate-950 leading-none">System <span className="text-indigo-600">Manual</span></h1>
+              <h1 className="text-4xl md:text-6xl font-[1000] tracking-tighter uppercase italic text-slate-950 dark:text-white leading-none">System <span className="text-indigo-600">Manual</span></h1>
               <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.4em] italic mt-2">Mastering your inventory & trade ecosystem</p>
            </div>
         </div>
         
-        <div className="flex gap-4">
-           <Button className="h-16 px-10 rounded-[2rem] bg-slate-950 dark:bg-indigo-600 text-white font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.05] transition-all active:scale-95 gap-3">
-              <Zap className="h-4 w-4" /> Download PDF Manual
+        <div className="flex flex-col sm:flex-row gap-4">
+           <Button 
+              onClick={() => window.print()}
+              variant="outline"
+              className="h-16 px-10 rounded-[2rem] border-slate-200 bg-white dark:bg-slate-900 text-slate-900 dark:text-white font-black uppercase text-xs tracking-widest shadow-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all active:scale-95 gap-3"
+           >
+              <Printer className="h-4 w-4" /> Print Manual
+           </Button>
+           <Button 
+              onClick={handleDownloadPDF}
+              className="h-16 px-10 rounded-[2rem] bg-slate-950 dark:bg-indigo-600 text-white font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.05] transition-all active:scale-95 gap-3"
+           >
+              <Download className="h-4 w-4" /> Download PDF
            </Button>
         </div>
       </div>
@@ -180,7 +238,7 @@ export default function UserManualPage() {
                        <section.icon size={40} />
                     </div>
                     <div>
-                       <CardTitle className="text-2xl font-[1000] text-slate-950 uppercase italic tracking-tight leading-none mb-2">{section.title}</CardTitle>
+                       <CardTitle className="text-2xl font-[1000] text-slate-950 dark:text-white uppercase italic tracking-tight leading-none mb-2">{section.title}</CardTitle>
                        <p className="text-[10px] font-black text-slate-300 uppercase tracking-[0.4em]">Integrated Intelligence Node</p>
                     </div>
                  </CardHeader>
@@ -192,7 +250,7 @@ export default function UserManualPage() {
                            <div key={i} className="flex items-start gap-6 group/item">
                               <div className="mt-2 h-2 w-2 rounded-full bg-indigo-200 group-hover/item:bg-indigo-600 transition-colors shrink-0" />
                               <div>
-                                 <p className="text-sm font-black text-slate-900 uppercase tracking-tight italic mb-1">{heading}</p>
+                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight italic mb-1">{heading}</p>
                                  <p className="text-sm font-medium text-slate-500 leading-relaxed">{description}</p>
                               </div>
                            </div>

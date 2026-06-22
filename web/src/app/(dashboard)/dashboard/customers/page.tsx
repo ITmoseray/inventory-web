@@ -358,7 +358,7 @@ export default function CustomersPage() {
                       <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform", source.bg)}>
                          <source.icon className={cn("h-6 w-6", source.color)} />
                       </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-900 transition-colors">{source.name}</span>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-white transition-colors">{source.name}</span>
                    </button>
                  ))}
               </div>

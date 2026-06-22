@@ -120,8 +120,8 @@ const SidebarContentRenderer = ({
             >
                 <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl shadow-xl shadow-primary/20 ring-4 ring-primary/5">
                   <Image 
-                    src={`${businessContext.logoUrl || "/images/logo2.jpeg"}?t=${Date.now()}`} 
-                    alt="Logo" 
+                    src="/images/logo2.jpeg" 
+                    alt="Protech Logo" 
                     fill 
                     className="object-cover"
                     unoptimized 
@@ -237,7 +237,7 @@ const SidebarContentRenderer = ({
                                         "block px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
                                         isSubActive 
                                           ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/30" 
-                                          : "text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900"
+                                          : "text-slate-400 hover:text-slate-900 dark:text-white dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900"
                                       )}
                                     >
                                       {subItem.title}
@@ -272,7 +272,7 @@ const SidebarContentRenderer = ({
               >
                   <Avatar className="h-9 w-9 rounded-xl border-2 border-white dark:border-slate-800 shadow-md">
                     <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
-                    <AvatarFallback className="rounded-xl bg-primary text-white font-black text-xs">
+                    <AvatarFallback className="rounded-xl bg-primary text-white dark:text-primary-foreground font-black text-xs">
                       {session?.user?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>

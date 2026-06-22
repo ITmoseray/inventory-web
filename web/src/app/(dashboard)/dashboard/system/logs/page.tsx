@@ -228,7 +228,7 @@ export default function AuditLogsPage() {
                     </div>
                     <div>
                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Authorized By</p>
-                       <p className="text-sm font-bold text-slate-900">{selectedLog?.userName}</p>
+                       <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedLog?.userName}</p>
                     </div>
                  </div>
                  <Button variant="outline" className="h-10 rounded-xl border-slate-200 font-black text-[9px] uppercase tracking-widest">

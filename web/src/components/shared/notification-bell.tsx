@@ -94,7 +94,7 @@ export function NotificationBell() {
                >
                   <div className="mt-1">{getIcon(n.type)}</div>
                   <div className="flex-1 space-y-1">
-                     <p className={cn("text-xs font-black text-slate-800", !n.isRead && "text-primary")}>{n.title}</p>
+                     <p className={cn("text-xs font-black text-slate-800 dark:text-white", !n.isRead && "text-primary")}>{n.title}</p>
                      <p className="text-[10px] font-bold text-slate-400 leading-tight">{n.message}</p>
                      <p className="text-[8px] font-black text-slate-300 uppercase">{format(new Date(n.createdAt), "hh:mm a • MMM dd")}</p>
                   </div>

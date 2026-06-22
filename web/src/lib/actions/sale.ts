@@ -145,6 +145,9 @@ export async function createSale(data: {
       }
 
       return newSale;
+    }, {
+      maxWait: 20000, // 20s to acquire connection
+      timeout: 30000, // 30s timeout to execute transaction
     });
 
     // Revalidate relevant paths to update dashboard and inventory UI
@@ -342,6 +345,10 @@ export async function updateSaleStatus(saleId: string, status: string, note?: st
   try {
     const session = await auth();
     if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
+
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+      throw new Error("Unauthorized: Only administrators can modify this data.");
+    }
 
     const businessId = session.user.businessId;
     const userId = session.user.id;
