@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "./audit";
 
 export async function getCategories() {
   const session = await auth();
@@ -37,6 +38,13 @@ export async function createCategory(data: { name: string; description?: string 
       },
     });
 
+    await logAudit({
+      action: `Created Category: ${category.name}`,
+      entity: "CATEGORY",
+      entityId: category.id,
+      newData: category
+    });
+
     revalidatePath("/dashboard/inventory/categories");
     return {
       ...category,
@@ -60,6 +68,13 @@ export async function updateCategory(id: string, data: { name: string; descripti
     data,
   });
 
+  await logAudit({
+    action: `Updated Category: ${category.name}`,
+    entity: "CATEGORY",
+    entityId: category.id,
+    newData: category
+  });
+
   revalidatePath("/dashboard/inventory/categories");
   return {
     ...category,
@@ -74,8 +89,14 @@ export async function deleteCategory(id: string) {
     throw new Error("Unauthorized");
   }
 
-  await prisma.category.delete({
+  const deletedCategory = await prisma.category.delete({
     where: { id, businessId: session.user.businessId },
+  });
+
+  await logAudit({
+    action: `Deleted Category: ${deletedCategory.name}`,
+    entity: "CATEGORY",
+    entityId: id
   });
 
   revalidatePath("/dashboard/inventory/categories");

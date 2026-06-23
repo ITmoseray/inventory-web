@@ -264,6 +264,7 @@ export default function POSPage() {
         // Prepare Receipt
         const customerObj = customers.find(c => c.id === selectedCustomer);
         setReceiptData({
+          id: result.saleId,
           items: cart,
           total: grandTotal,
           paid: isCredit ? partialPaid : grandTotal,
@@ -298,6 +299,7 @@ export default function POSPage() {
       <div className="absolute top-0 left-0 -z-50 opacity-0 pointer-events-none print:opacity-100 print:z-[9999]">
         {receiptData && (
           <ThermalReceipt 
+            id={receiptData.id}
             ref={receiptRef}
             items={receiptData.items}
             total={receiptData.total}
@@ -586,7 +588,7 @@ export default function POSPage() {
            <Button 
               onClick={() => setIsCheckoutOpen(true)}
               disabled={cart.length === 0}
-              className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-primary font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl shadow-primary/30 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
            >
               Proceed to Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" />
            </Button>
@@ -873,6 +875,7 @@ export default function POSPage() {
              {/* Render a visual preview of the receipt component without refs */}
              {receiptData && (
                <ThermalReceipt 
+                 id={receiptData.id}
                  items={receiptData.items}
                  total={receiptData.total}
                  paid={receiptData.paid}
@@ -902,7 +905,7 @@ export default function POSPage() {
              </Button>
              <Button 
                onClick={() => window.print()}
-               className="flex-[1.5] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 dark:bg-primary text-white shadow-xl hover:scale-105 transition-transform"
+               className="flex-[1.5] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl hover:scale-105 transition-transform"
              >
                <Printer className="mr-2 h-4 w-4" /> Print
              </Button>

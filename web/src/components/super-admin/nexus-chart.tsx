@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import {
   AreaChart,
   Area,
@@ -18,6 +20,15 @@ interface NexusChartProps {
 }
 
 export function NexusChart({ data, dataKey, category, color = "#6366f1" }: NexusChartProps) {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = !mounted || resolvedTheme === "dark";
+
   return (
     <div className="h-[200px] w-full">
       <ResponsiveContainer width="100%" height="100%">
@@ -36,16 +47,16 @@ export function NexusChart({ data, dataKey, category, color = "#6366f1" }: Nexus
               <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1e293b" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={isDark ? "rgba(255,255,255,0.07)" : "rgba(0,0,0,0.06)"} />
           <XAxis 
             dataKey={category} 
-            stroke="#475569" 
+            stroke={isDark ? "#475569" : "#94a3b8"} 
             fontSize={10} 
             tickLine={false} 
             axisLine={false} 
           />
           <YAxis 
-            stroke="#475569" 
+            stroke={isDark ? "#475569" : "#94a3b8"} 
             fontSize={10} 
             tickLine={false} 
             axisLine={false} 
@@ -53,14 +64,15 @@ export function NexusChart({ data, dataKey, category, color = "#6366f1" }: Nexus
           />
           <Tooltip 
             contentStyle={{ 
-              backgroundColor: "#0f172a", 
-              border: "1px solid #1e293b", 
+              backgroundColor: isDark ? "#0f172a" : "#ffffff", 
+              border: isDark ? "1px solid #1e293b" : "1px solid #e2e8f0", 
               borderRadius: "12px",
               fontSize: "10px",
               fontWeight: "bold",
-              color: "#fff"
+              color: isDark ? "#ffffff" : "#0f172a",
+              boxShadow: isDark ? "0 10px 15px -3px rgba(0, 0, 0, 0.3)" : "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
             }}
-            itemStyle={{ color: "#fff" }}
+            itemStyle={{ color: isDark ? "#ffffff" : "#0f172a" }}
           />
           <Area
             type="monotone"

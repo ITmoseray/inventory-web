@@ -80,11 +80,11 @@ export function GlobalSearch() {
   return (
     <>
       <div 
-        className="relative w-auto md:w-full max-w-md group cursor-pointer"
+        className="relative w-auto lg:w-full max-w-md group cursor-pointer"
         onClick={() => setOpen(true)}
       >
         {/* Desktop Input */}
-        <div className="hidden md:flex relative w-full h-11 bg-slate-50 dark:bg-slate-900 rounded-xl border-none pl-12 pr-4 text-sm font-medium items-center text-slate-400 group-hover:ring-2 group-hover:ring-indigo-600/20 transition-all">
+        <div className="hidden lg:flex relative w-full h-11 bg-slate-50 dark:bg-slate-900 rounded-xl border-none pl-12 pr-4 text-sm font-medium items-center text-slate-400 group-hover:ring-2 group-hover:ring-indigo-600/20 transition-all">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
           <span className="truncate">Search dashboard or jump to...</span>
           <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-2 font-mono text-[10px] font-medium text-slate-500 opacity-100 shadow-sm shrink-0">
@@ -92,7 +92,7 @@ export function GlobalSearch() {
           </kbd>
         </div>
         {/* Mobile Icon */}
-        <div className="md:hidden flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+        <div className="lg:hidden flex h-11 w-11 items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-900 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
            <Search className="h-5 w-5" />
         </div>
       </div>

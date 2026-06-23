@@ -114,21 +114,21 @@ export default function TenantVault() {
   );
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 text-slate-200">
+    <div className="p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
            <div className="space-y-2">
-              <Link href="/super-admin" className="flex items-center gap-2 text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors mb-4">
+              <Link href="/super-admin" className="flex items-center gap-2 text-indigo-650 dark:text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mb-4">
                  <ArrowLeft className="h-3 w-3" /> Back to Nexus
               </Link>
-              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-white uppercase italic">Tenant <span className="text-indigo-500">Vault</span></h1>
+              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Tenant <span className="text-indigo-500">Vault</span></h1>
               <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">Operational node registry & license management</p>
            </div>
            
            <div className="flex gap-4">
-              <GlassCard className="p-1 px-4 flex items-center gap-3 bg-slate-900/20 border-slate-800">
+              <GlassCard className="p-1 px-4 flex items-center gap-3 bg-slate-100/50 dark:bg-slate-900/20 border-slate-200 dark:border-slate-800">
                  <Filter className="h-4 w-4 text-slate-500" />
                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Filters Active: 0</span>
               </GlassCard>
@@ -136,12 +136,12 @@ export default function TenantVault() {
         </div>
 
         {/* Search Bar */}
-        <GlassCard className="p-4 bg-slate-900/40">
+        <GlassCard className="p-4 bg-white dark:bg-slate-900/40">
           <div className="relative group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-600 group-focus-within:text-indigo-500 transition-colors" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-650 group-focus-within:text-indigo-500 transition-colors" />
             <Input 
               placeholder="Search by intelligence node name or slug..." 
-              className="pl-12 h-14 rounded-2xl border-slate-800 bg-slate-950/50 text-white font-bold placeholder:text-slate-700 focus:ring-4 focus:ring-indigo-500/10 transition-all"
+              className="pl-12 h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700 focus:ring-4 focus:ring-indigo-500/10 transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -149,11 +149,11 @@ export default function TenantVault() {
         </GlassCard>
 
         {/* Tenants Table */}
-        <GlassCard className="overflow-hidden border-slate-800/50">
+        <GlassCard className="overflow-hidden border-slate-200/80 dark:border-slate-800/50">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-900/50">
-                <TableRow className="hover:bg-transparent border-slate-800">
+            <Table className="min-w-[900px]">
+              <TableHeader className="bg-slate-100/50 dark:bg-slate-900/50">
+                <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest pl-10 h-16">Node Identification</TableHead>
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-16">Intelligence Level</TableHead>
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest text-center h-16">Matrix Stats</TableHead>
@@ -164,9 +164,9 @@ export default function TenantVault() {
               <TableBody>
                 {loading ? (
                   [1,2,3,4,5].map(i => (
-                    <TableRow key={i} className="border-slate-900">
+                    <TableRow key={i} className="border-slate-200 dark:border-slate-900">
                       <TableCell colSpan={5} className="h-24 p-0">
-                         <div className="h-full w-full bg-slate-900/20 animate-pulse" />
+                         <div className="h-full w-full bg-slate-200/50 dark:bg-slate-900/20 animate-pulse" />
                       </TableCell>
                     </TableRow>
                   ))
@@ -181,14 +181,14 @@ export default function TenantVault() {
                   </TableRow>
                 ) : (
                   filtered.map((b) => (
-                    <TableRow key={b.id} className="hover:bg-white/5 border-slate-900 group transition-all">
+                    <TableRow key={b.id} className="hover:bg-slate-100/50 dark:hover:bg-white/5 border-slate-200 dark:border-slate-900 group transition-all">
                       <TableCell className="pl-10 py-6">
                         <div className="flex items-center gap-5">
                           <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-black text-xl shadow-lg shadow-indigo-500/5 group-hover:scale-110 transition-transform">
                             {b.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-black text-white text-lg tracking-tight group-hover:text-indigo-400 transition-colors">{b.name}</span>
+                            <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">{b.name}</span>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">SLUG: {b.slug}</span>
                           </div>
                         </div>
@@ -198,7 +198,7 @@ export default function TenantVault() {
                           <div className={cn(
                             "inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase w-fit tracking-widest shadow-lg",
                             b.plan === 'PREMIUM' ? "bg-indigo-600 text-white shadow-indigo-600/20" : 
-                            b.plan === 'STANDARD' ? "bg-blue-600 text-white shadow-blue-600/20" : "bg-slate-800 text-slate-400"
+                            b.plan === 'STANDARD' ? "bg-blue-600 text-white shadow-blue-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400"
                           )}>
                             {b.plan === 'PREMIUM' && <Zap className="h-3 w-3 mr-1.5 fill-current" />}
                             {b.plan}
@@ -215,15 +215,15 @@ export default function TenantVault() {
                       <TableCell>
                         <div className="flex items-center justify-center gap-6">
                            <div className="flex flex-col items-center">
-                              <span className="text-sm font-black text-white">{b._count.products}</span>
+                              <span className="text-sm font-black text-slate-900 dark:text-white">{b._count.products}</span>
                               <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">SKUs</span>
                            </div>
                            <div className="flex flex-col items-center">
-                              <span className="text-sm font-black text-white">{b._count.sales}</span>
+                              <span className="text-sm font-black text-slate-900 dark:text-white">{b._count.sales}</span>
                               <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Trans</span>
                            </div>
                            <div className="flex flex-col items-center">
-                              <span className="text-sm font-black text-white">{b._count.users}</span>
+                              <span className="text-sm font-black text-slate-900 dark:text-white">{b._count.users}</span>
                               <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Staff</span>
                            </div>
                         </div>
@@ -236,32 +236,32 @@ export default function TenantVault() {
                       <TableCell className="pr-10">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-white/5">
-                              <MoreVertical className="h-5 w-5 text-slate-600" />
+                            <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5">
+                              <MoreVertical className="h-5 w-5 text-slate-500" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] bg-slate-900 border-slate-800 text-slate-200 p-2 shadow-2xl backdrop-blur-xl">
+                          <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 p-2 shadow-2xl backdrop-blur-xl">
                             {b.status === 'PENDING' && (
-                               <DropdownMenuItem onClick={() => handleApprove(b.id)} className="rounded-xl p-3 font-black text-emerald-500 focus:bg-emerald-500/10 focus:text-emerald-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                               <DropdownMenuItem onClick={() => handleApprove(b.id)} className="rounded-xl p-3 font-black text-emerald-600 dark:text-emerald-500 focus:bg-emerald-50 dark:focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
                                  <CheckCircle className="h-4 w-4 mr-3" /> Activate Node
                                </DropdownMenuItem>
                             )}
                             <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">License Control</div>
-                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "FREE")} className="rounded-xl p-3 font-bold text-slate-400 focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Downgrade: FREE</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "BASIC")} className="rounded-xl p-3 font-bold text-slate-400 focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: BASIC</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "STANDARD")} className="rounded-xl p-3 font-bold text-slate-400 focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: STANDARD</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "PREMIUM")} className="rounded-xl p-3 font-black text-indigo-500 focus:bg-indigo-500/10 focus:text-indigo-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Upgrade: PREMIUM</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "FREE")} className="rounded-xl p-3 font-bold text-slate-600 dark:text-slate-400 focus:bg-slate-100 dark:focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Downgrade: FREE</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "BASIC")} className="rounded-xl p-3 font-bold text-slate-600 dark:text-slate-400 focus:bg-slate-100 dark:focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: BASIC</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "STANDARD")} className="rounded-xl p-3 font-bold text-slate-600 dark:text-slate-400 focus:bg-slate-100 dark:focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: STANDARD</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "PREMIUM")} className="rounded-xl p-3 font-black text-indigo-600 dark:text-indigo-400 focus:bg-indigo-50 dark:focus:bg-indigo-500/10 focus:text-indigo-650 dark:focus:text-indigo-400 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Upgrade: PREMIUM</DropdownMenuItem>
                             
-                            <div className="h-px bg-slate-800 my-2" />
+                            <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
                             <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Matrix Override</div>
                             
-                            <DropdownMenuItem onClick={() => handleResetPassword(b.id)} className="rounded-xl p-3 font-black text-rose-500 focus:bg-rose-500/10 focus:text-rose-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                            <DropdownMenuItem onClick={() => handleResetPassword(b.id)} className="rounded-xl p-3 font-black text-rose-600 dark:text-rose-500 focus:bg-rose-50 dark:focus:bg-rose-500/10 focus:text-rose-650 dark:focus:text-rose-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
                               <KeyRound className="h-4 w-4 mr-3" /> Reset Node Key
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleImpersonate(b.id)} className="rounded-xl p-3 font-black text-amber-500 focus:bg-amber-500/10 focus:text-amber-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                            <DropdownMenuItem onClick={() => handleImpersonate(b.id)} className="rounded-xl p-3 font-black text-amber-600 dark:text-amber-500 focus:bg-amber-50 dark:focus:bg-amber-500/10 focus:text-amber-650 dark:focus:text-amber-550 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
                               <UserCheck className="h-4 w-4 mr-3" /> Sub-node Entry
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleDelete(b.id, b.name)} className="rounded-xl p-3 font-black text-rose-600 focus:bg-rose-900/20 focus:text-rose-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
+                            <DropdownMenuItem onClick={() => handleDelete(b.id, b.name)} className="rounded-xl p-3 font-black text-rose-600 dark:text-rose-500 focus:bg-rose-50 dark:focus:bg-rose-950/20 focus:text-rose-600 dark:focus:text-rose-450 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
                               <Trash2 className="h-4 w-4 mr-3" /> Purge Node
                             </DropdownMenuItem>
                           </DropdownMenuContent>

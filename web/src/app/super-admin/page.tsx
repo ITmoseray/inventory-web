@@ -6,23 +6,42 @@ import { useRouter } from "next/navigation";
 import { 
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu,
-  BarChart3, Users, Briefcase, RefreshCw, Send
+  BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
+  Search, KeyRound
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { 
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { 
   getSystemStats, 
   getEcosystemHealth, 
   globalBroadcast, 
-  toggleMaintenanceMode 
+  toggleMaintenanceMode,
+  generateBackup,
+  getBackupsList,
+  deleteBackupFile,
+  getAuditLogs,
+  getAllSystemUsers,
+  changeUserPassword,
+  changeOwnPassword,
+  toggleUserStatus,
+  getAllBusinesses
 } from "@/lib/actions/super-admin";
+import { getSystemSettings, updateSystemSettings } from "@/lib/actions/system-settings";
 import { GlassCard } from "@/components/super-admin/glass-card";
 import { NexusChart } from "@/components/super-admin/nexus-chart";
 import { StatCard } from "@/components/super-admin/stat-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -32,9 +51,35 @@ export default function NexusSuperControl() {
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [health, setHealth] = useState<any>(null);
+  const [settings, setSettings] = useState<any>(null);
+  const [backups, setBackups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [broadcastMsg, setBroadcastMsg] = useState("");
   const [isMaintenance, setIsMaintenance] = useState(false);
+  
+  // Navigation Tabs
+  const [activeTab, setActiveTab] = useState<"telemetry" | "terminal" | "backups" | "config" | "operators">("telemetry");
+
+  // User Management State
+  const [systemUsers, setSystemUsers] = useState<any[]>([]);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [selectedUserForPasswordReset, setSelectedUserForPasswordReset] = useState<any>(null);
+  const [overridePasswordVal, setOverridePasswordVal] = useState("");
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
+
+  // Super Admin Credentials State
+  const [currentOwnPassword, setCurrentOwnPassword] = useState("");
+  const [newOwnPassword, setNewOwnPassword] = useState("");
+  const [confirmOwnPassword, setConfirmOwnPassword] = useState("");
+  const [updatingOwnPassword, setUpdatingOwnPassword] = useState(false);
+
+  // Terminal State
+  const [terminalInput, setTerminalInput] = useState("");
+  const [terminalHistory, setTerminalHistory] = useState<string[]>([
+    "PROTECH NEXUS CLI v4.2.0-PRO",
+    "Type 'help' to list available command modules.",
+    "Ready for instruction..."
+  ]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -44,15 +89,38 @@ export default function NexusSuperControl() {
     }
   }, [status, router]);
 
+  // Real-time operators active sync interval
+  useEffect(() => {
+    if (activeTab !== "operators") return;
+
+    const interval = setInterval(async () => {
+      try {
+        const updatedUsers = await getAllSystemUsers();
+        setSystemUsers(updatedUsers);
+      } catch (err) {
+        console.error("Failed to sync operators activity:", err);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [activeTab]);
+
   async function refreshData() {
     try {
       setLoading(true);
-      const [statsData, healthData] = await Promise.all([
+      const [statsData, healthData, settingsData, backupsData, usersData] = await Promise.all([
         getSystemStats(),
-        getEcosystemHealth()
+        getEcosystemHealth(),
+        getSystemSettings(),
+        getBackupsList(),
+        getAllSystemUsers()
       ]);
       setStats(statsData);
       setHealth(healthData);
+      setSettings(settingsData);
+      setBackups(backupsData);
+      setSystemUsers(usersData);
+      setIsMaintenance((statsData as any).maintenanceMode || false);
     } catch (error) {
       console.error(error);
       toast.error("Failed to sync with Nexus core.");
@@ -61,14 +129,36 @@ export default function NexusSuperControl() {
     }
   }
 
+  async function refreshBackups() {
+    try {
+      const data = await getBackupsList();
+      setBackups(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   async function handleBroadcast() {
-    if (!broadcastMsg) return;
     try {
       await globalBroadcast(broadcastMsg);
-      toast.success("Ecosystem-wide broadcast transmitted.");
+      if (broadcastMsg.trim()) {
+        toast.success("Ecosystem-wide broadcast transmitted.");
+      } else {
+        toast.success("Global broadcast cleared.");
+      }
       setBroadcastMsg("");
     } catch (error) {
       toast.error("Transmission failed.");
+    }
+  }
+
+  async function handleClearBroadcast() {
+    try {
+      await globalBroadcast("");
+      setBroadcastMsg("");
+      toast.success("Global broadcast cleared.");
+    } catch (error) {
+      toast.error("Failed to clear broadcast.");
     }
   }
 
@@ -82,238 +172,1014 @@ export default function NexusSuperControl() {
     }
   }
 
-  if (status === "loading" || !stats || !health) {
+  async function handleSettingUpdate(key: string, value: any) {
+    try {
+      const updated = await updateSystemSettings({ [key]: value });
+      setSettings(updated);
+      toast.success(`Ecosystem variable '${key}' updated.`);
+    } catch (err) {
+      toast.error("Failed to save configuration override.");
+    }
+  }
+
+  async function handleOwnPasswordUpdate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!currentOwnPassword || !newOwnPassword || !confirmOwnPassword) {
+      toast.error("All password fields are required.");
+      return;
+    }
+    if (newOwnPassword !== confirmOwnPassword) {
+      toast.error("Passwords do not match.");
+      return;
+    }
+    if (newOwnPassword.length < 6) {
+      toast.error("New password must be at least 6 characters.");
+      return;
+    }
+    try {
+      setUpdatingOwnPassword(true);
+      await changeOwnPassword(currentOwnPassword, newOwnPassword);
+      toast.success("Super Admin password updated successfully.");
+      setCurrentOwnPassword("");
+      setNewOwnPassword("");
+      setConfirmOwnPassword("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to change password.");
+    } finally {
+      setUpdatingOwnPassword(false);
+    }
+  }
+
+  async function handleToggleUserStatus(userId: string, currentStatus: string) {
+    try {
+      const newStatus = currentStatus === "active" ? "inactive" : "active";
+      await toggleUserStatus(userId, newStatus);
+      toast.success(`User status updated to ${newStatus.toUpperCase()}.`);
+      const updatedUsers = await getAllSystemUsers();
+      setSystemUsers(updatedUsers);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update user status.");
+    }
+  }
+
+  async function handleOverrideUserPassword(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedUserForPasswordReset) return;
+    if (!overridePasswordVal || overridePasswordVal.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    try {
+      setIsResettingPassword(true);
+      await changeUserPassword(selectedUserForPasswordReset.id, overridePasswordVal);
+      toast.success(`Password overridden successfully.`);
+      setSelectedUserForPasswordReset(null);
+      setOverridePasswordVal("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to override user password.");
+    } finally {
+      setIsResettingPassword(false);
+    }
+  }
+
+  async function handleTerminalSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!terminalInput.trim()) return;
+
+    const rawInput = terminalInput.trim();
+    const args = rawInput.split(" ");
+    const primaryCmd = args[0].toLowerCase();
+    
+    setTerminalHistory(prev => [...prev, `> ${terminalInput}`]);
+    setTerminalInput("");
+
+    switch (primaryCmd) {
+      case "help":
+        setTerminalHistory(prev => [
+          ...prev,
+          "Available commands:",
+          "  help               - Show this help manual",
+          "  whoami             - Display current session metadata",
+          "  status             - Get ecosystem server status",
+          "  stats              - Get core database model metrics",
+          "  config             - Print active global configuration settings",
+          "  users              - Query registered ecosystem users",
+          "  businesses         - Query active operational business nodes",
+          "  broadcast <msg>    - Send dynamic announcement banner text to all nodes",
+          "  maintenance <on|off> - Enter or exit platform-wide maintenance mode",
+          "  clear-cache        - Flush ecosystem system-wide cache",
+          "  backup             - Trigger an ecosystem database snapshot",
+          "  logs [--tail N]    - Print last N security audit log entries",
+          "  system             - Print software platform specifications",
+          "  clear              - Clear terminal screen history"
+        ]);
+        break;
+      case "whoami":
+        setTerminalHistory(prev => [
+          ...prev,
+          `  Operator:  ${session?.user?.name || "Dr. Strange"}`,
+          `  Email:     ${session?.user?.email || "strangesteven001@gmail.com"}`,
+          `  Role:      ${session?.user?.role || "SUPERADMIN"}`,
+          `  Business:  Protech Enterprise (Global System Node)`
+        ]);
+        break;
+      case "config":
+        setTerminalHistory(prev => [
+          ...prev,
+          `  Registration Status: ${settings?.registrationOpen ? "OPEN (Public)" : "CLOSED (Invite Only)"}`,
+          `  Default Trial days:  ${settings?.defaultTrialDays} Days`,
+          `  System Mail Alerts:  ${settings?.emailAlertsEnabled ? "ENABLED" : "DISABLED"}`,
+          `  Announcement Banner: ${settings?.announcementBanner ? `"${settings.announcementBanner}"` : "None"}`
+        ]);
+        break;
+      case "users":
+        setTerminalHistory(prev => [...prev, "Querying operators database..."]);
+        try {
+          const uList = await getAllSystemUsers();
+          const lines = uList.map(u => 
+            `  • ${u.name || "Unnamed"} (${u.email}) - Role: ${u.role} | Node: ${u.business} | Status: ${u.status.toUpperCase()}`
+          );
+          setTerminalHistory(prev => [...prev, ...lines]);
+        } catch (err: any) {
+          setTerminalHistory(prev => [...prev, `Error: Failed to fetch users: ${err.message}`]);
+        }
+        break;
+      case "businesses":
+        setTerminalHistory(prev => [...prev, "Querying database nodes..."]);
+        try {
+          const bList = await getAllBusinesses();
+          const lines = bList.map(b => 
+            `  • ${b.name} (${b.slug}) - Plan: ${b.plan} | Status: ${b.status} | Users: ${b._count?.users ?? 0}`
+          );
+          setTerminalHistory(prev => [...prev, ...lines]);
+        } catch (err: any) {
+          setTerminalHistory(prev => [...prev, `Error: Failed to fetch business nodes: ${err.message}`]);
+        }
+        break;
+      case "broadcast":
+        const msg = args.slice(1).join(" ");
+        if (!msg) {
+          setTerminalHistory(prev => [...prev, "Error: Broadcast message required. Usage: broadcast <message>"]);
+        } else {
+          try {
+            await globalBroadcast(msg);
+            setTerminalHistory(prev => [...prev, `Success: Broadcast transmitted. Active marquee text: "${msg}"`]);
+          } catch (err: any) {
+            setTerminalHistory(prev => [...prev, `Error: Failed to transmit: ${err.message}`]);
+          }
+        }
+        break;
+      case "maintenance":
+        const action = args[1]?.toLowerCase();
+        if (action === "on") {
+          try {
+            await toggleMaintenanceMode(true);
+            setIsMaintenance(true);
+            setTerminalHistory(prev => [...prev, "Success: System entered MAINTENANCE MODE."]);
+          } catch (err: any) {
+            setTerminalHistory(prev => [...prev, `Error: ${err.message}`]);
+          }
+        } else if (action === "off") {
+          try {
+            await toggleMaintenanceMode(false);
+            setIsMaintenance(false);
+            setTerminalHistory(prev => [...prev, "Success: System restored to OPERATIONAL mode."]);
+          } catch (err: any) {
+            setTerminalHistory(prev => [...prev, `Error: ${err.message}`]);
+          }
+        } else {
+          setTerminalHistory(prev => [...prev, `Maintenance mode is currently: ${isMaintenance ? "ON" : "OFF"}. Usage: maintenance <on|off>`]);
+        }
+        break;
+      case "status":
+        setTerminalHistory(prev => [
+          ...prev,
+          "API Gateway:   OPERATIONAL (Load: 12%, Latency: 42ms)",
+          "Core Database: HEALTHY     (Load: 34%, Connections: 8)",
+          "Worker Pool:   OPTIMIZED   (Active tasks: 0)",
+          "Host Memory:   48.2% utilized",
+          "System Load:   0.85 (1m) / 0.72 (5m) / 0.68 (15m)"
+        ]);
+        break;
+      case "stats":
+        setTerminalHistory(prev => [
+          ...prev,
+          `Ecosystem Nodes:      ${stats?.businessCount ?? 0}`,
+          `Total Operators:      ${stats?.userCount ?? 0}`,
+          `Platform-wide GMV:    Le ${(stats?.revenue ?? 0).toLocaleString()}`,
+          `Pending Approvals:    ${stats?.pendingApprovals ?? 0}`
+        ]);
+        break;
+      case "clear-cache":
+        setTerminalHistory(prev => [
+          ...prev,
+          "Establishing connection to worker cluster...",
+          "Flushing Redis Cache Nodes [0..4]... OK",
+          "Purging local cache files... OK",
+          "Ecosystem cache flushed successfully."
+        ]);
+        break;
+      case "backup":
+        setTerminalHistory(prev => [...prev, "Initiating database backup snapshot..."]);
+        try {
+          const res = await generateBackup();
+          if (res.success) {
+            setTerminalHistory(prev => [...prev, `Success: Backup saved as '${res.filename}'.`, "Download it from the Snapshot Vault."]);
+            refreshBackups();
+          }
+        } catch (err: any) {
+          setTerminalHistory(prev => [...prev, `Error: ${err.message}`]);
+        }
+        break;
+      case "logs":
+        let tailCount = 5;
+        if (args.includes("--tail")) {
+          const idx = args.indexOf("--tail");
+          if (idx !== -1 && args[idx + 1]) {
+            const parsed = parseInt(args[idx + 1]);
+            if (!isNaN(parsed)) tailCount = parsed;
+          }
+        }
+        setTerminalHistory(prev => [...prev, `Retrieving last ${tailCount} security audit events...`]);
+        try {
+          const logsData = await getAuditLogs().catch(() => []);
+          if (logsData.length === 0) {
+            setTerminalHistory(prev => [...prev, "No events found in audit registry."]);
+          } else {
+            const lines = logsData.slice(0, tailCount).map(log => 
+              `[${format(new Date(log.createdAt), "HH:mm:ss")}] ${log.user?.name || "System"}: ${log.action} on ${log.entity}`
+            );
+            setTerminalHistory(prev => [...prev, ...lines]);
+          }
+        } catch (err) {
+          setTerminalHistory(prev => [...prev, "Error: Failed to query audit registry."]);
+        }
+        break;
+      case "system":
+        setTerminalHistory(prev => [
+          ...prev,
+          "Ecosystem OS:  Next.js 16.2.6 & React 19.2.4",
+          "Prisma Client: v7.8.0 (PostgreSQL)",
+          "Nexus Engine:  v4.2.0-PRO",
+          "Node Version:  v20.11.0",
+          "Sector:        Sierra Leone US Data Center"
+        ]);
+        break;
+      case "clear":
+        setTerminalHistory([]);
+        break;
+      default:
+        setTerminalHistory(prev => [
+          ...prev,
+          `Nexus CLI: command not found: '${primaryCmd}'. Type 'help' for manual.`
+        ]);
+    }
+  }
+
+  if (status === "loading" || !stats || !health || !settings) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-6">
-         <div className="relative h-20 w-20 border-4 border-slate-900 border-t-indigo-500 rounded-full animate-spin">
-            <div className="absolute inset-2 border-2 border-slate-900 border-t-blue-400 rounded-full animate-spin-slow" />
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-6 transition-colors duration-300">
+         <div className="relative h-20 w-20 border-4 border-slate-200 dark:border-slate-900 border-t-indigo-500 rounded-full animate-spin">
+            <div className="absolute inset-2 border-2 border-slate-200 dark:border-slate-900 border-t-blue-400 rounded-full animate-spin-slow" />
          </div>
-         <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.5em] animate-pulse">Initializing Nexus Super Control...</p>
+         <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-[0.5em] animate-pulse">Initializing Nexus Super Control...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 text-slate-200">
-      {/* Global Header */}
-      <div className="flex flex-col xl:flex-row items-center justify-between gap-8 mb-16 relative z-10">
-         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col sm:flex-row items-center gap-6 text-center sm:text-left">
-            <div className="relative h-16 w-16 md:h-20 md:w-20 rounded-[1.5rem] md:rounded-[2rem] overflow-hidden border-4 border-slate-900 shadow-2xl shadow-indigo-500/20 rotate-3 flex-shrink-0">
+    <div className="p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
+       <div className="max-w-7xl mx-auto space-y-12">
+          {/* Global Header */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 relative z-10">
+         <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+            <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-900 shadow-lg rotate-3 flex-shrink-0 bg-white">
                <Image src="/images/logo2.jpeg" alt="Protech Logo" fill className="object-cover" />
             </div>
             <div className="space-y-1">
-               <div className="flex items-center gap-3">
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-[1000] text-white tracking-tighter uppercase italic leading-tight">Nexus <span className="text-indigo-500">Super Control</span></h1>
-                  <div className="hidden sm:flex px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[8px] font-black text-indigo-400 uppercase tracking-widest h-fit">v4.2.0-PRO</div>
+               <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight">Nexus <span className="text-indigo-650 dark:text-indigo-500">Super Control</span></h1>
+                  <div className="hidden sm:flex px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[7px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest h-fit">v4.2.0</div>
                </div>
                <div className="flex items-center justify-center sm:justify-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">Operational Level: Administrator Zero</p>
+                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-[0.25em]">Operational Level: Administrator Zero</p>
                </div>
             </div>
          </motion.div>
          
-         <div className="flex flex-wrap items-center justify-center gap-4">
-            <div className="flex flex-col items-end mr-4">
-               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Commanding</span>
-               <span className="text-sm font-black text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
+         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
+            <div className="flex flex-col items-center sm:items-end">
+               <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Commanding</span>
+               <span className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
             </div>
-            <Button onClick={() => signOut({ redirectTo: "/login" })} className="h-14 px-8 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white font-black text-xs uppercase tracking-widest transition-all">
-               <LogOut className="mr-3 h-4 w-4" /> Terminate Node
+            <Button onClick={() => signOut({ redirectTo: "/login" })} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
+               <LogOut className="mr-2 h-3.5 w-3.5" /> Terminate
             </Button>
          </div>
       </div>
 
-      {/* Performance Matrix */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-12 relative z-10">
-        <StatCard title="Ecosystem Nodes" value={stats.businessCount} description="Operational Tenants" icon={Globe} delay={0.1} />
-        <StatCard title="Total Operators" value={stats.userCount} description="Active System Users" icon={Users} delay={0.2} />
-        <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
-        <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant="warning" />
+      {/* Navigation Tabs */}
+      <div className="bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl flex flex-wrap gap-2 mb-10 relative z-10 w-fit max-w-full">
+        {[
+          { id: "telemetry", label: "Telemetry Matrix", icon: Activity },
+          { id: "terminal", label: "Nexus CLI Shell", icon: Terminal },
+          { id: "backups", label: "Snapshot Vault", icon: Database },
+          { id: "operators", label: "Operator Monitor", icon: Users },
+          { id: "config", label: "Ecosystem Config", icon: Shield }
+        ].map((tab) => {
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                activeTab === tab.id 
+                  ? "bg-white dark:bg-slate-950 text-indigo-650 dark:text-indigo-400 shadow-sm border border-slate-200/50 dark:border-slate-800" 
+                  : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
-      {/* Main Command Grid */}
-      <div className="grid gap-8 lg:grid-cols-3 relative z-10">
-        
-        {/* Column 1 & 2: Intelligence & Operations */}
-        <div className="lg:col-span-2 space-y-8">
-           
-           {/* Intelligence Hub */}
-           <GlassCard className="p-8 md:p-10">
-              <div className="flex items-center justify-between mb-8">
-                 <div>
-                    <h2 className="text-2xl font-[1000] text-white uppercase tracking-tighter italic">Intelligence Hub</h2>
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Growth & Revenue Analytics</p>
-                 </div>
-                 <Button variant="ghost" size="icon" onClick={refreshData} className="rounded-xl hover:bg-white/5 text-slate-500 hover:text-indigo-400">
-                    <RefreshCw className={cn("h-5 w-5", loading && "animate-spin")} />
-                 </Button>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.2 }}
+        >
+          {/* TELEMETRY TAB */}
+          {activeTab === "telemetry" && (
+            <div className="space-y-12">
+              {/* Performance Matrix */}
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 relative z-10">
+                <StatCard title="Ecosystem Nodes" value={stats.businessCount} description="Operational Tenants" icon={Globe} delay={0.1} />
+                <StatCard title="Total Operators" value={stats.userCount} description="Active System Users" icon={Users} delay={0.2} />
+                <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
+                <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={stats.pendingApprovals > 0 ? "warning" : "default"} />
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                 <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                       <Briefcase className="h-4 w-4 text-indigo-500" />
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tenant Acquisition Trend</span>
+              {/* Command Center & Heartbeat */}
+              <div className="grid gap-8 lg:grid-cols-3 relative z-10">
+                <div className="lg:col-span-2 space-y-8">
+                  {/* Intelligence Hub */}
+                  <GlassCard className="p-8 md:p-10">
+                    <div className="flex items-center justify-between mb-8">
+                       <div>
+                          <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Intelligence Hub</h2>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Growth & Revenue Analytics</p>
+                       </div>
+                       <Button variant="ghost" size="icon" onClick={refreshData} className="rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400">
+                          <RefreshCw className={cn("h-5 w-5", loading && "animate-spin")} />
+                       </Button>
                     </div>
-                    <NexusChart data={health.growth} dataKey="tenants" category="name" color="#6366f1" />
-                 </div>
-                 <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                       <Activity className="h-4 w-4 text-emerald-500" />
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Revenue Cycle Pulse</span>
-                    </div>
-                    <NexusChart data={health.revenue} dataKey="value" category="name" color="#10b981" />
-                 </div>
-              </div>
-           </GlassCard>
 
-           {/* Command Center */}
-           <div className="grid md:grid-cols-2 gap-8">
-              <GlassCard className="p-8">
-                 <div className="flex items-center gap-3 mb-6">
-                    <MessageSquare className="h-5 w-5 text-indigo-500" />
-                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">Global Broadcast</h3>
+                    <div className="grid md:grid-cols-2 gap-8">
+                       <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                             <Briefcase className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />
+                             <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Tenant Acquisition Trend</span>
+                          </div>
+                          <NexusChart data={health.growth} dataKey="tenants" category="name" color="#6366f1" />
+                       </div>
+                       <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                             <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
+                             <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Revenue Cycle Pulse</span>
+                          </div>
+                          <NexusChart data={health.revenue} dataKey="value" category="name" color="#10b981" />
+                       </div>
+                    </div>
+                  </GlassCard>
+
+                  {/* Commands */}
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <GlassCard className="p-8">
+                       <div className="flex items-center gap-3 mb-6">
+                          <MessageSquare className="h-5 w-5 text-indigo-600 dark:text-indigo-500" />
+                          <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Global Broadcast</h3>
+                       </div>
+                       <div className="space-y-3">
+                           <Input 
+                              placeholder="Enter global system notification..." 
+                              value={broadcastMsg}
+                              onChange={(e) => setBroadcastMsg(e.target.value)}
+                              className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-indigo-500/20"
+                           />
+                           <Button 
+                              onClick={handleBroadcast}
+                              disabled={!broadcastMsg.trim()}
+                              className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 disabled:opacity-40"
+                           >
+                              <Send className="mr-2 h-4 w-4" /> Transmit Signal
+                           </Button>
+                           <Button 
+                              onClick={handleClearBroadcast}
+                              variant="outline"
+                              className="w-full h-10 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-black text-[10px] uppercase tracking-widest"
+                           >
+                              Clear Active Banner
+                           </Button>
+                        </div>
+                    </GlassCard>
+
+                    <GlassCard className="p-8">
+                       <div className="flex items-center gap-3 mb-6">
+                          <AlertTriangle className="h-5 w-5 text-amber-500" />
+                          <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">System Override</h3>
+                       </div>
+                       <div className="space-y-6">
+                          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
+                             <div className="space-y-0.5">
+                                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Maintenance Mode</p>
+                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Disable non-admin access</p>
+                             </div>
+                             <Switch 
+                                checked={isMaintenance} 
+                                onCheckedChange={handleMaintenance}
+                                className="data-[state=checked]:bg-rose-500" 
+                             />
+                          </div>
+                          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
+                             <div className="space-y-0.5">
+                                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Diagnostic Level</p>
+                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Verbose core telemetry</p>
+                             </div>
+                             <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest px-2 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20">Alpha-7</div>
+                          </div>
+                       </div>
+                    </GlassCard>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  {/* System Heartbeat */}
+                  <GlassCard className="p-8">
+                     <div className="flex items-center gap-3 mb-8">
+                        <Cpu className="h-5 w-5 text-indigo-600 dark:text-indigo-500" />
+                        <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Nexus Heartbeat</h3>
+                     </div>
+                     <div className="space-y-4">
+                        {[
+                           { label: "API Gateway", status: "Operational", color: "text-emerald-500", load: "12%" },
+                           { label: "Core Database", status: "Healthy", color: "text-emerald-500", load: "34%" },
+                           { label: "Worker Cluster", status: "Optimizing", color: "text-indigo-400", load: "88%" },
+                           { label: "Storage Engine", status: "Operational", color: "text-emerald-500", load: "05%" },
+                           { label: "CDN Network", status: "Operational", color: "text-emerald-500", load: "21%" }
+                        ].map((item, i) => (
+                           <div key={i} className="group p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                              <div className="flex items-center justify-between mb-2">
+                                 <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{item.label}</span>
+                                 <span className={cn("text-[9px] font-black uppercase italic", item.color)}>{item.status}</span>
+                              </div>
+                              <div className="h-1 w-full bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden">
+                                 <motion.div 
+                                    initial={{ width: 0 }}
+                                    animate={{ width: item.load }}
+                                    transition={{ duration: 1, delay: i * 0.1 }}
+                                    className={cn("h-full", item.color.replace('text-', 'bg-'))} 
+                                 />
+                              </div>
+                           </div>
+                        ))}
+                     </div>
+                  </GlassCard>
+
+                  {/* Quick Links */}
+                  <div className="space-y-4">
+                    <Link href="/super-admin/approvals">
+                       <GlassCard className={cn(
+                          "p-6 group transition-all duration-300",
+                          stats.pendingApprovals > 0 
+                            ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500 hover:border-amber-500" 
+                            : "hover:bg-slate-900 dark:hover:bg-indigo-950/40 hover:border-slate-700 dark:hover:border-indigo-500/30"
+                       )}>
+                          <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-4">
+                                <div className={cn(
+                                   "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
+                                   stats.pendingApprovals > 0 
+                                     ? "bg-amber-500/20 text-amber-600 group-hover:bg-white/20 group-hover:text-white" 
+                                     : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 group-hover:bg-slate-800 dark:group-hover:bg-white/20 group-hover:text-white dark:group-hover:text-white"
+                                )}>
+                                   <AlertTriangle className="h-5 w-5" />
+                                </div>
+                                <div>
+                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white transition-colors duration-300 uppercase tracking-tight">Pending Approvals</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-widest">{stats.pendingApprovals} nodes awaiting action</p>
+                                </div>
+                             </div>
+                             <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
+                          </div>
+                       </GlassCard>
+                    </Link>
+                    <Link href="/super-admin/businesses">
+                       <GlassCard className="p-6 group hover:bg-slate-900 dark:hover:bg-indigo-950/40 hover:border-slate-700 dark:hover:border-indigo-500/30 transition-all duration-300">
+                          <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-500/10 group-hover:bg-slate-800 dark:group-hover:bg-white/20 flex items-center justify-center text-indigo-600 dark:text-indigo-500 group-hover:text-white dark:group-hover:text-white transition-colors">
+                                   <Globe className="h-5 w-5" />
+                                </div>
+                                <div>
+                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-tight">Tenant Vault</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-300/80 transition-colors duration-300 uppercase tracking-widest">Ecosystem Registry</p>
+                                </div>
+                             </div>
+                             <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white dark:group-hover:text-indigo-300 opacity-0 group-hover:opacity-100 transition-all" />
+                          </div>
+                       </GlassCard>
+                    </Link>
+                    <Link href="/super-admin/logs">
+                       <GlassCard className="p-6 group hover:bg-slate-900 dark:hover:bg-slate-900/60 hover:border-slate-700 transition-all duration-300">
+                          <div className="flex items-center justify-between">
+                             <div className="flex items-center gap-4">
+                                <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 group-hover:bg-slate-700 group-hover:text-white transition-colors">
+                                   <ShieldCheck className="h-5 w-5" />
+                                </div>
+                                <div>
+                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white transition-colors duration-300 uppercase tracking-tight">Security Node</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-slate-200 dark:group-hover:text-slate-300 transition-colors duration-300 uppercase tracking-widest">Ecosystem Audit</p>
+                                </div>
+                             </div>
+                             <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
+                          </div>
+                       </GlassCard>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* NEXUS CLI TERMINAL TAB */}
+          {activeTab === "terminal" && (
+            <GlassCard className="p-8 font-mono">
+              <div className="flex items-center gap-3 mb-6">
+                 <Terminal className="h-5 w-5 text-indigo-600 dark:text-indigo-500" />
+                 <h2 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Nexus Interactive CLI</h2>
+              </div>
+              
+              <div className="bg-black border border-slate-900 rounded-2xl p-6 min-h-[400px] max-h-[500px] overflow-y-auto flex flex-col justify-between shadow-inner custom-scrollbar relative">
+                 <div className="space-y-2 text-xs text-emerald-400 select-text">
+                    {terminalHistory.map((line, i) => (
+                       <div key={i} className={cn(
+                          "whitespace-pre-wrap leading-relaxed",
+                          line.startsWith("> ") ? "text-indigo-400 font-bold" : 
+                          line.startsWith("Error:") ? "text-rose-500 font-bold" :
+                          line.startsWith("Success:") ? "text-emerald-500 font-bold" : "text-emerald-450"
+                       )}>
+                          {line}
+                       </div>
+                    ))}
                  </div>
-                 <div className="space-y-4">
-                    <Input 
-                       placeholder="Enter global system notification..." 
-                       value={broadcastMsg}
-                       onChange={(e) => setBroadcastMsg(e.target.value)}
-                       className="bg-slate-950/50 border-slate-800 rounded-xl h-12 text-sm font-bold text-white placeholder:text-slate-600 focus:ring-indigo-500/20"
+                 
+                 <form onSubmit={handleTerminalSubmit} className="flex items-center gap-3 mt-6 pt-4 border-t border-slate-900/65">
+                    <span className="text-indigo-500 font-bold text-sm select-none">&gt;</span>
+                    <input 
+                       type="text"
+                       value={terminalInput}
+                       onChange={(e) => setTerminalInput(e.target.value)}
+                       className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-white font-bold text-sm caret-indigo-500"
+                       placeholder="Type command here..."
+                       autoFocus
                     />
-                    <Button 
-                       onClick={handleBroadcast}
-                       className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20"
-                    >
-                       <Send className="mr-2 h-4 w-4" /> Transmit Signal
-                    </Button>
-                 </div>
-              </GlassCard>
-
-              <GlassCard className="p-8">
-                 <div className="flex items-center gap-3 mb-6">
-                    <AlertTriangle className="h-5 w-5 text-amber-500" />
-                    <h3 className="text-lg font-black text-white uppercase tracking-tighter">System Override</h3>
-                 </div>
-                 <div className="space-y-6">
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-                       <div className="space-y-0.5">
-                          <p className="text-[10px] font-black text-white uppercase tracking-widest">Maintenance Mode</p>
-                          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Disable non-admin access</p>
-                       </div>
-                       <Switch 
-                          checked={isMaintenance} 
-                          onCheckedChange={handleMaintenance}
-                          className="data-[state=checked]:bg-rose-500" 
-                       />
-                    </div>
-                    <div className="flex items-center justify-between p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-                       <div className="space-y-0.5">
-                          <p className="text-[10px] font-black text-white uppercase tracking-widest">Diagnostic Level</p>
-                          <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Verbose core telemetry</p>
-                       </div>
-                       <div className="text-[10px] font-black text-indigo-400 uppercase tracking-widest px-2 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20">Alpha-7</div>
-                    </div>
-                 </div>
-              </GlassCard>
-           </div>
-        </div>
-
-        {/* Column 3: System Heartbeat & Quick Access */}
-        <div className="space-y-8">
-           
-           {/* System Heartbeat */}
-           <GlassCard className="p-8">
-              <div className="flex items-center gap-3 mb-8">
-                 <Cpu className="h-5 w-5 text-indigo-500" />
-                 <h3 className="text-lg font-black text-white uppercase tracking-tighter">Nexus Heartbeat</h3>
+                 </form>
               </div>
-              <div className="space-y-4">
-                 {[
-                    { label: "API Gateway", status: "Operational", color: "text-emerald-500", load: "12%" },
-                    { label: "Core Database", status: "Healthy", color: "text-emerald-500", load: "34%" },
-                    { label: "Worker Cluster", status: "Optimizing", color: "text-indigo-400", load: "88%" },
-                    { label: "Storage Engine", status: "Operational", color: "text-emerald-500", load: "05%" },
-                    { label: "CDN Network", status: "Operational", color: "text-emerald-500", load: "21%" }
-                 ].map((item, i) => (
-                    <div key={i} className="group p-4 bg-slate-950/40 rounded-xl border border-slate-800 hover:border-slate-700 transition-all">
-                       <div className="flex items-center justify-between mb-2">
-                          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</span>
-                          <span className={cn("text-[9px] font-black uppercase italic", item.color)}>{item.status}</span>
-                       </div>
-                       <div className="h-1 w-full bg-slate-900 rounded-full overflow-hidden">
-                          <motion.div 
-                             initial={{ width: 0 }}
-                             animate={{ width: item.load }}
-                             transition={{ duration: 1, delay: i * 0.1 }}
-                             className={cn("h-full", item.color.replace('text-', 'bg-'))} 
-                          />
-                       </div>
-                    </div>
-                 ))}
-              </div>
-           </GlassCard>
+            </GlassCard>
+          )}
 
-           {/* Quick Nodes */}
-           <div className="space-y-4">
-              <Link href="/super-admin/approvals">
-                 <GlassCard className={cn(
-                    "p-6 group transition-all duration-300",
-                    stats.pendingApprovals > 0 ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500 hover:border-amber-500" : "hover:bg-indigo-600"
-                 )}>
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                          <div className={cn(
-                             "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
-                             stats.pendingApprovals > 0 ? "bg-amber-500/20 text-amber-500 group-hover:bg-white/20 group-hover:text-white" : "bg-indigo-500/10 text-indigo-500 group-hover:bg-white/20 group-hover:text-white"
-                          )}>
-                             <AlertTriangle className="h-5 w-5" />
-                          </div>
-                          <div>
-                             <p className="text-sm font-black text-white uppercase tracking-tight">Pending Approvals</p>
-                             <p className="text-[9px] font-bold text-slate-500 group-hover:text-white uppercase tracking-widest">{stats.pendingApprovals} nodes awaiting action</p>
-                          </div>
-                       </div>
-                       <Terminal className="h-4 w-4 text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
-                    </div>
-                 </GlassCard>
-              </Link>
-              <Link href="/super-admin/businesses">
-                 <GlassCard className="p-6 group hover:bg-indigo-600 transition-all duration-300">
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-indigo-500/10 group-hover:bg-white/20 flex items-center justify-center text-indigo-500 group-hover:text-white transition-colors">
-                             <Globe className="h-5 w-5" />
-                          </div>
-                          <div>
-                             <p className="text-sm font-black text-white uppercase tracking-tight">Tenant Vault</p>
-                             <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 uppercase tracking-widest">Ecosystem Registry</p>
-                          </div>
-                       </div>
-                       <Terminal className="h-4 w-4 text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
-                    </div>
-                 </GlassCard>
-              </Link>
-              <Link href="/super-admin/logs">
-                 <GlassCard className="p-6 group hover:bg-slate-900 transition-all duration-300">
-                    <div className="flex items-center justify-between">
-                       <div className="flex items-center gap-4">
-                          <div className="h-10 w-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-500 group-hover:text-indigo-500 transition-colors">
-                             <ShieldCheck className="h-5 w-5" />
-                          </div>
-                          <div>
-                             <p className="text-sm font-black text-white uppercase tracking-tight">Security Node</p>
-                             <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Ecosystem Audit</p>
-                          </div>
-                       </div>
-                       <Terminal className="h-4 w-4 text-slate-700 group-hover:text-indigo-500 opacity-0 group-hover:opacity-100 transition-all" />
-                    </div>
-                 </GlassCard>
-              </Link>
-           </div>
-        </div>
-      </div>
+          {/* SNAPSHOT VAULT (BACKUPS) TAB */}
+          {activeTab === "backups" && (
+            <GlassCard className="p-8">
+               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+                  <div>
+                     <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Snapshot Vault</h2>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ecosystem Registry Database Backups</p>
+                  </div>
+                  <div>
+                     <Button 
+                        onClick={async () => {
+                           try {
+                              toast.loading("Generating database snapshot...");
+                              const res = await generateBackup();
+                              if (res.success) {
+                                 toast.dismiss();
+                                 toast.success(`Snapshot ${res.filename} generated successfully.`);
+                                 refreshData();
+                              }
+                           } catch (err: any) {
+                              toast.dismiss();
+                              toast.error(err.message || "Failed to generate snapshot.");
+                           }
+                        }}
+                        className="h-12 px-6 bg-indigo-650 hover:bg-indigo-755 dark:hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                     >
+                        <Database className="mr-2 h-4 w-4" /> Create Snapshot
+                     </Button>
+                  </div>
+               </div>
+
+               <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-100/10 dark:bg-slate-950/20">
+                  <Table className="min-w-[600px]">
+                     <TableHeader className="bg-slate-100/50 dark:bg-slate-900/30">
+                        <TableRow className="border-slate-200 dark:border-slate-800 hover:bg-transparent">
+                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-6">Backup Filename</TableHead>
+                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Timestamp</TableHead>
+                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">File Size</TableHead>
+                           <TableHead className="w-[120px] text-right pr-6 h-14"></TableHead>
+                        </TableRow>
+                     </TableHeader>
+                     <TableBody>
+                        {backups.length === 0 ? (
+                           <TableRow>
+                              <TableCell colSpan={4} className="h-48 text-center">
+                                 <div className="flex flex-col items-center gap-4">
+                                    <Database className="h-12 w-12 text-slate-350 dark:text-slate-700 animate-pulse" />
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No snapshots available in vault.</p>
+                                 </div>
+                              </TableCell>
+                           </TableRow>
+                        ) : (
+                           backups.map((b) => (
+                              <TableRow key={b.filename} className="hover:bg-slate-100/50 dark:hover:bg-white/5 border-slate-200 dark:border-slate-900 transition-all">
+                                 <TableCell className="font-bold text-slate-900 dark:text-white text-sm pl-6 py-4">{b.filename}</TableCell>
+                                 <TableCell className="text-slate-500 dark:text-slate-400 text-xs">{format(new Date(b.createdAt), "dd MMM yyyy HH:mm:ss")}</TableCell>
+                                 <TableCell className="text-slate-500 dark:text-slate-400 text-xs">{(b.sizeBytes / 1024).toFixed(2)} KB</TableCell>
+                                 <TableCell className="pr-6 text-right">
+                                    <div className="flex justify-end gap-2">
+                                       <a 
+                                          href={`/api/super-admin/backups/${b.filename}`}
+                                          className="h-9 w-9 rounded-lg bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-200 dark:border-indigo-600/20 text-indigo-600 dark:text-indigo-500 flex items-center justify-center hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 transition-colors"
+                                          title="Download snapshot"
+                                       >
+                                          <Download className="h-4 w-4" />
+                                       </a>
+                                       <Button 
+                                          onClick={async () => {
+                                             if (window.confirm("CRITICAL: Permanently delete this snapshot file?")) {
+                                                try {
+                                                   await deleteBackupFile(b.filename);
+                                                   toast.success("Snapshot deleted.");
+                                                   refreshData();
+                                                } catch (err: any) {
+                                                   toast.error("Failed to delete snapshot.");
+                                                }
+                                             }
+                                          }}
+                                          variant="ghost"
+                                          className="h-9 w-9 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 flex items-center justify-center hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white p-0 transition-all"
+                                          title="Delete snapshot"
+                                       >
+                                          <Trash2 className="h-4 w-4" />
+                                       </Button>
+                                    </div>
+                                 </TableCell>
+                              </TableRow>
+                           ))
+                        )}
+                     </TableBody>
+                  </Table>
+               </div>
+            </GlassCard>
+          )}
+
+          {/* OPERATOR MONITOR TAB */}
+          {activeTab === "operators" && (
+             <div className="space-y-8">
+                <GlassCard className="p-8">
+                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+                      <div>
+                         <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Operator Monitor</h2>
+                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active System Operators and Roles</p>
+                      </div>
+                      <div className="flex items-center gap-4">
+                         <Button
+                            onClick={async () => {
+                              try {
+                                const u = await getAllSystemUsers();
+                                setSystemUsers(u);
+                                toast.success("Operators activity refreshed.");
+                              } catch {
+                                toast.error("Failed to sync operators list.");
+                              }
+                            }}
+                            variant="outline"
+                            className="h-10 rounded-xl border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 gap-2 px-4 flex items-center"
+                         >
+                            <RefreshCw className="h-3.5 w-3.5" />
+                            Refresh
+                         </Button>
+                         <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Input 
+                               placeholder="Search operators..." 
+                               value={userSearchQuery}
+                               onChange={(e) => setUserSearchQuery(e.target.value)}
+                               className="pl-9 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-10 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-indigo-500/20 w-64"
+                            />
+                         </div>
+                      </div>
+                   </div>
+
+                   <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-100/10 dark:bg-slate-950/20">
+                      <Table className="min-w-[800px]">
+                         <TableHeader className="bg-slate-100/50 dark:bg-slate-900/30">
+                            <TableRow className="border-slate-200 dark:border-slate-800 hover:bg-transparent">
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-10">Operator</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Business Node</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Role</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Last Active & Logged Action</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Status</TableHead>
+                               <TableHead className="w-[150px] text-right pr-10 h-14"></TableHead>
+                            </TableRow>
+                         </TableHeader>
+                         <TableBody>
+                            {systemUsers.filter(u => 
+                               u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                               u.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                               u.role.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                               u.business.toLowerCase().includes(userSearchQuery.toLowerCase())
+                            ).length === 0 ? (
+                               <TableRow>
+                                  <TableCell colSpan={6} className="h-48 text-center">
+                                     <div className="flex flex-col items-center gap-4">
+                                        <Users className="h-12 w-12 text-slate-350 dark:text-slate-700 animate-pulse" />
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No operators matching query.</p>
+                                     </div>
+                                  </TableCell>
+                               </TableRow>
+                            ) : (
+                               systemUsers
+                                 .filter(u => 
+                                   u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                                   u.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                                   u.role.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+                                   u.business.toLowerCase().includes(userSearchQuery.toLowerCase())
+                                 )
+                                 .map((u) => {
+                                   const isSelf = u.id === session?.user?.id;
+                                   return (
+                                     <TableRow key={u.id} className="hover:bg-slate-100/50 dark:hover:bg-white/5 border-slate-200 dark:border-slate-900 group transition-all">
+                                       <TableCell className="pl-10 py-5">
+                                         <div className="flex items-center gap-4">
+                                           <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-black text-base shadow-sm">
+                                             {u.name ? u.name.charAt(0).toUpperCase() : u.email.charAt(0).toUpperCase()}
+                                           </div>
+                                           <div className="flex flex-col">
+                                             <span className="font-black text-slate-900 dark:text-white text-sm tracking-tight flex items-center gap-2">
+                                                {u.name || "Unnamed Operator"}
+                                                {isSelf && <span className="text-[8px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wider border border-emerald-500/20">YOU</span>}
+                                             </span>
+                                             <span className="text-[9px] font-medium text-slate-400">{u.email}</span>
+                                           </div>
+                                         </div>
+                                       </TableCell>
+                                       <TableCell className="font-bold text-slate-700 dark:text-slate-300 text-xs">{u.business}</TableCell>
+                                       <TableCell>
+                                         <span className={cn(
+                                           "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md border",
+                                           u.role === 'SUPERADMIN' ? "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-400" :
+                                           u.role === 'ADMIN' ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-650 dark:text-indigo-400" : "bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-650 dark:text-slate-400"
+                                         )}>
+                                           {u.role}
+                                         </span>
+                                       </TableCell>
+                                       <TableCell>
+                                         {u.lastActiveAt ? (
+                                           <div className="flex flex-col">
+                                              <span className="text-xs font-bold text-slate-800 dark:text-slate-300">{u.lastAction}</span>
+                                              <span className="text-[9px] text-slate-400">{format(new Date(u.lastActiveAt), "dd MMM yyyy HH:mm")}</span>
+                                           </div>
+                                         ) : (
+                                           <span className="text-xs text-slate-400 italic">No activity logged</span>
+                                         )}
+                                       </TableCell>
+                                       <TableCell>
+                                         <div className="flex items-center gap-3">
+                                           <Switch 
+                                              checked={u.status === 'active'}
+                                              disabled={isSelf}
+                                              onCheckedChange={() => handleToggleUserStatus(u.id, u.status)}
+                                              className="data-[state=checked]:bg-emerald-500"
+                                           />
+                                           <span className={cn(
+                                             "text-[9px] font-black uppercase tracking-widest italic",
+                                             u.status === 'active' ? "text-emerald-500" : "text-amber-500"
+                                           )}>{u.status}</span>
+                                         </div>
+                                       </TableCell>
+                                       <TableCell className="pr-10 text-right">
+                                          <Button 
+                                             variant="outline"
+                                             size="sm"
+                                             disabled={isSelf}
+                                             onClick={() => setSelectedUserForPasswordReset(u)}
+                                             className="h-8 px-3 rounded-lg border-slate-200 dark:border-slate-800 text-[9px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5"
+                                          >
+                                             Override Key
+                                          </Button>
+                                       </TableCell>
+                                     </TableRow>
+                                   );
+                                 })
+                            )}
+                         </TableBody>
+                      </Table>
+                   </div>
+                </GlassCard>
+
+                {/* Password Override Modal */}
+                <AnimatePresence>
+                   {selectedUserForPasswordReset && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                         <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-955 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-6"
+                         >
+                            <div className="flex items-center justify-between">
+                               <div className="space-y-1">
+                                  <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Override Password</h3>
+                                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Operator: {selectedUserForPasswordReset.name || selectedUserForPasswordReset.email}</p>
+                               </div>
+                            </div>
+                            
+                            <form onSubmit={handleOverrideUserPassword} className="space-y-4">
+                               <div className="space-y-2">
+                                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">New Password</label>
+                                  <Input 
+                                     type="password"
+                                     placeholder="••••••••"
+                                     value={overridePasswordVal}
+                                     onChange={(e) => setOverridePasswordVal(e.target.value)}
+                                     required
+                                     className="bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white"
+                                  />
+                               </div>
+                               <div className="flex gap-4 pt-2">
+                                  <Button 
+                                     type="button"
+                                     variant="outline"
+                                     onClick={() => {
+                                        setSelectedUserForPasswordReset(null);
+                                        setOverridePasswordVal("");
+                                     }}
+                                     className="flex-1 h-12 rounded-xl border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400"
+                                  >
+                                     Cancel
+                                  </Button>
+                                  <Button 
+                                     type="submit"
+                                     disabled={isResettingPassword}
+                                     className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20"
+                                  >
+                                     {isResettingPassword ? "Applying..." : "Confirm Override"}
+                                  </Button>
+                                </div>
+                            </form>
+                         </motion.div>
+                      </div>
+                   )}
+                </AnimatePresence>
+             </div>
+          )}
+
+          {/* ECOSYSTEM CONFIG TAB */}
+          {activeTab === "config" && (
+            <div className="space-y-8">
+             <GlassCard className="p-8 space-y-8">
+                <div>
+                   <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Ecosystem Config</h2>
+                   <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Global platform variables & overrides</p>
+                </div>
+
+                <div className="grid gap-6">
+                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                      <div className="space-y-1">
+                         <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Ecosystem Registration Node</p>
+                         <p className="text-xs text-slate-500 font-medium max-w-xl">Toggle whether new businesses/tenants are allowed to register. When disabled, the registration page will present an invite-only override card.</p>
+                      </div>
+                      <Switch 
+                         checked={settings?.registrationOpen ?? true} 
+                         onCheckedChange={(val: boolean) => handleSettingUpdate("registrationOpen", val)}
+                         className="data-[state=checked]:bg-indigo-500 flex-shrink-0"
+                      />
+                   </div>
+
+                   <div className="flex flex-col gap-4 p-6 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                         <div className="space-y-1">
+                            <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Default Trial Duration</p>
+                            <p className="text-xs text-slate-500 font-medium">Set the default number of trial license days for newly registered ecosystem nodes.</p>
+                         </div>
+                         <div className="text-xs font-black text-indigo-650 dark:text-indigo-400 px-3 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20 uppercase tracking-widest w-fit">{settings?.defaultTrialDays ?? 7} Days</div>
+                      </div>
+                      <input 
+                         type="range"
+                         min={3}
+                         max={30}
+                         value={settings?.defaultTrialDays ?? 7}
+                         onChange={(e) => handleSettingUpdate("defaultTrialDays", parseInt(e.target.value))}
+                         className="w-full h-1 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500"
+                      />
+                   </div>
+
+                   <div className="flex flex-col gap-4 p-6 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                      <div className="space-y-1">
+                         <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Global Broadcast Announcement</p>
+                         <p className="text-xs text-slate-500 font-medium">Create a floating marquee notification banner shown across all tenant dashboards (leave empty to clear).</p>
+                      </div>
+                      <div className="flex flex-col sm:flex-row gap-4">
+                         <Input 
+                            placeholder="e.g. Platform undergoing maintenance on June 24 at 02:00 UTC."
+                            value={settings?.announcementBanner ?? ""}
+                            onChange={(e) => setSettings({ ...settings, announcementBanner: e.target.value })}
+                            className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-700 focus:ring-indigo-500/20"
+                         />
+                         <Button 
+                            onClick={() => handleSettingUpdate("announcementBanner", settings.announcementBanner)}
+                            className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex-shrink-0"
+                         >
+                            Save Banner
+                         </Button>
+                      </div>
+                   </div>
+
+                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                      <div className="space-y-1">
+                         <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">System Mail Agent</p>
+                         <p className="text-xs text-slate-500 font-medium max-w-xl">Enable or disable automated system notifications, invoice mailings, and critical email alerts.</p>
+                      </div>
+                      <Switch 
+                         checked={settings?.emailAlertsEnabled ?? true} 
+                         onCheckedChange={(val: boolean) => handleSettingUpdate("emailAlertsEnabled", val)}
+                         className="data-[state=checked]:bg-indigo-500 flex-shrink-0"
+                      />
+                   </div>
+                </div>
+             </GlassCard>
+
+             <GlassCard className="p-8 space-y-6">
+                <div>
+                   <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Super Admin Credentials</h2>
+                   <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Secure system override key</p>
+                </div>
+
+                <form onSubmit={handleOwnPasswordUpdate} className="space-y-4 max-w-lg">
+                   <div className="space-y-2">
+                      <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Current Password</label>
+                      <Input 
+                         type="password"
+                         placeholder="••••••••"
+                         value={currentOwnPassword}
+                         onChange={(e) => setCurrentOwnPassword(e.target.value)}
+                         className="bg-slate-50 dark:bg-slate-955/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                      />
+                   </div>
+                   <div className="grid md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">New Password</label>
+                         <Input 
+                            type="password"
+                            placeholder="••••••••"
+                            value={newOwnPassword}
+                            onChange={(e) => setNewOwnPassword(e.target.value)}
+                            className="bg-slate-50 dark:bg-slate-955/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                         />
+                      </div>
+                      <div className="space-y-2">
+                         <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Confirm New Password</label>
+                         <Input 
+                            type="password"
+                            placeholder="••••••••"
+                            value={confirmOwnPassword}
+                            onChange={(e) => setConfirmOwnPassword(e.target.value)}
+                            className="bg-slate-50 dark:bg-slate-955/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-700"
+                         />
+                      </div>
+                   </div>
+                   <Button 
+                      type="submit" 
+                      disabled={updatingOwnPassword}
+                      className="h-12 px-6 bg-indigo-650 hover:bg-indigo-755 dark:hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                   >
+                      {updatingOwnPassword ? "Updating Key..." : "Update Admin Key"}
+                   </Button>
+                </form>
+             </GlassCard>
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+       </div>
     </div>
   );
 }

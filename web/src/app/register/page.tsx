@@ -26,6 +26,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import Link from "next/link";
 import { registerBusiness, checkUserExists } from "@/lib/actions/auth";
+import { getSystemSettings } from "@/lib/actions/system-settings";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ImageUploader } from "@/components/ui/image-uploader";
@@ -70,6 +71,7 @@ export default function RegisterPage() {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [emailError, setEmailError] = useState("");
   const [showLinkDialog, setShowLinkDialog] = useState(false);
+  const [registrationOpen, setRegistrationOpen] = useState<boolean | null>(null);
   
   const [formData, setFormData] = useState({
     businessName: "",
@@ -82,11 +84,71 @@ export default function RegisterPage() {
   });
 
   useEffect(() => {
+    getSystemSettings()
+      .then((settings) => {
+        setRegistrationOpen(settings.registrationOpen);
+      })
+      .catch((err) => {
+        console.error("Failed to load registration state", err);
+        setRegistrationOpen(true);
+      });
+  }, []);
+
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentProofIndex((prev) => (prev + 1) % SOCIAL_PROOF.length);
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  if (registrationOpen === null) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-6">
+         <div className="relative h-16 w-16 border-4 border-slate-900 border-t-indigo-500 rounded-full animate-spin" />
+         <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] animate-pulse">Syncing core registry state...</p>
+      </div>
+    );
+  }
+
+  if (registrationOpen === false) {
+    return (
+      <div className="flex min-h-screen bg-slate-950 items-center justify-center font-sans p-6 text-slate-200">
+         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+         
+         <div className="max-w-md w-full p-8 md:p-12 rounded-[2.5rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
+            <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
+               <Zap className="h-10 w-10 animate-pulse" />
+            </div>
+            
+            <div className="space-y-3">
+               <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Registration <span className="text-amber-500">Closed</span></h2>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Ecosystem Level Override Active</p>
+            </div>
+            
+            <p className="text-slate-400 font-normal text-sm leading-relaxed">
+               New registration nodes are currently offline due to platform updates or invite-only restrictions. Please contact system administrators for manual provisioning.
+            </p>
+            
+            <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
+               <a 
+                 href="mailto:protechassist36@gmail.com?subject=Enterprise%20Inventory%20OS%20Access%20Request"
+                 className="h-12 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center font-bold"
+               >
+                 Request invite link
+               </a>
+               <Link 
+                 href="/login" 
+                 className="h-12 w-full border border-slate-800 hover:bg-white/5 text-slate-300 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center justify-center font-bold"
+               >
+                 Back to Sign In
+               </Link>
+            </div>
+         </div>
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -119,7 +181,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-white font-sans overflow-hidden">
+    <div className="flex min-h-screen bg-white font-sans">
       
       {/* Left Column: Social Proof & Stats */}
       <div className="hidden lg:flex w-[45%] bg-slate-900 text-white relative flex-col justify-between p-12 xl:p-20 overflow-y-auto h-screen sticky top-0">
@@ -219,8 +281,8 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column: Registration Form */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 lg:p-24 bg-slate-50/50 overflow-y-auto min-h-screen">
-        <div className="w-full max-w-md space-y-16 py-12 lg:py-0">
+      <div className="flex-1 flex flex-col items-center p-8 lg:p-24 bg-slate-50/50 min-h-screen">
+        <div className="w-full max-w-md space-y-10 sm:space-y-16 py-12 lg:py-16 my-auto">
           
           <div className="space-y-6">
              <div className="h-1 w-20 bg-indigo-600 rounded-full" />
@@ -326,7 +388,7 @@ export default function RegisterPage() {
                   <Checkbox 
                     id="terms" 
                     checked={agreedToTerms} 
-                    onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                    onCheckedChange={(checked: any) => setAgreedToTerms(checked as boolean)}
                     className="mt-1 rounded-md border-slate-200" 
                   />
                   <Label htmlFor="terms" className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tighter">

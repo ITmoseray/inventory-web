@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { BusinessType } from "@prisma/client";
 import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
+import { getSystemSettings } from "@/lib/actions/system-settings";
 
 export async function registerBusiness(data: any) {
   const { businessName, email, password, businessType, plan, logoUrl, phone } = data;
@@ -24,7 +25,8 @@ export async function registerBusiness(data: any) {
     // maybe we only set trial if they are truly new?
     // For now, let's keep it as is, as registration is the start of the journey.
     
-    const trialEndDate = plan === 'FREE' ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) : null;
+    const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7 }));
+    const trialEndDate = plan === 'FREE' ? new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000) : null;
 
     const business = await tx.business.create({
       data: {

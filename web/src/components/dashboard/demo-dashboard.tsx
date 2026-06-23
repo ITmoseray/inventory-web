@@ -134,7 +134,7 @@ export function DemoDashboard() {
               <Info className="h-4 w-4 text-amber-600" />
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-              <p className="text-sm font-bold text-slate-800 dark:text-white text-slate-900 dark:text-white">
+              <p className="text-sm font-bold text-slate-900">
                 Your premium trial plan ends today.
               </p>
               <div className="hidden sm:block h-3 w-px bg-slate-200" />

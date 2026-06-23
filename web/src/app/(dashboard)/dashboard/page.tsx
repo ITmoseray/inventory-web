@@ -26,6 +26,7 @@ import { getDashboardStats } from "@/lib/actions/dashboard";
 import { getWelcomeUpdate } from "@/lib/actions/ai";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
+import { SmartForecastingWidget } from "@/components/dashboard/smart-forecasting-widget";
 
 const TABS = ["Dashboard", "Getting Started", "Recent Updates"];
 
@@ -408,6 +409,12 @@ export default function DashboardPage() {
               </motion.div>
             </div>
 
+            <div className="grid gap-8 grid-cols-1 lg:grid-cols-3 mt-8">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="lg:col-span-3 min-h-[350px]">
+                <SmartForecastingWidget />
+              </motion.div>
+            </div>
+
             <div className="grid gap-8 lg:grid-cols-3 pb-12">
               <div className="lg:col-span-2">
                 <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
@@ -649,7 +656,7 @@ export default function DashboardPage() {
                      <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
                      <h3 className="text-xl font-black uppercase tracking-tight italic mb-8 relative z-10">Have a question?</h3>
                      <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-8 relative z-10">Write to us at <span className="text-indigo-400">support.africa@protechassist.com</span> and we'll answer you.</p>
-                     <Button onClick={() => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Inquiry")} className="w-full h-14 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 relative z-10">
+                     <Button onClick={() => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Inquiry")} className="w-full h-14 rounded-2xl bg-white text-slate-900 dark:bg-slate-900 dark:text-white font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 dark:hover:bg-slate-800 relative z-10">
                         <MessageCircle className="mr-3 h-4 w-4" /> Mail us
                      </Button>
                   </div>
@@ -946,7 +953,7 @@ export default function DashboardPage() {
 
       {/* INVOICE DETAILS MODAL */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[500px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white text-slate-900">
+        <DialogContent className="sm:max-w-[500px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
            <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                  <Receipt size={140} />
@@ -965,9 +972,9 @@ export default function DashboardPage() {
               </div>
            </div>
 
-           <div className="p-10 space-y-10 bg-white max-h-[60vh] overflow-y-auto custom-scrollbar">
+           <div className="p-10 space-y-10 bg-white dark:bg-slate-950 max-h-[60vh] overflow-y-auto custom-scrollbar">
               <div className="space-y-6">
-                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 pb-4">Line Item Breakdown</h4>
+                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 dark:border-slate-800 pb-4">Line Item Breakdown</h4>
                  <div className="space-y-6">
                     {selectedSale?.items.map((item: any, i: number) => (
                        <div key={i} className="flex justify-between items-start">
@@ -985,7 +992,7 @@ export default function DashboardPage() {
                  </div>
               </div>
 
-              <div className="pt-8 border-t border-slate-50 space-y-4">
+              <div className="pt-8 border-t border-slate-50 dark:border-slate-800 space-y-4">
                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                     <span>Transaction Subtotal</span>
                     <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount / 1.15).toLocaleString()}</span>
@@ -994,7 +1001,7 @@ export default function DashboardPage() {
                     <span>Tax Applied (15%)</span>
                     <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount - (selectedSale?.totalAmount / 1.15)).toLocaleString()}</span>
                  </div>
-                 <div className="h-px bg-slate-50 w-full my-4" />
+                 <div className="h-px bg-slate-50 dark:bg-slate-800 w-full my-4" />
                  <div className="flex justify-between items-end pt-2">
                     <div className="space-y-1">
                        <span className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.4em] italic">Final Settlement</span>
@@ -1002,7 +1009,7 @@ export default function DashboardPage() {
                     </div>
                     <div className="flex flex-col items-end gap-2">
                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Auth Method</span>
-                       <div className="px-4 py-2 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-black text-slate-900 uppercase tracking-tight flex items-center gap-3">
+                       <div className="px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-3">
                           {selectedSale?.paymentMethod === 'CASH' ? <Wallet size={14} className="text-indigo-500" /> : <SmartphoneIcon size={14} className="text-emerald-500" />}
                           {selectedSale?.paymentMethod}
                        </div>
@@ -1066,7 +1073,7 @@ export default function DashboardPage() {
 
       {/* REQUEST A DEMO DIALOG */}
       <Dialog open={demoModalOpen} onOpenChange={setDemoModalOpen}>
-        <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white text-slate-900">
+        <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
           <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5">
               <Users size={140} />
@@ -1077,7 +1084,7 @@ export default function DashboardPage() {
               <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.15em] pt-2">Unlock the full power of Protech Inventory OS with our engineering team.</p>
             </div>
           </div>
-          <form onSubmit={handleDemoSubmit} className="p-10 space-y-6">
+          <form onSubmit={handleDemoSubmit} className="p-10 space-y-6 bg-white dark:bg-slate-950 rounded-b-[3rem]">
             <div className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[9px] font-black uppercase tracking-widest text-slate-400">Full Name</label>
@@ -1087,7 +1094,7 @@ export default function DashboardPage() {
                   value={demoForm.name} 
                   onChange={(e) => setDemoForm({...demoForm, name: e.target.value})}
                   placeholder="Steven Strange" 
-                  className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900"
+                  className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900 dark:text-white"
                 />
               </div>
               <div className="space-y-1">
@@ -1098,7 +1105,7 @@ export default function DashboardPage() {
                   value={demoForm.email} 
                   onChange={(e) => setDemoForm({...demoForm, email: e.target.value})}
                   placeholder="steven@company.com" 
-                  className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900"
+                  className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900 dark:text-white"
                 />
               </div>
               <div className="space-y-1">
@@ -1109,7 +1116,7 @@ export default function DashboardPage() {
                   value={demoForm.phone} 
                   onChange={(e) => setDemoForm({...demoForm, phone: e.target.value})}
                   placeholder="+232 34 955581" 
-                  className="h-12 rounded-xl bg-slate-50 border-slate-100 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900"
+                  className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900 dark:text-white"
                 />
               </div>
               <div className="space-y-1">
@@ -1118,15 +1125,15 @@ export default function DashboardPage() {
                   value={demoForm.notes} 
                   onChange={(e) => setDemoForm({...demoForm, notes: e.target.value})}
                   placeholder="Tell us about your business size, locations, or migration requirements..." 
-                  className="w-full p-4 min-h-[100px] rounded-xl bg-slate-50 border border-slate-100 text-sm font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-slate-900"
+                  className="w-full p-4 min-h-[100px] rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-sm font-bold placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 transition-all resize-none text-slate-900 dark:text-white"
                 />
               </div>
             </div>
             <div className="flex gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={() => setDemoModalOpen(false)} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-500 border-slate-100 hover:bg-slate-50">
+              <Button type="button" variant="outline" onClick={() => setDemoModalOpen(false)} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-500 dark:text-slate-400 border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900">
                 Cancel
               </Button>
-              <Button type="submit" disabled={demoSubmitting} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-2xl">
+              <Button type="submit" disabled={demoSubmitting} className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-2xl">
                 {demoSubmitting ? "Scheduling..." : "Submit Request"}
               </Button>
             </div>
@@ -1135,7 +1142,7 @@ export default function DashboardPage() {
       </Dialog>
       {/* RELEASE UPDATE DETAILS DIALOG */}
       <Dialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen}>
-        <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white text-slate-900">
+        <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
           <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5">
               <Sparkles size={140} />
@@ -1152,25 +1159,25 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
-          <div className="p-10 space-y-8 bg-white">
+          <div className="p-10 space-y-8 bg-white dark:bg-slate-950 rounded-b-[3rem]">
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 pb-4">Update Details</h4>
-              <p className="text-slate-700 font-medium text-sm leading-relaxed uppercase">
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 dark:border-slate-850 pb-4">Update Details</h4>
+              <p className="text-slate-700 dark:text-slate-300 font-medium text-sm leading-relaxed uppercase">
                 {selectedUpdate?.desc}
               </p>
             </div>
-            <div className="pt-6 border-t border-slate-50 space-y-4">
+            <div className="pt-6 border-t border-slate-50 dark:border-slate-850 space-y-4">
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <span>Release Version</span>
                 <span className="text-slate-900 dark:text-white font-black">v2.6.4-beta</span>
               </div>
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <span>Scope Impact</span>
-                <span className="text-indigo-600 font-black">Enterprise Node</span>
+                <span className="text-indigo-600 dark:text-indigo-400 font-black">Enterprise Node</span>
               </div>
             </div>
             <div className="pt-4 flex gap-4">
-              <Button onClick={() => setIsUpdateOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-2xl">
+              <Button onClick={() => setIsUpdateOpen(false)} className="w-full h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 dark:bg-indigo-600 dark:hover:bg-indigo-500 shadow-2xl">
                 Close Update View
               </Button>
             </div>

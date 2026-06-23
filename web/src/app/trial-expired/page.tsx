@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { 
   Zap, AlertTriangle, ShieldAlert, MessageSquare, 
-  ArrowRight, LogOut, CreditCard, Clock
+  ArrowRight, LogOut, CreditCard, Clock, RefreshCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function TrialExpiredPage() {
   const { data: session, update } = useSession();

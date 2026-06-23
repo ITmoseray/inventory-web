@@ -4,6 +4,7 @@ import { prisma as globalPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { startOfDay, endOfDay } from "date-fns";
+import { logAudit } from "./audit";
 
 /**
  * DIRECT NEURAL BRIDGE (Raw SQL)
@@ -72,6 +73,13 @@ export async function clockIn(userId: string, note?: string) {
       VALUES ($1, $2, $3, NOW(), $4, $5, NOW(), NOW())
     `, id, userId, businessId, "ON_TIME", note || "General Duty");
 
+    await logAudit({
+      action: `CLOCKED IN (${note || "General Duty"})`,
+      entity: "ATTENDANCE",
+      entityId: id,
+      newData: { userId, note }
+    });
+
     revalidatePath("/dashboard/staff/attendance");
     return { success: true, id };
   } catch (error: any) {
@@ -92,6 +100,12 @@ export async function clockOut(logId: string) {
       SET "clockOut" = NOW(), "updatedAt" = NOW()
       WHERE id = $1 AND "businessId" = $2
     `, logId, businessId);
+
+    await logAudit({
+      action: `CLOCKED OUT`,
+      entity: "ATTENDANCE",
+      entityId: logId,
+    });
 
     revalidatePath("/dashboard/staff/attendance");
     return { success: true };

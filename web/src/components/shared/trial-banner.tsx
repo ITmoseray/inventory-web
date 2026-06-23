@@ -28,24 +28,26 @@ export function TrialBanner() {
   return (
     <div className={cn(
         "w-full px-6 py-3 flex items-center justify-between transition-all border-b",
-        isExpired ? "bg-rose-50 border-rose-100" : "bg-[#FFF9E5] border-amber-100"
+        isExpired 
+          ? "bg-rose-50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30" 
+          : "bg-[#FFF9E5] dark:bg-zinc-950 border-amber-100 dark:border-white/5"
     )}>
       <div className="flex items-center gap-4">
         <div className={cn(
             "h-8 w-8 rounded-full flex items-center justify-center shrink-0",
-            isExpired ? "bg-rose-100" : "bg-amber-100"
+            isExpired ? "bg-rose-100 dark:bg-rose-900/30" : "bg-amber-100 dark:bg-amber-950/30"
         )}>
-          <Info className={cn("h-4 w-4", isExpired ? "text-rose-600" : "text-amber-600")} />
+          <Info className={cn("h-4 w-4", isExpired ? "text-rose-600 dark:text-rose-400" : "text-amber-600 dark:text-amber-400")} />
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-          <p className="text-sm font-bold text-slate-800 dark:text-white">
+          <p className="text-sm font-bold text-slate-900 dark:text-white">
             {isExpired 
               ? "Your premium trial plan has expired." 
               : `Your premium trial plan ends in ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'}.`
             }
           </p>
-          <div className="hidden sm:block h-3 w-px bg-slate-200" />
-          <Link href="/pricing" className="text-sm font-black text-indigo-600 uppercase tracking-widest hover:underline flex items-center gap-1">
+          <div className="hidden sm:block h-3 w-px bg-slate-200 dark:bg-white/10" />
+          <Link href="/pricing" className="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:underline flex items-center gap-1">
             {isExpired ? "Upgrade Now" : "Subscribe Now"} <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
@@ -55,8 +57,8 @@ export function TrialBanner() {
         <button 
           onClick={() => setIsVisible(false)}
           className={cn(
-            "p-1.5 rounded-full transition-colors",
-            isExpired ? "hover:bg-rose-200/50 text-rose-600" : "hover:bg-amber-200/50 text-amber-600"
+            "p-1.5 rounded-full transition-colors text-slate-400 hover:text-slate-900 dark:hover:text-white",
+            isExpired ? "hover:bg-rose-200/50 dark:hover:bg-rose-900/20" : "hover:bg-amber-200/50 dark:hover:bg-amber-950/20"
           )}
         >
           <X className="h-4 w-4" />

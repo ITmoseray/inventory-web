@@ -17,19 +17,20 @@ export function RealTimeClock() {
   }, []);
 
   if (!mounted) {
-    return (
-      <div className="flex items-center gap-2 md:gap-6 opacity-0">
-        <div className="hidden lg:flex flex-col items-end">
-          <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] leading-none mb-1">...</span>
-          <span className="text-sm font-bold text-slate-400">...</span>
-        </div>
-        <div className="h-10 w-px bg-slate-100 hidden lg:block" />
-        <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-slate-100">
-          <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-          <span className="text-xs md:text-xl font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">00:00:00</span>
-        </div>
+  return (
+    <div className="flex items-center gap-2 md:gap-4 opacity-0">
+      {/* Greeting + date: only xl+ */}
+      <div className="hidden xl:flex flex-col items-end">
+        <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] leading-none mb-1">...</span>
+        <span className="text-sm font-bold text-slate-400">...</span>
       </div>
-    );
+      <div className="hidden xl:block h-10 w-px bg-slate-100 dark:bg-white/10" />
+      <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5">
+        <Clock className="h-4 w-4 text-primary" />
+        <span className="text-xs font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">00:00:00</span>
+      </div>
+    </div>
+  );
   }
 
   const formatTime = (date: Date) => {
@@ -58,21 +59,23 @@ export function RealTimeClock() {
   };
 
   return (
-    <div className="flex items-center gap-2 md:gap-6 animate-in fade-in duration-1000">
-      <div className="hidden lg:flex flex-col items-end">
+    <div className="flex items-center gap-2 md:gap-4 animate-in fade-in duration-1000">
+      {/* Greeting + date column: only xl+ breakpoint */}
+      <div className="hidden xl:flex flex-col items-end">
         <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em] leading-none mb-1">
           {getGreeting()}
         </span>
-        <span className="text-sm font-bold text-slate-400">
+        <span className="text-xs font-bold text-slate-400 whitespace-nowrap">
           {formatDate(time)}
         </span>
       </div>
-      
-      <div className="h-10 w-px bg-slate-100 hidden lg:block" />
-      
-      <div className="flex items-center gap-2 md:gap-3 bg-slate-50 px-2 md:px-4 py-1.5 md:py-2 rounded-xl md:rounded-2xl border border-slate-100 shadow-inner group transition-all hover:bg-white hover:shadow-md">
-        <Clock className="h-4 w-4 md:h-5 md:w-5 text-primary animate-pulse" />
-        <span className="text-xs md:text-xl font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">
+
+      <div className="h-8 w-px bg-slate-100 dark:bg-white/10 hidden xl:block" />
+
+      {/* Clock pill: always visible from md+ */}
+      <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5 shadow-inner dark:shadow-none hover:bg-white dark:hover:bg-slate-900 hover:shadow-md transition-all">
+        <Clock className="h-4 w-4 text-primary dark:text-white animate-pulse" />
+        <span className="text-xs font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">
           {formatTime(time)}
         </span>
       </div>

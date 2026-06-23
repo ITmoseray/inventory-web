@@ -1,0 +1,55 @@
+"use server";
+
+import { prisma as db } from "@/lib/prisma";
+
+export async function getPublicReceipt(saleId: string) {
+  try {
+    const sale = await db.sale.findUnique({
+      where: { id: saleId },
+      include: {
+        items: {
+          include: {
+            product: true
+          }
+        },
+        customer: true,
+        business: true,
+      }
+    });
+
+    if (!sale) return null;
+
+    return {
+      id: sale.id,
+      transactionId: sale.transactionId,
+      date: sale.createdAt,
+      totalAmount: Number(sale.totalAmount),
+      amountPaid: Number(sale.amountPaid),
+      balance: Number(sale.balance),
+      paymentMethod: sale.paymentMethod,
+      paymentStatus: sale.paymentStatus,
+      status: sale.status,
+      business: {
+        name: sale.business.name,
+        address: sale.business.address,
+        phone: sale.business.phone,
+        email: sale.business.email,
+        logoUrl: sale.business.logoUrl,
+      },
+      customer: sale.customer ? {
+        name: sale.customer.name,
+        phone: sale.customer.phone,
+      } : null,
+      items: sale.items.map(item => ({
+        id: item.id,
+        name: item.product.name,
+        quantity: item.quantity,
+        unitPrice: Number(item.unitPrice),
+        subtotal: Number(item.subtotal),
+      }))
+    };
+  } catch (error) {
+    console.error("Error fetching public receipt:", error);
+    return null;
+  }
+}

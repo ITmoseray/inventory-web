@@ -67,30 +67,30 @@ export default function PendingApprovals() {
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 text-slate-200">
+    <div className="p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
            <div className="space-y-2">
-              <Link href="/super-admin" className="flex items-center gap-2 text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-indigo-400 transition-colors mb-4">
+              <Link href="/super-admin" className="flex items-center gap-2 text-indigo-650 dark:text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mb-4">
                  <ArrowLeft className="h-3 w-3" /> Back to Nexus
               </Link>
-              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-white uppercase italic">Pending <span className="text-amber-500">Approvals</span></h1>
+              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Pending <span className="text-amber-500">Approvals</span></h1>
               <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">New registrations & expired trials requiring override</p>
            </div>
            
-           <Button variant="ghost" size="icon" onClick={fetchPending} className="rounded-xl hover:bg-white/5 text-slate-500 hover:text-indigo-400">
+           <Button variant="ghost" size="icon" onClick={fetchPending} className="rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400">
               <RefreshCw className={cn("h-5 w-5", loading && "animate-spin")} />
            </Button>
         </div>
 
         {/* Approvals Table */}
-        <GlassCard className="overflow-hidden border-slate-800/50">
+        <GlassCard className="overflow-hidden border-slate-200/80 dark:border-slate-800/50">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-900/50">
-                <TableRow className="hover:bg-transparent border-slate-800">
+            <Table className="min-w-[800px]">
+              <TableHeader className="bg-slate-100/50 dark:bg-slate-900/50">
+                <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest pl-10 h-16">Entity Identification</TableHead>
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-16">Reason / Status</TableHead>
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest text-center h-16">Metadata</TableHead>
@@ -100,9 +100,9 @@ export default function PendingApprovals() {
               <TableBody>
                 {loading ? (
                   [1,2,3].map(i => (
-                    <TableRow key={i} className="border-slate-900">
+                    <TableRow key={i} className="border-slate-200 dark:border-slate-900">
                       <TableCell colSpan={4} className="h-24 p-0">
-                         <div className="h-full w-full bg-slate-900/20 animate-pulse" />
+                         <div className="h-full w-full bg-slate-200/50 dark:bg-slate-900/20 animate-pulse" />
                       </TableCell>
                     </TableRow>
                   ))
@@ -117,14 +117,14 @@ export default function PendingApprovals() {
                   </TableRow>
                 ) : (
                   pending.map((b) => (
-                    <TableRow key={b.id} className="hover:bg-white/5 border-slate-900 group transition-all">
+                    <TableRow key={b.id} className="hover:bg-slate-100/50 dark:hover:bg-white/5 border-slate-200 dark:border-slate-900 group transition-all">
                       <TableCell className="pl-10 py-6">
                         <div className="flex items-center gap-5">
-                          <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 font-black text-xl group-hover:bg-indigo-500/10 group-hover:text-indigo-500 group-hover:border-indigo-500/20 transition-all">
+                          <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 font-black text-xl group-hover:bg-indigo-500/10 group-hover:text-indigo-500 group-hover:border-indigo-500/20 transition-all">
                             {b.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-black text-white text-lg tracking-tight">{b.name}</span>
+                            <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight">{b.name}</span>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{b.type} • {b.currency}</span>
                           </div>
                         </div>
@@ -151,15 +151,15 @@ export default function PendingApprovals() {
                         <div className="flex items-center justify-center gap-6">
                            <div className="flex flex-col items-center opacity-60">
                               <ShoppingCart className="h-3 w-3 text-slate-400 mb-1" />
-                              <span className="text-xs font-black text-white">{b._count.products}</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-white">{b._count.products}</span>
                            </div>
                            <div className="flex flex-col items-center opacity-60">
                               <Briefcase className="h-3 w-3 text-slate-400 mb-1" />
-                              <span className="text-xs font-black text-white">{b._count.sales}</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-white">{b._count.sales}</span>
                            </div>
                            <div className="flex flex-col items-center opacity-60">
                               <User className="h-3 w-3 text-slate-400 mb-1" />
-                              <span className="text-xs font-black text-white">{b._count.users}</span>
+                              <span className="text-xs font-black text-slate-900 dark:text-white">{b._count.users}</span>
                            </div>
                         </div>
                       </TableCell>
@@ -168,7 +168,7 @@ export default function PendingApprovals() {
                            {b.isExpired && (
                               <Button 
                                 onClick={() => handleExtend(b.id)}
-                                className="h-10 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-black text-[9px] uppercase tracking-widest border border-slate-700 transition-all"
+                                className="h-10 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-300 font-black text-[9px] uppercase tracking-widest border border-slate-200 dark:border-slate-700 transition-all"
                               >
                                 <Calendar className="h-3 w-3 mr-2" /> Extend Trial
                               </Button>

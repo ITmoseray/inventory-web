@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "./audit";
 
 export async function getCustomers() {
   try {
@@ -37,6 +38,13 @@ export async function createCustomer(data: { name: string; email?: string; phone
       },
     });
 
+    await logAudit({
+      action: `Created Customer: ${customer.name}`,
+      entity: "CUSTOMER",
+      entityId: customer.id,
+      newData: customer
+    });
+
     revalidatePath("/dashboard/customers");
     return {
       ...customer,
@@ -59,6 +67,13 @@ export async function updateCustomer(id: string, data: any) {
       data,
     });
 
+    await logAudit({
+      action: `Updated Customer: ${customer.name}`,
+      entity: "CUSTOMER",
+      entityId: customer.id,
+      newData: customer
+    });
+
     revalidatePath("/dashboard/customers");
     return {
       ...customer,
@@ -76,8 +91,14 @@ export async function deleteCustomer(id: string) {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
-    await prisma.customer.delete({
+    const deletedCustomer = await prisma.customer.delete({
       where: { id, businessId: session.user.businessId },
+    });
+
+    await logAudit({
+      action: `Deleted Customer: ${deletedCustomer.name}`,
+      entity: "CUSTOMER",
+      entityId: id
     });
 
     revalidatePath("/dashboard/customers");

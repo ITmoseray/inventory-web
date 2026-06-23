@@ -5,6 +5,10 @@ import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import bcrypt from "bcrypt";
 import { cookies } from "next/headers";
+import fs from "fs";
+import path from "path";
+import { logAudit } from "./audit";
+import { updateSystemSettings } from "./system-settings";
 
 async function checkSuperAdmin() {
   const session = await auth();
@@ -39,10 +43,17 @@ export async function getAllBusinesses() {
 
 export async function updateBusinessPlan(businessId: string, plan: any) {
   await checkSuperAdmin();
-  await prisma.business.update({
+  const business = await prisma.business.update({
     where: { id: businessId },
     data: { plan },
   });
+
+  await logAudit({
+    action: `UPDATED BUSINESS PLAN: ${business.name} to ${plan}`,
+    entity: "BUSINESS",
+    entityId: businessId,
+  });
+
   revalidatePath("/super-admin/businesses");
 }
 
@@ -50,7 +61,7 @@ export async function approveBusiness(businessId: string) {
   await checkSuperAdmin();
   const business = await prisma.business.findUnique({
     where: { id: businessId },
-    select: { trialEndDate: true }
+    select: { name: true, trialEndDate: true }
   });
 
   const now = new Date();
@@ -65,6 +76,13 @@ export async function approveBusiness(businessId: string) {
     where: { id: businessId },
     data,
   });
+
+  await logAudit({
+    action: `APPROVED BUSINESS NODE: ${business?.name || businessId}`,
+    entity: "BUSINESS",
+    entityId: businessId,
+  });
+
   revalidatePath("/super-admin/businesses");
   revalidatePath("/super-admin/approvals");
 }
@@ -73,13 +91,19 @@ export async function extendTrial(businessId: string, days: number = 7) {
   await checkSuperAdmin();
   const now = new Date();
   
-  await prisma.business.update({
+  const business = await prisma.business.update({
     where: { id: businessId },
     data: {
       trialEndDate: new Date(now.getTime() + days * 24 * 60 * 60 * 1000),
       status: "ACTIVE",
       subscriptionStatus: "INACTIVE" // Ensuring they are still in trial mode
     }
+  });
+
+  await logAudit({
+    action: `EXTENDED TRIAL: ${business.name} by ${days} days`,
+    entity: "BUSINESS",
+    entityId: businessId,
   });
   
   revalidatePath("/super-admin/businesses");
@@ -89,10 +113,22 @@ export async function extendTrial(businessId: string, days: number = 7) {
 export async function deleteBusiness(businessId: string) {
   await checkSuperAdmin();
   try {
+    const business = await prisma.business.findUnique({
+      where: { id: businessId },
+      select: { name: true }
+    });
+
     // Prisma onDelete: Cascade should handle related models if configured correctly in schema
     await prisma.business.delete({
       where: { id: businessId },
     });
+
+    await logAudit({
+      action: `DELETED BUSINESS NODE: ${business?.name || businessId}`,
+      entity: "BUSINESS",
+      entityId: businessId,
+    });
+
     revalidatePath("/super-admin/businesses");
     revalidatePath("/super-admin/approvals");
     return { success: true };
@@ -273,13 +309,247 @@ export async function getEcosystemHealth() {
 export async function globalBroadcast(message: string) {
   await checkSuperAdmin();
   console.log(`[GLOBAL BROADCAST]: ${message}`);
-  // In a real app, this would create a notification for all businesses
+
+  // Persist the banner so all tenant dashboards display it
+  await updateSystemSettings({ announcementBanner: message });
+
+  const trimmed = message.trim();
+  await logAudit({
+    action: trimmed
+      ? `ISSUED GLOBAL BROADCAST: "${trimmed.slice(0, 40)}${trimmed.length > 40 ? "..." : ""}"`
+      : `CLEARED GLOBAL BROADCAST`,
+    entity: "SYSTEM",
+  });
+
+  // Revalidate dashboard routes so the banner appears on next page load
+  revalidatePath("/", "layout");
+  revalidatePath("/dashboard");
+
   return { success: true };
 }
 
 export async function toggleMaintenanceMode(enabled: boolean) {
   await checkSuperAdmin();
   console.log(`[MAINTENANCE MODE]: ${enabled}`);
-  // This would update a global setting in DB
+  
+  await logAudit({
+    action: `TOGGLED MAINTENANCE MODE: ${enabled ? "ENABLED" : "DISABLED"}`,
+    entity: "SYSTEM",
+  });
+
   return { success: true, enabled };
 }
+
+const BACKUPS_DIR = path.join(process.cwd(), "../backups");
+
+export async function generateBackup() {
+  await checkSuperAdmin();
+
+  try {
+    const businesses = await prisma.business.findMany({
+      include: {
+        users: {
+          select: {
+            id: true,
+            name: true,
+            username: true,
+            email: true,
+            status: true,
+            roleId: true,
+            createdAt: true,
+          }
+        }
+      }
+    });
+
+    const auditLogs = await prisma.auditLog.findMany({
+      take: 100,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: { select: { name: true, email: true } },
+        business: { select: { name: true } }
+      }
+    });
+
+    const backupPayload = {
+      timestamp: new Date().toISOString(),
+      version: "Nexus-v4.2.0",
+      exporter: "Super Admin Control",
+      businesses,
+      auditLogs
+    };
+
+    if (!fs.existsSync(BACKUPS_DIR)) {
+      fs.mkdirSync(BACKUPS_DIR, { recursive: true });
+    }
+
+    const timestampStr = new Date().toISOString().replace(/[:.]/g, "-");
+    const filename = `nexus-backup-${timestampStr}.json`;
+    const filePath = path.join(BACKUPS_DIR, filename);
+
+    fs.writeFileSync(filePath, JSON.stringify(backupPayload, null, 2));
+
+    console.log(`[DATABASE SNAPSHOT]: Generated ${filename}`);
+    return { success: true, filename };
+  } catch (error: any) {
+    console.error("Database backup generation failed:", error);
+    throw new Error(`Backup failed: ${error.message}`);
+  }
+}
+
+export async function getBackupsList() {
+  await checkSuperAdmin();
+
+  try {
+    if (!fs.existsSync(BACKUPS_DIR)) {
+      return [];
+    }
+
+    const files = fs.readdirSync(BACKUPS_DIR);
+    const backupFiles = files
+      .filter(f => f.startsWith("nexus-backup-") && f.endsWith(".json"))
+      .map(filename => {
+        const filePath = path.join(BACKUPS_DIR, filename);
+        const stats = fs.statSync(filePath);
+        return {
+          filename,
+          sizeBytes: stats.size,
+          createdAt: stats.birthtime.toISOString(),
+        };
+      });
+
+    return backupFiles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  } catch (error) {
+    console.error("Failed to read backups directory:", error);
+    return [];
+  }
+}
+
+export async function deleteBackupFile(filename: string) {
+  await checkSuperAdmin();
+
+  try {
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(BACKUPS_DIR, safeFilename);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      return { success: true };
+    } else {
+      throw new Error("File not found");
+    }
+  } catch (error: any) {
+    console.error("Backup deletion failed:", error);
+    throw new Error(`Deletion failed: ${error.message}`);
+  }
+}
+
+export async function getAllSystemUsers() {
+  await checkSuperAdmin();
+  
+  const users = await prisma.user.findMany({
+    include: {
+      business: { select: { name: true } },
+      role: { select: { name: true } },
+      auditLogs: {
+        select: { createdAt: true, action: true },
+        orderBy: { createdAt: "desc" },
+        take: 1
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+
+  return users.map(user => {
+    const lastLog = user.auditLogs[0];
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      username: user.username,
+      status: user.status,
+      createdAt: user.createdAt.toISOString(),
+      role: user.role.name,
+      business: user.business.name,
+      lastActiveAt: lastLog?.createdAt.toISOString() || null,
+      lastAction: lastLog?.action || null
+    };
+  });
+}
+
+export async function changeUserPassword(userId: string, newPasswordStr: string) {
+  await checkSuperAdmin();
+  if (newPasswordStr.length < 6) {
+    throw new Error("Password must be at least 6 characters.");
+  }
+  const hashedPassword = await bcrypt.hash(newPasswordStr, 10);
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash: hashedPassword }
+  });
+
+  await logAudit({
+    action: `RESET PASSWORD FOR USER: ${updatedUser.email}`,
+    entity: "USER",
+    entityId: userId,
+  });
+
+  return { success: true };
+}
+
+export async function changeOwnPassword(currentPasswordStr: string, newPasswordStr: string) {
+  const session = await auth();
+  if (!session || session.user.role !== "SUPERADMIN") {
+    throw new Error("Unauthorized access. SuperAdmin only.");
+  }
+  if (newPasswordStr.length < 6) {
+    throw new Error("Password must be at least 6 characters.");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id }
+  });
+  if (!user) {
+    throw new Error("User not found.");
+  }
+
+  const passwordMatch = await bcrypt.compare(currentPasswordStr, user.passwordHash);
+  if (!passwordMatch) {
+    throw new Error("Incorrect current password.");
+  }
+
+  const hashedPassword = await bcrypt.hash(newPasswordStr, 10);
+  await prisma.user.update({
+    where: { id: user.id },
+    data: { passwordHash: hashedPassword }
+  });
+
+  await logAudit({
+    action: `CHANGED OWN PASSWORD (SUPER ADMIN)`,
+    entity: "USER",
+    entityId: user.id,
+  });
+
+  return { success: true };
+}
+
+export async function toggleUserStatus(userId: string, status: "active" | "inactive") {
+  await checkSuperAdmin();
+  const session = await auth();
+  if (session?.user?.id === userId) {
+    throw new Error("Deactivating your own super admin account is blocked.");
+  }
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { status }
+  });
+
+  await logAudit({
+    action: `TOGGLED STATUS FOR USER: ${updatedUser.email} TO ${status.toUpperCase()}`,
+    entity: "USER",
+    entityId: userId,
+  });
+
+  return { success: true };
+}
+

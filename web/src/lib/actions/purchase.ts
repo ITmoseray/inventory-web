@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "./audit";
 
 export async function createPurchase(data: {
   supplierId?: string;
@@ -95,6 +96,13 @@ export async function createPurchase(data: {
     revalidatePath("/dashboard/inventory/purchases");
     revalidatePath("/dashboard/inventory/low-stock");
     revalidatePath("/dashboard/inventory/overview");
+
+    await logAudit({
+      action: `Created Purchase: ${purchase.invoiceNumber} (Le ${purchase.totalAmount.toNumber().toFixed(2)})`,
+      entity: "PURCHASE",
+      entityId: purchase.id,
+      newData: { invoiceNumber: purchase.invoiceNumber, totalAmount: purchase.totalAmount.toNumber() }
+    });
     
     return { 
       success: true, 

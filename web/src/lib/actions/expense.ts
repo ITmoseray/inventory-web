@@ -3,6 +3,7 @@
 import { prisma as globalPrisma, getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "./audit";
 
 export async function createExpense(data: {
   description: string;
@@ -28,6 +29,13 @@ export async function createExpense(data: {
         businessId: businessId,
         userId: session.user.id,
       },
+    });
+
+    await logAudit({
+      action: `Created Expense: ${expense.category} (Le ${expense.amount.toNumber().toFixed(2)}) - ${expense.description}`,
+      entity: "EXPENSE",
+      entityId: expense.id,
+      newData: { category: expense.category, amount: expense.amount.toNumber(), description: expense.description }
     });
 
     revalidatePath("/dashboard/accounting/expenses");

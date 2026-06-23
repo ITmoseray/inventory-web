@@ -13,7 +13,7 @@ interface ManualPaymentModalProps {
 export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[450px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white text-slate-900">
+      <DialogContent className="sm:max-w-[450px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
         <div className="bg-orange-600 p-8 text-white">
           <div className="flex items-center gap-3 mb-2">
             <div className="h-10 w-10 rounded-xl bg-white/20 flex items-center justify-center shadow-inner">
@@ -25,7 +25,7 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
         </div>
 
         <div className="p-8 space-y-6">
-          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+          <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-xl border border-slate-100 dark:border-slate-800 space-y-2">
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Orange Money Number</p>
             <p className="text-lg font-black text-slate-900 dark:text-white">073019699</p>
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-4">Account Name</p>
@@ -34,15 +34,15 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
 
           <div className="space-y-3">
             <h4 className="font-black text-xs uppercase tracking-widest text-slate-900 dark:text-white">Next Steps:</h4>
-            <ul className="space-y-2 text-[10px] font-bold text-slate-600 list-decimal list-inside">
+            <ul className="space-y-2 text-[10px] font-bold text-slate-600 dark:text-slate-350 list-decimal list-inside">
               <li>Make the payment to the number above.</li>
               <li>Take a screenshot of the payment receipt.</li>
-              <li>Send receipt via WhatsApp to <span className="text-indigo-600">034955581</span>.</li>
+              <li>Send receipt via WhatsApp to <span className="text-indigo-600 dark:text-indigo-400">034955581</span>.</li>
               <li>Include: Name, Phone, Plan, & Transaction ID.</li>
             </ul>
           </div>
 
-          <div className="flex gap-3 pt-4 border-t border-slate-100">
+          <div className="flex gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
             <Button variant="ghost" className="flex-1 h-12 rounded-xl font-black text-[10px] uppercase tracking-widest" onClick={onClose}>
               Close
             </Button>

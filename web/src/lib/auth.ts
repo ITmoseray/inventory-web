@@ -7,6 +7,7 @@ import crypto from "crypto";
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { authConfig } from "../auth.config";
+import { getSystemSettings } from "@/lib/actions/system-settings";
 
 declare module "next-auth" {
   interface Session {
@@ -105,6 +106,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user, account, profile }) {
+      let finalUserId = user.id;
+      let finalBusinessId = (user as any).businessId;
+
       if (account?.provider === "google" && user.email) {
         try {
           const dbUser = await prisma.user.findUnique({
@@ -115,7 +119,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             console.log(`Google Auth: User ${user.email} not found in DB. Creating new business and user account.`);
             
             const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
-            const trialEndDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+            const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7 }));
+            const trialEndDate = new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000);
             
             await prisma.$transaction(async (tx) => {
               const business = await tx.business.create({
@@ -149,7 +154,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 });
               }
 
-              await tx.user.create({
+              const newDbUser = await tx.user.create({
                 data: {
                   email: user.email!,
                   passwordHash,
@@ -159,14 +164,37 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   emailVerified: new Date(),
                 },
               });
+              finalUserId = newDbUser.id;
+              finalBusinessId = business.id;
             });
             console.log(`Google Auth: Successfully created business and user for ${user.email}`);
+          } else {
+            finalUserId = dbUser.id;
+            finalBusinessId = dbUser.businessId;
           }
         } catch (error) {
           console.error("Google Auth: Error in signIn callback during findOrCreate:", error);
           return false;
         }
       }
+
+      // Log successful login activity
+      if (finalUserId && finalBusinessId) {
+        try {
+          await prisma.auditLog.create({
+            data: {
+              action: `LOGGED IN (${account?.provider === "google" ? "Google" : "Credentials"})`,
+              entity: "USER",
+              entityId: finalUserId,
+              userId: finalUserId,
+              businessId: finalBusinessId,
+            }
+          });
+        } catch (auditErr) {
+          console.error("Failed to log sign-in audit:", auditErr);
+        }
+      }
+
       return true;
     },
     async session({ session, token }) {
@@ -202,7 +230,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // 2. Auto-refresh permissions if missing or empty
       const lookupKey = (token.sub || token.email) as string;
       
-      if (trigger === "update" || (lookupKey && (!token.permissions || (token.permissions as string[]).length === 0))) {
+      if (trigger === "update" || (lookupKey && (!token.permissions || (token.permissions as string[]).length === 0 || !token.businessId))) {
         try {
           console.log(`SERVER AUTH: Refreshing permissions (sub: ${token.sub}, email: ${token.email})`);
           const dbUser = await prisma.user.findFirst({

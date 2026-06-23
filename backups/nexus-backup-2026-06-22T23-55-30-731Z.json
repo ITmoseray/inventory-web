@@ -1,0 +1,234 @@
+{
+  "timestamp": "2026-06-22T23:55:30.730Z",
+  "version": "Nexus-v4.2.0",
+  "exporter": "Super Admin Control",
+  "businesses": [
+    {
+      "id": "cmplvbc7m0000kklnbqcrkmsk",
+      "name": "Protech Assist SL Limited Super Admin Hub",
+      "slug": "protech-nexus-core",
+      "logoUrl": null,
+      "type": "SHOP",
+      "plan": "PREMIUM",
+      "status": "active",
+      "trialStartDate": "2026-05-25T23:59:15.346Z",
+      "trialEndDate": null,
+      "enabledModules": [
+        "POS",
+        "INVENTORY",
+        "RESTAURANT"
+      ],
+      "currency": "SLL",
+      "timezone": "UTC",
+      "createdAt": "2026-05-25T23:59:15.346Z",
+      "updatedAt": "2026-05-25T23:59:15.346Z",
+      "registrationReceipt": null,
+      "address": null,
+      "email": null,
+      "phone": null,
+      "flutterwaveRef": null,
+      "subscriptionStatus": "INACTIVE",
+      "users": [
+        {
+          "id": "legacy_admin",
+          "name": "Admin",
+          "username": "admin",
+          "email": "admin@legacy.protech.com",
+          "status": "active",
+          "roleId": "cmplvby7r0000a0lniajpqov3",
+          "createdAt": "2026-06-12T13:14:56.480Z"
+        },
+        {
+          "id": "cmplvcg170000dglnqdsleg1b",
+          "name": "Nexus System Admin",
+          "username": null,
+          "email": "admin@protechnexus.com",
+          "status": "active",
+          "roleId": "cmplvby7r0000a0lniajpqov3",
+          "createdAt": "2026-05-26T00:00:06.955Z"
+        }
+      ]
+    },
+    {
+      "id": "cmpvkl6ti000lgglnjud25s3a",
+      "name": "Rahim Tech",
+      "slug": "rahim-tech-9e4sb",
+      "logoUrl": null,
+      "type": "SHOP",
+      "plan": "FREE",
+      "status": "ACTIVE",
+      "trialStartDate": "2026-06-01T18:56:40.893Z",
+      "trialEndDate": "2026-06-15T18:56:40.893Z",
+      "enabledModules": [
+        "POS",
+        "INVENTORY"
+      ],
+      "currency": "SLL",
+      "timezone": "UTC",
+      "createdAt": "2026-06-01T18:56:40.902Z",
+      "updatedAt": "2026-06-01T18:58:08.066Z",
+      "registrationReceipt": null,
+      "address": null,
+      "email": null,
+      "phone": null,
+      "flutterwaveRef": null,
+      "subscriptionStatus": "INACTIVE",
+      "users": [
+        {
+          "id": "cmpvkl6uo000ngglnmm2phue6",
+          "name": "Admin",
+          "username": null,
+          "email": "alphaibrahimbah72@gmail.com",
+          "status": "active",
+          "roleId": "cmpvkl6ud000mgglnvw20cdd8",
+          "createdAt": "2026-06-01T18:56:40.944Z"
+        }
+      ]
+    },
+    {
+      "id": "cmptulc51000fgolnigx5igad",
+      "name": "Protech Enterprise ",
+      "slug": "protech-enterprise--509fid",
+      "logoUrl": null,
+      "type": "SHOP",
+      "plan": "FREE",
+      "status": "ACTIVE",
+      "trialStartDate": "2026-05-31T14:01:11.604Z",
+      "trialEndDate": "2026-07-22T23:12:52.343Z",
+      "enabledModules": [
+        "POS",
+        "INVENTORY"
+      ],
+      "currency": "SLL",
+      "timezone": "UTC",
+      "createdAt": "2026-05-31T14:01:11.605Z",
+      "updatedAt": "2026-06-22T23:12:52.352Z",
+      "registrationReceipt": null,
+      "address": null,
+      "email": null,
+      "phone": null,
+      "flutterwaveRef": null,
+      "subscriptionStatus": "INACTIVE",
+      "users": [
+        {
+          "id": "cmptulc5f000hgolnfqaecxju",
+          "name": "Admin",
+          "username": null,
+          "email": "strangesteven001@gmail.com",
+          "status": "active",
+          "roleId": "cmplvby7r0000a0lniajpqov3",
+          "createdAt": "2026-05-31T14:01:11.620Z"
+        }
+      ]
+    },
+    {
+      "id": "cmqpuge0d0000x0ln74qrdzga",
+      "name": "Test Enterprise 2",
+      "slug": "test-enterprise-2-vl07xs",
+      "logoUrl": "",
+      "type": "SHOP",
+      "plan": "FREE",
+      "status": "PENDING",
+      "trialStartDate": "2026-06-22T23:25:58.370Z",
+      "trialEndDate": "2026-06-29T23:25:58.370Z",
+      "enabledModules": [
+        "POS",
+        "INVENTORY"
+      ],
+      "currency": "SLL",
+      "timezone": "UTC",
+      "createdAt": "2026-06-22T23:25:58.381Z",
+      "updatedAt": "2026-06-22T23:25:58.381Z",
+      "registrationReceipt": null,
+      "address": null,
+      "email": null,
+      "phone": "030798318",
+      "flutterwaveRef": null,
+      "subscriptionStatus": "INACTIVE",
+      "users": [
+        {
+          "id": "cmqpuge3b0004x0lnmkwo10ru",
+          "name": "Admin",
+          "username": null,
+          "email": "test002@gmail.com",
+          "status": "active",
+          "roleId": "cmqpuge100001x0lnnrylu5dt",
+          "createdAt": "2026-06-22T23:25:58.487Z"
+        }
+      ]
+    },
+    {
+      "id": "cmptyaxhn0003aolne9d5t46w",
+      "name": "Ruth's Ent",
+      "slug": "ruth's-ent-l778fn",
+      "logoUrl": null,
+      "type": "SHOP",
+      "plan": "FREE",
+      "status": "ACTIVE",
+      "trialStartDate": "2026-05-31T15:45:04.501Z",
+      "trialEndDate": "2026-06-14T15:45:04.499Z",
+      "enabledModules": [
+        "POS",
+        "INVENTORY"
+      ],
+      "currency": "SLL",
+      "timezone": "UTC",
+      "createdAt": "2026-05-31T15:45:04.523Z",
+      "updatedAt": "2026-05-31T15:51:37.488Z",
+      "registrationReceipt": null,
+      "address": null,
+      "email": null,
+      "phone": null,
+      "flutterwaveRef": null,
+      "subscriptionStatus": "INACTIVE",
+      "users": [
+        {
+          "id": "cmptyaxiy0005aoln5xlyt7m9",
+          "name": "Admin",
+          "username": null,
+          "email": "protechassist36@gmail.com",
+          "status": "active",
+          "roleId": "cmptyaxil0004aolnzs9skbv4",
+          "createdAt": "2026-05-31T15:45:04.570Z"
+        }
+      ]
+    },
+    {
+      "id": "cmpvk5if9000iggln42t517ak",
+      "name": "Ruth's Ent",
+      "slug": "ruth's-ent-t081us",
+      "logoUrl": null,
+      "type": "SHOP",
+      "plan": "FREE",
+      "status": "ACTIVE",
+      "trialStartDate": "2026-06-01T18:44:29.445Z",
+      "trialEndDate": "2026-06-15T18:44:29.445Z",
+      "enabledModules": [
+        "POS",
+        "INVENTORY"
+      ],
+      "currency": "SLL",
+      "timezone": "UTC",
+      "createdAt": "2026-06-01T18:44:29.445Z",
+      "updatedAt": "2026-06-01T18:45:24.772Z",
+      "registrationReceipt": null,
+      "address": null,
+      "email": null,
+      "phone": null,
+      "flutterwaveRef": null,
+      "subscriptionStatus": "INACTIVE",
+      "users": [
+        {
+          "id": "cmpvk5ifg000kgglne8qgadly",
+          "name": "Admin",
+          "username": null,
+          "email": "isruth56@gmail.com",
+          "status": "active",
+          "roleId": "cmpvk5ifd000jgglnc23p7p5m",
+          "createdAt": "2026-06-01T18:44:29.452Z"
+        }
+      ]
+    }
+  ],
+  "auditLogs": []
+}

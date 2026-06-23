@@ -47,16 +47,16 @@ export default function AuditNexus() {
   );
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 text-slate-200">
+    <div className="p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
       <div className="max-w-7xl mx-auto space-y-12">
         
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
            <div className="space-y-2">
-              <Link href="/super-admin" className="flex items-center gap-2 text-rose-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-rose-400 transition-colors mb-4">
+              <Link href="/super-admin" className="flex items-center gap-2 text-rose-600 dark:text-rose-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-rose-500 transition-colors mb-4">
                  <ArrowLeft className="h-3 w-3" /> Back to Nexus
               </Link>
-              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-white uppercase italic">Audit <span className="text-rose-500">Nexus</span></h1>
+              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Audit <span className="text-rose-500">Nexus</span></h1>
               <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">Global ecosystem activity & security telemetry</p>
            </div>
            
@@ -70,32 +70,32 @@ export default function AuditNexus() {
 
         {/* Search & Stats */}
         <div className="grid lg:grid-cols-4 gap-8">
-           <GlassCard className="lg:col-span-3 p-4 bg-slate-900/40">
+           <GlassCard className="lg:col-span-3 p-4 bg-white dark:bg-slate-900/40">
               <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-600 group-focus-within:text-rose-500 transition-colors" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400 group-focus-within:text-rose-500 transition-colors" />
                 <Input 
                   placeholder="Filter by action, entity, business, or operator..." 
-                  className="pl-12 h-14 rounded-2xl border-slate-800 bg-slate-950/50 text-white font-bold placeholder:text-slate-700 focus:ring-4 focus:ring-rose-500/10 transition-all"
+                  className="pl-12 h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-700 focus:ring-4 focus:ring-rose-500/10 transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
            </GlassCard>
            
-           <GlassCard className="p-4 flex items-center justify-center bg-slate-950/50">
+           <GlassCard className="p-4 flex items-center justify-center bg-slate-50 dark:bg-slate-950/50">
               <div className="text-center">
                  <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Total Events</p>
-                 <p className="text-2xl font-[1000] text-white">{filtered.length}</p>
+                 <p className="text-2xl font-[1000] text-slate-900 dark:text-white">{filtered.length}</p>
               </div>
            </GlassCard>
         </div>
 
         {/* Logs Table */}
-        <GlassCard className="overflow-hidden border-slate-800/50">
+        <GlassCard className="overflow-hidden border-slate-200/80 dark:border-slate-800/50">
           <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-900/50">
-                <TableRow className="hover:bg-transparent border-slate-800">
+            <Table className="min-w-[700px]">
+              <TableHeader className="bg-slate-100/50 dark:bg-slate-900/50">
+                <TableRow className="hover:bg-transparent border-slate-200 dark:border-slate-800">
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest pl-10 h-16">Security Action</TableHead>
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-16">Origin Node</TableHead>
                   <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-16">Operator</TableHead>
@@ -105,9 +105,9 @@ export default function AuditNexus() {
               <TableBody>
                 {loading ? (
                   [1,2,3,4,5,6].map(i => (
-                    <TableRow key={i} className="border-slate-900">
+                    <TableRow key={i} className="border-slate-200 dark:border-slate-900">
                       <TableCell colSpan={4} className="h-24 p-0">
-                         <div className="h-full w-full bg-slate-900/10 animate-pulse" />
+                         <div className="h-full w-full bg-slate-200/50 dark:bg-slate-900/10 animate-pulse" />
                       </TableCell>
                     </TableRow>
                   ))
@@ -125,14 +125,14 @@ export default function AuditNexus() {
                   </TableRow>
                 ) : (
                   filtered.map((log) => (
-                    <TableRow key={log.id} className="hover:bg-rose-500/[0.02] border-slate-900 transition-all group">
+                    <TableRow key={log.id} className="hover:bg-rose-500/[0.02] border-slate-200 dark:border-slate-900 transition-all group">
                       <TableCell className="pl-10 py-6">
                         <div className="flex items-center gap-4">
-                           <div className="h-10 w-10 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center text-slate-500 group-hover:text-rose-500 group-hover:border-rose-500/30 transition-all">
+                           <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-center text-slate-500 group-hover:text-rose-500 group-hover:border-rose-500/30 transition-all">
                               <ShieldCheck className="h-5 w-5" />
                            </div>
                            <div className="space-y-0.5">
-                              <div className="font-black text-white text-sm uppercase tracking-tight group-hover:text-rose-400 transition-colors">{log.action}</div>
+                              <div className="font-black text-slate-900 dark:text-white text-sm uppercase tracking-tight group-hover:text-rose-600 dark:group-hover:text-rose-400 transition-colors">{log.action}</div>
                               <div className="text-[9px] font-black text-slate-600 uppercase tracking-[0.2em]">{log.entity} <span className="text-slate-800 dark:text-white ml-1">ID: {log.entityId?.slice(-8)}</span></div>
                            </div>
                         </div>
@@ -151,8 +151,8 @@ export default function AuditNexus() {
                       </TableCell>
                       <TableCell className="text-right pr-10">
                         <div className="flex flex-col items-end">
-                           <span className="text-xs font-black text-white italic tracking-tighter">{format(new Date(log.createdAt), "HH:mm:ss")}</span>
-                           <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest">{format(new Date(log.createdAt), "dd MMM yyyy")}</span>
+                           <span className="text-xs font-black text-slate-900 dark:text-white italic tracking-tighter">{format(new Date(log.createdAt), "HH:mm:ss")}</span>
+                           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{format(new Date(log.createdAt), "dd MMM yyyy")}</span>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -165,7 +165,7 @@ export default function AuditNexus() {
 
         {/* Footer Info */}
         <div className="flex justify-center">
-           <div className="px-6 py-3 rounded-2xl bg-slate-950 border border-slate-900 text-slate-600 font-black text-[9px] uppercase tracking-[0.3em]">
+           <div className="px-6 py-3 rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-900 text-slate-500 dark:text-slate-600 font-black text-[9px] uppercase tracking-[0.3em]">
               Showing last 50 high-priority system events
            </div>
         </div>

@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { logAudit } from "./audit";
 
 export async function getSuppliers() {
   try {
@@ -37,6 +38,13 @@ export async function createSupplier(data: any) {
       },
     });
 
+    await logAudit({
+      action: `Created Supplier: ${supplier.name}`,
+      entity: "SUPPLIER",
+      entityId: supplier.id,
+      newData: supplier
+    });
+
     revalidatePath("/dashboard/inventory/suppliers");
     return {
       ...supplier,
@@ -59,6 +67,13 @@ export async function updateSupplier(id: string, data: any) {
       data,
     });
 
+    await logAudit({
+      action: `Updated Supplier: ${supplier.name}`,
+      entity: "SUPPLIER",
+      entityId: supplier.id,
+      newData: supplier
+    });
+
     revalidatePath("/dashboard/inventory/suppliers");
     return {
       ...supplier,
@@ -76,8 +91,14 @@ export async function deleteSupplier(id: string) {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
-    await prisma.supplier.delete({
+    const deletedSupplier = await prisma.supplier.delete({
       where: { id, businessId: session.user.businessId },
+    });
+
+    await logAudit({
+      action: `Deleted Supplier: ${deletedSupplier.name}`,
+      entity: "SUPPLIER",
+      entityId: id
     });
 
     revalidatePath("/dashboard/inventory/suppliers");

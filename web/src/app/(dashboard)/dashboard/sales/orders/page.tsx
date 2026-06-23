@@ -446,7 +446,7 @@ export default function SalesOrdersPage() {
 
       {/* ADVANCED SEARCH FILTER DIALOG */}
       <Dialog open={showAdvancedSearch} onOpenChange={setShowAdvancedSearch}>
-        <DialogContent className="sm:max-w-[700px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white text-slate-900">
+        <DialogContent className="sm:max-w-[700px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
            <div className="bg-slate-950 p-8 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                  <Search size={140} />
@@ -462,7 +462,7 @@ export default function SalesOrdersPage() {
               </div>
            </div>
 
-           <div className="p-10 space-y-10 bg-white max-h-[70vh] overflow-y-auto custom-scrollbar">
+           <div className="p-10 space-y-10 bg-white dark:bg-slate-950 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Sales Order#</Label>

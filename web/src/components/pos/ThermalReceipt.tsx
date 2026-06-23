@@ -1,4 +1,5 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 
 interface ReceiptItem {
   name: string;
@@ -15,11 +16,17 @@ interface ThermalReceiptProps {
   customerName?: string;
   transactionId?: string;
   businessName?: string;
+  id?: string;
 }
 
 export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
-  ({ items, total, paid, paymentMethod, cashierName, customerName, transactionId, businessName }, ref) => {
+  ({ items, total, paid, paymentMethod, cashierName, customerName, transactionId, businessName, id }, ref) => {
     const date = new Date().toLocaleString();
+    const [baseUrl, setBaseUrl] = useState("");
+
+    useEffect(() => {
+      setBaseUrl(window.location.origin);
+    }, []);
 
     return (
       <div ref={ref} className="bg-white text-black p-4 w-[80mm] mx-auto font-mono text-[12px] leading-tight flex flex-col print:m-0 print:p-2 print:shadow-none print:w-[80mm]">
@@ -78,6 +85,12 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
 
         {/* Footer */}
         <div className="text-center text-[10px] mt-4 space-y-1">
+          {id && baseUrl && (
+            <div className="flex flex-col items-center my-3 pb-3 border-b border-black border-dashed">
+               <p className="font-bold mb-2 text-[8px] text-black">SCAN FOR DIGITAL RECEIPT</p>
+               <QRCodeSVG value={`${baseUrl}/receipt/${id}`} size={100} level="H" fgColor="#000000" bgColor="#FFFFFF" />
+            </div>
+          )}
           <p>Thank you for your business!</p>
           <p>Powered by Protech Assist</p>
           <p className="mt-2 text-[8px]">* Returns accepted within 7 days with receipt *</p>

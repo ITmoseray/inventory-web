@@ -127,7 +127,7 @@ export default function LoginPage() {
           window.location.href = "/super-admin";
         } else {
           toast.success("Login successful");
-          window.location.href = "/dashboard?tab=getting-started";
+          window.location.href = "/dashboard";
         }
       }
     } catch (error) {
@@ -308,7 +308,7 @@ export default function LoginPage() {
                     <Checkbox 
                       id="link-agree" 
                       checked={linkAgreed} 
-                      onCheckedChange={(checked) => setLinkAgreed(checked as boolean)}
+                      onCheckedChange={(checked: any) => setLinkAgreed(checked as boolean)}
                       className="mt-1 rounded-md border-indigo-200" 
                     />
                     <Label htmlFor="link-agree" className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tighter">

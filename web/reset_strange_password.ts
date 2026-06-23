@@ -14,8 +14,7 @@ if (!connectionString) {
 }
 
 const pool = new PgPool({ 
-  connectionString,
-  ssl: { rejectUnauthorized: false }
+  connectionString
 });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });

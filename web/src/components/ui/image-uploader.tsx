@@ -140,13 +140,13 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
             disabled={loading}
             onClick={triggerUpload}
             aria-label="Upload image from device"
-            className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all group"
+            className="flex flex-col items-center justify-center gap-1.5 sm:gap-2 p-4 sm:p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-primary hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all group"
           >
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 transition-colors">
+            <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-900 group-hover:bg-primary/10 transition-colors">
               {loading && uploadSource === "file" ? (
-                <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 text-primary animate-spin" />
               ) : (
-                <ImageIcon className="h-6 w-6 text-slate-400 group-hover:text-primary" />
+                <ImageIcon className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400 group-hover:text-primary" />
               )}
             </div>
             <div className="text-center">
@@ -170,13 +170,13 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
             disabled={loading}
             onClick={triggerCamera}
             aria-label="Take photo with camera"
-            className="flex flex-col items-center justify-center gap-2 p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-500/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all group"
+            className="flex flex-col items-center justify-center gap-1.5 sm:gap-2 p-4 sm:p-6 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-500/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all group"
           >
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 group-hover:bg-indigo-500/10 transition-colors">
+            <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-slate-50 dark:bg-slate-900 group-hover:bg-indigo-500/10 transition-colors">
               {loading && uploadSource === "camera" ? (
-                <Loader2 className="h-6 w-6 text-indigo-500 animate-spin" />
+                <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 text-indigo-500 animate-spin" />
               ) : (
-                <Camera className="h-6 w-6 text-slate-400 group-hover:text-indigo-500" />
+                <Camera className="h-5 w-5 sm:h-6 sm:w-6 text-slate-400 group-hover:text-indigo-500" />
               )}
             </div>
             <div className="text-center">

@@ -4,6 +4,7 @@ import { prisma as globalPrisma, getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { createNotification } from "./notification";
+import { logAudit } from "./audit";
 
 export async function createSale(data: {
   items: { 
@@ -153,6 +154,13 @@ export async function createSale(data: {
     // Revalidate relevant paths to update dashboard and inventory UI
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/inventory/products");
+
+    await logAudit({
+      action: `Created Sale: ${sale.invoiceNumber} (Le ${sale.totalAmount.toNumber().toFixed(2)})`,
+      entity: "SALE",
+      entityId: sale.id,
+      newData: { invoiceNumber: sale.invoiceNumber, totalAmount: sale.totalAmount.toNumber() }
+    });
     
     // Return a plain object to avoid Decimal serialization issues
     return { 
@@ -369,6 +377,13 @@ export async function updateSaleStatus(saleId: string, status: string, note?: st
       }
     });
 
+    await logAudit({
+      action: `Updated Sale Status: ${updatedSale.invoiceNumber} to ${updatedSale.status}`,
+      entity: "SALE",
+      entityId: updatedSale.id,
+      newData: { invoiceNumber: updatedSale.invoiceNumber, status: updatedSale.status }
+    });
+ 
     revalidatePath("/dashboard/sales/orders");
     return { success: true, status: updatedSale.status };
   } catch (error: any) {

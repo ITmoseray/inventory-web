@@ -115,7 +115,7 @@ export default function ProtechCloudHomepage() {
   };
 
   return (
-    <div ref={containerRef} className="flex flex-col min-h-screen bg-white dark:bg-[#030712] text-slate-900 dark:text-slate-100 selection:bg-indigo-650/10 dark:selection:bg-indigo-600/30 selection:text-indigo-600 dark:selection:text-white overflow-x-hidden font-sans relative">
+    <div ref={containerRef} className="flex flex-col min-h-screen bg-white dark:bg-black text-slate-900 dark:text-slate-100 selection:bg-indigo-650/10 dark:selection:bg-indigo-600/30 selection:text-indigo-600 dark:selection:text-white overflow-x-hidden font-sans relative">
       
       {/* Intense Neon Background ambient mesh gradients */}
       <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-50/50 dark:bg-indigo-500/30 rounded-full blur-[140px] -z-20 translate-x-1/3 -translate-y-1/3 pointer-events-none animate-pulse" />
@@ -231,8 +231,8 @@ export default function ProtechCloudHomepage() {
             
             {/* Infinite Scrolling Neon Marquee */}
             <div className="mt-24 lg:mt-32 w-full overflow-hidden relative">
-               <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white dark:from-[#030712] to-transparent z-10 pointer-events-none" />
-               <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white dark:from-[#030712] to-transparent z-10 pointer-events-none" />
+               <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-white dark:from-black to-transparent z-10 pointer-events-none" />
+               <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white dark:from-black to-transparent z-10 pointer-events-none" />
                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500 text-center mb-8">Trusted by industry leaders in</p>
                <motion.div 
                  animate={{ x: ["0%", "-50%"] }} 
