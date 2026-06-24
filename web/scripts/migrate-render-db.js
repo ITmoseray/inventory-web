@@ -37,6 +37,39 @@ async function run() {
     await client.connect();
     console.log("Successfully connected to database. Running updates...");
 
+    // Check if the SubscriptionPlan type exists
+    const checkTypeExists = await client.query(`
+      SELECT 1 FROM pg_type WHERE typname = 'SubscriptionPlan'
+    `);
+    
+    if (checkTypeExists.rowCount > 0) {
+      console.log("SubscriptionPlan type exists. Checking for new enum values...");
+
+      // Check and add 'ENTERPRISE'
+      const checkEnterprise = await client.query(`
+        SELECT 1 FROM pg_type t 
+        JOIN pg_enum e ON t.oid = e.enumtypid 
+        WHERE t.typname = 'SubscriptionPlan' AND e.enumlabel = 'ENTERPRISE'
+      `);
+      if (checkEnterprise.rowCount === 0) {
+        console.log("Adding 'ENTERPRISE' value to SubscriptionPlan enum...");
+        await client.query('ALTER TYPE "SubscriptionPlan" ADD VALUE \'ENTERPRISE\'');
+      }
+
+      // Check and add 'BUSINESS'
+      const checkBusiness = await client.query(`
+        SELECT 1 FROM pg_type t 
+        JOIN pg_enum e ON t.oid = e.enumtypid 
+        WHERE t.typname = 'SubscriptionPlan' AND e.enumlabel = 'BUSINESS'
+      `);
+      if (checkBusiness.rowCount === 0) {
+        console.log("Adding 'BUSINESS' value to SubscriptionPlan enum...");
+        await client.query('ALTER TYPE "SubscriptionPlan" ADD VALUE \'BUSINESS\'');
+      }
+    } else {
+      console.log("SubscriptionPlan enum type does not exist yet. Skipping enum values check.");
+    }
+
     // Update Business table
     const res1 = await client.query('UPDATE "Business" SET plan = \'ENTERPRISE\' WHERE plan::text = \'PREMIUM\'');
     console.log(`Updated ${res1.rowCount} businesses from PREMIUM to ENTERPRISE.`);
