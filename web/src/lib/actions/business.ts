@@ -109,7 +109,7 @@ export async function getCurrentBusiness() {
   }
 }
 
-export async function updateBusiness(data: { name?: string; phone?: string; logoUrl?: string }) {
+export async function updateBusiness(data: { name?: string; phone?: string; logoUrl?: string; address?: string }) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
@@ -119,7 +119,8 @@ export async function updateBusiness(data: { name?: string; phone?: string; logo
       data: {
         name: data.name,
         phone: data.phone,
-        logoUrl: data.logoUrl
+        logoUrl: data.logoUrl,
+        address: data.address
       }
     });
 

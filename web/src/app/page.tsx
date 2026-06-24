@@ -299,7 +299,7 @@ export default function ProtechCloudHomepage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {[
                    { title: "Software Engineering", icon: Code2, desc: "Custom-built enterprise software tailored to your unique operational workflows." },
-                   { title: "Web & Mobile Ecosystems", icon: Laptop, desc: "High-performance digital presence with world-class UI/UX design." },
+                   { title: "Web & Mobile Apps", icon: Laptop, desc: "High-performance digital presence with world-class UI/UX design." },
                    { title: "Infrastructure & Networking", icon: Network, desc: "Robust computer networking solutions and local hardware maintenance." },
                    { title: "Database Architecture", icon: Database, desc: "Professional management and design for mission-critical data security." },
                    { title: "Cloud Hosting & DevOps", icon: Cloud, desc: "Scalable hosting solutions with 99.9% uptime and automated backups." },

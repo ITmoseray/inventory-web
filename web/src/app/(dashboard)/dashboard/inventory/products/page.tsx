@@ -145,7 +145,7 @@ export default function ProductsPage() {
         toast.success("Inventory item updated successfully.");
       } else {
         await createProduct(data);
-        toast.success("New asset added to catalog.");
+        toast.success("Product created successfully.");
       }
       setIsDialogOpen(false);
       setEditingProduct(null);
@@ -331,7 +331,7 @@ export default function ProductsPage() {
               <div className="mt-4 flex items-center gap-2 px-3 py-1.5 bg-amber-50 dark:bg-amber-500/10 rounded-xl w-fit border border-amber-100 dark:border-amber-500/20">
                 <Star className="h-4 w-4 text-amber-500" />
                 <span className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-400">
-                  Most Selling Asset: {fastMovingProducts[0].name}
+                  Best Selling Product: {fastMovingProducts[0].name}
                 </span>
               </div>
             )}
@@ -339,7 +339,7 @@ export default function ProductsPage() {
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
            <Button variant="outline" className="rounded-2xl border-slate-200 dark:border-slate-800 font-black gap-2 h-14 px-8 text-[10px] uppercase tracking-widest hover:bg-white dark:hover:bg-slate-900 transition-all">
-              <Download className="h-4 w-4 text-primary" /> Export Vault
+              <Download className="h-4 w-4 text-primary" /> Export Products
            </Button>
            <Dialog open={isDialogOpen} onOpenChange={(open) => {
              setIsDialogOpen(open);
@@ -350,35 +350,35 @@ export default function ProductsPage() {
            }}>
              <DialogTrigger render={
                <Button className="h-14 px-10 rounded-2xl bg-primary hover:bg-primary/90 font-black text-[10px] uppercase tracking-[0.2em] gap-2 shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]">
-                 <Plus className="h-4 w-4" /> New Asset
+                 <Plus className="h-4 w-4" /> Add Product
                </Button>
              } />
-             <DialogContent className="sm:max-w-[700px] w-[95vw] sm:w-full rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col bg-white">
-               <div className="bg-slate-900 p-6 sm:p-8 text-white shrink-0">
+             <DialogContent className="sm:max-w-[700px] w-[95vw] sm:w-full rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
+               <div className="bg-slate-900 dark:bg-slate-950 p-6 sm:p-8 text-white shrink-0">
                   <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
-                    {editingProduct ? "Modify Asset" : "Deploy New Asset"}
+                    {editingProduct ? "Edit Product" : "Add New Product"}
                   </h3>
-                  <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-[0.3em] mt-1">Inventory Intelligence Update</p>
+                  <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-[0.3em] mt-1">Product Details</p>
                </div>
-               <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden bg-white">
+               <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-slate-900">
                  <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar">
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                      <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset Type</Label>
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Type</Label>
                        <Select 
                          value={formData.type} 
                          onValueChange={(val: any) => setFormData({ ...formData, type: val })}
                        >
-                         <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold">
+                         <SelectTrigger className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-bold text-slate-900 dark:text-slate-100">
                            <SelectValue />
                          </SelectTrigger>
-                         <SelectContent className="rounded-xl border-slate-100">
+                         <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                            <SelectItem value="PRODUCT">Physical Product</SelectItem>
                            <SelectItem value="SERVICE">Professional Service</SelectItem>
                          </SelectContent>
                        </Select>
                      </div>
-                     <div className="space-y-2 flex items-center justify-between p-4 bg-indigo-50/50 rounded-2xl border border-indigo-100">
+                     <div className="space-y-2 flex items-center justify-between p-4 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
                        <div className="space-y-0.5 pr-2">
                           <Label className="text-[10px] font-black text-indigo-900 uppercase tracking-widest">Network Exchange</Label>
                           <p className="text-[9px] text-indigo-500 font-bold leading-tight">Sourcing availability</p>
@@ -404,7 +404,7 @@ export default function ProductsPage() {
                          value={formData.name}
                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, name: e.target.value })}
                          placeholder={isBar ? "e.g. Star Beer 600ml" : "Enter designation"}
-                         className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
+                         className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 focus:bg-white dark:focus:bg-slate-900 font-bold text-slate-900 dark:text-slate-100"
                          required
                        />
                      </div>
@@ -414,19 +414,19 @@ export default function ProductsPage() {
                          value={formData.sku}
                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, sku: e.target.value })}
                          placeholder="Scan or enter ID"
-                         className="h-12 rounded-xl border-slate-100 bg-slate-50 focus:bg-white font-mono text-xs"
+                         className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 focus:bg-white dark:focus:bg-slate-900 font-mono text-xs text-slate-900 dark:text-slate-100"
                        />
                      </div>
                      <div className="space-y-2">
-                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Classification</Label>
+                       <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</Label>
                        <Select 
                          value={formData.categoryId || ""} 
                          onValueChange={(val: string | null) => setFormData({ ...formData, categoryId: val ?? "" })}
                        >
-                         <SelectTrigger className="h-12 rounded-xl border-slate-100 bg-slate-50">
+                         <SelectTrigger className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-slate-900 dark:text-slate-100">
                            <SelectValue placeholder="Categorize item" />
                          </SelectTrigger>
-                         <SelectContent className="rounded-xl border-slate-100">
+                         <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                            <SelectItem value="none">Uncategorized</SelectItem>
                            {categories.map((c: any) => (
                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -442,7 +442,7 @@ export default function ProductsPage() {
                          value={formData.costPrice}
                          onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
                          placeholder="0.00"
-                         className="h-12 rounded-xl border-slate-100 bg-slate-50 font-black text-rose-600 text-lg"
+                         className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-rose-600 dark:text-rose-500 text-lg"
                          required
                        />
                      </div>
@@ -454,13 +454,13 @@ export default function ProductsPage() {
                          value={formData.unitPrice}
                          onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
                          placeholder="0.00"
-                         className="h-12 rounded-xl border-slate-100 bg-slate-50 font-black text-primary text-lg"
+                         className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-primary dark:text-indigo-400 text-lg"
                          required
                        />
                      </div>
 
                      {/* Unit System Section */}
-                     <div className="sm:col-span-2 space-y-4 pt-4 border-t border-slate-50">
+                     <div className="sm:col-span-2 space-y-4 pt-4 border-t border-slate-50 dark:border-slate-800">
                         <div className="flex items-center justify-between">
                            <div>
                               <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Unit System</Label>
@@ -477,8 +477,8 @@ export default function ProductsPage() {
                         </div>
 
                         <div className="grid grid-cols-1 gap-4">
-                           <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-4">
-                              <div className="h-10 w-10 rounded-xl bg-white flex items-center justify-center border border-slate-100 shadow-sm shrink-0">
+                           <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                              <div className="h-10 w-10 rounded-xl bg-white dark:bg-slate-800 flex items-center justify-center border border-slate-100 dark:border-slate-800 shadow-sm shrink-0">
                                  <Package className="h-5 w-5 text-slate-400" />
                               </div>
                               <div className="flex-1 space-y-1">
@@ -487,10 +487,10 @@ export default function ProductsPage() {
                                     value={formData.baseUnit} 
                                     onValueChange={(val) => setFormData({ ...formData, baseUnit: val })}
                                  >
-                                    <SelectTrigger className="h-10 rounded-xl border-none bg-transparent font-black p-0 focus:ring-0">
+                                    <SelectTrigger className="h-10 rounded-xl border-none bg-transparent font-black p-0 focus:ring-0 text-slate-900 dark:text-slate-100">
                                        <SelectValue />
                                     </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-slate-100">
+                                    <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                                        <SelectItem value="Piece">Piece / Single</SelectItem>
                                        <SelectItem value="Kg">Kilogram (kg)</SelectItem>
                                        <SelectItem value="Litre">Litre (L)</SelectItem>
@@ -509,7 +509,7 @@ export default function ProductsPage() {
                                  initial={{ opacity: 0, x: -20 }}
                                  animate={{ opacity: 1, x: 0 }}
                                  key={index}
-                                 className="p-5 bg-white rounded-3xl border-2 border-slate-50 shadow-sm space-y-4 relative group"
+                                 className="p-5 bg-white dark:bg-slate-900/30 rounded-3xl border-2 border-slate-50 dark:border-slate-800 shadow-sm space-y-4 relative group"
                               >
                                  <Button 
                                     type="button" 
@@ -528,7 +528,7 @@ export default function ProductsPage() {
                                           value={unit.name}
                                           onChange={(e) => updateUnit(index, "name", e.target.value)}
                                           placeholder="e.g. Crate"
-                                          className="h-10 rounded-xl border-slate-50 bg-slate-50/50 font-bold text-xs"
+                                          className="h-10 rounded-xl border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 font-bold text-xs text-slate-900 dark:text-slate-100"
                                        />
                                     </div>
                                     <div className="space-y-2">
@@ -538,7 +538,7 @@ export default function ProductsPage() {
                                           value={unit.ratio}
                                           onChange={(e) => updateUnit(index, "ratio", e.target.value)}
                                           placeholder="1"
-                                          className="h-10 rounded-xl border-slate-50 bg-slate-50/50 font-black text-xs"
+                                          className="h-10 rounded-xl border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 font-black text-xs text-slate-900 dark:text-slate-100"
                                        />
                                     </div>
                                     <div className="space-y-2">
@@ -548,7 +548,7 @@ export default function ProductsPage() {
                                           value={unit.sellingPrice}
                                           onChange={(e) => updateUnit(index, "sellingPrice", e.target.value)}
                                           placeholder="0.00"
-                                          className="h-10 rounded-xl border-slate-50 bg-slate-50/50 font-black text-xs text-primary"
+                                          className="h-10 rounded-xl border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 font-black text-xs text-primary dark:text-indigo-400"
                                        />
                                     </div>
                                     <div className="space-y-2">
@@ -557,7 +557,7 @@ export default function ProductsPage() {
                                           value={unit.barcode}
                                           onChange={(e) => updateUnit(index, "barcode", e.target.value)}
                                           placeholder="Optional"
-                                          className="h-10 rounded-xl border-slate-50 bg-slate-50/50 font-mono text-[10px]"
+                                          className="h-10 rounded-xl border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950 font-mono text-[10px] text-slate-900 dark:text-slate-100"
                                        />
                                     </div>
                                  </div>
@@ -573,7 +573,7 @@ export default function ProductsPage() {
                            <Button 
                               type="button" 
                               variant="outline" 
-                              className="h-12 w-12 rounded-xl border-slate-100 bg-slate-100 hover:bg-slate-200"
+                              className="h-12 w-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
                               onClick={() => setFormData({ ...formData, stockQuantity: Math.max(0, parseInt(formData.stockQuantity || "0") - 1).toString() })}
                            >
                               <Minus size={20} />
@@ -583,13 +583,13 @@ export default function ProductsPage() {
                              value={formData.stockQuantity}
                              onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
                              placeholder="0"
-                             className="h-12 rounded-xl border-slate-100 bg-slate-50 font-black text-center"
+                             className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-center text-slate-900 dark:text-slate-100"
                              required
                            />
                            <Button 
                               type="button" 
                               variant="outline" 
-                              className="h-12 w-12 rounded-xl border-slate-100 bg-slate-100 hover:bg-slate-200"
+                              className="h-12 w-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200"
                               onClick={() => setFormData({ ...formData, stockQuantity: (parseInt(formData.stockQuantity || "0") + 1).toString() })}
                            >
                               <Plus size={20} />
@@ -605,7 +605,7 @@ export default function ProductsPage() {
                              type="date"
                              value={formData.expiryDate}
                              onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
-                             className="h-12 rounded-xl border-slate-100 bg-slate-50 font-bold"
+                             className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-bold text-slate-900 dark:text-slate-100"
                            />
                          </div>
                          <div className="space-y-2">
@@ -614,19 +614,19 @@ export default function ProductsPage() {
                              value={formData.batchNumber}
                              onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
                              placeholder="B-00000"
-                             className="h-12 rounded-xl border-slate-100 bg-slate-50 font-mono text-xs"
+                             className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-mono text-xs text-slate-900 dark:text-slate-100"
                            />
                          </div>
                        </>
                      )}
                    </div>
                  </div>
-                 <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 sm:p-8 border-t border-slate-100 shrink-0 bg-slate-50/50">
-                   <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 order-2 sm:order-1" onClick={() => setIsDialogOpen(false)}>
-                     Abort
+                 <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 sm:p-8 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-950/50">
+                   <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500 order-2 sm:order-1" onClick={() => setIsDialogOpen(false)}>
+                     Cancel
                    </Button>
-                   <Button type="submit" className="h-12 px-10 bg-slate-900 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl active:scale-95 transition-all order-1 sm:order-2">
-                     {editingProduct ? "Finalize Update" : "Deploy to Vault"}
+                   <Button type="submit" className="h-12 px-10 bg-slate-900 dark:bg-indigo-600 text-white rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-xl hover:shadow-2xl active:scale-95 transition-all order-1 sm:order-2">
+                     {editingProduct ? "Save Changes" : "Add Product"}
                    </Button>
                  </div>
                </form>
@@ -666,9 +666,9 @@ export default function ProductsPage() {
         emptyState={
           <EmptyState 
             icon={Package}
-            title="No Intelligence Nodes Found"
-            description="Your inventory vault is currently empty. Initialize your first asset to begin tracking."
-            actionLabel="Deploy First Asset"
+            title="No Products Found"
+            description="Your inventory is currently empty. Add your first product to begin tracking."
+            actionLabel="Add Product"
             onAction={() => setIsDialogOpen(true)}
           />
         }
@@ -681,10 +681,10 @@ export default function ProductsPage() {
             } />
             <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800">
               <div className="px-3 py-2 border-b border-slate-50 dark:border-slate-800 mb-2">
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Action Hub</p>
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Actions</p>
               </div>
               <DropdownMenuItem onClick={() => handleEdit(product)} className="font-black text-[10px] uppercase tracking-widest gap-3 rounded-xl">
-                <Pencil className="h-4 w-4 text-slate-400" /> Update Intelligence
+                <Pencil className="h-4 w-4 text-slate-400" /> Edit Product
               </DropdownMenuItem>
               <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
               <DropdownMenuItem 
@@ -694,7 +694,7 @@ export default function ProductsPage() {
                   handleDelete(product.id);
                 }}
               >
-                <Trash2 className="h-4 w-4" /> Purge Asset
+                <Trash2 className="h-4 w-4" /> Delete Product
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

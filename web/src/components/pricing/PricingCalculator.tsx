@@ -5,11 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 
 const ADD_ONS = [
-  { name: 'Users', price: 7.5, unit: 'per organization / month' },
-  { name: 'Orders / month', price: 7.5, unit: 'per 500 orders / month' },
-  { name: 'Locations', price: 10, unit: 'per organization / month' },
-  { name: 'Advanced autoscans', price: 8, unit: 'per 50 scans / month' },
-  { name: 'Advanced warehousing', price: 124.17, unit: 'per organization / month' },
+  { name: 'Extra Staff Users', price: 7.5, unit: 'per staff / month' },
+  { name: 'Extra Sales Invoices', price: 7.5, unit: 'per 500 invoices / month' },
+  { name: 'Extra Store Branches', price: 10, unit: 'per branch / month' },
+  { name: 'Barcode Scans', price: 8, unit: 'per 50 scans / month' },
+  { name: 'Multiple Warehouses', price: 124.17, unit: 'per warehouse / month' },
 ];
 
 export function PricingCalculator({ basePrice }: { basePrice: number }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, CreditCard, Calendar, User, DollarSign, History, CheckCircle2, AlertCircle } from "lucide-react";
+import { Search, CreditCard, Calendar, User, DollarSign, History, CheckCircle2, AlertCircle, MessageSquare, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -78,6 +78,67 @@ export default function DebtsPage() {
       toast.error("Failed to record payment.");
     }
   }
+
+  const [sendingSmsId, setSendingSmsId] = useState<string | null>(null);
+
+  const handleWhatsAppReminder = (debt: any) => {
+    const savedTemplates = localStorage.getItem("comm_templates");
+    let template = "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!";
+    if (savedTemplates) {
+      try {
+        template = JSON.parse(savedTemplates).debt;
+      } catch (e) {}
+    }
+
+    const businessName = "Our Shop";
+    const dueDateText = debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "immediate settlement";
+    const formattedMessage = template
+      .replaceAll("{customer_name}", debt.customer.name)
+      .replaceAll("{business_name}", businessName)
+      .replaceAll("{outstanding_amount}", Math.round(debt.totalAmount - debt.paidAmount).toLocaleString())
+      .replaceAll("{due_date}", dueDateText);
+
+    const customerPhone = debt.customer.phone || "";
+    const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
+
+    const phoneInput = prompt(`Enter or confirm phone number for ${debt.customer.name} (with country code):`, cleanPhone || "232");
+    if (phoneInput === null) return;
+
+    const finalPhone = phoneInput.replace(/[^0-9]/g, "");
+    const waLink = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(formattedMessage)}`;
+    window.open(waLink, "_blank");
+    toast.success("WhatsApp redirection opened!");
+  };
+
+  const handleSmsReminder = (debt: any) => {
+    setSendingSmsId(debt.id);
+    
+    setTimeout(() => {
+      setSendingSmsId(null);
+      
+      const savedTemplates = localStorage.getItem("comm_templates");
+      let template = "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!";
+      if (savedTemplates) {
+        try {
+          template = JSON.parse(savedTemplates).debt;
+        } catch (e) {}
+      }
+
+      const businessName = "Our Shop";
+      const dueDateText = debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "immediate settlement";
+      const formattedMessage = template
+        .replaceAll("{customer_name}", debt.customer.name)
+        .replaceAll("{business_name}", businessName)
+        .replaceAll("{outstanding_amount}", Math.round(debt.totalAmount - debt.paidAmount).toLocaleString())
+        .replaceAll("{due_date}", dueDateText);
+
+      console.log(`[SMS OUTBOUND] To: ${debt.customer.phone || "Customer"}, Msg: "${formattedMessage}"`);
+      
+      toast.success("SMS Reminder simulated & logged!", {
+        description: `SMS queued for ${debt.customer.name}. Check system logs for full payload.`
+      });
+    }, 800);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-700">
@@ -199,20 +260,41 @@ export default function DebtsPage() {
                   </TableCell>
                   <TableCell className="pr-6">
                     <div className="flex justify-end gap-2">
-                       {debt.status !== 'PAID' && (
-                         <Button 
-                           size="sm" 
-                           variant="outline" 
-                           className="h-8 rounded-lg border-slate-100 font-bold text-xs"
-                           onClick={() => {
-                             setSelectedDebt(debt);
-                             setPaymentAmount(debt.totalAmount - debt.paidAmount);
-                             setIsPaymentDialogOpen(true);
-                           }}
-                         >
-                           Record Payment
-                         </Button>
-                       )}
+                        {debt.status !== 'PAID' && (
+                          <>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 w-8 p-0 rounded-lg border-emerald-100 dark:border-emerald-900/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
+                              title="WhatsApp Reminder"
+                              onClick={() => handleWhatsAppReminder(debt)}
+                            >
+                              <MessageSquare size={14} />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 w-8 p-0 rounded-lg border-blue-100 dark:border-blue-900/40 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+                              title="SMS Reminder"
+                              disabled={sendingSmsId === debt.id}
+                              onClick={() => handleSmsReminder(debt)}
+                            >
+                              <Smartphone size={14} className={cn(sendingSmsId === debt.id && "animate-pulse")} />
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-8 rounded-lg border-slate-100 dark:border-slate-800 font-bold text-xs"
+                              onClick={() => {
+                                setSelectedDebt(debt);
+                                setPaymentAmount(debt.totalAmount - debt.paidAmount);
+                                setIsPaymentDialogOpen(true);
+                              }}
+                            >
+                              Record Payment
+                            </Button>
+                          </>
+                        )}
                     </div>
                   </TableCell>
                 </TableRow>

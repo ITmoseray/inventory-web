@@ -27,38 +27,38 @@ export const useOnboardingStore = create<OnboardingState>()(
       steps: [
         {
           targetId: 'welcome-center',
-          title: 'Neural Onboarding Initialized',
-          content: 'Welcome to the Protech Ecosystem. I am your System Intelligence. Let me synchronize you with your new commercial command center in 60 seconds.',
+          title: 'Welcome Guide',
+          content: 'Welcome to Protech. Let us walk you through the system dashboard in 60 seconds.',
           position: 'center'
         },
         {
           targetId: 'sidebar-inventory',
-          title: 'Asset Management Node',
-          content: 'Control your products, track stock velocity, and monitor expiry nodes across your entire network here.',
+          title: 'Inventory & Products',
+          content: 'Manage your products, track stock levels, and monitor expiration dates here.',
           position: 'right'
         },
         {
           targetId: 'sidebar-pos',
-          title: 'Commerce Interface',
-          content: 'The POS terminal executes transactions in real-time. It operates autonomously even when disconnected from cloud nodes.',
+          title: 'POS & Sales',
+          content: 'The POS system records transactions in real-time. It works smoothly to handle your sales.',
           position: 'right'
         },
         {
           targetId: 'dashboard-stats',
-          title: 'Intelligence Stream',
-          content: 'Monitor revenue yield, order cycles, and inventory health via these live data nodes. The ecosystem never sleeps.',
+          title: 'System Metrics',
+          content: 'Monitor your revenue, sales orders, and product stock levels through live charts.',
           position: 'bottom'
         },
         {
           targetId: 'quick-actions',
-          title: 'Rapid Execution Trigger',
-          content: 'Instantly inject new sales, expenses, or stock adjustments into the system ledger from any terminal.',
+          title: 'Quick Actions',
+          content: 'Quickly record new sales, expenses, or stock adjustments from any page.',
           position: 'top'
         },
         {
           targetId: 'user-profile',
-          title: 'Nexus Configuration',
-          content: 'Fine-tune your business profile, manage authorized staff, and synchronize your billing nodes here.',
+          title: 'Settings & Profile',
+          content: 'Update your store profile, manage staff accounts, and view subscription details here.',
           position: 'left'
         }
       ],

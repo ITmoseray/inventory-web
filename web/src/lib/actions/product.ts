@@ -128,7 +128,7 @@ export async function createProduct(data: any) {
         stockQuantity,
         minStockLevel,
         status: status || "active",
-        categoryId,
+        categoryId: categoryId === "" || categoryId === "none" ? null : categoryId,
         metadata: metadata || {},
         businessId: session.user.businessId,
         imageUrl,
@@ -234,7 +234,7 @@ export async function updateProduct(id: string, data: any) {
           stockQuantity,
           minStockLevel,
           status,
-          categoryId,
+          categoryId: categoryId === "" || categoryId === "none" ? null : categoryId,
           metadata: metadata || {},
           imageUrl,
           baseUnit

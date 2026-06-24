@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/layout/AppShell";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Zap } from "lucide-react";
+import { Bell, Zap, AlertCircle, Clock } from "lucide-react";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { ToastManager } from "@/components/shared/toast-manager";
 import { LogoutButton } from "@/components/shared/logout-button";
@@ -16,6 +16,7 @@ import { AnnouncementBanner } from "@/components/shared/announcement-banner";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
 
 export const dynamic = "force-dynamic";
 
@@ -43,12 +44,19 @@ export default async function DashboardLayout({
 
   if (session?.user?.businessId && session?.user?.role !== "SUPERADMIN") {
     try {
-      const businessExists = await prisma.business.findUnique({
+      const business = await prisma.business.findUnique({
         where: { id: session.user.businessId },
-        select: { id: true }
+        select: { 
+          id: true, 
+          status: true, 
+          plan: true, 
+          trialEndDate: true, 
+          subscriptionStatus: true,
+          name: true 
+        }
       });
 
-      if (!businessExists) {
+      if (!business) {
         return (
           <div className="flex min-h-screen items-center justify-center bg-slate-50">
             <div className="text-center space-y-4 p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
@@ -61,6 +69,90 @@ export default async function DashboardLayout({
                  Register New Business
                </a>
             </div>
+          </div>
+        );
+      }
+
+      const now = new Date();
+      const isTrialExpired = business.trialEndDate && new Date(business.trialEndDate) < now;
+
+      // Check Business Status (Awaiting Activation)
+      // A trial business (FREE plan) is automatically active and should only be blocked if the trial has expired.
+      if (business.status === "PENDING" && (business.plan !== "FREE" || isTrialExpired)) {
+        return (
+          <div className="flex min-h-screen items-center justify-center bg-slate-950 font-sans p-6 py-12 text-slate-200 relative overflow-y-auto">
+             {/* Background Grid Pattern */}
+             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+             <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+             
+             <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
+                <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
+                   <Clock className="h-10 w-10 animate-pulse text-amber-500" />
+                </div>
+                
+                <div className="space-y-3">
+                   <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Activation <span className="text-amber-500">Pending</span></h2>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Awaiting Admin Approval</p>
+                </div>
+                
+                <p className="text-slate-400 font-normal text-sm leading-relaxed">
+                   Your subscription for the <strong>{business.plan} Plan</strong> has been registered. An administrator is currently verifying the payment details. Once verified, your store will be activated immediately.
+                </p>
+
+                <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 space-y-2 text-left">
+                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Store Name</p>
+                  <p className="text-xs font-black text-white">{business.name}</p>
+                </div>
+                
+                <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
+                   <a 
+                     href="https://wa.me/23234955581"
+                     target="_blank"
+                     className="h-12 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center font-bold"
+                   >
+                     Verify Faster on WhatsApp
+                   </a>
+                   <BlockScreenSignout />
+                </div>
+             </div>
+          </div>
+        );
+      }
+
+      // Check Trial Expiration
+      if (isTrialExpired && business.subscriptionStatus === "INACTIVE") {
+        return (
+          <div className="flex min-h-screen items-center justify-center bg-slate-950 font-sans p-6 py-12 text-slate-200 relative overflow-y-auto">
+             {/* Background Grid Pattern */}
+             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+             <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-rose-500/10 rounded-full blur-[120px] pointer-events-none" />
+             
+             <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
+                <div className="h-20 w-20 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-rose-500/5 group-hover:scale-105 transition-transform duration-500">
+                   <AlertCircle className="h-10 w-10 text-rose-500" />
+                </div>
+                
+                <div className="space-y-3">
+                   <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Trial <span className="text-rose-500">Expired</span></h2>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Free Trial Period Finished</p>
+                </div>
+                
+                <p className="text-slate-400 font-normal text-sm leading-relaxed">
+                   Your 7-day free trial for <strong>{business.name}</strong> has ended. Please choose and subscribe to a plan to keep using your inventory system.
+                </p>
+                
+                <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
+                   <a 
+                     href="/pricing"
+                     className="h-12 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center font-bold"
+                   >
+                     See Plans & Subscribe
+                   </a>
+                   <BlockScreenSignout />
+                </div>
+             </div>
           </div>
         );
       }
@@ -98,8 +190,8 @@ export default async function DashboardLayout({
 
             {/* RIGHT: clock + badges + user — flex-shrink-0 keeps it from wrapping */}
             <div className="flex items-center gap-2 xl:gap-4 flex-shrink-0">
-               {/* Clock: only show greeting+date at xl+ to save space */}
-               <div className="hidden md:block">
+               {/* Clock: handled responsively inside the component */}
+               <div>
                  <RealTimeClock />
                </div>
                {/* Context Active: only xl+ */}

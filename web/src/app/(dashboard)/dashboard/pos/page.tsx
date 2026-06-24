@@ -37,7 +37,10 @@ import {
   FileText,
   Printer,
   Download,
-  ScanLine
+  ScanLine,
+  Share2,
+  MessageSquare,
+  AlertTriangle
 } from "lucide-react";
 import domtoimage from "dom-to-image-more";
 import { toast } from "sonner";
@@ -46,6 +49,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { createSale } from "@/lib/actions/sale";
 import { getCustomers } from "@/lib/actions/customer";
+import { getCurrentBusiness } from "@/lib/actions/business";
 import { 
   Select, 
   SelectContent, 
@@ -54,6 +58,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -148,18 +153,54 @@ export default function POSPage() {
   const [paymentStatus, setPaymentStatus] = useState<"PAID" | "UNPAID" | "PARTIAL">("PAID");
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [creditAmountPaid, setCreditAmountPaid] = useState<string>(""); // partial payment on credit
+  const [momoProvider, setMomoProvider] = useState<"ORANGE_MONEY" | "AFRIMONEY">("ORANGE_MONEY");
+  const [momoPhone, setMomoPhone] = useState("");
+  const [momoRefCode, setMomoRefCode] = useState("");
+  const [momoSmsPaste, setMomoSmsPaste] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
+
+  // Localized SMS Parser Hook
+  useEffect(() => {
+    if (!momoSmsPaste) return;
+    
+    // Parse Orange Money / AfriMoney Ref & Amount
+    const refMatch = momoSmsPaste.match(/(?:Reference|Ref|TxID|TxId)\s*[:\-]?\s*([A-Za-z0-9\.]+)/i);
+    const amountMatch = momoSmsPaste.match(/(?:Le|NLE|Le\s*|NLE\s*)([0-9,]+(?:\.[0-9]{2})?)/i);
+    
+    if (refMatch && refMatch[1]) {
+      setMomoRefCode(refMatch[1]);
+      toast.success("Parsed Reference: " + refMatch[1]);
+    }
+    
+    if (amountMatch && amountMatch[1]) {
+      const parsedAmount = parseFloat(amountMatch[1].replace(/,/g, ""));
+      toast.info(`Parsed Amount from SMS: Le ${parsedAmount.toLocaleString()}`);
+    }
+  }, [momoSmsPaste]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
   const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
+  const [businessInfo, setBusinessInfo] = useState<any>(null);
   const receiptRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchCustomers();
     initialSync();
+    fetchBusinessInfo();
   }, []);
+
+  async function fetchBusinessInfo() {
+    try {
+      const data = await getCurrentBusiness();
+      if (data) {
+        setBusinessInfo(data);
+      }
+    } catch (e) {
+      console.error("Failed to load business info:", e);
+    }
+  }
 
   async function fetchCustomers() {
     try {
@@ -214,6 +255,33 @@ export default function POSPage() {
     } catch(e) {
       toast.error("Failed to save receipt image");
     }
+  };
+
+  const handleWhatsAppShare = () => {
+    if (!receiptData) return;
+
+    const savedTemplates = localStorage.getItem("comm_templates");
+    let template = "Thank you for shopping at {business_name}! Your invoice {invoice_number} of Le {total_amount} is complete. View receipt: {receipt_url}.";
+    if (savedTemplates) {
+      try {
+        template = JSON.parse(savedTemplates).receipt;
+      } catch (e) {}
+    }
+
+    const receiptUrl = `https://receipt.protech.sl/r/${receiptData.id}`;
+    const formattedMessage = template
+      .replaceAll("{business_name}", receiptData.businessName || "Our Shop")
+      .replaceAll("{invoice_number}", receiptData.id || "INV-NEW")
+      .replaceAll("{total_amount}", Math.round(receiptData.total).toLocaleString())
+      .replaceAll("{receipt_url}", receiptUrl);
+
+    const phoneInput = prompt("Enter customer phone number (with country code, e.g. 23277123456):");
+    if (phoneInput === null) return; 
+
+    const cleanPhone = phoneInput.replace(/[^0-9]/g, "");
+    const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone || ""}&text=${encodeURIComponent(formattedMessage)}`;
+    window.open(waLink, "_blank");
+    toast.success("Redirection to WhatsApp opened!");
   };
 
   async function handleCheckout() {
@@ -272,13 +340,18 @@ export default function POSPage() {
           cashierName: session?.user?.name,
           customerName: customerObj?.name || "WALKIN",
           transactionId: result.saleId || undefined,
-          businessName: session?.user?.businessName
+          businessName: businessInfo?.name || session?.user?.businessName || "Protech Assist",
+          businessAddress: businessInfo?.address || undefined,
+          businessPhone: businessInfo?.phone || undefined
         });
 
         clearCart();
         setIsCheckoutOpen(false);
         setIsCartVisible(false);
         setCreditAmountPaid("");
+        setMomoRefCode("");
+        setMomoPhone("");
+        setMomoSmsPaste("");
         setPaymentMethod("CASH");
 
         // Open professional receipt modal after a tiny delay
@@ -309,6 +382,8 @@ export default function POSPage() {
             customerName={receiptData.customerName}
             transactionId={receiptData.transactionId}
             businessName={receiptData.businessName}
+            businessAddress={receiptData.businessAddress}
+            businessPhone={receiptData.businessPhone}
           />
         )}
       </div>
@@ -696,6 +771,81 @@ export default function POSPage() {
                      ))}
                   </div>
 
+                  {/* Mobile Money Verification Panel */}
+                  {paymentMethod === 'MOBILE_MONEY' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-[2rem] border-2 border-blue-150 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/10 p-6 sm:p-8 space-y-5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Smartphone size={18} className="text-blue-500 shrink-0" />
+                        <p className="text-[11px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest">Mobile Money Reconciliation</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setMomoProvider("ORANGE_MONEY")}
+                          className={cn(
+                            "py-3 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all",
+                            momoProvider === "ORANGE_MONEY"
+                              ? "bg-orange-500 border-transparent text-white shadow-lg shadow-orange-500/20"
+                              : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500"
+                          )}
+                        >
+                          Orange Money
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setMomoProvider("AFRIMONEY")}
+                          className={cn(
+                            "py-3 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all",
+                            momoProvider === "AFRIMONEY"
+                              ? "bg-blue-600 border-transparent text-white shadow-lg shadow-blue-600/20"
+                              : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500"
+                          )}
+                        >
+                          AfriMoney
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction Code / Ref</Label>
+                          <Input
+                            placeholder="e.g. CO260623.1301.A102"
+                            value={momoRefCode}
+                            onChange={(e) => setMomoRefCode(e.target.value)}
+                            className="h-12 rounded-xl border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Payer Phone (Optional)</Label>
+                          <Input
+                            placeholder="+232 77 123456"
+                            value={momoPhone}
+                            onChange={(e) => setMomoPhone(e.target.value)}
+                            className="h-12 rounded-xl border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2 pt-2 border-t border-blue-100/50 dark:border-blue-900/20">
+                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex justify-between">
+                          <span>Quick-Parse SMS Confirmation</span>
+                          <span className="text-[9px] text-blue-500 font-black lowercase">Paste SMS text here</span>
+                        </Label>
+                        <Textarea
+                          placeholder="Paste Orange Money or AfriMoney confirmation message here..."
+                          value={momoSmsPaste}
+                          onChange={(e) => setMomoSmsPaste(e.target.value)}
+                          className="rounded-xl border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 text-[11px] p-3 min-h-[60px]"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
                   {/* Credit Panel */}
                   {paymentMethod === 'CREDIT' && (
                     <motion.div
@@ -884,6 +1034,8 @@ export default function POSPage() {
                  customerName={receiptData.customerName}
                  transactionId={receiptData.transactionId}
                  businessName={receiptData.businessName}
+                 businessAddress={receiptData.businessAddress}
+                 businessPhone={receiptData.businessPhone}
                />
              )}
           </div>
@@ -904,8 +1056,15 @@ export default function POSPage() {
                <Download className="mr-2 h-4 w-4" /> Save
              </Button>
              <Button 
+               variant="outline"
+               onClick={handleWhatsAppShare}
+               className="flex-1 h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase border-green-200 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+             >
+               <Share2 className="mr-2 h-4 w-4" /> Share
+             </Button>
+             <Button 
                onClick={() => window.print()}
-               className="flex-[1.5] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl hover:scale-105 transition-transform"
+               className="flex-[1.2] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl hover:scale-105 transition-transform"
              >
                <Printer className="mr-2 h-4 w-4" /> Print
              </Button>

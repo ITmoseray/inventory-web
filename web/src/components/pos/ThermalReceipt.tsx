@@ -16,11 +16,13 @@ interface ThermalReceiptProps {
   customerName?: string;
   transactionId?: string;
   businessName?: string;
+  businessAddress?: string;
+  businessPhone?: string;
   id?: string;
 }
 
 export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
-  ({ items, total, paid, paymentMethod, cashierName, customerName, transactionId, businessName, id }, ref) => {
+  ({ items, total, paid, paymentMethod, cashierName, customerName, transactionId, businessName, businessAddress, businessPhone, id }, ref) => {
     const date = new Date().toLocaleString();
     const [baseUrl, setBaseUrl] = useState("");
 
@@ -33,8 +35,8 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
         {/* Header */}
         <div className="text-center space-y-1 mb-4">
           <h2 className="text-lg font-bold uppercase">{businessName || "Protech Assist"}</h2>
-          <p className="text-[10px]">123 Enterprise Way, Freetown</p>
-          <p className="text-[10px]">Tel: +232 00 000 000</p>
+          <p className="text-[10px]">{businessAddress || "123 Enterprise Way, Freetown"}</p>
+          <p className="text-[10px]">Tel: {businessPhone || "+232 00 000 000"}</p>
         </div>
 
         {/* Meta Info */}

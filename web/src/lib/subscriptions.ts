@@ -8,18 +8,24 @@ export const PLAN_LIMITS = {
     posEnabled: true,
   },
   [SubscriptionPlan.BASIC]: {
+    maxProducts: 500,
+    maxStaff: 1,
+    analyticsEnabled: true,
+    posEnabled: true,
+  },
+  [SubscriptionPlan.STANDARD]: {
     maxProducts: 5000,
     maxStaff: 5,
     analyticsEnabled: true,
     posEnabled: true,
   },
-  [SubscriptionPlan.STANDARD]: {
-    maxProducts: 50000,
-    maxStaff: 25,
+  [SubscriptionPlan.BUSINESS]: {
+    maxProducts: Infinity,
+    maxStaff: 15,
     analyticsEnabled: true,
     posEnabled: true,
   },
-  [SubscriptionPlan.PREMIUM]: {
+  [SubscriptionPlan.ENTERPRISE]: {
     maxProducts: Infinity,
     maxStaff: Infinity,
     analyticsEnabled: true,

@@ -289,7 +289,7 @@ const SidebarContentRenderer = ({
                 sideOffset={12}
               >
                 <div className="px-4 py-3 border-b border-slate-50 dark:border-slate-800 mb-2">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account Node</p>
+                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account</p>
                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400 truncate mt-0.5">{session?.user?.email}</p>
                 </div>
                 <DropdownMenuItem render={<Link href="/dashboard/system/profile" className="flex items-center w-full" />}>
@@ -298,20 +298,20 @@ const SidebarContentRenderer = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/dashboard/system/settings" className="flex items-center w-full" />}>
                     <Settings className="mr-3 size-4 text-slate-400" />
-                    Settings Configuration
+                    Settings
                 </DropdownMenuItem>
                 <DropdownMenuItem render={<ThemeToggle />}>
                 </DropdownMenuItem>
                 {session?.user?.role === "SUPERADMIN" && (
                    <DropdownMenuItem render={<Link href="/super-admin" className="flex items-center w-full" />}>
                        <ShieldCheck className="mr-3 size-4 text-indigo-600" />
-                       Nexus Super Control
+                       Super Admin Panel
                    </DropdownMenuItem>
                 )}
                 <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
                 <DropdownMenuItem onClick={() => signOut({ redirectTo: "/login" })} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30">
                   <LogOut className="mr-3 size-4" />
-                  Terminate Session
+                  Log Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

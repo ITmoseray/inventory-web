@@ -47,7 +47,7 @@ async function main() {
         name: 'Protech Assist SL Limited Super Admin Hub',
         slug: 'protech-nexus-core',
         type: 'SHOP',
-        plan: 'PREMIUM',
+        plan: 'ENTERPRISE',
         status: 'active',
         enabledModules: ['POS', 'INVENTORY', 'RESTAURANT'],
       },

@@ -104,8 +104,8 @@ export default function UserManualPage() {
       content: [
         "Expense Tracking: Record rent, utilities, and daily overheads. Categorize expenses for accurate tax reporting.",
         "Profit & Loss (P&L): Automated real-time financial statement showing your net income after all costs (COGS + Expenses).",
-        "Cash Flow: Visualization of liquidity moving through your business ecosystem.",
-        "Billing: Manage your own platform subscription and official invoices from Protech Ecosystem."
+        "Cash Flow: Visualization of cash flow moving through your business.",
+        "Billing: Manage your platform subscription and invoices."
       ]
     },
     {
@@ -191,7 +191,7 @@ export default function UserManualPage() {
            </div>
            <div className="space-y-1">
               <h1 className="text-4xl md:text-6xl font-[1000] tracking-tighter uppercase italic text-slate-950 dark:text-white leading-none">System <span className="text-indigo-600">Manual</span></h1>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.4em] italic mt-2">Mastering your inventory & trade ecosystem</p>
+              <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.4em] italic mt-2">Mastering your inventory & business trade</p>
            </div>
         </div>
         
@@ -320,7 +320,7 @@ export default function UserManualPage() {
          <div className="inline-flex flex-col items-center gap-4">
             <div className="h-px w-32 bg-slate-200" />
             <p className="text-[10px] font-black uppercase tracking-[0.6em] text-slate-300 italic">Official Protech Assist Documentation</p>
-            <p className="text-[8px] font-bold text-slate-200 uppercase tracking-widest leading-none">African Trade Ecosystem • OS v2.0</p>
+            <p className="text-[8px] font-bold text-slate-200 uppercase tracking-widest leading-none">African Trade Network • OS v2.0</p>
          </div>
       </div>
     </div>

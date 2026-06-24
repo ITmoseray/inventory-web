@@ -80,7 +80,7 @@ export default function NetworkSourcingPage() {
             <h1 className="text-3xl md:text-4xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">
               Protech <span className="text-indigo-600">Network Exchange</span>
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Discover and source inventory from the ecosystem.</p>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Discover and source products from other stores on the network.</p>
           </div>
         </div>
       </div>

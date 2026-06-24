@@ -35,7 +35,7 @@ export async function registerBusiness(data: any) {
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: businessType as BusinessType,
         plan: plan,
-        status: plan === 'FREE' ? "PENDING" : "ACTIVE",
+        status: "ACTIVE",
         logoUrl: logoUrl,
         enabledModules: ["POS", "INVENTORY"],
         trialStartDate: plan === 'FREE' ? new Date() : null,

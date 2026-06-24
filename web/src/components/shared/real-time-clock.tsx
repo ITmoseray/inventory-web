@@ -25,9 +25,9 @@ export function RealTimeClock() {
         <span className="text-sm font-bold text-slate-400">...</span>
       </div>
       <div className="hidden xl:block h-10 w-px bg-slate-100 dark:bg-white/10" />
-      <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5">
-        <Clock className="h-4 w-4 text-primary" />
-        <span className="text-xs font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">00:00:00</span>
+      <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 dark:bg-slate-950/60 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl border border-slate-100 dark:border-white/5">
+        <Clock className="h-3 w-3 md:h-4 md:w-4 text-primary" />
+        <span className="text-[10px] md:text-xs font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">00:00:00</span>
       </div>
     </div>
   );
@@ -72,10 +72,10 @@ export function RealTimeClock() {
 
       <div className="h-8 w-px bg-slate-100 dark:bg-white/10 hidden xl:block" />
 
-      {/* Clock pill: always visible from md+ */}
-      <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-950/60 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5 shadow-inner dark:shadow-none hover:bg-white dark:hover:bg-slate-900 hover:shadow-md transition-all">
-        <Clock className="h-4 w-4 text-primary dark:text-white animate-pulse" />
-        <span className="text-xs font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">
+      {/* Clock pill: responsive padding/font sizes for mobile */}
+      <div className="flex items-center gap-1.5 md:gap-2 bg-slate-50 dark:bg-slate-950/60 px-2 md:px-3 py-1 md:py-1.5 rounded-lg md:rounded-xl border border-slate-100 dark:border-white/5 shadow-inner dark:shadow-none hover:bg-white dark:hover:bg-slate-900 hover:shadow-md transition-all">
+        <Clock className="h-3 w-3 md:h-4 md:w-4 text-primary dark:text-white animate-pulse" />
+        <span className="text-[10px] md:text-xs font-[1000] text-slate-900 dark:text-white tracking-tighter tabular-nums">
           {formatTime(time)}
         </span>
       </div>

@@ -112,11 +112,11 @@ export default function RegisterPage() {
 
   if (registrationOpen === false) {
     return (
-      <div className="flex min-h-screen bg-slate-950 items-center justify-center font-sans p-6 text-slate-200">
+      <div className="flex min-h-screen bg-slate-950 items-center justify-center font-sans p-6 py-12 text-slate-200 relative overflow-y-auto">
          <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
          <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
          
-         <div className="max-w-md w-full p-8 md:p-12 rounded-[2.5rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-8 relative overflow-hidden group">
+         <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
             <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
                <Zap className="h-10 w-10 animate-pulse" />
@@ -124,11 +124,11 @@ export default function RegisterPage() {
             
             <div className="space-y-3">
                <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Registration <span className="text-amber-500">Closed</span></h2>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Ecosystem Level Override Active</p>
+               <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Invite-Only Mode Active</p>
             </div>
             
             <p className="text-slate-400 font-normal text-sm leading-relaxed">
-               New registration nodes are currently offline due to platform updates or invite-only restrictions. Please contact system administrators for manual provisioning.
+               New store registrations are currently closed. Please contact the system administrator to get access.
             </p>
             
             <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">

@@ -25,6 +25,7 @@ export default function BusinessSettingsPage() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    address: "",
     logoUrl: "",
     type: "",
     plan: ""
@@ -38,6 +39,7 @@ export default function BusinessSettingsPage() {
           setFormData({
             name: business.name || "",
             phone: business.phone || "",
+            address: business.address || "",
             logoUrl: business.logoUrl || "",
             type: business.type || "",
             plan: business.plan || ""
@@ -61,6 +63,7 @@ export default function BusinessSettingsPage() {
       const result = await updateBusiness({
         name: formData.name,
         phone: formData.phone,
+        address: formData.address,
         logoUrl: formData.logoUrl
       });
       
@@ -131,6 +134,13 @@ export default function BusinessSettingsPage() {
                       </div>
                    </div>
                    <div className="flex items-center gap-3 text-left p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <Store className="h-4 w-4 text-slate-400" />
+                      <div className="flex flex-col">
+                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Business Address</span>
+                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{formData.address || "Not set"}</span>
+                      </div>
+                   </div>
+                   <div className="flex items-center gap-3 text-left p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
                       <ShieldCheck className="h-4 w-4 text-slate-400" />
                       <div className="flex flex-col">
                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Plan</span>
@@ -172,6 +182,17 @@ export default function BusinessSettingsPage() {
                         onChange={(e) => setFormData({...formData, phone: e.target.value})}
                         className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold"
                         placeholder="+1 234 567 890"
+                      />
+                   </div>
+
+                   <div className="space-y-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Address</Label>
+                      <Input 
+                        type="text" 
+                        value={formData.address}
+                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold"
+                        placeholder="123 Enterprise Way, Freetown"
                       />
                    </div>
 

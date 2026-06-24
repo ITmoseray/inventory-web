@@ -99,7 +99,7 @@ const SETTINGS_GROUPS = [
     title: "Integrations & Marketplace",
     icon: Share2,
     items: [
-      { name: "WhatsApp & SMS", icon: MessageSquare },
+      { name: "WhatsApp & SMS", icon: MessageSquare, url: "/dashboard/system/settings/communication" },
       { name: "Shipping Partners", icon: Truck },
       { name: "eCommerce & Shopping Cart", icon: ShoppingCart },
       { name: "Accounting Apps", icon: Calculator },
@@ -240,7 +240,7 @@ export default function SettingsPage() {
                <div className="space-y-6 lg:space-y-8">
                   <div className="flex items-center gap-3">
                      <Landmark className="h-6 w-6 text-indigo-400" />
-                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Marketplace Ecosystem</span>
+                     <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Marketplace Network</span>
                   </div>
                   <h2 className="text-4xl lg:text-5xl font-black tracking-tighter uppercase italic leading-[0.9]">
                     Extend your Protech <br /><span className="text-indigo-400">Capabilities!</span>

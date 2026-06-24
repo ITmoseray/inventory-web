@@ -70,7 +70,7 @@ export default function TenantVault() {
   async function handleApprove(businessId: string) {
     try {
       await approveBusiness(businessId);
-      toast.success("Ecosystem node activated successfully.");
+      toast.success("Store activated successfully.");
       fetchBusinesses();
     } catch (error) {
       toast.error("Activation failed.");
@@ -78,13 +78,13 @@ export default function TenantVault() {
   }
 
   async function handleDelete(businessId: string, name: string) {
-    if (window.confirm(`CRITICAL: Purge all data for "${name}"? This action is irreversible.`)) {
+    if (window.confirm(`CRITICAL: Delete all data for "${name}"? This action is irreversible.`)) {
       try {
         await deleteBusiness(businessId);
-        toast.success(`Node "${name}" has been decommissioned.`);
+        toast.success(`Store "${name}" has been deleted.`);
         fetchBusinesses();
       } catch (error: any) {
-        toast.error(error.message || "Decommissioning failed.");
+        toast.error(error.message || "Deletion failed.");
       }
     }
   }
@@ -92,19 +92,19 @@ export default function TenantVault() {
   async function handleResetPassword(businessId: string) {
     try {
       const { email, newPassword } = await resetTenantAdminPassword(businessId);
-      toast.success(`Access credentials reset for ${email}. Key: ${newPassword}`, { duration: 10000 });
+      toast.success(`Password reset for ${email}. New Password: ${newPassword}`, { duration: 10000 });
     } catch (error) {
-      toast.error("Credential reset failed.");
+      toast.error("Password reset failed.");
     }
   }
 
   async function handleImpersonate(businessId: string) {
     try {
       const admin = await startImpersonation(businessId);
-      toast.success(`Impersonating ${admin.email}. Redirecting to local node...`);
+      toast.success(`Entering ${admin.email}'s dashboard...`);
       window.location.href = "/dashboard";
     } catch (error) {
-      toast.error("Sub-node access failed.");
+      toast.error("Dashboard access failed.");
     }
   }
 
@@ -121,10 +121,10 @@ export default function TenantVault() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
            <div className="space-y-2">
               <Link href="/super-admin" className="flex items-center gap-2 text-indigo-650 dark:text-indigo-500 font-black text-[10px] uppercase tracking-[0.3em] hover:text-indigo-500 dark:hover:text-indigo-400 transition-colors mb-4">
-                 <ArrowLeft className="h-3 w-3" /> Back to Nexus
+                 <ArrowLeft className="h-3 w-3" /> Back to Control Panel
               </Link>
-              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Tenant <span className="text-indigo-500">Vault</span></h1>
-              <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">Operational node registry & license management</p>
+              <h1 className="text-3xl md:text-5xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Store <span className="text-indigo-500">Registry</span></h1>
+              <p className="text-slate-500 font-black text-[10px] uppercase tracking-[0.3em]">Registered stores & subscription management</p>
            </div>
            
            <div className="flex gap-4">
@@ -197,10 +197,14 @@ export default function TenantVault() {
                         <div className="flex flex-col gap-2">
                           <div className={cn(
                             "inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase w-fit tracking-widest shadow-lg",
-                            b.plan === 'PREMIUM' ? "bg-indigo-600 text-white shadow-indigo-600/20" : 
-                            b.plan === 'STANDARD' ? "bg-blue-600 text-white shadow-blue-600/20" : "bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400"
+                            b.plan === 'ENTERPRISE' ? "bg-indigo-600 text-white shadow-indigo-600/20" : 
+                            b.plan === 'BUSINESS' ? "bg-purple-600 text-white shadow-purple-600/20" :
+                            b.plan === 'STANDARD' ? "bg-blue-600 text-white shadow-blue-600/20" : 
+                            b.plan === 'BASIC' ? "bg-slate-500 text-white shadow-slate-500/20" :
+                            "bg-slate-100 dark:bg-slate-800 text-slate-650 dark:text-slate-400"
                           )}>
-                            {b.plan === 'PREMIUM' && <Zap className="h-3 w-3 mr-1.5 fill-current" />}
+                            {b.plan === 'ENTERPRISE' && <Zap className="h-3 w-3 mr-1.5 fill-current" />}
+                            {b.plan === 'BUSINESS' && <Shield className="h-3 w-3 mr-1.5 fill-current" />}
                             {b.plan}
                           </div>
                           <div className="flex items-center gap-2">
@@ -243,26 +247,27 @@ export default function TenantVault() {
                           <DropdownMenuContent align="end" className="w-56 rounded-[1.5rem] bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 p-2 shadow-2xl backdrop-blur-xl">
                             {b.status === 'PENDING' && (
                                <DropdownMenuItem onClick={() => handleApprove(b.id)} className="rounded-xl p-3 font-black text-emerald-600 dark:text-emerald-500 focus:bg-emerald-50 dark:focus:bg-emerald-500/10 focus:text-emerald-600 dark:focus:text-emerald-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
-                                 <CheckCircle className="h-4 w-4 mr-3" /> Activate Node
+                                 <CheckCircle className="h-4 w-4 mr-3" /> Activate Store
                                </DropdownMenuItem>
                             )}
-                            <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">License Control</div>
+                            <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Plan Management</div>
                             <DropdownMenuItem onClick={() => handlePlanChange(b.id, "FREE")} className="rounded-xl p-3 font-bold text-slate-600 dark:text-slate-400 focus:bg-slate-100 dark:focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Downgrade: FREE</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handlePlanChange(b.id, "BASIC")} className="rounded-xl p-3 font-bold text-slate-600 dark:text-slate-400 focus:bg-slate-100 dark:focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: BASIC</DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handlePlanChange(b.id, "STANDARD")} className="rounded-xl p-3 font-bold text-slate-600 dark:text-slate-400 focus:bg-slate-100 dark:focus:bg-white/5 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: STANDARD</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "PREMIUM")} className="rounded-xl p-3 font-black text-indigo-600 dark:text-indigo-400 focus:bg-indigo-50 dark:focus:bg-indigo-500/10 focus:text-indigo-650 dark:focus:text-indigo-400 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Upgrade: PREMIUM</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "BUSINESS")} className="rounded-xl p-3 font-bold text-purple-650 dark:text-purple-400 focus:bg-purple-50 dark:focus:bg-purple-500/10 focus:text-purple-650 dark:focus:text-purple-450 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Switch: BUSINESS</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handlePlanChange(b.id, "ENTERPRISE")} className="rounded-xl p-3 font-black text-indigo-600 dark:text-indigo-400 focus:bg-indigo-50 dark:focus:bg-indigo-500/10 focus:text-indigo-650 dark:focus:text-indigo-400 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">Upgrade: ENTERPRISE</DropdownMenuItem>
                             
                             <div className="h-px bg-slate-100 dark:bg-slate-800 my-2" />
-                            <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Matrix Override</div>
+                            <div className="px-3 py-2 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em]">Store Settings</div>
                             
                             <DropdownMenuItem onClick={() => handleResetPassword(b.id)} className="rounded-xl p-3 font-black text-rose-600 dark:text-rose-500 focus:bg-rose-50 dark:focus:bg-rose-500/10 focus:text-rose-650 dark:focus:text-rose-500 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
-                              <KeyRound className="h-4 w-4 mr-3" /> Reset Node Key
+                              <KeyRound className="h-4 w-4 mr-3" /> Reset Store Password
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleImpersonate(b.id)} className="rounded-xl p-3 font-black text-amber-600 dark:text-amber-500 focus:bg-amber-50 dark:focus:bg-amber-500/10 focus:text-amber-650 dark:focus:text-amber-550 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
-                              <UserCheck className="h-4 w-4 mr-3" /> Sub-node Entry
+                              <UserCheck className="h-4 w-4 mr-3" /> Enter Store Dashboard
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => handleDelete(b.id, b.name)} className="rounded-xl p-3 font-black text-rose-600 dark:text-rose-500 focus:bg-rose-50 dark:focus:bg-rose-950/20 focus:text-rose-600 dark:focus:text-rose-450 transition-colors uppercase text-[10px] tracking-widest cursor-pointer">
-                              <Trash2 className="h-4 w-4 mr-3" /> Purge Node
+                              <Trash2 className="h-4 w-4 mr-3" /> Delete Store
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>

@@ -82,9 +82,9 @@ export default function NotificationsPage() {
     try {
       await deleteNotification(id);
       setNotifications(prev => prev.filter(n => n.id !== id));
-      toast.success("Alert node purged.");
+      toast.success("Notification deleted.");
     } catch (error) {
-      toast.error("Failed to purge alert node.");
+      toast.error("Failed to delete notification.");
     }
   }
 
@@ -195,7 +195,7 @@ export default function NotificationsPage() {
                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                           {!n.isRead && (
                              <Button size="sm" variant="ghost" onClick={() => handleMarkRead(n.id)} className="h-10 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest text-emerald-600 hover:bg-emerald-50">
-                                Acknowledge
+                                Mark as Read
                              </Button>
                           )}
                           <DropdownMenu>
@@ -206,7 +206,7 @@ export default function NotificationsPage() {
                              </DropdownMenuTrigger>
                              <DropdownMenuContent align="end" className="rounded-xl border-slate-200">
                                 <DropdownMenuItem onClick={() => handleDelete(n.id)} className="text-rose-600 font-bold uppercase text-[9px] tracking-widest">
-                                   <Trash2 className="mr-2 h-3.5 w-3.5" /> Purge Node
+                                   <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                                 </DropdownMenuItem>
                              </DropdownMenuContent>
                           </DropdownMenu>

@@ -44,14 +44,14 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
     
     const promise = switchBusiness(id);
     toast.promise(promise, {
-      loading: "Switching ecosystem context...",
+      loading: "Switching store...",
       success: () => {
         setOpen(false);
         // We use window.location.href to force a full reload and clear any cached states
         window.location.href = "/dashboard";
-        return "Context switched successfully";
+        return "Store switched successfully";
       },
-      error: "Failed to switch context"
+      error: "Failed to switch store"
     });
   };
 
@@ -83,9 +83,9 @@ export function BusinessSwitcher({ currentBusinessId, currentBusinessName }: Bus
       <PopoverContent className="w-[240px] p-0 rounded-2xl border-slate-100 shadow-2xl overflow-hidden">
         <Command className="bg-white">
           <div className="px-3 py-2 border-b border-slate-50">
-             <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Switch Context</p>
+             <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Switch Store</p>
           </div>
-          <CommandInput placeholder="Search ecosystems..." className="h-10 text-xs border-none focus:ring-0" />
+          <CommandInput placeholder="Search stores..." className="h-10 text-xs border-none focus:ring-0" />
           <CommandList className="max-h-[300px]">
             <CommandEmpty className="py-6 text-center text-xs text-slate-400">No businesses found.</CommandEmpty>
             <CommandGroup>

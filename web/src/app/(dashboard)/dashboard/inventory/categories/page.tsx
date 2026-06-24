@@ -81,10 +81,10 @@ export default function CategoriesPage() {
     try {
       if (editingCategory) {
         await updateCategory(editingCategory.id, formData);
-        toast.success("Intelligence classification updated.");
+        toast.success("Category updated successfully.");
       } else {
         await createCategory(formData);
-        toast.success("New node category established.");
+        toast.success("Category created successfully.");
       }
       setIsDialogOpen(false);
       setEditingCategory(null);
@@ -102,7 +102,7 @@ export default function CategoriesPage() {
     }
     try {
       await deleteCategory(id);
-      toast.success("Category node removed.");
+      toast.success("Category deleted successfully.");
       fetchCategories();
       setDeleteDialog({ open: false, category: null });
     } catch (error) {
@@ -145,9 +145,9 @@ export default function CategoriesPage() {
         <div className="flex items-center gap-4">
           <BackButton />
           <div>
-            <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Classification <span className="text-primary">Hub</span></h1>
+            <h1 className="text-3xl sm:text-4xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Categories</h1>
             <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.3em] text-[10px] mt-2">
-              Organize your strategic assets into logical intelligence nodes.
+              Organize your products into categories.
             </p>
           </div>
         </div>
@@ -160,42 +160,42 @@ export default function CategoriesPage() {
         }}>
           <DialogTrigger render={
             <Button className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-primary hover:scale-[1.02] transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/10">
-              <Plus className="h-4 w-4 mr-2" /> Initialize Category
+              <Plus className="h-4 w-4 mr-2" /> Add Category
             </Button>
           } />
           <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
             <div className="bg-slate-900 p-8 text-white shrink-0">
-               <h3 className="text-2xl font-black uppercase tracking-tight">{editingCategory ? "Update Classification" : "Deploy New Classification"}</h3>
-               <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Classification Intelligence Node</p>
+               <h3 className="text-2xl font-black uppercase tracking-tight">{editingCategory ? "Edit Category" : "Add New Category"}</h3>
+               <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Category Details</p>
             </div>
             <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Node Designation</Label>
+                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category Name</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="e.g. CORE-INVENTORY"
+                  placeholder="e.g. Electronics, Groceries"
                   className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white font-black text-sm uppercase tracking-widest shadow-inner"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Strategic Scope</Label>
+                <Label htmlFor="description" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</Label>
                 <Input
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Optional architectural scope"
+                  placeholder="Optional description of the category"
                   className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
                 />
               </div>
               <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
                 <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400" onClick={() => setIsDialogOpen(false)}>
-                  Abort
+                  Cancel
                 </Button>
                 <Button type="submit" className="h-14 px-10 bg-slate-900 text-white rounded-2xl font-[1000] text-[10px] uppercase tracking-[0.25em] shadow-2xl transition-all hover:scale-[1.02]">
-                  {editingCategory ? "Commit Update" : "Establish Node"}
+                  {editingCategory ? "Save Changes" : "Save"}
                 </Button>
               </div>
             </form>
@@ -211,9 +211,9 @@ export default function CategoriesPage() {
         emptyState={
           <EmptyState 
             icon={Package}
-            title="No Classifications Identified"
-            description="Establish your first intelligence classification to organize your global asset inventory."
-            actionLabel="Initialize Category"
+            title="No Categories Found"
+            description="Create your first category to organize your products."
+            actionLabel="Add Category"
             onAction={() => setIsDialogOpen(true)}
           />
         }
@@ -226,10 +226,10 @@ export default function CategoriesPage() {
             } />
             <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800">
               <div className="px-3 py-2 border-b border-slate-50 dark:border-slate-800 mb-2">
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Node Operations</p>
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">Actions</p>
               </div>
               <DropdownMenuItem onClick={() => handleEdit(cat)} className="font-black text-[10px] uppercase tracking-widest gap-3 rounded-xl">
-                <Pencil className="h-4 w-4 text-slate-400" /> Modify Designation
+                <Pencil className="h-4 w-4 text-slate-400" /> Edit Category
               </DropdownMenuItem>
               <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
               <DropdownMenuItem 
@@ -239,7 +239,7 @@ export default function CategoriesPage() {
                   setDeleteDialog({ open: true, category: cat });
                 }}
               >
-                <Trash2 className="h-4 w-4" /> Purge Node
+                <Trash2 className="h-4 w-4" /> Delete Category
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

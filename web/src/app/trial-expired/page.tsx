@@ -32,7 +32,7 @@ export default function TrialExpiredPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6 py-12 relative overflow-y-auto">
       {/* Background Effects */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-rose-600/10 blur-[120px] rounded-full" />
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-indigo-600/10 blur-[120px] rounded-full" />
@@ -40,7 +40,7 @@ export default function TrialExpiredPage() {
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-xl w-full relative z-10"
+        className="max-w-xl w-full relative z-10 my-auto"
       >
         <GlassCard className="p-8 md:p-12 border-rose-500/20 bg-slate-900/40 text-center">
           <div className="flex flex-col items-center gap-6 mb-10">
@@ -51,17 +51,17 @@ export default function TrialExpiredPage() {
             <div className="space-y-2">
                <div className="flex items-center justify-center gap-3 text-rose-500 mb-2">
                   <Clock className="h-6 w-6 animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.5em]">Session Limit Reached</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.5em]">Trial Period Ended</span>
                </div>
                <h1 className="text-4xl md:text-5xl font-[1000] tracking-tighter text-white uppercase italic leading-none">Trial <span className="text-rose-500">Expired</span></h1>
-               <p className="text-slate-500 font-black text-xs uppercase tracking-widest mt-4">Your 7-day operational trial has concluded.</p>
+               <p className="text-slate-500 font-black text-xs uppercase tracking-widest mt-4">Your 7-day free trial has ended.</p>
             </div>
           </div>
 
           <div className="space-y-6">
             <p className="text-slate-400 text-sm font-medium leading-relaxed">
-              Your business node "{session?.user?.name || "Target Node"}" has completed its initial evaluation phase. 
-              To maintain system integrity and continue operations, a valid license is required.
+              Your store "{session?.user?.name || "Store"}" has finished its trial. 
+              To continue managing your products and sales, a valid subscription is required.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 pt-4">
@@ -87,13 +87,13 @@ export default function TrialExpiredPage() {
                     onClick={handleSync}
                     className="flex items-center gap-2 text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-[0.3em] transition-colors disabled:opacity-50"
                   >
-                    <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} /> {isSyncing ? "Syncing..." : "Sync Node Status"}
+                    <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} /> {isSyncing ? "Syncing..." : "Refresh Status"}
                   </button>
                   <button 
                       onClick={() => signOut({ redirectTo: '/login' })}
                       className="flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-rose-500 uppercase tracking-[0.3em] transition-colors"
                   >
-                      <LogOut className="h-3 w-3" /> Deauthorize Session
+                      <LogOut className="h-3 w-3" /> Log Out
                   </button>
                </div>
             </div>
@@ -102,7 +102,7 @@ export default function TrialExpiredPage() {
         
         <div className="mt-8 flex items-center justify-center gap-2 opacity-50">
            <ShieldAlert className="h-3 w-3 text-slate-600" />
-           <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.4em]">Nexus Security Protocol 92.4.0</p>
+           <p className="text-[8px] font-black text-slate-600 uppercase tracking-[0.4em]">Security Protection Active</p>
         </div>
       </motion.div>
     </div>

@@ -58,7 +58,7 @@ export default function NexusSuperControl() {
   const [isMaintenance, setIsMaintenance] = useState(false);
   
   // Navigation Tabs
-  const [activeTab, setActiveTab] = useState<"telemetry" | "terminal" | "backups" | "config" | "operators">("telemetry");
+  const [activeTab, setActiveTab] = useState<"telemetry" | "terminal" | "backups" | "settings" | "operators">("telemetry");
 
   // User Management State
   const [systemUsers, setSystemUsers] = useState<any[]>([]);
@@ -263,12 +263,12 @@ export default function NexusSuperControl() {
           "  status             - Get ecosystem server status",
           "  stats              - Get core database model metrics",
           "  config             - Print active global configuration settings",
-          "  users              - Query registered ecosystem users",
-          "  businesses         - Query active operational business nodes",
-          "  broadcast <msg>    - Send dynamic announcement banner text to all nodes",
+          "  users              - Query registered users",
+          "  businesses         - List all registered stores",
+          "  broadcast <msg>    - Send announcement banner text to all stores",
           "  maintenance <on|off> - Enter or exit platform-wide maintenance mode",
-          "  clear-cache        - Flush ecosystem system-wide cache",
-          "  backup             - Trigger an ecosystem database snapshot",
+          "  clear-cache        - Flush system cache",
+          "  backup             - Trigger database backup snapshot",
           "  logs [--tail N]    - Print last N security audit log entries",
           "  system             - Print software platform specifications",
           "  clear              - Clear terminal screen history"
@@ -277,10 +277,10 @@ export default function NexusSuperControl() {
       case "whoami":
         setTerminalHistory(prev => [
           ...prev,
-          `  Operator:  ${session?.user?.name || "Dr. Strange"}`,
+          `  User:      ${session?.user?.name || "Dr. Strange"}`,
           `  Email:     ${session?.user?.email || "strangesteven001@gmail.com"}`,
           `  Role:      ${session?.user?.role || "SUPERADMIN"}`,
-          `  Business:  Protech Enterprise (Global System Node)`
+          `  Business:  Protech Enterprise (Global Store Node)`
         ]);
         break;
       case "config":
@@ -293,11 +293,11 @@ export default function NexusSuperControl() {
         ]);
         break;
       case "users":
-        setTerminalHistory(prev => [...prev, "Querying operators database..."]);
+        setTerminalHistory(prev => [...prev, "Querying user database..."]);
         try {
           const uList = await getAllSystemUsers();
           const lines = uList.map(u => 
-            `  • ${u.name || "Unnamed"} (${u.email}) - Role: ${u.role} | Node: ${u.business} | Status: ${u.status.toUpperCase()}`
+            `  • ${u.name || "Unnamed"} (${u.email}) - Role: ${u.role} | Store: ${u.business} | Status: ${u.status.toUpperCase()}`
           );
           setTerminalHistory(prev => [...prev, ...lines]);
         } catch (err: any) {
@@ -305,7 +305,7 @@ export default function NexusSuperControl() {
         }
         break;
       case "businesses":
-        setTerminalHistory(prev => [...prev, "Querying database nodes..."]);
+        setTerminalHistory(prev => [...prev, "Querying database stores..."]);
         try {
           const bList = await getAllBusinesses();
           const lines = bList.map(b => 
@@ -313,7 +313,7 @@ export default function NexusSuperControl() {
           );
           setTerminalHistory(prev => [...prev, ...lines]);
         } catch (err: any) {
-          setTerminalHistory(prev => [...prev, `Error: Failed to fetch business nodes: ${err.message}`]);
+          setTerminalHistory(prev => [...prev, `Error: Failed to fetch stores: ${err.message}`]);
         }
         break;
       case "broadcast":
@@ -364,8 +364,8 @@ export default function NexusSuperControl() {
       case "stats":
         setTerminalHistory(prev => [
           ...prev,
-          `Ecosystem Nodes:      ${stats?.businessCount ?? 0}`,
-          `Total Operators:      ${stats?.userCount ?? 0}`,
+          `Registered Stores:    ${stats?.businessCount ?? 0}`,
+          `Total Users:          ${stats?.userCount ?? 0}`,
           `Platform-wide GMV:    Le ${(stats?.revenue ?? 0).toLocaleString()}`,
           `Pending Approvals:    ${stats?.pendingApprovals ?? 0}`
         ]);
@@ -374,9 +374,9 @@ export default function NexusSuperControl() {
         setTerminalHistory(prev => [
           ...prev,
           "Establishing connection to worker cluster...",
-          "Flushing Redis Cache Nodes [0..4]... OK",
+          "Flushing Redis Cache... OK",
           "Purging local cache files... OK",
-          "Ecosystem cache flushed successfully."
+          "System cache flushed successfully."
         ]);
         break;
       case "backup":
@@ -384,7 +384,7 @@ export default function NexusSuperControl() {
         try {
           const res = await generateBackup();
           if (res.success) {
-            setTerminalHistory(prev => [...prev, `Success: Backup saved as '${res.filename}'.`, "Download it from the Snapshot Vault."]);
+            setTerminalHistory(prev => [...prev, `Success: Backup saved as '${res.filename}'.`, "Download it from Database Backups."]);
             refreshBackups();
           }
         } catch (err: any) {
@@ -442,7 +442,7 @@ export default function NexusSuperControl() {
          <div className="relative h-20 w-20 border-4 border-slate-200 dark:border-slate-900 border-t-indigo-500 rounded-full animate-spin">
             <div className="absolute inset-2 border-2 border-slate-200 dark:border-slate-900 border-t-blue-400 rounded-full animate-spin-slow" />
          </div>
-         <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-[0.5em] animate-pulse">Initializing Nexus Super Control...</p>
+         <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-500 uppercase tracking-[0.5em] animate-pulse">Loading Admin Dashboard...</p>
       </div>
     );
   }
@@ -458,23 +458,23 @@ export default function NexusSuperControl() {
             </div>
             <div className="space-y-1">
                <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight">Nexus <span className="text-indigo-650 dark:text-indigo-500">Super Control</span></h1>
+                  <h1 className="text-xl sm:text-2xl md:text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight">Nexus <span className="text-indigo-650 dark:text-indigo-500">Admin Panel</span></h1>
                   <div className="hidden sm:flex px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[7px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest h-fit">v4.2.0</div>
                </div>
                <div className="flex items-center justify-center sm:justify-start gap-2">
                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-[0.25em]">Operational Level: Administrator Zero</p>
+                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-[0.25em]">Operational Level: Super Admin</p>
                </div>
             </div>
          </motion.div>
          
          <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
             <div className="flex flex-col items-center sm:items-end">
-               <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Commanding</span>
+               <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Admin User</span>
                <span className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
             </div>
             <Button onClick={() => signOut({ redirectTo: "/login" })} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
-               <LogOut className="mr-2 h-3.5 w-3.5" /> Terminate
+               <LogOut className="mr-2 h-3.5 w-3.5" /> Log Out
             </Button>
          </div>
       </div>
@@ -482,11 +482,11 @@ export default function NexusSuperControl() {
       {/* Navigation Tabs */}
       <div className="bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl flex flex-wrap gap-2 mb-10 relative z-10 w-fit max-w-full">
         {[
-          { id: "telemetry", label: "Telemetry Matrix", icon: Activity },
-          { id: "terminal", label: "Nexus CLI Shell", icon: Terminal },
-          { id: "backups", label: "Snapshot Vault", icon: Database },
-          { id: "operators", label: "Operator Monitor", icon: Users },
-          { id: "config", label: "Ecosystem Config", icon: Shield }
+          { id: "telemetry", label: "System Activity", icon: Activity },
+          { id: "terminal", label: "Control Shell", icon: Terminal },
+          { id: "backups", label: "Database Backups", icon: Database },
+          { id: "operators", label: "User Monitor", icon: Users },
+          { id: "settings", label: "System Settings", icon: Settings }
         ].map((tab) => {
           const Icon = tab.icon;
           return (
@@ -518,10 +518,10 @@ export default function NexusSuperControl() {
           {/* TELEMETRY TAB */}
           {activeTab === "telemetry" && (
             <div className="space-y-12">
-              {/* Performance Matrix */}
+              {/* Performance Metrics */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 relative z-10">
-                <StatCard title="Ecosystem Nodes" value={stats.businessCount} description="Operational Tenants" icon={Globe} delay={0.1} />
-                <StatCard title="Total Operators" value={stats.userCount} description="Active System Users" icon={Users} delay={0.2} />
+                <StatCard title="Registered Stores" value={stats.businessCount} description="Active Stores" icon={Globe} delay={0.1} />
+                <StatCard title="Total Users" value={stats.userCount} description="Active System Users" icon={Users} delay={0.2} />
                 <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
                 <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={stats.pendingApprovals > 0 ? "warning" : "default"} />
               </div>
@@ -545,7 +545,7 @@ export default function NexusSuperControl() {
                        <div className="space-y-4">
                           <div className="flex items-center gap-2">
                              <Briefcase className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />
-                             <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Tenant Acquisition Trend</span>
+                             <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Store Acquisition Trend</span>
                           </div>
                           <NexusChart data={health.growth} dataKey="tenants" category="name" color="#6366f1" />
                        </div>
@@ -578,7 +578,7 @@ export default function NexusSuperControl() {
                               disabled={!broadcastMsg.trim()}
                               className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 disabled:opacity-40"
                            >
-                              <Send className="mr-2 h-4 w-4" /> Transmit Signal
+                              <Send className="mr-2 h-4 w-4" /> Broadcast Message
                            </Button>
                            <Button 
                               onClick={handleClearBroadcast}
@@ -673,7 +673,7 @@ export default function NexusSuperControl() {
                                 </div>
                                 <div>
                                    <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white transition-colors duration-300 uppercase tracking-tight">Pending Approvals</p>
-                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-widest">{stats.pendingApprovals} nodes awaiting action</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-widest">{stats.pendingApprovals} stores awaiting approval</p>
                                 </div>
                              </div>
                              <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
@@ -688,8 +688,8 @@ export default function NexusSuperControl() {
                                    <Globe className="h-5 w-5" />
                                 </div>
                                 <div>
-                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-tight">Tenant Vault</p>
-                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-300/80 transition-colors duration-300 uppercase tracking-widest">Ecosystem Registry</p>
+                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-tight">Store Registry</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-300/80 transition-colors duration-300 uppercase tracking-widest">Manage Registered Stores</p>
                                 </div>
                              </div>
                              <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white dark:group-hover:text-indigo-300 opacity-0 group-hover:opacity-100 transition-all" />
@@ -704,8 +704,8 @@ export default function NexusSuperControl() {
                                    <ShieldCheck className="h-5 w-5" />
                                 </div>
                                 <div>
-                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white transition-colors duration-300 uppercase tracking-tight">Security Node</p>
-                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-slate-200 dark:group-hover:text-slate-300 transition-colors duration-300 uppercase tracking-widest">Ecosystem Audit</p>
+                                   <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white transition-colors duration-300 uppercase tracking-tight">Security Logs</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-slate-200 dark:group-hover:text-slate-300 transition-colors duration-300 uppercase tracking-widest">System Audit Logs</p>
                                 </div>
                              </div>
                              <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
@@ -755,13 +755,13 @@ export default function NexusSuperControl() {
             </GlassCard>
           )}
 
-          {/* SNAPSHOT VAULT (BACKUPS) TAB */}
+          {/* DATABASE BACKUPS TAB */}
           {activeTab === "backups" && (
             <GlassCard className="p-8">
                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
                   <div>
-                     <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Snapshot Vault</h2>
-                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Ecosystem Registry Database Backups</p>
+                     <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Database Backups</h2>
+                     <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">System Database Backups</p>
                   </div>
                   <div>
                      <Button 
@@ -802,7 +802,7 @@ export default function NexusSuperControl() {
                               <TableCell colSpan={4} className="h-48 text-center">
                                  <div className="flex flex-col items-center gap-4">
                                     <Database className="h-12 w-12 text-slate-350 dark:text-slate-700 animate-pulse" />
-                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No snapshots available in vault.</p>
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No database backups available.</p>
                                  </div>
                               </TableCell>
                            </TableRow>
@@ -850,14 +850,14 @@ export default function NexusSuperControl() {
             </GlassCard>
           )}
 
-          {/* OPERATOR MONITOR TAB */}
+          {/* USER DIRECTORY TAB */}
           {activeTab === "operators" && (
              <div className="space-y-8">
                 <GlassCard className="p-8">
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
                       <div>
-                         <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Operator Monitor</h2>
-                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active System Operators and Roles</p>
+                         <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">User Directory</h2>
+                         <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active System Users and Roles</p>
                       </div>
                       <div className="flex items-center gap-4">
                          <Button
@@ -865,9 +865,9 @@ export default function NexusSuperControl() {
                               try {
                                 const u = await getAllSystemUsers();
                                 setSystemUsers(u);
-                                toast.success("Operators activity refreshed.");
+                                toast.success("User list refreshed.");
                               } catch {
-                                toast.error("Failed to sync operators list.");
+                                toast.error("Failed to sync user list.");
                               }
                             }}
                             variant="outline"
@@ -879,7 +879,7 @@ export default function NexusSuperControl() {
                          <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input 
-                               placeholder="Search operators..." 
+                               placeholder="Search users..." 
                                value={userSearchQuery}
                                onChange={(e) => setUserSearchQuery(e.target.value)}
                                className="pl-9 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-10 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-indigo-500/20 w-64"
@@ -892,8 +892,8 @@ export default function NexusSuperControl() {
                       <Table className="min-w-[800px]">
                          <TableHeader className="bg-slate-100/50 dark:bg-slate-900/30">
                             <TableRow className="border-slate-200 dark:border-slate-800 hover:bg-transparent">
-                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-10">Operator</TableHead>
-                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Business Node</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-10">User</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Store Name</TableHead>
                                <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Role</TableHead>
                                <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Last Active & Logged Action</TableHead>
                                <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Status</TableHead>
@@ -911,7 +911,7 @@ export default function NexusSuperControl() {
                                   <TableCell colSpan={6} className="h-48 text-center">
                                      <div className="flex flex-col items-center gap-4">
                                         <Users className="h-12 w-12 text-slate-350 dark:text-slate-700 animate-pulse" />
-                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No operators matching query.</p>
+                                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] italic">No users matching query.</p>
                                      </div>
                                   </TableCell>
                                </TableRow>
@@ -934,7 +934,7 @@ export default function NexusSuperControl() {
                                            </div>
                                            <div className="flex flex-col">
                                              <span className="font-black text-slate-900 dark:text-white text-sm tracking-tight flex items-center gap-2">
-                                                {u.name || "Unnamed Operator"}
+                                                {u.name || "Unnamed User"}
                                                 {isSelf && <span className="text-[8px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-black uppercase tracking-wider border border-emerald-500/20">YOU</span>}
                                              </span>
                                              <span className="text-[9px] font-medium text-slate-400">{u.email}</span>
@@ -1008,7 +1008,7 @@ export default function NexusSuperControl() {
                             <div className="flex items-center justify-between">
                                <div className="space-y-1">
                                   <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter italic">Override Password</h3>
-                                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Operator: {selectedUserForPasswordReset.name || selectedUserForPasswordReset.email}</p>
+                                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">User: {selectedUserForPasswordReset.name || selectedUserForPasswordReset.email}</p>
                                </div>
                             </div>
                             
@@ -1052,20 +1052,20 @@ export default function NexusSuperControl() {
              </div>
           )}
 
-          {/* ECOSYSTEM CONFIG TAB */}
-          {activeTab === "config" && (
+          {/* SYSTEM SETTINGS TAB */}
+          {activeTab === "settings" && (
             <div className="space-y-8">
              <GlassCard className="p-8 space-y-8">
                 <div>
-                   <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Ecosystem Config</h2>
-                   <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Global platform variables & overrides</p>
+                   <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">System Settings</h2>
+                   <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Global platform configuration</p>
                 </div>
 
                 <div className="grid gap-6">
                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 rounded-2xl hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                       <div className="space-y-1">
-                         <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Ecosystem Registration Node</p>
-                         <p className="text-xs text-slate-500 font-medium max-w-xl">Toggle whether new businesses/tenants are allowed to register. When disabled, the registration page will present an invite-only override card.</p>
+                         <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Registration Settings</p>
+                         <p className="text-xs text-slate-500 font-medium max-w-xl">Toggle whether new stores are allowed to register. When disabled, the registration page will show an invite-only card.</p>
                       </div>
                       <Switch 
                          checked={settings?.registrationOpen ?? true} 
@@ -1078,7 +1078,7 @@ export default function NexusSuperControl() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                          <div className="space-y-1">
                             <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Default Trial Duration</p>
-                            <p className="text-xs text-slate-500 font-medium">Set the default number of trial license days for newly registered ecosystem nodes.</p>
+                            <p className="text-xs text-slate-500 font-medium">Set the default number of trial days for newly registered stores.</p>
                          </div>
                          <div className="text-xs font-black text-indigo-650 dark:text-indigo-400 px-3 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20 uppercase tracking-widest w-fit">{settings?.defaultTrialDays ?? 7} Days</div>
                       </div>

@@ -45,3 +45,20 @@ export async function createSubscription(data: any) {
   revalidatePath("/dashboard/settings");
   return subscription;
 }
+
+export async function requestSubscription(planName: string) {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+  await prisma.business.update({
+    where: { id: session.user.businessId },
+    data: { 
+      status: "PENDING",
+      plan: planName.toUpperCase() as any,
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/dashboard");
+  return { success: true };
+}

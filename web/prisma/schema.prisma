@@ -577,5 +577,6 @@ enum SubscriptionPlan {
   FREE
   BASIC
   STANDARD
-  PREMIUM
+  BUSINESS
+  ENTERPRISE
 }
