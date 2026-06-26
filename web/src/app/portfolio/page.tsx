@@ -15,8 +15,10 @@ const PROJECTS = [
     subtitle: "Enterprise Asset Tracking & Cloud Intelligence",
     desc: "A mission-critical multi-tenant inventory management system built to handle high-velocity sales ledger logs, automated returns logic, customer debt tracking, and real-time statistics counters for businesses across West Africa.",
     stats: [
-      { label: "Query Velocity", val: "15ms avg" },
-      { label: "Active Tenant Nodes", val: "450+ Units" }
+      { label: "Active Enterprise Nodes", val: "450+", desc: "Operational business units across the region" },
+      { label: "Trade Volume Processed", val: "Le 2.4B+", desc: "Monthly transaction velocity mapped" },
+      { label: "Uptime SLA Commitment", val: "99.9%", desc: "Enterprise cloud high-availability hosting" },
+      { label: "Diagnostic Query Speed", val: "15ms", desc: "Real-time inventory ledger updates" }
     ],
     tech: ["Next.js 16", "Prisma ORM", "Neon Postgres", "Zod", "NextAuth v5"],
     color: "from-indigo-600 to-indigo-800"
@@ -169,11 +171,12 @@ export default function CorporatePortfolioPage() {
 
                 <div className="space-y-6">
                   {/* Stats Counter Row */}
-                  <div className="grid grid-cols-2 gap-4 border-t border-b border-white/5 py-4">
+                  <div className="grid grid-cols-2 gap-x-6 gap-y-4 border-t border-b border-white/5 py-4">
                     {proj.stats.map((s, idx) => (
                       <div key={idx} className="flex flex-col">
                         <span className="text-lg font-black text-white">{s.val}</span>
-                        <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 mt-1">{s.label}</span>
+                        <span className="text-[9px] font-black uppercase tracking-wider text-indigo-400 mt-1">{s.label}</span>
+                        {s.desc && <span className="text-[8px] font-medium text-slate-500 mt-0.5 leading-snug uppercase tracking-tight">{s.desc}</span>}
                       </div>
                     ))}
                   </div>
