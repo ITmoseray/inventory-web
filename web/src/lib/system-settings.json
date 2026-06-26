@@ -1,5 +1,5 @@
 {
-  "registrationOpen": false,
+  "registrationOpen": true,
   "defaultTrialDays": 7,
   "announcementBanner": "System maintenance scheduled for tonight at 23:00",
   "emailAlertsEnabled": true

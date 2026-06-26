@@ -1,0 +1,53 @@
+# Firebase App Hosting configuration file
+# See reference: https://firebase.google.com/docs/app-hosting/configure
+
+# Runtime settings for the Cloud Run service
+runConfig:
+  minInstances: 0
+  maxInstances: 10
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+# Environment variables and secrets
+env:
+  # Database Connection String
+  - variable: DATABASE_URL
+    secret: DATABASE_URL
+    availability:
+      - BUILD
+      - RUNTIME
+
+  # NextAuth Credentials & Settings
+  - variable: AUTH_SECRET
+    secret: AUTH_SECRET
+  - variable: AUTH_TRUST_HOST
+    value: "true"
+  - variable: NEXTAUTH_URL
+    value: "https://protech-website-38a37.web.app" # Default Firebase hosting URL, update in Console if using custom domain
+  - variable: AUTH_URL
+    value: "https://protech-website-38a37.web.app"
+
+  # Google OAuth Credentials (optional, if enabled)
+  - variable: GOOGLE_CLIENT_ID
+    value: "269583033582-98rsiqee5ail5fvcruptn0civqq17e6t.apps.googleusercontent.com"
+  - variable: GOOGLE_CLIENT_SECRET
+    secret: GOOGLE_CLIENT_SECRET
+
+  # Email SMTP Settings for Invoices & Receipts
+  - variable: SMTP_HOST
+    value: "smtp.gmail.com"
+  - variable: SMTP_PORT
+    value: "465"
+  - variable: SMTP_SECURE
+    value: "true"
+  - variable: SMTP_USER
+    value: "protechassist36@gmail.com"
+  - variable: SMTP_PASSWORD
+    secret: SMTP_PASSWORD
+  - variable: SMTP_FROM
+    value: "Protech System <protechassist36@gmail.com>"
+
+  # Gemini API Key for AI Features
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
