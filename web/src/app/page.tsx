@@ -254,29 +254,6 @@ export default function ProtechCloudHomepage() {
           </div>
         </section>
 
-        {/* 2.5. Platform Analytics & Stats */}
-        <section className="py-20 bg-slate-50 dark:bg-slate-950/40 border-y border-slate-200 dark:border-slate-900 relative overflow-hidden">
-          <div className="container px-6 mx-auto relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { value: "450+", label: "Active Enterprise Nodes", desc: "Operational business units across the region" },
-                { value: "Le 2.4B+", label: "Trade Volume Processed", desc: "Monthly transaction velocity mapped" },
-                { value: "99.9%", label: "Uptime SLA Commitment", desc: "Enterprise cloud high-availability hosting" },
-                { value: "15ms", label: "Diagnostic Query Speed", desc: "Real-time inventory ledger updates" }
-              ].map((stat, idx) => (
-                <div key={idx} className="p-8 rounded-2xl bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/20 dark:hover:border-indigo-500/30 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 transition-all duration-300 flex flex-col justify-between h-40">
-                  <div className="text-4xl lg:text-5xl font-black tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-600 dark:from-white dark:via-indigo-200 dark:to-purple-400 bg-clip-text text-transparent">
-                    {stat.value}
-                  </div>
-                  <div className="space-y-1">
-                    <div className="text-[9px] font-black uppercase tracking-[0.25em] text-indigo-600 dark:text-indigo-400">{stat.label}</div>
-                    <div className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-tight leading-normal">{stat.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* 3. Corporate Services: Protech Assist Full Stack */}
         <section id="services" className="py-24 bg-white dark:bg-slate-950/20 relative overflow-hidden">
