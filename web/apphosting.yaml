@@ -24,9 +24,9 @@ env:
   - variable: AUTH_TRUST_HOST
     value: "true"
   - variable: NEXTAUTH_URL
-    value: "https://protech-website-38a37.web.app" # Default Firebase hosting URL, update in Console if using custom domain
+    value: "https://inventory-web--protech-website-38a37.us-east4.hosted.app" # The live URL of the Inventory OS
   - variable: AUTH_URL
-    value: "https://protech-website-38a37.web.app"
+    value: "https://inventory-web--protech-website-38a37.us-east4.hosted.app"
 
   # Google OAuth Credentials (optional, if enabled)
   - variable: GOOGLE_CLIENT_ID
