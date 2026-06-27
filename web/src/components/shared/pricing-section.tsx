@@ -211,7 +211,7 @@ export function PricingSection() {
                       onClick={async () => {
                         if (!session) return router.push('/register');
                         try {
-                          await requestSubscription(plan.name);
+                          await requestSubscription(plan.name, billingPeriod);
                           setSelectedPlan(plan.name);
                         } catch (err: any) {
                           console.error("Subscription error:", err);

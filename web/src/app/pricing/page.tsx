@@ -192,7 +192,7 @@ export default function PricingPage() {
                       )} 
                       onClick={async () => {
                         try {
-                          await requestSubscription(plan.name);
+                          await requestSubscription(plan.name, billingPeriod);
                           setActivePaymentPlan(plan.name);
                         } catch (err) {
                           console.error("Subscription error:", err);

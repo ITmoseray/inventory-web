@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { sendPendingApprovalNotification } from "@/lib/mail";
 
 export async function getSubscription() {
   const session = await auth();
@@ -46,17 +47,30 @@ export async function createSubscription(data: any) {
   return subscription;
 }
 
-export async function requestSubscription(planName: string) {
+export async function requestSubscription(planName: string, billingPeriod: 'monthly' | 'annual' = 'monthly') {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
 
-  await prisma.business.update({
+  const business = await prisma.business.update({
     where: { id: session.user.businessId },
     data: { 
       status: "PENDING",
       plan: planName.toUpperCase() as any,
+      requestedBillingPeriod: billingPeriod,
     },
+    select: { name: true, type: true, email: true, phone: true },
   });
+
+  // Notify Super Admin by email — fire-and-forget
+  sendPendingApprovalNotification({
+    businessName: business.name,
+    businessType: business.type,
+    email: business.email,
+    phone: business.phone,
+    plan: planName.toUpperCase(),
+    billingPeriod,
+    reason: 'SUBSCRIPTION_REQUEST',
+  }).catch(console.error);
 
   revalidatePath("/");
   revalidatePath("/dashboard");

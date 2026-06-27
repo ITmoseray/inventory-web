@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   ShieldCheck, ArrowLeft, RefreshCw, CheckCircle, 
-  Calendar, Zap, AlertTriangle, User, Briefcase, ShoppingCart
+  Calendar, Zap, AlertTriangle, User, Briefcase, ShoppingCart, Clock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -15,6 +15,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { 
   getPendingTrialApprovals, 
@@ -29,6 +38,14 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function PendingApprovals() {
   const [pending, setPending] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Approval Custom Modal states
+  const [approvalModalOpen, setApprovalModalOpen] = useState(false);
+  const [selectedBusiness, setSelectedBusiness] = useState<any>(null);
+  const [selectedPlan, setSelectedPlan] = useState("BASIC");
+  const [expiryPreset, setExpiryPreset] = useState("1month");
+  const [customExpiryDate, setCustomExpiryDate] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     fetchPending();
@@ -46,13 +63,61 @@ export default function PendingApprovals() {
     }
   }
 
-  async function handleApprove(id: string) {
+  function openApprovalModal(business: any) {
+    setSelectedBusiness(business);
+    setSelectedPlan(business.plan || "BASIC");
+
+    // Auto-select expiry preset based on what the user requested
+    const billing = business.requestedBillingPeriod || 'monthly';
+    setExpiryPreset(billing === 'annual' ? '1year' : '1month');
+    
+    // Set default custom date based on billing period
+    const defaultExpiry = new Date();
+    if (billing === 'annual') {
+      defaultExpiry.setFullYear(defaultExpiry.getFullYear() + 1);
+    } else {
+      defaultExpiry.setMonth(defaultExpiry.getMonth() + 1);
+    }
+    setCustomExpiryDate(defaultExpiry.toISOString().split("T")[0]);
+    
+    setApprovalModalOpen(true);
+  }
+
+  async function handleConfirmApprove() {
+    if (!selectedBusiness) return;
     try {
-      await approveBusiness(id);
-      toast.success("Business approved and activated.");
+      setSubmitting(true);
+      
+      const now = new Date();
+      let expiryDate = new Date();
+
+      if (expiryPreset === "7days") {
+        expiryDate.setDate(now.getDate() + 7);
+      } else if (expiryPreset === "1month") {
+        expiryDate.setMonth(now.getMonth() + 1);
+      } else if (expiryPreset === "3months") {
+        expiryDate.setMonth(now.getMonth() + 3);
+      } else if (expiryPreset === "6months") {
+        expiryDate.setMonth(now.getMonth() + 6);
+      } else if (expiryPreset === "1year") {
+        expiryDate.setFullYear(now.getFullYear() + 1);
+      } else if (expiryPreset === "custom") {
+        if (!customExpiryDate) {
+          toast.error("Please pick a custom expiration date.");
+          setSubmitting(false);
+          return;
+        }
+        expiryDate = new Date(customExpiryDate);
+      }
+
+      await approveBusiness(selectedBusiness.id, expiryDate.toISOString(), selectedPlan);
+      toast.success("Business approved and subscription set.");
+      setApprovalModalOpen(false);
       fetchPending();
     } catch (error) {
       toast.error("Approval failed.");
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -126,6 +191,11 @@ export default function PendingApprovals() {
                           <div className="flex flex-col">
                             <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight">{b.name}</span>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{b.type} • {b.currency}</span>
+                            {(b.email || b.phone) && (
+                              <span className="text-[9px] font-bold text-slate-400 dark:text-slate-550 mt-1">
+                                {b.email} {b.phone ? `| ${b.phone}` : ''}
+                              </span>
+                            )}
                           </div>
                         </div>
                       </TableCell>
@@ -142,9 +212,31 @@ export default function PendingApprovals() {
                                <span className="text-[10px] font-black uppercase tracking-widest">Trial Expired</span>
                             </div>
                           )}
+                          
+                          {/* Selected/Requested Plan */}
+                          <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                            <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-indigo-500/10 dark:bg-indigo-400/5 text-indigo-650 dark:text-indigo-400 text-[9px] font-black uppercase tracking-wider w-fit border border-indigo-500/10">
+                              Requested: {b.plan}
+                            </div>
+                            <div className={cn(
+                              "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider w-fit border",
+                              b.requestedBillingPeriod === 'annual'
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/10"
+                                : "bg-slate-100 dark:bg-slate-800 text-slate-500 border-slate-200 dark:border-slate-700"
+                            )}>
+                              {b.requestedBillingPeriod === 'annual' ? '⚡ Annual' : 'Monthly'}
+                            </div>
+                          </div>
+
                           <div className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">
                             {b.trialEndDate ? `Ended ${format(new Date(b.trialEndDate), "dd MMM yyyy")}` : `Created ${format(new Date(b.createdAt), "dd MMM yyyy")}`}
                           </div>
+
+                          {b.registrationReceipt && (
+                            <div className="text-[8px] font-mono text-slate-400 dark:text-slate-500 truncate max-w-[200px]" title={b.registrationReceipt}>
+                              Ref: {b.registrationReceipt}
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
@@ -174,7 +266,7 @@ export default function PendingApprovals() {
                               </Button>
                            )}
                            <Button 
-                             onClick={() => handleApprove(b.id)}
+                             onClick={() => openApprovalModal(b)}
                              className="h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 transition-all"
                            >
                              <CheckCircle className="h-3 w-3 mr-2" /> Activate Node
@@ -189,6 +281,133 @@ export default function PendingApprovals() {
           </div>
         </GlassCard>
       </div>
+
+      {/* Expiry & Plan Approval Modal */}
+      <Dialog open={approvalModalOpen} onOpenChange={setApprovalModalOpen}>
+        <DialogContent className="sm:max-w-[480px] bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-2xl overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
+          
+          <DialogHeader className="mb-6">
+            <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4">
+              <Clock className="h-6 w-6 animate-pulse" />
+            </div>
+            <DialogTitle className="text-2xl font-[1000] tracking-tight text-slate-900 dark:text-white uppercase italic leading-tight">
+              Approve & Set <span className="text-indigo-650 dark:text-indigo-400">Subscription</span>
+            </DialogTitle>
+            <DialogDescription className="text-slate-500 dark:text-slate-400 font-medium text-xs mt-2 leading-relaxed">
+              Configure the license plan and choose when the subscription should expire for <span className="font-bold text-slate-800 dark:text-slate-200">{selectedBusiness?.name}</span>.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Summary of Requested Plan & Business Details */}
+            <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-500/10 space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-bold text-slate-500 uppercase text-[9px] tracking-wider">Requested Plan</span>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded-full bg-indigo-600 text-white font-black uppercase text-[8px] tracking-widest">{selectedBusiness?.plan}</span>
+                  <span className={cn(
+                    "px-2.5 py-0.5 rounded-full font-black uppercase text-[8px] tracking-widest",
+                    selectedBusiness?.requestedBillingPeriod === 'annual'
+                      ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                  )}>
+                    {selectedBusiness?.requestedBillingPeriod === 'annual' ? '⚡ Annual Billing' : 'Monthly Billing'}
+                  </span>
+                </div>
+              </div>
+              {selectedBusiness?.email && (
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-500 uppercase text-[9px] tracking-wider">Email</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{selectedBusiness.email}</span>
+                </div>
+              )}
+              {selectedBusiness?.phone && (
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-500 uppercase text-[9px] tracking-wider">Phone</span>
+                  <span className="font-bold text-slate-800 dark:text-slate-200">{selectedBusiness.phone}</span>
+                </div>
+              )}
+              {selectedBusiness?.registrationReceipt && (
+                <div className="flex flex-col gap-1 pt-1.5 border-t border-indigo-100/30">
+                  <span className="font-bold text-slate-500 uppercase text-[8px] tracking-wider">Payment Ref / Registration Info</span>
+                  <span className="font-mono text-[9px] text-slate-600 dark:text-slate-400 break-all bg-slate-100/50 dark:bg-black/25 p-2 rounded-lg">{selectedBusiness.registrationReceipt}</span>
+                </div>
+              )}
+              {selectedBusiness?.requestedBillingPeriod === 'annual' && (
+                <div className="mt-2 pt-2 border-t border-emerald-500/10 flex items-center gap-2 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  <span>⚡</span>
+                  <span>Annual plan selected — subscription duration auto-set to 1 Year</span>
+                </div>
+              )}
+            </div>
+            {/* Plan Selector */}
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subscription Plan</Label>
+              <select
+                value={selectedPlan}
+                onChange={(e) => setSelectedPlan(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="BASIC">BASIC</option>
+                <option value="STANDARD">STANDARD</option>
+                <option value="BUSINESS">BUSINESS</option>
+                <option value="ENTERPRISE">ENTERPRISE</option>
+              </select>
+            </div>
+
+            {/* Expiration Preset Selector */}
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subscription Duration</Label>
+              <select
+                value={expiryPreset}
+                onChange={(e) => setExpiryPreset(e.target.value)}
+                className="w-full h-12 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-900 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              >
+                <option value="7days">7 Days (Standard Trial)</option>
+                <option value="1month">1 Month</option>
+                <option value="3months">3 Months</option>
+                <option value="6months">6 Months</option>
+                <option value="1year">1 Year (Annual)</option>
+                <option value="custom">Custom Date</option>
+              </select>
+            </div>
+
+            {/* Custom Expiry Date Input (conditional) */}
+            {expiryPreset === "custom" && (
+              <div className="space-y-2 animate-[fadeIn_0.2s_ease-out]">
+                <Label htmlFor="customDate" className="text-[10px] font-black uppercase tracking-wider text-slate-400">Pick Expiration Date</Label>
+                <Input
+                  id="customDate"
+                  type="date"
+                  value={customExpiryDate}
+                  onChange={(e) => setCustomExpiryDate(e.target.value)}
+                  className="h-12 bg-slate-100 dark:bg-slate-800 rounded-xl border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-indigo-500/20 font-bold"
+                />
+              </div>
+            )}
+
+            {/* Footer Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <Button
+                onClick={handleConfirmApprove}
+                disabled={submitting}
+                className="flex-1 h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-[10px] shadow-xl shadow-indigo-600/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+              >
+                {submitting ? "Activating..." : "Approve and Activate"}
+              </Button>
+              <Button
+                variant="outline"
+                disabled={submitting}
+                onClick={() => setApprovalModalOpen(false)}
+                className="h-14 rounded-2xl border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-white/5 text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest text-[10px] transition-all"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

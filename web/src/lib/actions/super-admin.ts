@@ -57,19 +57,27 @@ export async function updateBusinessPlan(businessId: string, plan: any) {
   revalidatePath("/super-admin/businesses");
 }
 
-export async function approveBusiness(businessId: string) {
+export async function approveBusiness(businessId: string, customExpiryDate?: string, plan?: string) {
   await checkSuperAdmin();
   const business = await prisma.business.findUnique({
     where: { id: businessId },
-    select: { name: true, trialEndDate: true }
+    select: { name: true, trialEndDate: true, plan: true }
   });
 
-  const now = new Date();
   const data: any = { status: "ACTIVE" };
 
-  // If trial is expired, give them a fresh 7 days upon approval
-  if (business?.trialEndDate && business.trialEndDate < now) {
-    data.trialEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  if (plan) {
+    data.plan = plan;
+  }
+
+  if (customExpiryDate) {
+    data.trialEndDate = new Date(customExpiryDate);
+  } else {
+    const now = new Date();
+    // If trial is expired, give them a fresh 7 days upon approval
+    if (business?.trialEndDate && business.trialEndDate < now) {
+      data.trialEndDate = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    }
   }
 
   await prisma.business.update({
@@ -78,7 +86,7 @@ export async function approveBusiness(businessId: string) {
   });
 
   await logAudit({
-    action: `APPROVED BUSINESS NODE: ${business?.name || businessId}`,
+    action: `APPROVED BUSINESS NODE: ${business?.name || businessId}${plan ? ` (Plan: ${plan})` : ''}${customExpiryDate ? ` (Expires: ${customExpiryDate})` : ''}`,
     entity: "BUSINESS",
     entityId: businessId,
   });
@@ -277,7 +285,8 @@ export async function getPendingTrialApprovals() {
     createdAt: b.createdAt.toISOString(),
     updatedAt: b.updatedAt.toISOString(),
     trialEndDate: b.trialEndDate?.toISOString() || null,
-    isExpired: b.trialEndDate ? new Date(b.trialEndDate) < now : false
+    isExpired: b.trialEndDate ? new Date(b.trialEndDate) < now : false,
+    requestedBillingPeriod: b.requestedBillingPeriod || 'monthly',
   }));
 }
 

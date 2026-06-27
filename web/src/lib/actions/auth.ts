@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
 import { BusinessType } from "@prisma/client";
-import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
+import { generateVerificationToken, sendVerificationEmail, sendPendingApprovalNotification } from "@/lib/mail";
 import { getSystemSettings } from "@/lib/actions/system-settings";
 
 export async function registerBusiness(data: any) {
@@ -95,6 +95,17 @@ export async function registerBusiness(data: any) {
 
   // Send verification email outside the transaction
   await sendVerificationEmail(email, verificationToken);
+
+  // Notify Super Admin — fire-and-forget, never blocks registration
+  sendPendingApprovalNotification({
+    businessName: result.business.name,
+    businessType: result.business.type,
+    email: email,
+    phone: data.phone || null,
+    plan: data.plan || 'FREE',
+    billingPeriod: 'monthly',
+    reason: 'NEW_REGISTRATION',
+  }).catch(console.error);
 
   return result;
 }
