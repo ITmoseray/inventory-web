@@ -1,18 +1,8 @@
-import {
-  LayoutDashboard,
-  Package,
-  ShoppingCart,
-  Users,
-  BarChart3,
-  Settings,
-  Beer,
-  Clock,
-  ClipboardList,
-  CalendarCheck,
-  Wallet,
-  UserCheck,
-  FileText,
-  MessageSquare
+import { 
+  LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
+  Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
+  CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
+  Beer, CalendarCheck, MessageSquare, GlassWater, ChefHat, ReceiptText
 } from "lucide-react";
 
 export const barSidebarConfig = [
@@ -20,83 +10,140 @@ export const barSidebarConfig = [
     label: "Intelligence",
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck, permission: "menu:intelligence:hub" },
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
-      { title: "Today's Sales", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:sales" },
-      { title: "Revenue Summary", url: "/dashboard/analytics", icon: Wallet, permission: "menu:intelligence:analytics" },
-      { title: "Low Stock Alerts", url: "/dashboard/inventory/batches", icon: ClipboardList, permission: "menu:inventory" },
+      { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon, permission: "menu:intelligence:analytics" },
+      { title: "Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },
     ]
   },
   {
     label: "Bar Operations",
     items: [
-      { title: "POS", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" },
-      { title: "Open Tabs", url: "/dashboard/sales/orders", icon: ClipboardList, permission: "menu:bar:tabs" },
-      { title: "Table Management", url: "/dashboard/restaurant/tables", icon: LayoutDashboard, permission: "menu:bar:tables" },
-      { title: "Reservations", url: "/dashboard/customers", icon: CalendarCheck, permission: "menu:bar:reservations" },
-      { title: "Happy Hour", url: "/dashboard/pos", icon: Beer, permission: "menu:bar:happy-hour" },
-      { title: "Bar Orders", url: "/dashboard/sales/orders", icon: ShoppingCart, permission: "menu:bar:orders" },
+      {
+        title: "Sales",
+        url: "/dashboard/sales",
+        icon: ShoppingCart,
+        permission: "menu:sales",
+        items: [
+          { title: "Launch POS", url: "/dashboard/pos" },
+          { title: "Open Tabs", url: "/dashboard/sales/orders" },
+          { title: "Sales History", url: "/dashboard/sales/history" },
+          { title: "Credit Sales", url: "/dashboard/customers/debts" },
+          { title: "Returns", url: "/dashboard/sales/returns" },
+        ],
+      },
+      {
+        title: "Bar Management",
+        url: "/dashboard/restaurant",
+        icon: Beer,
+        permission: "menu:bar:tables",
+        items: [
+          { title: "Table Management", url: "/dashboard/restaurant/tables" },
+          { title: "Reservations", url: "/dashboard/customers" },
+          { title: "Happy Hour", url: "/dashboard/pos" },
+        ],
+      },
     ]
   },
   {
-    label: "Inventory",
+    label: "Supply Chain",
     items: [
-      { title: "Drinks", url: "/dashboard/inventory/products", icon: Package, permission: "menu:inventory" },
-      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" },
-      { title: "Suppliers", url: "/dashboard/purchases/suppliers", icon: Users, permission: "menu:purchases:suppliers" },
-      { title: "Purchases", url: "/dashboard/purchases", icon: Package, permission: "menu:purchases" },
-      { title: "Stock Levels", url: "/dashboard/inventory/batches", icon: Package, permission: "menu:inventory" },
-      { title: "Stock Adjustments", url: "/dashboard/inventory/history", icon: Package, permission: "menu:inventory:adjustments" },
-      { title: "Expiry Tracking", url: "/dashboard/inventory/expiry", icon: Package, permission: "menu:inventory:expiry" },
+      {
+        title: "Inventory",
+        url: "/dashboard/inventory",
+        icon: Package,
+        permission: "menu:inventory",
+        items: [
+          { title: "Drinks & Products", url: "/dashboard/inventory/products" },
+          { title: "Categories", url: "/dashboard/inventory/categories" },
+          { title: "Inventory Adjustments", url: "/dashboard/inventory/adjustments" },
+          { title: "Stock Levels", url: "/dashboard/inventory/batches" },
+          { title: "Stock History", url: "/dashboard/inventory/history" },
+          { title: "Expiry Tracking", url: "/dashboard/inventory/expiry" },
+          { title: "Network Exchange", url: "/dashboard/inventory/network" },
+        ],
+      },
+      {
+        title: "Purchases",
+        url: "/dashboard/purchases",
+        icon: Truck,
+        permission: "menu:purchases",
+        items: [
+          { title: "Suppliers", url: "/dashboard/purchases/suppliers" },
+          { title: "Purchase Orders", url: "/dashboard/purchases" },
+          { title: "Returns", url: "/dashboard/purchases/returns" },
+        ],
+      },
     ]
   },
   {
-    label: "Sales",
+    label: "Relationships",
     items: [
-      { title: "Sales History", url: "/dashboard/sales/history", icon: FileText, permission: "menu:sales:history" },
-      { title: "Credit Sales", url: "/dashboard/customers/debts", icon: Wallet, permission: "menu:sales:credit" },
-      { title: "Returns", url: "/dashboard/purchases/returns", icon: ShoppingCart, permission: "menu:sales:returns" },
-      { title: "Receipts", url: "/dashboard/sales/orders", icon: FileText, permission: "menu:sales:receipts" },
-    ]
-  },
-  {
-    label: "Customers",
-    items: [
-      { title: "Customer Registry", url: "/dashboard/customers", icon: Users, permission: "menu:customers" },
-      { title: "Loyalty Program", url: "/dashboard/customers/loyalty", icon: Users, permission: "menu:customers:loyalty" },
-      { title: "VIP Customers", url: "/dashboard/customers/profiles", icon: Users, permission: "menu:customers:vip" },
+      {
+        title: "Customers / CRM",
+        url: "/dashboard/customers",
+        icon: Users,
+        permission: "menu:customers",
+        items: [
+          { title: "Customer Registry", url: "/dashboard/customers" },
+          { title: "Loyalty Program", url: "/dashboard/customers/loyalty" },
+          { title: "VIP Customers", url: "/dashboard/customers/profiles" },
+        ],
+      },
     ]
   },
   {
     label: "Finance",
     items: [
-      { title: "Expenses", url: "/dashboard/accounting/expenses", icon: Wallet, permission: "menu:accounting:expenses" },
-      { title: "Cash Flow", url: "/dashboard/accounting/cashflow", icon: Wallet, permission: "menu:accounting:cashflow" },
-      { title: "Profit & Loss", url: "/dashboard/accounting/pl", icon: BarChart3, permission: "menu:accounting:pl" },
-      { title: "Daily Reconciliation", url: "/dashboard/accounting", icon: Wallet, permission: "menu:accounting:reconciliation" },
+      {
+        title: "Accounting",
+        url: "/dashboard/accounting",
+        icon: Wallet,
+        permission: "menu:accounting",
+        items: [
+          { title: "Expenses", url: "/dashboard/accounting/expenses" },
+          { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
+          { title: "Cash Flow", url: "/dashboard/accounting/cashflow" },
+          { title: "Daily Reconciliation", url: "/dashboard/accounting" },
+        ],
+      },
+      { title: "Billing", url: "/dashboard/billing", icon: CreditCard, permission: "menu:accounting:billing" },
     ]
   },
   {
-    label: "Staff",
+    label: "Administrative",
     items: [
-      { title: "Employees", url: "/dashboard/staff/employees", icon: Users, permission: "menu:staff" },
-      { title: "Shifts", url: "/dashboard/staff/attendance", icon: Clock, permission: "menu:staff:shifts" },
-      { title: "Attendance", url: "/dashboard/staff/attendance", icon: UserCheck, permission: "menu:staff:attendance" },
+      {
+        title: "Team / HR",
+        url: "/dashboard/staff",
+        icon: UserCheck,
+        permission: "menu:staff",
+        items: [
+          { title: "Employees", url: "/dashboard/staff/employees" },
+          { title: "Shifts", url: "/dashboard/staff/attendance" },
+          { title: "Attendance", url: "/dashboard/staff/attendance" },
+          { title: "Payroll", url: "/dashboard/staff/payroll" },
+        ],
+      },
+      {
+        title: "System",
+        url: "/dashboard/system",
+        icon: Settings,
+        permission: "menu:system",
+        items: [
+          { title: "Audit Logs", url: "/dashboard/system/logs" },
+          { title: "Notifications", url: "/dashboard/system/notifications" },
+          { title: "Settings", url: "/dashboard/system/settings" },
+          { title: "Users & Permissions", url: "/dashboard/staff/roles" },
+        ],
+      },
     ]
   },
   {
-    label: "Reports",
+    label: "Support",
     items: [
-      { title: "Sales Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },
-      { title: "Inventory Reports", url: "/dashboard/reports", icon: Package, permission: "menu:intelligence:reports" },
-      { title: "Profit Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },
-    ]
-  },
-  {
-    label: "Settings",
-    items: [
-      { title: "Business Settings", url: "/dashboard/system/settings", icon: Settings, permission: "menu:system:settings" },
-      { title: "Users & Permissions", url: "/dashboard/staff/roles", icon: Users, permission: "menu:system:permissions" },
-      { title: "Integrations", url: "/dashboard/system", icon: Settings, permission: "menu:system:integrations" },
+      { title: "System Manual", url: "/dashboard/manual", icon: Book, permission: "menu:support:manual" },
+      { title: "Pricing Plans", url: "/pricing", icon: DollarSign, permission: "menu:support:pricing" },
     ]
   }
 ];

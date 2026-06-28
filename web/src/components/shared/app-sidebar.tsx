@@ -137,12 +137,12 @@ const SidebarContentRenderer = ({
         
         <div className={cn("mt-8 mb-6 px-2 transition-all duration-300", isCollapsed ? "opacity-0 hidden" : "opacity-100")}>
            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em]">Context</div>
+              <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Context</div>
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
            </div>
-           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-inner group cursor-pointer transition-all hover:border-primary/20 flex items-center gap-3">
+           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/50 shadow-inner group cursor-pointer transition-all hover:border-primary/20 dark:hover:border-primary/30 flex items-center gap-3">
               {businessContext.logoUrl && (
-                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 flex-shrink-0">
+                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 flex-shrink-0">
                   <Image 
                     src={businessContext.logoUrl} 
                     alt="Logo" 
@@ -154,7 +154,7 @@ const SidebarContentRenderer = ({
               )}
               <div className="flex-1 min-w-0">
                 <span className="text-xs font-black text-slate-900 dark:text-white truncate block group-hover:text-primary transition-colors">{businessContext.name}</span>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
+                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
               </div>
            </div>
         </div>
@@ -225,9 +225,9 @@ const SidebarContentRenderer = ({
                               transition={{ duration: 0.3, ease: "easeInOut" }}
                               className="overflow-hidden"
                             >
-                              <div className="pl-9 pr-2 py-1 space-y-1 border-l border-slate-100 dark:border-slate-800 ml-6">
+                              <div className="pl-9 pr-2 py-1 space-y-1 border-l border-slate-100 dark:border-slate-700/50 ml-6">
                                 {item.items?.map((subItem) => {
-                                  const isSubActive = pathname === subItem.url;
+                                  const isSubActive = pathname === subItem.url || pathname.startsWith(subItem.url + "/");
                                   return (
                                     <Link 
                                       key={subItem.title} 
@@ -236,8 +236,8 @@ const SidebarContentRenderer = ({
                                       className={cn(
                                         "block px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
                                         isSubActive 
-                                          ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/30" 
-                                          : "text-slate-400 hover:text-slate-900 dark:text-white dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900"
+                                          ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-500/15 dark:text-indigo-400" 
+                                          : "text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60"
                                       )}
                                     >
                                       {subItem.title}
@@ -258,7 +258,7 @@ const SidebarContentRenderer = ({
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-slate-100 dark:border-slate-800">
+      <SidebarFooter className="p-4 border-t border-slate-100 dark:border-slate-700/50">
         <SidebarMenu>
           <SidebarMenuItem id="user-profile">
             <DropdownMenu>
@@ -421,7 +421,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-white dark:bg-slate-950 border-r-0 shadow-2xl">
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-white dark:bg-[hsl(0,0%,4%)] border-r-0 dark:border-r dark:border-slate-700/50 shadow-2xl">
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
@@ -433,7 +433,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </Sheet>
 
       {/* Desktop/Tablet Sidebar */}
-      <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm hidden md:flex" {...props}>
+      <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-700/50 shadow-sm hidden md:flex bg-white dark:bg-[hsl(0,0%,4%)]" {...props}>
           <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
           <SidebarRail />
       </Sidebar>
