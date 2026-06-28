@@ -173,3 +173,22 @@ export async function deleteNotification(id: string) {
     throw error;
   }
 }
+
+export async function deleteAllNotifications() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+    const businessId = session.user.businessId;
+
+    await globalPrisma.$executeRawUnsafe(`
+      UPDATE "Notification" SET "deletedAt" = NOW()
+      WHERE "businessId" = $1 AND "deletedAt" IS NULL
+    `, businessId);
+
+    revalidatePath("/dashboard/system/notifications");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to clear all alert nodes:", error);
+    throw error;
+  }
+}

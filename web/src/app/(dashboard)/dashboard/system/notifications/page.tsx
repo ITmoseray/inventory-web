@@ -21,7 +21,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getNotifications, markAsRead, markAllAsRead, deleteNotification } from "@/lib/actions/notification";
+import { getNotifications, markAsRead, markAllAsRead, deleteNotification, deleteAllNotifications } from "@/lib/actions/notification";
 import { format } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -117,6 +117,16 @@ export default function NotificationsPage() {
     }
   }
 
+  async function handleClearAll() {
+    try {
+      await deleteAllNotifications();
+      setNotifications([]);
+      toast.success("All notifications cleared.");
+    } catch (error) {
+      toast.error("Failed to clear notifications.");
+    }
+  }
+
   const filteredNotifs = notifications.filter(n => 
     n.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     n.message.toLowerCase().includes(searchQuery.toLowerCase())
@@ -156,6 +166,9 @@ export default function NotificationsPage() {
             )}
             <Button variant="outline" onClick={handleMarkAllRead} className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2">
                <Check className="h-4 w-4" /> Mark All Read
+            </Button>
+            <Button variant="outline" onClick={handleClearAll} className="flex-1 md:flex-none h-12 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 font-bold uppercase text-[10px] tracking-widest gap-2">
+               <Trash2 className="h-4 w-4" /> Clear All
             </Button>
             <Button onClick={fetchData} variant="outline" className="h-12 w-12 rounded-xl border-slate-200 flex items-center justify-center">
                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
