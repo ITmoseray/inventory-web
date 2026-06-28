@@ -159,42 +159,42 @@ export default function CategoriesPage() {
           }
         }}>
           <DialogTrigger render={
-            <Button className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-primary hover:scale-[1.02] transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/10">
+            <Button className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 hover:scale-[1.02] transition-all font-black text-[10px] uppercase tracking-[0.2em] shadow-xl shadow-primary/10">
               <Plus className="h-4 w-4 mr-2" /> Add Category
             </Button>
           } />
-          <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
-            <div className="bg-slate-900 p-8 text-white shrink-0">
+          <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-900">
+            <div className="bg-slate-900 dark:bg-slate-950 p-8 text-white shrink-0">
                <h3 className="text-2xl font-black uppercase tracking-tight">{editingCategory ? "Edit Category" : "Add New Category"}</h3>
                <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Category Details</p>
             </div>
-            <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white">
+            <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white dark:bg-slate-900">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category Name</Label>
+                <Label htmlFor="name" className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Category Name</Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g. Electronics, Groceries"
-                  className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white font-black text-sm uppercase tracking-widest shadow-inner"
+                  className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 focus:bg-white dark:focus:bg-slate-800 font-black text-sm uppercase tracking-widest shadow-inner dark:text-white dark:placeholder:text-slate-600"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Description</Label>
+                <Label htmlFor="description" className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Description</Label>
                 <Input
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Optional description of the category"
-                  className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:bg-white font-bold"
+                  className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 focus:bg-white dark:focus:bg-slate-800 font-bold dark:text-white dark:placeholder:text-slate-600"
                 />
               </div>
               <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4">
-                <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400" onClick={() => setIsDialogOpen(false)}>
+                <Button type="button" variant="ghost" className="h-12 px-6 rounded-xl font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500" onClick={() => setIsDialogOpen(false)}>
                   Cancel
                 </Button>
-                <Button type="submit" className="h-14 px-10 bg-slate-900 text-white rounded-2xl font-[1000] text-[10px] uppercase tracking-[0.25em] shadow-2xl transition-all hover:scale-[1.02]">
+                <Button type="submit" className="h-14 px-10 bg-slate-900 dark:bg-slate-50 text-white dark:text-slate-900 rounded-2xl font-[1000] text-[10px] uppercase tracking-[0.25em] shadow-2xl transition-all hover:scale-[1.02]">
                   {editingCategory ? "Save Changes" : "Save"}
                 </Button>
               </div>

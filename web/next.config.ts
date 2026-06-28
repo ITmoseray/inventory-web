@@ -36,9 +36,10 @@ const config: NextConfig = {
 
 const nextConfig = withPWA({
   dest: "public",
-  disable: true, // Temporarily disabled for testing
+  disable: false,
   register: true,
   skipWaiting: true,
+  importScripts: ["/custom-sw.js"]
 })(config);
 
 export default nextConfig;

@@ -1,4 +1,4 @@
-import NextAuth, { type DefaultSession } from "next-auth";
+import NextAuth, { type DefaultSession, CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +8,13 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { authConfig } from "../auth.config";
 import { getSystemSettings } from "@/lib/actions/system-settings";
+
+class CustomAuthError extends CredentialsSignin {
+  constructor(code: string) {
+    super();
+    this.code = code;
+  }
+}
 
 declare module "next-auth" {
   interface Session {
@@ -42,6 +49,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     CredentialsProvider({
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" }
+      },
       async authorize(credentials) {
         console.log("SERVER AUTH: Authorize Attempt", { email: credentials?.email });
         const parsedCredentials = z
@@ -67,18 +78,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             
             if (!user) {
               console.warn("SERVER AUTH: User not found", { email });
-              throw new Error("Invalid email, username or password.");
+              throw new CustomAuthError("Invalid email, username or password.");
             }
 
             const passwordMatch = await bcrypt.compare(password, user.passwordHash);
             if (!passwordMatch) {
               console.warn("SERVER AUTH: Password mismatch", { email });
-              throw new Error("Invalid email, username or password.");
+              throw new CustomAuthError("Invalid email, username or password.");
             }
 
             if (user.status !== 'active') {
               console.warn("SERVER AUTH: Account inactive", { email });
-              throw new Error("Your account is not active. Please contact the administrator.");
+              throw new CustomAuthError("Your account is not active. Please contact the administrator.");
             }
 
             console.log("SERVER AUTH: Authorization Success", { email, role: user.role.name });
@@ -119,15 +130,51 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             console.log(`Google Auth: User ${user.email} not found in DB. Creating new business and user account.`);
             
             const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
-            const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7 }));
+            const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7, registrationOpen: true }));
+            
+            if (settings.registrationOpen === false) {
+              console.warn(`Google Auth: Registration is closed, rejecting new user ${user.email}`);
+              return false;
+            }
+            
             const trialEndDate = new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000);
+            let businessData = {
+              name: `${user.name || "Google User"}'s Enterprise`,
+              type: "SHOP" as any,
+              currency: "SLL",
+              timezone: "UTC",
+              address: null as string | null,
+              logoUrl: null as string | null,
+              phone: null as string | null,
+            };
+
+            try {
+              const regCookie = (await cookies()).get("registrationData")?.value;
+              if (regCookie) {
+                const regData = JSON.parse(decodeURIComponent(regCookie));
+                if (regData.businessName) businessData.name = regData.businessName;
+                if (regData.businessType) businessData.type = regData.businessType;
+                if (regData.currency) businessData.currency = regData.currency;
+                if (regData.timezone) businessData.timezone = regData.timezone;
+                if (regData.address) businessData.address = regData.address;
+                if (regData.logoUrl) businessData.logoUrl = regData.logoUrl;
+                if (regData.phone) businessData.phone = regData.phone;
+              }
+            } catch (e) {
+              console.error("Failed to parse registration cookie", e);
+            }
             
             await prisma.$transaction(async (tx) => {
               const business = await tx.business.create({
                 data: {
-                  name: `${user.name || "Google User"}'s Enterprise`,
-                  slug: `${(user.name || "google-user").toLowerCase().replace(/ /g, "-")}-${Math.random().toString(36).substring(7)}`,
-                  type: "SHOP",
+                  name: businessData.name,
+                  slug: `${businessData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.random().toString(36).substring(7)}`,
+                  type: businessData.type,
+                  currency: businessData.currency,
+                  timezone: businessData.timezone,
+                  address: businessData.address,
+                  logoUrl: businessData.logoUrl,
+                  phone: businessData.phone,
                   plan: "FREE",
                   status: "ACTIVE",
                   enabledModules: ["POS", "INVENTORY"],
@@ -169,6 +216,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
             console.log(`Google Auth: Successfully created business and user for ${user.email}`);
           } else {
+            if (dbUser.status !== 'active') {
+              console.warn("Google Auth: Account inactive", { email: user.email });
+              return false;
+            }
             finalUserId = dbUser.id;
             finalBusinessId = dbUser.businessId;
           }
@@ -202,6 +253,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       if (token.sub && session.user) session.user.id = token.sub as string;
       if (token.businessId && session.user) session.user.businessId = token.businessId as string;
+      if (token.businessName && session.user) session.user.businessName = token.businessName as string;
       if (token.role && session.user) session.user.role = token.role as string;
       if (token.businessType && session.user) session.user.businessType = token.businessType as string;
       if (token.trialEndDate && session.user) session.user.trialEndDate = token.trialEndDate as Date;
@@ -220,6 +272,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // 1. Basic population from login
       if (user) {
         token.businessId = (user as any).businessId;
+        token.businessName = (user as any).businessName;
         token.role = (user as any).role;
         token.businessType = (user as any).businessType;
         token.trialEndDate = (user as any).trialEndDate;
@@ -248,6 +301,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.role = dbUser.role.name;
             token.permissions = dbUser.role.permissions.map(p => p.key);
             token.businessType = dbUser.business.type;
+            token.businessName = dbUser.business.name;
             token.businessId = dbUser.businessId;
             token.trialEndDate = dbUser.business.trialEndDate;
             console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);

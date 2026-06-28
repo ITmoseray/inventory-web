@@ -104,6 +104,8 @@ export default function LoginPage() {
             },
             duration: 10000,
           });
+        } else if (result.error === "CredentialsSignin" || result.error.includes("CredentialsSignin")) {
+          toast.error("Invalid email, username or password.");
         } else {
           toast.error(result?.error || "Invalid credentials, please check your email and password.");
         }
@@ -360,7 +362,7 @@ export default function LoginPage() {
              
              <div className="flex gap-4 w-full">
                 <Button 
-                  onClick={() => signIn("google")}
+                  onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
                   variant="outline" 
                   className="flex-1 h-12 rounded-xl border-slate-100 text-[10px] font-black uppercase tracking-widest flex gap-2"
                 >

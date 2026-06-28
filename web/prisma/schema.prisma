@@ -53,6 +53,7 @@ model Business {
   subscriptions       Subscription[]
   suppliers           Supplier[]
   users               User[]
+  pushSubscriptions   PushSubscription[]
 
   @@index([slug])
 }
@@ -580,4 +581,17 @@ enum SubscriptionPlan {
   STANDARD
   BUSINESS
   ENTERPRISE
+}
+
+model PushSubscription {
+  id         String   @id @default(cuid())
+  endpoint   String   @unique
+  keysAuth   String
+  keysP256dh String
+  businessId String
+  userId     String?
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
 }

@@ -448,7 +448,7 @@ export default function POSPage() {
                 onClick={() => setSelectedCategory(null)}
                 className={cn(
                   "h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest shrink-0 transition-all gap-2", 
-                  selectedCategory === null ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl" : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                   selectedCategory === null ? "bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-xl" : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                 )}
               >
                 <LayoutGrid size={16} /> All Channels
@@ -460,7 +460,7 @@ export default function POSPage() {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={cn(
                     "h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest shrink-0 transition-all", 
-                    selectedCategory === cat.id ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl" : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
+                     selectedCategory === cat.id ? "bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-xl" : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
                   )}
                 >
                   {cat.name}
@@ -512,7 +512,7 @@ export default function POSPage() {
                    <Receipt className="h-7 w-7" />
                  </div>
                  {cart.length > 0 && (
-                   <span className="absolute -top-2 -right-2 h-7 w-7 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[11px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-lg">
+                   <span className="absolute -top-2 -right-2 h-7 w-7 rounded-xl bg-slate-900 dark:bg-indigo-600 text-white dark:text-white text-[11px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-lg">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                    </span>
                  )}
@@ -663,7 +663,7 @@ export default function POSPage() {
            <Button 
               onClick={() => setIsCheckoutOpen(true)}
               disabled={cart.length === 0}
-              className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+               className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-indigo-600 dark:text-white font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
            >
               Proceed to Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" />
            </Button>
@@ -1021,7 +1021,7 @@ export default function POSPage() {
             <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Transaction has been finalized</p>
           </div>
           
-          <div className="w-full max-h-[40vh] overflow-y-auto custom-scrollbar bg-white dark:bg-white text-black p-4 rounded-xl shadow-inner border border-slate-200">
+          <div className="w-full max-h-[40vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-950 text-black dark:text-slate-100 p-4 rounded-xl shadow-inner border border-slate-200 dark:border-slate-800">
              {/* Render a visual preview of the receipt component without refs */}
              {receiptData && (
                <ThermalReceipt 
@@ -1064,7 +1064,7 @@ export default function POSPage() {
              </Button>
              <Button 
                onClick={() => window.print()}
-               className="flex-[1.2] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-xl hover:scale-105 transition-transform"
+               className="flex-[1.2] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-xl hover:scale-105 transition-transform"
              >
                <Printer className="mr-2 h-4 w-4" /> Print
              </Button>

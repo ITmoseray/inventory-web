@@ -9,6 +9,16 @@ import fs from "fs";
 import path from "path";
 import { logAudit } from "./audit";
 import { updateSystemSettings } from "./system-settings";
+import webpush from "web-push";
+
+// Configure Web Push VAPID credentials
+if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    "mailto:protechassist36@gmail.com",
+    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+}
 
 async function checkSuperAdmin() {
   const session = await auth();
@@ -560,5 +570,144 @@ export async function toggleUserStatus(userId: string, status: "active" | "inact
   });
 
   return { success: true };
+}
+
+export async function sendEcosystemPushNotification(title: string, message: string) {
+  await checkSuperAdmin();
+  const trimmedTitle = title.trim();
+  const trimmedMsg = message.trim();
+  if (!trimmedTitle || !trimmedMsg) throw new Error("Title and message are required.");
+
+  // 1. Log audit event
+  await logAudit({
+    action: `SENT ECOSYSTEM PUSH BROADCAST: "${trimmedTitle}" - "${trimmedMsg.slice(0, 40)}"`,
+    entity: "SYSTEM"
+  });
+
+  // 2. Fetch ALL subscriptions in the system
+  const subscriptions: any[] = await prisma.$queryRawUnsafe(`
+    SELECT * FROM "PushSubscription"
+  `);
+
+  const payload = JSON.stringify({
+    title: trimmedTitle,
+    body: trimmedMsg,
+    url: "/dashboard/system/notifications"
+  });
+
+  let successCount = 0;
+  let failCount = 0;
+
+  for (const sub of subscriptions) {
+    try {
+      const pushConfig = {
+        endpoint: sub.endpoint,
+        keys: {
+          auth: sub.keysAuth,
+          p256dh: sub.keysP256dh
+        }
+      };
+      await webpush.sendNotification(pushConfig, payload);
+      successCount++;
+    } catch (err: any) {
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        // Purge expired subscriptions
+        await prisma.$executeRawUnsafe(`
+          DELETE FROM "PushSubscription" WHERE id = $1
+        `, sub.id);
+        failCount++;
+      } else {
+        console.error("Failed to send ecosystem push to subscription:", sub.id, err);
+      }
+    }
+  }
+
+  // 3. Create a system notification record in each business database so they see it in their alerts center inbox
+  const businesses = await prisma.business.findMany({ select: { id: true } });
+  for (const b of businesses) {
+    try {
+      const notifId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "Notification" (id, title, message, type, "isRead", "businessId", "updatedAt", "createdAt")
+        VALUES ($1, $2, $3, 'INFO', false, $4, NOW(), NOW())
+      `, notifId, trimmedTitle, trimmedMsg, b.id);
+    } catch (e) {
+      console.error("Failed to insert broadcast notification for business:", b.id, e);
+    }
+  }
+
+  return { success: true, dispatchedCount: successCount, purgedCount: failCount };
+}
+
+export async function broadcastSystemUpdate(version: string, title: string, changelog: string) {
+  await checkSuperAdmin();
+  const trimmedVersion = version.trim();
+  const trimmedTitle = title.trim();
+  const trimmedChangelog = changelog.trim();
+  if (!trimmedVersion || !trimmedTitle || !trimmedChangelog) {
+    throw new Error("Version, title, and changelog details are required.");
+  }
+
+  const alertTitle = `System Update: ${trimmedVersion} - ${trimmedTitle}`;
+  const alertMessage = trimmedChangelog;
+
+  // 1. Log audit event
+  await logAudit({
+    action: `BROADCASTED SYSTEM SOFTWARE UPDATE: "${trimmedVersion}" - "${trimmedTitle}"`,
+    entity: "SYSTEM"
+  });
+
+  // 2. Fetch all push subscriptions in the system
+  const subscriptions: any[] = await prisma.$queryRawUnsafe(`
+    SELECT * FROM "PushSubscription"
+  `);
+
+  const payload = JSON.stringify({
+    title: alertTitle,
+    body: alertMessage,
+    url: "/dashboard/system/notifications"
+  });
+
+  let successCount = 0;
+  let failCount = 0;
+
+  for (const sub of subscriptions) {
+    try {
+      const pushConfig = {
+        endpoint: sub.endpoint,
+        keys: {
+          auth: sub.keysAuth,
+          p256dh: sub.keysP256dh
+        }
+      };
+      await webpush.sendNotification(pushConfig, payload);
+      successCount++;
+    } catch (err: any) {
+      if (err.statusCode === 410 || err.statusCode === 404) {
+        await prisma.$executeRawUnsafe(`
+          DELETE FROM "PushSubscription" WHERE id = $1
+        `, sub.id);
+        failCount++;
+      } else {
+        console.error("Failed to send system update push to subscription:", sub.id, err);
+      }
+    }
+  }
+
+  // 3. Create a SYSTEM_UPDATE notification in each business database
+  const businesses = await prisma.business.findMany({ select: { id: true } });
+  for (const b of businesses) {
+    try {
+      const notifId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+      await prisma.$executeRawUnsafe(`
+        INSERT INTO "Notification" (id, title, message, type, "isRead", "businessId", "updatedAt", "createdAt")
+        VALUES ($1, $2, $3, 'SYSTEM_UPDATE', false, $4, NOW(), NOW())
+      `, notifId, alertTitle, alertMessage, b.id);
+    } catch (e) {
+      console.error("Failed to insert system update notification for business:", b.id, e);
+    }
+  }
+
+  return { success: true, dispatchedCount: successCount, purgedCount: failCount };
 }
 

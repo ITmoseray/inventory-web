@@ -12,7 +12,7 @@ export function PricingClientButton({ planName, showTrial }: { planName: string,
     return (
       <Button 
         onClick={() => router.push('mailto:protechassist36@gmail.com')}
-        className="w-full h-12 font-bold bg-slate-900 dark:bg-white dark:text-slate-900"
+        className="w-full h-12 font-bold bg-slate-900 dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
       >
         Contact Sales
       </Button>

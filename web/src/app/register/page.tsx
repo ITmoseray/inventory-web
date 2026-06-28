@@ -20,7 +20,11 @@ import {
   Lock,
   MessageSquare,
   AlertCircle,
-  Users
+  Users,
+  MapPin,
+  Briefcase,
+  Coins,
+  Clock
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -81,6 +85,9 @@ export default function RegisterPage() {
     businessType: "SHOP",
     plan: "FREE",
     logoUrl: "",
+    address: "",
+    currency: "SLL",
+    timezone: "UTC",
   });
 
   useEffect(() => {
@@ -281,15 +288,15 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column: Registration Form */}
-      <div className="flex-1 flex flex-col items-center p-8 lg:p-24 bg-slate-50/50 min-h-screen">
+      <div className="flex-1 flex flex-col items-center p-8 lg:p-24 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
         <div className="w-full max-w-md space-y-10 sm:space-y-16 py-12 lg:py-16 my-auto">
           
           <div className="space-y-6">
              <div className="h-1 w-20 bg-indigo-600 rounded-full" />
-             <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-[0.85]">
-                UNLEASH <br /> <span className="text-indigo-600">INTELLIGENCE.</span>
+             <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85]">
+                CREATE YOUR <br /> <span className="text-indigo-600">BUSINESS ACCOUNT.</span>
              </h1>
-             <p className="text-lg text-slate-500 font-bold uppercase tracking-tight">Deploy your enterprise node in seconds.</p>
+             <p className="text-lg text-slate-500 font-bold tracking-tight">Register your business and get started in seconds.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -313,7 +320,7 @@ export default function RegisterPage() {
                    value={formData.businessName} 
                    onChange={(e) => setFormData({...formData, businessName: e.target.value})} 
                    required 
-                   className="h-14 bg-white rounded-2xl border-slate-100 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold" 
+                   className="h-14 bg-white dark:bg-slate-900 rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white dark:placeholder:text-slate-500" 
                  />
               </div>
             </div>
@@ -330,7 +337,7 @@ export default function RegisterPage() {
                    onChange={(e) => setFormData({...formData, email: e.target.value})} 
                    required 
                    className={cn(
-                     "h-14 bg-white rounded-2xl border-slate-100 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold",
+                     "h-14 bg-white dark:bg-slate-900 rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white dark:placeholder:text-slate-500",
                      emailError && "border-rose-500 focus:ring-rose-600/10"
                    )} 
                  />
@@ -354,8 +361,82 @@ export default function RegisterPage() {
                    value={formData.phone} 
                    onChange={(e) => setFormData({...formData, phone: e.target.value})} 
                    required 
-                   className="h-14 bg-white rounded-2xl border-slate-100 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold" 
+                   className="h-14 bg-white dark:bg-slate-900 rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white dark:placeholder:text-slate-500" 
                  />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Address</Label>
+              <div className="relative">
+                 <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                 <Input 
+                   id="address" 
+                   type="text" 
+                   placeholder="123 Business St, City, Country"
+                   value={formData.address} 
+                   onChange={(e) => setFormData({...formData, address: e.target.value})} 
+                   required 
+                   className="h-14 bg-white dark:bg-slate-900 rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white dark:placeholder:text-slate-500" 
+                 />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="businessType" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Type</Label>
+                <div className="relative">
+                   <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                   <select 
+                     id="businessType" 
+                     value={formData.businessType} 
+                     onChange={(e) => setFormData({...formData, businessType: e.target.value})} 
+                     className="h-14 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white appearance-none cursor-pointer" 
+                   >
+                     <option value="SHOP">Retail Shop</option>
+                     <option value="PHARMACY">Pharmacy</option>
+                     <option value="SUPERMARKET">Supermarket</option>
+                     <option value="RESTAURANT">Restaurant</option>
+                     <option value="BAR">Bar</option>
+                   </select>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="currency" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Currency</Label>
+                <div className="relative">
+                   <Coins className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                   <select 
+                     id="currency" 
+                     value={formData.currency} 
+                     onChange={(e) => setFormData({...formData, currency: e.target.value})} 
+                     className="h-14 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white appearance-none cursor-pointer" 
+                   >
+                     <option value="SLL">SLL (Leone)</option>
+                     <option value="USD">USD ($)</option>
+                     <option value="EUR">EUR (€)</option>
+                     <option value="GBP">GBP (£)</option>
+                   </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="timezone" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Timezone</Label>
+              <div className="relative">
+                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                 <select 
+                   id="timezone" 
+                   value={formData.timezone} 
+                   onChange={(e) => setFormData({...formData, timezone: e.target.value})} 
+                   className="h-14 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white appearance-none cursor-pointer" 
+                 >
+                   <option value="UTC">UTC (Universal)</option>
+                   <option value="Africa/Freetown">Africa/Freetown (GMT)</option>
+                   <option value="Africa/Lagos">Africa/Lagos (WAT)</option>
+                   <option value="America/New_York">America/New York (EST)</option>
+                   <option value="Europe/London">Europe/London (GMT/BST)</option>
+                 </select>
               </div>
             </div>
 
@@ -370,13 +451,13 @@ export default function RegisterPage() {
                    value={formData.password} 
                    onChange={(e) => setFormData({...formData, password: e.target.value})} 
                    required 
-                   className="h-14 bg-white rounded-2xl border-slate-100 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold" 
+                   className="h-14 bg-white dark:bg-slate-900 rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white dark:placeholder:text-slate-500" 
                  />
               </div>
             </div>
 
             <div className="space-y-6 pt-2">
-               <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 border border-slate-100">
+               <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-100/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800">
                   <div className="flex items-center gap-3">
                      <span className="text-xl">🇸🇱</span>
                      <span className="text-sm font-black text-slate-900 dark:text-white">Sierra Leone</span>
@@ -392,7 +473,7 @@ export default function RegisterPage() {
                     className="mt-1 rounded-md border-slate-200" 
                   />
                   <Label htmlFor="terms" className="text-[11px] font-bold text-slate-500 leading-relaxed uppercase tracking-tighter">
-                    I agree to the <Link href="#" className="text-indigo-600 underline underline-offset-4">Terms of Service</Link> and <Link href="#" className="text-indigo-600 underline underline-offset-4">Privacy Policy</Link>.
+                    I agree to the <Link href="/terms" target="_blank" className="text-indigo-600 underline underline-offset-4">Terms of Service</Link> and <Link href="/privacy" target="_blank" className="text-indigo-600 underline underline-offset-4">Privacy Policy</Link>.
                   </Label>
                </div>
 
@@ -409,22 +490,34 @@ export default function RegisterPage() {
           <div className="space-y-8">
              <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                   <div className="w-full border-t border-slate-200" />
+                   <div className="w-full border-t border-slate-200 dark:border-slate-800" />
                 </div>
                 <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-                   <span className="bg-slate-50 px-4 text-slate-400">or login using</span>
+                   <span className="bg-slate-50 dark:bg-slate-950 px-4 text-slate-400 dark:text-slate-500">or register with</span>
                 </div>
              </div>
 
              <div className="grid grid-cols-2 gap-4">
                 <Button 
-                  onClick={() => signIn("google")}
+                  type="button"
+                  onClick={() => {
+                    if (!agreedToTerms) {
+                      toast.error("Please agree to the Terms of Service and Privacy Policy.");
+                      return;
+                    }
+                    if (!formData.businessName.trim() || !formData.phone.trim() || !formData.address.trim()) {
+                      toast.error("Please provide your Company Name, Phone, and Address to register with Google.");
+                      return;
+                    }
+                    document.cookie = `registrationData=${encodeURIComponent(JSON.stringify(formData))}; path=/; max-age=3600`;
+                    signIn("google", { callbackUrl: "/dashboard" });
+                  }}
                   variant="outline" 
-                  className="h-12 rounded-xl border-slate-200 font-bold text-xs flex gap-2"
+                  className="h-12 rounded-xl border-slate-200 dark:border-slate-800 font-bold text-xs flex gap-2 dark:text-white dark:hover:bg-slate-900"
                 >
                    <Image src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width={16} height={16} /> Google
                 </Button>
-                <Button variant="outline" className="h-12 rounded-xl border-slate-200 font-bold text-xs flex gap-2">
+                <Button variant="outline" className="h-12 rounded-xl border-slate-200 dark:border-slate-800 font-bold text-xs flex gap-2 dark:text-white dark:hover:bg-slate-900">
                    <Lock className="h-4 w-4 text-slate-400" /> LinkedIn
                 </Button>
              </div>
@@ -438,9 +531,9 @@ export default function RegisterPage() {
 
       {/* Account Already Exists Dialog */}
       <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-        <DialogContent className="sm:max-w-[500px] bg-white rounded-[2.5rem] border-none p-0 overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.3)]">
+        <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-950 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 p-0 overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.3)]">
           <div className="relative p-10">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50 dark:bg-indigo-900/20 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
             
             <DialogHeader className="mb-8">
                <div className="h-14 w-14 rounded-2xl bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-600 mb-6">

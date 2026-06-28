@@ -26,6 +26,7 @@ import { format } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { registerPush } from "@/lib/push-register";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -38,13 +39,41 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [permissionStatus, setPermissionStatus] = useState<string>("default");
 
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
 
   useEffect(() => {
     fetchData();
+    if ("Notification" in window) {
+      setPermissionStatus(Notification.permission);
+    }
   }, []);
+
+  async function requestPushPermission() {
+    if (!("Notification" in window)) {
+      toast.error("Desktop/Push notifications are not supported on this device.");
+      return;
+    }
+
+    const permission = await Notification.requestPermission();
+    setPermissionStatus(permission);
+    if (permission === "granted") {
+      try {
+        await registerPush();
+        toast.success("Device alerts and background push sync authorized successfully!");
+        new Notification("Device Alerts Activated", {
+          body: "You will now receive native alerts for critical inventory events even when logged out or closed.",
+          icon: "/images/logo2.png"
+        });
+      } catch (err: any) {
+        toast.error(`Push subscription sync failed: ${err.message}`);
+      }
+    } else if (permission === "denied") {
+      toast.error("Permission denied. Enable alerts in your browser site settings.");
+    }
+  }
 
   async function fetchData() {
     try {
@@ -109,14 +138,29 @@ export default function NotificationsPage() {
            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Audit real-time system broadcasts and operational signal nodes.</p>
         </div>
 
-        <div className="flex gap-3 w-full md:w-auto">
-           <Button variant="outline" onClick={handleMarkAllRead} className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2">
-              <Check className="h-4 w-4" /> Mark All Read
-           </Button>
-           <Button onClick={fetchData} variant="outline" className="h-12 w-12 rounded-xl border-slate-200 flex items-center justify-center">
-              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
-           </Button>
-        </div>
+         <div className="flex flex-wrap gap-3 w-full md:w-auto">
+            {permissionStatus !== "granted" ? (
+              <Button onClick={requestPushPermission} className="flex-1 md:flex-none h-12 rounded-xl font-bold uppercase text-[10px] tracking-widest gap-2 bg-indigo-600 hover:bg-indigo-700 text-white dark:bg-slate-50 dark:text-slate-900 dark:hover:bg-slate-200">
+                 <BellRing className="h-4 w-4" /> Enable Device Alerts
+              </Button>
+            ) : (
+              <Button onClick={() => {
+                new Notification("Device Alert Test", {
+                  body: "This is a native device notification test. System connection verified!",
+                  icon: "/images/logo2.png"
+                });
+                toast.success("Native test alert dispatched!");
+              }} variant="outline" className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2 text-indigo-600 dark:text-indigo-400">
+                 <Bell className="h-4 w-4" /> Test Device Alert
+              </Button>
+            )}
+            <Button variant="outline" onClick={handleMarkAllRead} className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2">
+               <Check className="h-4 w-4" /> Mark All Read
+            </Button>
+            <Button onClick={fetchData} variant="outline" className="h-12 w-12 rounded-xl border-slate-200 flex items-center justify-center">
+               <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+            </Button>
+         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -175,8 +219,9 @@ export default function NotificationsPage() {
                           <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-white dark:border-slate-800", 
                             n.type === 'ERROR' ? "bg-rose-500/10 text-rose-600" : 
                             n.type === 'SUCCESS' ? "bg-emerald-500/10 text-emerald-600" :
+                            n.type === 'SYSTEM_UPDATE' ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" :
                             "bg-blue-500/10 text-blue-600")}>
-                             {n.type === 'ERROR' ? <AlertCircle size={20} /> : n.type === 'SUCCESS' ? <CheckCircle2 size={20} /> : <Info size={20} />}
+                             {n.type === 'ERROR' ? <AlertCircle size={20} /> : n.type === 'SUCCESS' ? <CheckCircle2 size={20} /> : n.type === 'SYSTEM_UPDATE' ? <Sparkles size={20} /> : <Info size={20} />}
                           </div>
                           <div>
                              <div className="flex items-center gap-3 mb-1">

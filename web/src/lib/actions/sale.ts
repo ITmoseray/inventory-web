@@ -264,6 +264,7 @@ export async function getSales() {
       userName: s.user?.name || "System",
       items: s.items.map(item => ({
         id: item.id,
+        productId: item.productId,
         name: item.productName || item.product?.name || "Unknown",
         quantity: item.quantity,
         unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice) || 0,
@@ -337,6 +338,7 @@ export async function getSalesHistoryByRange(start: Date, end: Date) {
       userName: s.user?.name || "System",
       items: s.items.map(item => ({
         id: item.id,
+        productId: item.productId,
         name: item.productName || item.product?.name || "Unknown",
         quantity: item.quantity,
         unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice) || 0,

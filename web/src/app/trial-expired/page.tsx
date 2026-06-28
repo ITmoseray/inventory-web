@@ -60,7 +60,7 @@ export default function TrialExpiredPage() {
 
           <div className="space-y-6">
             <p className="text-slate-400 text-sm font-medium leading-relaxed">
-              Your store "{session?.user?.name || "Store"}" has finished its trial. 
+              Your store "{session?.user?.businessName || "Store"}" has finished its trial. 
               To continue managing your products and sales, a valid subscription is required.
             </p>
 
@@ -90,7 +90,13 @@ export default function TrialExpiredPage() {
                     <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} /> {isSyncing ? "Syncing..." : "Refresh Status"}
                   </button>
                   <button 
-                      onClick={() => signOut({ redirectTo: '/login' })}
+                      onClick={async () => {
+                        if (typeof window !== "undefined") {
+                          window.localStorage.clear();
+                          window.sessionStorage.clear();
+                        }
+                        await signOut({ redirectTo: '/login' });
+                      }}
                       className="flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-rose-500 uppercase tracking-[0.3em] transition-colors"
                   >
                       <LogOut className="h-3 w-3" /> Log Out

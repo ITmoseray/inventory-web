@@ -7,7 +7,7 @@ import { generateVerificationToken, sendVerificationEmail, sendPendingApprovalNo
 import { getSystemSettings } from "@/lib/actions/system-settings";
 
 export async function registerBusiness(data: any) {
-  const { businessName, email, password, businessType, plan, logoUrl, phone } = data;
+  const { businessName, email, password, businessType, plan, logoUrl, phone, address, currency, timezone, businessEmail } = data;
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -32,6 +32,10 @@ export async function registerBusiness(data: any) {
       data: {
         name: businessName,
         phone: phone,
+        address: address,
+        email: businessEmail || email,
+        currency: currency || "SLL",
+        timezone: timezone || "UTC",
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: businessType as BusinessType,
         plan: plan,

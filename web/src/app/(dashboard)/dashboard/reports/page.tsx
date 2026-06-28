@@ -39,7 +39,7 @@ import {
   Cell
 } from 'recharts';
 import { toast } from "sonner";
-import { getRecentSales } from "@/lib/actions/sale";
+import { getSales } from "@/lib/actions/sale";
 import { getProducts } from "@/lib/actions/product";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
@@ -60,7 +60,7 @@ export default function ReportsPage() {
     try {
       setLoading(true);
       const [sData, pData] = await Promise.all([
-        getRecentSales(),
+        getSales(),
         getProducts()
       ]);
       setSales(sData);
@@ -169,10 +169,10 @@ export default function ReportsPage() {
         {[
           { label: "Net Revenue Yield", value: totalRevenue, icon: DollarSign, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/30", sub: "+12.5% VS LAST CYCLE" },
           { label: "Cost of Goods (COGS)", value: analytics.totalCost, icon: Package, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30", sub: "DIRECT ASSET EXPENSE" },
-          { label: "Gross Profit Margin", value: grossProfit, icon: TrendingUp, color: "text-emerald-500", bg: "bg-slate-900 dark:bg-white dark:text-slate-900", sub: `${margin.toFixed(1)}% EFFICIENCY`, isDark: true },
+          { label: "Gross Profit Margin", value: grossProfit, icon: TrendingUp, color: "text-emerald-500", bg: "bg-slate-900 dark:bg-slate-950 dark:text-white", sub: `${margin.toFixed(1)}% EFFICIENCY`, isDark: true },
           { label: "Transaction Velocity", value: sales.length, icon: ShoppingCart, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/30", sub: `AVG TICKET: Le ${Math.round(totalRevenue / (sales.length || 1)).toLocaleString()}`, noPrefix: true }
         ].map((kpi, i) => (
-          <Card key={i} className={cn("border-none shadow-sm rounded-[2.5rem] overflow-hidden relative group", kpi.isDark ? "bg-slate-900 text-white dark:bg-white dark:text-slate-900" : "bg-white dark:bg-slate-900")}>
+          <Card key={i} className={cn("border-none shadow-sm rounded-[2.5rem] overflow-hidden relative group", kpi.isDark ? "bg-slate-900 text-white dark:bg-slate-950 dark:text-white dark:border dark:border-slate-800" : "bg-white dark:bg-slate-900")}>
              <CardHeader className="p-6 sm:p-8 pb-2">
                 <CardTitle className={cn("text-[10px] font-black uppercase tracking-widest flex items-center gap-2", kpi.isDark ? "text-slate-400" : "text-slate-400")}>
                    <kpi.icon className={cn("h-3 w-3", kpi.color)} /> {kpi.label}

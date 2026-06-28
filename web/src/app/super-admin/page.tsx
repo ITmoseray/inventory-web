@@ -33,7 +33,9 @@ import {
   changeUserPassword,
   changeOwnPassword,
   toggleUserStatus,
-  getAllBusinesses
+  getAllBusinesses,
+  sendEcosystemPushNotification,
+  broadcastSystemUpdate
 } from "@/lib/actions/super-admin";
 import { getSystemSettings, updateSystemSettings } from "@/lib/actions/system-settings";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -45,6 +47,7 @@ import { format } from "date-fns";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
+import { runAutomatedSystemChecks } from "@/lib/actions/cron-checks";
 
 export default function NexusSuperControl() {
   const { data: session, status } = useSession();
@@ -56,6 +59,14 @@ export default function NexusSuperControl() {
   const [loading, setLoading] = useState(true);
   const [broadcastMsg, setBroadcastMsg] = useState("");
   const [isMaintenance, setIsMaintenance] = useState(false);
+  const [pushTitle, setPushTitle] = useState("");
+  const [pushBody, setPushBody] = useState("");
+  const [sendingPush, setSendingPush] = useState(false);
+  const [syncingAlerts, setSyncingAlerts] = useState(false);
+  const [updateVersion, setUpdateVersion] = useState("");
+  const [updateTitle, setUpdateTitle] = useState("");
+  const [updateChangelog, setUpdateChangelog] = useState("");
+  const [sendingUpdate, setSendingUpdate] = useState(false);
   
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState<"telemetry" | "terminal" | "backups" | "settings" | "operators">("telemetry");
@@ -159,6 +170,69 @@ export default function NexusSuperControl() {
       toast.success("Global broadcast cleared.");
     } catch (error) {
       toast.error("Failed to clear broadcast.");
+    }
+  }
+
+  async function handlePushBroadcast() {
+    if (!pushTitle.trim() || !pushBody.trim()) {
+      toast.error("Title and message are required for device push broadcasts.");
+      return;
+    }
+    try {
+      setSendingPush(true);
+      const res = await sendEcosystemPushNotification(pushTitle, pushBody);
+      if (res.success) {
+        toast.success(`Device push notification broadcast completed! Dispatched to ${res.dispatchedCount} active devices.`);
+        setPushTitle("");
+        setPushBody("");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to transmit push broadcast.");
+    } finally {
+      setSendingPush(false);
+    }
+  }
+
+  async function handleRunAutomatedChecks() {
+    try {
+      setSyncingAlerts(true);
+      toast.loading("Running automated ecosystem checks...");
+      const res = await runAutomatedSystemChecks();
+      toast.dismiss();
+      if (res.success) {
+        toast.success(`Scan completed successfully! Low Stock Alerts: ${res.lowStockCount}, Expired Batches: ${res.expiryCount}, Trial Warnings: ${res.trialCount}`);
+      } else {
+        toast.error(`Automated checks failed: ${res.error}`);
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || "Ecosystem scan failed.");
+    } finally {
+      setSyncingAlerts(false);
+    }
+  }
+
+  async function handleUpdateBroadcast() {
+    if (!updateVersion.trim() || !updateTitle.trim() || !updateChangelog.trim()) {
+      toast.error("Version, Title, and Changelog details are required.");
+      return;
+    }
+    try {
+      setSendingUpdate(true);
+      toast.loading("Broadcasting system software release notice...");
+      const res = await broadcastSystemUpdate(updateVersion, updateTitle, updateChangelog);
+      toast.dismiss();
+      if (res.success) {
+        toast.success(`System Update notification broadcasted successfully to ${res.dispatchedCount} active devices!`);
+        setUpdateVersion("");
+        setUpdateTitle("");
+        setUpdateChangelog("");
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || "Failed to broadcast update notification.");
+    } finally {
+      setSendingUpdate(false);
     }
   }
 
@@ -269,6 +343,8 @@ export default function NexusSuperControl() {
           "  maintenance <on|off> - Enter or exit platform-wide maintenance mode",
           "  clear-cache        - Flush system cache",
           "  backup             - Trigger database backup snapshot",
+          "  sync-alerts        - Scan ecosystem low stock, expiry, and trials",
+          "  system-update \"v\" \"t\" \"c\" - Broadcast software update release notice",
           "  logs [--tail N]    - Print last N security audit log entries",
           "  system             - Print software platform specifications",
           "  clear              - Clear terminal screen history"
@@ -425,6 +501,52 @@ export default function NexusSuperControl() {
           "Sector:        Sierra Leone US Data Center"
         ]);
         break;
+      case "sync-alerts":
+        setTerminalHistory(prev => [...prev, "Initiating automated scan checks..."]);
+        try {
+          const res = await runAutomatedSystemChecks();
+          if (res.success) {
+            setTerminalHistory(prev => [
+              ...prev,
+              `Success: Ecosystem scan completed.`,
+              `  • Low Stock Alerts created: ${res.lowStockCount}`,
+              `  • Expiring Batch alerts:     ${res.expiryCount}`,
+              `  • Trial Expiry warnings sent: ${res.trialCount}`
+            ]);
+          } else {
+            setTerminalHistory(prev => [...prev, `Error: Scan failed: ${res.error}`]);
+          }
+        } catch (err: any) {
+          setTerminalHistory(prev => [...prev, `Error: ${err.message}`]);
+        }
+        break;
+      case "system-update":
+        const matches = rawInput.match(/system-update\s+"([^"]+)"\s+"([^"]+)"\s+(.+)/i);
+        if (!matches) {
+          setTerminalHistory(prev => [
+            ...prev,
+            'Error: Invalid format. Usage: system-update "version" "title" changelog messages...'
+          ]);
+        } else {
+          const version = matches[1];
+          const title = matches[2];
+          const changelog = matches[3];
+          setTerminalHistory(prev => [...prev, `Initiating software release broadcast: ${version}...`]);
+          try {
+            const res = await broadcastSystemUpdate(version, title, changelog);
+            if (res.success) {
+              setTerminalHistory(prev => [
+                ...prev,
+                `Success: System update broadcast completed.`,
+                `  • Software version: ${version}`,
+                `  • Devices targeted:  ${res.dispatchedCount}`
+              ]);
+            }
+          } catch (err: any) {
+            setTerminalHistory(prev => [...prev, `Error: Broadcast failed: ${err.message}`]);
+          }
+        }
+        break;
       case "clear":
         setTerminalHistory([]);
         break;
@@ -473,7 +595,13 @@ export default function NexusSuperControl() {
                <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Admin User</span>
                <span className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
             </div>
-            <Button onClick={() => signOut({ redirectTo: "/login" })} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
+            <Button onClick={async () => {
+               if (typeof window !== "undefined") {
+                 window.localStorage.clear();
+                 window.sessionStorage.clear();
+               }
+               await signOut({ redirectTo: "/login" });
+            }} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
                <LogOut className="mr-2 h-3.5 w-3.5" /> Log Out
             </Button>
          </div>
@@ -564,30 +692,95 @@ export default function NexusSuperControl() {
                     <GlassCard className="p-8">
                        <div className="flex items-center gap-3 mb-6">
                           <MessageSquare className="h-5 w-5 text-indigo-600 dark:text-indigo-500" />
-                          <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Global Broadcast</h3>
+                          <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Broadcasting</h3>
                        </div>
+                       
+                       {/* Marquee Banner Section */}
                        <div className="space-y-3">
-                           <Input 
-                              placeholder="Enter global system notification..." 
-                              value={broadcastMsg}
-                              onChange={(e) => setBroadcastMsg(e.target.value)}
-                              className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-indigo-500/20"
-                           />
-                           <Button 
-                              onClick={handleBroadcast}
-                              disabled={!broadcastMsg.trim()}
-                              className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-indigo-600/20 disabled:opacity-40"
-                           >
-                              <Send className="mr-2 h-4 w-4" /> Broadcast Message
-                           </Button>
-                           <Button 
-                              onClick={handleClearBroadcast}
-                              variant="outline"
-                              className="w-full h-10 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 font-black text-[10px] uppercase tracking-widest"
-                           >
-                              Clear Active Banner
-                           </Button>
-                        </div>
+                          <p className="text-[10px] font-black text-slate-555 dark:text-slate-400 uppercase tracking-widest leading-none">Global Marquee Banner (In-App)</p>
+                          <Input 
+                             placeholder="Enter global banner announcement..." 
+                             value={broadcastMsg}
+                             onChange={(e) => setBroadcastMsg(e.target.value)}
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                          />
+                          <div className="flex gap-2">
+                             <Button 
+                                onClick={handleBroadcast}
+                                disabled={!broadcastMsg.trim()}
+                                className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40"
+                             >
+                                <Send className="mr-2 h-4 w-4" /> Send Banner
+                             </Button>
+                             <Button 
+                                onClick={handleClearBroadcast}
+                                variant="outline"
+                                className="h-12 px-4 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-black text-[10px] uppercase tracking-widest"
+                             >
+                                Clear
+                             </Button>
+                          </div>
+                       </div>
+
+                       <div className="h-px bg-slate-200 dark:bg-slate-800 my-6" />
+
+                       {/* Push Notification Section */}
+                       <div className="space-y-3">
+                          <p className="text-[10px] font-black text-slate-555 dark:text-slate-400 uppercase tracking-widest leading-none">Device Push Alert (Log-out/Offline safe)</p>
+                          <Input 
+                             placeholder="Notification Title (e.g., Critical Update)" 
+                             value={pushTitle}
+                             onChange={(e) => setPushTitle(e.target.value)}
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                          />
+                          <Input 
+                             placeholder="Notification Body Message..." 
+                             value={pushBody}
+                             onChange={(e) => setPushBody(e.target.value)}
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                          />
+                          <Button 
+                             onClick={handlePushBroadcast}
+                             disabled={!pushTitle.trim() || !pushBody.trim() || sendingPush}
+                             className="w-full h-12 rounded-xl bg-emerald-650 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-emerald-600/10"
+                          >
+                             {sendingPush ? "Transmitting..." : "Broadcast Device Push"}
+                          </Button>
+                       </div>
+
+                       <div className="h-px bg-slate-200 dark:bg-slate-800 my-6" />
+
+                       {/* System Software Update Section */}
+                       <div className="space-y-3">
+                          <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">Broadcast Software Update Alert</p>
+                          <div className="flex gap-2">
+                             <Input 
+                                placeholder="Version (e.g., v4.3.0)" 
+                                value={updateVersion}
+                                onChange={(e) => setUpdateVersion(e.target.value)}
+                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 flex-[2]"
+                             />
+                             <Input 
+                                placeholder="Release Title" 
+                                value={updateTitle}
+                                onChange={(e) => setUpdateTitle(e.target.value)}
+                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 flex-[3]"
+                             />
+                          </div>
+                          <Input 
+                             placeholder="Summary of changes & features deployed..." 
+                             value={updateChangelog}
+                             onChange={(e) => setUpdateChangelog(e.target.value)}
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                          />
+                          <Button 
+                             onClick={handleUpdateBroadcast}
+                             disabled={!updateVersion.trim() || !updateTitle.trim() || !updateChangelog.trim() || sendingUpdate}
+                             className="w-full h-12 rounded-xl bg-indigo-650 hover:bg-indigo-755 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
+                          >
+                             {sendingUpdate ? "Broadcasting Update..." : "Broadcast System Update Notification"}
+                          </Button>
+                       </div>
                     </GlassCard>
 
                     <GlassCard className="p-8">
@@ -608,12 +801,23 @@ export default function NexusSuperControl() {
                              />
                           </div>
                           <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
-                             <div className="space-y-0.5">
-                                <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Diagnostic Level</p>
-                                <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Verbose core telemetry</p>
-                             </div>
-                             <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest px-2 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20">Alpha-7</div>
-                          </div>
+                              <div className="space-y-0.5">
+                                 <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Diagnostic Level</p>
+                                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Verbose core telemetry</p>
+                              </div>
+                              <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest px-2 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20">Alpha-7</div>
+                           </div>
+                           <div className="h-px bg-slate-200 dark:bg-slate-800 my-4" />
+                           <div className="space-y-2">
+                              <p className="text-[10px] font-black text-slate-555 dark:text-slate-400 uppercase tracking-widest leading-none">Automated Scans</p>
+                              <Button 
+                                 onClick={handleRunAutomatedChecks}
+                                 disabled={syncingAlerts}
+                                 className="w-full h-11 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-white font-black text-[10px] uppercase tracking-widest"
+                              >
+                                 {syncingAlerts ? "Scanning Ecosystem..." : "Run Ecosystem Alerts Scan"}
+                              </Button>
+                           </div>          
                        </div>
                     </GlassCard>
                   </div>

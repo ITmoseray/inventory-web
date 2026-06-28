@@ -188,7 +188,7 @@ export default function PricingPage() {
                         "w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300",
                         plan.popular 
                           ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35" 
-                          : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                          : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
                       )} 
                       onClick={async () => {
                         try {

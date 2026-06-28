@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { getNotifications, markAsRead } from "@/lib/actions/notification";
 import { syncLowStockNotifications } from "@/lib/actions/stock-check";
 import { useSession } from "next-auth/react";
+import { registerPush } from "@/lib/push-register";
 import { AlertCircle, Package, TrendingDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -16,6 +17,19 @@ export function ToastManager() {
 
   useEffect(() => {
     if (!session?.user?.businessId) return;
+
+    // Request native device notification permissions and sync push tokens
+    if ("Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission().then((perm) => {
+          if (perm === "granted") {
+            registerPush().catch(console.error);
+          }
+        });
+      } else if (Notification.permission === "granted") {
+        registerPush().catch(console.error);
+      }
+    }
 
     // Initial check
     runSyncAndFetch();
@@ -49,11 +63,34 @@ export function ToastManager() {
 
         if (!notifiedIdsRef.current.has(latest.id)) {
           showNotificationToast(latest);
+          showNativeNotification(latest.title, latest.message, latest.id);
           notifiedIdsRef.current.add(latest.id);
         }
       }
     } catch (error) {
       console.error("Toast Sync Error:", error);
+    }
+  }
+
+  function showNativeNotification(title: string, body: string, id: string) {
+    if (!("Notification" in window)) return;
+    
+    if (Notification.permission === "granted") {
+      try {
+        const notif = new Notification(title, {
+          body: body,
+          icon: "/images/logo2.png",
+          tag: id
+        });
+        
+        notif.onclick = (e) => {
+          e.preventDefault();
+          window.focus();
+          router.push("/dashboard/system/notifications");
+        };
+      } catch (err) {
+        console.error("Failed to trigger native notification object:", err);
+      }
     }
   }
 

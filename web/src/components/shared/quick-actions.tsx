@@ -63,10 +63,12 @@ export function QuickActions() {
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "h-16 w-16 rounded-[2rem] shadow-2xl transition-all duration-500",
-          isOpen ? "bg-slate-900 rotate-180" : "bg-primary hover:bg-primary/90"
+          isOpen 
+            ? "bg-slate-900 dark:bg-slate-800 rotate-180 text-white" 
+            : "bg-slate-900 dark:bg-slate-50 hover:bg-slate-800 dark:hover:bg-slate-200 text-white dark:text-slate-900"
         )}
       >
-        {isOpen ? <ChevronUp className="h-8 w-8 text-white" /> : <Plus className="h-8 w-8 text-white" />}
+        {isOpen ? <ChevronUp className="h-8 w-8" /> : <Plus className="h-8 w-8" />}
       </Button>
     </div>
   );
