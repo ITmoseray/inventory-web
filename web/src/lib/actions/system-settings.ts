@@ -11,6 +11,7 @@ export interface SystemSettings {
   registrationOpen: boolean;
   defaultTrialDays: number;
   announcementBanner: string;
+  announcementBannerUpdatedAt?: string;
   emailAlertsEnabled: boolean;
 }
 
@@ -18,6 +19,7 @@ const defaultSettings: SystemSettings = {
   registrationOpen: true,
   defaultTrialDays: 7,
   announcementBanner: "",
+  announcementBannerUpdatedAt: "",
   emailAlertsEnabled: true,
 };
 

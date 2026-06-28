@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 export function AnnouncementBanner() {
   const [banner, setBanner] = useState<string>("");
+  const [updatedAt, setUpdatedAt] = useState<string>("");
   const [loaded, setLoaded] = useState(false);
   const [isVisible, setIsVisible] = useState(true); // Controls the 5-minute cycle
   
@@ -22,6 +23,7 @@ export function AnnouncementBanner() {
         const text = await res.text();
         const data = JSON.parse(text);
         const newBanner = data.banner ?? "";
+        const newUpdatedAt = data.updatedAt ?? "";
         
         // If the banner text changes (e.g. new broadcast), show it immediately
         if (newBanner !== "" && newBanner !== bannerRef.current) {
@@ -29,6 +31,7 @@ export function AnnouncementBanner() {
         }
         
         setBanner(newBanner);
+        setUpdatedAt(newUpdatedAt);
       } catch (err) {
         console.error("[AnnouncementBanner] fetch error:", err);
       } finally {
@@ -64,7 +67,7 @@ export function AnnouncementBanner() {
        if (bannerRef.current !== "") {
          setIsVisible(true);
        }
-    }, 300_000);
+     }, 300_000);
 
     return () => {
       clearTimeout(hideTimeout);
@@ -75,7 +78,42 @@ export function AnnouncementBanner() {
   // Don't render until first fetch completes to avoid flashes
   if (!loaded) return null;
 
-  const shouldRender = isVisible && banner !== "";
+  // Check if the banner has expired (past 23:00 PM local time on day of posting)
+  const isExpired = () => {
+    if (!updatedAt) return false;
+    const updateDate = new Date(updatedAt);
+    const currentDate = new Date();
+    
+    // Bypass check if announcement was posted in the last 60 minutes
+    const diffMs = currentDate.getTime() - updateDate.getTime();
+    if (diffMs < 60 * 60 * 1000) {
+      return false;
+    }
+
+    const updateYear = updateDate.getFullYear();
+    const updateMonth = updateDate.getMonth();
+    const updateDay = updateDate.getDate();
+    
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth();
+    const currentDay = currentDate.getDate();
+    
+    // 1. Roll-over to a future day
+    if (currentYear > updateYear) return true;
+    if (currentYear === updateYear && currentMonth > updateMonth) return true;
+    if (currentYear === updateYear && currentMonth === updateMonth && currentDay > updateDay) return true;
+    
+    // 2. Same day, past 23:00 PM local time
+    if (currentYear === updateYear && currentMonth === updateMonth && currentDay === updateDay) {
+      if (currentDate.getHours() >= 23) {
+         return true;
+      }
+    }
+    
+    return false;
+  };
+
+  const shouldRender = isVisible && banner !== "" && !isExpired();
 
   return (
     <div className="w-full relative z-[9999] flex-shrink-0">
@@ -89,8 +127,8 @@ export function AnnouncementBanner() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="overflow-hidden w-full"
           >
-            <div className="w-full bg-gradient-to-r from-indigo-950 via-indigo-900 to-indigo-950 text-white py-2.5 px-4 text-center text-xs font-black uppercase tracking-[0.25em] flex items-center justify-center gap-2 border-b border-indigo-500/20 shadow-md">
-              <Zap className="h-3.5 w-3.5 text-indigo-400 animate-pulse flex-shrink-0" />
+            <div className="w-full bg-gradient-to-r from-indigo-50 via-indigo-100/50 to-indigo-50 dark:from-indigo-950 dark:via-indigo-900 dark:to-indigo-950 text-indigo-950 dark:text-white py-2.5 px-4 text-center text-xs font-black uppercase tracking-[0.25em] flex items-center justify-center gap-2 border-b border-indigo-100 dark:border-indigo-500/20 shadow-md transition-colors duration-300">
+              <Zap className="h-3.5 w-3.5 text-indigo-650 dark:text-indigo-400 animate-pulse flex-shrink-0" />
               <div className="overflow-hidden max-w-3xl w-full text-center">
                 <motion.span
                   className="inline-block whitespace-nowrap"
@@ -106,7 +144,7 @@ export function AnnouncementBanner() {
                     : banner}
                 </motion.span>
               </div>
-              <Zap className="h-3.5 w-3.5 text-indigo-400 animate-pulse flex-shrink-0" />
+              <Zap className="h-3.5 w-3.5 text-indigo-650 dark:text-indigo-400 animate-pulse flex-shrink-0" />
             </div>
           </motion.div>
         )}

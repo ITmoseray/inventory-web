@@ -329,8 +329,11 @@ export async function globalBroadcast(message: string) {
   await checkSuperAdmin();
   console.log(`[GLOBAL BROADCAST]: ${message}`);
 
-  // Persist the banner so all tenant dashboards display it
-  await updateSystemSettings({ announcementBanner: message });
+  // Persist the banner and its update timestamp
+  await updateSystemSettings({ 
+    announcementBanner: message,
+    announcementBannerUpdatedAt: new Date().toISOString()
+  });
 
   const trimmed = message.trim();
   await logAudit({
