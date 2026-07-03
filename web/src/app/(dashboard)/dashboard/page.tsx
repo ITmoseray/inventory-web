@@ -729,15 +729,15 @@ export default function DashboardPage() {
                         </Button>
                      </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center p-12 bg-white/5 rounded-[3rem] border border-white/10 backdrop-blur-xl group-hover:border-indigo-500/50 transition-colors">
-                     <div className="h-48 w-48 bg-white p-6 rounded-[2.5rem] mb-8 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]">
-                        <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1.5 p-3">
+                  <div className="flex flex-col items-center justify-center p-6 sm:p-12 bg-white/5 rounded-[2rem] sm:rounded-[3rem] border border-white/10 backdrop-blur-xl group-hover:border-indigo-500/50 transition-colors">
+                     <div className="h-40 w-40 sm:h-48 sm:w-48 bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] mb-6 sm:mb-8 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]">
+                        <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1 sm:gap-1.5 p-2 sm:p-3">
                            {Array.from({ length: 25 }).map((_, i) => (
                              <div key={i} className={cn("rounded-sm", Math.random() > 0.4 ? "bg-slate-900" : "bg-transparent")} />
                            ))}
                         </div>
                      </div>
-                     <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 italic">Scan to download</p>
+                     <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest sm:tracking-[0.4em] text-indigo-400 italic text-center">Scan to download</p>
                   </div>
                </div>
             </section>
@@ -872,15 +872,15 @@ export default function DashboardPage() {
                             </Button>
                          </div>
                       </div>
-                      <div className="flex flex-col items-center justify-center">
-                         <div className="h-48 w-48 bg-white p-6 rounded-[2.5rem] mb-8 shadow-2xl">
-                            <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1.5 p-3">
+                      <div className="flex flex-col items-center justify-center mt-6 lg:mt-0 p-6 sm:p-12 bg-white/5 rounded-[2rem] sm:rounded-[3rem] border border-white/10 backdrop-blur-xl group-hover:border-indigo-500/50 transition-colors">
+                         <div className="h-40 w-40 sm:h-48 sm:w-48 bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] mb-6 sm:mb-8 shadow-2xl">
+                            <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1 sm:gap-1.5 p-2 sm:p-3">
                                {Array.from({ length: 25 }).map((_, i) => (
                                  <div key={i} className={cn("rounded-sm", Math.random() > 0.4 ? "bg-slate-900" : "bg-transparent")} />
                                ))}
                             </div>
                          </div>
-                         <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-400 italic">Scan to download</p>
+                         <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest sm:tracking-[0.4em] text-indigo-400 italic text-center">Scan to download</p>
                       </div>
                    </div>
                 </section>
