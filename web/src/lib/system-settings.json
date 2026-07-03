@@ -1,6 +1,6 @@
 {
   "registrationOpen": true,
   "defaultTrialDays": 7,
-  "announcementBanner": "System maintenance scheduled for tonight at 23:00",
+  "announcementBanner": "",
   "emailAlertsEnabled": true
 }

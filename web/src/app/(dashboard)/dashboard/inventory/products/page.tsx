@@ -145,7 +145,7 @@ function PackagingUnitCard({
             <ShoppingCart className="h-3.5 w-3.5 text-rose-500" />
             <span className="text-[9px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.2em]">How You Buy (Purchase Unit)</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Unit Name</Label>
               <Select
@@ -210,7 +210,7 @@ function PackagingUnitCard({
             <Tag className="h-3.5 w-3.5 text-emerald-500" />
             <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em]">How You Sell (Selling Unit)</span>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Unit Name</Label>
               <Select
@@ -784,7 +784,7 @@ export default function ProductsPage() {
                            </span>
                          )}
                        </div>
-                       <div className="grid grid-cols-2 gap-4">
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                          <div className="space-y-2">
                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cost Price (Le)</Label>
                            <Input
@@ -921,7 +921,7 @@ export default function ProductsPage() {
                            <Layers className="h-4 w-4 text-slate-400" />
                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock Levels</span>
                          </div>
-                         <div className="grid grid-cols-2 gap-4">
+                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                            <div className="space-y-2">
                              <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In-Stock Volume</Label>
                              <div className="flex items-center gap-2">
@@ -967,7 +967,7 @@ export default function ProductsPage() {
 
                      {/* Pharmacy-specific fields */}
                      {isPharmacy && (
-                       <div className="grid grid-cols-2 gap-4">
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                          <div className="space-y-2">
                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiry Date</Label>
                            <Input

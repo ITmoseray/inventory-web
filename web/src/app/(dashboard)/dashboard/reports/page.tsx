@@ -155,10 +155,10 @@ export default function ReportsPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-           <Button variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-black uppercase text-[10px] tracking-widest bg-white dark:bg-slate-900 shadow-sm transition-all hover:scale-[1.02]">
+           <Button variant="outline" onClick={() => window.print()} className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-black uppercase text-[10px] tracking-widest bg-white dark:bg-slate-900 shadow-sm transition-all hover:scale-[1.02]">
               <Download className="h-4 w-4 text-indigo-600" /> Export PDF Vault
            </Button>
-           <Button className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-black uppercase text-[10px] tracking-widest shadow-2xl transition-all hover:scale-[1.02] active:scale-95 gap-2">
+           <Button onClick={() => toast.success("Current cycle synchronized.", { description: "Displaying analytics for the current operational cycle." })} className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-black uppercase text-[10px] tracking-widest shadow-2xl transition-all hover:scale-[1.02] active:scale-95 gap-2">
               <Calendar className="h-4 w-4" /> Current Cycle
            </Button>
         </div>

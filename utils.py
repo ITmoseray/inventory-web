@@ -140,11 +140,11 @@ def format_large_number(number: Union[int, float]) -> str:
     if number < 1000:
         return str(number)
     elif number < 1000000:
-        return f"{number/1000:.1f}K"
+        return f"{number/1000:.0f}K"
     elif number < 1000000000:
-        return f"{number/1000000:.1f}M"
+        return f"{number/1000000:.0f}M"
     else:
-        return f"{number/1000000000:.1f}B"
+        return f"{number/1000000000:.0f}B"
 
 def sanitize_string(text: str) -> str:
     """Remove potentially dangerous characters from string"""

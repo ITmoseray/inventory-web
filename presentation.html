@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proteh Assist SL Limited – Product Presentation</title>
+  <link rel="icon" href="Pro.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-deep: #0a1628;
+      --blue-mid: #0d2244;
+      --blue-accent: #1a4fc4;
+      --blue-bright: #2563eb;
+      --blue-glow: #3b82f6;
+      --silver: #94a3b8;
+      --white: #ffffff;
+      --gray-light: #e2e8f0;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--blue-deep);
+      color: var(--white);
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #particles-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .presentation {
+      position: relative;
+      z-index: 1;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateX(100%) scale(0.96);
+      transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+      pointer-events: none;
+      padding: 40px;
+    }
+    .slide.active {
+      opacity: 1;
+      transform: translateX(0) scale(1);
+      pointer-events: all;
+    }
+    .slide.exit {
+      opacity: 0;
+      transform: translateX(-100%) scale(0.96);
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 60px;
+      padding: 12px 28px;
+    }
+    .nav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      transition: background 0.2s, transform 0.2s;
+      font-size: 20px;
+    }
+    .nav-btn:hover { background: rgba(37,99,235,0.35); transform: scale(1.1); }
+    .dots { display: flex; gap: 8px; align-items: center; }
+    .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .dot.active {
+      background: var(--blue-bright);
+      width: 24px;
+      border-radius: 4px;
+      box-shadow: 0 0 12px var(--blue-glow);
+    }
+    .slide-counter {
+      font-size: 13px;
+      color: var(--silver);
+      min-width: 40px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .key-hint {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      z-index: 100;
+      font-size: 12px;
+      color: rgba(255,255,255,0.35);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .key-hint kbd {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-family: inherit;
+    }
+
+    /* SLIDE 1 – COVER */
+    #slide-1 {
+      background: radial-gradient(ellipse 80% 70% at 50% 30%, rgba(26,79,196,0.25) 0%, transparent 70%),
+                  linear-gradient(160deg, #0a1628 0%, #0d2244 50%, #0a1628 100%);
+      text-align: center;
+    }
+    .cover-logo {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      border-radius: 24px;
+      background: white;
+      padding: 16px;
+      box-shadow: 0 0 60px rgba(37,99,235,0.5), 0 20px 60px rgba(0,0,0,0.4);
+      margin-bottom: 36px;
+      animation: floatLogo 4s ease-in-out infinite;
+    }
+    @keyframes floatLogo {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-12px); }
+    }
+    .cover-tagline {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(38px, 5vw, 70px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #ffffff 0%, #93c5fd 50%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 16px;
+    }
+    .cover-sub {
+      font-size: clamp(14px, 1.8vw, 20px);
+      color: var(--silver);
+      font-weight: 400;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+    }
+    .cover-pills {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .pill {
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .pill-outline {
+      border: 1.5px solid rgba(37,99,235,0.6);
+      color: #93c5fd;
+      background: rgba(37,99,235,0.08);
+    }
+    .pill-solid {
+      background: linear-gradient(135deg, #1a4fc4, #2563eb);
+      color: white;
+      box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+    }
+    .cover-line {
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #2563eb, transparent);
+      margin: 24px auto;
+      border-radius: 2px;
+    }
+
+    /* SLIDE 2 – ABOUT */
+    #slide-2 {
+      background: linear-gradient(150deg, #0a1628 0%, #0d2040 100%);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      max-width: 1100px;
+      width: 100%;
+      align-items: center;
+    }
+    .about-photo { position: relative; }
+    .about-photo img {
+      width: 100%;
+      max-width: 340px;
+      border-radius: 24px;
+      display: block;
+      margin: 0 auto;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.5), 0 0 0 2px rgba(37,99,235,0.3);
+      object-fit: cover;
+      height: 380px;
+    }
+    .photo-badge {
+      position: absolute;
+      bottom: -16px;
+      right: 20px;
+      background: linear-gradient(135deg, #1a4fc4, #2563eb);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      box-shadow: 0 8px 24px rgba(37,99,235,0.5);
+      text-transform: uppercase;
+    }
+    .section-label {
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: #60a5fa;
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+    .about-content h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(28px, 3vw, 44px);
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #fff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .about-content p {
+      color: var(--silver);
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 28px;
+    }
+    .stat-row { display: flex; gap: 24px; }
+    .stat-box {
+      text-align: center;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px 24px;
+      flex: 1;
+    }
+    .stat-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: #60a5fa;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: var(--silver);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* SLIDE 3 – WEBSITE */
+    #slide-3 { background: linear-gradient(160deg, #060e1c 0%, #0d2244 100%); }
+    .slide-header { text-align: center; margin-bottom: 36px; }
+    .slide-header h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(28px, 3.5vw, 50px);
+      font-weight: 800;
+      background: linear-gradient(135deg, #fff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .website-showcase {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 1100px;
+      width: 100%;
+    }
+    .website-card {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .website-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 30px 80px rgba(37,99,235,0.3);
+    }
+    .website-card img {
+      width: 100%;
+      display: block;
+      height: 240px;
+      object-fit: cover;
+      object-position: top;
+    }
+    .card-overlay {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px;
+      background: linear-gradient(to top, rgba(10,22,40,0.95) 0%, transparent 100%);
+    }
+    .card-title { font-weight: 700; font-size: 15px; color: white; margin-bottom: 4px; }
+    .card-desc { font-size: 12px; color: var(--silver); }
+    .card-mode-badge {
+      position: absolute;
+      top: 12px; right: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+    .badge-dark { background: rgba(0,0,0,0.7); border: 1px solid rgba(255,255,255,0.2); color: white; }
+    .badge-light { background: rgba(255,255,255,0.9); border: 1px solid rgba(0,0,0,0.1); color: #0a1628; }
+
+    /* SLIDE 4 – FEATURES */
+    #slide-4 { background: linear-gradient(155deg, #060e1c 0%, #0c1d3a 100%); }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 1100px;
+      width: 100%;
+    }
+    .feature-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 20px;
+      padding: 28px 24px;
+      transition: transform 0.3s, border-color 0.3s, background 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--blue-bright), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .feature-card:hover { transform: translateY(-6px); border-color: rgba(37,99,235,0.3); background: rgba(37,99,235,0.06); }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-icon {
+      width: 48px; height: 48px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(26,79,196,0.3), rgba(37,99,235,0.15));
+      border: 1px solid rgba(37,99,235,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 16px;
+    }
+    .feature-title { font-weight: 700; font-size: 15px; margin-bottom: 8px; color: white; }
+    .feature-desc { font-size: 13px; color: var(--silver); line-height: 1.7; }
+
+    /* SLIDE 5 – SCREENSHOTS */
+    #slide-5 { background: linear-gradient(150deg, #07101f 0%, #0d2040 100%); }
+    .screenshot-showcase {
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .ss-main {
+      flex: 1.5;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(37,99,235,0.2);
+      transition: transform 0.3s;
+    }
+    .ss-main:hover { transform: scale(1.02); }
+    .ss-main img { width: 100%; display: block; height: 320px; object-fit: cover; object-position: top; }
+    .ss-side { flex: 1; display: flex; flex-direction: column; gap: 16px; }
+    .ss-side-item {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      transition: transform 0.3s;
+    }
+    .ss-side-item:hover { transform: scale(1.03); }
+    .ss-side-item img { width: 100%; display: block; height: 148px; object-fit: cover; object-position: top; }
+    .ss-info-bar {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ss-info-dot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 8px #22c55e; flex-shrink: 0; }
+    .ss-info-text { font-size: 13px; color: var(--silver); }
+    .ss-info-text strong { color: white; }
+
+    /* SLIDE 6 – CONTACT */
+    #slide-6 {
+      background: radial-gradient(ellipse 90% 80% at 50% 50%, rgba(26,79,196,0.2) 0%, transparent 70%),
+                  linear-gradient(160deg, #0a1628 0%, #0d2244 100%);
+      text-align: center;
+    }
+    .contact-logo { width: 400px; object-fit: contain; margin-bottom: 36px; border-radius: 16px; animation: floatLogo 4s ease-in-out infinite; }
+    .contact-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(30px, 4vw, 52px);
+      font-weight: 900;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #fff 0%, #93c5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .contact-sub { font-size: 15px; color: var(--silver); margin-bottom: 40px; }
+    .contact-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px; }
+    .contact-card {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 20px;
+      padding: 24px 32px;
+      min-width: 200px;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .contact-card:hover {
+      background: rgba(37,99,235,0.12);
+      border-color: rgba(37,99,235,0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(37,99,235,0.2);
+    }
+    .contact-card .icon { font-size: 28px; margin-bottom: 10px; }
+    .contact-card .label { font-size: 11px; color: #60a5fa; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+    .contact-card .value { font-size: 14px; color: white; font-weight: 500; }
+    .divider-glow { width: 120px; height: 2px; background: linear-gradient(90deg, transparent, #2563eb, transparent); margin: 0 auto 32px; border-radius: 2px; }
+    .tagline-bottom { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: rgba(255,255,255,0.5); letter-spacing: 4px; text-transform: uppercase; }
+    .tagline-bottom span { color: #60a5fa; }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in { animation: slideInUp 0.6s cubic-bezier(0.4,0,0.2,1) both; }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+    .delay-6 { animation-delay: 0.6s; }
+    .delay-7 { animation-delay: 0.7s; }
+    .delay-8 { animation-delay: 0.8s; }
+    .delay-9 { animation-delay: 0.9s; }
+
+    .progress-bar {
+      position: fixed;
+      top: 0; left: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #1a4fc4, #60a5fa);
+      transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+      z-index: 200;
+      box-shadow: 0 0 10px rgba(96,165,250,0.5);
+    }
+  </style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<canvas id="particles-canvas"></canvas>
+
+<div class="key-hint">
+  <kbd>&#8592;</kbd><kbd>&#8594;</kbd> or click arrows
+</div>
+
+<div class="presentation">
+
+  <!-- SLIDE 1 – COVER -->
+  <div class="slide active" id="slide-1">
+    <img class="cover-logo animate-in" src="photo/logo.jpeg" alt="Proteh Assist Logo" />
+    <div class="cover-sub animate-in delay-1">Proteh Assist SL Limited</div>
+    <div class="cover-tagline animate-in delay-2">Smart Solutions.<br/>Real Impact.</div>
+    <div class="cover-line animate-in delay-3"></div>
+    <div class="cover-pills animate-in delay-4">
+      <div class="pill pill-outline">Software Development</div>
+      <div class="pill pill-solid">Web Solutions</div>
+      <div class="pill pill-outline">IT Support</div>
+      <div class="pill pill-outline">Inventory Systems</div>
+    </div>
+  </div>
+
+  <!-- SLIDE 2 – ABOUT -->
+  <div class="slide" id="slide-2">
+    <div class="about-grid">
+      <div class="about-photo">
+        <img src="web/public/images/1000001630.jpg" alt="Founder" />
+        <div class="photo-badge">&#128640; CEO &amp; Founder</div>
+      </div>
+      <div class="about-content">
+        <div class="section-label animate-in">About Us</div>
+        <h2 class="animate-in delay-1">Building Africa's<br/>Digital Future</h2>
+        <p class="animate-in delay-2">
+          Proteh Assist SL Limited is a Sierra Leonean technology company on a mission to
+          empower businesses with cutting-edge digital tools. From custom web applications
+          to enterprise inventory systems, we Solve, Build &amp; Scale.
+        </p>
+        <div class="stat-row animate-in delay-3">
+          <div class="stat-box">
+            <div class="stat-number">3+</div>
+            <div class="stat-label">Products</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">SL</div>
+            <div class="stat-label">Based</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Support</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3 – WEBSITE -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <div class="section-label animate-in">Our Web Presence</div>
+      <h2 class="animate-in delay-1">The ProTech Website</h2>
+    </div>
+    <div class="website-showcase">
+      <div class="website-card animate-in delay-2">
+        <img src="photo/Screenshot 2026-05-27 141543.png" alt="Dark Mode Dashboard" />
+        <div class="card-mode-badge badge-dark">&#127769; DARK MODE</div>
+        <div class="card-overlay">
+          <div class="card-title">Intelligence Overview – Dark Theme</div>
+          <div class="card-desc">Enterprise OS · Pharmacy Intelligence · Real-time Tracking</div>
+        </div>
+      </div>
+      <div class="website-card animate-in delay-3">
+        <img src="photo/Screenshot 2026-05-27 141627.png" alt="Light Mode Dashboard" />
+        <div class="card-mode-badge badge-light">&#9728; LIGHT MODE</div>
+        <div class="card-overlay">
+          <div class="card-title">Intelligence Overview – Light Theme</div>
+          <div class="card-desc">Revenue · Orders · Drug Items · Stock Alerts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4 – FEATURES -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <div class="section-label animate-in">Core Product</div>
+      <h2 class="animate-in delay-1">ProTech Enterprise OS Features</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card animate-in delay-2">
+        <div class="feature-icon">&#128138;</div>
+        <div class="feature-title">Pharmacy Intelligence</div>
+        <div class="feature-desc">Medical stock tracking, prescription management and expiry alerts in real time.</div>
+      </div>
+      <div class="feature-card animate-in delay-3">
+        <div class="feature-icon">&#128202;</div>
+        <div class="feature-title">Sales &amp; Revenue</div>
+        <div class="feature-desc">Full POS console, sales history, and global revenue reporting across all branches.</div>
+      </div>
+      <div class="feature-card animate-in delay-4">
+        <div class="feature-icon">&#127978;</div>
+        <div class="feature-title">Inventory Vault</div>
+        <div class="feature-desc">Category management, batch tracking, warehouse control and purchase orders.</div>
+      </div>
+      <div class="feature-card animate-in delay-5">
+        <div class="feature-icon">&#128101;</div>
+        <div class="feature-title">User &amp; Credit System</div>
+        <div class="feature-desc">Role-based access, staff nodes, credit sales management and customer accounts.</div>
+      </div>
+      <div class="feature-card animate-in delay-6">
+        <div class="feature-icon">&#127769;</div>
+        <div class="feature-title">Dark / Light Mode</div>
+        <div class="feature-desc">Fully themed UI toggling between sleek dark mode and professional light mode.</div>
+      </div>
+      <div class="feature-card animate-in delay-7">
+        <div class="feature-icon">&#128274;</div>
+        <div class="feature-title">Security &amp; Backups</div>
+        <div class="feature-desc">Multi-level authentication, security logging, and automated data backup systems.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5 – SCREENSHOTS -->
+  <div class="slide" id="slide-5">
+    <div class="slide-header">
+      <div class="section-label animate-in">Product Preview</div>
+      <h2 class="animate-in delay-1">See It In Action</h2>
+    </div>
+    <div class="screenshot-showcase">
+      <div class="ss-main animate-in delay-2">
+        <img src="photo/Screenshot 2026-05-27 141543.png" alt="Main Dashboard" />
+      </div>
+      <div class="ss-side">
+        <div class="ss-side-item animate-in delay-3">
+          <img src="photo/Screenshot 2026-05-27 141627.png" alt="Light Mode" />
+        </div>
+        <div class="ss-info-bar animate-in delay-4">
+          <div class="ss-info-dot"></div>
+          <div class="ss-info-text">
+            <strong>System Live</strong> · Enterprise OS running on protehassist.com · Real-time sync
+          </div>
+        </div>
+        <div class="ss-info-bar animate-in delay-5" style="border-color: rgba(37,99,235,0.3); background: rgba(37,99,235,0.08);">
+          <div style="font-size:20px;">&#9989;</div>
+          <div class="ss-info-text">
+            <strong>African Trade Intelligence</strong> · PRO features available now
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6 – CONTACT -->
+  <div class="slide" id="slide-6">
+    <img class="contact-logo animate-in" src="web/public/images/logo2.png" alt="ProTech Banner" />
+    <div class="contact-title animate-in delay-1">Get In Touch</div>
+    <div class="contact-sub animate-in delay-2">Ready to transform your business? Let's talk.</div>
+    <div class="divider-glow animate-in delay-3"></div>
+    <div class="contact-cards animate-in delay-4">
+      <a class="contact-card" href="https://www.protehassist.com" target="_blank">
+        <div class="icon">&#127760;</div>
+        <div class="label">Website</div>
+        <div class="value">www.protehassist.com</div>
+      </a>
+      <a class="contact-card" href="mailto:info@protehassist.com">
+        <div class="icon">&#9993;</div>
+        <div class="label">Email</div>
+        <div class="value">info@protehassist.com</div>
+      </a>
+      <a class="contact-card" href="https://facebook.com" target="_blank">
+        <div class="icon">&#128218;</div>
+        <div class="label">Facebook</div>
+        <div class="value">Proteh Assist SL Limited</div>
+      </a>
+    </div>
+    <div class="tagline-bottom animate-in delay-5">
+      Innovate <span>·</span> Develop <span>·</span> Deliver
+    </div>
+  </div>
+
+</div>
+
+<!-- NAVIGATION -->
+<nav class="nav-bar">
+  <button class="nav-btn" onclick="navigate(-1)" title="Previous">&#8592;</button>
+  <div class="dots" id="dots"></div>
+  <button class="nav-btn" onclick="navigate(1)" title="Next">&#8594;</button>
+  <div class="slide-counter" id="counter">1 / 6</div>
+</nav>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const dotsContainer = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const progressBar = document.getElementById('progressBar');
+
+  slides.forEach(function(_, i) {
+    var dot = document.createElement('div');
+    dot.className = 'dot' + (i === 0 ? ' active' : '');
+    dot.onclick = function() { goTo(i); };
+    dotsContainer.appendChild(dot);
+  });
+
+  function updateUI() {
+    document.querySelectorAll('.dot').forEach(function(d, i) {
+      d.classList.toggle('active', i === current);
+    });
+    counter.textContent = (current + 1) + ' / ' + total;
+    progressBar.style.width = (((current + 1) / total) * 100) + '%';
+  }
+
+  function goTo(index) {
+    if (index < 0 || index >= total) return;
+    var prev = slides[current];
+    current = index;
+    var next = slides[current];
+    prev.classList.remove('active');
+    prev.classList.add('exit');
+    setTimeout(function() { prev.classList.remove('exit'); }, 700);
+    next.querySelectorAll('.animate-in').forEach(function(el) {
+      el.style.animation = 'none';
+      el.offsetHeight;
+      el.style.animation = '';
+    });
+    next.classList.add('active');
+    updateUI();
+  }
+
+  function navigate(dir) {
+    var next = current + dir;
+    if (next >= 0 && next < total) goTo(next);
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); navigate(1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); navigate(-1); }
+    else if (e.key === 'Home') goTo(0);
+    else if (e.key === 'End') goTo(total - 1);
+  });
+
+  var touchStartX = 0;
+  document.addEventListener('touchstart', function(e) { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 50) navigate(dx < 0 ? 1 : -1);
+  });
+
+  updateUI();
+
+  // Particles
+  var canvas = document.getElementById('particles-canvas');
+  var ctx = canvas.getContext('2d');
+  var w, h, particles;
+
+  function resize() {
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+  }
+
+  function mkParticles() {
+    var count = Math.floor((w * h) / 18000);
+    particles = [];
+    for (var i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 1.5 + 0.3,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        alpha: Math.random() * 0.5 + 0.1
+      });
+    }
+  }
+
+  function drawParticles() {
+    ctx.clearRect(0, 0, w, h);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+      if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(96,165,250,' + p.alpha + ')';
+      ctx.fill();
+    }
+    for (var i = 0; i < particles.length; i++) {
+      for (var j = i + 1; j < particles.length; j++) {
+        var dx = particles[i].x - particles[j].x;
+        var dy = particles[i].y - particles[j].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = 'rgba(96,165,250,' + ((1 - dist / 100) * 0.12) + ')';
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(drawParticles);
+  }
+
+  window.addEventListener('resize', function() { resize(); mkParticles(); });
+  resize();
+  mkParticles();
+  drawParticles();
+</script>
+</body>
+</html>

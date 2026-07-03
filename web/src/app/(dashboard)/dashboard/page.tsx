@@ -552,9 +552,9 @@ export default function DashboardPage() {
           >
             {/* Welcome Banner */}
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-               <div className="flex-1 space-y-8">
+               <div className="flex-1 min-w-0 space-y-8">
                   <div>
-                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
+                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none break-words">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
                     <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600 mt-4">Overview of Protech Inventory</p>
                     <p className="text-slate-500 font-medium text-lg mt-4 max-w-2xl leading-relaxed">
                       The easy-to-use inventory software that you can set up in no time! Let's get you up and running effectively.
@@ -564,20 +564,20 @@ export default function DashboardPage() {
                   {/* Setup Checklist */}
                   <Card className="border-none bg-white dark:bg-slate-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] rounded-[2.5rem] overflow-hidden">
                      <div className="p-5 md:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/30 dark:bg-slate-900/30">
-                        <div className="flex items-center gap-4">
-                           <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                        <div className="flex items-center gap-4 w-full sm:w-auto">
+                           <div className="h-10 w-10 shrink-0 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
                               <Zap className="h-5 w-5 fill-current" />
                            </div>
-                           <div>
-                              <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic">Let's get you up and running</h3>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Phase 01 Configuration</p>
+                           <div className="min-w-0">
+                              <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic truncate">Let's get you up and running</h3>
+                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic truncate">Phase 01 Configuration</p>
                            </div>
                         </div>
-                        <div className="flex flex-wrap items-center gap-4">
-                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2" onClick={() => router.push("/dashboard/inventory/products")}>
+                        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto mt-4 sm:mt-0">
+                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2 shrink-0" onClick={() => router.push("/dashboard/inventory/products")}>
                               <Plus className="h-3 w-3" /> Quick Create
                            </Button>
-                           <div className="text-left sm:text-right">
+                           <div className="text-left sm:text-right w-full sm:w-auto">
                               <div className="flex items-center gap-3 mb-2">
                                  <span className="text-xl sm:text-3xl font-[1000] text-indigo-600 italic tracking-tighter">{setupProgress}% Completed</span>
                               </div>
@@ -615,14 +615,14 @@ export default function DashboardPage() {
 
                      <div className="p-5 md:p-12 space-y-8 md:space-y-10">
                         <div className="flex flex-col md:flex-row gap-12 items-start">
-                           <div className="flex-1 space-y-6">
-                              <h4 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic">{SETUP_STEPS[activeSetupStep].title}</h4>
+                           <div className="flex-1 min-w-0 space-y-6">
+                              <h4 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic break-words">{SETUP_STEPS[activeSetupStep].title}</h4>
                               <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg leading-relaxed">{SETUP_STEPS[activeSetupStep].desc}</p>
                               
                               <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-4">
                                  {SETUP_STEPS[activeSetupStep].actions.map((action, i) => (
                                    <Button key={i} onClick={() => router.push(action.href)} className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 group">
-                                      <action.icon className="mr-3 h-4 w-4 group-hover:scale-125 transition-transform" />
+                                      <action.icon className="mr-3 h-4 w-4 shrink-0 group-hover:scale-125 transition-transform" />
                                       {action.label}
                                    </Button>
                                  ))}
@@ -640,7 +640,7 @@ export default function DashboardPage() {
                            </div>
                            <div onClick={() => setVideoModalOpen(true)} className="w-full md:w-[280px] h-[160px] md:h-[180px] bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group cursor-pointer relative overflow-hidden shrink-0">
                               <div className="absolute inset-0 bg-indigo-600 opacity-0 group-hover:opacity-5 transition-opacity" />
-                              <div className="h-16 w-16 bg-white dark:bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-indigo-600 relative z-10 group-hover:scale-110 transition-transform">
+                              <div className="h-16 w-16 bg-white dark:bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-indigo-600 relative z-10 group-hover:scale-110 transition-transform shrink-0">
                                  <Play className="h-6 w-6 fill-current ml-1" />
                               </div>
                               <p className="absolute bottom-6 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">Watch Video Guide</p>
@@ -669,7 +669,7 @@ export default function DashboardPage() {
                      ].map((item, i) => (
                        <Card key={i} className="border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 rounded-[2rem] hover:shadow-xl transition-all duration-500 group">
                           <div className="flex gap-6 items-center">
-                             <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                             <div className="h-14 w-14 shrink-0 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
                                 <item.icon className="h-6 w-6" />
                              </div>
                              <div className="flex-1 min-w-0">
