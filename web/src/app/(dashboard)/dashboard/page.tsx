@@ -621,12 +621,12 @@ export default function DashboardPage() {
                               
                               <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-4">
                                  {SETUP_STEPS[activeSetupStep].actions.map((action, i) => (
-                                   <Button key={i} onClick={() => router.push(action.href)} className="w-full sm:w-auto h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 group">
+                                   <Button key={i} onClick={() => router.push(action.href)} className="w-full sm:w-auto h-auto min-h-14 py-4 px-4 sm:px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest sm:tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 group whitespace-normal text-left sm:text-center justify-start sm:justify-center">
                                       <action.icon className="mr-3 h-4 w-4 shrink-0 group-hover:scale-125 transition-transform" />
                                       {action.label}
                                    </Button>
                                  ))}
-                                 <Button variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50" onClick={() => {
+                                 <Button variant="outline" className="w-full sm:w-auto h-auto min-h-14 py-4 px-4 sm:px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 whitespace-normal text-left sm:text-center justify-start sm:justify-center" onClick={() => {
                                    const newProgress = Math.min(100, setupProgress + 25);
                                    setSetupProgress(newProgress);
                                    toast.success(`Step "${SETUP_STEPS[activeSetupStep].title}" marked as completed!`);
@@ -721,11 +721,11 @@ export default function DashboardPage() {
                      <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase italic mb-6 sm:mb-8 leading-[1.1] sm:leading-[0.9]">Manage inventory <br className="hidden sm:block" /><span className="text-indigo-400">on the go!</span></h2>
                      <p className="text-slate-400 font-medium text-base sm:text-lg leading-relaxed mb-8 sm:mb-12 max-w-md">Experience the ease of managing your inventory with the Protech mobile app for Android & iOS.</p>
                      <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
-                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="w-full sm:w-auto h-14 sm:h-16 px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
-                           <Smartphone className="h-5 w-5" /> Google Play
+                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 whitespace-normal">
+                           <Smartphone className="h-5 w-5 shrink-0" /> Google Play
                         </Button>
-                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="w-full sm:w-auto h-14 sm:h-16 px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center gap-4">
-                           <SmartphoneIcon className="h-5 w-5" /> App Store
+                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 whitespace-normal">
+                           <SmartphoneIcon className="h-5 w-5 shrink-0" /> App Store
                         </Button>
                      </div>
                   </div>
@@ -801,8 +801,8 @@ export default function DashboardPage() {
                ))}
             </div>
 
-            <footer className="pt-20 pb-12 text-center">
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em] italic">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
+            <footer className="pt-20 pb-12 text-center px-4">
+               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest sm:tracking-[0.5em] italic leading-relaxed break-words">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
             </footer>
           </motion.div>
         )}
@@ -863,12 +863,12 @@ export default function DashboardPage() {
                       <div>
                          <h2 className="text-5xl font-black tracking-tight uppercase italic mb-8 leading-[0.9]">Manage inventory <br /><span className="text-indigo-400">on the go!</span></h2>
                          <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12 max-w-md">Experience the ease of managing your inventory with the mobile app.</p>
-                         <div className="flex flex-wrap gap-6">
-                            <Button className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black flex items-center gap-4 uppercase text-[11px] tracking-widest hover:scale-105 transition-all">
-                               <Smartphone className="h-5 w-5" /> Google Play
+                         <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
+                            <Button className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 font-black flex items-center justify-center gap-4 uppercase text-[11px] tracking-widest hover:scale-105 transition-all whitespace-normal">
+                               <Smartphone className="h-5 w-5 shrink-0" /> Google Play
                             </Button>
-                            <Button className="h-16 px-10 rounded-2xl bg-white text-slate-900 font-black flex items-center gap-4 uppercase text-[11px] tracking-widest hover:scale-105 transition-all">
-                               <SmartphoneIcon className="h-5 w-5" /> App Store
+                            <Button className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 font-black flex items-center justify-center gap-4 uppercase text-[11px] tracking-widest hover:scale-105 transition-all whitespace-normal">
+                               <SmartphoneIcon className="h-5 w-5 shrink-0" /> App Store
                             </Button>
                          </div>
                       </div>
@@ -943,8 +943,8 @@ export default function DashboardPage() {
                    ))}
                 </div>
 
-                <footer className="pt-20 pb-12 text-center w-full">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.5em] italic">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
+                <footer className="pt-20 pb-12 text-center w-full px-4">
+                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest sm:tracking-[0.5em] italic leading-relaxed break-words">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
                 </footer>
              </div>
           </motion.div>
