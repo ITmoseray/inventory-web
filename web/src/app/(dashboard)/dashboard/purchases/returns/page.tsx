@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, RotateCcw, Package, AlertCircle, ShoppingCart, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -26,6 +26,7 @@ export default function ReturnsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [returnItems, setReturnItems] = useState<any[]>([]);
+  const formRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchSales();
@@ -49,6 +50,10 @@ export default function ReturnsPage() {
       ...item,
       returnQuantity: 0
     })));
+    // Auto-scroll to the return form on mobile
+    setTimeout(() => {
+      formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   };
 
   const handleReturnQtyChange = (productId: string, qty: number) => {
@@ -107,8 +112,8 @@ export default function ReturnsPage() {
                </div>
             </Card>
 
-            <div className="rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-               <Table>
+            <div className="rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden overflow-x-auto custom-scrollbar">
+               <Table className="min-w-[400px]">
                   <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                      <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
                         <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-8">Invoice</TableHead>
@@ -152,7 +157,7 @@ export default function ReturnsPage() {
          </div>
 
          {/* Return Processing Form */}
-         <div className="space-y-6">
+         <div className="space-y-6" ref={formRef}>
             {!selectedSale ? (
                <Card className="h-full border-dashed border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 rounded-[2rem] flex flex-col items-center justify-center p-12 text-center">
                   <div className="bg-white dark:bg-slate-800 p-6 rounded-full shadow-sm mb-6">
@@ -175,8 +180,8 @@ export default function ReturnsPage() {
                   <CardContent className="p-8 space-y-8">
                      <div className="space-y-4">
                         <h3 className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-widest">Select Items & Quantities</h3>
-                        <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden">
-                           <Table>
+                        <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden overflow-x-auto custom-scrollbar">
+                           <Table className="min-w-[300px]">
                               <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                                  <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
                                     <TableHead className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-550">Product</TableHead>

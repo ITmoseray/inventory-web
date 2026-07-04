@@ -60,6 +60,19 @@ export default function SalesHistoryPage() {
 
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
+  const isBar = businessType === "BAR";
+
+  const copy = {
+    titlePrefix: isBar ? "Tab" : "Sales",
+    titleHighlight: isBar ? "History" : "History",
+    subtitle: isBar ? "Audit and track every closed tab and order across your bar." : "Audit and track every finalized transaction across your network.",
+    intelligence: isBar ? "Bar Intelligence" : "Commerce Intelligence",
+    idLabel: isBar ? "Tab ID" : "Invoice ID",
+    customerLabel: isBar ? "Guest/Table" : "Customer Node",
+    customerSub: isBar ? "Bar Guest" : "Retail Client",
+    emptyState: isBar ? "No closed tabs detected" : "No matching nodes detected",
+    modalIntel: isBar ? "Tab Intelligence" : "Invoice Intelligence",
+  };
 
   useEffect(() => {
     fetchSales();
@@ -135,7 +148,7 @@ export default function SalesHistoryPage() {
   ];
 
   const handleExportCSV = () => {
-    const headers = ["Invoice ID", "Date", "Customer", "Total Amount", "Status"];
+    const headers = [copy.idLabel, "Date", "Customer", "Total Amount", "Status"];
     const rows = sales.map(s => [
       s.invoiceNumber,
       format(new Date(s.createdAt), "yyyy-MM-dd HH:mm"),
@@ -160,7 +173,7 @@ export default function SalesHistoryPage() {
 
   const columns = [
     {
-      header: "Invoice ID",
+      header: copy.idLabel,
       isMain: true,
       accessor: (sale: any) => (
         <div>
@@ -182,11 +195,11 @@ export default function SalesHistoryPage() {
       )
     },
     {
-      header: "Customer Node",
+      header: copy.customerLabel,
       accessor: (sale: any) => (
         <div>
           <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tighter">{sale.customerName}</div>
-          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Retail Client</div>
+          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{copy.customerSub}</div>
         </div>
       )
     },
@@ -222,10 +235,10 @@ export default function SalesHistoryPage() {
               <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
                  <ShoppingCart className="h-4 w-4" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Commerce Intelligence</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{copy.intelligence}</span>
            </div>
-           <h1 className="text-3xl sm:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight uppercase italic">Sales <span className="text-primary">History</span></h1>
-           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Audit and track every finalized transaction across your network.</p>
+           <h1 className="text-3xl sm:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight uppercase italic">{copy.titlePrefix} <span className={cn(isBar ? "text-rose-500" : "text-primary")}>{copy.titleHighlight}</span></h1>
+           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">{copy.subtitle}</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
@@ -243,7 +256,7 @@ export default function SalesHistoryPage() {
             <div className="relative flex-1 group">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                <Input 
-                 placeholder="Search invoice or customer..." 
+                 placeholder={`Search ${isBar ? "tab or guest" : "invoice or customer"}...`} 
                  className="h-12 sm:h-14 pl-12 rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:bg-white transition-all font-bold text-xs"
                  value={searchQuery}
                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
@@ -275,7 +288,7 @@ export default function SalesHistoryPage() {
              <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto">
                 <Receipt className="h-8 w-8 text-slate-200 dark:text-slate-600" />
              </div>
-             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No matching nodes detected</p>
+             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{copy.emptyState}</p>
           </div>
         }
       />
@@ -288,7 +301,7 @@ export default function SalesHistoryPage() {
                  <Receipt size={180} />
               </div>
               <div className="relative z-10 space-y-1">
-                 <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Invoice Intelligence</div>
+                 <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">{copy.modalIntel}</div>
                  <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none">{selectedSale?.invoiceNumber}</h3>
                  <div className="flex items-center gap-3 pt-4">
                     <div className={cn("px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest", 

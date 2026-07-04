@@ -9,11 +9,8 @@ export function BlockScreenSignout() {
     <Button 
       variant="outline" 
       onClick={async () => {
-        if (typeof window !== "undefined") {
-          window.localStorage.clear();
-          window.sessionStorage.clear();
-        }
-        await signOut({ redirectTo: "/login" });
+        const { logoutUserCompletely } = await import("@/lib/utils/logout");
+        await logoutUserCompletely(signOut);
       }}
       className="rounded-xl px-6 h-12 border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white font-black text-xs uppercase tracking-widest gap-2"
     >

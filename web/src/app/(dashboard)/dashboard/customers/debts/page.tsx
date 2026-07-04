@@ -185,22 +185,22 @@ export default function DebtsPage() {
         </Card>
       </div>
 
-      <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm p-4 rounded-3xl">
+      <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 rounded-3xl">
         <div className="relative group">
           <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
           <Input 
             placeholder="Search by customer name or invoice..." 
-            className="pl-10 h-10 rounded-xl border-slate-100 bg-white"
+            className="pl-10 h-10 rounded-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </Card>
 
-      <div className="rounded-[2rem] border-none bg-white shadow-xl shadow-slate-100/50 overflow-hidden">
+      <div className="rounded-[2rem] border-none bg-white dark:bg-slate-900 shadow-xl shadow-slate-100/50 dark:shadow-none overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50/50">
-            <TableRow className="hover:bg-transparent border-slate-50">
+          <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
+            <TableRow className="hover:bg-transparent border-slate-50 dark:border-slate-800/50">
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-6">Customer & Transaction</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Balance Details</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Status</TableHead>
@@ -211,8 +211,8 @@ export default function DebtsPage() {
           <TableBody>
             {loading ? (
               [1,2,3].map(i => (
-                <TableRow key={i} className="border-slate-50">
-                  <TableCell colSpan={5} className="h-20 animate-pulse bg-slate-50/50 first:rounded-l-[2rem] last:rounded-r-[2rem]" />
+                <TableRow key={i} className="border-slate-50 dark:border-slate-800/50">
+                  <TableCell colSpan={5} className="h-20 animate-pulse bg-slate-50/50 dark:bg-slate-800/50 first:rounded-l-[2rem] last:rounded-r-[2rem]" />
                 </TableRow>
               ))
             ) : filteredDebts.length === 0 ? (
@@ -223,10 +223,10 @@ export default function DebtsPage() {
               </TableRow>
             ) : (
               filteredDebts.map((debt) => (
-                <TableRow key={debt.id} className="hover:bg-slate-50/50 border-slate-50 group transition-colors">
+                <TableRow key={debt.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-slate-50 dark:border-slate-800/50 group transition-colors">
                   <TableCell className="pl-6">
                     <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 font-black">
+                      <div className="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 font-black">
                         <User className="h-5 w-5" />
                       </div>
                       <div className="flex flex-col">
@@ -244,8 +244,8 @@ export default function DebtsPage() {
                   <TableCell>
                     <span className={cn(
                       "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
-                      debt.status === 'PAID' ? "bg-emerald-50 text-emerald-600" : 
-                      debt.status === 'PARTIAL' ? "bg-amber-50 text-amber-600" : "bg-rose-50 text-rose-600"
+                      debt.status === 'PAID' ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : 
+                      debt.status === 'PARTIAL' ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" : "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400"
                     )}>
                       {debt.status}
                     </span>
@@ -253,7 +253,7 @@ export default function DebtsPage() {
                   <TableCell>
                     <div className={cn(
                       "text-xs font-bold",
-                      debt.dueDate && new Date(debt.dueDate) < new Date() && debt.status !== 'PAID' ? "text-rose-500" : "text-slate-600"
+                      debt.dueDate && new Date(debt.dueDate) < new Date() && debt.status !== 'PAID' ? "text-rose-500" : "text-slate-600 dark:text-slate-400"
                     )}>
                       {debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "No limit"}
                     </div>
@@ -284,7 +284,7 @@ export default function DebtsPage() {
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              className="h-8 rounded-lg border-slate-100 dark:border-slate-800 font-bold text-xs"
+                              className="h-8 rounded-lg border-slate-100 dark:border-slate-800 font-bold text-xs dark:text-slate-300 dark:hover:bg-slate-800/50"
                               onClick={() => {
                                 setSelectedDebt(debt);
                                 setPaymentAmount(debt.totalAmount - debt.paidAmount);
@@ -306,41 +306,41 @@ export default function DebtsPage() {
 
       {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-        <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl bg-white dark:bg-slate-950">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black">Settle Debt</DialogTitle>
             <p className="text-slate-400 font-bold text-sm">Recording payment for {selectedDebt?.customer.name}</p>
           </DialogHeader>
           <div className="space-y-6 pt-6">
-             <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex justify-between items-center">
+             <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex justify-between items-center">
                 <span className="text-xs font-bold text-slate-500 uppercase">Outstanding Balance</span>
                 <span className="text-xl font-black text-primary">Le {selectedDebt ? Math.round(selectedDebt.totalAmount - selectedDebt.paidAmount).toLocaleString() : 0}</span>
              </div>
              <div className="space-y-2">
-                <Label className="font-bold text-slate-700">Payment Amount (Le)</Label>
+                <Label className="font-bold text-slate-700 dark:text-slate-300">Payment Amount (Le)</Label>
                 <div className="relative">
                    <DollarSign className="absolute left-3 top-3 h-5 w-5 text-slate-300" />
                    <Input 
                      type="number"
                      value={paymentAmount}
                      onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                     className="h-12 pl-10 rounded-xl border-slate-100 bg-slate-50"
+                     className="h-12 pl-10 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
                    />
                 </div>
              </div>
              <div className="space-y-2">
-                <Label className="font-bold text-slate-700">Payment Note</Label>
+                <Label className="font-bold text-slate-700 dark:text-slate-300">Payment Note</Label>
                 <Input 
                    type="text"
                    value={paymentNote}
                    placeholder="e.g. Paid via bank transfer"
                    onChange={(e) => setPaymentNote(e.target.value)}
-                   className="h-12 rounded-xl border-slate-100 bg-slate-50"
+                   className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
                 />
              </div>
-             <div className="flex justify-end gap-3 pt-6 border-t border-slate-50">
+             <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 dark:border-slate-800/50">
                 <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
-                <Button className="rounded-xl px-8 h-12 bg-slate-900 text-white font-black" onClick={handlePayment}>Confirm Payment</Button>
+                <Button className="rounded-xl px-8 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black" onClick={handlePayment}>Confirm Payment</Button>
              </div>
           </div>
         </DialogContent>

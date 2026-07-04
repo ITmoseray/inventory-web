@@ -40,14 +40,14 @@ export default function BillingPage() {
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        <Card className="border-none shadow-xl bg-white rounded-3xl p-6">
+        <Card className="border-none shadow-xl bg-white dark:bg-slate-900/80 rounded-3xl p-6 backdrop-blur-xl">
           <CardHeader className="p-0 pb-4">
             <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Current Plan</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             {subscription ? (
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                     <div>
                         <div className="text-sm font-black text-slate-900 dark:text-white uppercase">{subscription.plan}</div>
                         <div className="text-xs font-bold text-slate-400">Expires {format(new Date(subscription.endDate), "PPP")}</div>
@@ -67,8 +67,8 @@ export default function BillingPage() {
         </Card>
       </div>
 
-      <Card className="border-none shadow-xl bg-white rounded-3xl overflow-hidden">
-        <CardHeader className="bg-slate-50 border-b border-slate-100 p-6">
+      <Card className="border border-slate-200/60 dark:border-slate-800/60 shadow-xl bg-white dark:bg-slate-900/80 rounded-[2.5rem] overflow-hidden backdrop-blur-xl">
+        <CardHeader className="bg-slate-50/50 dark:bg-slate-800/30 border-b border-slate-100 dark:border-slate-800 p-6 md:p-8">
           <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Invoice History</CardTitle>
         </CardHeader>
         <Table>
@@ -82,7 +82,7 @@ export default function BillingPage() {
           <TableBody>
             {invoices.map((invoice) => (
               <TableRow key={invoice.id}>
-                <TableCell className="font-bold text-slate-700">{format(new Date(invoice.createdAt), "PPP")}</TableCell>
+                <TableCell className="font-bold text-slate-700 dark:text-slate-300">{format(new Date(invoice.createdAt), "PPP")}</TableCell>
                 <TableCell className="font-black text-slate-900 dark:text-white">Le {Math.round(Number(invoice.amount)).toLocaleString()}</TableCell>
                 <TableCell>
                   <span className={cn(

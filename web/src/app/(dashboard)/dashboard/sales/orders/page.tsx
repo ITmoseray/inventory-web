@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { format, subDays } from "date-fns";
+import { format, subDays, startOfWeek, endOfWeek, startOfMonth, endOfMonth, subMonths, startOfDay, endOfDay, startOfYear, endOfYear } from "date-fns";
 import { toast } from "sonner";
 import { 
   ShoppingCart, 
@@ -71,7 +71,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { getRecentSales } from "@/lib/actions/sale";
+import { getRecentSales, getSalesHistoryByRange } from "@/lib/actions/sale";
 import { Badge } from "@/components/ui/badge";
 
 const SALES_ORDER_VIEWS = [
@@ -109,15 +109,68 @@ export default function SalesOrdersPage() {
   const [starredViews, setStarredViews] = useState<string[]>(["all"]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [filterRange, setFilterRange] = useState("TODAY");
+
+  const ranges = [
+    { label: "Today", value: "TODAY" },
+    { label: "This Week", value: "THIS_WEEK" },
+    { label: "Last 2 Weeks", value: "LAST_TWO_WEEKS" },
+    { label: "Last Month", value: "LAST_MONTH" },
+    { label: "Last 3 Months", value: "LAST_THREE_MONTHS" },
+    { label: "Last 6 Months", value: "LAST_SIX_MONTHS" },
+    { label: "This Year", value: "THIS_YEAR" },
+    { label: "All Sales", value: "ALL_TIME" },
+  ];
 
   useEffect(() => {
     fetchSales();
-  }, []);
+  }, [filterRange]);
 
   async function fetchSales() {
     try {
       setLoading(true);
-      const data = await getRecentSales();
+      const now = new Date();
+      let start: Date, end: Date;
+
+      switch (filterRange) {
+        case "TODAY":
+          start = startOfDay(now);
+          end = endOfDay(now);
+          break;
+        case "THIS_WEEK":
+          start = startOfWeek(now);
+          end = endOfWeek(now);
+          break;
+        case "LAST_TWO_WEEKS":
+          start = subDays(now, 14);
+          end = now;
+          break;
+        case "LAST_MONTH":
+          start = startOfMonth(subMonths(now, 1));
+          end = endOfMonth(subMonths(now, 1));
+          break;
+        case "LAST_THREE_MONTHS":
+          start = startOfMonth(subMonths(now, 3));
+          end = endOfMonth(now);
+          break;
+        case "LAST_SIX_MONTHS":
+          start = startOfMonth(subMonths(now, 6));
+          end = endOfMonth(now);
+          break;
+        case "THIS_YEAR":
+          start = startOfYear(now);
+          end = endOfYear(now);
+          break;
+        case "ALL_TIME":
+          start = new Date(2000, 0, 1);
+          end = now;
+          break;
+        default:
+          start = subDays(now, 30);
+          end = now;
+      }
+
+      const data = await getSalesHistoryByRange(start, end);
       setSales(data || []);
     } catch (error) {
       toast.error("Cloud sync failed for sales records.");
@@ -174,21 +227,21 @@ export default function SalesOrdersPage() {
                      </button>
                   }
                />
-               <DropdownMenuContent className="rounded-[2.5rem] border-slate-100 shadow-2xl p-4 min-w-[350px] bg-white animate-in zoom-in-95 duration-200" sideOffset={20}>
+               <DropdownMenuContent className="rounded-[2.5rem] border-slate-100 dark:border-slate-800 shadow-2xl p-4 w-[calc(100vw-2rem)] sm:min-w-[350px] sm:w-auto bg-white dark:bg-slate-950 animate-in zoom-in-95 duration-200" sideOffset={20}>
                   <div className="relative mb-4 px-2">
-                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300" />
+                     <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300 dark:text-slate-500" />
                      <Input 
                        placeholder="Search views..." 
                        value={viewSearch}
                        onChange={(e) => setViewSearch(e.target.value)}
-                       className="h-10 pl-10 rounded-xl border-slate-100 bg-slate-50 text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-indigo-600/10 transition-all"
+                       className="h-10 pl-10 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white focus:ring-4 focus:ring-indigo-600/10 transition-all"
                      />
                   </div>
                   <div className="space-y-1 max-h-[400px] overflow-y-auto custom-scrollbar px-1">
                      {/* Favorites Section */}
                      {starredViews.length > 0 && (
                        <div className="mb-6 space-y-1">
-                          <div className="px-4 py-2 text-[9px] font-black text-indigo-400 uppercase tracking-[0.3em] flex items-center gap-2">
+                          <div className="px-4 py-2 text-[9px] font-black text-indigo-400 dark:text-indigo-500 uppercase tracking-[0.3em] flex items-center gap-2">
                              <Star className="h-3 w-3 fill-current" /> Favorites
                           </div>
                           {SALES_ORDER_VIEWS.filter(v => starredViews.includes(v.id)).map(view => (
@@ -196,10 +249,10 @@ export default function SalesOrdersPage() {
                               key={`fav-${view.id}`} 
                               onClick={() => setViewFilter(view.id)}
                               className={cn(
-                                "rounded-xl h-12 font-black uppercase tracking-widest text-[10px] px-4 cursor-pointer transition-all flex items-center justify-between group bg-slate-50/50",
+                                "rounded-xl h-12 font-black uppercase tracking-widest text-[10px] px-4 cursor-pointer transition-all flex items-center justify-between group bg-slate-50/50 dark:bg-slate-900/30",
                                 viewFilter === view.id 
                                   ? "bg-indigo-600 text-white shadow-xl" 
-                                  : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+                                  : "text-slate-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"
                               )}
                             >
                                <div className="flex items-center gap-4">
@@ -214,13 +267,13 @@ export default function SalesOrdersPage() {
                                {viewFilter === view.id && <CheckCircle2 className="h-4 w-4" />}
                             </DropdownMenuItem>
                           ))}
-                          <div className="h-px bg-slate-100 mx-2 my-4" />
+                          <div className="h-px bg-slate-100 dark:bg-slate-800 mx-2 my-4" />
                        </div>
                      )}
 
                      {/* All Views Section */}
                      {starredViews.length > 0 && (
-                       <div className="px-4 py-2 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-1">
+                       <div className="px-4 py-2 text-[9px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-1">
                           All Views
                        </div>
                      )}
@@ -233,7 +286,7 @@ export default function SalesOrdersPage() {
                            "rounded-xl h-12 font-black uppercase tracking-widest text-[10px] px-4 cursor-pointer transition-all flex items-center justify-between group",
                            viewFilter === view.id 
                              ? "bg-indigo-600 text-white shadow-xl" 
-                             : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
+                             : "text-slate-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 hover:text-indigo-600 dark:hover:text-indigo-400"
                          )}
                        >
                           <div className="flex items-center gap-4">
@@ -243,7 +296,7 @@ export default function SalesOrdersPage() {
                                  "transition-all duration-300",
                                  starredViews.includes(view.id) 
                                    ? "text-yellow-400 scale-125" 
-                                   : "text-slate-300 group-hover:text-slate-400"
+                                   : "text-slate-300 dark:text-slate-600 group-hover:text-slate-400 dark:group-hover:text-slate-500"
                                )}
                              >
                                 <Star className={cn("h-4 w-4", starredViews.includes(view.id) && "fill-current")} />
@@ -251,7 +304,7 @@ export default function SalesOrdersPage() {
                              <span>{view.label}</span>
                           </div>
                           {viewFilter === view.id && <CheckCircle2 className="h-4 w-4" />}
-                          {view.isAction && <Plus className="h-3 w-3 ml-auto text-indigo-600" />}
+                          {view.isAction && <Plus className="h-3 w-3 ml-auto text-indigo-600 dark:text-indigo-400" />}
                        </DropdownMenuItem>
                      ))}
                   </div>
@@ -319,25 +372,25 @@ export default function SalesOrdersPage() {
       <div className="flex-1 p-8 space-y-6">
         
         {/* Table Action Bar */}
-        <div className="flex items-center justify-between">
-           <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+           <div className="flex items-center gap-3 w-full sm:w-auto">
               {/* Customize Columns Button */}
               <DropdownMenu>
                  <DropdownMenuTrigger
                     render={
-                       <button className="h-11 w-11 p-0 rounded-xl border border-slate-100 bg-white shadow-sm hover:bg-slate-50 inline-flex items-center justify-center">
+                       <button className="h-11 w-11 p-0 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center justify-center flex-shrink-0">
                           <Layout className="h-5 w-5 text-slate-400" />
                        </button>
                     }
                  />
-                 <DropdownMenuContent className="rounded-2xl border-slate-100 shadow-2xl p-4 w-64 bg-white">
+                 <DropdownMenuContent className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-2xl p-4 w-64 bg-white dark:bg-slate-950">
                     <div className="space-y-4">
-                       <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 italic px-1">Table Controls</p>
+                       <p className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 italic px-1">Table Controls</p>
                        <div className="space-y-1">
-                          <DropdownMenuItem className="rounded-xl h-11 font-bold text-xs gap-3 px-4">
+                          <DropdownMenuItem className="rounded-xl h-11 font-bold text-xs gap-3 px-4 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
                              <Pencil className="h-4 w-4 text-slate-400" /> Customize Columns
                           </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-xl h-11 font-bold text-xs gap-3 px-4">
+                          <DropdownMenuItem className="rounded-xl h-11 font-bold text-xs gap-3 px-4 hover:bg-slate-50 dark:hover:bg-slate-900 cursor-pointer">
                              <Box className="h-4 w-4 text-slate-400" /> Clip Text
                           </DropdownMenuItem>
                        </div>
@@ -345,27 +398,38 @@ export default function SalesOrdersPage() {
                  </DropdownMenuContent>
               </DropdownMenu>
               
-              <div className="h-6 w-px bg-slate-100 mx-2" />
+              <div className="h-6 w-px bg-slate-100 dark:bg-slate-800 mx-2" />
               
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-100 text-[10px] font-black uppercase tracking-widest text-slate-400 italic">
+              <div className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-400 italic w-full sm:w-auto text-center cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                  <CheckCircle2 className="h-3.5 w-3.5" /> Select All
               </div>
            </div>
 
-           <div className="flex items-center gap-4">
-              <div className="relative group">
-                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+           <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="flex gap-2">
+                 <Select value={filterRange} onValueChange={(val: string | null) => setFilterRange(val ?? "TODAY")}>
+                   <SelectTrigger className="h-11 rounded-xl w-[140px] sm:w-[160px] border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest text-slate-500 shadow-sm dark:text-slate-300">
+                     <SelectValue />
+                   </SelectTrigger>
+                   <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
+                     {ranges.map((r: any) => <SelectItem key={r.value} value={r.value} className="font-bold py-3 uppercase tracking-widest text-[10px] dark:text-slate-200 focus:dark:bg-slate-800">{r.label}</SelectItem>)}
+                   </SelectContent>
+                 </Select>
+              </div>
+
+              <div className="relative group flex-1 sm:flex-none">
+                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 dark:text-slate-500 group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors" />
                  <input 
                    placeholder="Search sales orders..." 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
-                   className="h-11 w-64 pl-11 rounded-xl bg-slate-50 border-none text-sm font-medium focus:ring-4 focus:ring-indigo-600/10 transition-all"
+                   className="h-11 w-full sm:w-64 pl-11 rounded-xl bg-slate-50 dark:bg-slate-900/50 border-none text-sm font-medium focus:ring-4 focus:ring-indigo-600/10 transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
                  />
               </div>
               <Button 
                 variant="ghost" 
                 onClick={() => setShowAdvancedSearch(true)}
-                className="h-11 w-11 p-0 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                className="h-11 w-11 p-0 rounded-xl flex-shrink-0 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
               >
                  <Filter className="h-5 w-5" />
               </Button>
@@ -414,9 +478,16 @@ export default function SalesOrdersPage() {
                       <TableCell className="py-6">
                         <span className="text-[11px] font-black text-slate-400 uppercase">{format(new Date(sale.createdAt), "dd MMM yyyy")}</span>
                       </TableCell>
-                      <TableCell>
-                         <span className="font-black text-indigo-600 text-[11px] tracking-widest uppercase italic">{sale.invoiceNumber}</span>
-                      </TableCell>
+                       <TableCell>
+                          <div className="flex flex-col gap-1">
+                            <span className="font-black text-indigo-600 text-[11px] tracking-widest uppercase italic">{sale.invoiceNumber}</span>
+                            {sale.isHappyHour && (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[8px] font-[1000] uppercase tracking-widest w-fit">
+                                🍺 Happy Hour
+                              </span>
+                            )}
+                          </div>
+                       </TableCell>
                       <TableCell>
                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest">REF-001</span>
                       </TableCell>
@@ -430,9 +501,9 @@ export default function SalesOrdersPage() {
                       <TableCell className="text-center"><CheckCircle2 className="h-4 w-4 text-slate-100 mx-auto" /></TableCell>
                       <TableCell className="text-center"><CheckCircle2 className="h-4 w-4 text-slate-100 mx-auto" /></TableCell>
                       <TableCell className="text-center"><CheckCircle2 className="h-4 w-4 text-slate-100 mx-auto" /></TableCell>
-                      <TableCell>
-                         <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic">Standard</span>
-                      </TableCell>
+                       <TableCell>
+                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-widest italic">{sale.isHappyHour ? "Happy Hour" : "Standard"}</span>
+                       </TableCell>
                       <TableCell className="text-right pr-8">
                          <span className="font-[1000] text-slate-900 dark:text-white tracking-tighter italic">NLe {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}</span>
                       </TableCell>
@@ -446,126 +517,126 @@ export default function SalesOrdersPage() {
 
       {/* ADVANCED SEARCH FILTER DIALOG */}
       <Dialog open={showAdvancedSearch} onOpenChange={setShowAdvancedSearch}>
-        <DialogContent className="sm:max-w-[700px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
+        <DialogContent className="sm:max-w-[700px] w-[95vw] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
            <div className="bg-slate-950 p-8 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-10">
                  <Search size={140} />
               </div>
-              <div className="relative z-10 flex items-center justify-between">
+              <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                  <div className="space-y-1">
                     <div className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 italic">Advanced Intelligence</div>
-                    <h3 className="text-4xl font-[1000] tracking-tighter uppercase italic leading-none">Search Filter</h3>
+                    <h3 className="text-3xl sm:text-4xl font-[1000] tracking-tighter uppercase italic leading-none">Search Filter</h3>
                  </div>
-                 <button onClick={() => setShowAdvancedSearch(false)} className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 transition-all">
+                 <button onClick={() => setShowAdvancedSearch(false)} className="p-3 rounded-2xl bg-white/10 hover:bg-white/20 transition-all self-start sm:self-auto">
                     <X className="h-6 w-6" />
                  </button>
               </div>
            </div>
 
-           <div className="p-10 space-y-10 bg-white dark:bg-slate-950 max-h-[70vh] overflow-y-auto custom-scrollbar">
+           <div className="p-6 sm:p-10 space-y-10 bg-white dark:bg-slate-950 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Sales Order#</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reference#</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
                  
-                 <div className="space-y-2 md:col-span-2 border-t border-slate-50 pt-6">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-indigo-600 ml-1">Date Range (From - To)</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                       <Input type="date" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
-                       <Input type="date" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                 <div className="space-y-2 md:col-span-2 border-t border-slate-50 dark:border-slate-800/50 pt-6">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 ml-1">Date Range (From - To)</Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
+                       <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
                     </div>
                  </div>
 
                  <div className="space-y-2 md:col-span-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Shipment Date Range</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                       <Input type="date" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
-                       <Input type="date" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
+                       <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
                     </div>
                  </div>
 
                  <div className="space-y-2 md:col-span-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Created Between</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                       <Input type="date" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
-                       <Input type="date" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                       <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
+                       <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
                     </div>
                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Status</Label>
                     <Select>
-                       <SelectTrigger className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold">
+                       <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white">
                           <SelectValue placeholder="All Statuses" />
                        </SelectTrigger>
-                       <SelectContent>
-                          {SALES_ORDER_VIEWS.map(v => <SelectItem key={v.id} value={v.id}>{v.label}</SelectItem>)}
+                       <SelectContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800">
+                          {SALES_ORDER_VIEWS.map(v => <SelectItem key={v.id} value={v.id} className="dark:text-slate-200 focus:dark:bg-slate-800 cursor-pointer">{v.label}</SelectItem>)}
                        </SelectContent>
                     </Select>
                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Item Name</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
 
                  <div className="space-y-2 md:col-span-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Item Description</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Total Range (NLe)</Label>
                     <div className="flex items-center gap-3">
-                       <Input placeholder="Min" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
-                       <span className="text-slate-300">-</span>
-                       <Input placeholder="Max" className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                       <Input placeholder="Min" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white w-full" />
+                       <span className="text-slate-300 dark:text-slate-600">-</span>
+                       <Input placeholder="Max" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white w-full" />
                     </div>
                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Customer Name</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Salesperson</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Tax Engine</Label>
-                    <Input className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
 
-                 <div className="md:col-span-2 pt-6 border-t border-slate-50 space-y-6">
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600 italic">Address Mapping</p>
+                 <div className="md:col-span-2 pt-6 border-t border-slate-50 dark:border-slate-800/50 space-y-6">
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600 dark:text-indigo-400 italic">Address Mapping</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        <div className="space-y-4">
                           <Label className="text-[11px] font-[1000] uppercase tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                              <MapPin className="h-3.5 w-3.5 text-indigo-400" /> Billing Address
                           </Label>
-                          <Input placeholder="Search billing zone..." className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                          <Input placeholder="Search billing zone..." className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                        </div>
                        <div className="space-y-4">
                           <Label className="text-[11px] font-[1000] uppercase tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
                              <Truck className="h-3.5 w-3.5 text-indigo-400" /> Shipping Address
                           </Label>
-                          <Input placeholder="Search shipping zone..." className="h-12 bg-slate-50 border-slate-100 rounded-xl font-bold" />
+                          <Input placeholder="Search shipping zone..." className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                        </div>
                     </div>
                  </div>
               </div>
            </div>
 
-           <div className="p-10 pt-0 flex gap-4 bg-white relative z-10">
-              <Button className="flex-1 h-16 rounded-2xl bg-indigo-600 text-white font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl hover:scale-[1.02] transition-all">Apply Filter</Button>
-              <Button variant="outline" onClick={() => setShowAdvancedSearch(false)} className="flex-1 h-16 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-400 border-slate-100 hover:bg-slate-50">Reset Configuration</Button>
+           <div className="p-6 sm:p-10 sm:pt-0 pt-0 flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-950 relative z-10 border-t border-slate-50 dark:border-slate-800/50">
+              <Button className="flex-1 h-16 rounded-2xl bg-indigo-600 text-white font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl shadow-indigo-600/20 hover:scale-[1.02] transition-all">Apply Filter</Button>
+              <Button variant="outline" onClick={() => setShowAdvancedSearch(false)} className="flex-1 h-16 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">Reset Configuration</Button>
            </div>
         </DialogContent>
       </Dialog>

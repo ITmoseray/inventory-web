@@ -107,3 +107,41 @@ export async function deleteCustomer(id: string) {
     throw error;
   }
 }
+
+export async function importCustomers(rows: { name: string; email?: string; phone?: string; address?: string }[]) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const businessId = session.user.businessId;
+    let created = 0;
+
+    await prisma.$transaction(async (tx) => {
+      for (const row of rows) {
+        if (!row.name?.trim()) continue;
+        await tx.customer.create({
+          data: {
+            name: row.name.trim(),
+            email: row.email?.trim() || null,
+            phone: row.phone?.trim() || null,
+            address: row.address?.trim() || null,
+            businessId,
+          },
+        });
+        created++;
+      }
+    });
+
+    await logAudit({
+      action: `Bulk imported ${created} customers via CSV`,
+      entity: "CUSTOMER",
+      entityId: businessId,
+    });
+
+    revalidatePath("/dashboard/customers");
+    return { success: true, count: created };
+  } catch (error) {
+    console.error("Failed to import customers:", error);
+    throw error;
+  }
+}

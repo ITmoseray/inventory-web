@@ -57,6 +57,45 @@ export function OnboardingGuide() {
   const progress = ((currentStep + 1) / steps.length) * 100;
   const userName = session?.user?.name?.split(' ')[0] || "User";
 
+  const getCardStyle = () => {
+    if (current.position === 'center') return {};
+
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const cardWidth = isMobile ? window.innerWidth - 32 : 400; 
+    
+    let top = coords.top;
+    let left = coords.left;
+
+    if (isMobile) {
+       // On mobile, ignore left/right positioning to avoid overflow. 
+       // Center horizontally, place above or below based on space.
+       left = 16; 
+       if (coords.top > window.innerHeight / 2) {
+          top = Math.max(16, coords.top - 380);
+       } else {
+          top = Math.min(window.innerHeight - 380, coords.top + coords.height + 20);
+       }
+    } else {
+       if (current.position === 'bottom') {
+         top = coords.top + coords.height + 30;
+       } else if (current.position === 'top') {
+         top = coords.top - 340;
+       }
+       
+       if (current.position === 'right') {
+         left = coords.left + coords.width + 30;
+       } else if (current.position === 'left') {
+         left = coords.left - 430;
+       }
+       
+       // Desktop bounds check
+       top = Math.max(16, Math.min(window.innerHeight - 360, top));
+       left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, left));
+    }
+
+    return { top, left };
+  };
+
   return (
     <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden font-sans selection:bg-indigo-600/10 selection:text-indigo-600">
       {/* Dimmed Overlay with Spotlight Hole */}
@@ -81,13 +120,10 @@ export function OnboardingGuide() {
           exit={{ opacity: 0, scale: 0.95, y: -30 }}
           transition={{ type: "spring", damping: 25, stiffness: 200 }}
           className={cn(
-            "absolute pointer-events-auto w-[400px] bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.6)] border border-indigo-100 dark:border-indigo-900/50 overflow-hidden",
+            "absolute pointer-events-auto w-[calc(100vw-2rem)] sm:w-[400px] bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.6)] border border-indigo-100 dark:border-indigo-900/50 overflow-hidden",
             current.position === 'center' && "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
           )}
-          style={current.position !== 'center' ? {
-            top: current.position === 'bottom' ? coords.top + coords.height + 30 : current.position === 'top' ? coords.top - 340 : coords.top,
-            left: current.position === 'right' ? coords.left + coords.width + 30 : current.position === 'left' ? coords.left - 430 : coords.left
-          } : {}}
+          style={getCardStyle()}
         >
           {/* Header */}
           <div className="bg-slate-950 p-8 text-white relative overflow-hidden">

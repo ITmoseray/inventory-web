@@ -40,7 +40,7 @@ export const barSidebarConfig = [
         items: [
           { title: "Table Management", url: "/dashboard/restaurant/tables" },
           { title: "Reservations", url: "/dashboard/customers" },
-          { title: "Happy Hour", url: "/dashboard/pos" },
+          { title: "Happy Hour", url: "/dashboard/pos?mode=happyhour" },
         ],
       },
     ]

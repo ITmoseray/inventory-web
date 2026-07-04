@@ -139,8 +139,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950 p-6 sm:p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950 p-6 sm:p-8 relative">
       
+      <Link href="/" className="absolute top-6 left-6 sm:top-8 sm:left-8">
+        <Button variant="ghost" className="gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+          <ArrowLeft className="h-4 w-4" />
+          Back to Landing Page
+        </Button>
+      </Link>
+
       {/* Branding Header */}
       <Link href="/" className="mb-12 flex flex-col items-center gap-4 group">
          <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-indigo-600/20 group-hover:scale-110 transition-transform">

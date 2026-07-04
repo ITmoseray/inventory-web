@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { 
   Plus, Pencil, Trash2, MoreVertical, Users, Search, Phone, Mail, MapPin,
   ChevronDown, UserPlus, FileDown, Globe, Database, CreditCard, Clock,
@@ -44,6 +44,7 @@ import {
   createCustomer,
   updateCustomer,
   deleteCustomer,
+  importCustomers,
 } from "@/lib/actions/customer";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,6 +58,8 @@ export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewFilter, setViewFilter] = useState("all");
   const [viewSearch, setViewSearch] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [importing, setImporting] = useState(false);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -128,6 +131,42 @@ export default function CustomersPage() {
       phone: "",
       address: "",
     });
+  }
+
+  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImporting(true);
+    try {
+      const text = await file.text();
+      const lines = text.trim().split("\n");
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/"/g, ""));
+      const rows = lines.slice(1).map(line => {
+        const vals = line.split(",").map(v => v.trim().replace(/"/g, ""));
+        const row: Record<string, string> = {};
+        headers.forEach((h, i) => { row[h] = vals[i] || ""; });
+        return {
+          name: row["name"] || row["customer name"] || row["full name"] || "",
+          email: row["email"] || "",
+          phone: row["phone"] || row["phone number"] || row["mobile"] || "",
+          address: row["address"] || row["location"] || "",
+        };
+      }).filter(r => r.name);
+
+      if (rows.length === 0) {
+        toast.error("No valid rows found. Check your CSV has a 'name' column.");
+        return;
+      }
+
+      const result = await importCustomers(rows);
+      toast.success(`Successfully imported ${result.count} customer${result.count !== 1 ? "s" : ""}.`);
+      fetchCustomers();
+    } catch (error) {
+      toast.error("Import failed. Please check your file format.");
+    } finally {
+      setImporting(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   }
 
   async function handleDelete(id: string) {
@@ -223,7 +262,7 @@ export default function CustomersPage() {
                  <Plus className="h-5 w-5" /> New
                </Button>
              } />
-             <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white">
+             <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
                <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                      <Users size={120} />
@@ -235,7 +274,7 @@ export default function CustomersPage() {
                      </DialogTitle>
                   </div>
                </div>
-               <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white max-h-[70vh] overflow-y-auto custom-scrollbar">
+               <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white dark:bg-slate-950 max-h-[70vh] overflow-y-auto custom-scrollbar">
                  <div className="space-y-6">
                    <div className="space-y-2">
                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Identity / Company Name</Label>
@@ -243,7 +282,7 @@ export default function CustomersPage() {
                        value={formData.name}
                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                        placeholder="e.g. Tech Enterprise"
-                       className="h-14 rounded-2xl border-slate-100 bg-slate-50 focus:ring-4 focus:ring-indigo-600/10 font-bold"
+                       className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:ring-4 focus:ring-indigo-600/10 font-bold dark:text-white"
                        required
                      />
                    </div>
@@ -254,7 +293,7 @@ export default function CustomersPage() {
                          value={formData.phone}
                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                          placeholder="+232..."
-                         className="h-14 rounded-2xl border-slate-100 bg-slate-50 font-bold"
+                         className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold dark:text-white"
                        />
                      </div>
                      <div className="space-y-2">
@@ -264,7 +303,7 @@ export default function CustomersPage() {
                          value={formData.email}
                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                          placeholder="intelligence@nexus.com"
-                         className="h-14 rounded-2xl border-slate-100 bg-slate-50 font-bold"
+                         className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold dark:text-white"
                        />
                      </div>
                    </div>
@@ -274,27 +313,35 @@ export default function CustomersPage() {
                        value={formData.address}
                        onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                        placeholder="Location details..."
-                       className="h-14 rounded-2xl border-slate-100 bg-slate-50 font-bold"
+                       className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold dark:text-white"
                      />
                    </div>
                  </div>
                  <div className="flex gap-3 pt-8">
-                   <Button type="button" variant="outline" className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 border-slate-100" onClick={() => setIsDialogOpen(false)}>
+                   <Button type="button" variant="outline" className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 border-slate-100 dark:border-slate-800 dark:hover:bg-slate-900" onClick={() => setIsDialogOpen(false)}>
                      Terminate
                    </Button>
-                   <Button type="submit" className="flex-1 h-14 bg-slate-900 text-white hover:bg-slate-800 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">
+                   <Button type="submit" className="flex-1 h-14 bg-slate-900 dark:bg-indigo-600 text-white hover:bg-slate-800 dark:hover:bg-indigo-700 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">
                      {editingCustomer ? "Update Profile" : "Initialize Link"}
                    </Button>
                  </div>
                </form>
              </DialogContent>
            </Dialog>
+           <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleImport}
+           />
            <Button 
              variant="outline" 
-             onClick={() => toast.info("Preparing data import bridge...")}
-             className="h-12 px-6 rounded-xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all"
+             onClick={() => fileInputRef.current?.click()}
+             disabled={importing}
+             className="h-12 px-6 rounded-xl border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white dark:hover:bg-slate-800 transition-all"
            >
-              <FileDown className="h-4 w-4" /> Import
+              <FileDown className="h-4 w-4" /> {importing ? "Importing..." : "Import"}
            </Button>
         </div>
       </div>

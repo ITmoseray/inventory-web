@@ -1,6 +1,6 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
+import { prisma as globalPrisma, getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -9,8 +9,11 @@ export async function getDebts() {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
+    const businessId = session.user.businessId;
+    const prisma = getTenantPrisma(businessId);
+
     const debts = await prisma.debt.findMany({
-      where: { businessId: session.user.businessId },
+      where: { deletedAt: null },
       include: {
         customer: true,
         sale: true,
@@ -54,9 +57,11 @@ export async function createDebtPayment(debtId: string, amount: number, paymentM
 
     const businessId = session.user.businessId;
 
+    const prisma = getTenantPrisma(businessId);
+
     const payment = await prisma.$transaction(async (tx) => {
-      const debt = await tx.debt.findUnique({
-        where: { id: debtId, businessId: businessId },
+      const debt = await tx.debt.findFirst({
+        where: { id: debtId, businessId: businessId, deletedAt: null },
       });
 
       if (!debt) throw new Error("Debt not found");

@@ -91,11 +91,8 @@ export default function TrialExpiredPage() {
                   </button>
                   <button 
                       onClick={async () => {
-                        if (typeof window !== "undefined") {
-                          window.localStorage.clear();
-                          window.sessionStorage.clear();
-                        }
-                        await signOut({ redirectTo: '/login' });
+                        const { logoutUserCompletely } = await import("@/lib/utils/logout");
+                        await logoutUserCompletely(signOut);
                       }}
                       className="flex items-center gap-2 text-[10px] font-black text-slate-500 hover:text-rose-500 uppercase tracking-[0.3em] transition-colors"
                   >

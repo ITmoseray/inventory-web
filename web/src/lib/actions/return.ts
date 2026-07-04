@@ -38,7 +38,7 @@ export async function processReturn(data: {
 
         // 1. Update Stock (Increment back)
         await tx.product.update({
-          where: { id: item.productId, businessId: businessId },
+          where: { id: item.productId },
           data: {
             stockQuantity: {
               increment: item.quantity,
@@ -79,7 +79,7 @@ export async function processReturn(data: {
       const hasRemainingProducts = remainingItems.some(si => si.quantity > 0);
 
       await tx.sale.update({
-        where: { id: data.saleId, businessId: businessId },
+        where: { id: data.saleId },
         data: {
           totalAmount: {
             decrement: totalAmountReturned,

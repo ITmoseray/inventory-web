@@ -46,11 +46,14 @@ export async function getRegistryIntelligence() {
     return {
         id: c.id,
         name: c.name,
+        phone: c.phone || null,
+        email: c.email || null,
         totalVolume,
-        lastInteraction,
-        daysSinceLastPurchase,
+        lastInteraction: lastInteraction.toISOString(),
+        daysSinceLastPurchase: Math.round(daysSinceLastPurchase),
         primaryAffinity,
-        status
+        status,
+        totalOrders: c.sales.length,
     };
   });
 

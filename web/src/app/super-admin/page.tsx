@@ -595,12 +595,9 @@ export default function NexusSuperControl() {
                <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Admin User</span>
                <span className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
             </div>
-            <Button onClick={async () => {
-               if (typeof window !== "undefined") {
-                 window.localStorage.clear();
-                 window.sessionStorage.clear();
-               }
-               await signOut({ redirectTo: "/login" });
+            <Button variant="outline" onClick={async () => {
+               const { logoutUserCompletely } = await import("@/lib/utils/logout");
+               await logoutUserCompletely(signOut);
             }} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
                <LogOut className="mr-2 h-3.5 w-3.5" /> Log Out
             </Button>

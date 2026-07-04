@@ -8,12 +8,14 @@ import { useSession } from "next-auth/react";
 import { registerPush } from "@/lib/push-register";
 import { AlertCircle, Package, TrendingDown } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useNotificationSound } from "@/hooks/use-notification-sound";
 
 export function ToastManager() {
   const { data: session } = useSession();
   const router = useRouter();
   const lastCheckRef = useRef<number>(0);
   const notifiedIdsRef = useRef<Set<string>>(new Set());
+  const { play: playSound } = useNotificationSound();
 
   useEffect(() => {
     if (!session?.user?.businessId) return;
@@ -62,6 +64,12 @@ export function ToastManager() {
         const latest = unread[0];
 
         if (!notifiedIdsRef.current.has(latest.id)) {
+          // Derive sound type from notification type
+          const soundType =
+            latest.type === "ERROR" ? "error" :
+            latest.type === "WARNING" ? "warning" :
+            latest.type === "SUCCESS" ? "success" : "info";
+          playSound(soundType);
           showNotificationToast(latest);
           showNativeNotification(latest.title, latest.message, latest.id);
           notifiedIdsRef.current.add(latest.id);

@@ -164,7 +164,7 @@ export default function NotificationsPage() {
                  <Bell className="h-4 w-4" /> Test Device Alert
               </Button>
             )}
-            <Button variant="outline" onClick={handleMarkAllRead} className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2">
+            <Button variant="outline" onClick={handleMarkAllRead} className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800 font-bold uppercase text-[10px] tracking-widest gap-2">
                <Check className="h-4 w-4" /> Mark All Read
             </Button>
             <Button variant="outline" onClick={handleClearAll} className="flex-1 md:flex-none h-12 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 font-bold uppercase text-[10px] tracking-widest gap-2">
@@ -183,9 +183,9 @@ export default function NotificationsPage() {
            { label: "Critical Nodes", value: notifications.filter(n => n.type === 'ERROR' || n.type === 'CRITICAL').length.toString().padStart(2, '0'), icon: AlertCircle, color: "text-rose-500" },
            { label: "Sync Status", value: "Verified", icon: CheckCircle2, color: "text-emerald-500" }
          ].map((stat, i) => (
-           <Card key={i} className="border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm">
+           <Card key={i} className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 rounded-[2rem] shadow-sm">
               <stat.icon className={cn("h-5 w-5 mb-4", stat.color)} />
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-1">{stat.label}</p>
               <h2 className="text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter">{stat.value}</h2>
            </Card>
          ))}
@@ -195,12 +195,12 @@ export default function NotificationsPage() {
         <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50">
            <div className="relative max-w-md group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-              <Input 
-                placeholder="Search alert title or message..." 
-                className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
+               <Input 
+                 placeholder="Search alert title or message..." 
+                 className="h-12 pl-12 rounded-2xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 dark:text-white focus:bg-white dark:focus:bg-slate-900 transition-all"
+                 value={searchQuery}
+                 onChange={e => setSearchQuery(e.target.value)}
+               />
            </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -226,7 +226,7 @@ export default function NotificationsPage() {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       key={n.id} 
-                      className={cn("p-8 flex items-start justify-between group transition-all", n.isRead ? "opacity-60" : "bg-blue-50/10 dark:bg-blue-900/5")}
+                      className={cn("p-6 md:p-8 flex items-start justify-between group transition-all", n.isRead ? "opacity-60" : "bg-blue-50/20 dark:bg-blue-900/5")}
                     >
                        <div className="flex gap-6">
                           <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 shadow-sm border border-white dark:border-slate-800", 
@@ -252,7 +252,7 @@ export default function NotificationsPage() {
 
                        <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
                           {!n.isRead && (
-                             <Button size="sm" variant="ghost" onClick={() => handleMarkRead(n.id)} className="h-10 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest text-emerald-600 hover:bg-emerald-50">
+                             <Button size="sm" variant="ghost" onClick={() => handleMarkRead(n.id)} className="h-10 px-4 rounded-xl font-black text-[9px] uppercase tracking-widest text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20">
                                 Mark as Read
                              </Button>
                           )}
@@ -262,7 +262,7 @@ export default function NotificationsPage() {
                                    <MoreVertical size={16} className="text-slate-400" />
                                 </Button>
                              </DropdownMenuTrigger>
-                             <DropdownMenuContent align="end" className="rounded-xl border-slate-200">
+                             <DropdownMenuContent align="end" className="rounded-xl border-slate-200 dark:border-slate-800 dark:bg-slate-900 shadow-xl">
                                 <DropdownMenuItem onClick={() => handleDelete(n.id)} className="text-rose-600 font-bold uppercase text-[9px] tracking-widest">
                                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
                                 </DropdownMenuItem>

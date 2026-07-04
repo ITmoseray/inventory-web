@@ -1186,27 +1186,27 @@ export default function DashboardPage() {
       </Dialog>
       {/* AI Welcome Modal */}
       <Dialog open={isWelcomeModalOpen} onOpenChange={setIsWelcomeModalOpen}>
-        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-slate-900 border-slate-800 rounded-3xl shadow-[0_0_100px_rgba(79,74,133,0.3)]">
-           <div className="relative p-8 flex flex-col items-center text-center overflow-hidden">
-              <div className="absolute inset-0 bg-grid-white/[0.02]" />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/20 blur-[80px] rounded-full pointer-events-none" />
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-white dark:bg-slate-950 border-slate-100 dark:border-slate-800/50 rounded-[2.5rem] shadow-2xl">
+           <div className="relative p-10 flex flex-col items-center text-center overflow-hidden">
+              <div className="absolute inset-0 bg-slate-50 dark:bg-grid-white/[0.02]" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 dark:bg-primary/20 blur-[80px] rounded-full pointer-events-none" />
               
-              <div className="relative h-20 w-20 rounded-3xl bg-slate-800/50 border border-slate-700 flex items-center justify-center mb-6 shadow-2xl backdrop-blur-md z-10">
-                 <div className="absolute inset-0 rounded-3xl border-2 border-primary/50 animate-pulse" />
-                 <Cpu className="h-10 w-10 text-primary" />
+              <div className="relative h-20 w-20 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center justify-center mb-8 shadow-xl backdrop-blur-md z-10 group">
+                 <div className="absolute inset-0 rounded-3xl border-2 border-primary/20 dark:border-primary/50 animate-pulse" />
+                 <Cpu className="h-10 w-10 text-primary group-hover:scale-110 transition-transform duration-500" />
               </div>
 
-              <h2 className="text-2xl font-black text-white uppercase tracking-tighter mb-2 relative z-10">Neural <span className="text-primary">Update</span></h2>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-8 relative z-10">System Synchronization Complete</p>
+              <h2 className="text-3xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter mb-3 relative z-10 italic">Neural <span className="text-primary">Update</span></h2>
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.3em] mb-8 relative z-10">System Synchronization Complete</p>
 
-              <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-6 border border-slate-700 w-full relative z-10 shadow-inner min-h-[100px] flex items-center justify-center">
+              <div className="bg-slate-50 dark:bg-slate-900/50 backdrop-blur-md rounded-3xl p-8 border border-slate-100 dark:border-slate-800/50 w-full relative z-10 shadow-inner min-h-[120px] flex items-center justify-center">
                  {welcomeLoading ? (
-                   <div className="flex flex-col items-center gap-3">
-                      <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest animate-pulse">Establishing Link...</span>
+                   <div className="flex flex-col items-center gap-4">
+                      <div className="h-8 w-8 rounded-full border-4 border-primary/30 border-t-primary animate-spin" />
+                      <span className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] animate-pulse">Establishing Neural Link...</span>
                    </div>
                  ) : (
-                   <p className="text-sm font-medium text-slate-200 leading-relaxed text-left w-full">
+                   <p className="text-sm font-bold text-slate-600 dark:text-slate-300 leading-relaxed text-left w-full">
                      {welcomeUpdate}
                    </p>
                  )}
@@ -1214,9 +1214,9 @@ export default function DashboardPage() {
 
               <Button 
                 onClick={() => setIsWelcomeModalOpen(false)}
-                className="mt-8 h-14 w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 transition-all relative z-10"
+                className="mt-10 h-16 w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 relative z-10"
               >
-                Acknowledge
+                Acknowledge Update
               </Button>
            </div>
         </DialogContent>

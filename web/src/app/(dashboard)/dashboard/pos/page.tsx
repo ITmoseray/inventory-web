@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { usePOSStore } from "@/store/use-pos-store";
 import { useOfflineSync } from "@/hooks/use-offline-sync";
 import { db } from "@/lib/db";
@@ -40,7 +40,8 @@ import {
   ScanLine,
   Share2,
   MessageSquare,
-  AlertTriangle
+  AlertTriangle,
+  Sparkles
 } from "lucide-react";
 import domtoimage from "dom-to-image-more";
 import { toast } from "sonner";
@@ -136,6 +137,8 @@ ProductCard.displayName = "ProductCard";
 export default function POSPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isHappyHour = searchParams.get("mode") === "happyhour";
   const { cart, addItem, removeItem, updateQuantity, clearCart, total, tax, grandTotal, heldCarts, holdCart, restoreCart, removeHeldCart } = usePOSStore();
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
 
@@ -320,6 +323,7 @@ export default function POSPage() {
         paymentStatus: isCredit ? creditPayStatus : "PAID",
         customerId: selectedCustomer === "WALKIN" ? undefined : selectedCustomer,
         amountPaid: isCredit ? partialPaid : grandTotal,
+        saleNote: isHappyHour ? "HAPPY HOUR SALE" : undefined,
       };
 
       const result = await createSale(saleData);
@@ -408,6 +412,16 @@ export default function POSPage() {
                 </div>
              </div>
           </div>
+          {/* Happy Hour Banner */}
+          {isHappyHour && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30 animate-pulse">
+              <Sparkles className="h-4 w-4 shrink-0" />
+              <div className="flex flex-col leading-none">
+                <span className="text-[10px] font-[1000] uppercase tracking-[0.3em]">Happy Hour</span>
+                <span className="text-[8px] font-bold opacity-80">Special pricing active</span>
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-2 w-full lg:w-auto">
              <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest gap-2">
                 <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />

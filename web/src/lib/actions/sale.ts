@@ -24,6 +24,7 @@ export async function createSale(data: {
   paymentStatus?: string;
   customerId?: string;
   amountPaid?: number;
+  saleNote?: string;
 }) {
   try {
     const session = await auth();
@@ -62,7 +63,7 @@ export async function createSale(data: {
           statusHistory: {
             create: {
               status: "PENDING",
-              note: "Order created",
+              note: data.saleNote || "Order created",
               userId: userId,
               businessId: businessId,
             }
@@ -191,7 +192,8 @@ export async function getRecentSales() {
           include: {
             product: true
           }
-        }
+        },
+        statusHistory: { orderBy: { createdAt: "asc" }, take: 1 }
       }
     });
 
@@ -224,8 +226,9 @@ export async function getRecentSales() {
           sku: item.product.sku,
           unitPrice: item.product.unitPrice.toNumber(),
         } : null
-      }))
-    }));
+      })),
+      isHappyHour: s.statusHistory?.some(h => h.note === "HAPPY HOUR SALE") ?? false,
+    })))
   } catch (error) {
     console.error("Failed to fetch recent sales:", error);
     throw error;
