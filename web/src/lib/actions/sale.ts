@@ -228,7 +228,7 @@ export async function getRecentSales() {
         } : null
       })),
       isHappyHour: s.statusHistory?.some(h => h.note === "HAPPY HOUR SALE") ?? false,
-    })))
+    }));
   } catch (error) {
     console.error("Failed to fetch recent sales:", error);
     throw error;
