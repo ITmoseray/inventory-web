@@ -11,7 +11,10 @@ interface ManualPaymentModalProps {
   planName: string;
 }
 
+import { useSession } from "next-auth/react";
+
 export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentModalProps) {
+  const { data: session } = useSession();
   const merchantNumber = "073019699";
   const merchantName = "ProTech Assist";
   const supportWhatsapp = "23234955581";
@@ -22,7 +25,8 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
   };
 
   const getWhatsappLink = () => {
-    const message = `Hello ProTech Team,\n\nI have successfully initiated the Orange Money payment for the *${planName} Plan*.\n\n*My Details:*\n- Account Name: \n- Phone Number: \n- Transaction ID: \n\n[Please find attached my payment receipt screenshot]`;
+    const shopName = (session?.user as any)?.businessName || "Unknown Shop";
+    const message = `Hello ProTech Team,\n\nI have successfully initiated the Orange Money payment for the *${planName} Plan*.\n\n*My Details:*\n- Shop Name: *${shopName}*\n- Account Name: \n- Phone Number: \n- Transaction ID: \n\n[Please find attached my payment receipt screenshot]`;
     return `https://wa.me/${supportWhatsapp}?text=${encodeURIComponent(message)}`;
   };
 
