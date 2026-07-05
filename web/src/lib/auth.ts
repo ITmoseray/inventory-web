@@ -68,8 +68,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             const user = await prisma.user.findFirst({ 
               where: { 
                 OR: [
-                  { email: email },
-                  { username: email }
+                  { email: { equals: email.trim(), mode: 'insensitive' } },
+                  { username: { equals: email.trim(), mode: 'insensitive' } }
                 ]
               },
               include: { 
@@ -79,13 +79,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
             
             if (!user) {
-              console.warn("SERVER AUTH: User not found", { email });
+              console.warn("SERVER AUTH: User not found in database matching:", { searchInput: email });
               throw new CustomAuthError("Invalid email, username or password.");
             }
 
+            console.log("SERVER AUTH: User found, checking password match...", { email: user.email, role: user.role?.name });
             const passwordMatch = await bcrypt.compare(password, user.passwordHash);
             if (!passwordMatch) {
-              console.warn("SERVER AUTH: Password mismatch", { email });
+              console.warn("SERVER AUTH: Password check failed for user:", { email: user.email });
               throw new CustomAuthError("Invalid email, username or password.");
             }
 
