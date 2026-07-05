@@ -216,20 +216,20 @@ export default function LoginPage() {
 
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* User Preview Node */}
-                <div className="flex items-center justify-between p-6 rounded-2xl bg-indigo-50/50 border border-indigo-100/50 group">
-                   <div className="flex items-center gap-4">
-                      <div className="h-12 w-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black">
+                <div className="flex items-center justify-between gap-4 p-4 sm:p-6 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/50 group">
+                   <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                      <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl bg-indigo-600 flex items-center justify-center text-white font-black shrink-0">
                          {email.charAt(0).toUpperCase()}
                       </div>
-                      <div className="min-w-0">
-                         <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest leading-none mb-1">Account Node</p>
-                         <p className="text-sm font-black text-slate-900 dark:text-white truncate max-w-[180px]">{email}</p>
+                      <div className="min-w-0 flex-1">
+                         <p className="text-[9px] sm:text-[10px] font-black text-indigo-400 dark:text-indigo-500 uppercase tracking-widest leading-none mb-1">Account Node</p>
+                         <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white truncate">{email}</p>
                       </div>
                    </div>
                    <button 
                      type="button"
                      onClick={() => setCurrentStep("EMAIL")}
-                     className="text-[10px] font-black text-indigo-600 uppercase tracking-widest hover:underline px-3 py-2 rounded-lg hover:bg-white transition-all"
+                     className="text-[9px] sm:text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest hover:underline px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg hover:bg-white dark:hover:bg-slate-800 shrink-0 transition-all"
                    >
                      Change
                    </button>
