@@ -26,7 +26,11 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
 
   const getWhatsappLink = () => {
     const shopName = (session?.user as any)?.businessName || "Unknown Shop";
-    const message = `Hello ProTech Team,\n\nI have successfully initiated the Orange Money payment for the *${planName} Plan*.\n\n*My Details:*\n- Shop Name: *${shopName}*\n- Account Name: \n- Phone Number: \n- Transaction ID: \n\n[Please find attached my payment receipt screenshot]`;
+    const userName = session?.user?.name || "";
+    const userEmail = session?.user?.email || "";
+    
+    const message = `Dear ProTech Support Team,\n\nI am writing to notify you that I have successfully initiated an Orange Money payment for the *${planName} Plan*.\n\n*Subscription Details:*\n- Shop / Business Name: *${shopName}*\n- Account Holder Name: ${userName}\n- Account Email: ${userEmail}\n- Contact Number: \n- Transaction Reference ID: \n\nI have attached a screenshot of the payment receipt for your verification. Please process this request to activate/renew our subscription.\n\nThank you,\n${userName || "Valued Client"}`;
+    
     return `https://wa.me/${supportWhatsapp}?text=${encodeURIComponent(message)}`;
   };
 
