@@ -1,5 +1,5 @@
 "use client";
-
+ 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -16,7 +16,8 @@ import {
   Lock,
   Sparkles,
   ArrowRight,
-  Activity
+  Activity,
+  Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -46,6 +47,7 @@ import {
 } from "@/components/ui/select";
 import { getUsers, getRoles, createUser, deleteUser } from "@/lib/actions/user";
 import { getPermissions } from "@/lib/actions/role";
+import { generateAIEmployeeProfile } from "@/lib/actions/ai";
 import { format } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -67,6 +69,31 @@ export default function EmployeesPage() {
     password: "",
     roleId: ""
   });
+  const [aiLoading, setAiLoading] = useState(false);
+
+  async function handleAIAutofill() {
+    try {
+      setAiLoading(true);
+      const res = await generateAIEmployeeProfile();
+      if (res.success && res.data) {
+        setFormData(prev => ({
+          ...prev,
+          name: res.data.name,
+          email: res.data.email,
+          password: res.data.password
+        }));
+        toast.success("AI Profile generated!", {
+          description: `Initialized profile for ${res.data.name}`
+        });
+      } else {
+        toast.error("AI assistant was unable to generate profile.");
+      }
+    } catch (e: any) {
+      toast.error("AI generation failed.");
+    } finally {
+      setAiLoading(false);
+    }
+  }
 
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
@@ -153,9 +180,24 @@ export default function EmployeesPage() {
               </Button>
            } />
            <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white">
-              <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30">
-                 <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic">Node Initialization</h3>
-                 <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Create New Authorized User</p>
+              <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
+                 <div className="min-w-0 flex-1">
+                    <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic truncate">Node Initialization</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 truncate">Create New Authorized User</p>
+                 </div>
+                 <Button 
+                   type="button" 
+                   onClick={handleAIAutofill}
+                   disabled={aiLoading}
+                   className="h-10 px-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-800 text-white border-none font-black text-[9px] uppercase tracking-widest flex items-center gap-1.5 shadow-lg shadow-indigo-600/20 shrink-0 transition-all active:scale-95"
+                 >
+                   {aiLoading ? (
+                     <Loader2 className="h-3 w-3 animate-spin" />
+                   ) : (
+                     <Sparkles className="h-3 w-3" />
+                   )}
+                   AI Autofill
+                 </Button>
               </div>
               <form onSubmit={handleAdd} className="p-8 space-y-5">
                  <div className="space-y-2">

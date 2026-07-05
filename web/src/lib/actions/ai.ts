@@ -286,3 +286,64 @@ export async function getWelcomeUpdate() {
     return "Welcome back. Neural link synchronization complete.";
   }
 }
+
+export async function generateAIEmployeeProfile() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      const prompt = `
+        You are an AI assistant in a premium ERP / Inventory Management OS.
+        Generate one realistic employee profile for a business operating in Sierra Leone, West Africa.
+        Return ONLY a JSON object with the following fields:
+        - name: A realistic West African full name (first and last name)
+        - email: A professional email address matching the generated name
+        - password: A secure, random 8-character password consisting of letters and numbers
+
+        Do not include any markdown format (no \`\`\`json blocks), just the raw JSON object string.
+      `;
+
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }]
+        }),
+        cache: "no-store"
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (text) {
+          const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+          const data = JSON.parse(cleanText);
+          return { success: true, data };
+        }
+      }
+    }
+  } catch (error) {
+    console.error("AI Employee generation failed, falling back to local simulation:", error);
+  }
+
+  // Fallback to local West African profile simulation
+  const firstNames = ["Ibrahim", "Mariama", "Alusine", "Fatmata", "Abu", "Isatu", "Mohamed", "Sia", "Kofi", "Aminata"];
+  const lastNames = ["Kamara", "Bah", "Kargbo", "Sillah", "Jalloh", "Kallon", "Conteh", "Moseray", "Bangura", "Turay"];
+  
+  const firstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+  const lastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+  const fullName = `${firstName} ${lastName}`;
+  const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}@protech-client.com`;
+  const password = Math.random().toString(36).slice(-8);
+
+  return {
+    success: true,
+    data: {
+      name: fullName,
+      email: email,
+      password: password
+    }
+  };
+}
