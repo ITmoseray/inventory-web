@@ -33,6 +33,7 @@ import {
   Layout,
   Edit,
   Filter,
+  ArrowUpDown,
   MapPin,
   Pencil,
   FileDown
@@ -43,7 +44,10 @@ import {
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -108,6 +112,12 @@ export default function SalesOrdersPage() {
   const [viewSearch, setViewSearch] = useState("");
   const [starredViews, setStarredViews] = useState<string[]>(["all"]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterInvoice, setFilterInvoice] = useState("");
+  const [filterCustomer, setFilterCustomer] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterMinAmount, setFilterMinAmount] = useState("");
+  const [filterMaxAmount, setFilterMaxAmount] = useState("");
+  const [sortBy, setSortBy] = useState("date_desc");
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   const [filterRange, setFilterRange] = useState("TODAY");
 
@@ -190,17 +200,75 @@ export default function SalesOrdersPage() {
     v.label.toLowerCase().includes(viewSearch.toLowerCase())
   );
 
-  const filteredSales = sales.filter(s => {
-    const matchesSearch = s.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         s.customerName.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    if (viewFilter === "all") return matchesSearch;
-    if (viewFilter === "draft") return matchesSearch && s.status === "DRAFT";
-    if (viewFilter === "pending_approval") return matchesSearch && s.status === "PENDING_APPROVAL";
-    if (viewFilter === "approved") return matchesSearch && s.status === "APPROVED";
-    // General fallback for other statuses
-    return matchesSearch && s.status.toLowerCase() === viewFilter.replace(/_/g, ' ');
-  });
+  const filteredSales = sales
+    .filter(s => {
+      // 1. Simple Search Query
+      const matchesSearch = s.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           s.customerName.toLowerCase().includes(searchQuery.toLowerCase());
+      if (!matchesSearch) return false;
+
+      // 2. Sidebar View filter (Active View)
+      if (viewFilter !== "all") {
+        if (viewFilter === "draft" && s.status !== "DRAFT") return false;
+        else if (viewFilter === "pending_approval" && s.status !== "PENDING_APPROVAL") return false;
+        else if (viewFilter === "approved" && s.status !== "APPROVED") return false;
+        else if (viewFilter === "confirmed" && s.status !== "CONFIRMED") return false;
+        else if (viewFilter === "shipped" && s.status !== "SHIPPED") return false;
+        else if (viewFilter === "fulfilled" && s.status !== "FULFILLED" && s.status !== "COMPLETED") return false;
+        else if (s.status.toLowerCase() !== viewFilter.replace(/_/g, ' ')) return false;
+      }
+
+      // 3. Advanced Invoice/Order Number filter
+      if (filterInvoice && !s.invoiceNumber.toLowerCase().includes(filterInvoice.toLowerCase())) {
+        return false;
+      }
+
+      // 4. Advanced Customer Name filter
+      if (filterCustomer && !s.customerName.toLowerCase().includes(filterCustomer.toLowerCase())) {
+        return false;
+      }
+
+      // 5. Advanced Status filter
+      if (filterStatus !== "all") {
+        if (filterStatus === "draft" && s.status !== "DRAFT") return false;
+        else if (filterStatus === "pending_approval" && s.status !== "PENDING_APPROVAL") return false;
+        else if (filterStatus === "approved" && s.status !== "APPROVED") return false;
+        else if (s.status.toLowerCase() !== filterStatus.replace(/_/g, ' ')) return false;
+      }
+
+      // 6. Advanced Min/Max Amount filter
+      const amount = Number(s.totalAmount) || 0;
+      if (filterMinAmount && amount < (Number(filterMinAmount) || 0)) {
+        return false;
+      }
+      if (filterMaxAmount && amount > (Number(filterMaxAmount) || 0)) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "date_desc":
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case "date_asc":
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case "amount_desc":
+          return (Number(b.totalAmount) || 0) - (Number(a.totalAmount) || 0);
+        case "amount_asc":
+          return (Number(a.totalAmount) || 0) - (Number(b.totalAmount) || 0);
+        case "customer_asc":
+          return a.customerName.localeCompare(b.customerName);
+        case "customer_desc":
+          return b.customerName.localeCompare(a.customerName);
+        case "invoice_asc":
+          return a.invoiceNumber.localeCompare(b.invoiceNumber);
+        case "invoice_desc":
+          return b.invoiceNumber.localeCompare(a.invoiceNumber);
+        default:
+          return 0;
+      }
+    });
 
   const activeView = SALES_ORDER_VIEWS.find(v => v.id === viewFilter) || SALES_ORDER_VIEWS[0];
   const isStatusView = viewFilter !== "all";
@@ -426,13 +494,61 @@ export default function SalesOrdersPage() {
                    className="h-11 w-full sm:w-64 pl-11 rounded-xl bg-slate-50 dark:bg-slate-900/50 border-none text-sm font-medium focus:ring-4 focus:ring-indigo-600/10 transition-all text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500"
                  />
               </div>
-              <Button 
-                variant="ghost" 
-                onClick={() => setShowAdvancedSearch(true)}
-                className="h-11 w-11 p-0 rounded-xl flex-shrink-0 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all"
-              >
-                 <Filter className="h-5 w-5" />
-              </Button>
+               <DropdownMenu>
+                 <DropdownMenuTrigger render={
+                   <Button 
+                     variant="ghost" 
+                     className={cn("h-11 w-11 p-0 rounded-xl flex-shrink-0 transition-all", sortBy !== "date_desc" ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900" : "text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10")}
+                     title="Sort Sales Orders"
+                   >
+                      <ArrowUpDown className="h-5 w-5" />
+                   </Button>
+                 } />
+                 <DropdownMenuContent className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
+                   <DropdownMenuGroup>
+                     <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Date</DropdownMenuLabel>
+                     <DropdownMenuItem onClick={() => setSortBy("date_desc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "date_desc" && "bg-slate-100 dark:bg-slate-800")}>
+                       Newest First
+                     </DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => setSortBy("date_asc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "date_asc" && "bg-slate-100 dark:bg-slate-800")}>
+                       Oldest First
+                     </DropdownMenuItem>
+                   </DropdownMenuGroup>
+                   
+                   <DropdownMenuSeparator className="my-1" />
+                   
+                   <DropdownMenuGroup>
+                     <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Amount</DropdownMenuLabel>
+                     <DropdownMenuItem onClick={() => setSortBy("amount_desc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "amount_desc" && "bg-slate-100 dark:bg-slate-800")}>
+                       Highest Amount
+                     </DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => setSortBy("amount_asc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "amount_asc" && "bg-slate-100 dark:bg-slate-800")}>
+                       Lowest Amount
+                     </DropdownMenuItem>
+                   </DropdownMenuGroup>
+                   
+                   <DropdownMenuSeparator className="my-1" />
+                   
+                   <DropdownMenuGroup>
+                     <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Customer</DropdownMenuLabel>
+                     <DropdownMenuItem onClick={() => setSortBy("customer_asc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "customer_asc" && "bg-slate-100 dark:bg-slate-800")}>
+                       Name (A - Z)
+                     </DropdownMenuItem>
+                     <DropdownMenuItem onClick={() => setSortBy("customer_desc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "customer_desc" && "bg-slate-100 dark:bg-slate-800")}>
+                       Name (Z - A)
+                     </DropdownMenuItem>
+                   </DropdownMenuGroup>
+                 </DropdownMenuContent>
+               </DropdownMenu>
+
+               <Button 
+                 variant="ghost" 
+                 onClick={() => setShowAdvancedSearch(true)}
+                 className={cn("h-11 w-11 p-0 rounded-xl flex-shrink-0 transition-all", (filterInvoice || filterCustomer || filterStatus !== "all" || filterMinAmount || filterMaxAmount) ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900" : "text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10")}
+                 title="Advanced Filters"
+               >
+                  <Filter className="h-5 w-5" />
+               </Button>
            </div>
         </div>
 
@@ -535,14 +651,19 @@ export default function SalesOrdersPage() {
 
            <div className="p-6 sm:p-10 space-y-10 bg-white dark:bg-slate-950 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Sales Order#</Label>
-                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
-                 </div>
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reference#</Label>
-                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
-                 </div>
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Sales Order#</Label>
+                     <Input 
+                       value={filterInvoice}
+                       onChange={(e) => setFilterInvoice(e.target.value)}
+                       placeholder="e.g. SO-0001"
+                       className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" 
+                     />
+                  </div>
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Reference#</Label>
+                     <Input placeholder="e.g. REF-0001" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
+                  </div>
                  
                  <div className="space-y-2 md:col-span-2 border-t border-slate-50 dark:border-slate-800/50 pt-6">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 ml-1">Date Range (From - To)</Label>
@@ -552,7 +673,7 @@ export default function SalesOrdersPage() {
                     </div>
                  </div>
 
-                 <div className="space-y-2 md:col-span-2">
+                 <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Shipment Date Range</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
@@ -560,7 +681,7 @@ export default function SalesOrdersPage() {
                     </div>
                  </div>
 
-                 <div className="space-y-2 md:col-span-2">
+                 <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Created Between</Label>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                        <Input type="date" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white dark:[color-scheme:dark]" />
@@ -568,17 +689,18 @@ export default function SalesOrdersPage() {
                     </div>
                  </div>
 
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Status</Label>
-                    <Select>
-                       <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white">
-                          <SelectValue placeholder="All Statuses" />
-                       </SelectTrigger>
-                       <SelectContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800">
-                          {SALES_ORDER_VIEWS.map(v => <SelectItem key={v.id} value={v.id} className="dark:text-slate-200 focus:dark:bg-slate-800 cursor-pointer">{v.label}</SelectItem>)}
-                       </SelectContent>
-                    </Select>
-                 </div>
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Status</Label>
+                     <Select value={filterStatus} onValueChange={setFilterStatus}>
+                        <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white">
+                           <SelectValue placeholder="All Statuses" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800">
+                           <SelectItem value="all" className="dark:text-slate-200 focus:dark:bg-slate-800 cursor-pointer">All Statuses</SelectItem>
+                           {SALES_ORDER_VIEWS.filter(v => !v.isAction).map(v => <SelectItem key={v.id} value={v.id} className="dark:text-slate-200 focus:dark:bg-slate-800 cursor-pointer">{v.label}</SelectItem>)}
+                        </SelectContent>
+                     </Select>
+                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Item Name</Label>
@@ -590,19 +712,34 @@ export default function SalesOrdersPage() {
                     <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
                  </div>
 
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Total Range (NLe)</Label>
-                    <div className="flex items-center gap-3">
-                       <Input placeholder="Min" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white w-full" />
-                       <span className="text-slate-300 dark:text-slate-600">-</span>
-                       <Input placeholder="Max" className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white w-full" />
-                    </div>
-                 </div>
-
-                 <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Customer Name</Label>
-                    <Input className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" />
-                 </div>
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Total Range (NLe)</Label>
+                     <div className="flex items-center gap-3">
+                        <Input 
+                          value={filterMinAmount}
+                          onChange={(e) => setFilterMinAmount(e.target.value)}
+                          placeholder="Min" 
+                          className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white w-full" 
+                        />
+                        <span className="text-slate-300 dark:text-slate-600">-</span>
+                        <Input 
+                          value={filterMaxAmount}
+                          onChange={(e) => setFilterMaxAmount(e.target.value)}
+                          placeholder="Max" 
+                          className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white w-full" 
+                        />
+                     </div>
+                  </div>
+ 
+                  <div className="space-y-2">
+                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Customer Name</Label>
+                     <Input 
+                       value={filterCustomer}
+                       onChange={(e) => setFilterCustomer(e.target.value)}
+                       placeholder="e.g. John Doe"
+                       className="h-12 bg-slate-50 dark:bg-slate-900/50 border-slate-100 dark:border-slate-800 rounded-xl font-bold dark:text-white" 
+                     />
+                  </div>
 
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Salesperson</Label>
@@ -635,9 +772,31 @@ export default function SalesOrdersPage() {
            </div>
 
            <div className="p-6 sm:p-10 sm:pt-0 pt-0 flex flex-col sm:flex-row gap-4 bg-white dark:bg-slate-950 relative z-10 border-t border-slate-50 dark:border-slate-800/50">
-              <Button className="flex-1 h-16 rounded-2xl bg-indigo-600 text-white font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl shadow-indigo-600/20 hover:scale-[1.02] transition-all">Apply Filter</Button>
-              <Button variant="outline" onClick={() => setShowAdvancedSearch(false)} className="flex-1 h-16 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors">Reset Configuration</Button>
-           </div>
+               <Button 
+                 onClick={() => {
+                   setShowAdvancedSearch(false);
+                   toast.success("Advanced filters applied successfully");
+                 }}
+                 className="flex-1 h-16 rounded-2xl bg-indigo-600 text-white font-black uppercase text-[11px] tracking-[0.3em] shadow-2xl shadow-indigo-600/20 hover:scale-[1.02] transition-all"
+               >
+                 Apply Filter
+               </Button>
+               <Button 
+                 variant="outline" 
+                 onClick={() => {
+                   setFilterInvoice("");
+                   setFilterCustomer("");
+                   setFilterStatus("all");
+                   setFilterMinAmount("");
+                   setFilterMaxAmount("");
+                   setShowAdvancedSearch(false);
+                   toast.success("Advanced filters cleared");
+                 }} 
+                 className="flex-1 h-16 rounded-2xl font-black uppercase text-[11px] tracking-widest text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+               >
+                 Reset Configuration
+               </Button>
+            </div>
         </DialogContent>
       </Dialog>
     </div>
