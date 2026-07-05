@@ -35,7 +35,8 @@ import {
   toggleUserStatus,
   getAllBusinesses,
   sendEcosystemPushNotification,
-  broadcastSystemUpdate
+  broadcastSystemUpdate,
+  createSuperAdmin
 } from "@/lib/actions/super-admin";
 import { getSystemSettings, updateSystemSettings } from "@/lib/actions/system-settings";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -77,6 +78,14 @@ export default function NexusSuperControl() {
   const [selectedUserForPasswordReset, setSelectedUserForPasswordReset] = useState<any>(null);
   const [overridePasswordVal, setOverridePasswordVal] = useState("");
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+
+  // Add Super Admin State
+  const [isAddSuperAdminOpen, setIsAddSuperAdminOpen] = useState(false);
+  const [newSuperAdminName, setNewSuperAdminName] = useState("");
+  const [newSuperAdminUsername, setNewSuperAdminUsername] = useState("");
+  const [newSuperAdminEmail, setNewSuperAdminEmail] = useState("");
+  const [newSuperAdminPassword, setNewSuperAdminPassword] = useState("");
+  const [isCreatingSuperAdmin, setIsCreatingSuperAdmin] = useState(false);
 
   // Super Admin Credentials State
   const [currentOwnPassword, setCurrentOwnPassword] = useState("");
@@ -351,6 +360,40 @@ export default function NexusSuperControl() {
       toast.error(err.message || "Failed to override user password.");
     } finally {
       setIsResettingPassword(false);
+    }
+  }
+
+  async function handleCreateSuperAdmin(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newSuperAdminName || !newSuperAdminEmail || !newSuperAdminPassword) {
+      toast.error("Name, Email and Password are required.");
+      return;
+    }
+    if (newSuperAdminPassword.length < 6) {
+      toast.error("Password must be at least 6 characters.");
+      return;
+    }
+    try {
+      setIsCreatingSuperAdmin(true);
+      await createSuperAdmin({
+        name: newSuperAdminName,
+        username: newSuperAdminUsername || undefined,
+        email: newSuperAdminEmail,
+        passwordStr: newSuperAdminPassword
+      });
+      toast.success("New Super Admin account registered successfully.");
+      setIsAddSuperAdminOpen(false);
+      setNewSuperAdminName("");
+      setNewSuperAdminUsername("");
+      setNewSuperAdminEmail("");
+      setNewSuperAdminPassword("");
+      // Refresh user list
+      const u = await getAllSystemUsers();
+      setSystemUsers(u);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to create Super Admin.");
+    } finally {
+      setIsCreatingSuperAdmin(false);
     }
   }
 
@@ -1126,6 +1169,13 @@ export default function NexusSuperControl() {
                       </div>
                       <div className="flex items-center gap-4">
                          <Button
+                            onClick={() => setIsAddSuperAdminOpen(true)}
+                            className="h-10 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-black text-white uppercase tracking-widest gap-2 px-4 flex items-center shadow-lg shadow-rose-600/10 active:scale-95 transition-all"
+                         >
+                            <Shield className="h-3.5 w-3.5" />
+                            Add Super Admin
+                         </Button>
+                         <Button
                             onClick={async () => {
                               try {
                                 const u = await getAllSystemUsers();
@@ -1309,6 +1359,95 @@ export default function NexusSuperControl() {
                                      {isResettingPassword ? "Applying..." : "Confirm Override"}
                                   </Button>
                                 </div>
+                            </form>
+                         </motion.div>
+                      </div>
+                   )}
+                </AnimatePresence>
+
+                {/* Add Super Admin Modal */}
+                <AnimatePresence>
+                   {isAddSuperAdminOpen && (
+                      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                         <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="w-full max-w-md overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl p-6 md:p-8 space-y-6"
+                         >
+                            <div>
+                               <h3 className="text-xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic flex items-center gap-2">
+                                  <Shield className="h-5 w-5 text-rose-600" />
+                                  Add New <span className="text-rose-600">Super Admin</span>
+                               </h3>
+                               <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-1">Register a new user with full system administrative privileges.</p>
+                            </div>
+                            
+                            <form onSubmit={handleCreateSuperAdmin} className="space-y-4">
+                               <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Full Name</label>
+                                  <Input 
+                                     placeholder="e.g. Dr. Strange"
+                                     value={newSuperAdminName}
+                                     onChange={(e) => setNewSuperAdminName(e.target.value)}
+                                     required
+                                     className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                  />
+                               </div>
+                               <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Username (Optional)</label>
+                                  <Input 
+                                     placeholder="e.g. strange_admin"
+                                     value={newSuperAdminUsername}
+                                     onChange={(e) => setNewSuperAdminUsername(e.target.value)}
+                                     className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                  />
+                               </div>
+                               <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Address</label>
+                                  <Input 
+                                     type="email"
+                                     placeholder="e.g. strange@protech.com"
+                                     value={newSuperAdminEmail}
+                                     onChange={(e) => setNewSuperAdminEmail(e.target.value)}
+                                     required
+                                     className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                  />
+                               </div>
+                               <div className="space-y-1">
+                                  <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Password</label>
+                                  <Input 
+                                     type="password"
+                                     placeholder="••••••••"
+                                     value={newSuperAdminPassword}
+                                     onChange={(e) => setNewSuperAdminPassword(e.target.value)}
+                                     required
+                                     className="bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400"
+                                  />
+                               </div>
+                               <div className="flex gap-4 pt-2">
+                                  <Button 
+                                     type="button"
+                                     variant="outline"
+                                     onClick={() => {
+                                        setIsAddSuperAdminOpen(false);
+                                        setNewSuperAdminName("");
+                                        setNewSuperAdminUsername("");
+                                        setNewSuperAdminEmail("");
+                                        setNewSuperAdminPassword("");
+                                     }}
+                                     className="flex-1 h-11 rounded-xl border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400"
+                                  >
+                                     Cancel
+                                  </Button>
+                                  <Button 
+                                     type="submit"
+                                     disabled={isCreatingSuperAdmin}
+                                     className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-[10px] uppercase tracking-widest shadow-lg shadow-rose-600/20"
+                                  >
+                                     {isCreatingSuperAdmin ? "Registering..." : "Create Admin"}
+                                  </Button>
+                               </div>
                             </form>
                          </motion.div>
                       </div>
