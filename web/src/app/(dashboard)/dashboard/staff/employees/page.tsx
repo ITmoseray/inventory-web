@@ -152,10 +152,10 @@ export default function EmployeesPage() {
                  <UserPlus className="h-4 w-4 mr-2" /> Add Employee Node
               </Button>
            } />
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white max-w-md">
-              <div className="bg-slate-900 p-8 text-white">
+           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white">
+              <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30">
                  <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic">Node Initialization</h3>
-                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Create New Authorized User</p>
+                 <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Create New Authorized User</p>
               </div>
               <form onSubmit={handleAdd} className="p-8 space-y-5">
                  <div className="space-y-2">
