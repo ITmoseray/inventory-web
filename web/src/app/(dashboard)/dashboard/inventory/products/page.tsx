@@ -24,6 +24,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -308,6 +310,10 @@ export default function ProductsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterCategory, setFilterCategory] = useState("all");
+  const [filterStock, setFilterStock] = useState("all");
+  const [filterType, setFilterType] = useState("all");
+  const [sortBy, setSortBy] = useState("name_asc");
   const [packagingOpen, setPackagingOpen] = useState(true);
 
   const [formData, setFormData] = useState({
@@ -354,10 +360,52 @@ export default function ProductsPage() {
     }
   }
 
-  const filteredProducts = products.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredProducts = products
+    .filter(p => {
+      // 1. Search Query filter
+      const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()));
+      if (!matchesSearch) return false;
+
+      // 2. Category filter
+      if (filterCategory !== "all" && p.categoryId !== filterCategory) {
+        return false;
+      }
+
+      // 3. Stock filter
+      if (filterStock !== "all") {
+        const stock = Number(p.stockQuantity) || 0;
+        const minLevel = Number(p.minStockLevel) || 10;
+        if (filterStock === "low" && (stock > minLevel || stock <= 0)) return false;
+        if (filterStock === "out" && stock > 0) return false;
+        if (filterStock === "in" && stock <= minLevel) return false;
+      }
+
+      // 4. Product Type filter
+      if (filterType !== "all" && p.type !== filterType) {
+        return false;
+      }
+
+      return true;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "name_asc":
+          return a.name.localeCompare(b.name);
+        case "name_desc":
+          return b.name.localeCompare(a.name);
+        case "price_asc":
+          return (Number(a.unitPrice) || 0) - (Number(b.unitPrice) || 0);
+        case "price_desc":
+          return (Number(b.unitPrice) || 0) - (Number(a.unitPrice) || 0);
+        case "stock_asc":
+          return (Number(a.stockQuantity) || 0) - (Number(b.stockQuantity) || 0);
+        case "stock_desc":
+          return (Number(b.stockQuantity) || 0) - (Number(a.stockQuantity) || 0);
+        default:
+          return 0;
+      }
+    });
 
   // Convert packaging units to ProductUnit format for backend
   function packagingToUnits(packagingUnits: PackagingUnit[]) {
@@ -1026,12 +1074,91 @@ export default function ProductsPage() {
              />
            </div>
            <div className="flex gap-2 shrink-0">
-              <Button variant="ghost" className="rounded-2xl gap-2 font-black text-slate-400 uppercase text-[10px] tracking-widest h-12 px-6 hover:bg-white dark:hover:bg-slate-800 hover:text-primary">
-                 <Filter className="h-4 w-4" /> Filter
-              </Button>
-              <Button variant="ghost" className="rounded-2xl gap-2 font-black text-slate-400 uppercase text-[10px] tracking-widest h-12 px-6 hover:bg-white dark:hover:bg-slate-800 hover:text-primary">
-                 <ArrowUpDown className="h-4 w-4" /> Sort
-              </Button>
+             <DropdownMenu>
+               <DropdownMenuTrigger render={
+                 <Button variant="ghost" className={cn("rounded-2xl gap-2 font-black uppercase text-[10px] tracking-widest h-12 px-6 transition-all hover:bg-white dark:hover:bg-slate-800", (filterCategory !== "all" || filterStock !== "all" || filterType !== "all") ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900" : "text-slate-400 hover:text-primary")}>
+                    <Filter className="h-4 w-4" />
+                    {(filterCategory !== "all" || filterStock !== "all" || filterType !== "all") ? `Filter (${(filterCategory !== "all" ? 1 : 0) + (filterStock !== "all" ? 1 : 0) + (filterType !== "all" ? 1 : 0)})` : "Filter"}
+                 </Button>
+               } />
+               <DropdownMenuContent className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800">
+                 <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Stock Level</DropdownMenuLabel>
+                 <DropdownMenuItem onClick={() => setFilterStock("all")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterStock === "all" && "bg-slate-100 dark:bg-slate-800")}>
+                   All Stock Levels
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setFilterStock("in")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterStock === "in" && "bg-slate-100 dark:bg-slate-800")}>
+                   In Stock
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setFilterStock("low")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterStock === "low" && "bg-slate-100 dark:bg-slate-800")}>
+                   Low Stock
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setFilterStock("out")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterStock === "out" && "bg-slate-100 dark:bg-slate-800")}>
+                   Out of Stock
+                 </DropdownMenuItem>
+                 
+                 <DropdownMenuSeparator className="my-1" />
+                 
+                 <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Category</DropdownMenuLabel>
+                 <DropdownMenuItem onClick={() => setFilterCategory("all")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterCategory === "all" && "bg-slate-100 dark:bg-slate-800")}>
+                   All Categories
+                 </DropdownMenuItem>
+                 {categories.map((c) => (
+                   <DropdownMenuItem key={c.id} onClick={() => setFilterCategory(c.id)} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterCategory === c.id && "bg-slate-100 dark:bg-slate-800")}>
+                     {c.name}
+                   </DropdownMenuItem>
+                 ))}
+                 
+                 <DropdownMenuSeparator className="my-1" />
+                 
+                 <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Type</DropdownMenuLabel>
+                 <DropdownMenuItem onClick={() => setFilterType("all")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterType === "all" && "bg-slate-100 dark:bg-slate-800")}>
+                   All Types
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setFilterType("PRODUCT")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterType === "PRODUCT" && "bg-slate-100 dark:bg-slate-800")}>
+                   Products Only
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setFilterType("SERVICE")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", filterType === "SERVICE" && "bg-slate-100 dark:bg-slate-800")}>
+                   Services Only
+                 </DropdownMenuItem>
+               </DropdownMenuContent>
+             </DropdownMenu>
+
+             <DropdownMenu>
+               <DropdownMenuTrigger render={
+                 <Button variant="ghost" className={cn("rounded-2xl gap-2 font-black uppercase text-[10px] tracking-widest h-12 px-6 transition-all hover:bg-white dark:hover:bg-slate-800", sortBy !== "name_asc" ? "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900" : "text-slate-400 hover:text-primary")}>
+                    <ArrowUpDown className="h-4 w-4" />
+                    {sortBy === "name_asc" && "Sort (A-Z)"}
+                    {sortBy === "name_desc" && "Sort (Z-A)"}
+                    {sortBy === "price_asc" && "Price (Asc)"}
+                    {sortBy === "price_desc" && "Price (Desc)"}
+                    {sortBy === "stock_asc" && "Stock (Asc)"}
+                    {sortBy === "stock_desc" && "Stock (Desc)"}
+                 </Button>
+               } />
+               <DropdownMenuContent className="w-56 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800">
+                 <DropdownMenuLabel className="font-black text-[9px] uppercase tracking-widest text-slate-400 p-2">Sort By</DropdownMenuLabel>
+                 <DropdownMenuItem onClick={() => setSortBy("name_asc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "name_asc" && "bg-slate-100 dark:bg-slate-800")}>
+                   Name (A - Z)
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setSortBy("name_desc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "name_desc" && "bg-slate-100 dark:bg-slate-800")}>
+                   Name (Z - A)
+                 </DropdownMenuItem>
+                 <DropdownMenuSeparator className="my-1" />
+                 <DropdownMenuItem onClick={() => setSortBy("price_asc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "price_asc" && "bg-slate-100 dark:bg-slate-800")}>
+                   Price (Low to High)
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setSortBy("price_desc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "price_desc" && "bg-slate-100 dark:bg-slate-800")}>
+                   Price (High to Low)
+                 </DropdownMenuItem>
+                 <DropdownMenuSeparator className="my-1" />
+                 <DropdownMenuItem onClick={() => setSortBy("stock_asc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "stock_asc" && "bg-slate-100 dark:bg-slate-800")}>
+                   Stock (Low to High)
+                 </DropdownMenuItem>
+                 <DropdownMenuItem onClick={() => setSortBy("stock_desc")} className={cn("rounded-xl p-2.5 font-bold text-xs cursor-pointer", sortBy === "stock_desc" && "bg-slate-100 dark:bg-slate-800")}>
+                   Stock (High to Low)
+                 </DropdownMenuItem>
+               </DropdownMenuContent>
+             </DropdownMenu>
            </div>
         </div>
       </Card>

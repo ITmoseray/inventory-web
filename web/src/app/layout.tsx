@@ -26,6 +26,15 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: import("next").Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
+  themeColor: "#4f46e5",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +47,6 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <meta name="theme-color" content="#4f46e5" />
         <link rel="apple-touch-icon" href="/images/logo2.png" />
       </head>
       <body className="min-h-full flex flex-col font-sans">

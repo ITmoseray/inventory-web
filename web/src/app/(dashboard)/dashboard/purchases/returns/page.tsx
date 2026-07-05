@@ -105,7 +105,7 @@ export default function ReturnsPage() {
                   <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                   <Input 
                      placeholder="Search by Invoice # (e.g. INV-2026...)" 
-                     className="pl-10 h-10 rounded-xl border-slate-100 dark:border-slate-850 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-950 text-slate-900 dark:text-white"
+                     className="pl-10 h-10 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:bg-white dark:focus:bg-slate-950 text-slate-900 dark:text-white"
                      value={searchQuery}
                      onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -123,7 +123,7 @@ export default function ReturnsPage() {
                   </TableHeader>
                   <TableBody>
                      {loading ? (
-                       [1,2,3].map(i => <TableRow key={i} className="h-16 animate-pulse bg-slate-50/50 dark:bg-slate-850/50 border-slate-50 dark:border-slate-800" />)
+                       [1,2,3].map(i => <TableRow key={i} className="h-16 animate-pulse bg-slate-50/50 dark:bg-slate-800/50 border-slate-50 dark:border-slate-800" />)
                      ) : filteredSales.length === 0 ? (
                         <TableRow>
                            <TableCell colSpan={3} className="h-32 text-center text-slate-400 dark:text-slate-500 font-bold italic">No matching sales found.</TableCell>

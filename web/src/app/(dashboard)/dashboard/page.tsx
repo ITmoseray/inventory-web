@@ -53,7 +53,9 @@ export default function DashboardPage() {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [stats, setStats] = useState({
     revenue: 0,
+    revenueChange: 0,
     orders: 0,
+    ordersChange: 0,
     skuCount: 0,
     lowStock: 0,
     expiringItems: 0,
@@ -325,22 +327,24 @@ export default function DashboardPage() {
                 title="Total Revenue" 
                 value={stats.revenue} 
                 prefix="Le "
-                description="Global Platform Total" 
+                description={stats.revenueChange >= 0 ? "Daily Revenue Velocity" : "Revenue Stream Lag"} 
                 icon={DollarSign}
                 colorClass="text-emerald-600"
                 bgClass="bg-emerald-50 dark:bg-emerald-950/30"
                 delay={0.1}
                 href="/dashboard/sales/history"
+                change={stats.revenueChange}
               />
               <StatCard 
                 title="Today's Orders" 
                 value={stats.orders} 
-                description="Processing Cycles" 
+                description={stats.orders === 0 ? "No active orders today" : `${stats.orders} orders processed today`} 
                 icon={ShoppingCart}
                 colorClass="text-blue-600"
                 bgClass="bg-blue-50 dark:bg-blue-950/30"
                 delay={0.2}
                 href="/dashboard/sales/orders"
+                change={stats.ordersChange}
               />
               <StatCard 
                 title={businessType === "PHARMACY" ? "Drug Items" : "SKU Count"} 
@@ -1161,12 +1165,12 @@ export default function DashboardPage() {
           </div>
           <div className="p-10 space-y-8 bg-white dark:bg-slate-950 rounded-b-[3rem]">
             <div className="space-y-4">
-              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 dark:border-slate-850 pb-4">Update Details</h4>
+              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-50 dark:border-slate-800 pb-4">Update Details</h4>
               <p className="text-slate-700 dark:text-slate-300 font-medium text-sm leading-relaxed uppercase">
                 {selectedUpdate?.desc}
               </p>
             </div>
-            <div className="pt-6 border-t border-slate-50 dark:border-slate-850 space-y-4">
+            <div className="pt-6 border-t border-slate-50 dark:border-slate-800 space-y-4">
               <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 <span>Release Version</span>
                 <span className="text-slate-900 dark:text-white font-black">v2.6.4-beta</span>
@@ -1188,7 +1192,7 @@ export default function DashboardPage() {
       <Dialog open={isWelcomeModalOpen} onOpenChange={setIsWelcomeModalOpen}>
         <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-white dark:bg-slate-950 border-slate-100 dark:border-slate-800/50 rounded-[2.5rem] shadow-2xl">
            <div className="relative p-10 flex flex-col items-center text-center overflow-hidden">
-              <div className="absolute inset-0 bg-slate-50 dark:bg-grid-white/[0.02]" />
+              <div className="absolute inset-0 bg-slate-50 dark:bg-transparent dark:bg-grid-white/[0.02]" />
               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/10 dark:bg-primary/20 blur-[80px] rounded-full pointer-events-none" />
               
               <div className="relative h-20 w-20 rounded-3xl bg-white dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 flex items-center justify-center mb-8 shadow-xl backdrop-blur-md z-10 group">
@@ -1214,7 +1218,7 @@ export default function DashboardPage() {
 
               <Button 
                 onClick={() => setIsWelcomeModalOpen(false)}
-                className="mt-10 h-16 w-full rounded-2xl bg-primary hover:bg-primary/90 text-white font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95 relative z-10"
+                className="mt-10 h-16 w-full rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.3em] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-95 relative z-10"
               >
                 Acknowledge Update
               </Button>

@@ -26,6 +26,7 @@ declare module "next-auth" {
       trialEndDate: Date | null;
       role: string;
       permissions: string[];
+      originalRole?: string;
     } & DefaultSession["user"];
   }
 
@@ -36,6 +37,7 @@ declare module "next-auth" {
     trialEndDate: Date | null;
     role: string;
     permissions: string[];
+    originalRole?: string;
   }
 }
 
@@ -117,6 +119,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     ...authConfig.callbacks,
     async signIn({ user, account, profile }) {
+      // Clear any leftover impersonation cookies on fresh sign-in
+      try {
+        const cookieStore = await cookies();
+        cookieStore.delete("impersonation_target");
+      } catch (e) {
+        console.error("Failed to delete impersonation cookie on sign-in:", e);
+      }
+
       let finalUserId = user.id;
       let finalBusinessId = (user as any).businessId;
 
@@ -257,6 +267,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.role && session.user) session.user.role = token.role as string;
       if (token.businessType && session.user) session.user.businessType = token.businessType as string;
       if (token.trialEndDate && session.user) session.user.trialEndDate = token.trialEndDate as Date;
+      if (token.originalRole && session.user) {
+        (session.user as any).originalRole = token.originalRole as string;
+      }
       if (token.permissions && session.user) {
         session.user.permissions = token.permissions as string[];
         console.log(`SERVER AUTH: Assigned ${session.user.permissions.length} permissions to session`);
@@ -317,22 +330,59 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       try {
         const cookieStore = await cookies();
         const impersonationTargetId = cookieStore.get("impersonation_target")?.value;
+        const isSuperAdmin = token.role === "SUPERADMIN" || token.originalRole === "SUPERADMIN";
 
-        if (impersonationTargetId && token.role === "SUPERADMIN") {
-          console.log(`SERVER AUTH: Impersonation detected for targetId: ${impersonationTargetId}`);
-          const targetUser = await prisma.user.findUnique({
-            where: { id: impersonationTargetId },
-            include: { business: true, role: { include: { permissions: true } } },
-          });
+        if (isSuperAdmin) {
+          if (impersonationTargetId) {
+            // Check if we need to set up or update the impersonation
+            if (!token.originalRole || token.sub !== impersonationTargetId) {
+              console.log(`SERVER AUTH: Initializing or updating impersonation to targetId: ${impersonationTargetId}`);
+              const targetUser = await prisma.user.findUnique({
+                where: { id: impersonationTargetId },
+                include: { business: true, role: { include: { permissions: true } } },
+              });
 
-          if (targetUser) {
-            token.sub = targetUser.id;
-            token.role = targetUser.role.name;
-            token.businessId = targetUser.businessId;
-            token.businessName = targetUser.business.name;
-            token.businessType = targetUser.business.type;
-            token.permissions = targetUser.role.permissions.map(p => p.key);
-            console.log(`SERVER AUTH: Impersonation Active - Target: ${targetUser.email}, Business: ${targetUser.business.name}`);
+              if (targetUser) {
+                // If not already in impersonation, save the original super admin details
+                if (!token.originalRole) {
+                  token.originalSub = token.sub;
+                  token.originalRole = "SUPERADMIN";
+                  token.originalBusinessId = token.businessId;
+                  token.originalBusinessName = token.businessName;
+                  token.originalBusinessType = token.businessType;
+                  token.originalTrialEndDate = token.trialEndDate;
+                  token.originalPermissions = token.permissions;
+                }
+
+                // Overwrite active token properties with target user details
+                token.sub = targetUser.id;
+                token.role = targetUser.role.name;
+                token.businessId = targetUser.businessId;
+                token.businessName = targetUser.business.name;
+                token.businessType = targetUser.business.type;
+                token.permissions = targetUser.role.permissions.map(p => p.key);
+                console.log(`SERVER AUTH: Impersonation active - Target: ${targetUser.email}, Business: ${targetUser.business.name}`);
+              }
+            }
+          } else if (token.originalRole) {
+            // Restore original details because impersonation has stopped (cookie was deleted)
+            console.log(`SERVER AUTH: Restoring original Super Admin session`);
+            token.sub = token.originalSub as string | undefined;
+            token.role = token.originalRole as string;
+            token.businessId = token.originalBusinessId as string;
+            token.businessName = token.originalBusinessName as string;
+            token.businessType = token.originalBusinessType as string;
+            token.trialEndDate = token.originalTrialEndDate as any;
+            token.permissions = token.originalPermissions as string[];
+
+            // Delete original keys from token
+            delete token.originalSub;
+            delete token.originalRole;
+            delete token.originalBusinessId;
+            delete token.originalBusinessName;
+            delete token.originalBusinessType;
+            delete token.originalTrialEndDate;
+            delete token.originalPermissions;
           }
         }
       } catch (error) {

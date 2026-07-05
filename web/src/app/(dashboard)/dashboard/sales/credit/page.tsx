@@ -180,34 +180,34 @@ export default function CreditSalesPage() {
 
       {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-3xl p-8">
+        <DialogContent className="sm:max-w-md rounded-3xl p-8 bg-white dark:bg-slate-950 border-none">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black">Settle Node</DialogTitle>
-            <DialogDescription className="text-slate-400 font-bold text-sm">Recording payment for {selectedDebt?.customer?.name}</DialogDescription>
+            <DialogTitle className="text-2xl font-black dark:text-white">Settle Node</DialogTitle>
+            <DialogDescription className="text-slate-450 dark:text-slate-400 font-bold text-sm">Recording payment for {selectedDebt?.customer?.name}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Payment Amount (Le)</Label>
+              <Label className="font-bold text-slate-750 dark:text-slate-300">Payment Amount (Le)</Label>
               <Input 
                 type="number" 
                 value={paymentAmount}
                 onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                className="h-12 rounded-xl border-slate-200"
+                className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-bold text-slate-700">Payment Note</Label>
+              <Label className="font-bold text-slate-750 dark:text-slate-300">Payment Note</Label>
               <Input 
                 value={paymentNote}
                 onChange={(e) => setPaymentNote(e.target.value)}
-                className="h-12 rounded-xl border-slate-200"
+                className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
                 placeholder="Optional payment note..."
               />
             </div>
           </div>
           <DialogFooter className="gap-2">
             <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
-            <Button className="rounded-xl px-8 h-12 bg-slate-900 text-white font-black" onClick={handlePayment}>Confirm Payment</Button>
+            <Button className="rounded-xl px-8 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black" onClick={handlePayment}>Confirm Payment</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

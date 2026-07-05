@@ -5,6 +5,8 @@ const config: NextConfig = {
   // Standard Next.js server-side build (not static export)
   output: "standalone",
   turbopack: {},
+  // @ts-ignore
+  allowedDevOrigins: ["10.0.2.2"],
   
   typescript: {
     ignoreBuildErrors: true,

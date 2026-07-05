@@ -131,7 +131,7 @@ export default function ProtechCloudHomepage() {
         <nav className="w-full px-6 lg:px-12 h-20 flex items-center bg-white/85 dark:bg-slate-950/70 backdrop-blur-xl border border-slate-200 dark:border-slate-900 rounded-2xl shadow-2xl">
           <Link className="flex items-center gap-3 group" href="/">
             <div className="relative h-10 w-10 overflow-hidden rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 group-hover:scale-105 transition-transform bg-white">
-              <Image src="/images/logo.jpeg" alt="Protech Logo" fill className="object-cover" />
+              <Image src="/images/logo.jpeg" alt="Protech Logo" fill sizes="40px" className="object-cover" />
             </div>
             <div className="flex flex-col">
               <span className="font-black text-xl tracking-tighter text-slate-900 dark:text-white leading-none">
@@ -325,7 +325,7 @@ export default function ProtechCloudHomepage() {
                      key={i} 
                      className="group p-8 rounded-3xl bg-white dark:bg-slate-900/30 border border-slate-100 dark:border-slate-800 hover:border-indigo-500/20 dark:hover:border-indigo-500/30 hover:bg-slate-50/50 dark:hover:bg-slate-900/50 hover:shadow-2xl transition-all duration-500"
                    >
-                      <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-850 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+                      <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
                          <mod.icon className="h-5 w-5" />
                       </div>
                       <h4 className="text-lg font-black mb-3 text-slate-900 dark:text-white tracking-tight uppercase italic">{mod.title}</h4>
@@ -508,7 +508,7 @@ export default function ProtechCloudHomepage() {
               <div className="lg:col-span-5">
                 <div className="flex items-center gap-3 mb-8">
                    <div className="relative h-10 w-10 overflow-hidden rounded-xl shadow-lg border border-slate-800 bg-white">
-                      <Image src="/images/logo.jpeg" alt="Logo" fill className="object-cover" />
+                      <Image src="/images/logo.jpeg" alt="Logo" fill sizes="40px" className="object-cover" />
                    </div>
                    <div className="flex flex-col">
                       <span className="font-black text-xl tracking-tighter text-white leading-none">PROTECH ASSIST</span>

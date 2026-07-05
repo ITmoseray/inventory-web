@@ -15,9 +15,10 @@ interface StatCardProps {
   bgClass: string;
   delay?: number;
   href?: string;
+  change?: number; // Add dynamic growth change parameter
 }
 
-export function StatCard({ title, value, prefix = "", description, icon: Icon, colorClass, bgClass, delay = 0, href }: StatCardProps) {
+export function StatCard({ title, value, prefix = "", description, icon: Icon, colorClass, bgClass, delay = 0, href, change }: StatCardProps) {
   // Defensive check for React Error #31
   let displayValue: any = value;
   if (typeof value === 'object' && value !== null) {
@@ -61,7 +62,16 @@ export function StatCard({ title, value, prefix = "", description, icon: Icon, c
             </div>
             <div className="flex items-center justify-between">
                <span className="text-[9px] sm:text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">{description}</span>
-               <div className={cn("px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-tighter", bgClass, colorClass)}>+12.5%</div>
+               {change !== undefined && (
+                  <div className={cn(
+                    "px-2 py-0.5 rounded-full text-[7px] sm:text-[8px] font-black uppercase tracking-tighter", 
+                    change >= 0 
+                      ? bgClass + " " + colorClass 
+                      : "bg-rose-50 text-rose-600 dark:bg-rose-950/30 dark:text-rose-450"
+                  )}>
+                    {change >= 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`}
+                  </div>
+               )}
             </div>
           </div>
         </CardContent>

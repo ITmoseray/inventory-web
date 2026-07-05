@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   Globe, Search, MoreVertical, KeyRound, UserCheck, 
-  CheckCircle, Trash2, ArrowLeft, Filter, Zap, Shield
+  CheckCircle, Trash2, ArrowLeft, Filter, Zap, Shield, Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -21,6 +21,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { 
@@ -40,6 +47,7 @@ export default function TenantVault() {
   const [businesses, setBusinesses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedStore, setSelectedStore] = useState<any>(null);
 
   useEffect(() => {
     fetchBusinesses();
@@ -188,7 +196,12 @@ export default function TenantVault() {
                             {b.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex flex-col">
-                            <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors">{b.name}</span>
+                            <span 
+                               onClick={() => setSelectedStore(b)}
+                               className="font-black text-slate-900 dark:text-white text-lg tracking-tight group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors cursor-pointer hover:underline"
+                             >
+                                {b.name}
+                             </span>
                             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">SLUG: {b.slug}</span>
                           </div>
                         </div>
@@ -278,8 +291,141 @@ export default function TenantVault() {
               </TableBody>
             </Table>
           </div>
-        </GlassCard>
+         </GlassCard>
       </div>
+
+      {/* Store Quickview Dialog */}
+      <Dialog open={selectedStore !== null} onOpenChange={(open) => !open && setSelectedStore(null)}>
+        <DialogContent className="w-[92vw] sm:max-w-lg rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 border-none shadow-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <DialogHeader className="mb-4">
+            <div className="flex items-center gap-3">
+               <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500 font-black text-lg sm:text-xl shrink-0">
+                  {selectedStore?.name?.charAt(0).toUpperCase()}
+               </div>
+               <div>
+                  <DialogTitle className="text-lg sm:text-xl font-[1000] tracking-tight uppercase italic leading-none">{selectedStore?.name}</DialogTitle>
+                  <DialogDescription className="text-slate-450 dark:text-slate-400 font-bold text-[10px] sm:text-xs uppercase tracking-wider mt-1">Tenant Registry Node Details</DialogDescription>
+               </div>
+            </div>
+          </DialogHeader>
+
+          {selectedStore && (
+            <div className="space-y-6 pt-4">
+              {/* Metadata Details */}
+              <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
+                 <div className="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-slate-800 gap-4">
+                    <div className="min-w-0 flex-1">
+                       <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">Store Database ID</span>
+                       <span className="text-xs font-bold font-mono text-slate-900 dark:text-slate-200 block truncate mt-0.5 select-all">{selectedStore.id}</span>
+                    </div>
+                    <Button 
+                       size="sm" 
+                       variant="ghost" 
+                       className="h-8 px-2.5 rounded-lg border border-slate-200/60 dark:border-slate-800 text-[8px] sm:text-[9px] uppercase tracking-widest font-black gap-1 text-slate-500 hover:text-indigo-600 dark:text-slate-450 dark:hover:text-white shrink-0"
+                       onClick={() => {
+                          navigator.clipboard.writeText(selectedStore.id);
+                          toast.success("Store ID copied to clipboard!");
+                       }}
+                    >
+                       <Copy size={11} /> Copy
+                    </Button>
+                 </div>
+
+                 <div className="grid grid-cols-2 gap-4">
+                    <div>
+                       <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">Unique URL Slug</span>
+                       <span className="text-xs font-black text-slate-950 dark:text-white mt-1">/{selectedStore.slug}</span>
+                    </div>
+                    <div>
+                       <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest block">Deployment Date</span>
+                       <span className="text-xs font-black text-slate-950 dark:text-white mt-1">{format(new Date(selectedStore.createdAt), "dd MMM yyyy")}</span>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Subscription Overview */}
+              <div className="space-y-3">
+                 <h4 className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-indigo-500 rounded-full" /> Subscription Metrics
+                 </h4>
+                 <div className="grid grid-cols-2 gap-4 p-4 rounded-xl border border-slate-100 dark:border-slate-850 bg-slate-50/50 dark:bg-slate-900/30">
+                    <div className="space-y-1">
+                       <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active Plan</span>
+                       <div className="text-xs sm:text-sm font-black text-slate-950 dark:text-white flex items-center gap-1.5 uppercase">
+                          <Zap size={13} className="text-indigo-500 fill-current shrink-0" /> {selectedStore.plan}
+                       </div>
+                    </div>
+                    <div className="space-y-1">
+                       <span className="text-[8px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Billing status</span>
+                       <div>
+                          <span className={cn(
+                             "inline-flex px-2 py-0.5 rounded text-[8px] sm:text-[9px] font-black uppercase tracking-widest",
+                             selectedStore.status === 'ACTIVE' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                          )}>{selectedStore.status}</span>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Matrix Stats */}
+              <div className="space-y-3">
+                 <h4 className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-indigo-500 rounded-full" /> Operational Capacities
+                 </h4>
+                 <div className="grid grid-cols-3 gap-3 text-center">
+                    <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/60">
+                       <span className="text-base sm:text-lg font-[1000] text-slate-900 dark:text-white leading-none block">{selectedStore._count.products}</span>
+                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1 block">Catalog items</span>
+                    </div>
+                    <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/60">
+                       <span className="text-base sm:text-lg font-[1000] text-slate-900 dark:text-white leading-none block">{selectedStore._count.sales}</span>
+                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1 block">sales logs</span>
+                    </div>
+                    <div className="p-3 sm:p-4 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-100 dark:border-slate-800/60">
+                       <span className="text-base sm:text-lg font-[1000] text-slate-900 dark:text-white leading-none block">{selectedStore._count.users}</span>
+                       <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mt-1 block">staff accounts</span>
+                    </div>
+                 </div>
+              </div>
+
+              {/* Quick Actions Panel */}
+              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3">
+                 <h4 className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                    <span className="h-1.5 w-1.5 bg-rose-500 rounded-full" /> Administrative Actions
+                 </h4>
+                 <div className="flex flex-col gap-2">
+                    <Button 
+                       className="w-full h-12 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-amber-600/10"
+                       onClick={() => handleImpersonate(selectedStore.id)}
+                    >
+                       <UserCheck size={14} /> Enter Store Dashboard
+                    </Button>
+                    <div className="grid grid-cols-2 gap-2">
+                       <Button 
+                          variant="outline" 
+                          className="h-12 rounded-xl border border-slate-200 dark:border-slate-800 font-black text-[10px] uppercase tracking-widest text-slate-500 hover:bg-slate-50 dark:text-slate-350 dark:hover:bg-slate-900 gap-1.5"
+                          onClick={() => handleResetPassword(selectedStore.id)}
+                       >
+                          <KeyRound size={12} /> Reset Password
+                       </Button>
+                       <Button 
+                          variant="ghost" 
+                          className="h-12 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest"
+                          onClick={() => handleDelete(selectedStore.id, selectedStore.name)}
+                       >
+                          <Trash2 size={12} className="mr-1.5" /> Delete Store
+                       </Button>
+                    </div>
+                 </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                 <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setSelectedStore(null)}>Dismiss Details</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

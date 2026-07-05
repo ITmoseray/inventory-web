@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   Settings, Search, X, Building, Users, ShieldCheck, 
   Globe, CreditCard, Layout, Zap, Bell, FileText, 
@@ -8,15 +8,23 @@ import {
   Smartphone, Share2, Code2, Calculator, Percent, Clock,
   ArrowRight, Landmark, Briefcase, Plus, Menu, Sparkles,
   MapPin, Coins, Hash, Mail, Tag, Play, History, Box, 
-  Wallet, Activity, Edit, Receipt, Undo, FileSpreadsheet,
-  Layers, Scan, Terminal, Calendar
+  Wallet, Activity, Edit, Undo, Layers, Terminal, Calendar,
+  CheckCircle2, AlertCircle, Copy, FileSpreadsheet
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { toast } from "sonner";
 
 const SETTINGS_GROUPS = [
   {
@@ -128,8 +136,159 @@ const SETTINGS_GROUPS = [
   }
 ];
 
+// Helper to define dynamic fields for settings
+const getSettingFields = (name: string) => {
+  switch (name) {
+    case "Branding":
+      return [
+        { key: "logoUrl", label: "Logo URL", type: "text", placeholder: "https://your-logo-url.png" },
+        { key: "primaryColor", label: "Primary Theme Color", type: "select", options: ["Indigo Theme (#4f46e5)", "Emerald Green (#10b981)", "Teal Business (#06b6d4)", "Classic Slate (#334155)"] },
+        { key: "fontFamily", label: "Global Typography", type: "select", options: ["Outfit (Premium)", "Inter (Modern Sans)", "Roboto (Structured)"] },
+        { key: "darkLogo", label: "Invert Logo in Dark Mode", type: "boolean" }
+      ];
+    case "Locations":
+      return [
+        { key: "locationName", label: "Branch Name", type: "text", placeholder: "Freetown HQ" },
+        { key: "address", label: "Street Address", type: "text", placeholder: "34 Wilkinson Road" },
+        { key: "locType", label: "Facility Type", type: "select", options: ["Retail Store & POS", "Wholesale Warehouse", "Admin HQ Office"] },
+        { key: "enableSync", label: "Sync Inventory Across Branches", type: "boolean" }
+      ];
+    case "AI Integration":
+      return [
+        { key: "enableCopilot", label: "Enable AI Copilot Widget", type: "boolean" },
+        { key: "modelType", label: "AI Prediction Engine", type: "select", options: ["Gemini 1.5 Pro (Recommended)", "Gemini 1.5 Flash (Performance)", "ChatGPT-4o (Standard)"] },
+        { key: "salesForecasting", label: "Use AI Sales Forecasting", type: "boolean" },
+        { key: "apiTokenLimit", label: "Daily Enterprise Token Limit", type: "number", placeholder: "10000" }
+      ];
+    case "Taxes":
+      return [
+        { key: "taxName", label: "Default Tax Label", type: "text", placeholder: "GST" },
+        { key: "taxRate", label: "Tax Percentage (%)", type: "number", placeholder: "15" },
+        { key: "inclusive", label: "Prices Include Taxes", type: "boolean" },
+        { key: "allowTaxExempt", label: "Support Tax-Exempt Customers", type: "boolean" }
+      ];
+    case "General":
+      return [
+        { key: "businessName", label: "Corporate Entity Name", type: "text", placeholder: "Protech Enterprise Ltd" },
+        { key: "fiscalYear", label: "Fiscal Year Starting Month", type: "select", options: ["January", "April", "July", "October"] },
+        { key: "timezone", label: "Default Timezone", type: "select", options: ["UTC", "GMT", "EST"] },
+        { key: "decimalPlaces", label: "Decimal Precision for Quantities", type: "select", options: ["0 (e.g. 12)", "2 (e.g. 12.00)"] }
+      ];
+    case "Currencies":
+      return [
+        { key: "baseCurrency", label: "Primary Currency", type: "select", options: ["SLL (Leone)", "SLE (New Leone)", "USD (Dollar)", "EUR (Euro)"] },
+        { key: "multiCurrency", label: "Enable Multi-Currency Settlements", type: "boolean" },
+        { key: "autoExchange", label: "Fetch Exchange Rates Automatically", type: "boolean" }
+      ];
+    case "Payment Terms New":
+      return [
+        { key: "netDays", label: "Default Invoice Payment Window", type: "select", options: ["Due On Receipt", "Net 15 Days", "Net 30 Days", "Net 60 Days"] },
+        { key: "partialPayments", label: "Accept Partial Invoice Settlements", type: "boolean" },
+        { key: "lateFee", label: "Apply Interest on Overdue Balances", type: "boolean" }
+      ];
+    case "Reminders":
+      return [
+        { key: "autoSms", label: "Automated SMS Debt Reminders", type: "boolean" },
+        { key: "autoWhatsapp", label: "Automated WhatsApp Reminders", type: "boolean" },
+        { key: "remDays", label: "Days Before Due Date to Alert", type: "number", placeholder: "3" },
+        { key: "gracePeriod", label: "Grace Period for Payments (Days)", type: "number", placeholder: "2" }
+      ];
+    case "Customer Portal":
+      return [
+        { key: "enablePortal", label: "Enable Client Self-Service Portal", type: "boolean" },
+        { key: "allowOnlineReceipts", label: "Clients Can Download receipts", type: "boolean" },
+        { key: "portalTerms", label: "Custom Disclaimer Text", type: "text", placeholder: "Thank you for banking with Protech." }
+      ];
+    case "Vendor Portal":
+      return [
+        { key: "enableVendor", label: "Enable Supplier Management Node", type: "boolean" },
+        { key: "allowPurchaseOrders", label: "Suppliers Can View Purchase Orders", type: "boolean" }
+      ];
+    case "Transaction Number Series":
+      return [
+        { key: "salePrefix", label: "POS Invoices Prefix", type: "text", placeholder: "INV-" },
+        { key: "purchasePrefix", label: "Purchase Orders Prefix", type: "text", placeholder: "PO-" },
+        { key: "sequenceLength", label: "Numeric Sequence Padding", type: "select", options: ["4 Digits (0001)", "6 Digits (000001)"] }
+      ];
+    case "PDF Templates":
+      return [
+        { key: "templateStyle", label: "Receipt Sheet Layout", type: "select", options: ["Compact Receipt (Thermal)", "A4 Commercial Invoice", "Classic Minimalist Layout"] },
+        { key: "showBusinessLogo", label: "Render Corporate Logo on Print", type: "boolean" },
+        { key: "termsNote", label: "Custom Terms & Conditions", type: "text", placeholder: "Goods sold are not returnable." }
+      ];
+    case "Email Notifications":
+      return [
+        { key: "sendWelcome", label: "Email Welcome Note to New Clients", type: "boolean" },
+        { key: "sendSalesAlert", label: "Dispatch Receipts via Email", type: "boolean" },
+        { key: "smtpServer", label: "Custom SMTP Node Host", type: "text", placeholder: "smtp.yourcompany.com" }
+      ];
+    case "Workflow Rules":
+      return [
+        { key: "triggerCondition", label: "Workflow Event Trigger", type: "select", options: ["Stock Drops Below Min Threshold", "Invoice Overdue by 7 Days", "New Debt Record Initialized"] },
+        { key: "actionDispatch", label: "Workflow Triggered Action", type: "select", options: ["Send Priority System Notification", "Execute Local Webhook Push", "Email Store Manager Log"] }
+      ];
+    case "Units of Measurement":
+      return [
+        { key: "defaultUnit", label: "Global Base Unit", type: "text", placeholder: "Pcs" },
+        { key: "enablePackaging", label: "Support Cases & Cartons", type: "boolean" },
+        { key: "packConversion", label: "Default Package Conversion Count", type: "number", placeholder: "12" }
+      ];
+    case "Inventory Adjustments":
+      return [
+        { key: "requireApproval", label: "Require Audit Approval for Adjustments", type: "boolean" },
+        { key: "reasonCodes", label: "Require Loss/Damage Reason Code", type: "boolean" }
+      ];
+    case "Online Payments":
+      return [
+        { key: "enablePay", label: "Activate Digital Payment Integrations", type: "boolean" },
+        { key: "flutterwaveKey", label: "Flutterwave Public API Key", type: "text", placeholder: "FLWPUBK_TEST-..." },
+        { key: "allowCard", label: "Accept Cards & Orange/Africell Mobile Money", type: "boolean" }
+      ];
+    case "API Usage":
+      return [
+        { key: "enableApi", label: "Activate REST API Endpoint Gateway", type: "boolean" },
+        { key: "apiKey", label: "Access Token", type: "text", value: "pt_live_920fbc89a71bd65f49cc0", readOnly: true }
+      ];
+    case "Backup & Recovery":
+      return [
+        { key: "autoBackup", label: "Automated Daily Database Cloud Backups", type: "boolean" },
+        { key: "retentionPeriod", label: "Backup History Retention", type: "select", options: ["7 Days Cycle", "30 Days Archive", "90 Days Extended"] }
+      ];
+    default:
+      return [
+        { key: "enabled", label: "Enable Integration Module", type: "boolean" },
+        { key: "debugMode", label: "Log Internal Development Operations", type: "boolean" }
+      ];
+  }
+};
+
 export default function SettingsPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedItem, setSelectedItem] = useState<{ name: string; group: string } | null>(null);
+  const [config, setConfig] = useState<Record<string, any>>({});
+
+  // Load configured setting when selectedItem changes
+  useEffect(() => {
+    if (selectedItem) {
+      const savedConfig = localStorage.getItem(`settings_${selectedItem.name}`);
+      if (savedConfig) {
+        try {
+          setConfig(JSON.parse(savedConfig));
+        } catch (e) {
+          setConfig({});
+        }
+      } else {
+        setConfig({});
+      }
+    }
+  }, [selectedItem]);
+
+  const handleSave = () => {
+    if (!selectedItem) return;
+    localStorage.setItem(`settings_${selectedItem.name}`, JSON.stringify(config));
+    toast.success(`Settings saved: ${selectedItem.name}`);
+    setSelectedItem(null);
+  };
 
   const filteredGroups = SETTINGS_GROUPS.map(group => ({
     ...group,
@@ -162,14 +321,14 @@ export default function SettingsPage() {
                  placeholder="Search settings ( / )" 
                  value={searchQuery}
                  onChange={(e) => setSearchQuery(e.target.value)}
-                 className="w-full h-11 bg-slate-50 dark:bg-slate-800 rounded-xl border-none pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all"
+                 className="w-full h-11 bg-slate-50 dark:bg-slate-800 border-none pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all text-slate-900 dark:text-white"
                />
             </div>
          </div>
 
          <div className="flex items-center gap-6">
             <Link href="/dashboard">
-               <Button variant="outline" className="h-11 px-6 rounded-xl border-slate-200 font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-slate-50 transition-all">
+               <Button variant="outline" className="h-11 px-6 rounded-xl border-slate-200 dark:border-slate-800 font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-slate-50 transition-all dark:text-slate-350 dark:hover:bg-slate-800">
                   <X className="h-4 w-4" /> Close Settings
                </Button>
             </Link>
@@ -189,21 +348,21 @@ export default function SettingsPage() {
                 className="space-y-8"
               >
                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 border border-indigo-100/50">
+                    <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 border border-indigo-100/50 dark:border-slate-800">
                        <group.icon className="h-6 w-6" />
                     </div>
                     <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic">{group.title}</h3>
                  </div>
 
                  <div className="flex flex-col gap-1 pl-1">
-                    {group.items.map((item: any, itemIdx) => {
+                    {group.items.map((item: any) => {
                       const content = (
                          <>
                             <div className="flex items-center gap-4">
                                <item.icon className="h-4 w-4 text-slate-400 group-hover:text-indigo-600 transition-colors" />
-                               <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-white dark:group-hover:text-white transition-colors">{item.name}</span>
+                               <span className="text-[11px] font-[1000] uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-slate-400 dark:group-hover:text-white transition-colors">{item.name}</span>
                             </div>
-                            <ArrowRight className="h-3 w-3 text-slate-200 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                            <ArrowRight className="h-3 w-3 text-slate-205 dark:text-slate-700 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
                          </>
                       );
 
@@ -222,7 +381,8 @@ export default function SettingsPage() {
                       return (
                         <button 
                           key={item.name}
-                          className="group flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-left"
+                          onClick={() => setSelectedItem({ name: item.name, group: group.title })}
+                          className="group flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-slate-900 hover:shadow-sm transition-all text-left w-full"
                         >
                            {content}
                         </button>
@@ -266,6 +426,95 @@ export default function SettingsPage() {
          </footer>
       </main>
 
+      {/* Dynamic Setting Config Modal */}
+      <Dialog open={selectedItem !== null} onOpenChange={(open) => !open && setSelectedItem(null)}>
+        <DialogContent className="sm:max-w-md rounded-[2.5rem] p-8 border-none shadow-2xl bg-white dark:bg-slate-950">
+          <DialogHeader className="mb-4">
+            <div className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] mb-1">{selectedItem?.group}</div>
+            <DialogTitle className="text-2xl font-[1000] tracking-tight uppercase italic text-slate-950 dark:text-white">Configure {selectedItem?.name}</DialogTitle>
+            <DialogDescription className="text-slate-400 font-bold text-xs uppercase tracking-wider">Enterprise Configuration Node</DialogDescription>
+          </DialogHeader>
+
+          {selectedItem && (
+            <div className="space-y-6 pt-4">
+              {getSettingFields(selectedItem.name).map((field) => {
+                const currentVal = config[field.key] ?? (field.type === "boolean" ? false : "");
+                
+                return (
+                  <div key={field.key} className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 dark:text-slate-400 uppercase tracking-widest block">{field.label}</label>
+                    {field.type === "text" && (
+                      <div className="relative">
+                        <Input 
+                          type="text" 
+                          placeholder={field.placeholder}
+                          value={field.value ?? currentVal}
+                          readOnly={field.readOnly}
+                          onChange={(e) => !field.readOnly && setConfig({ ...config, [field.key]: e.target.value })}
+                          className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white pl-4 pr-10"
+                        />
+                        {field.readOnly && (
+                          <Button 
+                            size="sm" 
+                            variant="ghost" 
+                            className="absolute right-2 top-2 h-8 w-8 p-0 rounded-lg"
+                            onClick={() => {
+                              navigator.clipboard.writeText(field.value || "");
+                              toast.success("Copied to clipboard");
+                            }}
+                          >
+                            <Copy size={14} className="text-slate-400" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+
+                    {field.type === "number" && (
+                      <Input 
+                        type="number" 
+                        placeholder={field.placeholder}
+                        value={currentVal}
+                        onChange={(e) => setConfig({ ...config, [field.key]: parseFloat(e.target.value) || 0 })}
+                        className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                      />
+                    )}
+
+                    {field.type === "select" && (
+                      <select 
+                        value={currentVal || field.options?.[0]}
+                        onChange={(e) => setConfig({ ...config, [field.key]: e.target.value })}
+                        className="h-12 w-full px-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-sm font-bold focus:outline-none"
+                      >
+                        {field.options?.map(opt => (
+                          <option key={opt} value={opt} className="dark:bg-slate-950">{opt}</option>
+                        ))}
+                      </select>
+                    )}
+
+                    {field.type === "boolean" && (
+                      <div className="flex items-center gap-3 py-1">
+                        <input 
+                          type="checkbox"
+                          id={field.key}
+                          checked={currentVal}
+                          onChange={(e) => setConfig({ ...config, [field.key]: e.target.checked })}
+                          className="h-5 w-5 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <label htmlFor={field.key} className="text-xs font-bold text-slate-550 dark:text-slate-350 cursor-pointer">Enable this setting parameter</label>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+              <div className="flex justify-end gap-3 pt-6 border-t border-slate-150 dark:border-slate-800/50">
+                <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setSelectedItem(null)}>Cancel</Button>
+                <Button className="rounded-xl px-8 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black" onClick={handleSave}>Save Configuration</Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

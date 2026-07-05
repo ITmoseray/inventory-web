@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import { SplashScreen } from "./splash-screen";
-import { AnimatePresence } from "framer-motion";
 
 export function SplashScreenWrapper({ children }: { children: React.ReactNode }) {
     const [mounted, setMounted] = useState(false);
@@ -37,9 +36,7 @@ export function SplashScreenWrapper({ children }: { children: React.ReactNode })
 
     return (
         <>
-            <AnimatePresence mode="wait">
-                {showSplash && <SplashScreen key="splash" />}
-            </AnimatePresence>
+            {showSplash && <SplashScreen />}
             {!showSplash && children}
         </>
     );

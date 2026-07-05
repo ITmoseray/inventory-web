@@ -7,7 +7,10 @@ export async function getInventoryForecast(businessId: string) {
   try {
     // 1. Get all products with current stock
     const products = await db.product.findMany({
-      where: { businessId, status: "ACTIVE" },
+      where: { 
+        businessId, 
+        status: { in: ["active", "ACTIVE"] } 
+      },
       select: {
         id: true,
         name: true,

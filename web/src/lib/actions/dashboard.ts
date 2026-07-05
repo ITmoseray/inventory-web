@@ -2,7 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import { addDays, startOfDay, endOfDay } from "date-fns";
+import { addDays, startOfDay, endOfDay, subDays } from "date-fns";
 
 export async function getDashboardStats() {
   try {
@@ -14,19 +14,28 @@ export async function getDashboardStats() {
     const todayStart = startOfDay(today);
     const todayEnd = endOfDay(today);
 
+    const yesterday = subDays(today, 1);
+    const yesterdayStart = startOfDay(yesterday);
+    const yesterdayEnd = endOfDay(yesterday);
+
     const [
       revenueData,
       debtPaymentData,
-      ordersCount,
+      allTimeOrdersCount,
       skuCount,
       lowStockCount,
       expiringCount,
-      activeTransactions,
+      todayOrdersCount,
+      yesterdayOrdersCount,
+      todayRevenueData,
+      yesterdayRevenueData,
+      todayDebtPaymentData,
+      yesterdayDebtPaymentData,
       staffCount,
       topItems,
       topStaffSales
     ] = await Promise.all([
-      // Total Revenue (Paid Sales)
+      // Total Revenue (All-time Paid Sales)
       prisma.sale.aggregate({
         where: { 
           businessId,
@@ -36,7 +45,7 @@ export async function getDashboardStats() {
           totalAmount: true
         }
       }),
-      // Total Debt Payments
+      // Total Debt Payments (All-time)
       prisma.debtPayment.aggregate({
         where: { 
           businessId
@@ -45,7 +54,7 @@ export async function getDashboardStats() {
           amount: true
         }
       }),
-      // Total Paid Orders
+      // Total Paid Orders (All-time)
       prisma.sale.count({
         where: { 
           businessId,
@@ -71,7 +80,7 @@ export async function getDashboardStats() {
           }
         }
       }),
-      // Today's Transactions
+      // Today's Orders (Sales count created today)
       prisma.sale.count({
         where: {
           businessId,
@@ -79,6 +88,70 @@ export async function getDashboardStats() {
             gte: todayStart,
             lte: todayEnd
           }
+        }
+      }),
+      // Yesterday's Orders (Sales count created yesterday)
+      prisma.sale.count({
+        where: {
+          businessId,
+          createdAt: {
+            gte: yesterdayStart,
+            lte: yesterdayEnd
+          }
+        }
+      }),
+      // Today's Sales Revenue (Paid Sales created today)
+      prisma.sale.aggregate({
+        where: {
+          businessId,
+          paymentStatus: "PAID",
+          createdAt: {
+            gte: todayStart,
+            lte: todayEnd
+          }
+        },
+        _sum: {
+          totalAmount: true
+        }
+      }),
+      // Yesterday's Sales Revenue (Paid Sales created yesterday)
+      prisma.sale.aggregate({
+        where: {
+          businessId,
+          paymentStatus: "PAID",
+          createdAt: {
+            gte: yesterdayStart,
+            lte: yesterdayEnd
+          }
+        },
+        _sum: {
+          totalAmount: true
+        }
+      }),
+      // Today's Debt Payments
+      prisma.debtPayment.aggregate({
+        where: {
+          businessId,
+          createdAt: {
+            gte: todayStart,
+            lte: todayEnd
+          }
+        },
+        _sum: {
+          amount: true
+        }
+      }),
+      // Yesterday's Debt Payments
+      prisma.debtPayment.aggregate({
+        where: {
+          businessId,
+          createdAt: {
+            gte: yesterdayStart,
+            lte: yesterdayEnd
+          }
+        },
+        _sum: {
+          amount: true
         }
       }),
       // Staff Count
@@ -118,7 +191,7 @@ export async function getDashboardStats() {
          quantitySold: item._sum.quantity || 0,
          revenue: Number(item._sum.total || 0)
        };
-    });
+     });
 
     const userIds = topStaffSales.map(s => s.userId);
     const users = await prisma.user.findMany({
@@ -136,13 +209,29 @@ export async function getDashboardStats() {
       };
     });
 
+    // 1. Calculate Revenue Sums
+    const totalAllTimeRevenue = Number(revenueData._sum.totalAmount || 0) + Number(debtPaymentData._sum.amount || 0);
+    const todayRevenue = Number(todayRevenueData._sum.totalAmount || 0) + Number(todayDebtPaymentData._sum.amount || 0);
+    const yesterdayRevenue = Number(yesterdayRevenueData._sum.totalAmount || 0) + Number(yesterdayDebtPaymentData._sum.amount || 0);
+
+    // 2. Calculate Growth Percentages
+    const revenueChange = yesterdayRevenue === 0 
+      ? (todayRevenue > 0 ? 100 : 0) 
+      : ((todayRevenue - yesterdayRevenue) / yesterdayRevenue) * 100;
+
+    const ordersChange = yesterdayOrdersCount === 0 
+      ? (todayOrdersCount > 0 ? 100 : 0) 
+      : ((todayOrdersCount - yesterdayOrdersCount) / yesterdayOrdersCount) * 100;
+
     return {
-      revenue: Number(revenueData._sum.totalAmount || 0) + Number(debtPaymentData._sum.amount || 0),
-      orders: ordersCount,
+      revenue: totalAllTimeRevenue,
+      revenueChange,
+      orders: todayOrdersCount, // "Today's Orders" now correctly reflects today's count!
+      ordersChange,
       skuCount: skuCount,
       lowStock: lowStockCount[0]?.count || 0,
       expiringItems: expiringCount,
-      activeTransactions: activeTransactions,
+      activeTransactions: todayOrdersCount, // Using today's active orders
       staffCount: staffCount,
       topProducts: topProducts,
       topStaff: topStaff

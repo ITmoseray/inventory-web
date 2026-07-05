@@ -189,7 +189,7 @@ export default function CommunicationSettingsPage() {
               )}
 
               {provider === "MOCK_PROVIDER" && (
-                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800/60 flex items-start gap-3">
+                <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-800/60 flex items-start gap-3">
                   <AlertTriangle className="text-amber-500 h-5 w-5 shrink-0 mt-0.5" />
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wide leading-relaxed">
                     Mock Gateway is active. Outbound SMS notifications will not spend credit and will print to the server console log files instead.
@@ -230,7 +230,7 @@ export default function CommunicationSettingsPage() {
                       />
                       <div className="flex flex-wrap gap-2 pt-2">
                         {["{business_name}", "{invoice_number}", "{total_amount}", "{receipt_url}"].map((v) => (
-                          <code key={v} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-850 text-[10px] font-mono text-slate-500 cursor-pointer" onClick={() => setTemplates({...templates, receipt: templates.receipt + " " + v})}>{v}</code>
+                          <code key={v} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-500 cursor-pointer" onClick={() => setTemplates({...templates, receipt: templates.receipt + " " + v})}>{v}</code>
                         ))}
                       </div>
                     </div>
@@ -250,7 +250,7 @@ export default function CommunicationSettingsPage() {
                       />
                       <div className="flex flex-wrap gap-2 pt-2">
                         {["{customer_name}", "{business_name}", "{outstanding_amount}", "{due_date}"].map((v) => (
-                          <code key={v} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-850 text-[10px] font-mono text-slate-500 cursor-pointer" onClick={() => setTemplates({...templates, debt: templates.debt + " " + v})}>{v}</code>
+                          <code key={v} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-500 cursor-pointer" onClick={() => setTemplates({...templates, debt: templates.debt + " " + v})}>{v}</code>
                         ))}
                       </div>
                     </div>
@@ -270,7 +270,7 @@ export default function CommunicationSettingsPage() {
                       />
                       <div className="flex flex-wrap gap-2 pt-2">
                         {["{product_name}", "{current_stock}", "{min_quantity}", "{supplier_name}"].map((v) => (
-                          <code key={v} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-850 text-[10px] font-mono text-slate-500 cursor-pointer" onClick={() => setTemplates({...templates, stock: templates.stock + " " + v})}>{v}</code>
+                          <code key={v} className="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-500 cursor-pointer" onClick={() => setTemplates({...templates, stock: templates.stock + " " + v})}>{v}</code>
                         ))}
                       </div>
                     </div>

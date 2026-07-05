@@ -243,7 +243,7 @@ export default function NeuralChatPage() {
                      disabled={!inputMessage.trim() || isTyping || status !== "ACTIVE"}
                      className={cn(
                        "h-12 px-6 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-2",
-                       status === "ACTIVE" ? "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20" : "bg-slate-350 dark:bg-slate-850 cursor-not-allowed"
+                       status === "ACTIVE" ? "bg-indigo-600 hover:bg-indigo-500 shadow-indigo-500/20" : "bg-slate-350 dark:bg-slate-800 cursor-not-allowed"
                      )}
                    >
                       <Send className="h-3.5 w-3.5" /> Send

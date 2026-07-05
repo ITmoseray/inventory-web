@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -146,7 +146,7 @@ export default function PurchaseProfilesPage() {
                   <DropdownMenuItem
                     key={opt.val}
                     onClick={() => setSortBy(opt.val)}
-                    className={cn("rounded-xl h-10 font-black uppercase tracking-widest text-[10px] cursor-pointer", sortBy === opt.val ? "bg-primary text-white" : "text-slate-500 dark:text-slate-400")}
+                    className={cn("rounded-xl h-10 font-black uppercase tracking-widest text-[10px] cursor-pointer", sortBy === opt.val ? "bg-indigo-600 text-white" : "text-slate-500 dark:text-slate-400")}
                   >
                     {opt.label}
                     {sortBy === opt.val && <CheckCircle2 className="ml-auto h-3 w-3" />}

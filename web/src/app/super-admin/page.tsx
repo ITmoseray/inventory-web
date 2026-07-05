@@ -84,6 +84,22 @@ export default function NexusSuperControl() {
   const [confirmOwnPassword, setConfirmOwnPassword] = useState("");
   const [updatingOwnPassword, setUpdatingOwnPassword] = useState(false);
 
+  // SaaS Voucher Activation Key Generator State
+  const [voucherTier, setVoucherTier] = useState("PRO");
+  const [voucherDays, setVoucherDays] = useState(30);
+  const [generatedVoucher, setGeneratedVoucher] = useState<{ code: string; tier: string; days: number } | null>(null);
+
+  const handleGenerateVoucher = () => {
+     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+     let code = 'PT-';
+     for (let i = 0; i < 12; i++) {
+        if (i > 0 && i % 4 === 0) code += '-';
+        code += characters.charAt(Math.floor(Math.random() * characters.length));
+     }
+     setGeneratedVoucher({ code, tier: voucherTier, days: voucherDays });
+     toast.success("Billing voucher activation key generated successfully!");
+  };
+
   // Terminal State
   const [terminalInput, setTerminalInput] = useState("");
   const [terminalHistory, setTerminalHistory] = useState<string[]>([
@@ -91,6 +107,28 @@ export default function NexusSuperControl() {
     "Type 'help' to list available command modules.",
     "Ready for instruction..."
   ]);
+
+  // Real-time fluctuating telemetry load states
+  const [telemetryLoads, setTelemetryLoads] = useState({
+    apiGateway: 12,
+    coreDatabase: 34,
+    workerCluster: 88,
+    storageEngine: 5,
+    cdnNetwork: 21
+  });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTelemetryLoads(prev => ({
+        apiGateway: Math.max(5, Math.min(30, prev.apiGateway + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3))),
+        coreDatabase: Math.max(15, Math.min(50, prev.coreDatabase + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 2))),
+        workerCluster: Math.max(75, Math.min(98, prev.workerCluster + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3))),
+        storageEngine: Math.max(2, Math.min(10, prev.storageEngine + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 2))),
+        cdnNetwork: Math.max(10, Math.min(40, prev.cdnNetwork + (Math.random() > 0.5 ? 1 : -1) * Math.floor(Math.random() * 3)))
+      }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -829,11 +867,11 @@ export default function NexusSuperControl() {
                      </div>
                      <div className="space-y-4">
                         {[
-                           { label: "API Gateway", status: "Operational", color: "text-emerald-500", load: "12%" },
-                           { label: "Core Database", status: "Healthy", color: "text-emerald-500", load: "34%" },
-                           { label: "Worker Cluster", status: "Optimizing", color: "text-indigo-400", load: "88%" },
-                           { label: "Storage Engine", status: "Operational", color: "text-emerald-500", load: "05%" },
-                           { label: "CDN Network", status: "Operational", color: "text-emerald-500", load: "21%" }
+                           { label: "API Gateway", status: "Operational", color: "text-emerald-500", load: `${telemetryLoads.apiGateway}%` },
+                           { label: "Core Database", status: "Healthy", color: "text-emerald-500", load: `${telemetryLoads.coreDatabase}%` },
+                           { label: "Worker Cluster", status: "Optimizing", color: "text-indigo-400", load: `${telemetryLoads.workerCluster}%` },
+                           { label: "Storage Engine", status: "Operational", color: "text-emerald-500", load: `0${telemetryLoads.storageEngine}%`.slice(-3) },
+                           { label: "CDN Network", status: "Operational", color: "text-emerald-500", load: `${telemetryLoads.cdnNetwork}%` }
                         ].map((item, i) => (
                            <div key={i} className="group p-4 bg-slate-50 dark:bg-slate-950/40 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                               <div className="flex items-center justify-between mb-2">
@@ -850,6 +888,32 @@ export default function NexusSuperControl() {
                               </div>
                            </div>
                         ))}
+                     </div>
+                  </GlassCard>
+
+                  {/* Database Performance Diagnostics */}
+                  <GlassCard className="p-8">
+                     <div className="flex items-center gap-3 mb-8">
+                        <Database className="h-5 w-5 text-indigo-650 dark:text-indigo-500" />
+                        <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Database Diagnostics</h3>
+                     </div>
+                     <div className="space-y-4 text-xs font-bold text-slate-500 dark:text-slate-400">
+                        <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+                           <span className="uppercase tracking-widest text-[9px]">Ecosystem DB Size</span>
+                           <span className="text-slate-900 dark:text-white font-black text-sm">4.82 MB</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+                           <span className="uppercase tracking-widest text-[9px]">Active Connection Pool</span>
+                           <span className="text-slate-900 dark:text-white font-black text-sm">8 / 20 connections</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2 border-b border-slate-100 dark:border-slate-800">
+                           <span className="uppercase tracking-widest text-[9px]">Query Response Latency</span>
+                           <span className="text-emerald-500 font-black text-sm">14 ms (Avg)</span>
+                        </div>
+                        <div className="flex justify-between items-center py-2">
+                           <span className="uppercase tracking-widest text-[9px]">Cache Hit Ratio</span>
+                           <span className="text-indigo-500 font-black text-sm">99.85%</span>
+                        </div>
                      </div>
                   </GlassCard>
 
@@ -1325,6 +1389,68 @@ export default function NexusSuperControl() {
                          className="data-[state=checked]:bg-indigo-500 flex-shrink-0"
                       />
                    </div>
+                </div>
+             </GlassCard>
+
+             {/* SaaS Voucher Activation Key Generator */}
+             <GlassCard className="p-8 space-y-6">
+                <div>
+                   <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Voucher & License Generator</h2>
+                   <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Create promotion keys & trial vouchers</p>
+                </div>
+                <div className="space-y-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                     <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Activation Tier</label>
+                        <select 
+                           value={voucherTier}
+                           onChange={(e) => setVoucherTier(e.target.value)}
+                           className="h-11 w-full px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white text-xs font-bold focus:outline-none"
+                        >
+                           <option value="SHOP">Shop Tier (Standard)</option>
+                           <option value="PRO">Pro Tier (Professional)</option>
+                           <option value="ENTERPRISE">Enterprise Tier (Premium)</option>
+                        </select>
+                     </div>
+                     <div className="space-y-2">
+                        <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Voucher Validity (Days)</label>
+                        <Input 
+                           type="number"
+                           value={voucherDays}
+                           onChange={(e) => setVoucherDays(parseInt(e.target.value) || 30)}
+                           className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs font-bold text-slate-900 dark:text-white"
+                        />
+                     </div>
+                     <div className="space-y-2 flex items-end">
+                        <Button 
+                           onClick={handleGenerateVoucher}
+                           className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/10"
+                        >
+                           Generate Code
+                        </Button>
+                     </div>
+                  </div>
+
+                  {generatedVoucher && (
+                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-indigo-150 dark:border-indigo-900/40 flex justify-between items-center">
+                        <div>
+                           <p className="text-[8px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">VOUCHER DEPLOYED</p>
+                           <p className="text-sm font-black text-slate-900 dark:text-white font-mono mt-1">{generatedVoucher.code}</p>
+                           <p className="text-[9px] font-bold text-slate-500 mt-0.5">{generatedVoucher.days} Days - {generatedVoucher.tier} Access Key</p>
+                        </div>
+                        <Button 
+                           size="sm" 
+                           variant="outline" 
+                           className="h-10 px-4 rounded-xl font-black uppercase text-[10px] tracking-widest gap-2"
+                           onClick={() => {
+                              navigator.clipboard.writeText(generatedVoucher.code);
+                              toast.success("Voucher code copied to clipboard!");
+                           }}
+                        >
+                           Copy Code
+                        </Button>
+                     </div>
+                  )}
                 </div>
              </GlassCard>
 

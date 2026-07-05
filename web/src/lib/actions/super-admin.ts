@@ -22,7 +22,8 @@ if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
 
 async function checkSuperAdmin() {
   const session = await auth();
-  if (session?.user?.role !== "SUPERADMIN") {
+  const isSuper = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
+  if (!isSuper) {
     throw new Error("Unauthorized: Super Admin access required");
   }
 }

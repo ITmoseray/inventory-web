@@ -17,6 +17,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
+import { ImpersonationBanner } from "@/components/shared/impersonation-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -163,8 +164,13 @@ export default async function DashboardLayout({
 
 
 
+  const isImpersonating = (session?.user as any)?.originalRole === "SUPERADMIN";
+
   return (
     <div className="flex flex-col min-h-screen w-full">
+      {isImpersonating && (
+        <ImpersonationBanner businessName={session?.user?.businessName || "Business"} />
+      )}
       {/* Banner sits OUTSIDE AppShell — full viewport width, no sidebar padding */}
       <AnnouncementBanner />
       <AppShell>
