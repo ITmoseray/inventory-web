@@ -17,6 +17,11 @@ export function usePermissions() {
     // 3. Admin & Super Admin bypass all checks
     if (session.user.role === "SUPERADMIN" || session.user.role === "ADMIN") return true;
 
+    // 3.5. AI Assistant & Analytics are accessible to all authenticated business users (Managers & Employees)
+    if (permission === "menu:intelligence:chat" || permission === "menu:intelligence:analytics") {
+      return true;
+    }
+
     // 4. Check user permissions
     const userPermissions = session.user.permissions || [];
     const hasPermission = userPermissions.includes(permission);
