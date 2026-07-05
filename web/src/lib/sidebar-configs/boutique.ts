@@ -1,10 +1,11 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Wallet, Tag } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Wallet, Tag, MessageSquare } from "lucide-react";
 
 export const boutiqueSidebarConfig = [
   {
     label: "Intelligence",
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:intelligence:analytics" },
     ]
   },

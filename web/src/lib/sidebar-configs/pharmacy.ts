@@ -1,10 +1,11 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pill, Stethoscope, FileText, Wallet } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pill, Stethoscope, FileText, Wallet, MessageSquare } from "lucide-react";
 
 export const pharmacySidebarConfig = [
   { 
     label: "Intelligence", 
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Low Stock Alerts", url: "/dashboard/inventory/expiry", icon: Pill, permission: "menu:inventory" }
     ] 
   },

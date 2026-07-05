@@ -1,10 +1,11 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Wallet } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Wallet, MessageSquare } from "lucide-react";
 
 export const supermarketSidebarConfig = [
   { 
     label: "Intelligence", 
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Sales Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:intelligence:analytics" }
     ] 
   },

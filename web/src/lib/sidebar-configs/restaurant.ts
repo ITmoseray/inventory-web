@@ -1,10 +1,11 @@
-import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Utensils, Clock, ClipboardList, Wallet, UserCheck, FileText, CalendarCheck } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Utensils, Clock, ClipboardList, Wallet, UserCheck, FileText, CalendarCheck, MessageSquare } from "lucide-react";
 
 export const restaurantSidebarConfig = [
   { 
     label: "Intelligence", 
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Daily Sales", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:sales" }
     ] 
   },

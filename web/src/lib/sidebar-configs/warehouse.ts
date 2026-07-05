@@ -1,10 +1,11 @@
-import { LayoutDashboard, Package, Truck, Users, BarChart3, Settings, ClipboardList } from "lucide-react";
+import { LayoutDashboard, Package, Truck, Users, BarChart3, Settings, ClipboardList, MessageSquare } from "lucide-react";
 
 export const warehouseSidebarConfig = [
   {
     label: "Intelligence",
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Stock Alerts", url: "/dashboard/inventory/alerts", icon: ClipboardList, permission: "menu:inventory" },
     ]
   },
