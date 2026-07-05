@@ -32,6 +32,7 @@ type Sale = {
 const STATUS_BADGES: Record<string, string> = {
   CONFIRMED: "bg-emerald-100 text-emerald-700",
   PENDING:   "bg-amber-100 text-amber-700",
+  PENDING_APPROVAL: "bg-amber-100 text-amber-700",
   PROCESSING:"bg-blue-100 text-blue-700",
   SHIPPED:   "bg-indigo-100 text-indigo-700",
   DELIVERED: "bg-emerald-100 text-emerald-700",
@@ -68,12 +69,14 @@ export default function PackagesPage() {
   }
 
   const confirmed = sales.filter(s => ["CONFIRMED", "PROCESSING", "SHIPPED"].includes(s.status));
-  const pending   = sales.filter(s => s.status === "PENDING");
+  const pending   = sales.filter(s => s.status === "PENDING" || s.status === "PENDING_APPROVAL");
 
   const filtered = sales.filter(s => {
     const q = search.toLowerCase();
     const matchSearch = s.invoiceNumber.toLowerCase().includes(q) || s.customerName.toLowerCase().includes(q);
-    const matchStatus = statusFilter === "ALL" || s.status === statusFilter;
+    const matchStatus = statusFilter === "ALL" || 
+                        s.status === statusFilter || 
+                        (statusFilter === "PENDING" && s.status === "PENDING_APPROVAL");
     return matchSearch && matchStatus;
   });
 
