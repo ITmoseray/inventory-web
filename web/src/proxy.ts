@@ -1,16 +1,16 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import NextAuth from "next-auth";
 import { authConfig } from "./auth.config";
 
 const { auth } = NextAuth(authConfig);
 
-export default auth((req) => {
+export const proxy = auth((req) => {
   const path = req.nextUrl.pathname;
   const origin = req.headers.get("origin") || req.nextUrl.origin;
   const session = (req as any).auth;
   const role = session?.user?.role;
   const businessId = session?.user?.businessId;
-  console.log("MIDDLEWARE SESSION:", JSON.stringify(session, null, 2));
+  console.log("PROXY SESSION:", JSON.stringify(session, null, 2));
 
   // 1. Define CORS injection utility
   const injectCORS = (res: NextResponse) => {

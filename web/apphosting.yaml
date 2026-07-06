@@ -48,6 +48,16 @@ env:
   - variable: SMTP_FROM
     value: "Protech System <protechassist36@gmail.com>"
 
+  # Super Admin notification email
+  - variable: SUPERADMIN_EMAIL
+    value: "protechassist36@gmail.com"
+
   # Gemini API Key for AI Features
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY
+
+  # Web Push VAPID Keys for Push Notifications
+  - variable: NEXT_PUBLIC_VAPID_PUBLIC_KEY
+    value: "BPtYEWypRCgRBnGztD0SH5YnqC2xOgO0c0Obf3YHRL3wmEYVUnoCwm18qDAIsbUJ3Ui2rhZsnOeHGOzcSH3vFyo"
+  - variable: VAPID_PRIVATE_KEY
+    secret: VAPID_PRIVATE_KEY
