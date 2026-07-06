@@ -3,7 +3,7 @@
 import { prisma as globalPrisma, getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
 import { canPerformAction } from "@/lib/subscriptions";
 import { logAudit } from "./audit";

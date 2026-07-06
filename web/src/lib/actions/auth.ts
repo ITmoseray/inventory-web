@@ -1,7 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { BusinessType } from "@prisma/client";
 import { generateVerificationToken, sendVerificationEmail, sendPendingApprovalNotification } from "@/lib/mail";
 import { getSystemSettings } from "@/lib/actions/system-settings";
