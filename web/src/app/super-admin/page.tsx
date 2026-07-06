@@ -78,6 +78,7 @@ export default function NexusSuperControl() {
   const [selectedUserForPasswordReset, setSelectedUserForPasswordReset] = useState<any>(null);
   const [overridePasswordVal, setOverridePasswordVal] = useState("");
   const [isResettingPassword, setIsResettingPassword] = useState(false);
+  const [refreshingUsers, setRefreshingUsers] = useState(false);
 
   // Add Super Admin State
   const [isAddSuperAdminOpen, setIsAddSuperAdminOpen] = useState(false);
@@ -686,7 +687,7 @@ export default function NexusSuperControl() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl flex flex-wrap gap-2 mb-10 relative z-10 w-fit max-w-full">
+      <div className="bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl flex md:flex-wrap gap-2 mb-10 relative z-10 w-fit max-w-full overflow-x-auto scrollbar-none whitespace-nowrap">
         {[
           { id: "telemetry", label: "System Activity", icon: Activity },
           { id: "terminal", label: "Control Shell", icon: Terminal },
@@ -700,9 +701,9 @@ export default function NexusSuperControl() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
               className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap",
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0",
                 activeTab === tab.id 
-                  ? "bg-white dark:bg-slate-950 text-indigo-650 dark:text-indigo-400 shadow-sm border border-slate-200/50 dark:border-slate-800" 
+                  ? "bg-white dark:bg-slate-950 text-indigo-655 dark:text-indigo-400 shadow-sm border border-slate-200/50 dark:border-slate-800" 
                   : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200"
               )}
             >
@@ -1167,37 +1168,43 @@ export default function NexusSuperControl() {
                          <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">User Directory</h2>
                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active System Users and Roles</p>
                       </div>
-                      <div className="flex items-center gap-4">
-                         <Button
-                            onClick={() => setIsAddSuperAdminOpen(true)}
-                            className="h-10 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-black text-white uppercase tracking-widest gap-2 px-4 flex items-center shadow-lg shadow-rose-600/10 active:scale-95 transition-all"
-                         >
-                            <Shield className="h-3.5 w-3.5" />
-                            Add Super Admin
-                         </Button>
-                         <Button
-                            onClick={async () => {
-                              try {
-                                const u = await getAllSystemUsers();
-                                setSystemUsers(u);
-                                toast.success("User list refreshed.");
-                              } catch {
-                                toast.error("Failed to sync user list.");
-                              }
-                            }}
-                            variant="outline"
-                            className="h-10 rounded-xl border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 gap-2 px-4 flex items-center"
-                         >
-                            <RefreshCw className="h-3.5 w-3.5" />
-                            Refresh
-                         </Button>
-                         <div className="relative">
+                      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4 w-full md:w-auto">
+                         <div className="flex items-center gap-3">
+                            <Button
+                               onClick={() => setIsAddSuperAdminOpen(true)}
+                               className="flex-1 md:flex-none h-10 rounded-xl bg-rose-600 hover:bg-rose-700 text-xs font-black text-white uppercase tracking-widest gap-2 px-4 flex items-center justify-center shadow-lg shadow-rose-600/10 active:scale-95 transition-all"
+                            >
+                               <Shield className="h-3.5 w-3.5" />
+                               Add Super Admin
+                            </Button>
+                            <Button
+                               onClick={async () => {
+                                 try {
+                                   setRefreshingUsers(true);
+                                   const u = await getAllSystemUsers();
+                                   setSystemUsers(u);
+                                   toast.success("User list refreshed.");
+                                 } catch {
+                                   toast.error("Failed to sync user list.");
+                                 } finally {
+                                   setRefreshingUsers(false);
+                                 }
+                               }}
+                               disabled={refreshingUsers}
+                               variant="outline"
+                               className="flex-1 md:flex-none h-10 rounded-xl border-slate-200 dark:border-slate-800 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 gap-2 px-4 flex items-center justify-center"
+                            >
+                               <RefreshCw className={cn("h-3.5 w-3.5", refreshingUsers && "animate-spin")} />
+                               Refresh
+                            </Button>
+                         </div>
+                         <div className="relative w-full md:w-64">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                             <Input 
                                placeholder="Search users..." 
                                value={userSearchQuery}
                                onChange={(e) => setUserSearchQuery(e.target.value)}
-                               className="pl-9 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-10 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-indigo-500/20 w-64"
+                               className="pl-9 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-10 text-xs font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:ring-indigo-500/20 w-full"
                             />
                          </div>
                       </div>
