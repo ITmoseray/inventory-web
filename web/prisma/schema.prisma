@@ -54,6 +54,9 @@ model Business {
   suppliers           Supplier[]
   users               User[]
   pushSubscriptions   PushSubscription[]
+  patients            Patient[]
+  prescriptions       Prescription[]
+  locations           Location[]
 
   @@index([slug])
 }
@@ -192,6 +195,8 @@ model Product {
   purchaseItems      PurchaseItem[]
   saleItems          SaleItem[]
   stockMovements     StockMovement[]
+  locationStocks     LocationStock[]
+  transfers          StockTransfer[]
 
   @@index([businessId, sku])
   @@index([businessId, deletedAt])
@@ -594,4 +599,92 @@ model PushSubscription {
   business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
+}
+
+model Patient {
+  id             String         @id @default(cuid())
+  name           String
+  dateOfBirth    DateTime?
+  gender         String?
+  phone          String?
+  email          String?
+  address        String?
+  allergies      String?
+  medicalNotes   String?
+  businessId     String
+  business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  prescriptions  Prescription[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([businessId])
+}
+
+model Prescription {
+  id                 String           @id @default(cuid())
+  prescriptionNumber String           @unique
+  patientId          String
+  patient            Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorName         String
+  dateIssued         DateTime         @default(now())
+  status             String           @default("PENDING") // PENDING, DISPENSED, CANCELLED
+  notes              String?
+  instructions       String?          // e.g. "Take 1 tablet after meals"
+  businessId         String
+  business           Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  @@index([businessId])
+  @@index([patientId])
+}
+
+model Location {
+  id             String           @id @default(cuid())
+  name           String
+  type           String           @default("STORE") // STORE, WAREHOUSE, OUTLET
+  address        String?
+  businessId     String
+  business       Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  stocks         LocationStock[]
+  transfersFrom  StockTransfer[]  @relation("TransfersFrom")
+  transfersTo    StockTransfer[]  @relation("TransfersTo")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  @@index([businessId])
+}
+
+model LocationStock {
+  id          String   @id @default(cuid())
+  locationId  String
+  productId   String
+  quantity    Decimal  @db.Decimal(10, 2)
+  location    Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([locationId, productId])
+  @@index([locationId])
+  @@index([productId])
+}
+
+model StockTransfer {
+  id             String   @id @default(cuid())
+  fromLocationId String
+  toLocationId   String
+  productId      String
+  quantity       Decimal  @db.Decimal(10, 2)
+  status         String   @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  note           String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  fromLocation   Location @relation("TransfersFrom", fields: [fromLocationId], references: [id], onDelete: Cascade)
+  toLocation     Location @relation("TransfersTo", fields: [toLocationId], references: [id], onDelete: Cascade)
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([fromLocationId])
+  @@index([toLocationId])
+  @@index([productId])
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { db } from "@/lib/db";
 import { getProducts } from "@/lib/actions/product";
 import { getCategories } from "@/lib/actions/category";
+import { createSale } from "@/lib/actions/sale";
 import { toast } from "sonner";
 
 export function useOfflineSync() {
@@ -79,14 +80,41 @@ export function useOfflineSync() {
       
       if (pendingSales.length === 0) return;
 
-      // In a real app, you'd loop through and POST to /api/sales
-      // For now, we'll simulate it
+      let successCount = 0;
       for (const sale of pendingSales) {
-        // await fetch('/api/sales', { method: 'POST', body: JSON.stringify(sale) });
-        await db.pendingSales.update(sale.id!, { synced: true });
+        try {
+          const result = await createSale({
+            items: sale.items.map(item => ({
+              productId: item.productId,
+              productName: item.productName,
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              total: item.total,
+              isExternalSourced: item.isExternalSourced,
+              externalSourceName: item.externalSourceName,
+              externalCostPrice: item.externalCostPrice
+            })),
+            totalAmount: sale.totalAmount,
+            paymentMethod: sale.paymentMethod,
+            paymentStatus: sale.paymentStatus,
+            customerId: sale.customerId,
+            amountPaid: sale.amountPaid,
+            saleNote: "OFFLINE SYNCED SALE",
+          });
+          
+          if (result.success) {
+            await db.pendingSales.delete(sale.id!);
+            successCount++;
+          }
+        } catch (err) {
+          console.error("Failed to sync individual sale:", err);
+        }
       }
 
-      toast.success(`${pendingSales.length} sales synced to cloud`);
+      if (successCount > 0) {
+        toast.success(`${successCount} offline sales synced to cloud`);
+        await initialSync();
+      }
     } catch (error) {
       console.error("Sync failed", error);
     } finally {
@@ -94,5 +122,5 @@ export function useOfflineSync() {
     }
   }
 
-  return { isOnline, isSyncing, initialSync };
+  return { isOnline, isSyncing, initialSync, syncPendingSales };
 }

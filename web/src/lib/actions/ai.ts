@@ -347,3 +347,143 @@ export async function generateAIEmployeeProfile() {
     }
   };
 }
+
+export async function getPredictiveReplenishment() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const businessId = session.user.businessId;
+    const tenantPrisma = getTenantPrisma(businessId);
+
+    // 1. Fetch sales items from the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const saleItems = await tenantPrisma.saleItem.findMany({
+      where: {
+        businessId,
+        sale: {
+          createdAt: { gte: thirtyDaysAgo },
+          status: "COMPLETED"
+        }
+      },
+      select: {
+        productId: true,
+        quantity: true,
+      }
+    });
+
+    // 2. Compute sales velocity (qty sold per day)
+    const velocityMap: Record<string, number> = {};
+    for (const item of saleItems) {
+      if (item.productId) {
+        velocityMap[item.productId] = (velocityMap[item.productId] || 0) + item.quantity;
+      }
+    }
+
+    // 3. Fetch products
+    const products = await tenantPrisma.product.findMany({
+      where: { businessId, deletedAt: null },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        stockQuantity: true,
+        minStockLevel: true,
+        unitPrice: true,
+      }
+    });
+
+    const predictions = products.map(p => {
+      const totalSold = velocityMap[p.id] || 0;
+      const dailyVelocity = totalSold / 30;
+      const stock = Number(p.stockQuantity);
+      
+      let daysRemaining = 999;
+      if (dailyVelocity > 0) {
+        daysRemaining = Math.round((stock / dailyVelocity) * 10) / 10;
+      }
+
+      let recommendationStatus = "OK";
+      let recommendedOrderQty = 0;
+      
+      if (daysRemaining <= 7) {
+        recommendationStatus = "CRITICAL";
+        recommendedOrderQty = Math.ceil(dailyVelocity * 30 - stock + p.minStockLevel);
+      } else if (daysRemaining <= 15) {
+        recommendationStatus = "WARNING";
+        recommendedOrderQty = Math.ceil(dailyVelocity * 15);
+      }
+
+      // Safeguard: order at least minStockLevel if predicted running low
+      if (recommendationStatus !== "OK" && recommendedOrderQty < p.minStockLevel) {
+        recommendedOrderQty = p.minStockLevel;
+      }
+
+      return {
+        id: p.id,
+        name: p.name,
+        sku: p.sku || "N/A",
+        stockQuantity: stock,
+        dailyVelocity: Math.round(dailyVelocity * 100) / 100,
+        daysRemaining,
+        status: recommendationStatus,
+        recommendedOrderQty,
+        estimatedCost: recommendedOrderQty * Number(p.unitPrice),
+      };
+    });
+
+    // Sort: Critical first, then Warning, then OK, then sorted by daysRemaining ascending
+    predictions.sort((a, b) => {
+      const scoreMap: Record<string, number> = { CRITICAL: 0, WARNING: 1, OK: 2 };
+      if (scoreMap[a.status] !== scoreMap[b.status]) {
+        return scoreMap[a.status] - scoreMap[b.status];
+      }
+      return a.daysRemaining - b.daysRemaining;
+    });
+
+    // 4. Generate AI advisory summary if API key is present
+    let aiAdvice = "Restock metrics computed. Database is running stable.";
+    const apiKey = process.env.GEMINI_API_KEY;
+    const criticalItems = predictions.filter(p => p.status === "CRITICAL");
+
+    if (apiKey && criticalItems.length > 0) {
+      try {
+        const prompt = `
+          Perform a Stock Replenishment Diagnostic:
+          We have ${criticalItems.length} critical inventory nodes that will run out of stock in less than 7 days.
+          Critical Items List:
+          ${criticalItems.slice(0, 5).map(i => `- ${i.name} (SKU: ${i.sku}): Stock=${i.stockQuantity}, Sold/day=${i.dailyVelocity}, Runs out in ${i.daysRemaining} days. Suggested Replenish=${i.recommendedOrderQty}`).join("\n")}
+          
+          Provide a 3-sentence executive alert summarizing the most urgent stockouts and the expected capital investment required. Maintain a highly cybernetic, mission-critical tone.
+        `;
+
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }]
+          }),
+          cache: "no-store"
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          aiAdvice = result.candidates?.[0]?.content?.parts?.[0]?.text || aiAdvice;
+        }
+      } catch (e) {
+        console.error("Failed to generate AI replenishment advisory:", e);
+      }
+    }
+
+    return {
+      success: true,
+      predictions,
+      aiAdvice
+    };
+  } catch (error: any) {
+    console.error("Predictive replenishment failed:", error);
+    throw new Error(error.message || "Failed to compute inventory prediction matrix.");
+  }
+}

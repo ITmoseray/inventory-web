@@ -34,6 +34,7 @@ export default function DebtsPage() {
   const [selectedDebt, setSelectedDebt] = useState<any>(null);
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [paymentNote, setPaymentNote] = useState("");
+  const [ageFilter, setAgeFilter] = useState<"ALL" | "0-30" | "31-60" | "61-90" | "90+">("ALL");
 
   useEffect(() => {
     fetchDebts();
@@ -51,12 +52,49 @@ export default function DebtsPage() {
     }
   }
 
-  const filteredDebts = debts.filter(d => 
-    d.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (d.sale?.invoiceNumber && d.sale.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const getDebtAgeInDays = (createdAtStr: string) => {
+    const createdDate = new Date(createdAtStr);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - createdDate.getTime());
+    return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  };
+
+  const filteredDebts = debts.filter(d => {
+    const matchesSearch = d.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.sale?.invoiceNumber && d.sale.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    if (ageFilter === "ALL") return matchesSearch;
+    const age = getDebtAgeInDays(d.createdAt);
+    if (ageFilter === "0-30") return matchesSearch && age <= 30 && d.status !== "PAID";
+    if (ageFilter === "31-60") return matchesSearch && age > 30 && age <= 60 && d.status !== "PAID";
+    if (ageFilter === "61-90") return matchesSearch && age > 60 && age <= 90 && d.status !== "PAID";
+    if (ageFilter === "90+") return matchesSearch && age > 90 && d.status !== "PAID";
+    return matchesSearch;
+  });
 
   const totalOutstanding = debts.reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
+
+  const bucketCurrent = debts
+    .filter(d => d.status !== "PAID" && getDebtAgeInDays(d.createdAt) <= 30)
+    .reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
+
+  const bucketMild = debts
+    .filter(d => {
+      const age = getDebtAgeInDays(d.createdAt);
+      return d.status !== "PAID" && age > 30 && age <= 60;
+    })
+    .reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
+
+  const bucketCritical = debts
+    .filter(d => {
+      const age = getDebtAgeInDays(d.createdAt);
+      return d.status !== "PAID" && age > 60 && age <= 90;
+    })
+    .reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
+
+  const bucketBad = debts
+    .filter(d => d.status !== "PAID" && getDebtAgeInDays(d.createdAt) > 90)
+    .reduce((sum, d) => sum + (d.totalAmount - d.paidAmount), 0);
 
   async function handlePayment() {
     if (paymentAmount <= 0) return toast.error("Enter a valid amount");
@@ -185,8 +223,64 @@ export default function DebtsPage() {
         </Card>
       </div>
 
-      <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 rounded-3xl">
-        <div className="relative group">
+      {/* Aging Portfolio Grid */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <div 
+          onClick={() => setAgeFilter(ageFilter === "0-30" ? "ALL" : "0-30")}
+          className={cn(
+            "p-5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.02] duration-300",
+            ageFilter === "0-30" 
+              ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-600 dark:text-indigo-400" 
+              : "bg-white border-slate-100 dark:bg-slate-900 dark:border-slate-800"
+          )}
+        >
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Current (0-30 Days)</span>
+          <span className="text-xl font-[1000] text-slate-900 dark:text-white mt-1 block">Le {Math.round(bucketCurrent).toLocaleString()}</span>
+          <span className="text-[9px] font-bold text-indigo-550 dark:text-indigo-400 mt-2 block uppercase">Standard Receivables</span>
+        </div>
+        <div 
+          onClick={() => setAgeFilter(ageFilter === "31-60" ? "ALL" : "31-60")}
+          className={cn(
+            "p-5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.02] duration-300",
+            ageFilter === "31-60" 
+              ? "bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400" 
+              : "bg-white border-slate-100 dark:bg-slate-900 dark:border-slate-800"
+          )}
+        >
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Mild Overdue (31-60 Days)</span>
+          <span className="text-xl font-[1000] text-amber-600 dark:text-amber-400 mt-1 block">Le {Math.round(bucketMild).toLocaleString()}</span>
+          <span className="text-[9px] font-bold text-amber-550 dark:text-amber-400 mt-2 block uppercase">Follow-up Required</span>
+        </div>
+        <div 
+          onClick={() => setAgeFilter(ageFilter === "61-90" ? "ALL" : "61-90")}
+          className={cn(
+            "p-5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.02] duration-300",
+            ageFilter === "61-90" 
+              ? "bg-orange-500/10 border-orange-500/20 text-orange-600 dark:text-orange-400" 
+              : "bg-white border-slate-100 dark:bg-slate-900 dark:border-slate-800"
+          )}
+        >
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Critical (61-90 Days)</span>
+          <span className="text-xl font-[1000] text-orange-600 dark:text-orange-400 mt-1 block">Le {Math.round(bucketCritical).toLocaleString()}</span>
+          <span className="text-[9px] font-bold text-orange-550 dark:text-orange-400 mt-2 block uppercase">High Collection Priority</span>
+        </div>
+        <div 
+          onClick={() => setAgeFilter(ageFilter === "90+" ? "ALL" : "90+")}
+          className={cn(
+            "p-5 rounded-2xl border cursor-pointer transition-all hover:scale-[1.02] duration-300",
+            ageFilter === "90+" 
+              ? "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-455" 
+              : "bg-white border-slate-100 dark:bg-slate-900 dark:border-slate-800"
+          )}
+        >
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Bad Debts (90+ Days)</span>
+          <span className="text-xl font-[1000] text-rose-600 dark:text-rose-400 mt-1 block">Le {Math.round(bucketBad).toLocaleString()}</span>
+          <span className="text-[9px] font-bold text-rose-550 dark:text-rose-400 mt-2 block uppercase">Write-off Warning</span>
+        </div>
+      </div>
+
+      <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 rounded-3xl flex flex-col lg:flex-row gap-4 items-center justify-between">
+        <div className="relative group w-full lg:max-w-md">
           <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
           <Input 
             placeholder="Search by customer name or invoice..." 
@@ -194,6 +288,18 @@ export default function DebtsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+        <div className="flex flex-wrap gap-2 w-full lg:w-auto">
+          {(["ALL", "0-30", "31-60", "61-90", "90+"] as const).map(item => (
+            <Button
+              key={item}
+              variant={ageFilter === item ? "default" : "outline"}
+              onClick={() => setAgeFilter(item)}
+              className="h-9 px-4 rounded-xl text-[10px] font-black tracking-widest uppercase"
+            >
+              {item === "ALL" ? "All Aging" : `${item} Days`}
+            </Button>
+          ))}
         </div>
       </Card>
 
@@ -251,11 +357,18 @@ export default function DebtsPage() {
                     </span>
                   </TableCell>
                   <TableCell>
-                    <div className={cn(
-                      "text-xs font-bold",
-                      debt.dueDate && new Date(debt.dueDate) < new Date() && debt.status !== 'PAID' ? "text-rose-500" : "text-slate-600 dark:text-slate-400"
-                    )}>
-                      {debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "No limit"}
+                    <div className="flex flex-col">
+                      <div className={cn(
+                        "text-xs font-bold",
+                        debt.dueDate && new Date(debt.dueDate) < new Date() && debt.status !== 'PAID' ? "text-rose-500" : "text-slate-600 dark:text-slate-400"
+                      )}>
+                        {debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "No limit"}
+                      </div>
+                      {debt.status !== 'PAID' && (
+                        <span className="text-[10px] text-slate-400 font-bold uppercase mt-0.5">
+                          Age: {getDebtAgeInDays(debt.createdAt)} Days
+                        </span>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell className="pr-6">

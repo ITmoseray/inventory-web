@@ -145,8 +145,31 @@ export default function POSPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showScanner, setShowScanner] = useState(false);
 
-  const handleCameraScan = (result: string) => {
-    if (result) setSearchQuery(result);
+  const handleCameraScan = async (result: string) => {
+    if (!result) return;
+    try {
+      const matched = await db.products
+        .filter(p => p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result))
+        .first();
+
+      if (matched) {
+        addItem({
+          id: matched.id,
+          name: matched.name,
+          price: matched.unitPrice,
+          stock: matched.stockQuantity,
+          ratio: 1,
+          isExternal: false,
+        });
+        toast.success(`Scanned: ${matched.name} added to cart!`);
+      } else {
+        setSearchQuery(result);
+        toast.info(`Scanned code: "${result}". Search filters applied.`);
+      }
+    } catch (e) {
+      console.error("Failed to process scan:", e);
+      setSearchQuery(result);
+    }
   };
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -317,6 +340,9 @@ export default function POSPage() {
           ratio: item.ratio,
           unitPrice: item.price,
           total: item.price * item.quantity,
+          isExternalSourced: item.isExternal || false,
+          externalSourceName: item.isExternal ? "Network" : undefined,
+          externalCostPrice: item.isExternal ? item.price * 0.8 : undefined,
         })),
         totalAmount: grandTotal,
         paymentMethod: isCredit ? "CREDIT" : paymentMethod,
@@ -326,11 +352,58 @@ export default function POSPage() {
         saleNote: isHappyHour ? "HAPPY HOUR SALE" : undefined,
       };
 
-      const result = await createSale(saleData);
+      let result;
+      if (isOnline) {
+        result = await createSale(saleData);
+      } else {
+        // Offline Flow: cache locally in IndexedDB
+        const localSaleId = `INV-LOCAL-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        
+        await db.pendingSales.add({
+          items: saleData.items.map(item => ({
+            productId: item.productId,
+            productName: item.productName,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            total: item.total,
+            isExternalSourced: item.isExternalSourced,
+            externalSourceName: item.externalSourceName,
+            externalCostPrice: item.externalCostPrice,
+          })),
+          totalAmount: saleData.totalAmount,
+          paymentMethod: saleData.paymentMethod,
+          paymentStatus: saleData.paymentStatus,
+          amountPaid: saleData.amountPaid,
+          customerId: saleData.customerId,
+          createdAt: Date.now(),
+          synced: 0 as any, // 0 is synced status in Dexie query
+        });
+
+        // Deduct local Dexie quantities
+        for (const item of saleData.items) {
+          if (item.productId) {
+            const localProd = await db.products.get(item.productId);
+            if (localProd) {
+              const newQty = Math.max(0, localProd.stockQuantity - item.quantity);
+              await db.products.update(item.productId, { stockQuantity: newQty });
+            }
+          }
+        }
+
+        result = {
+          success: true,
+          saleId: localSaleId,
+        };
+        
+        toast.warning("Offline mode: Transaction saved locally.", {
+          description: "This sale will automatically sync when internet connection is restored."
+        });
+      }
+
       if (result.success) {
         const msg = isCredit && creditPayStatus !== "PAID"
           ? `Credit sale recorded. Outstanding: Le ${Math.round(grandTotal - partialPaid).toLocaleString()}`
-          : "Transaction finalized.";
+          : isOnline ? "Transaction finalized." : "Offline transaction finalized.";
         toast.success(msg);
         
         // Prepare Receipt
@@ -364,6 +437,7 @@ export default function POSPage() {
         }, 300);
       }
     } catch (error) {
+      console.error("Checkout error:", error);
       toast.error("Checkout failed.");
     } finally {
       setLoading(false);

@@ -13,6 +13,7 @@ export const shopSidebarConfig = [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
       { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck, permission: "menu:intelligence:hub" },
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
+      { title: "Stock Forecast", url: "/dashboard/intelligence/replenishment", icon: TrendingUp, permission: "menu:intelligence:replenishment" },
       { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon, permission: "menu:intelligence:analytics" },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },
     ]
@@ -27,6 +28,7 @@ export const shopSidebarConfig = [
         permission: "menu:inventory",
         items: [
           { title: "Products", url: "/dashboard/inventory/products" },
+          { title: "Stock Transfers", url: "/dashboard/inventory/transfers" },
           { title: "Inventory Adjustments", url: "/dashboard/inventory/adjustments" },
           { title: "Packages", url: "/dashboard/inventory/packages" },
           { title: "Secure Terminal", url: "/dashboard/system/terminal" },

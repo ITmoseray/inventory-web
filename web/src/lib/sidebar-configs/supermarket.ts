@@ -6,6 +6,7 @@ export const supermarketSidebarConfig = [
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
+      { title: "Stock Forecast", url: "/dashboard/intelligence/replenishment", icon: BarChart3, permission: "menu:intelligence:replenishment" },
       { title: "Sales Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:intelligence:analytics" }
     ] 
   },
