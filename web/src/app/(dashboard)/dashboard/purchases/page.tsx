@@ -50,7 +50,7 @@ export default function PurchasesPage() {
       {/* STATS OVERVIEW */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: "Total Procurement", value: `Le ${purchases.reduce((acc, p) => acc + p.totalAmount, 0).toLocaleString()}`, icon: DollarSign, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
+          { label: "Total Procurement", value: `Le ${Math.round(purchases.reduce((acc, p) => acc + p.totalAmount, 0)).toLocaleString()}`, icon: DollarSign, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
           { label: "Active Suppliers", value: new Set(purchases.map(p => p.supplierId)).size, icon: Truck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
           { label: "Total Orders", value: purchases.length, icon: Package, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
         ].map((stat, i) => (
@@ -131,7 +131,7 @@ export default function PurchasesPage() {
                     </span>
                   </TableCell>
                   <TableCell className="text-right font-black text-slate-950 dark:text-white">
-                    Le {purchase.totalAmount.toLocaleString()}
+                    Le {Math.round(purchase.totalAmount).toLocaleString()}
                   </TableCell>
                   <TableCell className="px-8 text-right">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/50">

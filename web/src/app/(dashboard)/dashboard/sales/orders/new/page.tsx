@@ -215,10 +215,10 @@ export default function NewSalesOrderPage() {
                       >
                          <div>
                                <div className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-tight">{item.name}</div>
-                               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 italic">{item.quantity} x {item.price.toLocaleString()}</div>
+                               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 italic">{item.quantity} x {Math.round(item.price).toLocaleString()}</div>
                          </div>
                          <div className="flex items-center gap-4">
-                            <div className="text-sm font-[1000] text-slate-950 dark:text-white italic">{(item.price * item.quantity).toLocaleString()}</div>
+                            <div className="text-sm font-[1000] text-slate-950 dark:text-white italic">{Math.round(item.price * item.quantity).toLocaleString()}</div>
                             <Button variant="ghost" size="icon" onClick={() => removeItem(i)} className="h-8 w-8 text-rose-300 hover:text-rose-600">
                                <Trash2 size={16} />
                             </Button>
@@ -238,10 +238,10 @@ export default function NewSalesOrderPage() {
               </div>
 
               <div className="space-y-4 text-xs font-bold uppercase tracking-widest text-slate-400">
-                 <div className="flex justify-between"><span>Subtotal</span><span className="text-white">Le {total.toLocaleString()}</span></div>
-                 <div className="flex justify-between"><span>Tax</span><span className="text-indigo-400">Le {tax.toLocaleString()}</span></div>
+                 <div className="flex justify-between"><span>Subtotal</span><span className="text-white">Le {Math.round(total).toLocaleString()}</span></div>
+                 <div className="flex justify-between"><span>Tax</span><span className="text-indigo-400">Le {Math.round(tax).toLocaleString()}</span></div>
                  <div className="border-t border-white/10 pt-4 mt-4">
-                    <div className="flex justify-between text-white text-lg font-[1000] italic"><span>Total</span><span>Le {amountDue.toLocaleString()}</span></div>
+                    <div className="flex justify-between text-white text-lg font-[1000] italic"><span>Total</span><span>Le {Math.round(amountDue).toLocaleString()}</span></div>
                  </div>
               </div>
 

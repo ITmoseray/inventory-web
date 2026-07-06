@@ -113,20 +113,22 @@ export function ProcurementModal({
   const handleProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
-      const quantity = form.getValues(`items.${index}.quantity`) || 1;
-      const unitCost = product.costPrice || product.unitPrice || 0;
+      const quantity = Math.round(form.getValues(`items.${index}.quantity`) || 1);
+      const unitCost = Math.round(product.costPrice || product.unitPrice || 0);
       update(index, {
         productId,
         quantity,
         unitCost,
-        total: quantity * unitCost,
+        total: Math.round(quantity * unitCost),
       });
     }
   };
 
   const handleQuantityCostChange = (index: number) => {
-    const quantity = form.getValues(`items.${index}.quantity`);
-    const unitCost = form.getValues(`items.${index}.unitCost`);
+    const quantity = Math.round(form.getValues(`items.${index}.quantity`) || 0);
+    const unitCost = Math.round(form.getValues(`items.${index}.unitCost`) || 0);
+    form.setValue(`items.${index}.quantity`, quantity);
+    form.setValue(`items.${index}.unitCost`, unitCost);
     form.setValue(`items.${index}.total`, quantity * unitCost);
   };
 
@@ -242,8 +244,8 @@ export function ProcurementModal({
                       append({ 
                         productId: val, 
                         quantity: 1, 
-                        unitCost: product.costPrice || product.unitPrice || 0,
-                        total: product.costPrice || product.unitPrice || 0
+                        unitCost: Math.round(product.costPrice || product.unitPrice || 0),
+                        total: Math.round(product.costPrice || product.unitPrice || 0)
                       });
                       toast.success(`${product.name} added to cart`);
                     }
@@ -347,7 +349,7 @@ export function ProcurementModal({
                           <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
                               <span className="text-slate-400 font-bold text-xs">Le</span>
-                              <Input type="number" {...form.register(`items.${index}.unitCost`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-11 w-44 text-right font-black rounded-xl" />
+                              <Input type="number" step="1" {...form.register(`items.${index}.unitCost`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-11 w-44 text-right font-black rounded-xl" />
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-white">Le {form.watch(`items.${index}.total`)?.toLocaleString()}</td>
@@ -416,7 +418,7 @@ export function ProcurementModal({
                             <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Cost</Label>
                             <div className="flex items-center justify-end gap-1.5">
                                <span className="text-[10px] font-black text-slate-400">Le</span>
-                               <Input type="number" {...form.register(`items.${index}.unitCost`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-9 w-24 text-right font-black text-xs rounded-lg" />
+                               <Input type="number" step="1" {...form.register(`items.${index}.unitCost`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-9 w-24 text-right font-black text-xs rounded-lg" />
                             </div>
                          </div>
                       </div>
