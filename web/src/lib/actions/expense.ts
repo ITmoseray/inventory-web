@@ -32,7 +32,7 @@ export async function createExpense(data: {
     });
 
     await logAudit({
-      action: `Created Expense: ${expense.category} (Le ${expense.amount.toNumber().toFixed(2)}) - ${expense.description}`,
+      action: `Created Expense: ${expense.category} (Le ${Math.round(expense.amount.toNumber()).toLocaleString()}) - ${expense.description}`,
       entity: "EXPENSE",
       entityId: expense.id,
       newData: { category: expense.category, amount: expense.amount.toNumber(), description: expense.description }

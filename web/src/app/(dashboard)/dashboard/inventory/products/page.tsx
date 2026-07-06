@@ -178,7 +178,7 @@ function PackagingUnitCard({
               <Label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Cost Price (Le)</Label>
               <Input
                 type="number"
-                step="0.01"
+                step="1"
                 value={unit.purchaseCost}
                 onChange={(e) => onUpdate(index, "purchaseCost", e.target.value)}
                 placeholder="e.g. 250"
@@ -243,7 +243,7 @@ function PackagingUnitCard({
               <Label className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Selling Price (Le)</Label>
               <Input
                 type="number"
-                step="0.01"
+                step="1"
                 value={unit.sellingPrice}
                 onChange={(e) => onUpdate(index, "sellingPrice", e.target.value)}
                 placeholder="e.g. 25"
@@ -273,11 +273,11 @@ function PackagingUnitCard({
             <div className="space-y-0.5">
               <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Auto-Calculated</p>
               <p className="text-[11px] font-black text-slate-700 dark:text-slate-300">
-                Cost per {unit.sellingUnitName || "unit"}: <span className="text-rose-600">Le {costPerUnit.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                Cost per {unit.sellingUnitName || "unit"}: <span className="text-rose-600">Le {Math.round(costPerUnit).toLocaleString()}</span>
               </p>
               {parseFloat(unit.purchaseCost) > 0 && parseFloat(unit.unitsPerPackage) > 0 && (
                 <p className="text-[9px] text-slate-400 font-bold">
-                  {unit.purchaseUnitName} Le {unit.purchaseCost} &divide; {unit.unitsPerPackage} {unit.sellingUnitName}s = Le {costPerUnit.toFixed(2)} each
+                  {unit.purchaseUnitName} Le {unit.purchaseCost} &divide; {unit.unitsPerPackage} {unit.sellingUnitName}s = Le {Math.round(costPerUnit).toLocaleString()} each
                 </p>
               )}
             </div>
@@ -838,13 +838,13 @@ export default function ProductsPage() {
                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Cost Price (Le)</Label>
                            <Input
                              type="number"
-                             step="0.01"
+                             step="1"
                              value={
                                formData.packagingUnits.length > 0
                                  ? calcCostPerUnit(
                                      formData.packagingUnits[0]?.purchaseCost || "0",
                                      formData.packagingUnits[0]?.unitsPerPackage || "1"
-                                   ).toFixed(2)
+                                   ).toFixed(0)
                                  : formData.costPrice
                              }
                              onChange={(e) => {
@@ -852,7 +852,7 @@ export default function ProductsPage() {
                                  setFormData({ ...formData, costPrice: e.target.value });
                                }
                              }}
-                             placeholder="0.00"
+                             placeholder="0"
                              readOnly={formData.packagingUnits.length > 0}
                              className={cn(
                                "h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-rose-600 dark:text-rose-500 text-lg",
@@ -864,7 +864,7 @@ export default function ProductsPage() {
                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selling Price (Le)</Label>
                            <Input
                              type="number"
-                             step="0.01"
+                             step="1"
                              value={
                                formData.packagingUnits.length > 0
                                  ? formData.packagingUnits[0]?.sellingPrice || ""
@@ -875,7 +875,7 @@ export default function ProductsPage() {
                                  setFormData({ ...formData, unitPrice: e.target.value });
                                }
                              }}
-                             placeholder="0.00"
+                             placeholder="0"
                              readOnly={formData.packagingUnits.length > 0}
                              className={cn(
                                "h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-primary dark:text-indigo-400 text-lg",

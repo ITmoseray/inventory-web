@@ -98,7 +98,7 @@ export async function createPurchase(data: {
     revalidatePath("/dashboard/inventory/overview");
 
     await logAudit({
-      action: `Created Purchase: ${purchase.invoiceNumber} (Le ${purchase.totalAmount.toNumber().toFixed(2)})`,
+      action: `Created Purchase: ${purchase.invoiceNumber} (Le ${Math.round(purchase.totalAmount.toNumber()).toLocaleString()})`,
       entity: "PURCHASE",
       entityId: purchase.id,
       newData: { invoiceNumber: purchase.invoiceNumber, totalAmount: purchase.totalAmount.toNumber() }

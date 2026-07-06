@@ -157,7 +157,7 @@ export async function createSale(data: {
     revalidatePath("/dashboard/inventory/products");
 
     await logAudit({
-      action: `Created Sale: ${sale.invoiceNumber} (Le ${sale.totalAmount.toNumber().toFixed(2)})`,
+      action: `Created Sale: ${sale.invoiceNumber} (Le ${Math.round(sale.totalAmount.toNumber()).toLocaleString()})`,
       entity: "SALE",
       entityId: sale.id,
       newData: { invoiceNumber: sale.invoiceNumber, totalAmount: sale.totalAmount.toNumber() }
