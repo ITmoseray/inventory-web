@@ -30,7 +30,7 @@ env:
 
   # Google OAuth Credentials (optional, if enabled)
   - variable: GOOGLE_CLIENT_ID
-    value: "269583033582-98rsiqee5ail5fvcruptn0civqq17e6t.apps.googleusercontent.com"
+    value: "750721710537-u6p4q546uobthsihhq06k9m590cebnjj.apps.googleusercontent.com"
   - variable: GOOGLE_CLIENT_SECRET
     secret: GOOGLE_CLIENT_SECRET
 
