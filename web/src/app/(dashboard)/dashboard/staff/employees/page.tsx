@@ -179,7 +179,7 @@ export default function EmployeesPage() {
                  <UserPlus className="h-4 w-4 mr-2" /> Add Employee Node
               </Button>
            } />
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white">
+           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh] sm:max-h-none">
               <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
                     <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic truncate">Node Initialization</h3>
