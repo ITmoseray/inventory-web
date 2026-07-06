@@ -2,7 +2,7 @@ import NextAuth, { type DefaultSession, CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { z } from "zod";
 import { cookies } from "next/headers";
@@ -85,7 +85,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
 
             console.log("SERVER AUTH: User found, checking password match...", { email: user.email, role: user.role?.name });
-            const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+            const passwordMatch = await bcrypt.compare(password.trim(), user.passwordHash);
             if (!passwordMatch) {
               console.warn("SERVER AUTH: Password check failed for user:", { email: user.email });
               throw new CustomAuthError("Invalid email, username or password.");
