@@ -255,7 +255,7 @@ export default function PackagesPage() {
                     <div className="pt-4 border-t border-slate-50 dark:border-slate-800 flex justify-between items-center">
                       <div>
                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total</span>
-                        <p className="text-lg font-[1000] text-slate-900 dark:text-white italic tracking-tighter">Le {sale.totalAmount.toLocaleString()}</p>
+                        <p className="text-lg font-[1000] text-slate-900 dark:text-white italic tracking-tighter">Le {Math.round(sale.totalAmount).toLocaleString()}</p>
                       </div>
                       <Button
                         onClick={() => router.push(`/dashboard/sales/orders`)}

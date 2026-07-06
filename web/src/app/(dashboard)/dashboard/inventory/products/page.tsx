@@ -427,7 +427,7 @@ export default function ProductsPage() {
       return {
         id: u.id,
         purchaseUnitName: "Crate",
-        purchaseCost: (costPrice * ratio).toFixed(2),
+        purchaseCost: Math.round(costPrice * ratio).toString(),
         unitsPerPackage: ratio.toString(),
         sellingUnitName: u.name || "Bottle",
         sellingPrice: u.sellingPrice?.toString() || "",

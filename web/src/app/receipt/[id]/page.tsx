@@ -53,9 +53,9 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
                 <div key={i} className="flex justify-between items-center group">
                    <div className="flex flex-col">
                       <span className="text-sm font-bold text-slate-900">{item.name}</span>
-                      <span className="text-xs text-slate-500 font-medium">{item.quantity} x Le {item.unitPrice.toLocaleString()}</span>
+                      <span className="text-xs text-slate-500 font-medium">{item.quantity} x Le {Math.round(item.unitPrice).toLocaleString()}</span>
                    </div>
-                   <span className="text-sm font-black text-slate-900">Le {item.subtotal.toLocaleString()}</span>
+                   <span className="text-sm font-black text-slate-900">Le {Math.round(item.subtotal).toLocaleString()}</span>
                 </div>
               ))}
            </div>
@@ -63,7 +63,7 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
            <div className="bg-slate-50 rounded-2xl p-6 space-y-3 mb-8 border border-slate-100">
               <div className="flex justify-between items-center text-sm font-medium text-slate-500">
                  <span>Subtotal</span>
-                 <span>Le {receipt.totalAmount.toLocaleString()}</span>
+                 <span>Le {Math.round(receipt.totalAmount).toLocaleString()}</span>
               </div>
               <div className="flex justify-between items-center text-sm font-medium text-slate-500">
                  <span>Discount / Tax</span>
@@ -72,7 +72,7 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
               <div className="h-px w-full bg-slate-200 my-2" />
               <div className="flex justify-between items-center">
                  <span className="text-base font-black text-slate-900">Total Amount</span>
-                 <span className="text-xl font-black text-indigo-600">Le {receipt.totalAmount.toLocaleString()}</span>
+                 <span className="text-xl font-black text-indigo-600">Le {Math.round(receipt.totalAmount).toLocaleString()}</span>
               </div>
            </div>
 

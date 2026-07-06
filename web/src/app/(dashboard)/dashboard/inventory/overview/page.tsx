@@ -19,7 +19,7 @@ export default async function InventoryOverviewPage() {
                 <CardTitle className="text-sm font-bold">Total Stock Value</CardTitle>
                 <DollarSign className="h-4 w-4 text-emerald-500" />
             </CardHeader>
-            <CardContent><div className="text-2xl font-black">Le {overview.totalValue.toLocaleString()}</div></CardContent>
+            <CardContent><div className="text-2xl font-black">Le {Math.round(overview.totalValue).toLocaleString()}</div></CardContent>
         </Card>
         <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
