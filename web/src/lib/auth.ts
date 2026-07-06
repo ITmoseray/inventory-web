@@ -95,6 +95,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               throw new CustomAuthError("Your account is not active. Please contact the administrator.");
             }
 
+            if (!user.emailVerified) {
+              console.warn("SERVER AUTH: Email not verified", { email });
+              throw new CustomAuthError("Please verify your email address before logging in.");
+            }
+
+
             console.log("SERVER AUTH: Authorization Success", { email, role: user.role.name });
             return {
               id: user.id,
