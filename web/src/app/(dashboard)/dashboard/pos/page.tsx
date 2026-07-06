@@ -222,9 +222,20 @@ export default function POSPage() {
       const data = await getCurrentBusiness();
       if (data) {
         setBusinessInfo(data);
+        localStorage.setItem("offline_business_info", JSON.stringify(data));
       }
     } catch (e) {
       console.error("Failed to load business info:", e);
+      const cached = localStorage.getItem("offline_business_info");
+      if (cached) {
+        try {
+          setBusinessInfo(JSON.parse(cached));
+        } catch (err) {}
+      } else if (session?.user?.businessName) {
+        setBusinessInfo({ name: session.user.businessName });
+      } else {
+        setBusinessInfo({ name: "Protech Assist SL Limited" });
+      }
     }
   }
 
@@ -417,7 +428,7 @@ export default function POSPage() {
           cashierName: session?.user?.name,
           customerName: customerObj?.name || "WALKIN",
           transactionId: result.saleId || undefined,
-          businessName: businessInfo?.name || session?.user?.businessName || "Protech Assist",
+          businessName: businessInfo?.name || session?.user?.businessName || "Protech Assist SL Limited",
           businessAddress: businessInfo?.address || undefined,
           businessPhone: businessInfo?.phone || undefined
         });

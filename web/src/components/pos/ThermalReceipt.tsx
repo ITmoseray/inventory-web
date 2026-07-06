@@ -34,7 +34,7 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
       <div ref={ref} className="bg-white text-black p-4 w-[80mm] mx-auto font-mono text-[12px] leading-tight flex flex-col print:m-0 print:p-2 print:shadow-none print:w-[80mm]">
         {/* Header */}
         <div className="text-center space-y-1 mb-4">
-          <h2 className="text-lg font-bold uppercase">{businessName || "Protech Assist"}</h2>
+          <h2 className="text-lg font-bold uppercase">{businessName || "Protech Assist SL Limited"}</h2>
           <p className="text-[10px]">{businessAddress || "123 Enterprise Way, Freetown"}</p>
           <p className="text-[10px]">Tel: {businessPhone || "+232 00 000 000"}</p>
         </div>
@@ -94,7 +94,7 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
             </div>
           )}
           <p>Thank you for your business!</p>
-          <p>Powered by Protech Assist</p>
+          <p>Powered by Protech Assist SL Limited</p>
           <p className="mt-2 text-[8px]">* Returns accepted within 7 days with receipt *</p>
         </div>
       </div>

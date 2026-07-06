@@ -399,8 +399,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   React.useEffect(() => {
     if (session?.user?.businessId) {
       getBusinessContext(session.user.businessId)
-        .then(setBusinessContext)
-        .catch(err => console.error("Failed to load business context:", err));
+        .then(data => {
+          if (data) {
+            setBusinessContext(data);
+            localStorage.setItem(`offline_business_context_${session.user.businessId}`, JSON.stringify(data));
+          }
+        })
+        .catch(err => {
+          console.error("Failed to load business context:", err);
+          const cached = localStorage.getItem(`offline_business_context_${session.user.businessId}`);
+          if (cached) {
+            try {
+              setBusinessContext(JSON.parse(cached));
+            } catch (e) {}
+          } else if (session?.user?.businessName) {
+            setBusinessContext({ name: session.user.businessName, logoUrl: null });
+          } else {
+            setBusinessContext({ name: "Protech Assist SL Limited", logoUrl: null });
+          }
+        });
     } else if (mounted && status === "authenticated") {
       setBusinessContext({ name: "Global Admin", logoUrl: null });
     }
