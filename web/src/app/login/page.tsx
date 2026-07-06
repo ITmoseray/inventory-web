@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { signIn, getSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,19 +26,25 @@ export default function LoginPage() {
   const [resending, setResending] = useState(false);
   const [isLinkIntent, setIsLinkIntent] = useState(false);
   const [linkAgreed, setLinkAgreed] = useState(false);
+  const [googleVerifyPending, setGoogleVerifyPending] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Check if email is passed in URL from register page or link dialog
     const params = new URLSearchParams(window.location.search);
     const emailParam = params.get("email");
     const linkParam = params.get("link");
+    const errorParam = params.get("error");
     if (emailParam) {
       setEmail(emailParam);
       setCurrentStep("PASSWORD");
     }
     if (linkParam === "true") {
       setIsLinkIntent(true);
+    }
+    // AccessDenied = Google sign-in blocked because email not verified yet
+    if (errorParam === "AccessDenied") {
+      setGoogleVerifyPending(true);
     }
   }, []);
 
@@ -159,7 +165,29 @@ export default function LoginPage() {
       </Link>
 
       <div className="w-full max-w-[480px] bg-white dark:bg-slate-900 rounded-[3rem] p-10 sm:p-14 shadow-[0_40px_120px_-20px_rgba(0,0,0,0.15)] border border-slate-100 dark:border-slate-800 relative">
-        
+
+        {/* Google Email Verification Pending Banner */}
+        {googleVerifyPending && (
+          <div className="mb-8 p-5 rounded-2xl bg-amber-50 border border-amber-200 dark:bg-amber-900/20 dark:border-amber-700">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <p className="font-black text-sm text-amber-800 dark:text-amber-300">Check your email!</p>
+                <p className="text-xs text-amber-700 dark:text-amber-400 mt-1 leading-relaxed">
+                  Your Google account has been registered. Please click the verification link we sent to your email before signing in.
+                </p>
+                <button
+                  onClick={handleResendEmail}
+                  disabled={resending}
+                  className="mt-3 text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-300 underline underline-offset-2 hover:text-amber-900 disabled:opacity-50"
+                >
+                  {resending ? "Sending..." : "Resend verification email"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {currentStep === "EMAIL" && (
             <motion.div

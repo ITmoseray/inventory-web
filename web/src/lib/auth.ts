@@ -8,6 +8,7 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { authConfig } from "../auth.config";
 import { getSystemSettings } from "@/lib/actions/system-settings";
+import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
 
 class CustomAuthError extends CredentialsSignin {
   constructor(code: string) {
@@ -213,6 +214,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 });
               }
 
+              const verificationToken = generateVerificationToken();
               const newDbUser = await tx.user.create({
                 data: {
                   email: user.email!,
@@ -220,18 +222,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   name: user.name || "Google User",
                   roleId: adminRole.id,
                   businessId: business.id,
-                  emailVerified: new Date(),
+                  // emailVerified intentionally NOT set — user must verify email first
+                  verificationToken,
                 },
               });
               finalUserId = newDbUser.id;
               finalBusinessId = business.id;
+
+              // Send verification email outside transaction (fire-and-forget)
+              sendVerificationEmail(user.email!, verificationToken).catch(err =>
+                console.error("Google Auth: Failed to send verification email:", err)
+              );
             });
-            console.log(`Google Auth: Successfully created business and user for ${user.email}`);
+            console.log(`Google Auth: Created account for ${user.email} — verification email sent.`);
+
+            // Block access until email is verified
+            return false;
           } else {
             if (dbUser.status !== 'active') {
               console.warn("Google Auth: Account inactive", { email: user.email });
               return false;
             }
+
+            // Block access if the user hasn't verified their email yet
+            if (!dbUser.emailVerified && dbUser.verificationToken) {
+              console.warn("Google Auth: Email not yet verified", { email: user.email });
+              return false;
+            }
+
             finalUserId = dbUser.id;
             finalBusinessId = dbUser.businessId;
           }
