@@ -28,9 +28,9 @@ env:
   - variable: AUTH_URL
     value: "https://inventory-web--protech-website-38a37.us-east4.hosted.app"
 
-  # Google OAuth Credentials (optional, if enabled)
+  # Google OAuth Credentials
   - variable: GOOGLE_CLIENT_ID
-    value: "750721710537-u6p4q546uobthsihhq06k9m590cebnjj.apps.googleusercontent.com"
+    value: "750721710537-oa6fkvf8q8h6rvhg14nfdvsggnlvp7fb.apps.googleusercontent.com"
   - variable: GOOGLE_CLIENT_SECRET
     secret: GOOGLE_CLIENT_SECRET
 
