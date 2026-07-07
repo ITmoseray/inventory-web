@@ -43,9 +43,11 @@ export default async function DashboardLayout({
       redirect("/super-admin");
   }
 
+  let business: any = null;
+
   if (session?.user?.businessId && session?.user?.role !== "SUPERADMIN") {
     try {
-      const business = await prisma.business.findUnique({
+      business = await prisma.business.findUnique({
         where: { id: session.user.businessId },
         select: { 
           id: true, 
@@ -176,7 +178,7 @@ export default async function DashboardLayout({
       <AnnouncementBanner />
       <AppShell>
           <ToastManager />
-          <OnboardingTrigger businessCreatedAt={business?.createdAt?.toISOString()} />
+          <OnboardingTrigger businessCreatedAt={business?.createdAt ? new Date(business.createdAt).toISOString() : undefined} />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <header className="flex h-16 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-background sticky top-0 z-40 px-4 md:px-6 transition-all">
