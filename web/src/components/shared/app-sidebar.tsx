@@ -118,7 +118,7 @@ const SidebarContentRenderer = ({
               className="hover:bg-transparent px-0"
               render={<Link href="/dashboard" className="flex items-center gap-3" onClick={() => setOpenMobile(false)} />}
             >
-                <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl shadow-xl shadow-primary/20 ring-4 ring-primary/5">
+                <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-4 ring-primary/5">
                   <Image 
                     src="/images/logo2.jpeg" 
                     alt="Protech Logo" 
