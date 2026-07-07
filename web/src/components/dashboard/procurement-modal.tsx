@@ -306,58 +306,83 @@ export function ProcurementModal({
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     <AnimatePresence mode="popLayout">
-                      {fields.map((field, index) => (
-                        <motion.tr 
-                          key={field.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
-                        >
-                          <td className="px-6 py-4">
-                            <Select 
-                              value={form.watch(`items.${index}.productId`)} 
-                              onValueChange={(val: string | null) => handleProductChange(index, val ?? "")}
-                            >
-                              <SelectTrigger className="h-10 border-transparent bg-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all rounded-lg font-bold">
-                                <SelectValue placeholder="Select product" />
-                              </SelectTrigger>
-                              <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
-                                {products.map((p) => (
-                                  <SelectItem key={p.id} value={p.id}>
-                                    <div className="flex items-center gap-3 py-1">
-                                      <div className="relative h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden">
-                                        {p.imageUrl ? <Image src={p.imageUrl} alt={p.name} fill className="object-cover" unoptimized /> : <Package size={14} className="text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                      {fields.map((field, index) => {
+                        const qtyReg = form.register(`items.${index}.quantity`, { valueAsNumber: true });
+                        const costReg = form.register(`items.${index}.unitCost`, { valueAsNumber: true });
+                        return (
+                          <motion.tr 
+                            key={field.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                          >
+                            <td className="px-6 py-4">
+                              <Select 
+                                value={form.watch(`items.${index}.productId`)} 
+                                onValueChange={(val: string | null) => handleProductChange(index, val ?? "")}
+                              >
+                                <SelectTrigger className="h-10 border-transparent bg-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all rounded-lg font-bold">
+                                  <SelectValue placeholder="Select product" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                  {products.map((p) => (
+                                    <SelectItem key={p.id} value={p.id}>
+                                      <div className="flex items-center gap-3 py-1">
+                                        <div className="relative h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden">
+                                          {p.imageUrl ? <Image src={p.imageUrl} alt={p.name} fill className="object-cover" unoptimized /> : <Package size={14} className="text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                          <span className="font-bold text-sm truncate">{p.name}</span>
+                                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU: {p.sku || "N/A"}</span>
+                                        </div>
                                       </div>
-                                      <div className="flex flex-col min-w-0">
-                                        <span className="font-bold text-sm truncate">{p.name}</span>
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU: {p.sku || "N/A"}</span>
-                                      </div>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-center gap-2">
-                              <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); if (current > 1) { form.setValue(`items.${index}.quantity`, current - 1); handleQuantityCostChange(index); } }} className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200"><Minus size={16} /></button>
-                              <Input type="number" {...form.register(`items.${index}.quantity`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-11 w-20 text-center font-black rounded-xl" />
-                              <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center"><Plus size={16} /></button>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center justify-end gap-2">
-                              <span className="text-slate-400 font-bold text-xs">Le</span>
-                              <Input type="number" step="1" {...form.register(`items.${index}.unitCost`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-11 w-44 text-right font-black rounded-xl" />
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-white">Le {form.watch(`items.${index}.total`)?.toLocaleString()}</td>
-                          <td className="px-4 py-4 text-center">
-                            <button type="button" onClick={() => remove(index)} className="p-2 text-slate-300 hover:text-red-500 rounded-lg transition-all"><Trash2 size={16} /></button>
-                          </td>
-                        </motion.tr>
-                      ))}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center justify-center gap-2">
+                                <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); if (current > 1) { form.setValue(`items.${index}.quantity`, current - 1); handleQuantityCostChange(index); } }} className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200"><Minus size={16} /></button>
+                                <Input 
+                                  type="number" 
+                                  name={qtyReg.name}
+                                  ref={qtyReg.ref}
+                                  onBlur={qtyReg.onBlur}
+                                  onChange={async (e) => {
+                                    await qtyReg.onChange(e);
+                                    handleQuantityCostChange(index);
+                                  }}
+                                  className="h-11 w-20 text-center font-black rounded-xl" 
+                                />
+                                <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center"><Plus size={16} /></button>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center justify-end gap-2">
+                                <span className="text-slate-400 font-bold text-xs">Le</span>
+                                <Input 
+                                  type="number" 
+                                  step="1" 
+                                  name={costReg.name}
+                                  ref={costReg.ref}
+                                  onBlur={costReg.onBlur}
+                                  onChange={async (e) => {
+                                    await costReg.onChange(e);
+                                    handleQuantityCostChange(index);
+                                  }}
+                                  className="h-11 w-44 text-right font-black rounded-xl" 
+                                />
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-right font-black text-slate-900 dark:text-white">Le {form.watch(`items.${index}.total`)?.toLocaleString()}</td>
+                            <td className="px-4 py-4 text-center">
+                              <button type="button" onClick={() => remove(index)} className="p-2 text-slate-300 hover:text-red-500 rounded-lg transition-all"><Trash2 size={16} /></button>
+                            </td>
+                          </motion.tr>
+                        );
+                      })}
                     </AnimatePresence>
                   </tbody>
                 </table>
@@ -366,69 +391,94 @@ export function ProcurementModal({
               {/* Mobile Card View */}
               <div className="md:hidden space-y-4">
                 <AnimatePresence mode="popLayout">
-                  {fields.map((field, index) => (
-                    <motion.div 
-                      key={field.id}
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4"
-                    >
-                      <div className="flex justify-between items-start">
-                         <div className="flex-1">
-                            <Select 
-                              value={form.watch(`items.${index}.productId`)} 
-                              onValueChange={(val: string | null) => handleProductChange(index, val ?? "")}
-                            >
-                              <SelectTrigger className="h-auto p-0 border-none bg-transparent font-black uppercase text-xs tracking-tight text-left break-words">
-                                <SelectValue placeholder="Identify Asset" />
-                              </SelectTrigger>
-                              <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
-                                {products.map((p) => (
-                                  <SelectItem key={p.id} value={p.id}>
-                                    <div className="flex items-center gap-3 py-1">
-                                      <div className="relative h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden">
-                                        {p.imageUrl ? <Image src={p.imageUrl} alt={p.name} fill className="object-cover" unoptimized /> : <Package size={14} className="text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                  {fields.map((field, index) => {
+                    const qtyReg = form.register(`items.${index}.quantity`, { valueAsNumber: true });
+                    const costReg = form.register(`items.${index}.unitCost`, { valueAsNumber: true });
+                    return (
+                      <motion.div 
+                        key={field.id}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm space-y-4"
+                      >
+                        <div className="flex justify-between items-start">
+                           <div className="flex-1">
+                              <Select 
+                                value={form.watch(`items.${index}.productId`)} 
+                                onValueChange={(val: string | null) => handleProductChange(index, val ?? "")}
+                              >
+                                <SelectTrigger className="h-auto p-0 border-none bg-transparent font-black uppercase text-xs tracking-tight text-left break-words">
+                                  <SelectValue placeholder="Identify Asset" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                  {products.map((p) => (
+                                    <SelectItem key={p.id} value={p.id}>
+                                      <div className="flex items-center gap-3 py-1">
+                                        <div className="relative h-8 w-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden">
+                                          {p.imageUrl ? <Image src={p.imageUrl} alt={p.name} fill className="object-cover" unoptimized /> : <Package size={14} className="text-slate-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                                        </div>
+                                        <div className="flex flex-col min-w-0 text-left">
+                                          <span className="font-bold text-sm truncate">{p.name}</span>
+                                          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU: {p.sku || "N/A"}</span>
+                                        </div>
                                       </div>
-                                      <div className="flex flex-col min-w-0 text-left">
-                                        <span className="font-bold text-sm truncate">{p.name}</span>
-                                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">SKU: {p.sku || "N/A"}</span>
-                                      </div>
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                         </div>
-                         <button type="button" onClick={() => remove(index)} className="h-8 w-8 rounded-lg bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center shrink-0 ml-2">
-                           <Trash2 size={14} />
-                         </button>
-                      </div>
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                           </div>
+                           <button type="button" onClick={() => remove(index)} className="h-8 w-8 rounded-lg bg-rose-50 dark:bg-rose-950/30 text-rose-500 flex items-center justify-center shrink-0 ml-2">
+                             <Trash2 size={14} />
+                           </button>
+                        </div>
 
-                      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800/50">
-                         <div className="space-y-1.5">
-                            <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Volume (Qty)</Label>
-                            <div className="flex items-center gap-1.5">
-                               <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); if (current > 1) { form.setValue(`items.${index}.quantity`, current - 1); handleQuantityCostChange(index); } }} className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 flex items-center justify-center"><Minus size={12} /></button>
-                               <Input type="number" {...form.register(`items.${index}.quantity`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-9 w-12 text-center p-0 font-black text-xs rounded-lg" />
-                               <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-8 w-8 rounded-lg bg-blue-600 text-white flex items-center justify-center"><Plus size={12} /></button>
-                            </div>
-                         </div>
-                         <div className="space-y-1.5 text-right">
-                            <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Cost</Label>
-                            <div className="flex items-center justify-end gap-1.5">
-                               <span className="text-[10px] font-black text-slate-400">Le</span>
-                               <Input type="number" step="1" {...form.register(`items.${index}.unitCost`, { valueAsNumber: true })} onChange={() => handleQuantityCostChange(index)} className="h-9 w-24 text-right font-black text-xs rounded-lg" />
-                            </div>
-                         </div>
-                      </div>
+                        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800/50">
+                           <div className="space-y-1.5">
+                              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Volume (Qty)</Label>
+                              <div className="flex items-center gap-1.5">
+                                 <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); if (current > 1) { form.setValue(`items.${index}.quantity`, current - 1); handleQuantityCostChange(index); } }} className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-100 flex items-center justify-center"><Minus size={12} /></button>
+                                 <Input 
+                                   type="number" 
+                                   name={qtyReg.name}
+                                   ref={qtyReg.ref}
+                                   onBlur={qtyReg.onBlur}
+                                   onChange={async (e) => {
+                                     await qtyReg.onChange(e);
+                                     handleQuantityCostChange(index);
+                                   }}
+                                   className="h-9 w-12 text-center p-0 font-black text-xs rounded-lg" 
+                                 />
+                                 <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-8 w-8 rounded-lg bg-blue-600 text-white flex items-center justify-center"><Plus size={12} /></button>
+                              </div>
+                           </div>
+                           <div className="space-y-1.5 text-right">
+                              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Cost</Label>
+                              <div className="flex items-center justify-end gap-1.5">
+                                 <span className="text-[10px] font-black text-slate-400">Le</span>
+                                 <Input 
+                                   type="number" 
+                                   step="1" 
+                                   name={costReg.name}
+                                   ref={costReg.ref}
+                                   onBlur={costReg.onBlur}
+                                   onChange={async (e) => {
+                                     await costReg.onChange(e);
+                                     handleQuantityCostChange(index);
+                                   }}
+                                   className="h-9 w-24 text-right font-black text-xs rounded-lg" 
+                                 />
+                              </div>
+                           </div>
+                        </div>
 
-                      <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
-                         <span className="text-[9px] font-black uppercase text-slate-400">Line Yield</span>
-                         <span className="font-[1000] text-sm text-slate-900 dark:text-white">Le {form.watch(`items.${index}.total`)?.toLocaleString()}</span>
-                      </div>
-                    </motion.div>
-                  ))}
+                        <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-950/50 p-3 rounded-2xl border border-slate-100 dark:border-slate-800">
+                           <span className="text-[9px] font-black uppercase text-slate-400">Line Yield</span>
+                           <span className="font-[1000] text-sm text-slate-900 dark:text-white">Le {form.watch(`items.${index}.total`)?.toLocaleString()}</span>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
             </div>
