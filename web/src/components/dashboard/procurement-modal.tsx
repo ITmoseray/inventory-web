@@ -114,7 +114,7 @@ export function ProcurementModal({
     const product = products.find((p) => p.id === productId);
     if (product) {
       const quantity = Math.round(form.getValues(`items.${index}.quantity`) || 1);
-      const unitCost = Math.round(product.costPrice || product.unitPrice || 0);
+      const unitCost = Math.round(product.costPrice ?? 0);
       update(index, {
         productId,
         quantity,
@@ -244,8 +244,8 @@ export function ProcurementModal({
                       append({ 
                         productId: val, 
                         quantity: 1, 
-                        unitCost: Math.round(product.costPrice || product.unitPrice || 0),
-                        total: Math.round(product.costPrice || product.unitPrice || 0)
+                        unitCost: Math.round(product.costPrice ?? 0),
+                        total: Math.round(product.costPrice ?? 0)
                       });
                       toast.success(`${product.name} added to cart`);
                     }
