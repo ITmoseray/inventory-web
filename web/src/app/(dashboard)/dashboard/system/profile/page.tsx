@@ -144,14 +144,14 @@ export default function ProfilePage() {
                       </div>
                    </div>
 
-                   <div className="pt-4 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-2 text-slate-400">
-                         <AlertCircle className="h-4 w-4" />
-                         <span className="text-[9px] font-black uppercase tracking-widest italic leading-tight">Minimum 6 characters required <br/> for secure handshake</span>
+                   <div className="pt-4 flex flex-col md:flex-row items-center md:justify-between gap-6 md:gap-4">
+                      <div className="flex items-center gap-2 text-slate-400 text-center md:text-left">
+                         <AlertCircle className="h-5 w-5 md:h-4 md:w-4 flex-shrink-0" />
+                         <span className="text-[9px] font-black uppercase tracking-widest italic leading-tight">Minimum 6 characters required <br className="hidden md:block"/> for secure handshake</span>
                       </div>
                       <Button 
                         disabled={loading}
-                        className="h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
+                        className="h-14 w-full md:w-auto px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
                       >
                          {loading ? (
                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -168,14 +168,14 @@ export default function ProfilePage() {
 
         {/* Status / Activity (Optional) */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}>
-           <div className="p-6 rounded-[2rem] bg-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl">
-              <div className="flex items-center gap-4">
-                 <div className="h-12 w-12 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+           <div className="p-6 rounded-[2rem] bg-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-2xl text-center md:text-left">
+              <div className="flex flex-col md:flex-row items-center gap-4">
+                 <div className="h-12 w-12 rounded-xl bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 flex-shrink-0">
                     <Shield className="h-6 w-6 text-indigo-400" />
                  </div>
                  <div>
                     <h4 className="text-sm font-black uppercase tracking-widest">Enhanced Identity Protection</h4>
-                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">Multi-factor encryption active across all nodes</p>
+                    <p className="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1 leading-relaxed">Multi-factor encryption active across all nodes</p>
                  </div>
               </div>
               <div className="flex items-center gap-2">
