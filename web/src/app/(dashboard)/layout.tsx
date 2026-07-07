@@ -51,9 +51,9 @@ export default async function DashboardLayout({
           id: true, 
           status: true, 
           plan: true, 
-          trialEndDate: true, 
           subscriptionStatus: true,
-          name: true 
+          name: true,
+          createdAt: true
         }
       });
 
@@ -175,7 +175,7 @@ export default async function DashboardLayout({
       <AnnouncementBanner />
       <AppShell>
           <ToastManager />
-          <OnboardingTrigger />
+          <OnboardingTrigger businessCreatedAt={business?.createdAt?.toISOString()} />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <header className="flex h-16 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-background sticky top-0 z-40 px-4 md:px-6 transition-all">

@@ -60,16 +60,17 @@ export function OnboardingGuide() {
   const getCardStyle = () => {
     if (current.position === 'center') return {};
 
-    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
-    const cardWidth = isMobile ? window.innerWidth - 32 : 400; 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
+    const cardWidth = Math.min(typeof window !== 'undefined' ? window.innerWidth - 32 : 400, 400);
     
     let top = coords.top;
     let left = coords.left;
 
     if (isMobile) {
-       // On mobile, ignore left/right positioning to avoid overflow. 
-       // Center horizontally, place above or below based on space.
-       left = 16; 
+       // On mobile/tablet, center horizontally to avoid overflow and position above/below safely.
+       left = (window.innerWidth - cardWidth) / 2;
+       
+       // Ensure card is placed vertically where there's room
        if (coords.top > window.innerHeight / 2) {
           top = Math.max(16, coords.top - 380);
        } else {
