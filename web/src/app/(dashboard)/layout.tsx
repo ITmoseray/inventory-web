@@ -51,6 +51,7 @@ export default async function DashboardLayout({
           id: true, 
           status: true, 
           plan: true, 
+          trialEndDate: true,
           subscriptionStatus: true,
           name: true,
           createdAt: true

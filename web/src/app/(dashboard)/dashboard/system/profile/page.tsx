@@ -151,7 +151,7 @@ export default function ProfilePage() {
                       </div>
                       <Button 
                         disabled={loading}
-                        className="h-14 w-full md:w-auto px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-3"
+                        className="h-14 w-full md:w-auto px-4 md:px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] md:text-xs uppercase tracking-widest md:tracking-[0.2em] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-2 md:gap-3 overflow-hidden text-ellipsis whitespace-nowrap flex-shrink"
                       >
                          {loading ? (
                            <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
