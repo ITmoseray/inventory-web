@@ -1,26 +1,41 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Package, Calendar, Truck, DollarSign, Filter, Search } from "lucide-react";
+import { Plus, Package, Calendar, Truck, DollarSign, Filter, Search, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getPurchases } from "@/lib/actions/purchase";
+import { getSuppliers } from "@/lib/actions/supplier";
 import { ProcurementModal } from "@/components/dashboard/procurement-modal";
 import { format } from "date-fns";
+import { AnimatePresence, motion } from "framer-motion";
 
 export default function PurchasesPage() {
   const [purchases, setPurchases] = useState<any[]>([]);
+  const [suppliers, setSuppliers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  
+  // Filter States
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<string>("all");
+  const [minAmount, setMinAmount] = useState<string>("");
+  const [maxAmount, setMaxAmount] = useState<string>("");
+  const [showFilters, setShowFilters] = useState(false);
 
   const fetchPurchases = async () => {
     setLoading(true);
     try {
-      const data = await getPurchases();
-      setPurchases(data);
+      const [purchasesData, suppliersData] = await Promise.all([
+        getPurchases(),
+        getSuppliers()
+      ]);
+      setPurchases(purchasesData);
+      setSuppliers(suppliersData);
     } catch (error) {
-      console.error("Failed to fetch purchases:", error);
+      console.error("Failed to fetch purchases page data:", error);
     } finally {
       setLoading(false);
     }
@@ -30,10 +45,65 @@ export default function PurchasesPage() {
     fetchPurchases();
   }, []);
 
-  const filteredPurchases = purchases.filter(p => 
-    p.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    p.supplier?.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter & Search Logic
+  const filteredPurchases = purchases.filter(p => {
+    // 1. Search Query (Protected against null fields)
+    const invoiceString = p.invoiceNumber || "";
+    const supplierName = p.supplier?.name || "";
+    const matchesSearch = invoiceString.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          supplierName.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    // 2. Supplier Filter
+    if (selectedSupplierId !== "all") {
+      if (selectedSupplierId === "none") {
+        if (p.supplierId) return false;
+      } else if (p.supplierId !== selectedSupplierId) {
+        return false;
+      }
+    }
+
+    // 3. Date Filter
+    if (dateRange !== "all") {
+      const pDate = new Date(p.createdAt);
+      const now = new Date();
+      
+      // Calculate diff in days
+      const diffTime = Math.abs(now.getTime() - pDate.getTime());
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      if (dateRange === "today") {
+        const todayStr = now.toDateString();
+        if (pDate.toDateString() !== todayStr) return false;
+      } else if (dateRange === "7days" && diffDays > 7) {
+        return false;
+      } else if (dateRange === "30days" && diffDays > 30) {
+        return false;
+      }
+    }
+
+    // 4. Amount Filter
+    const totalAmt = p.totalAmount || 0;
+    if (minAmount && totalAmt < parseFloat(minAmount)) {
+      return false;
+    }
+    if (maxAmount && totalAmt > parseFloat(maxAmount)) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const isFiltered = dateRange !== "all" || selectedSupplierId !== "all" || minAmount !== "" || maxAmount !== "" || searchQuery !== "";
+
+  const clearAllFilters = () => {
+    setDateRange("all");
+    setSelectedSupplierId("all");
+    setMinAmount("");
+    setMaxAmount("");
+    setSearchQuery("");
+  };
 
   return (
     <div className="p-6 md:p-10 bg-slate-50/50 dark:bg-slate-950 min-h-screen space-y-8">
@@ -51,7 +121,7 @@ export default function PurchasesPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { label: "Total Procurement", value: `Le ${Math.round(purchases.reduce((acc, p) => acc + p.totalAmount, 0)).toLocaleString()}`, icon: DollarSign, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-950/30" },
-          { label: "Active Suppliers", value: new Set(purchases.map(p => p.supplierId)).size, icon: Truck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+          { label: "Active Suppliers", value: new Set(purchases.filter(p => p.supplierId).map(p => p.supplierId)).size, icon: Truck, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
           { label: "Total Orders", value: purchases.length, icon: Package, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30" },
         ].map((stat, i) => (
           <div key={i} className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm flex items-center gap-5">
@@ -67,19 +137,104 @@ export default function PurchasesPage() {
       </div>
 
       {/* FILTERS & SEARCH */}
-      <div className="flex flex-col md:flex-row items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input 
-            placeholder="Search invoice or supplier..." 
-            className="pl-11 h-12 bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl focus:bg-white dark:focus:bg-slate-900 transition-all"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      <div className="space-y-4">
+        <div className="flex flex-col md:flex-row items-center gap-4 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Search invoice or supplier..." 
+              className="pl-11 h-12 bg-slate-50 dark:bg-slate-950 border-transparent rounded-xl focus:bg-white dark:focus:bg-slate-900 transition-all"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+            {isFiltered && (
+              <Button variant="ghost" onClick={clearAllFilters} className="h-12 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-rose-500 gap-2">
+                <RotateCcw className="h-3.5 w-3.5" /> Reset
+              </Button>
+            )}
+            <Button 
+              variant={showFilters ? "default" : "outline"} 
+              onClick={() => setShowFilters(!showFilters)}
+              className="h-12 rounded-xl border-slate-200 dark:border-slate-700 gap-2 px-6"
+            >
+              <Filter className="h-4 w-4" /> Filters
+            </Button>
+          </div>
         </div>
-        <Button variant="outline" className="h-12 rounded-xl border-slate-200 dark:border-slate-700 gap-2 px-6">
-          <Filter className="h-4 w-4" /> Filters
-        </Button>
+
+        {/* Collapsible Filters Panel */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-6"
+            >
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                {/* Date Range Selector */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Date Range</label>
+                  <Select value={dateRange} onValueChange={setDateRange}>
+                    <SelectTrigger className="h-11 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4">
+                      <SelectValue placeholder="All Time" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                      <SelectItem value="all">All Time</SelectItem>
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="7days">Last 7 Days</SelectItem>
+                      <SelectItem value="30days">Last 30 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Supplier Selector */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Supplier</label>
+                  <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
+                    <SelectTrigger className="h-11 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4">
+                      <SelectValue placeholder="All Suppliers" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                      <SelectItem value="all">All Suppliers</SelectItem>
+                      <SelectItem value="none">No Supplier / Walk-in</SelectItem>
+                      {suppliers.map((s: any) => (
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Min Amount */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Min Amount (Le)</label>
+                  <Input 
+                    type="number" 
+                    placeholder="Min Amount" 
+                    value={minAmount} 
+                    onChange={(e) => setMinAmount(e.target.value)} 
+                    className="h-11 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4"
+                  />
+                </div>
+
+                {/* Max Amount */}
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Max Amount (Le)</label>
+                  <Input 
+                    type="number" 
+                    placeholder="Max Amount" 
+                    value={maxAmount} 
+                    onChange={(e) => setMaxAmount(e.target.value)} 
+                    className="h-11 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4"
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* DATA TABLE */}
@@ -121,9 +276,11 @@ export default function PurchasesPage() {
                 <TableRow key={purchase.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors cursor-pointer border-slate-100 dark:border-slate-800">
                   <TableCell className="px-8 py-6 font-black text-slate-900 dark:text-white">{purchase.invoiceNumber}</TableCell>
                   <TableCell className="font-bold text-slate-600 dark:text-slate-400">{purchase.supplier?.name || "N/A"}</TableCell>
-                  <TableCell className="text-slate-500 flex items-center gap-2">
-                    <Calendar className="h-3.5 w-3.5" />
-                    {format(new Date(purchase.createdAt), "MMM d, yyyy")}
+                  <TableCell className="text-slate-500">
+                    <div className="flex items-center gap-2">
+                      <Calendar className="h-3.5 w-3.5" />
+                      {format(new Date(purchase.createdAt), "MMM d, yyyy")}
+                    </div>
                   </TableCell>
                   <TableCell>
                     <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-[10px] font-black uppercase text-slate-600 dark:text-slate-400">

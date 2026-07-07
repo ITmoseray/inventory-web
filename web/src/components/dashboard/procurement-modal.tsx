@@ -59,7 +59,7 @@ const itemSchema = z.object({
 });
 
 const purchaseSchema = z.object({
-  supplierId: z.string().min(1, "Supplier is required"),
+  supplierId: z.string().optional(),
   invoiceNumber: z.string().min(1, "Invoice number is required"),
   items: z.array(itemSchema).min(1, "At least one item is required"),
   notes: z.string().optional(),
@@ -80,7 +80,7 @@ export function ProcurementModal({
   const form = useForm<PurchaseFormValues>({
     resolver: zodResolver(purchaseSchema),
     defaultValues: {
-      supplierId: "",
+      supplierId: "none",
       invoiceNumber: `PO-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000)}`,
       items: [{ productId: "", quantity: 1, unitCost: 0, total: 0 }],
       notes: "",
@@ -187,7 +187,7 @@ export function ProcurementModal({
     setLoading(true);
     try {
       const result = await createPurchase({
-        supplierId: data.supplierId,
+        supplierId: (data.supplierId && data.supplierId !== "none") ? data.supplierId : undefined,
         invoiceNumber: data.invoiceNumber,
         items: data.items.map(i => ({
           productId: i.productId,
@@ -259,11 +259,12 @@ export function ProcurementModal({
                   <Truck className="h-3.5 w-3.5 text-slate-400" />
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Primary Supplier</Label>
                 </div>
-                <Select value={form.watch("supplierId")} onValueChange={(val: string | null) => form.setValue("supplierId", val ?? "")}>
+                <Select value={form.watch("supplierId") || "none"} onValueChange={(val: string | null) => form.setValue("supplierId", val ?? "none")}>
                   <SelectTrigger className="h-11 sm:h-12 rounded-xl border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4">
                     <SelectValue placeholder="Identify Supplier" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                    <SelectItem value="none">No Supplier / Walk-in</SelectItem>
                     {suppliers.map((s: any) => (
                       <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
                     ))}
@@ -665,7 +666,16 @@ export function ProcurementModal({
             </Button>
             <Button 
               disabled={loading || items.some(i => !i.productId)}
-              onClick={form.handleSubmit(onSubmit)}
+              onClick={form.handleSubmit(onSubmit, (errors) => {
+                const firstError = Object.values(errors)[0] as any;
+                if (firstError?.message) {
+                  toast.error(firstError.message);
+                } else if (errors.items) {
+                  toast.error("Please add at least one item and ensure all fields are filled.");
+                } else {
+                  toast.error("Please fill in all required fields.");
+                }
+              })}
               className="h-14 sm:h-12 px-10 bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground rounded-xl font-[1000] text-[10px] uppercase tracking-[0.25em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/10 flex items-center justify-center gap-2"
             >
               {loading ? (
