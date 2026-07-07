@@ -52,6 +52,7 @@ import Image from "next/image";
 
 const itemSchema = z.object({
   productId: z.string().min(1, "Product is required"),
+  unitId: z.string().optional(),
   quantity: z.number().min(1, "Quantity must be at least 1"),
   unitCost: z.number().min(0, "Unit cost must be at least 0"),
   total: z.number(),
@@ -110,6 +111,41 @@ export function ProcurementModal({
   const subtotal = useMemo(() => items.reduce((acc, item) => acc + (item.total || 0), 0), [items]);
   const itemCount = useMemo(() => items.reduce((acc, item) => acc + (item.quantity || 0), 0), [items]);
 
+  const getProductUnitsList = (product: any) => {
+    const list = [
+      {
+        id: "base",
+        name: product.baseUnit || "Unit",
+        ratio: 1,
+        costPrice: product.costPrice || 0,
+      }
+    ];
+
+    if (product.units && Array.isArray(product.units)) {
+      product.units.forEach((u: any) => {
+        let label = `Pack of ${u.ratio}`;
+        const meta = product.metadata?.packagingUnits;
+        if (meta && Array.isArray(meta)) {
+          const found = meta.find((m: any) => 
+            Number(m.unitsPerPackage) === Number(u.ratio) && 
+            m.sellingUnitName === u.name
+          );
+          if (found && found.purchaseUnitName) {
+            label = `${found.purchaseUnitName} (Pack of ${u.ratio})`;
+          }
+        }
+        
+        list.push({
+          id: u.id,
+          name: label,
+          ratio: u.ratio,
+          costPrice: Math.round((u.costPrice || 0) * u.ratio),
+        });
+      });
+    }
+    return list;
+  };
+
   const handleProductChange = (index: number, productId: string) => {
     const product = products.find((p) => p.id === productId);
     if (product) {
@@ -117,10 +153,25 @@ export function ProcurementModal({
       const unitCost = Math.round(product.costPrice ?? 0);
       update(index, {
         productId,
+        unitId: undefined,
         quantity,
         unitCost,
         total: Math.round(quantity * unitCost),
       });
+    }
+  };
+
+  const handleUnitChange = (index: number, unitId: string) => {
+    const productId = form.getValues(`items.${index}.productId`);
+    const product = products.find((p) => p.id === productId);
+    if (product) {
+      const unitsList = getProductUnitsList(product);
+      const selectedUnit = unitsList.find(u => u.id === unitId) || unitsList[0];
+      const quantity = Math.round(form.getValues(`items.${index}.quantity`) || 1);
+      
+      form.setValue(`items.${index}.unitId`, selectedUnit.id === "base" ? undefined : selectedUnit.id);
+      form.setValue(`items.${index}.unitCost`, selectedUnit.costPrice);
+      form.setValue(`items.${index}.total`, quantity * selectedUnit.costPrice);
     }
   };
 
@@ -140,6 +191,7 @@ export function ProcurementModal({
         invoiceNumber: data.invoiceNumber,
         items: data.items.map(i => ({
           productId: i.productId,
+          unitId: i.unitId,
           quantity: i.quantity,
           unitCost: i.unitCost,
           total: i.total
@@ -298,8 +350,9 @@ export function ProcurementModal({
                   <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
                     <tr>
                       <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Product / Item Name</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-52 text-center">Qty</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-56 text-right">Unit Cost</th>
+                      <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-44 text-left">Purchase Unit</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-48 text-center">Qty</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-52 text-right">Unit Cost</th>
                       <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-40 text-right">Total</th>
                       <th className="px-4 py-4 w-12"></th>
                     </tr>
@@ -341,6 +394,31 @@ export function ProcurementModal({
                                   ))}
                                 </SelectContent>
                               </Select>
+                            </td>
+                            <td className="px-4 py-4 w-44">
+                              {(() => {
+                                const prodId = form.watch(`items.${index}.productId`);
+                                const product = products.find(p => p.id === prodId);
+                                const unitsList = product ? getProductUnitsList(product) : [];
+                                return (
+                                  <Select
+                                    value={form.watch(`items.${index}.unitId`) || "base"}
+                                    onValueChange={(val) => handleUnitChange(index, val)}
+                                    disabled={!product}
+                                  >
+                                    <SelectTrigger className="h-10 border-transparent bg-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-all rounded-lg font-bold">
+                                      <SelectValue placeholder="Select unit" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                      {unitsList.map((u) => (
+                                        <SelectItem key={u.id} value={u.id}>
+                                          {u.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                );
+                              })()}
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center justify-center gap-2">
@@ -432,6 +510,33 @@ export function ProcurementModal({
                              <Trash2 size={14} />
                            </button>
                         </div>
+
+                        {(() => {
+                          const prodId = form.watch(`items.${index}.productId`);
+                          const product = products.find(p => p.id === prodId);
+                          const unitsList = product ? getProductUnitsList(product) : [];
+                          if (!product) return null;
+                          return (
+                            <div className="space-y-1.5 pt-1">
+                              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Purchase Unit</Label>
+                              <Select
+                                value={form.watch(`items.${index}.unitId`) || "base"}
+                                onValueChange={(val) => handleUnitChange(index, val)}
+                              >
+                                <SelectTrigger className="h-10 border border-slate-200 dark:border-slate-800 bg-transparent rounded-xl font-bold w-full px-3 text-xs">
+                                  <SelectValue placeholder="Select unit" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800">
+                                  {unitsList.map((u) => (
+                                    <SelectItem key={u.id} value={u.id}>
+                                      {u.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        })()}
 
                         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-50 dark:border-slate-800/50">
                            <div className="space-y-1.5">

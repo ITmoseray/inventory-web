@@ -43,6 +43,7 @@ export async function createPurchase(data: {
       // 2. Update Stock Levels and record Stock Movements
       for (const item of data.items) {
         let actualQuantity = item.quantity;
+        let baseUnitCost = item.unitCost;
         
         // Convert to base units if unitId is provided
         if (item.unitId) {
@@ -50,7 +51,15 @@ export async function createPurchase(data: {
              where: { id: item.unitId }
           });
           if (unit) {
-            actualQuantity = item.quantity * unit.ratio.toNumber();
+            const ratioVal = unit.ratio.toNumber();
+            actualQuantity = item.quantity * ratioVal;
+            baseUnitCost = item.unitCost / ratioVal;
+
+            // Update the specific ProductUnit's costPrice to the new base unit cost
+            await tx.productUnit.update({
+              where: { id: item.unitId },
+              data: { costPrice: baseUnitCost }
+            });
           }
         }
 
@@ -60,7 +69,7 @@ export async function createPurchase(data: {
             stockQuantity: {
               increment: actualQuantity,
             },
-            costPrice: item.unitCost, // Update cost price to the latest purchase price
+            costPrice: baseUnitCost, // Update cost price to the latest purchase price per base unit
           },
         });
 
