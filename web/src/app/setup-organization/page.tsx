@@ -383,7 +383,7 @@ export default function SetupOrganizationPage() {
 
       {/* Welcome Board Tour Modal */}
       <Dialog open={showWelcomeModal} onOpenChange={setShowWelcomeModal}>
-        <DialogContent className="sm:max-w-[550px] bg-white rounded-[3rem] border-none p-0 overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.3)]">
+        <DialogContent className="sm:max-w-[550px] bg-white rounded-[3rem] border-none p-0 overflow-hidden shadow-[0_40px_120px_-20px_rgba(0,0,0,0.3)] dark:bg-slate-950">
           <div className="relative p-12">
             <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2 opacity-60" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl -z-10 translate-y-1/2 -translate-x-1/2 opacity-40" />

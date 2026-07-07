@@ -51,7 +51,7 @@ export async function createStockTransfer(data: {
       }
     });
 
-    const availableQty = sourceStock ? Number(sourceStock.quantity) : 0;
+    const availableQty = sourceStock ? Number(sourceStock.quantity?.toString() || 0) : 0;
     if (availableQty < data.quantity) {
       throw new Error(`Insufficient stock in source location. Available: ${availableQty}`);
     }
@@ -103,7 +103,7 @@ export async function completeStockTransfer(transferId: string) {
         }
       });
 
-      if (!sourceStock || Number(sourceStock.quantity) < Number(transfer.quantity)) {
+      if (!sourceStock || Number(sourceStock.quantity?.toString() || 0) < Number(transfer.quantity?.toString() || 0)) {
         throw new Error("Insufficient stock in source location to complete this transfer.");
       }
 
@@ -145,7 +145,7 @@ export async function completeStockTransfer(transferId: string) {
       await tx.stockMovement.create({
         data: {
           productId: transfer.productId,
-          quantity: -Number(transfer.quantity),
+          quantity: -Number(transfer.quantity?.toString() || 0),
           type: "OUT",
           reason: `Transfer to Location ID: ${transfer.toLocationId}`,
           businessId,
@@ -156,7 +156,7 @@ export async function completeStockTransfer(transferId: string) {
       await tx.stockMovement.create({
         data: {
           productId: transfer.productId,
-          quantity: Number(transfer.quantity),
+          quantity: Number(transfer.quantity?.toString() || 0),
           type: "IN",
           reason: `Transfer from Location ID: ${transfer.fromLocationId}`,
           businessId,

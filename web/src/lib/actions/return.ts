@@ -17,6 +17,14 @@ export async function processReturn(data: {
     const userId = session.user.id;
 
     await prisma.$transaction(async (tx) => {
+      // Verify sale belongs to this business
+      const sale = await tx.sale.findUnique({
+        where: { id: data.saleId }
+      });
+      if (!sale || sale.businessId !== businessId) {
+        throw new Error("Sale not found or unauthorized");
+      }
+
       let totalAmountReturned = 0;
 
       for (const item of data.items) {
@@ -33,7 +41,7 @@ export async function processReturn(data: {
         }
 
         // Calculate total amount to deduct
-        const totalToDeduct = Number(saleItem.unitPrice) * item.quantity;
+        const totalToDeduct = Number(saleItem.unitPrice?.toString() || 0) * item.quantity;
         totalAmountReturned += totalToDeduct;
 
         // 1. Update Stock (Increment back)
@@ -93,8 +101,8 @@ export async function processReturn(data: {
         where: { saleId: data.saleId }
       });
       if (debt) {
-        const updatedTotalAmount = Math.max(0, Number(debt.totalAmount) - totalAmountReturned);
-        const isFullyPaid = updatedTotalAmount <= Number(debt.paidAmount);
+        const updatedTotalAmount = Math.max(0, Number(debt.totalAmount?.toString() || 0) - totalAmountReturned);
+        const isFullyPaid = updatedTotalAmount <= Number(debt.paidAmount?.toString() || 0);
         await tx.debt.update({
           where: { id: debt.id },
           data: {

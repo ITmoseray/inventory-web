@@ -12,14 +12,20 @@ export async function getCustomers() {
 
     const customers = await prisma.customer.findMany({
       where: { businessId: session.user.businessId },
+      include: { sales: { select: { totalAmount: true } } },
       orderBy: { createdAt: "desc" },
     });
 
-    return customers.map(c => ({
-      ...c,
-      createdAt: c.createdAt.toISOString(),
-      updatedAt: c.updatedAt.toISOString(),
-    }));
+    return customers.map(c => {
+      const totalSpend = c.sales.reduce((sum, sale) => sum + Number(sale.totalAmount || 0), 0);
+      return {
+        ...c,
+        sales: undefined, // remove raw sales array from response payload
+        totalSpend,
+        createdAt: c.createdAt.toISOString(),
+        updatedAt: c.updatedAt.toISOString(),
+      };
+    });
   } catch (error) {
     console.error("Failed to fetch customers:", error);
     throw error;

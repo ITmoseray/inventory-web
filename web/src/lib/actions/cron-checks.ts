@@ -20,8 +20,8 @@ export async function runAutomatedSystemChecks() {
     // Group low stock by business
     const lowStockByBusiness: Record<string, typeof allProducts> = {};
     for (const p of allProducts) {
-      const stock = Number(p.stockQuantity);
-      const minLevel = Number(p.minStockLevel);
+      const stock = Number(p.stockQuantity?.toString() || 0);
+      const minLevel = Number(p.minStockLevel?.toString() || 0);
       if (stock <= minLevel) {
         if (!lowStockByBusiness[p.businessId]) {
           lowStockByBusiness[p.businessId] = [];

@@ -72,17 +72,17 @@ export async function performGlobalSearch(query: string) {
   return {
     products: products.map((p) => ({
       ...p,
-      unitPrice: Number(p.unitPrice),
-      stockQuantity: Number(p.stockQuantity),
+      unitPrice: Number(p.unitPrice?.toString() || 0),
+      stockQuantity: Number(p.stockQuantity?.toString() || 0),
     })),
     customers,
     sales: sales.map((s) => ({
       ...s,
-      totalAmount: Number(s.totalAmount),
+      totalAmount: Number(s.totalAmount?.toString() || 0),
     })),
     expenses: expenses.map((e) => ({
       ...e,
-      amount: Number(e.amount),
+      amount: Number(e.amount?.toString() || 0),
     })),
   };
 }

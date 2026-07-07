@@ -258,7 +258,7 @@ export async function getSales() {
     return sales.map(s => ({
       id: s.id,
       invoiceNumber: s.invoiceNumber,
-      totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : (s.totalAmount as any).toNumber?.() || Number(s.totalAmount) || 0,
+      totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : (s.totalAmount as any).toNumber?.() || Number(s.totalAmount?.toString() || 0) || 0,
       paymentMethod: s.paymentMethod,
       paymentStatus: s.paymentStatus,
       status: s.status,
@@ -270,8 +270,8 @@ export async function getSales() {
         productId: item.productId,
         name: item.productName || item.product?.name || "Unknown",
         quantity: item.quantity,
-        unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice) || 0,
-        total: typeof item.total === 'number' ? item.total : (item.total as any).toNumber?.() || Number(item.total) || 0
+        unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice?.toString() || 0) || 0,
+        total: typeof item.total === 'number' ? item.total : (item.total as any).toNumber?.() || Number(item.total?.toString() || 0) || 0
       }))
     }));
     } catch (error: any) {
@@ -332,7 +332,7 @@ export async function getSalesHistoryByRange(start: Date, end: Date) {
     return sales.map(s => ({
       id: s.id,
       invoiceNumber: s.invoiceNumber,
-      totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : (s.totalAmount as any).toNumber?.() || Number(s.totalAmount) || 0,
+      totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : (s.totalAmount as any).toNumber?.() || Number(s.totalAmount?.toString() || 0) || 0,
       paymentMethod: s.paymentMethod,
       paymentStatus: s.paymentStatus,
       status: s.status,
@@ -344,8 +344,8 @@ export async function getSalesHistoryByRange(start: Date, end: Date) {
         productId: item.productId,
         name: item.productName || item.product?.name || "Unknown",
         quantity: item.quantity,
-        unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice) || 0,
-        total: typeof item.total === 'number' ? item.total : (item.total as any).toNumber?.() || Number(item.total) || 0
+        unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice?.toString() || 0) || 0,
+        total: typeof item.total === 'number' ? item.total : (item.total as any).toNumber?.() || Number(item.total?.toString() || 0) || 0
       }))
     }));
     } catch (error: any) {

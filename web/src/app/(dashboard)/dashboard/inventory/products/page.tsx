@@ -972,7 +972,9 @@ export default function ProductsPage() {
                          </div>
                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                            <div className="space-y-2">
-                             <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In-Stock Volume</Label>
+                             <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                               In-Stock Volume {formData.packagingUnits.length > 0 ? `(in ${formData.packagingUnits[0].sellingUnitName || formData.baseUnit}s)` : `(in ${formData.baseUnit}s)`}
+                             </Label>
                              <div className="flex items-center gap-2">
                                 <Button
                                    type="button"
@@ -1001,7 +1003,9 @@ export default function ProductsPage() {
                              </div>
                            </div>
                            <div className="space-y-2">
-                             <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Min Stock Alert</Label>
+                             <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                               Min Stock Alert {formData.packagingUnits.length > 0 ? `(in ${formData.packagingUnits[0].sellingUnitName || formData.baseUnit}s)` : `(in ${formData.baseUnit}s)`}
+                             </Label>
                              <Input
                                type="number"
                                value={formData.minStockLevel}

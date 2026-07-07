@@ -145,7 +145,7 @@ export default function PayrollPage() {
                  <Plus className="h-4 w-4 mr-2" /> Initialize Payout Node
               </Button>
            } />
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white max-w-md">
+           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white max-w-md dark:bg-slate-950">
               <div className="bg-slate-900 p-8 text-white">
                  <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic">Record Compensation</h3>
                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Disbursement Initialization</p>

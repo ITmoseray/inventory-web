@@ -84,10 +84,10 @@ export default function SalesReturnsPage() {
         </Button>
       </div>
 
-      <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden">
-        <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50">
-           <div className="flex flex-col md:flex-row gap-4 justify-between">
-              <div className="relative flex-1 max-w-md group">
+      <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden w-full">
+        <CardHeader className="p-4 sm:p-8 border-b border-slate-100/50 dark:border-slate-800/50">
+           <div className="flex flex-col md:flex-row gap-4 justify-between w-full">
+              <div className="relative flex-1 max-w-md group w-full">
                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                  <Input 
                    placeholder="Search product or return reason..." 
@@ -101,18 +101,18 @@ export default function SalesReturnsPage() {
               </Button>
            </div>
         </CardHeader>
-        <CardContent className="p-0">
-           <div className="overflow-x-auto">
-              <Table>
-                <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                  <TableRow className="hover:bg-transparent border-none">
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Product Node</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Date</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Quantity</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Processor</TableHead>
-                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Reasoning</TableHead>
-                  </TableRow>
-                </TableHeader>
+         <CardContent className="p-0 w-full">
+            <div className="overflow-x-auto w-full">
+               <Table className="w-full min-w-[500px]">
+                 <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                   <TableRow className="hover:bg-transparent border-none">
+                     <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-4 sm:px-8">Product Node</TableHead>
+                     <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Date</TableHead>
+                     <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Quantity</TableHead>
+                     <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Processor</TableHead>
+                     <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-4 sm:pr-8">Reasoning</TableHead>
+                   </TableRow>
+                 </TableHeader>
                 <TableBody>
                   {loading ? (
                     Array.from({ length: 5 }).map((_, i) => (
@@ -139,9 +139,9 @@ export default function SalesReturnsPage() {
                   ) : (
                     filteredReturns.map((ret) => (
                       <TableRow key={ret.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800/50">
-                        <TableCell className="px-8 h-20">
+                        <TableCell className="px-4 sm:px-8 h-20">
                           <div className="flex items-center gap-3">
-                             <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+                             <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
                                 <Package size={18} className="text-slate-400" />
                              </div>
                              <div className="font-black text-slate-900 dark:text-white tracking-tight">{ret.productName}</div>
@@ -165,7 +165,7 @@ export default function SalesReturnsPage() {
                              {ret.userName}
                           </div>
                         </TableCell>
-                        <TableCell className="text-right pr-8">
+                        <TableCell className="text-right pr-4 sm:pr-8">
                           <span className="text-[10px] font-bold text-slate-400 italic uppercase tracking-wider">{ret.reason || "Manual Adjustment"}</span>
                         </TableCell>
                       </TableRow>

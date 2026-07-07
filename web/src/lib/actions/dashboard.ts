@@ -189,7 +189,7 @@ export async function getDashboardStats() {
          name: item.productName || 'Unknown Product',
          category: product?.category?.name || 'General',
          quantitySold: item._sum.quantity || 0,
-         revenue: Number(item._sum.total || 0)
+         revenue: Number(item._sum.total?.toString() || 0)
        };
      });
 
@@ -205,14 +205,14 @@ export async function getDashboardStats() {
         id: item.userId,
         name: user?.name || 'Unknown Staff',
         role: user?.role?.name || 'STAFF',
-        revenue: Number(item._sum.totalAmount || 0)
+        revenue: Number(item._sum.totalAmount?.toString() || 0)
       };
     });
 
     // 1. Calculate Revenue Sums
-    const totalAllTimeRevenue = Number(revenueData._sum.totalAmount || 0) + Number(debtPaymentData._sum.amount || 0);
-    const todayRevenue = Number(todayRevenueData._sum.totalAmount || 0) + Number(todayDebtPaymentData._sum.amount || 0);
-    const yesterdayRevenue = Number(yesterdayRevenueData._sum.totalAmount || 0) + Number(yesterdayDebtPaymentData._sum.amount || 0);
+    const totalAllTimeRevenue = Number(revenueData._sum.totalAmount?.toString() || 0) + Number(debtPaymentData._sum.amount?.toString() || 0);
+    const todayRevenue = Number(todayRevenueData._sum.totalAmount?.toString() || 0) + Number(todayDebtPaymentData._sum.amount?.toString() || 0);
+    const yesterdayRevenue = Number(yesterdayRevenueData._sum.totalAmount?.toString() || 0) + Number(yesterdayDebtPaymentData._sum.amount?.toString() || 0);
 
     // 2. Calculate Growth Percentages
     const revenueChange = yesterdayRevenue === 0 

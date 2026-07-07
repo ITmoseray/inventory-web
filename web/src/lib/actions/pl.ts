@@ -46,7 +46,7 @@ export async function getProfitLossData(start: Date, end: Date) {
     });
 
     const totalRevenue = sales.reduce(
-      (sum, s) => sum + Number(s.totalAmount),
+      (sum, s) => sum + Number(s.totalAmount?.toString() || 0),
       0
     );
 
@@ -59,7 +59,7 @@ export async function getProfitLossData(start: Date, end: Date) {
 
     const grossProfit = totalRevenue - totalCOGS;
     const operatingExpenses = expenses.reduce(
-      (sum, e) => sum + Number(e.amount),
+      (sum, e) => sum + Number(e.amount?.toString() || 0),
       0
     );
     const netProfit = grossProfit - operatingExpenses;

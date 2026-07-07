@@ -195,3 +195,33 @@ export async function getPurchases() {
     throw error;
   }
 }
+
+export async function createDraftPurchase(productId: string, quantity: number, unitCost: number) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
+
+    const purchase = await prisma.purchase.create({
+      data: {
+        invoiceNumber: `DRAFT-${Date.now()}`,
+        totalAmount: quantity * unitCost,
+        status: "DRAFT",
+        businessId: session.user.businessId,
+        userId: session.user.id,
+        items: {
+          create: [{
+            productId: productId,
+            quantity: quantity,
+            unitCost: unitCost,
+            total: quantity * unitCost,
+            businessId: session.user.businessId,
+          }]
+        }
+      }
+    });
+    return { success: true, id: purchase.id };
+  } catch (error) {
+    console.error("Draft PO Error:", error);
+    throw new Error("Failed to create Draft PO");
+  }
+}

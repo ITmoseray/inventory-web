@@ -96,10 +96,10 @@ export async function recordPayment(invoiceId: string, data: { amount: number; p
 
   // Check if invoice is fully paid
   const payments = await prisma.payment.findMany({ where: { invoiceId } });
-  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount), 0);
+  const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount?.toString() || 0), 0);
   const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
 
-  if (invoice && totalPaid >= Number(invoice.amount)) {
+  if (invoice && totalPaid >= Number(invoice.amount?.toString() || 0)) {
     await prisma.invoice.update({
       where: { id: invoiceId },
       data: { status: "PAID" },

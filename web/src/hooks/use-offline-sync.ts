@@ -50,6 +50,7 @@ export function useOfflineSync() {
         id: p.id,
         name: p.name,
         sku: p.sku,
+        barcode: p.barcode,
         unitPrice: parseFloat(p.unitPrice),
         stockQuantity: parseFloat(p.stockQuantity),
         categoryId: p.categoryId,

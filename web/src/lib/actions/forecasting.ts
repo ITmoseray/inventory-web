@@ -45,7 +45,7 @@ export async function getInventoryForecast(businessId: string) {
     const velocityMap = new Map();
     saleItems.forEach(item => {
       // average daily sales over 30 days
-      const totalSold = Number(item._sum.quantity || 0);
+      const totalSold = Number(item._sum.quantity?.toString() || 0);
       const dailyVelocity = totalSold / 30;
       velocityMap.set(item.productId, dailyVelocity);
     });

@@ -100,7 +100,7 @@ export default function ReturnsPage() {
       <div className="grid gap-8 lg:grid-cols-2">
          {/* Search & Select Sale */}
          <div className="space-y-6">
-            <Card className="border-none shadow-sm bg-white dark:bg-slate-900 p-4 rounded-3xl">
+            <Card className="border-none shadow-sm bg-white dark:bg-slate-900 p-2 sm:p-4 rounded-3xl">
                <div className="relative group">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                   <Input 
@@ -112,13 +112,13 @@ export default function ReturnsPage() {
                </div>
             </Card>
 
-            <div className="rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden overflow-x-auto custom-scrollbar">
+            <div className="rounded-[2rem] border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden overflow-x-auto custom-scrollbar w-full">
                <Table className="min-w-[400px]">
                   <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                      <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
-                        <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-8">Invoice</TableHead>
+                        <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-4 sm:pl-8">Invoice</TableHead>
                         <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Customer</TableHead>
-                        <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-right pr-8">Value</TableHead>
+                        <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-right pr-4 sm:pr-8">Value</TableHead>
                      </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -138,15 +138,15 @@ export default function ReturnsPage() {
                              )}
                              onClick={() => handleSelectSale(sale)}
                            >
-                              <TableCell className="pl-8 py-4">
-                                 <div className="font-black text-slate-800 dark:text-slate-200 text-sm">{sale.invoiceNumber}</div>
+                              <TableCell className="pl-4 sm:pl-8 py-4">
+                                 <div className="font-black text-slate-800 dark:text-slate-200 text-xs sm:text-sm">{sale.invoiceNumber}</div>
                                  <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">{format(new Date(sale.createdAt), "MMM dd, yyyy")}</div>
                               </TableCell>
                               <TableCell>
                                  <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{sale.customer?.name || "Walk-in"}</div>
                               </TableCell>
-                              <TableCell className="text-right pr-8">
-                                 <div className="font-black text-slate-900 dark:text-white">Le {sale.totalAmount.toLocaleString()}</div>
+                              <TableCell className="text-right pr-4 sm:pr-8">
+                                 <div className="font-black text-slate-900 dark:text-white text-xs sm:text-sm">Le {sale.totalAmount.toLocaleString()}</div>
                               </TableCell>
                            </TableRow>
                         ))
@@ -159,7 +159,7 @@ export default function ReturnsPage() {
          {/* Return Processing Form */}
          <div className="space-y-6" ref={formRef}>
             {!selectedSale ? (
-               <Card className="h-full border-dashed border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 rounded-[2rem] flex flex-col items-center justify-center p-12 text-center">
+               <Card className="h-full border-dashed border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 rounded-[2rem] flex flex-col items-center justify-center p-6 sm:p-12 text-center min-h-[300px]">
                   <div className="bg-white dark:bg-slate-800 p-6 rounded-full shadow-sm mb-6">
                      <RotateCcw className="h-12 w-12 text-slate-200 dark:text-slate-700" />
                   </div>
@@ -167,21 +167,21 @@ export default function ReturnsPage() {
                </Card>
             ) : (
                <Card className="border-none shadow-2xl bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden animate-in slide-in-from-right-4 duration-500">
-                  <div className="bg-slate-900 dark:bg-slate-950 p-8 text-white">
+                  <div className="bg-slate-900 dark:bg-slate-950 p-6 sm:p-8 text-white">
                      <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 bg-rose-500 rounded-lg">
                            <RotateCcw className="h-4 w-4" />
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-300">Inventory Restoration</span>
                      </div>
-                     <h2 className="text-2xl font-[1000] tracking-tight">Return for {selectedSale.invoiceNumber}</h2>
+                     <h2 className="text-xl sm:text-2xl font-[1000] tracking-tight">Return for {selectedSale.invoiceNumber}</h2>
                   </div>
 
-                  <CardContent className="p-8 space-y-8">
+                  <CardContent className="p-4 sm:p-8 space-y-6 sm:space-y-8">
                      <div className="space-y-4">
                         <h3 className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-widest">Select Items & Quantities</h3>
-                        <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden overflow-x-auto custom-scrollbar">
-                           <Table className="min-w-[300px]">
+                        <div className="rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden overflow-x-auto custom-scrollbar w-full">
+                           <Table className="min-w-[300px] w-full">
                               <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
                                  <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
                                     <TableHead className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-550">Product</TableHead>
@@ -220,7 +220,7 @@ export default function ReturnsPage() {
                         </div>
                      </div>
 
-                     <div className="flex gap-4">
+                     <div className="flex flex-col sm:flex-row gap-4">
                         <Button 
                            variant="outline" 
                            className="flex-1 h-12 rounded-xl font-bold border-slate-100 dark:border-slate-800 text-slate-400 dark:text-slate-500"

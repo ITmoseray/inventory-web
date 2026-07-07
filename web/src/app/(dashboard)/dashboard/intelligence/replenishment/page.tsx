@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/table";
 import { toast } from "sonner";
 import { getPredictiveReplenishment } from "@/lib/actions/ai";
+import { createDraftPurchase } from "@/lib/actions/purchase";
+import { useSession } from "next-auth/react";
 import { cn } from "@/lib/utils";
 
 export default function AIReplenishmentPage() {
@@ -115,7 +117,8 @@ export default function AIReplenishmentPage() {
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Days Remaining</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Status</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Auto Recommendation</TableHead>
-              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pr-6">Est. Cost</TableHead>
+              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Est. Cost</TableHead>
+              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pr-6">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -171,10 +174,30 @@ export default function AIReplenishmentPage() {
                       <span className="text-slate-450 text-xs italic">Stock level stable</span>
                     )}
                   </TableCell>
-                  <TableCell className="pr-6">
+                  <TableCell>
                     <span className="font-black text-sm text-slate-905 dark:text-slate-300">
                       {pred.recommendedOrderQty > 0 ? `Le ${Math.round(pred.estimatedCost).toLocaleString()}` : "-"}
                     </span>
+                  </TableCell>
+                  <TableCell className="pr-6">
+                    {pred.status !== "OK" && pred.recommendedOrderQty > 0 && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={async () => {
+                           try {
+                             toast.loading("Drafting PO...", { id: "draft-po" });
+                             const res = await createDraftPurchase(pred.id, pred.recommendedOrderQty, pred.costPrice || 0);
+                             if (res.success) toast.success("Draft PO Created!", { id: "draft-po" });
+                           } catch (e) {
+                             toast.error("Failed to draft PO", { id: "draft-po" });
+                           }
+                        }}
+                        className="h-8 text-[10px] uppercase font-black tracking-widest text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                      >
+                        Draft PO
+                      </Button>
+                    )}
                   </TableCell>
                 </TableRow>
               ))

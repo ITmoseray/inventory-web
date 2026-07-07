@@ -398,7 +398,7 @@ export async function getPredictiveReplenishment() {
     const predictions = products.map(p => {
       const totalSold = velocityMap[p.id] || 0;
       const dailyVelocity = totalSold / 30;
-      const stock = Number(p.stockQuantity);
+      const stock = p.stockQuantity ? Number(p.stockQuantity.toString()) : 0;
       
       let daysRemaining = 999;
       if (dailyVelocity > 0) {
@@ -430,7 +430,7 @@ export async function getPredictiveReplenishment() {
         daysRemaining,
         status: recommendationStatus,
         recommendedOrderQty,
-        estimatedCost: recommendedOrderQty * Number(p.unitPrice),
+        estimatedCost: recommendedOrderQty * (p.unitPrice ? Number(p.unitPrice.toString()) : 0),
       };
     });
 

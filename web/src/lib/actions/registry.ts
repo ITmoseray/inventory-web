@@ -35,7 +35,7 @@ export async function getRegistryIntelligence() {
 
   // 1. Process Customers
   const customerNodes = customers.map(c => {
-    const totalVolume = c.sales.reduce((sum, s) => sum + Number(s.totalAmount), 0);
+    const totalVolume = c.sales.reduce((sum, s) => sum + Number(s.totalAmount?.toString() || 0), 0);
     const lastInteraction = c.sales.length > 0 ? c.sales[0].createdAt : c.createdAt;
     const daysSinceLastPurchase = (now.getTime() - lastInteraction.getTime()) / (1000 * 60 * 60 * 24);
 
@@ -73,7 +73,7 @@ export async function getRegistryIntelligence() {
 
   // 2. Process Suppliers
   const supplierNodes = suppliers.map(s => {
-    const totalVolume = s.purchases.reduce((sum, p) => sum + Number(p.totalAmount), 0);
+    const totalVolume = s.purchases.reduce((sum, p) => sum + Number(p.totalAmount?.toString() || 0), 0);
     const lastInteraction = s.purchases.length > 0 ? s.purchases[0].createdAt : s.createdAt;
     const daysSinceLastPurchase = (now.getTime() - lastInteraction.getTime()) / (1000 * 60 * 60 * 24);
 

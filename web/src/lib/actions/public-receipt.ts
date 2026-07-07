@@ -23,9 +23,9 @@ export async function getPublicReceipt(saleId: string) {
       id: sale.id,
       transactionId: sale.transactionId,
       date: sale.createdAt,
-      totalAmount: Number(sale.totalAmount),
-      amountPaid: Number(sale.amountPaid),
-      balance: Number(sale.balance),
+      totalAmount: Number(sale.totalAmount?.toString() || 0),
+      amountPaid: Number(sale.amountPaid?.toString() || 0),
+      balance: Number(sale.balance?.toString() || 0),
       paymentMethod: sale.paymentMethod,
       paymentStatus: sale.paymentStatus,
       status: sale.status,
@@ -44,8 +44,8 @@ export async function getPublicReceipt(saleId: string) {
         id: item.id,
         name: item.product.name,
         quantity: item.quantity,
-        unitPrice: Number(item.unitPrice),
-        subtotal: Number(item.subtotal),
+        unitPrice: Number(item.unitPrice?.toString() || 0),
+        subtotal: Number(item.subtotal?.toString() || 0),
       }))
     };
   } catch (error) {

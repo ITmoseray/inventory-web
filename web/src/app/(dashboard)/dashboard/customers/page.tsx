@@ -444,7 +444,7 @@ export default function CustomersPage() {
           </Card>
 
           <div className="rounded-[3rem] border-none bg-white dark:bg-slate-900 shadow-xl shadow-slate-100/50 dark:shadow-none overflow-hidden border border-slate-50 dark:border-slate-800">
-            <Table>
+                        <Table>
               <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
                 <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
                   <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-8 h-16">Client Intelligence Node</TableHead>
@@ -462,9 +462,21 @@ export default function CustomersPage() {
                         <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 font-[1000] text-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
                           {customer.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="flex flex-col">
-                          <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight uppercase italic">{customer.name}</span>
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Established: {format(new Date(customer.createdAt), "MMM yyyy")}</span>
+                        <div className="flex flex-col items-start">
+                          <div className="flex items-center gap-3">
+                            <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight uppercase italic">{customer.name}</span>
+                            {(() => {
+                              const spend = customer.totalSpend || 0;
+                              if (spend > 5000) return <Badge className="bg-gradient-to-r from-yellow-300 to-yellow-500 text-yellow-950 border-none shadow-lg uppercase font-[1000] text-[8px] tracking-widest px-2 py-0.5 animate-pulse">Gold</Badge>;
+                              if (spend > 1000) return <Badge className="bg-gradient-to-r from-slate-200 to-slate-400 text-slate-900 border-none shadow-md uppercase font-[1000] text-[8px] tracking-widest px-2 py-0.5">Silver</Badge>;
+                              return <Badge className="bg-gradient-to-r from-amber-600/20 to-amber-700/30 text-amber-700 dark:text-amber-500 border-none uppercase font-[1000] text-[8px] tracking-widest px-2 py-0.5">Bronze</Badge>;
+                            })()}
+                          </div>
+                          <div className="flex items-center gap-2 mt-1">
+                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Est: {new Date(customer.createdAt).toLocaleDateString()}</span>
+                             <span className="text-slate-300">•</span>
+                             <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">LTV: Le {Math.round(customer.totalSpend || 0).toLocaleString()}</span>
+                          </div>
                         </div>
                       </div>
                     </TableCell>
@@ -503,16 +515,12 @@ export default function CustomersPage() {
                             </button>
                           }
                         />
-                        <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl p-2 w-48">
+                        <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl p-2 w-48 bg-white dark:bg-slate-900">
                           <DropdownMenuItem onClick={() => handleEdit(customer)} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] gap-3">
                             <Pencil className="h-4 w-4 text-indigo-600" /> Edit Node
                           </DropdownMenuItem>
-                          <div className="h-px bg-slate-50 my-1" />
-                          <DropdownMenuItem 
-                            className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] gap-3 text-rose-600 focus:bg-rose-50 focus:text-rose-700"
-                            onClick={() => handleDelete(customer.id)}
-                          >
-                            <Trash2 className="h-4 w-4" /> Terminate Link
+                          <DropdownMenuItem onClick={() => handleDelete(customer.id)} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:focus:bg-rose-950 gap-3">
+                            <Trash2 className="h-4 w-4" /> Terminate Node
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>

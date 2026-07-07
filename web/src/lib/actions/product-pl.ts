@@ -34,7 +34,7 @@ export async function getProductProfitability(start: Date, end: Date) {
       const productId = item.productId || 'unknown';
       const name = item.productName || item.product?.name || "Unknown Product";
       const cost = Number(item.product?.costPrice || 0);
-      const revenue = Number(item.total);
+      const revenue = Number(item.total?.toString() || 0);
       
       if (!productMap[productId]) {
         productMap[productId] = { name, totalRevenue: 0, totalCost: 0, quantity: 0 };

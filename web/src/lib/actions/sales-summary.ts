@@ -29,7 +29,7 @@ export async function getSalesOrderSummary(start: Date, end: Date) {
         // Handle potential Decimal conversion issues defensively
         const amount = typeof sale.totalAmount === 'number' 
           ? sale.totalAmount 
-          : (sale.totalAmount as any).toNumber?.() || Number(sale.totalAmount) || 0;
+          : (sale.totalAmount as any).toNumber?.() || Number(sale.totalAmount?.toString() || 0) || 0;
         
         acc.totalAmount += amount;
         acc.totalOrders += 1;

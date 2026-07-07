@@ -149,7 +149,7 @@ export default function POSPage() {
     if (!result) return;
     try {
       const matched = await db.products
-        .filter(p => p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result))
+        .filter(p => p.barcode === result || p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result))
         .first();
 
       if (matched) {

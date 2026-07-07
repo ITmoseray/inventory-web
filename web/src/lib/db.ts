@@ -4,6 +4,7 @@ export interface LocalProduct {
   id: string;
   name: string;
   sku: string | null;
+  barcode: string | null;
   unitPrice: number;
   stockQuantity: number;
   categoryId: string | null;
@@ -44,8 +45,8 @@ export class OfflineDB extends Dexie {
 
   constructor() {
     super('UniversalBusinessPOS');
-    this.version(2).stores({
-      products: 'id, name, sku, categoryId',
+    this.version(3).stores({
+      products: 'id, name, sku, barcode, categoryId',
       categories: 'id, name',
       pendingSales: '++id, createdAt, synced'
     });

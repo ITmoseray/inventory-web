@@ -422,20 +422,41 @@ export function ProcurementModal({
                               })()}
                             </td>
                             <td className="px-6 py-4">
-                              <div className="flex items-center justify-center gap-2">
-                                <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); if (current > 1) { form.setValue(`items.${index}.quantity`, current - 1); handleQuantityCostChange(index); } }} className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200"><Minus size={16} /></button>
-                                <Input 
-                                  type="number" 
-                                  name={qtyReg.name}
-                                  ref={qtyReg.ref}
-                                  onBlur={qtyReg.onBlur}
-                                  onChange={async (e) => {
-                                    await qtyReg.onChange(e);
-                                    handleQuantityCostChange(index);
-                                  }}
-                                  className="h-11 w-20 text-center font-black rounded-xl" 
-                                />
-                                <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center"><Plus size={16} /></button>
+                              <div className="flex flex-col items-center justify-center gap-1">
+                                <div className="flex items-center justify-center gap-2">
+                                  <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); if (current > 1) { form.setValue(`items.${index}.quantity`, current - 1); handleQuantityCostChange(index); } }} className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center hover:bg-slate-200"><Minus size={16} /></button>
+                                  <Input 
+                                    type="number" 
+                                    name={qtyReg.name}
+                                    ref={qtyReg.ref}
+                                    onBlur={qtyReg.onBlur}
+                                    onChange={async (e) => {
+                                      await qtyReg.onChange(e);
+                                      handleQuantityCostChange(index);
+                                    }}
+                                    className="h-11 w-20 text-center font-black rounded-xl" 
+                                  />
+                                  <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center"><Plus size={16} /></button>
+                                </div>
+                                {(() => {
+                                  const prodId = form.watch(`items.${index}.productId`);
+                                  const unitId = form.watch(`items.${index}.unitId`);
+                                  const qty = form.watch(`items.${index}.quantity`) || 0;
+                                  const product = products.find(p => p.id === prodId);
+                                  if (!product) return null;
+                                  const unitsList = getProductUnitsList(product);
+                                  const selectedUnit = unitsList.find(u => u.id === (unitId || "base")) || unitsList[0];
+                                  const ratio = selectedUnit.ratio;
+                                  const baseUnitName = product.baseUnit || "Unit";
+                                  if (ratio > 1) {
+                                    return (
+                                      <span className="text-[9px] font-black uppercase text-emerald-600 tracking-widest bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md">
+                                        = {qty * ratio} {baseUnitName}s
+                                      </span>
+                                    );
+                                  }
+                                  return null;
+                                })()}
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -557,6 +578,25 @@ export function ProcurementModal({
                                  />
                                  <button type="button" onClick={() => { const current = form.getValues(`items.${index}.quantity`); form.setValue(`items.${index}.quantity`, current + 1); handleQuantityCostChange(index); }} className="h-8 w-8 rounded-lg bg-blue-600 text-white flex items-center justify-center"><Plus size={12} /></button>
                               </div>
+                              {(() => {
+                                const prodId = form.watch(`items.${index}.productId`);
+                                const unitId = form.watch(`items.${index}.unitId`);
+                                const qty = form.watch(`items.${index}.quantity`) || 0;
+                                const product = products.find(p => p.id === prodId);
+                                if (!product) return null;
+                                const unitsList = getProductUnitsList(product);
+                                const selectedUnit = unitsList.find(u => u.id === (unitId || "base")) || unitsList[0];
+                                const ratio = selectedUnit.ratio;
+                                const baseUnitName = product.baseUnit || "Unit";
+                                if (ratio > 1) {
+                                  return (
+                                    <div className="text-[9px] font-black uppercase text-emerald-600 tracking-widest bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-md w-fit">
+                                      = {qty * ratio} {baseUnitName}s
+                                    </div>
+                                  );
+                                }
+                                return null;
+                              })()}
                            </div>
                            <div className="space-y-1.5 text-right">
                               <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Purchase Cost</Label>
