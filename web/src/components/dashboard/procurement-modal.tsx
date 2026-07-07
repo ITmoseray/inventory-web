@@ -352,7 +352,7 @@ export function ProcurementModal({
                       <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">Product / Item Name</th>
                       <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-44 text-left">Purchase Unit</th>
                       <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-48 text-center">Qty</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-52 text-right">Unit Cost</th>
+                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-52 text-right">Purchase Cost</th>
                       <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 w-40 text-right">Total</th>
                       <th className="px-4 py-4 w-12"></th>
                     </tr>
@@ -558,7 +558,7 @@ export function ProcurementModal({
                               </div>
                            </div>
                            <div className="space-y-1.5 text-right">
-                              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Unit Cost</Label>
+                              <Label className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Purchase Cost</Label>
                               <div className="flex items-center justify-end gap-1.5">
                                  <span className="text-[10px] font-black text-slate-400">Le</span>
                                  <Input 
