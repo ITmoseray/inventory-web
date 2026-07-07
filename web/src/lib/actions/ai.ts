@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { getDashboardStats } from "./dashboard";
 import { getProducts } from "./product";
 import { getRecentSales } from "./sale";
@@ -354,7 +355,7 @@ export async function getPredictiveReplenishment() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const businessId = session.user.businessId;
-    const tenantPrisma = getTenantPrisma(businessId);
+    const tenantPrisma = prisma;
 
     // 1. Fetch sales items from the last 30 days
     const thirtyDaysAgo = new Date();
