@@ -171,8 +171,8 @@ export async function getPurchases() {
         unitCost: item.unitCost.toNumber(),
         total: item.total.toNumber(),
         businessId: item.businessId,
-        createdAt: item.createdAt.toISOString(),
-        updatedAt: item.updatedAt.toISOString(),
+        createdAt: p.createdAt.toISOString(),
+        updatedAt: p.updatedAt.toISOString(),
         product: item.product ? {
           id: item.product.id,
           name: item.product.name,
