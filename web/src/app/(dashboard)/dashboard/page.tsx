@@ -1040,7 +1040,7 @@ export default function DashboardPage() {
             <h3 className="text-2xl font-[1000] tracking-tight uppercase italic text-indigo-400">Protech Inventory Walkthrough</h3>
             <div className="relative aspect-video w-full rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 flex items-center justify-center">
               <iframe 
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                src="https://www.youtube.com/embed/QDjNOzNO42s" 
                 title="Product Walkthrough Guide"
                 className="absolute inset-0 w-full h-full border-none"
                 allowFullScreen
