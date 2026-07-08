@@ -643,11 +643,12 @@ export default function DashboardPage() {
                               </div>
                            </div>
                            <div onClick={() => setVideoModalOpen(true)} className="w-full md:w-[280px] h-[160px] md:h-[180px] bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group cursor-pointer relative overflow-hidden shrink-0">
-                              <div className="absolute inset-0 bg-indigo-600 opacity-0 group-hover:opacity-5 transition-opacity" />
+                              <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://img.youtube.com/vi/QDjNOzNO42s/maxresdefault.jpg')" }} />
+                              <div className="absolute inset-0 bg-slate-900/30 group-hover:bg-slate-900/10 transition-colors z-0" />
                               <div className="h-16 w-16 bg-white dark:bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-indigo-600 relative z-10 group-hover:scale-110 transition-transform shrink-0">
                                  <Play className="h-6 w-6 fill-current ml-1" />
                               </div>
-                              <p className="absolute bottom-6 text-[9px] font-black uppercase tracking-[0.3em] text-slate-400">Watch Video Guide</p>
+                              <p className="absolute bottom-6 text-[9px] font-black uppercase tracking-[0.3em] text-white z-10 drop-shadow-lg">Watch Video Guide</p>
                            </div>
                         </div>
                      </div>

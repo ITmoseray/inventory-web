@@ -219,7 +219,7 @@ export default function EmployeesPage() {
                           <SelectValue placeholder="Select Privilege Level" />
                        </SelectTrigger>
                        <SelectContent className="rounded-xl">
-                          {roles.map((r: any) => (
+                          {roles.filter((r: any) => r.name !== 'SUPER_ADMIN' && r.name !== 'Super Admin').map((r: any) => (
                             <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
                           ))}
                        </SelectContent>
