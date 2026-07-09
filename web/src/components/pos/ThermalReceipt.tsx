@@ -24,11 +24,7 @@ interface ThermalReceiptProps {
 export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
   ({ items, total, paid, paymentMethod, cashierName, customerName, transactionId, businessName, businessAddress, businessPhone, id }, ref) => {
     const date = new Date().toLocaleString();
-    const [baseUrl, setBaseUrl] = useState("");
-
-    useEffect(() => {
-      setBaseUrl(window.location.origin);
-    }, []);
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : "";
 
     return (
       <div ref={ref} className="bg-white text-black p-4 w-[80mm] mx-auto font-mono text-[12px] leading-tight flex flex-col print:m-0 print:p-2 print:shadow-none print:w-[80mm]">
