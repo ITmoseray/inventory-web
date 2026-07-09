@@ -48,15 +48,15 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Body */}
-        <div className="p-8">
-           <div className="flex items-center justify-between mb-6 pb-6 border-b border-dashed border-slate-200">
+        <div className="p-5 sm:p-8">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-6 border-b border-dashed border-slate-200 gap-4 sm:gap-0">
               <div className="flex flex-col">
-                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Transaction ID</span>
-                 <span className="text-sm font-black text-slate-900">{receipt.transactionId}</span>
+                 <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">Transaction ID</span>
+                 <span className="text-xs sm:text-sm font-black text-slate-900 break-all">{receipt.transactionId}</span>
               </div>
-              <div className="flex flex-col text-right">
-                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Date</span>
-                 <span className="text-sm font-black text-slate-900">{format(new Date(receipt.date), "MMM dd, yyyy h:mm a")}</span>
+              <div className="flex flex-col sm:text-right">
+                 <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest">Date</span>
+                 <span className="text-xs sm:text-sm font-black text-slate-900">{format(new Date(receipt.date), "MMM dd, yyyy h:mm a")}</span>
               </div>
            </div>
 
@@ -76,12 +76,12 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
                  <span>Total</span>
               </div>
               {receipt.items.map((item, i) => (
-                <div key={i} className="flex justify-between items-center group">
-                   <div className="flex flex-col">
-                      <span className="text-sm font-bold text-slate-900">{item.name}</span>
+                <div key={i} className="flex justify-between items-start group gap-3">
+                   <div className="flex flex-col min-w-0 flex-1">
+                      <span className="text-sm font-bold text-slate-900 break-words">{item.name}</span>
                       <span className="text-xs text-slate-500 font-medium">{item.quantity} x Le {Math.round(item.unitPrice).toLocaleString()}</span>
                    </div>
-                   <span className="text-sm font-black text-slate-900">Le {Math.round(item.subtotal).toLocaleString()}</span>
+                   <span className="text-sm font-black text-slate-900 whitespace-nowrap pt-0.5">Le {Math.round(item.subtotal).toLocaleString()}</span>
                 </div>
               ))}
            </div>
@@ -102,14 +102,14 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
               </div>
            </div>
 
-           <div className="flex items-center justify-between px-2 text-sm">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 text-sm gap-4 sm:gap-0">
               <div className="flex flex-col gap-1">
                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Payment Method</span>
                  <span className="font-black text-slate-900">{receipt.paymentMethod}</span>
               </div>
-              <div className="flex flex-col gap-1 text-right">
+              <div className="flex flex-col gap-1 sm:text-right">
                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Status</span>
-                 <span className="font-black text-emerald-500 flex items-center justify-end gap-1">
+                 <span className="font-black text-emerald-500 flex items-center sm:justify-end gap-1">
                     <CheckCircle2 className="h-3 w-3" /> {receipt.paymentStatus}
                  </span>
               </div>

@@ -70,7 +70,7 @@ export function ReceiptActions({ receipt }: { receipt: any }) {
   };
 
   return (
-    <div className="bg-slate-50 p-6 flex gap-3 print:hidden border-t border-slate-100">
+    <div className="bg-slate-50 p-5 sm:p-6 flex flex-col sm:flex-row gap-3 print:hidden border-t border-slate-100">
       <button 
         onClick={handlePrint} 
         className="flex-1 flex items-center justify-center h-12 rounded-xl text-xs font-black tracking-widest uppercase bg-white border border-slate-200 text-slate-600 shadow-sm hover:bg-slate-100 transition-colors"
