@@ -265,16 +265,22 @@ export async function getControlledSubstanceSales() {
             product: true
           }
         },
+        },
         customer: true,
-        user: true
+        user: true,
+        statusHistory: {
+          orderBy: { createdAt: "asc" },
+          take: 1
+        }
       }
     });
 
     return sales.map(s => {
-      // Parse prescription ID from saleNote if we put it there
+      // Parse prescription ID from statusHistory note if we put it there
       let prescriptionId = "N/A";
-      if (s.saleNote && s.saleNote.includes("Prescription ID:")) {
-         prescriptionId = s.saleNote.split("Prescription ID:")[1].trim();
+      const initialNote = s.statusHistory?.[0]?.note;
+      if (initialNote && initialNote.includes("Prescription ID:")) {
+         prescriptionId = initialNote.split("Prescription ID:")[1].trim();
       }
 
       return {
