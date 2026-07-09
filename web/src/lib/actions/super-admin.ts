@@ -790,3 +790,36 @@ export async function createSuperAdmin(data: { name: string; username?: string; 
   return { success: true, user: { id: newUser.id, name: newUser.name, email: newUser.email } };
 }
 
+export async function getInactiveBusinesses() {
+  await checkSuperAdmin();
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  const inactive = await prisma.business.findMany({
+    where: {
+      createdAt: { lt: oneDayAgo },
+      sales: { none: {} },
+      products: { none: {} },
+    },
+    include: {
+      users: {
+        select: {
+          name: true,
+          email: true,
+        }
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+
+  return inactive.map(b => ({
+    id: b.id,
+    name: b.name,
+    email: b.email,
+    phone: b.phone,
+    createdAt: b.createdAt.toISOString(),
+    ownerName: b.users[0]?.name || "N/A",
+    ownerEmail: b.users[0]?.email || "N/A",
+  }));
+}
+
+

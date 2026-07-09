@@ -36,7 +36,8 @@ import {
   getAllBusinesses,
   sendEcosystemPushNotification,
   broadcastSystemUpdate,
-  createSuperAdmin
+  createSuperAdmin,
+  getInactiveBusinesses
 } from "@/lib/actions/super-admin";
 import { getSystemSettings, updateSystemSettings } from "@/lib/actions/system-settings";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -57,6 +58,7 @@ export default function NexusSuperControl() {
   const [health, setHealth] = useState<any>(null);
   const [settings, setSettings] = useState<any>(null);
   const [backups, setBackups] = useState<any[]>([]);
+  const [inactiveBusinesses, setInactiveBusinesses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [broadcastMsg, setBroadcastMsg] = useState("");
   const [isMaintenance, setIsMaintenance] = useState(false);
@@ -167,18 +169,20 @@ export default function NexusSuperControl() {
   async function refreshData() {
     try {
       setLoading(true);
-      const [statsData, healthData, settingsData, backupsData, usersData] = await Promise.all([
+      const [statsData, healthData, settingsData, backupsData, usersData, inactiveData] = await Promise.all([
         getSystemStats(),
         getEcosystemHealth(),
         getSystemSettings(),
         getBackupsList(),
-        getAllSystemUsers()
+        getAllSystemUsers(),
+        getInactiveBusinesses()
       ]);
       setStats(statsData);
       setHealth(healthData);
       setSettings(settingsData);
       setBackups(backupsData);
       setSystemUsers(usersData);
+      setInactiveBusinesses(inactiveData);
       setIsMaintenance((statsData as any).maintenanceMode || false);
     } catch (error) {
       console.error(error);
@@ -732,6 +736,31 @@ export default function NexusSuperControl() {
                 <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
                 <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={stats.pendingApprovals > 0 ? "warning" : "default"} />
               </div>
+
+              {inactiveBusinesses.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-6 bg-amber-500/10 border border-amber-500/20 rounded-[2rem] relative z-10 text-amber-800 dark:text-amber-300 space-y-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
+                    <h3 className="font-black text-xs uppercase tracking-widest leading-none">Inactive Stores Warning (Registered &gt; 24h ago, 0 products, 0 sales)</h3>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {inactiveBusinesses.map((biz) => (
+                      <div key={biz.id} className="p-4 bg-white dark:bg-slate-900 border border-amber-500/10 dark:border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-700 dark:text-slate-400">
+                        <div className="font-black text-slate-900 dark:text-white">{biz.name}</div>
+                        <div><span className="font-bold">Owner:</span> {biz.ownerName} ({biz.ownerEmail})</div>
+                        {biz.phone && <div><span className="font-bold">Phone:</span> {biz.phone}</div>}
+                        <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">
+                          Registered: {format(new Date(biz.createdAt), "MMM dd, yyyy HH:mm")}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
 
               {/* Command Center & Heartbeat */}
               <div className="grid gap-8 lg:grid-cols-3 relative z-10">
