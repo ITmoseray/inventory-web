@@ -29,9 +29,9 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 px-4 sm:py-12 sm:px-8 font-sans">
-      <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden print:shadow-none print:border-none print:w-full">
+      <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl border border-slate-100 print:shadow-none print:border-none print:w-full">
         {/* Header */}
-        <div className="bg-indigo-600 p-8 text-center relative overflow-hidden print:bg-slate-900 print:text-white">
+        <div className="bg-indigo-600 p-8 text-center relative overflow-hidden rounded-t-3xl print:bg-slate-900 print:text-white print:rounded-none">
            <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
            <div className="relative z-10 flex flex-col items-center">
               {receipt.business.logoUrl ? (
