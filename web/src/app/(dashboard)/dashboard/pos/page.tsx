@@ -51,6 +51,7 @@ import Image from "next/image";
 import { createSale } from "@/lib/actions/sale";
 import { getCustomers } from "@/lib/actions/customer";
 import { getCurrentBusiness } from "@/lib/actions/business";
+import { getPendingPrescriptions } from "@/lib/actions/prescription";
 import { 
   Select, 
   SelectContent, 
@@ -217,6 +218,8 @@ export default function POSPage() {
       toast.info(`Parsed Amount from SMS: Le ${parsedAmount.toLocaleString()}`);
     }
   }, [momoSmsPaste]);
+
+  const [pendingPrescriptions, setPendingPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
   const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
@@ -226,32 +229,30 @@ export default function POSPage() {
   const receiptRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchCustomers();
-    initialSync();
-    fetchBusinessInfo();
-  }, []);
-
-  async function fetchBusinessInfo() {
-    try {
-      const data = await getCurrentBusiness();
-      if (data) {
-        setBusinessInfo(data);
-        localStorage.setItem("offline_business_info", JSON.stringify(data));
-      }
-    } catch (e) {
-      console.error("Failed to load business info:", e);
-      const cached = localStorage.getItem("offline_business_info");
-      if (cached) {
-        try {
-          setBusinessInfo(JSON.parse(cached));
-        } catch (err) {}
-      } else if (session?.user?.businessName) {
-        setBusinessInfo({ name: session.user.businessName });
-      } else {
-        setBusinessInfo({ name: "Protech Assist SL Limited" });
+    async function init() {
+      try {
+        const [biz, custs, scripts] = await Promise.all([
+          getCurrentBusiness(),
+          getCustomers(),
+          getPendingPrescriptions().catch(() => []) // Catch in case business is not pharmacy
+        ]);
+        
+        if (biz) {
+          setBusinessInfo(biz);
+          if (biz.businessType === "PHARMACY") {
+            setPendingPrescriptions(scripts);
+          }
+        }
+        if (custs) {
+          setCustomers(custs);
+        }
+      } catch (error) {
+        console.error("Error fetching POS setup data:", error);
       }
     }
-  }
+    init();
+    initialSync();
+  }, []);
 
   async function fetchCustomers() {
     try {
@@ -837,12 +838,22 @@ export default function POSPage() {
                         </div>
                         <Label className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.3em]">Prescription Required</Label>
                       </div>
-                      <Input
-                        value={prescriptionId}
-                        onChange={(e) => setPrescriptionId(e.target.value)}
-                        placeholder="Enter Prescription ID (e.g. RX-12345)"
-                        className="h-14 rounded-[1.2rem] border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900 font-bold"
-                      />
+                      <Select value={prescriptionId} onValueChange={setPrescriptionId}>
+                        <SelectTrigger className="h-14 rounded-[1.2rem] border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900 font-bold text-sm tracking-widest shadow-sm">
+                          <SelectValue placeholder="Select Authorized Prescription" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-[1.5rem] border-rose-100 dark:border-rose-900 shadow-xl p-2 max-h-60 overflow-y-auto">
+                          {pendingPrescriptions.length === 0 ? (
+                            <div className="p-4 text-center text-xs font-bold text-slate-400">No pending prescriptions found.</div>
+                          ) : (
+                            pendingPrescriptions.map((script) => (
+                              <SelectItem key={script.id} value={script.id} className="font-bold py-3 text-xs rounded-xl focus:bg-rose-50 dark:focus:bg-rose-900/20">
+                                {script.prescriptionNumber} - {script.patient?.name} (Dr. {script.doctorName})
+                              </SelectItem>
+                            ))
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
                   )}
                   

@@ -76,3 +76,23 @@ export async function dispensePrescription(prescriptionId: string) {
     throw new Error(error.message || "Failed to update prescription status.");
   }
 }
+
+export async function getPendingPrescriptions() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const businessId = session.user.businessId;
+    return await prisma.prescription.findMany({
+      where: { 
+        businessId,
+        status: "PENDING"
+      },
+      include: { patient: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.error("Failed to fetch pending prescriptions:", error);
+    throw error;
+  }
+}

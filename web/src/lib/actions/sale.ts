@@ -146,6 +146,22 @@ export async function createSale(data: {
         });
       }
 
+      // 5. Update Prescription if provided
+      if (data.saleNote && data.saleNote.includes("Prescription ID: ")) {
+        const parts = data.saleNote.split("Prescription ID: ");
+        if (parts.length > 1) {
+          const pId = parts[1].trim();
+          try {
+            await tx.prescription.update({
+              where: { id: pId },
+              data: { status: "DISPENSED" }
+            });
+          } catch(e) {
+            console.error("Failed to update prescription status", e);
+          }
+        }
+      }
+
       return newSale;
     }, {
       maxWait: 20000, // 20s to acquire connection
