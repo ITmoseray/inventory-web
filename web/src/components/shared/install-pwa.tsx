@@ -22,8 +22,8 @@ export function InstallPWA() {
       setDeferredPrompt(e);
 
       const lastDismissed = localStorage.getItem("pwa_prompt_dismissed_at");
-      if (lastDismissed && Date.now() - parseInt(lastDismissed) < 86400000) {
-        return; // Already dismissed within 24h
+      if (lastDismissed && Date.now() - parseInt(lastDismissed) < 5000) {
+        return; // Already dismissed within 5s
       }
 
       setShowBanner(true);
