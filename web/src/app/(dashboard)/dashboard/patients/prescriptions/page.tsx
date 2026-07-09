@@ -133,32 +133,32 @@ export default function PrescriptionsPage() {
               <Plus className="h-4 w-4" /> Add Prescription
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-xl border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem]">
+          <DialogContent className="sm:max-w-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-[2rem]">
             <DialogHeader>
               <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Add Doctor Prescription</DialogTitle>
               <DialogDescription className="text-slate-500 text-xs">Record patient dosage authorization and drug instructions.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="space-y-1">
-                <Label htmlFor="patient" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Patient Name *</Label>
-                <select id="patient" required value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm">
-                  <option value="">Select Patient</option>
+                <Label htmlFor="patient" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Patient Name *</Label>
+                <select id="patient" required value={patientId} onChange={e => setPatientId(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                  <option value="" className="bg-white dark:bg-slate-900">Select Patient</option>
                   {patients.map(p => (
-                    <option key={p.id} value={p.id}>{p.name} {p.phone ? `(${p.phone})` : ""}</option>
+                    <option key={p.id} value={p.id} className="bg-white dark:bg-slate-900">{p.name} {p.phone ? `(${p.phone})` : ""}</option>
                   ))}
                 </select>
               </div>
               <div className="space-y-1">
-                <Label htmlFor="doctorName" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Doctor Name *</Label>
-                <Input id="doctorName" required value={doctorName} onChange={e => setDoctorName(e.target.value)} placeholder="e.g. Dr. Lansana Conteh" className="rounded-xl" />
+                <Label htmlFor="doctorName" className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Doctor Name *</Label>
+                <Input id="doctorName" required value={doctorName} onChange={e => setDoctorName(e.target.value)} placeholder="e.g. Dr. Lansana Conteh" className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="notes" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Medications & Dosages *</Label>
-                <textarea id="notes" required value={notes} onChange={e => setNotes(e.target.value)} placeholder="e.g. Paracetamol 500mg - 2 tablets TDS x 5 days&#10;Amoxicillin 250mg - 1 capsule TDS x 7 days" className="w-full h-24 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm" />
+                <Label htmlFor="notes" className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Medications & Dosages *</Label>
+                <textarea id="notes" required value={notes} onChange={e => setNotes(e.target.value)} placeholder="e.g. Paracetamol 500mg - 2 tablets TDS x 5 days&#10;Amoxicillin 250mg - 1 capsule TDS x 7 days" className="w-full h-24 p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:ring-2 focus:ring-indigo-500 outline-none" />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="instructions" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Usage Instructions</Label>
-                <Input id="instructions" value={instructions} onChange={e => setInstructions(e.target.value)} placeholder="e.g. Take after meals, complete the antibiotics course" className="rounded-xl" />
+                <Label htmlFor="instructions" className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Usage Instructions</Label>
+                <Input id="instructions" value={instructions} onChange={e => setInstructions(e.target.value)} placeholder="e.g. Take after meals, complete the antibiotics course" className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
               </div>
               <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl h-11 text-xs">Cancel</Button>
