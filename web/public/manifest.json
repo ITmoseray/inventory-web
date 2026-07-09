@@ -9,21 +9,21 @@
   "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "/images/logo-192-white.jpg",
+      "src": "/images/logo-192-white.png",
       "sizes": "192x192",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/logo-512-white.jpg",
+      "src": "/images/logo-512-white.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/images/logo-512-white.jpg",
+      "src": "/images/logo-512-white.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ]
