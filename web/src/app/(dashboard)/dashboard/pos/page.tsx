@@ -254,6 +254,15 @@ export default function POSPage() {
     initialSync();
   }, []);
 
+  // Fetch prescriptions dynamically on checkout modal open to ensure they are up to date
+  useEffect(() => {
+    if (isCheckoutOpen && cartRequiresPrescription && isPharmacy) {
+      getPendingPrescriptions()
+        .then(setPendingPrescriptions)
+        .catch((err) => console.error("Error updating prescriptions:", err));
+    }
+  }, [isCheckoutOpen, cartRequiresPrescription, isPharmacy]);
+
   async function fetchCustomers() {
     try {
       const data = await getCustomers();
