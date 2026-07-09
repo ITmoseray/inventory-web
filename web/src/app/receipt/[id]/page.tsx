@@ -35,11 +35,9 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
            <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
            <div className="relative z-10 flex flex-col items-center">
               {receipt.business.logoUrl ? (
-                <img src={receipt.business.logoUrl} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white/20 mb-4 bg-white object-cover" />
+                <img src={receipt.business.logoUrl} alt="Logo" className="h-20 max-w-[200px] object-contain mb-4" />
               ) : (
-                <div className="h-16 w-16 rounded-full border-4 border-white/20 mb-4 bg-white/10 flex items-center justify-center">
-                  <ReceiptIcon className="h-8 w-8 text-white" />
-                </div>
+                <img src="/images/logo2.png" alt="ProTech Logo" className="h-20 max-w-[200px] object-contain mb-4" />
               )}
               <h1 className="text-2xl font-black text-white tracking-tight">{receipt.business.name}</h1>
               <p className="text-indigo-200 text-sm font-medium mt-1">{receipt.business.address || "Digital Receipt"}</p>
