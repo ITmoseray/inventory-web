@@ -83,7 +83,7 @@ export async function getPendingPrescriptions() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const businessId = session.user.businessId;
-    return await prisma.prescription.findMany({
+    const scripts = await prisma.prescription.findMany({
       where: { 
         businessId,
         status: "PENDING"
@@ -91,6 +91,26 @@ export async function getPendingPrescriptions() {
       include: { patient: true },
       orderBy: { createdAt: "desc" },
     });
+
+    return scripts.map(s => ({
+      id: s.id,
+      prescriptionNumber: s.prescriptionNumber,
+      patientId: s.patientId,
+      doctorName: s.doctorName,
+      dateIssued: s.dateIssued.toISOString(),
+      status: s.status,
+      notes: s.notes,
+      instructions: s.instructions,
+      businessId: s.businessId,
+      createdAt: s.createdAt.toISOString(),
+      updatedAt: s.updatedAt.toISOString(),
+      patient: s.patient ? {
+        id: s.patient.id,
+        name: s.patient.name,
+        phone: s.patient.phone,
+        email: s.patient.email,
+      } : null,
+    }));
   } catch (error) {
     console.error("Failed to fetch pending prescriptions:", error);
     throw error;

@@ -42,10 +42,10 @@ export async function getPublicReceipt(saleId: string) {
       } : null,
       items: sale.items.map(item => ({
         id: item.id,
-        name: item.product.name,
+        name: item.productName || item.product?.name || "Unknown Item",
         quantity: item.quantity,
         unitPrice: Number(item.unitPrice?.toString() || 0),
-        subtotal: Number(item.subtotal?.toString() || 0),
+        subtotal: Number(item.total?.toString() || 0),
       }))
     };
   } catch (error) {

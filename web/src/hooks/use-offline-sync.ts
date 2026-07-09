@@ -58,6 +58,9 @@ export function useOfflineSync() {
         metadata: p.metadata,
         baseUnit: p.baseUnit || "Unit",
         units: p.units || [],
+        requiresPrescription: p.requiresPrescription || false,
+        genericAlternative: p.genericAlternative || null,
+        isControlledSubstance: p.isControlledSubstance || false,
       })));
 
       await db.categories.clear();

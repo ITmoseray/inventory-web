@@ -64,6 +64,9 @@ export async function getProducts() {
           createdAt: p.category.createdAt.toISOString(),
           updatedAt: p.category.updatedAt.toISOString(),
         } : null,
+        requiresPrescription: p.requiresPrescription || false,
+        genericAlternative: p.genericAlternative || null,
+        isControlledSubstance: p.isControlledSubstance || false,
       };
     });
   } catch (error) {

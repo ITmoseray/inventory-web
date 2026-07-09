@@ -11,6 +11,7 @@ interface CartItem {
   externalCostPrice?: number;
   unitId?: string; // Extension for unit conversion
   ratio?: number; // Extension for unit conversion
+  requiresPrescription?: boolean;
 }
 
 export interface HeldCart {

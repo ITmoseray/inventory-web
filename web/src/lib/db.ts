@@ -12,6 +12,9 @@ export interface LocalProduct {
   metadata: any;
   baseUnit: string;
   units: any[];
+  requiresPrescription?: boolean;
+  genericAlternative?: string | null;
+  isControlledSubstance?: boolean;
 }
 
 export interface LocalCategory {
