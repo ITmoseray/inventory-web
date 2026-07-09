@@ -5,8 +5,9 @@ import { CheckCircle2, Download, Receipt as ReceiptIcon, Printer } from "lucide-
 import { Button } from "@/components/ui/button";
 import { ReceiptActions } from "@/components/shared/ReceiptActions";
 
-export default async function PublicReceiptPage({ params }: { params: { id: string } }) {
-  const receipt = await getPublicReceipt(params.id);
+export default async function PublicReceiptPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const receipt = await getPublicReceipt(resolvedParams.id);
 
   if (!receipt) {
     return notFound();
