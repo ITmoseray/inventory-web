@@ -33,6 +33,12 @@ export function ReceiptActions({ receipt }: { receipt: any }) {
     doc.text(`Transaction ID: ${receipt.transactionId}`, 14, 55);
     doc.text(`Date: ${format(new Date(receipt.date), "MMM dd, yyyy h:mm a")}`, 14, 61);
     doc.text(`Payment: ${receipt.paymentMethod} (${receipt.paymentStatus})`, 14, 67);
+    
+    let tableStartY = 75;
+    if (receipt.customer && receipt.customer.name !== "WALKIN") {
+       doc.text(`Customer: ${receipt.customer.name} ${receipt.customer.phone ? `(${receipt.customer.phone})` : ''}`, 14, 73);
+       tableStartY = 80;
+    }
 
     // Items table
     const tableData = receipt.items.map((item: any) => [
@@ -43,7 +49,7 @@ export function ReceiptActions({ receipt }: { receipt: any }) {
     ]);
 
     autoTable(doc, {
-      startY: 75,
+      startY: tableStartY,
       head: [["Item", "Qty", "Price", "Total"]],
       body: tableData,
       theme: "striped",

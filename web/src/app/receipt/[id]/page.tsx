@@ -34,7 +34,7 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
 
         {/* Body */}
         <div className="p-8">
-           <div className="flex items-center justify-between mb-8 pb-6 border-b border-dashed border-slate-200">
+           <div className="flex items-center justify-between mb-6 pb-6 border-b border-dashed border-slate-200">
               <div className="flex flex-col">
                  <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Transaction ID</span>
                  <span className="text-sm font-black text-slate-900">{receipt.transactionId}</span>
@@ -44,6 +44,16 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
                  <span className="text-sm font-black text-slate-900">{format(new Date(receipt.date), "MMM dd, yyyy h:mm a")}</span>
               </div>
            </div>
+
+           {receipt.customer && receipt.customer.name !== "WALKIN" && (
+             <div className="mb-8 pb-6 border-b border-dashed border-slate-200">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Details</span>
+                <div className="flex items-center gap-2 mt-1">
+                   <span className="text-base font-black text-slate-900">{receipt.customer.name}</span>
+                   {receipt.customer.phone && <span className="text-sm font-medium text-slate-500">({receipt.customer.phone})</span>}
+                </div>
+             </div>
+           )}
 
            <div className="space-y-4 mb-8">
               <div className="flex justify-between text-xs font-black text-slate-400 uppercase tracking-widest pb-2 border-b border-slate-100">
