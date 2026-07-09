@@ -14,18 +14,25 @@ export async function getPublicReceipt(saleId: string) {
         },
         customer: true,
         business: true,
+        debt: true,
       }
     });
 
     if (!sale) return null;
 
+    const totalAmount = Number(sale.totalAmount?.toString() || 0);
+    const amountPaid = sale.paymentMethod === 'CREDIT' && sale.debt 
+      ? Number(sale.debt.paidAmount?.toString() || 0)
+      : totalAmount;
+    const balance = Math.max(0, totalAmount - amountPaid);
+
     return {
       id: sale.id,
-      transactionId: sale.transactionId,
+      transactionId: sale.invoiceNumber,
       date: sale.createdAt,
-      totalAmount: Number(sale.totalAmount?.toString() || 0),
-      amountPaid: Number(sale.amountPaid?.toString() || 0),
-      balance: Number(sale.balance?.toString() || 0),
+      totalAmount,
+      amountPaid,
+      balance,
       paymentMethod: sale.paymentMethod,
       paymentStatus: sale.paymentStatus,
       status: sale.status,
