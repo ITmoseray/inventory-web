@@ -15,8 +15,8 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
 
   if ('error' in receipt) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center p-4 sm:p-8 font-sans overflow-y-auto">
-        <div className="w-full max-w-md my-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-center p-8">
+      <div className="min-h-screen bg-slate-50 py-8 px-4 sm:py-12 sm:px-8 font-sans">
+        <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-center p-8">
           <div className="h-20 w-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6">
             <ReceiptIcon className="h-10 w-10" />
           </div>
@@ -28,8 +28,8 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
   }
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 flex flex-col items-center p-4 sm:p-8 font-sans overflow-y-auto">
-      <div className="w-full max-w-md my-auto bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden print:shadow-none print:border-none print:w-full print:my-0">
+    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:py-12 sm:px-8 font-sans">
+      <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden print:shadow-none print:border-none print:w-full">
         {/* Header */}
         <div className="bg-indigo-600 p-8 text-center relative overflow-hidden print:bg-slate-900 print:text-white">
            <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
