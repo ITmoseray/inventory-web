@@ -116,3 +116,64 @@ export async function getPendingPrescriptions() {
     throw error;
   }
 }
+
+export async function deletePrescription(prescriptionId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+      throw new Error("Only admins can delete prescriptions.");
+    }
+
+    const businessId = session.user.businessId;
+    const tenantPrisma = getTenantPrisma(businessId);
+
+    await tenantPrisma.prescription.delete({
+      where: { id: prescriptionId, businessId },
+    });
+
+    revalidatePath("/dashboard/patients/prescriptions");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Failed to delete prescription:", error);
+    throw new Error(error.message || "Failed to delete prescription.");
+  }
+}
+
+export async function updatePrescription(
+  prescriptionId: string,
+  data: {
+    patientId: string;
+    doctorName: string;
+    notes?: string;
+    instructions?: string;
+  }
+) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+    if (session.user.role !== "ADMIN" && session.user.role !== "SUPERADMIN") {
+      throw new Error("Only admins can edit prescriptions.");
+    }
+
+    const businessId = session.user.businessId;
+    const tenantPrisma = getTenantPrisma(businessId);
+
+    const updated = await tenantPrisma.prescription.update({
+      where: { id: prescriptionId, businessId },
+      data: {
+        patientId: data.patientId,
+        doctorName: data.doctorName,
+        notes: data.notes || null,
+        instructions: data.instructions || null,
+      },
+    });
+
+    revalidatePath("/dashboard/patients/prescriptions");
+    return { success: true, prescription: updated };
+  } catch (error: any) {
+    console.error("Failed to update prescription:", error);
+    throw new Error(error.message || "Failed to update prescription.");
+  }
+}
+

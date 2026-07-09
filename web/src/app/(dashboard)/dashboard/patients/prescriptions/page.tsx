@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, FileText, User, Calendar, CheckCircle2, ShieldAlert } from "lucide-react";
+import { Plus, Search, FileText, User, Calendar, CheckCircle2, ShieldAlert, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useSession } from "next-auth/react";
 import {
   Table,
   TableBody,
@@ -20,20 +21,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { getPrescriptions, createPrescription, dispensePrescription } from "@/lib/actions/prescription";
+import { getPrescriptions, createPrescription, dispensePrescription, updatePrescription, deletePrescription } from "@/lib/actions/prescription";
 import { getPatients } from "@/lib/actions/patient";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function PrescriptionsPage() {
+  const { data: session } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN";
+
   const [prescriptions, setPrescriptions] = useState<any[]>([]);
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingPrescription, setEditingPrescription] = useState<any | null>(null);
 
   // Form State
   const [patientId, setPatientId] = useState("");
@@ -68,6 +72,24 @@ export default function PrescriptionsPage() {
     }
   }
 
+  const openAddDialog = () => {
+    setEditingPrescription(null);
+    setPatientId("");
+    setDoctorName("");
+    setNotes("");
+    setInstructions("");
+    setIsDialogOpen(true);
+  };
+
+  const openEditDialog = (rx: any) => {
+    setEditingPrescription(rx);
+    setPatientId(rx.patientId);
+    setDoctorName(rx.doctorName);
+    setNotes(rx.notes || "");
+    setInstructions(rx.instructions || "");
+    setIsDialogOpen(true);
+  };
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!patientId) return toast.error("Please select a patient.");
@@ -76,20 +98,32 @@ export default function PrescriptionsPage() {
 
     try {
       setSubmitting(true);
-      const res = await createPrescription({
-        patientId,
-        doctorName,
-        notes,
-        instructions: instructions || undefined,
-      });
+      
+      let res;
+      if (editingPrescription) {
+        res = await updatePrescription(editingPrescription.id, {
+          patientId,
+          doctorName,
+          notes,
+          instructions: instructions || undefined,
+        });
+      } else {
+        res = await createPrescription({
+          patientId,
+          doctorName,
+          notes,
+          instructions: instructions || undefined,
+        });
+      }
 
       if (res.success) {
-        toast.success("Prescription registered successfully.");
+        toast.success(editingPrescription ? "Prescription updated successfully." : "Prescription registered successfully.");
         setIsDialogOpen(false);
         setPatientId("");
         setDoctorName("");
         setNotes("");
         setInstructions("");
+        setEditingPrescription(null);
         fetchPrescriptions();
       }
     } catch (err: any) {
@@ -111,6 +145,20 @@ export default function PrescriptionsPage() {
     }
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this prescription?")) return;
+    try {
+      const res = await deletePrescription(id);
+      if (res.success) {
+        toast.success("Prescription deleted successfully.");
+        fetchPrescriptions();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete prescription.");
+    }
+  }
+
+
   const filteredPrescriptions = prescriptions.filter(p =>
     p.prescriptionNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
     p.patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -127,16 +175,21 @@ export default function PrescriptionsPage() {
           <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Dispense and monitor doctor medical authorizations.</p>
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-500/25">
-              <Plus className="h-4 w-4" /> Add Prescription
-            </Button>
-          </DialogTrigger>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) setEditingPrescription(null);
+        }}>
+          <Button onClick={openAddDialog} className="h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-500/25">
+            <Plus className="h-4 w-4" /> Add Prescription
+          </Button>
           <DialogContent className="sm:max-w-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-[2rem]">
             <DialogHeader>
-              <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Add Doctor Prescription</DialogTitle>
-              <DialogDescription className="text-slate-500 text-xs">Record patient dosage authorization and drug instructions.</DialogDescription>
+              <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">
+                {editingPrescription ? "Edit Doctor Prescription" : "Add Doctor Prescription"}
+              </DialogTitle>
+              <DialogDescription className="text-slate-500 text-xs">
+                {editingPrescription ? "Modify patient dosage authorization and drug instructions." : "Record patient dosage authorization and drug instructions."}
+              </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="space-y-1">
@@ -161,8 +214,13 @@ export default function PrescriptionsPage() {
                 <Input id="instructions" value={instructions} onChange={e => setInstructions(e.target.value)} placeholder="e.g. Take after meals, complete the antibiotics course" className="rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
               </div>
               <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="rounded-xl h-11 text-xs">Cancel</Button>
-                <Button type="submit" disabled={submitting} className="rounded-xl h-11 bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-6 font-bold">{submitting ? "Saving..." : "Save Rx"}</Button>
+                <Button type="button" variant="outline" onClick={() => {
+                  setIsDialogOpen(false);
+                  setEditingPrescription(null);
+                }} className="rounded-xl h-11 text-xs">Cancel</Button>
+                <Button type="submit" disabled={submitting} className="rounded-xl h-11 bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-6 font-bold">
+                  {submitting ? "Saving..." : editingPrescription ? "Update Rx" : "Save Rx"}
+                </Button>
               </div>
             </form>
           </DialogContent>
@@ -251,7 +309,7 @@ export default function PrescriptionsPage() {
                     </span>
                   </TableCell>
                   <TableCell className="pr-6">
-                    <div className="flex justify-end">
+                    <div className="flex justify-end gap-2">
                       {rx.status === "PENDING" && (
                         <Button
                           size="sm"
@@ -260,6 +318,28 @@ export default function PrescriptionsPage() {
                         >
                           Dispense
                         </Button>
+                      )}
+                      {isAdmin && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => openEditDialog(rx)}
+                            className="h-8 w-8 p-0 rounded-lg border-slate-200 text-slate-650 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 bg-transparent"
+                            title="Edit Prescription"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDelete(rx.id)}
+                            className="h-8 w-8 p-0 rounded-lg border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/20 bg-transparent"
+                            title="Delete Prescription"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </>
                       )}
                     </div>
                   </TableCell>
