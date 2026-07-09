@@ -18,7 +18,12 @@ export async function getPublicReceipt(saleId: string) {
       }
     });
 
-    if (!sale) return null;
+    if (!sale) {
+      if (saleId.startsWith("INV")) {
+        return { error: "This receipt was generated offline and is currently syncing to the cloud. Please try again in a few minutes." };
+      }
+      return { error: "This receipt could not be found. It may have been deleted or the link is invalid." };
+    }
 
     const totalAmount = Number(sale.totalAmount?.toString() || 0);
     const amountPaid = sale.paymentMethod === 'CREDIT' && sale.debt 
@@ -55,8 +60,8 @@ export async function getPublicReceipt(saleId: string) {
         subtotal: Number(item.total?.toString() || 0),
       }))
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching public receipt:", error);
-    return null;
+    return { error: error.message || "An unexpected error occurred while generating the receipt." };
   }
 }

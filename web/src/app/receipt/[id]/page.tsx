@@ -12,6 +12,20 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
     return notFound();
   }
 
+  if ('error' in receipt) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-8 font-sans">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden text-center p-8">
+          <div className="h-20 w-20 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-6">
+            <ReceiptIcon className="h-10 w-10" />
+          </div>
+          <h1 className="text-2xl font-black text-slate-900 mb-2">Receipt Unavailable</h1>
+          <p className="text-slate-500 font-medium">{receipt.error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 sm:p-8 font-sans">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 overflow-hidden print:shadow-none print:border-none print:w-full">
