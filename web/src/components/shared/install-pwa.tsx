@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, X, Monitor, Smartphone } from "lucide-react";
+import { Download, X, Monitor, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -9,6 +9,7 @@ export function InstallPWA() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [installMode, setInstallMode] = useState<"native" | "instructions" | "ios" | null>(null);
 
   useEffect(() => {
     // Check if already installed
@@ -17,9 +18,31 @@ export function InstallPWA() {
       return;
     }
 
+    // Check user agent
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    const isIOS = /iphone|ipad|ipod/.test(userAgent);
+    
+    // Set timer to show manual instructions if native prompt doesn't fire
+    const timer = setTimeout(() => {
+      const lastDismissed = localStorage.getItem("pwa_prompt_dismissed_at");
+      if (lastDismissed && Date.now() - parseInt(lastDismissed) < 5000) {
+        return; // Already dismissed within 5s
+      }
+
+      if (!isInstalled && !deferredPrompt) {
+        if (isIOS) {
+          setInstallMode("ios");
+        } else {
+          setInstallMode("instructions");
+        }
+        setShowBanner(true);
+      }
+    }, 4000);
+
     const handler = (e: any) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      setInstallMode("native");
 
       const lastDismissed = localStorage.getItem("pwa_prompt_dismissed_at");
       if (lastDismissed && Date.now() - parseInt(lastDismissed) < 5000) {
@@ -37,8 +60,11 @@ export function InstallPWA() {
       setDeferredPrompt(null);
     });
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+      clearTimeout(timer);
+    };
+  }, [deferredPrompt, isInstalled]);
 
   const handleInstall = async () => {
     if (!deferredPrompt) return;
@@ -75,33 +101,65 @@ export function InstallPWA() {
             <X className="h-4 w-4" />
           </button>
 
-          <div className="flex items-start gap-4">
-            <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-               <Monitor className="h-6 w-6" />
-            </div>
-            <div className="space-y-1 pr-6">
-               <h3 className="font-black text-sm uppercase tracking-widest">Install Desktop App</h3>
-               <p className="text-xs text-white/70 leading-relaxed font-medium">
-                 Get the full Protech Assist experience. Fast, secure, and accessible directly from your home screen.
-               </p>
-            </div>
-          </div>
+          {installMode === "native" && (
+            <>
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                   <Monitor className="h-6 w-6" />
+                </div>
+                <div className="space-y-1 pr-6">
+                   <h3 className="font-black text-sm uppercase tracking-widest">Install App</h3>
+                   <p className="text-xs text-white/70 leading-relaxed font-medium">
+                     Get the full Protech Assist experience. Fast, secure, and accessible directly from your home screen.
+                   </p>
+                </div>
+              </div>
 
-          <div className="mt-6 flex gap-3">
-             <Button 
-               onClick={handleInstall}
-               className="flex-1 h-11 rounded-xl bg-white text-slate-900 hover:bg-white/90 font-black text-[10px] uppercase tracking-widest shadow-xl"
-             >
-                Install Now
-             </Button>
-             <Button 
-               variant="ghost"
-               onClick={handleDismiss}
-               className="h-11 rounded-xl text-white hover:bg-white/10 font-black text-[10px] uppercase tracking-widest"
-             >
-                Maybe Later
-             </Button>
-          </div>
+              <div className="mt-6 flex gap-3">
+                 <Button 
+                   onClick={handleInstall}
+                   className="flex-1 h-11 rounded-xl bg-white text-slate-900 hover:bg-white/90 font-black text-[10px] uppercase tracking-widest shadow-xl"
+                 >
+                    Install Now
+                 </Button>
+                 <Button 
+                   variant="ghost"
+                   onClick={handleDismiss}
+                   className="h-11 rounded-xl text-white hover:bg-white/10 font-black text-[10px] uppercase tracking-widest"
+                 >
+                    Dismiss
+                 </Button>
+              </div>
+            </>
+          )}
+
+          {installMode === "ios" && (
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                 <Share className="h-6 w-6" />
+              </div>
+              <div className="space-y-1 pr-6">
+                 <h3 className="font-black text-sm uppercase tracking-widest">Add to Home Screen</h3>
+                 <p className="text-xs text-white/70 leading-relaxed font-medium">
+                   Tap the <span className="font-bold underline">Share</span> button in your Safari browser and select <span className="font-bold underline">Add to Home Screen</span> to install the app.
+                 </p>
+              </div>
+            </div>
+          )}
+
+          {installMode === "instructions" && (
+            <div className="flex items-start gap-4">
+              <div className="h-12 w-12 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+                 <Download className="h-6 w-6" />
+              </div>
+              <div className="space-y-1 pr-6">
+                 <h3 className="font-black text-sm uppercase tracking-widest">Install Protech App</h3>
+                 <p className="text-xs text-white/70 leading-relaxed font-medium">
+                   Click the <span className="font-bold underline">Install Icon (⊕)</span> in your browser's address bar (or menu) to install Protech OS.
+                 </p>
+              </div>
+            </div>
+          )}
         </div>
       </motion.div>
     </AnimatePresence>
