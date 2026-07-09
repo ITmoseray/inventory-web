@@ -350,11 +350,6 @@ export default function POSPage() {
        toast.error("Cart is empty");
        return;
     }
-
-    if (cartRequiresPrescription && !prescriptionId) {
-       toast.error("A Prescription ID is required to complete this sale.");
-       return;
-    }
     
     setLoading(true);
     try {
@@ -370,6 +365,13 @@ export default function POSPage() {
       const creditPayStatus: "PAID" | "UNPAID" | "PARTIAL" = isCredit
         ? (partialPaid <= 0 ? "UNPAID" : partialPaid >= grandTotal ? "PAID" : "PARTIAL")
         : "PAID";
+
+      const baseNote = isHappyHour ? "HAPPY HOUR SALE" : undefined;
+      const rxNote = (cartRequiresPrescription && prescriptionId) ? `Prescription ID: ${prescriptionId}` : undefined;
+      let finalNote = undefined;
+      if (baseNote && rxNote) finalNote = `${baseNote} | ${rxNote}`;
+      else if (baseNote) finalNote = baseNote;
+      else if (rxNote) finalNote = rxNote;
 
       const saleData = {
         items: cart.map(item => ({
@@ -391,7 +393,7 @@ export default function POSPage() {
         amountPaid: isCredit ? partialPaid : grandTotal,
         tax,
         momoRef: paymentMethod === "MOBILE_MONEY" ? momoRefCode : undefined,
-        saleNote: isHappyHour ? "HAPPY HOUR SALE" : (cartRequiresPrescription ? `Prescription ID: ${prescriptionId}` : undefined),
+        saleNote: finalNote,
       };
 
       let result;
@@ -840,18 +842,18 @@ export default function POSPage() {
                {/* Customer Node Selection */}
                <div className="space-y-4 sm:space-y-5">
                   {cartRequiresPrescription && (
-                    <div className="mb-6 p-4 rounded-[1.5rem] bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
+                    <div className="mb-6 p-4 rounded-[1.5rem] bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
                       <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-xl bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-400">
-                           <AlertTriangle size={18} />
+                        <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
+                           <FileText size={18} />
                         </div>
-                        <Label className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.3em]">Prescription Required</Label>
+                        <Label className="text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em]">Prescription Link (Optional)</Label>
                       </div>
                       <Select value={prescriptionId} onValueChange={setPrescriptionId}>
-                        <SelectTrigger className="h-14 rounded-[1.2rem] border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900 font-bold text-sm tracking-widest shadow-sm">
-                          <SelectValue placeholder="Select Authorized Prescription" />
+                        <SelectTrigger className="h-14 rounded-[1.2rem] border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-900 font-bold text-sm tracking-widest shadow-sm">
+                          <SelectValue placeholder="Select Prescription (If applicable)" />
                         </SelectTrigger>
-                        <SelectContent className="rounded-[1.5rem] border-rose-100 dark:border-rose-900 shadow-xl p-2 max-h-60 overflow-y-auto">
+                        <SelectContent className="rounded-[1.5rem] border-blue-100 dark:border-blue-900 shadow-xl p-2 max-h-60 overflow-y-auto">
                           {pendingPrescriptions.length === 0 ? (
                             <div className="p-4 text-center text-xs font-bold text-slate-400">No pending prescriptions found.</div>
                           ) : (
