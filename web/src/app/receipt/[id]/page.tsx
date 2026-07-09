@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { format } from "date-fns";
 import { CheckCircle2, Download, Receipt as ReceiptIcon, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ReceiptActions } from "@/components/shared/ReceiptActions";
 
 export default async function PublicReceiptPage({ params }: { params: { id: string } }) {
   const receipt = await getPublicReceipt(params.id);
@@ -91,12 +92,7 @@ export default async function PublicReceiptPage({ params }: { params: { id: stri
         </div>
 
         {/* Footer actions - Hidden on print */}
-        <div className="bg-slate-50 p-6 flex gap-3 print:hidden border-t border-slate-100">
-           {/* Client-side print button requires a client component, but we can do a simple a href="#" onClick="window.print()" hack, or just make a small client component. Let's make a small client wrapper or just use standard button with dangerouslySetInnerHTML if needed. Better yet, we can't easily use onClick in a server component. Wait, this is a Server Component. We can use a tiny inline script or a Client Component for the buttons. */}
-           <a href={`javascript:window.print()`} className="flex-1 flex items-center justify-center h-12 rounded-xl text-xs font-black tracking-widest uppercase bg-white border border-slate-200 text-slate-600 shadow-sm hover:bg-slate-100 transition-colors">
-              <Printer className="h-4 w-4 mr-2" /> Print
-           </a>
-        </div>
+        <ReceiptActions receipt={receipt} />
       </div>
     </div>
   );
