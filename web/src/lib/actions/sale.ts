@@ -235,6 +235,71 @@ export async function getRecentSales() {
   }
 }
 
+export async function getControlledSubstanceSales() {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const prisma = getTenantPrisma(session.user.businessId);
+
+    // Fetch all sales where at least one item's product is a controlled substance
+    const sales = await prisma.sale.findMany({
+      where: {
+        items: {
+          some: {
+            product: {
+              isControlledSubstance: true
+            }
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" },
+      include: {
+        items: {
+          where: {
+            product: {
+              isControlledSubstance: true
+            }
+          },
+          include: {
+            product: true
+          }
+        },
+        customer: true,
+        user: true
+      }
+    });
+
+    return sales.map(s => {
+      // Parse prescription ID from saleNote if we put it there
+      let prescriptionId = "N/A";
+      if (s.saleNote && s.saleNote.includes("Prescription ID:")) {
+         prescriptionId = s.saleNote.split("Prescription ID:")[1].trim();
+      }
+
+      return {
+        id: s.id,
+        invoiceNumber: s.invoiceNumber,
+        createdAt: s.createdAt.toISOString(),
+        customerName: s.customer?.name || "Walk-in Customer",
+        customerPhone: s.customer?.phone || "N/A",
+        userName: s.user?.name || "System",
+        prescriptionId,
+        items: s.items.map(item => ({
+          id: item.id,
+          productId: item.productId,
+          name: item.product?.name || "Unknown",
+          quantity: item.quantity,
+          unitPrice: typeof item.unitPrice === 'number' ? item.unitPrice : (item.unitPrice as any).toNumber?.() || Number(item.unitPrice?.toString() || 0) || 0,
+        }))
+      };
+    });
+  } catch (error) {
+    console.error("Failed to fetch controlled substance sales:", error);
+    return [];
+  }
+}
+
 export async function getSales() {
   try {
     const session = await auth();

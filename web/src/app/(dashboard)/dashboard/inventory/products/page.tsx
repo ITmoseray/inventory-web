@@ -328,6 +328,9 @@ export default function ProductsPage() {
     description: "",
     expiryDate: "",
     batchNumber: "",
+    requiresPrescription: false,
+    genericAlternative: "",
+    isControlledSubstance: false,
     type: "PRODUCT" as "PRODUCT" | "SERVICE",
     isNetworkAvailable: false,
     imageUrl: "",
@@ -456,6 +459,9 @@ export default function ProductsPage() {
         stockQuantity: formData.type === "SERVICE" ? 0 : parseInt(formData.stockQuantity),
         minStockLevel: formData.type === "SERVICE" ? 0 : parseInt(formData.minStockLevel),
         categoryId: formData.categoryId === "none" ? null : formData.categoryId,
+        requiresPrescription: isPharmacy ? formData.requiresPrescription : false,
+        genericAlternative: isPharmacy ? formData.genericAlternative : null,
+        isControlledSubstance: isPharmacy ? formData.isControlledSubstance : false,
         metadata: {
           expiryDate: isPharmacy ? formData.expiryDate : undefined,
           batchNumber: isPharmacy ? formData.batchNumber : undefined,
@@ -499,6 +505,9 @@ export default function ProductsPage() {
       description: "",
       expiryDate: "",
       batchNumber: "",
+      requiresPrescription: false,
+      genericAlternative: "",
+      isControlledSubstance: false,
       type: "PRODUCT",
       isNetworkAvailable: false,
       imageUrl: "",
@@ -537,6 +546,9 @@ export default function ProductsPage() {
       description: product.description || "",
       expiryDate: metadata.expiryDate || "",
       batchNumber: metadata.batchNumber || "",
+      requiresPrescription: product.requiresPrescription || false,
+      genericAlternative: product.genericAlternative || "",
+      isControlledSubstance: product.isControlledSubstance || false,
       type: product.type || "PRODUCT",
       isNetworkAvailable: product.isNetworkAvailable || false,
       imageUrl: product.imageUrl || "",
@@ -1038,6 +1050,38 @@ export default function ProductsPage() {
                              placeholder="B-00000"
                              className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-mono text-xs text-slate-900 dark:text-slate-100"
                            />
+                         </div>
+                         
+                         <div className="space-y-2 col-span-1 sm:col-span-2">
+                           <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Generic Alternative</Label>
+                           <Input
+                             value={formData.genericAlternative || ""}
+                             onChange={(e) => setFormData({ ...formData, genericAlternative: e.target.value })}
+                             placeholder="e.g. Paracetamol 500mg"
+                             className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-bold text-slate-900 dark:text-slate-100"
+                           />
+                         </div>
+                         
+                         <div className="flex items-center space-x-2 mt-2">
+                           <input
+                             type="checkbox"
+                             id="requiresPrescription"
+                             checked={formData.requiresPrescription || false}
+                             onChange={(e) => setFormData({ ...formData, requiresPrescription: e.target.checked })}
+                             className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+                           />
+                           <Label htmlFor="requiresPrescription" className="text-xs font-bold text-slate-600 dark:text-slate-300">Requires Prescription</Label>
+                         </div>
+                         
+                         <div className="flex items-center space-x-2 mt-2">
+                           <input
+                             type="checkbox"
+                             id="isControlledSubstance"
+                             checked={formData.isControlledSubstance || false}
+                             onChange={(e) => setFormData({ ...formData, isControlledSubstance: e.target.checked })}
+                             className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary"
+                           />
+                           <Label htmlFor="isControlledSubstance" className="text-xs font-bold text-slate-600 dark:text-slate-300">Controlled Substance</Label>
                          </div>
                        </div>
                      )}

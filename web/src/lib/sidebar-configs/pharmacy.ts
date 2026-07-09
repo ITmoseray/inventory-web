@@ -6,7 +6,8 @@ export const pharmacySidebarConfig = [
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
-      { title: "Low Stock Alerts", url: "/dashboard/inventory/expiry", icon: Pill, permission: "menu:inventory" }
+      { title: "Low Stock Alerts", url: "/dashboard/inventory/expiry", icon: Pill, permission: "menu:inventory" },
+      { title: "Controlled Substances", url: "/dashboard/reports/controlled-substances", icon: FileText, permission: "menu:intelligence:reports" }
     ] 
   },
   { 

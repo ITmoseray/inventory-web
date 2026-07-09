@@ -97,6 +97,16 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            {isLowStock && (
              <div className="px-2 py-1 rounded-lg bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg animate-pulse">Low Stock</div>
            )}
+           {p.requiresPrescription && (
+             <div className="px-2 py-1 rounded-lg bg-indigo-600 text-white text-[8px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+               <ShieldCheck size={10} /> RX REQ
+             </div>
+           )}
+           {p.genericAlternative && (
+             <div className="px-2 py-1 rounded-lg bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg max-w-[100px] truncate" title={p.genericAlternative}>
+               ALT: {p.genericAlternative}
+             </div>
+           )}
         </div>
         
         <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
@@ -184,6 +194,10 @@ export default function POSPage() {
   const [momoRefCode, setMomoRefCode] = useState("");
   const [momoSmsPaste, setMomoSmsPaste] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
+  const [prescriptionId, setPrescriptionId] = useState("");
+
+  const isPharmacy = session?.user?.businessType === "PHARMACY";
+  const cartRequiresPrescription = isPharmacy && cart.some(item => item.requiresPrescription);
 
   // Localized SMS Parser Hook
   useEffect(() => {
@@ -326,6 +340,11 @@ export default function POSPage() {
        toast.error("Cart is empty");
        return;
     }
+
+    if (cartRequiresPrescription && !prescriptionId) {
+       toast.error("A Prescription ID is required to complete this sale.");
+       return;
+    }
     
     setLoading(true);
     try {
@@ -360,7 +379,9 @@ export default function POSPage() {
         paymentStatus: isCredit ? creditPayStatus : "PAID",
         customerId: selectedCustomer === "WALKIN" ? undefined : selectedCustomer,
         amountPaid: isCredit ? partialPaid : grandTotal,
-        saleNote: isHappyHour ? "HAPPY HOUR SALE" : undefined,
+        tax,
+        momoRef: paymentMethod === "MOBILE_MONEY" ? momoRefCode : undefined,
+        saleNote: isHappyHour ? "HAPPY HOUR SALE" : (cartRequiresPrescription ? `Prescription ID: ${prescriptionId}` : undefined),
       };
 
       let result;
@@ -808,6 +829,23 @@ export default function POSPage() {
             <div className="p-6 sm:p-10 space-y-8 sm:space-y-12 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
                {/* Customer Node Selection */}
                <div className="space-y-4 sm:space-y-5">
+                  {cartRequiresPrescription && (
+                    <div className="mb-6 p-4 rounded-[1.5rem] bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="p-2 rounded-xl bg-rose-100 dark:bg-rose-900 text-rose-600 dark:text-rose-400">
+                           <AlertTriangle size={18} />
+                        </div>
+                        <Label className="text-[11px] font-black text-rose-600 dark:text-rose-400 uppercase tracking-[0.3em]">Prescription Required</Label>
+                      </div>
+                      <Input
+                        value={prescriptionId}
+                        onChange={(e) => setPrescriptionId(e.target.value)}
+                        placeholder="Enter Prescription ID (e.g. RX-12345)"
+                        className="h-14 rounded-[1.2rem] border-rose-200 dark:border-rose-800 bg-white dark:bg-slate-900 font-bold"
+                      />
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between px-2">
                      <div className="flex items-center gap-3">
                         <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600">

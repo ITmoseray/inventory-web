@@ -114,7 +114,10 @@ export async function createProduct(data: any) {
       metadata,
       imageUrl,
       baseUnit,
-      units // New units field
+      units,
+      requiresPrescription,
+      genericAlternative,
+      isControlledSubstance
     } = data;
 
     const product = await prisma.product.create({
@@ -133,6 +136,9 @@ export async function createProduct(data: any) {
         businessId: session.user.businessId,
         imageUrl,
         baseUnit,
+        requiresPrescription: requiresPrescription || false,
+        genericAlternative: genericAlternative || null,
+        isControlledSubstance: isControlledSubstance || false,
         units: {
           create: units?.map((u: any) => ({
             name: u.name,
@@ -216,7 +222,10 @@ export async function updateProduct(id: string, data: any) {
       metadata,
       imageUrl,
       baseUnit,
-      units // New units field
+      units,
+      requiresPrescription,
+      genericAlternative,
+      isControlledSubstance
     } = data;
 
     // Use a transaction to ensure atomicity
@@ -237,7 +246,10 @@ export async function updateProduct(id: string, data: any) {
           categoryId: categoryId === "" || categoryId === "none" ? null : categoryId,
           metadata: metadata || {},
           imageUrl,
-          baseUnit
+          baseUnit,
+          requiresPrescription: requiresPrescription !== undefined ? requiresPrescription : false,
+          genericAlternative: genericAlternative !== undefined ? genericAlternative : null,
+          isControlledSubstance: isControlledSubstance !== undefined ? isControlledSubstance : false,
         },
       });
 
@@ -348,5 +360,55 @@ export async function deleteProduct(id: string) {
   } catch (error) {
     console.error("Failed to delete product:", error);
     throw error;
+  }
+}
+
+export async function getExpiringProducts(daysThreshold = 30) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    // We fetch products and then filter in JS since querying nested JSON dates in Prisma can be tricky across different DBs.
+    // For large catalogs, consider indexing or top-level fields for expiry dates.
+    const products = await prisma.product.findMany({
+      where: {
+        businessId: session.user.businessId,
+      },
+      select: {
+        id: true,
+        name: true,
+        stockQuantity: true,
+        metadata: true,
+        imageUrl: true,
+      }
+    });
+
+    const now = new Date();
+    const thresholdDate = new Date();
+    thresholdDate.setDate(now.getDate() + daysThreshold);
+
+    const expiring = products
+      .map(p => {
+        const metadata = p.metadata as any;
+        if (!metadata || !metadata.expiryDate) return null;
+        
+        const expiryDate = new Date(metadata.expiryDate);
+        if (isNaN(expiryDate.getTime())) return null;
+
+        const daysUntilExpiry = Math.ceil((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        
+        return {
+          ...p,
+          expiryDate: expiryDate.toISOString(),
+          daysUntilExpiry
+        };
+      })
+      .filter(p => p !== null && p.daysUntilExpiry <= daysThreshold)
+      .sort((a, b) => (a?.daysUntilExpiry || 0) - (b?.daysUntilExpiry || 0));
+
+    return expiring;
+  } catch (error) {
+    console.error("Failed to fetch expiring products:", error);
+    return [];
   }
 }

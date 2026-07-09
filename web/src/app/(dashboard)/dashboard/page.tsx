@@ -27,6 +27,7 @@ import { getWelcomeUpdate } from "@/lib/actions/ai";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { SmartForecastingWidget } from "@/components/dashboard/smart-forecasting-widget";
+import { ExpiryWidget } from "@/components/dashboard/expiry-widget";
 
 const TABS = ["Dashboard", "Getting Started", "Recent Updates"];
 
@@ -414,9 +415,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="grid gap-8 grid-cols-1 lg:grid-cols-3 mt-8">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className="lg:col-span-3 min-h-[350px]">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className={cn("min-h-[350px]", businessType === "PHARMACY" ? "lg:col-span-2" : "lg:col-span-3")}>
                 <SmartForecastingWidget />
               </motion.div>
+              {businessType === "PHARMACY" && (
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }} className="min-h-[350px]">
+                  <ExpiryWidget />
+                </motion.div>
+              )}
             </div>
 
             <div className="grid gap-8 lg:grid-cols-3 pb-12">

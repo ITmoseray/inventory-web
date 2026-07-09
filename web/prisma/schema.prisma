@@ -183,6 +183,9 @@ model Product {
   updatedAt          DateTime        @updatedAt
   deletedAt          DateTime?
   isNetworkAvailable Boolean         @default(false)
+  requiresPrescription Boolean       @default(false)
+  genericAlternative   String?
+  isControlledSubstance Boolean      @default(false)
   originalBusinessId String?
   originalProductId  String?
   type               ProductType     @default(PRODUCT)
