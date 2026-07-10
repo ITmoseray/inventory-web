@@ -798,13 +798,17 @@ export async function getInactiveBusinesses() {
     where: {
       createdAt: { lt: oneDayAgo },
       sales: { none: {} },
-      products: { none: {} },
     },
     include: {
       users: {
         select: {
           name: true,
           email: true,
+        }
+      },
+      _count: {
+        select: {
+          products: true
         }
       }
     },
@@ -819,6 +823,7 @@ export async function getInactiveBusinesses() {
     createdAt: b.createdAt.toISOString(),
     ownerName: b.users[0]?.name || "N/A",
     ownerEmail: b.users[0]?.email || "N/A",
+    productCount: b._count.products,
   }));
 }
 

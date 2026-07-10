@@ -745,12 +745,17 @@ export default function NexusSuperControl() {
                 >
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0" />
-                    <h3 className="font-black text-xs uppercase tracking-widest leading-none">Inactive Stores Warning (Registered &gt; 24h ago, 0 products, 0 sales)</h3>
+                    <h3 className="font-black text-xs uppercase tracking-widest leading-none">Inactive Stores Warning (Registered &gt; 24h ago, 0 sales processed)</h3>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {inactiveBusinesses.map((biz) => (
                       <div key={biz.id} className="p-4 bg-white dark:bg-slate-900 border border-amber-500/10 dark:border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-700 dark:text-slate-400">
-                        <div className="font-black text-slate-900 dark:text-white">{biz.name}</div>
+                        <div className="font-black text-slate-900 dark:text-white flex justify-between items-center">
+                          <span>{biz.name}</span>
+                          <span className="px-2 py-0.5 rounded bg-amber-500/10 text-[9px] font-black uppercase text-amber-600 dark:text-amber-400">
+                            {biz.productCount} Products
+                          </span>
+                        </div>
                         <div><span className="font-bold">Owner:</span> {biz.ownerName} ({biz.ownerEmail})</div>
                         {biz.phone && <div><span className="font-bold">Phone:</span> {biz.phone}</div>}
                         <div className="text-[10px] text-slate-400 dark:text-slate-500 font-bold">
