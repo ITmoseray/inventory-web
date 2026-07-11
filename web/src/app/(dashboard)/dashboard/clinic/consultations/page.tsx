@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Stethoscope, User, Save, History, FlaskConical, Pill } from "lucide-react";
 import { getAppointments, createConsultation, createLabTest } from "@/app/actions/clinic";
+import { toast } from "sonner";
 
 export default function ConsultationsPage() {
   const { data: session } = useSession();
@@ -47,45 +48,57 @@ export default function ConsultationsPage() {
   const handleSaveConsultation = async () => {
     if (!selectedAppointment) return;
     
-    const res = await createConsultation({
-      patientId: selectedAppointment.patientId,
-      doctorId: session!.user.id,
-      appointmentId: selectedAppointment.id,
-      vitals,
-      chiefComplaint,
-      symptoms,
-      diagnosis,
-      treatmentPlan,
-      doctorNotes,
-      businessId: session!.user.businessId
-    });
+    try {
+      const res = await createConsultation({
+        patientId: selectedAppointment.patientId,
+        doctorId: session!.user.id,
+        appointmentId: selectedAppointment.id,
+        vitals,
+        chiefComplaint,
+        symptoms,
+        diagnosis,
+        treatmentPlan,
+        doctorNotes,
+        businessId: session!.user.businessId
+      });
 
-    if (res.success) {
-      alert("Consultation saved successfully!");
-      setSelectedAppointment(null);
-      // Reset form
-      setVitals({ bp: "", temp: "", weight: "", heartRate: "" });
-      setChiefComplaint("");
-      setSymptoms("");
-      setDiagnosis("");
-      setTreatmentPlan("");
-      setDoctorNotes("");
-      fetchQueue();
+      if (res.success) {
+        toast.success("Consultation saved successfully!");
+        setSelectedAppointment(null);
+        // Reset form
+        setVitals({ bp: "", temp: "", weight: "", heartRate: "" });
+        setChiefComplaint("");
+        setSymptoms("");
+        setDiagnosis("");
+        setTreatmentPlan("");
+        setDoctorNotes("");
+        fetchQueue();
+      } else {
+        toast.error(res.error || "Failed to save consultation");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred");
     }
   };
 
   const handleOrderLab = async () => {
     if (!selectedAppointment || !testName.trim()) return;
-    const res = await createLabTest({
-      patientId: selectedAppointment.patientId,
-      doctorId: session!.user.id,
-      testName,
-      businessId: session!.user.businessId
-    });
-    if (res.success) {
-      alert("Lab Test Ordered successfully!");
-      setTestName("");
-      setLabDialogOpen(false);
+    try {
+      const res = await createLabTest({
+        patientId: selectedAppointment.patientId,
+        doctorId: session!.user.id,
+        testName,
+        businessId: session!.user.businessId
+      });
+      if (res.success) {
+        toast.success("Lab Test Ordered successfully!");
+        setTestName("");
+        setLabDialogOpen(false);
+      } else {
+        toast.error(res.error || "Failed to order lab test");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred");
     }
   };
 
