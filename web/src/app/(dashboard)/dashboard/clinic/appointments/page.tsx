@@ -50,15 +50,15 @@ export default function AppointmentsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
-          <Card className="rounded-2xl border-slate-100 shadow-sm overflow-hidden">
-            <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
+          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
+            <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <CalendarDays className="h-5 w-5 text-indigo-600" /> Today's Schedule
                 </CardTitle>
                 <div className="relative w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input placeholder="Search patient..." className="pl-9 rounded-xl bg-white" />
+                  <Input placeholder="Search patient..." className="pl-9 rounded-xl bg-white dark:bg-slate-950 dark:border-slate-800" />
                 </div>
               </div>
             </CardHeader>
@@ -67,22 +67,22 @@ export default function AppointmentsPage() {
                 <div className="p-8 text-center text-slate-500">Loading appointments...</div>
               ) : appointments.length === 0 ? (
                 <div className="p-12 text-center flex flex-col items-center justify-center">
-                   <div className="h-16 w-16 bg-slate-100 rounded-full flex items-center justify-center mb-4">
-                     <Calendar className="h-8 w-8 text-slate-400" />
+                   <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
+                     <Calendar className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                    </div>
-                   <h3 className="text-lg font-bold text-slate-900 mb-1">No appointments found</h3>
-                   <p className="text-sm text-slate-500 max-w-sm">There are no appointments scheduled for today. Click the button above to create one.</p>
+                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No appointments found</h3>
+                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">There are no appointments scheduled for today. Click the button above to create one.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-slate-100">
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {appointments.map((apt) => (
-                    <div key={apt.id} className="p-4 hover:bg-slate-50 transition-colors flex items-center justify-between">
+                    <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex flex-col items-center justify-center font-bold">
+                        <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center font-bold">
                           <span className="text-xs">{new Date(apt.appointmentDate).getHours()}:{new Date(apt.appointmentDate).getMinutes().toString().padStart(2, '0')}</span>
                         </div>
                         <div>
-                          <p className="font-bold text-slate-900">{apt.patient?.name || "Unknown Patient"}</p>
+                          <p className="font-bold text-slate-900 dark:text-white">{apt.patient?.name || "Unknown Patient"}</p>
                           <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
                             <User className="h-3 w-3" /> Dr. {apt.doctor?.name || "Unassigned"}
                           </p>
@@ -90,9 +90,9 @@ export default function AppointmentsPage() {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg ${
-                          apt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700' : 
-                          apt.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-700' :
-                          'bg-indigo-100 text-indigo-700'
+                          apt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 
+                          apt.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
+                          'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400'
                         }`}>
                           {apt.status}
                         </span>
@@ -111,26 +111,26 @@ export default function AppointmentsPage() {
         </div>
         
         <div>
-          <Card className="rounded-2xl border-slate-100 shadow-sm">
+          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm dark:bg-slate-900">
             <CardHeader>
               <CardTitle className="text-sm uppercase tracking-widest text-slate-500 font-black">Quick Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-               <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center gap-4">
-                 <div className="h-10 w-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+               <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-4">
+                 <div className="h-10 w-10 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                     <Users className="h-5 w-5" />
                  </div>
                  <div>
-                    <p className="text-2xl font-black text-slate-900">{appointments.length}</p>
+                    <p className="text-2xl font-black text-slate-900 dark:text-white">{appointments.length}</p>
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Today</p>
                  </div>
                </div>
-               <div className="p-4 rounded-xl border border-slate-100 bg-slate-50 flex items-center gap-4">
-                 <div className="h-10 w-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+               <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-4">
+                 <div className="h-10 w-10 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                     <Clock className="h-5 w-5" />
                  </div>
                  <div>
-                    <p className="text-2xl font-black text-slate-900">{appointments.filter(a => a.status === 'COMPLETED').length}</p>
+                    <p className="text-2xl font-black text-slate-900 dark:text-white">{appointments.filter(a => a.status === 'COMPLETED').length}</p>
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Completed</p>
                  </div>
                </div>
