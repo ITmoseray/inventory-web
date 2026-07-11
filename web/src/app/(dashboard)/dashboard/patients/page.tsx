@@ -26,6 +26,7 @@ import {
 import { toast } from "sonner";
 import { getPatients, createPatient } from "@/lib/actions/patient";
 import { format } from "date-fns";
+import Link from "next/link";
 
 export default function PatientsRegistryPage() {
   const [patients, setPatients] = useState<any[]>([]);
@@ -196,18 +197,19 @@ export default function PatientsRegistryPage() {
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Contact Info</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-rose-500">Allergies</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Prescriptions</TableHead>
+              <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-right pr-6">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {loading ? (
               [1, 2, 3].map(i => (
                 <TableRow key={i} className="border-slate-100 dark:border-slate-850">
-                  <TableCell colSpan={5} className="h-20 animate-pulse bg-slate-50/50 dark:bg-slate-800/50" />
+                  <TableCell colSpan={6} className="h-20 animate-pulse bg-slate-50/50 dark:bg-slate-800/50" />
                 </TableRow>
               ))
             ) : filteredPatients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="h-32 text-center text-slate-400 font-bold italic">
+                <TableCell colSpan={6} className="h-32 text-center text-slate-400 font-bold italic">
                   No patient profiles registered yet.
                 </TableCell>
               </TableRow>
@@ -264,6 +266,13 @@ export default function PatientsRegistryPage() {
                     <span className="flex items-center gap-1.5 text-xs font-bold text-slate-700 dark:text-slate-350">
                       <FileText className="h-4 w-4 text-slate-400" /> {patient.prescriptions?.length || 0} Prescribed
                     </span>
+                  </TableCell>
+                  <TableCell className="text-right pr-6">
+                    <Link href={`/dashboard/patients/${patient.id}`}>
+                       <Button variant="outline" size="sm" className="rounded-xl shadow-sm text-xs h-8">
+                          View Profile
+                       </Button>
+                    </Link>
                   </TableCell>
                 </TableRow>
               ))

@@ -57,6 +57,9 @@ model Business {
   patients            Patient[]
   prescriptions       Prescription[]
   locations           Location[]
+  appointments        Appointment[]
+  consultations       Consultation[]
+  labTests            LabTest[]
 
   @@index([slug])
 }
@@ -87,6 +90,10 @@ model User {
   stockMovements     StockMovement[]
   business           Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
   role               Role                 @relation(fields: [roleId], references: [id])
+  appointments       Appointment[]
+  consultations      Consultation[]
+  labTests           LabTest[]            @relation("LabTechnician")
+  requestedLabTests  LabTest[]            @relation("DoctorLabTests")
 
   @@index([businessId])
   @@index([roleId])
@@ -581,6 +588,8 @@ enum BusinessType {
   BAR
   PHARMACY
   SUPERMARKET
+  CLINIC
+  HOSPITAL
 }
 
 enum SubscriptionPlan {
@@ -617,6 +626,9 @@ model Patient {
   businessId     String
   business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
   prescriptions  Prescription[]
+  appointments   Appointment[]
+  consultations  Consultation[]
+  labTests       LabTest[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -690,4 +702,74 @@ model StockTransfer {
   @@index([fromLocationId])
   @@index([toLocationId])
   @@index([productId])
+}
+
+model Appointment {
+  id              String         @id @default(cuid())
+  patientId       String
+  patient         Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId        String
+  doctor          User           @relation(fields: [doctorId], references: [id])
+  appointmentDate DateTime
+  status          String         @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
+  reason          String?
+  notes           String?
+  businessId      String
+  business        Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  consultation    Consultation?
+
+  @@index([businessId])
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model Consultation {
+  id              String         @id @default(cuid())
+  patientId       String
+  patient         Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId        String
+  doctor          User           @relation(fields: [doctorId], references: [id])
+  appointmentId   String?        @unique
+  appointment     Appointment?   @relation(fields: [appointmentId], references: [id])
+  vitals          Json?          // { bp, temp, weight, heartRate, etc. }
+  chiefComplaint  String?
+  symptoms        String?
+  diagnosis       String?
+  treatmentPlan   String?
+  doctorNotes     String?        @db.Text
+  businessId      String
+  business        Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  labTests        LabTest[]
+
+  @@index([businessId])
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model LabTest {
+  id               String         @id @default(cuid())
+  patientId        String
+  patient          Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId         String
+  doctor           User           @relation("DoctorLabTests", fields: [doctorId], references: [id])
+  consultationId   String?
+  consultation     Consultation?  @relation(fields: [consultationId], references: [id])
+  testName         String
+  testCategory     String?
+  results          String?        @db.Text
+  status           String         @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  labTechnicianId  String?
+  labTechnician    User?          @relation("LabTechnician", fields: [labTechnicianId], references: [id])
+  businessId       String
+  business         Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([businessId])
+  @@index([patientId])
+  @@index([doctorId])
 }
