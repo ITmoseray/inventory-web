@@ -104,13 +104,13 @@ export default function AppointmentsPage() {
         <div className="md:col-span-2 space-y-4">
           <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
             <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-lg">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <CardTitle className="flex items-center gap-2 text-lg shrink-0">
                   <CalendarDays className="h-5 w-5 text-indigo-600" /> Today's Schedule
                 </CardTitle>
-                <div className="relative w-64">
+                <div className="relative w-full sm:w-64 shrink-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input placeholder="Search patient..." className="pl-9 rounded-xl bg-white dark:bg-slate-950 dark:border-slate-800" />
+                  <Input placeholder="Search patient..." className="pl-9 rounded-xl bg-white dark:bg-slate-950 dark:border-slate-800 w-full" />
                 </div>
               </div>
             </CardHeader>
