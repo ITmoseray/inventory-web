@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Stethoscope, User, Save, History, FlaskConical, Pill } from "lucide-react";
-import { getAppointments, createConsultation } from "@/app/actions/clinic";
+import { getAppointments, createConsultation, createLabTest } from "@/app/actions/clinic";
 
 export default function ConsultationsPage() {
   const { data: session } = useSession();
@@ -23,6 +24,9 @@ export default function ConsultationsPage() {
   const [diagnosis, setDiagnosis] = useState("");
   const [treatmentPlan, setTreatmentPlan] = useState("");
   const [doctorNotes, setDoctorNotes] = useState("");
+
+  const [labDialogOpen, setLabDialogOpen] = useState(false);
+  const [testName, setTestName] = useState("");
 
   useEffect(() => {
     if (session?.user?.businessId) {
@@ -67,6 +71,21 @@ export default function ConsultationsPage() {
       setTreatmentPlan("");
       setDoctorNotes("");
       fetchQueue();
+    }
+  };
+
+  const handleOrderLab = async () => {
+    if (!selectedAppointment || !testName.trim()) return;
+    const res = await createLabTest({
+      patientId: selectedAppointment.patientId,
+      doctorId: session!.user.id,
+      testName,
+      businessId: session!.user.businessId
+    });
+    if (res.success) {
+      alert("Lab Test Ordered successfully!");
+      setTestName("");
+      setLabDialogOpen(false);
     }
   };
 
@@ -129,9 +148,34 @@ export default function ConsultationsPage() {
                      <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
                         <History className="mr-2 h-4 w-4" /> History
                      </Button>
-                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
-                        <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
-                     </Button>
+                     <Dialog open={labDialogOpen} onOpenChange={setLabDialogOpen}>
+                        <DialogTrigger asChild>
+                           <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
+                              <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
+                           </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Order Lab Test</DialogTitle>
+                          </DialogHeader>
+                          <div className="py-4 space-y-4">
+                            <div className="space-y-2">
+                              <Label className="font-bold">Test Name / Description</Label>
+                              <Input 
+                                value={testName} 
+                                onChange={(e) => setTestName(e.target.value)} 
+                                placeholder="E.g. Complete Blood Count, Malaria Rapid Test..." 
+                                className="bg-slate-50 dark:bg-slate-800"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button onClick={handleOrderLab} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                              Send to Lab
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                     </Dialog>
                      <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
                         <Pill className="mr-2 h-4 w-4" /> Rx
                      </Button>
