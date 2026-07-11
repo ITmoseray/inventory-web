@@ -37,8 +37,8 @@ export default function AppointmentsPage() {
         getPatients(),
         getUsers()
       ]);
-      if (patientsRes?.success) setPatients(patientsRes.data || []);
-      if (usersRes?.success) setDoctors(usersRes.data || []);
+      setPatients(Array.isArray(patientsRes) ? patientsRes : []);
+      setDoctors(Array.isArray(usersRes) ? usersRes : []);
     } catch (e) {
       console.error(e);
     }
