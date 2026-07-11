@@ -10,6 +10,10 @@ import { getLabTests, submitLabResults } from "@/app/actions/clinic";
 import { jsPDF } from "jspdf";
 import { format } from "date-fns";
 import autoTable from "jspdf-autotable";
+import { generateLabBill } from "@/app/actions/clinic-billing";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Receipt } from "lucide-react";
 
 export default function LabTestsPage() {
   const { data: session } = useSession();
@@ -17,6 +21,8 @@ export default function LabTestsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedTest, setSelectedTest] = useState<any>(null);
   const [resultsText, setResultsText] = useState("");
+  const [generateBill, setGenerateBill] = useState(true);
+  const [fee, setFee] = useState("50.00");
 
   useEffect(() => {
     if (session?.user?.businessId) {
@@ -37,9 +43,16 @@ export default function LabTestsPage() {
     if (!selectedTest) return;
     const res = await submitLabResults(selectedTest.id, resultsText, session!.user.id);
     if (res.success) {
-      alert("Results submitted successfully!");
+      if (generateBill && parseFloat(fee) > 0) {
+        await generateLabBill(selectedTest.id, parseFloat(fee), selectedTest.patientId, selectedTest.testName);
+        alert("Results submitted and Bill sent to POS!");
+      } else {
+        alert("Results submitted successfully!");
+      }
       setSelectedTest(null);
       setResultsText("");
+      setGenerateBill(true);
+      setFee("50.00");
       fetchTests();
     }
   };
@@ -260,12 +273,28 @@ export default function LabTestsPage() {
                       className="min-h-[250px] resize-y bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl"
                     />
                  </div>
-                 <Button onClick={handleSubmitResults} className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 h-12 text-sm font-bold uppercase tracking-widest transition-all hover:shadow-teal-600/40">
-                    Submit & Mark Completed
-                 </Button>
-                 <Button variant="ghost" onClick={() => setSelectedTest(null)} className="w-full rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800">
-                    Cancel
-                 </Button>
+                 <div className="flex flex-col gap-4 pt-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-2 pl-2">
+                        <input type="checkbox" id="generate-bill" checked={generateBill} onChange={(e) => setGenerateBill(e.target.checked)} className="h-4 w-4 text-teal-600 rounded border-slate-300" />
+                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-slate-700 dark:text-slate-300">
+                          <Receipt className="h-4 w-4" /> Bill Patient
+                        </Label>
+                      </div>
+                      {generateBill && (
+                        <div className="flex items-center gap-2 ml-auto">
+                           <Label className="text-xs uppercase text-slate-500 font-bold">Fee:</Label>
+                           <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} className="w-24 h-8 bg-white dark:bg-slate-950 focus-visible:ring-teal-500 rounded-lg text-right font-mono" />
+                        </div>
+                      )}
+                    </div>
+                    <Button onClick={handleSubmitResults} className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 h-12 text-sm font-bold uppercase tracking-widest transition-all hover:shadow-teal-600/40">
+                       Submit & Mark Completed
+                    </Button>
+                    <Button variant="ghost" onClick={() => setSelectedTest(null)} className="w-full rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800">
+                       Cancel
+                    </Button>
+                 </div>
                </CardContent>
              </Card>
            ) : (

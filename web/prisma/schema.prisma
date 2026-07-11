@@ -292,6 +292,7 @@ model Sale {
   businessId    String
   userId        String
   customerId    String?
+  patientId     String?
   tableId       String?
   createdAt     DateTime             @default(now())
   deletedAt     DateTime?
@@ -300,9 +301,13 @@ model Sale {
   statusHistory OrderStatusHistory[]
   business      Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
   customer      Customer?            @relation(fields: [customerId], references: [id])
+  patient       Patient?             @relation(fields: [patientId], references: [id])
   table         RestaurantTable?     @relation(fields: [tableId], references: [id])
   user          User                 @relation(fields: [userId], references: [id])
   items         SaleItem[]
+  consultation  Consultation?        @relation("ConsultationSale")
+  labTest       LabTest?             @relation("LabTestSale")
+  prescription  Prescription?        @relation("PrescriptionSale")
 
   @@index([businessId])
   @@index([businessId, deletedAt])
@@ -629,6 +634,7 @@ model Patient {
   appointments   Appointment[]
   consultations  Consultation[]
   labTests       LabTest[]
+  sales          Sale[]
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
@@ -647,6 +653,8 @@ model Prescription {
   instructions       String?          // e.g. "Take 1 tablet after meals"
   businessId         String
   business           Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  saleId             String?          @unique
+  sale               Sale?            @relation("PrescriptionSale", fields: [saleId], references: [id])
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
@@ -741,6 +749,8 @@ model Consultation {
   doctorNotes     String?        @db.Text
   businessId      String
   business        Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  saleId          String?        @unique
+  sale            Sale?          @relation("ConsultationSale", fields: [saleId], references: [id])
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   labTests        LabTest[]
@@ -766,6 +776,8 @@ model LabTest {
   labTechnician    User?          @relation("LabTechnician", fields: [labTechnicianId], references: [id])
   businessId       String
   business         Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  saleId           String?        @unique
+  sale             Sale?          @relation("LabTestSale", fields: [saleId], references: [id])
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 

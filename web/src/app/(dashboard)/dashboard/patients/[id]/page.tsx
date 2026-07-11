@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Phone, MapPin, Calendar, Clock, Stethoscope, FlaskConical, FileText } from "lucide-react";
+import { User, Phone, MapPin, Calendar, Clock, Stethoscope, FlaskConical, FileText, Receipt, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 
 export default async function PatientProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -25,6 +25,9 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
       },
       prescriptions: {
         orderBy: { dateIssued: "desc" },
+      },
+      sales: {
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -158,6 +161,46 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
                                </div>
                              ) : (
                                <span className="text-xs font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 px-2 py-1 rounded-md">Pending</span>
+                             )}
+                          </div>
+                       </div>
+                     ))
+                   )}
+                </div>
+              </CardContent>
+           </Card>
+
+           {/* Billing & Payments */}
+           <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900 mt-6">
+             <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800">
+                <CardTitle className="text-sm uppercase tracking-widest text-slate-500 font-black flex items-center gap-2">
+                  <Receipt className="h-4 w-4 text-teal-600 dark:text-teal-400" /> Billing & Payments
+                </CardTitle>
+             </CardHeader>
+             <CardContent className="p-0">
+                <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                   {patient.sales.length === 0 ? (
+                     <div className="p-6 text-center text-sm text-slate-500">No billing records.</div>
+                   ) : (
+                     patient.sales.map(sale => (
+                       <div key={sale.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                          <div>
+                            <p className="font-bold text-sm text-slate-900 dark:text-white">{sale.invoiceNumber}</p>
+                            <p className="text-xs text-slate-500 mt-1">
+                              {format(new Date(sale.createdAt), "MMM dd, yyyy - hh:mm a")}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                             <div className="text-right">
+                               <p className="font-black text-slate-900 dark:text-white">Le {Number(sale.totalAmount).toLocaleString()}</p>
+                               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{sale.paymentMethod}</p>
+                             </div>
+                             {sale.paymentStatus === 'PAID' ? (
+                               <div className="h-8 w-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                                  <CheckCircle2 className="h-5 w-5" />
+                               </div>
+                             ) : (
+                               <span className="text-xs font-bold text-rose-600 dark:text-rose-400 bg-rose-50 dark:bg-rose-500/10 px-2 py-1 rounded-md uppercase tracking-widest">Unpaid</span>
                              )}
                           </div>
                        </div>

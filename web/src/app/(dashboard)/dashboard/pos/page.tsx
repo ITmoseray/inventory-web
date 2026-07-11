@@ -70,6 +70,7 @@ import { useSession } from "next-auth/react";
 import { UnitSelectorModal } from "@/components/pos/UnitSelectorModal";
 import { ThermalReceipt } from "@/components/pos/ThermalReceipt";
 import { CameraScanner } from "@/components/shared/camera-scanner";
+import { MedicalBillsModal } from "@/components/pos/MedicalBillsModal";
 
 // Elite Product Card
 const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) => void }) => {
@@ -541,6 +542,7 @@ export default function POSPage() {
             </div>
           )}
           <div className="flex items-center gap-2 w-full lg:w-auto">
+             <MedicalBillsModal />
              <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest gap-2">
                 <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />
                 African Trade Sync
