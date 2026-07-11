@@ -104,21 +104,21 @@ export default function AppointmentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Appointments</h1>
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-cyan-600 dark:from-teal-400 dark:to-cyan-300 tracking-tight">Appointments</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage patient schedules and doctor availability</p>
         </div>
-        <Button onClick={() => setIsDialogOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20">
+        <Button onClick={() => setIsDialogOpen(true)} className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 transition-all duration-300 hover:shadow-teal-600/40 w-full sm:w-auto">
           <Plus className="mr-2 h-4 w-4" /> New Appointment
         </Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
-          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
-            <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
+          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-xl shadow-teal-500/5 overflow-hidden dark:bg-slate-900">
+            <CardHeader className="bg-white/50 backdrop-blur-xl dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <CardTitle className="flex items-center gap-2 text-lg shrink-0">
-                  <CalendarDays className="h-5 w-5 text-indigo-600" /> Today's Schedule
+                <CardTitle className="flex items-center gap-2 text-lg shrink-0 text-slate-800 dark:text-white">
+                  <CalendarDays className="h-5 w-5 text-teal-600 dark:text-teal-400" /> Today's Schedule
                 </CardTitle>
                 <div className="relative w-full sm:w-64 shrink-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -145,28 +145,28 @@ export default function AppointmentsPage() {
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {filteredAppointments.map((apt) => (
-                    <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-l-4 hover:pl-5 hover:shadow-lg hover:-translate-y-0.5 border-transparent hover:border-teal-500 bg-white dark:bg-slate-900 mb-1 rounded-r-xl">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center font-bold shrink-0">
+                        <div className="h-12 w-12 rounded-xl bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex flex-col items-center justify-center font-bold shrink-0">
                           <span className="text-xs">{new Date(apt.appointmentDate).getHours()}:{new Date(apt.appointmentDate).getMinutes().toString().padStart(2, '0')}</span>
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="font-bold text-slate-900 dark:text-white truncate">{apt.patient?.name || "Unknown Patient"}</p>
-                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                          <p className="font-bold text-slate-900 dark:text-white truncate text-base">{apt.patient?.name || "Unknown Patient"}</p>
+                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5 truncate font-medium">
                             <User className="h-3 w-3 shrink-0" /> Dr. {apt.doctor?.name || "Unassigned"}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg ${
-                          apt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 
-                          apt.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
-                          'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400'
+                        <span className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-lg ${
+                          apt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/30' : 
+                          apt.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 border border-amber-200 dark:border-amber-800/30' :
+                          'bg-teal-100 text-teal-700 dark:bg-teal-500/10 dark:text-teal-400 border border-teal-200 dark:border-teal-800/30'
                         }`}>
                           {apt.status}
                         </span>
                         {apt.status === 'SCHEDULED' && (
-                          <Button size="sm" variant="outline" className="rounded-xl h-8 text-xs shrink-0" onClick={() => handleStatusUpdate(apt.id, 'IN_PROGRESS')}>
+                          <Button size="sm" variant="outline" className="rounded-xl h-8 text-xs shrink-0 border-teal-200 text-teal-700 hover:bg-teal-50 hover:text-teal-800 dark:border-teal-800 dark:text-teal-400 dark:hover:bg-teal-900/50" onClick={() => handleStatusUpdate(apt.id, 'IN_PROGRESS')}>
                             Check In
                           </Button>
                         )}
@@ -180,13 +180,13 @@ export default function AppointmentsPage() {
         </div>
         
         <div>
-          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm dark:bg-slate-900">
+          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-xl shadow-teal-500/5 dark:bg-slate-900 sticky top-24">
             <CardHeader>
               <CardTitle className="text-sm uppercase tracking-widest text-slate-500 font-black">Quick Stats</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-               <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex items-center gap-4">
-                 <div className="h-10 w-10 rounded-lg bg-indigo-100 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+               <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 flex items-center gap-4 shadow-sm hover:shadow-md transition-shadow">
+                 <div className="h-10 w-10 rounded-lg bg-teal-100 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 flex items-center justify-center">
                     <Users className="h-5 w-5" />
                  </div>
                  <div>
@@ -259,7 +259,7 @@ export default function AppointmentsPage() {
             </div>
             <div className="flex justify-end gap-3 pt-4">
               <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-xl h-12 px-6">Cancel</Button>
-              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-12 px-8 font-black uppercase tracking-widest text-[10px]">
+              <Button type="submit" className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl h-12 px-8 font-black uppercase tracking-widest text-[10px] shadow-lg shadow-teal-600/20">
                 Create
               </Button>
             </div>

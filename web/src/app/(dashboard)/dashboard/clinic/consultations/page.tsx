@@ -106,7 +106,7 @@ export default function ConsultationsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Consultations</h1>
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-cyan-600 dark:from-teal-400 dark:to-cyan-300 tracking-tight">Consultations</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Doctor workspace and clinical notes</p>
         </div>
       </div>
@@ -127,14 +127,14 @@ export default function ConsultationsPage() {
                  <div className="p-6 text-center text-xs text-slate-500">No patients waiting.</div>
                ) : (
                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {appointments.map(apt => (
+                     {appointments.map(apt => (
                       <div 
                         key={apt.id} 
                         onClick={() => setSelectedAppointment(apt)}
-                        className={`p-4 cursor-pointer transition-colors ${selectedAppointment?.id === apt.id ? 'bg-indigo-50 dark:bg-indigo-500/10 border-l-4 border-indigo-600 dark:border-indigo-500' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent'}`}
+                        className={`p-4 cursor-pointer transition-all duration-300 ${selectedAppointment?.id === apt.id ? 'bg-teal-50 dark:bg-teal-500/10 border-l-4 border-teal-600 dark:border-teal-500' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent hover:border-slate-200 dark:hover:border-slate-700'}`}
                       >
-                         <p className="font-bold text-sm text-slate-900 dark:text-white">{apt.patient?.name}</p>
-                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider">{apt.reason || "General Visit"}</p>
+                         <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{apt.patient?.name}</p>
+                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider truncate">{apt.reason || "General Visit"}</p>
                       </div>
                     ))}
                  </div>
@@ -146,26 +146,26 @@ export default function ConsultationsPage() {
         {/* Right Side - Workspace */}
         <div className="lg:col-span-3 space-y-4">
            {selectedAppointment ? (
-             <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
-               <div className="bg-slate-900 dark:bg-slate-950 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b dark:border-slate-800">
+              <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-xl shadow-teal-500/5 overflow-hidden dark:bg-slate-900">
+               <div className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-teal-900/50 dark:border-slate-800">
                   <div className="flex items-center gap-4">
-                     <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center font-bold text-xl shrink-0">
+                     <div className="h-12 w-12 rounded-full bg-teal-500/20 text-teal-100 flex items-center justify-center font-bold text-xl shrink-0 border border-teal-500/30">
                        {selectedAppointment.patient?.name?.charAt(0)}
                      </div>
                      <div className="min-w-0">
                        <h2 className="text-xl font-bold truncate">{selectedAppointment.patient?.name}</h2>
-                       <p className="text-slate-400 text-sm truncate">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
+                       <p className="text-slate-300 text-sm truncate font-medium">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
                      </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
+                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0 transition-colors">
                         <History className="mr-2 h-4 w-4" /> History
                      </Button>
                      <Dialog open={labDialogOpen} onOpenChange={setLabDialogOpen}>
                         <DialogTrigger asChild>
-                           <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
+                           <Button variant="secondary" size="sm" className="bg-teal-600/20 hover:bg-teal-600/40 text-teal-100 border border-teal-500/30 transition-colors">
                               <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
-                           </Button>
+                           </Button>n>
                         </DialogTrigger>
                         <DialogContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-[425px]">
                           <DialogHeader>
@@ -183,13 +183,13 @@ export default function ConsultationsPage() {
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button onClick={handleOrderLab} className="bg-indigo-600 hover:bg-indigo-700 text-white">
+                            <Button onClick={handleOrderLab} className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white">
                               Send to Lab
                             </Button>
                           </DialogFooter>
                         </DialogContent>
                      </Dialog>
-                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
+                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0 transition-colors">
                         <Pill className="mr-2 h-4 w-4" /> Rx
                      </Button>
                   </div>
@@ -197,26 +197,26 @@ export default function ConsultationsPage() {
 
                <CardContent className="p-6 space-y-6">
                  {/* Vitals */}
-                 <div>
-                   <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest mb-3 flex items-center gap-2">
-                     <Stethoscope className="h-4 w-4 text-rose-500" /> Vitals
+                 <div className="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60">
+                   <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     <Stethoscope className="h-4 w-4 text-teal-600 dark:text-teal-400" /> Patient Vitals
                    </h3>
-                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
                      <div className="space-y-1">
-                       <Label className="text-xs">Blood Pressure</Label>
-                       <Input value={vitals.bp} onChange={(e) => setVitals({...vitals, bp: e.target.value})} placeholder="120/80" className="bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="text-[10px] font-bold uppercase text-slate-400">Blood Pressure</Label>
+                       <Input value={vitals.bp} onChange={(e) => setVitals({...vitals, bp: e.target.value})} placeholder="120/80" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                      </div>
                      <div className="space-y-1">
-                       <Label className="text-xs">Heart Rate (bpm)</Label>
-                       <Input value={vitals.heartRate} onChange={(e) => setVitals({...vitals, heartRate: e.target.value})} placeholder="72" className="bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="text-[10px] font-bold uppercase text-slate-400">Heart Rate (bpm)</Label>
+                       <Input value={vitals.heartRate} onChange={(e) => setVitals({...vitals, heartRate: e.target.value})} placeholder="72" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                      </div>
                      <div className="space-y-1">
-                       <Label className="text-xs">Temperature (°C)</Label>
-                       <Input value={vitals.temp} onChange={(e) => setVitals({...vitals, temp: e.target.value})} placeholder="36.5" className="bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="text-[10px] font-bold uppercase text-slate-400">Temperature (°C)</Label>
+                       <Input value={vitals.temp} onChange={(e) => setVitals({...vitals, temp: e.target.value})} placeholder="36.5" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                      </div>
                      <div className="space-y-1">
-                       <Label className="text-xs">Weight (kg)</Label>
-                       <Input value={vitals.weight} onChange={(e) => setVitals({...vitals, weight: e.target.value})} placeholder="70" className="bg-slate-50 dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="text-[10px] font-bold uppercase text-slate-400">Weight (kg)</Label>
+                       <Input value={vitals.weight} onChange={(e) => setVitals({...vitals, weight: e.target.value})} placeholder="70" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                      </div>
                    </div>
                  </div>
@@ -224,36 +224,36 @@ export default function ConsultationsPage() {
                  {/* Notes */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <Label className="font-bold">Chief Complaint</Label>
-                       <Input value={chiefComplaint} onChange={(e) => setChiefComplaint(e.target.value)} placeholder="Main reason for visit..." className="dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="font-bold text-slate-700 dark:text-slate-300">Chief Complaint</Label>
+                       <Input value={chiefComplaint} onChange={(e) => setChiefComplaint(e.target.value)} placeholder="Main reason for visit..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                     </div>
                     <div className="space-y-2">
-                       <Label className="font-bold">Symptoms</Label>
-                       <Input value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="E.g., fever, cough, headache..." className="dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="font-bold text-slate-700 dark:text-slate-300">Symptoms</Label>
+                       <Input value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="E.g., fever, cough, headache..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                     </div>
                     <div className="space-y-2">
-                       <Label className="font-bold">Diagnosis</Label>
-                       <Input value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Primary diagnosis..." className="dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="font-bold text-slate-700 dark:text-slate-300">Diagnosis</Label>
+                       <Input value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Primary diagnosis..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                     </div>
                     <div className="space-y-2">
-                       <Label className="font-bold">Treatment Plan</Label>
-                       <Input value={treatmentPlan} onChange={(e) => setTreatmentPlan(e.target.value)} placeholder="Medications, rest, follow-up..." className="dark:bg-slate-950 dark:border-slate-800" />
+                       <Label className="font-bold text-slate-700 dark:text-slate-300">Treatment Plan</Label>
+                       <Input value={treatmentPlan} onChange={(e) => setTreatmentPlan(e.target.value)} placeholder="Medications, rest, follow-up..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
                     </div>
                  </div>
 
                  {/* Detailed Notes */}
                  <div className="space-y-2">
-                    <Label className="font-bold">Comprehensive Doctor Notes</Label>
+                    <Label className="font-bold text-slate-700 dark:text-slate-300">Comprehensive Doctor Notes</Label>
                     <Textarea 
                       value={doctorNotes} 
                       onChange={(e) => setDoctorNotes(e.target.value)} 
                       placeholder="Detailed clinical observations, examination findings, and additional remarks..."
-                      className="min-h-[150px] resize-y bg-slate-50 dark:bg-slate-950 dark:border-slate-800"
+                      className="min-h-[150px] resize-y bg-slate-50 dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl"
                     />
                  </div>
 
                  <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button onClick={handleSaveConsultation} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 px-8 w-full sm:w-auto">
+                    <Button onClick={handleSaveConsultation} className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 transition-all hover:shadow-teal-600/40 px-8 w-full sm:w-auto h-12 font-bold uppercase tracking-widest text-xs">
                        <Save className="mr-2 h-4 w-4" /> Finish Consultation
                     </Button>
                  </div>

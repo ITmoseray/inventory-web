@@ -154,7 +154,7 @@ import autoTable from "jspdf-autotable";
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Laboratory</h1>
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-cyan-600 dark:from-teal-400 dark:to-cyan-300 tracking-tight">Laboratory</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage lab tests and submit results</p>
         </div>
       </div>
@@ -176,7 +176,7 @@ import autoTable from "jspdf-autotable";
                ) : (
                  <div className="divide-y divide-slate-100 dark:divide-slate-800">
                     {pendingTests.map(test => (
-                      <div key={test.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <div key={test.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 border-l-4 border-transparent hover:border-amber-400 dark:hover:border-amber-500 hover:pl-5 hover:shadow-sm">
                          <div className="flex items-center gap-4">
                             <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
                                <FlaskConical className="h-5 w-5" />
@@ -213,7 +213,7 @@ import autoTable from "jspdf-autotable";
              <CardContent className="p-0">
                <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {completedTests.slice(0, 5).map(test => (
-                    <div key={test.id} className="p-4 flex flex-col gap-2">
+                    <div key={test.id} className="p-4 flex flex-col gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all duration-300 border-l-4 border-transparent hover:border-emerald-400 dark:hover:border-emerald-500 rounded-r-xl">
                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
@@ -226,7 +226,7 @@ import autoTable from "jspdf-autotable";
                           </div>
                           <div className="flex items-center gap-2">
                             <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md uppercase hidden sm:inline-block">Completed</span>
-                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600" onClick={() => handleDownloadPDF(test)} title="Download PDF">
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg text-slate-500 hover:text-teal-600 border-slate-200 dark:border-slate-800 hover:bg-teal-50 dark:hover:bg-teal-900/50" onClick={() => handleDownloadPDF(test)} title="Download PDF">
                                <Printer className="h-4 w-4" />
                             </Button>
                           </div>
@@ -247,10 +247,10 @@ import autoTable from "jspdf-autotable";
         {/* Right Side - Entry Form */}
         <div>
            {selectedTest ? (
-             <Card className="rounded-2xl border-indigo-100 dark:border-indigo-900 shadow-xl shadow-indigo-600/5 sticky top-24 dark:bg-slate-900">
-               <CardHeader className="bg-indigo-600 text-white rounded-t-2xl">
+             <Card className="rounded-2xl border-teal-100 dark:border-teal-900 shadow-2xl shadow-teal-600/10 sticky top-24 dark:bg-slate-900 overflow-hidden">
+               <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white pb-6">
                  <CardTitle className="text-lg">Submit Results</CardTitle>
-                 <p className="text-indigo-100 text-sm mt-1">{selectedTest.testName} for {selectedTest.patient?.name}</p>
+                 <p className="text-teal-100 text-sm mt-1">{selectedTest.testName} for {selectedTest.patient?.name}</p>
                </CardHeader>
                <CardContent className="p-6 space-y-4">
                  <div className="space-y-2">
@@ -259,10 +259,10 @@ import autoTable from "jspdf-autotable";
                       value={resultsText} 
                       onChange={(e) => setResultsText(e.target.value)} 
                       placeholder="Enter detailed lab results here..."
-                      className="min-h-[250px] resize-y dark:bg-slate-950 dark:border-slate-800"
+                      className="min-h-[250px] resize-y bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl"
                     />
                  </div>
-                 <Button onClick={handleSubmitResults} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 h-12 text-md">
+                 <Button onClick={handleSubmitResults} className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 h-12 text-sm font-bold uppercase tracking-widest transition-all hover:shadow-teal-600/40">
                     Submit & Mark Completed
                  </Button>
                  <Button variant="ghost" onClick={() => setSelectedTest(null)} className="w-full rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800">
