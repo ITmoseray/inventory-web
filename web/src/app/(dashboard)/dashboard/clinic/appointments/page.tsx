@@ -34,14 +34,21 @@ export default function AppointmentsPage() {
 
   const fetchFormData = async () => {
     try {
-      const [patientsRes, usersRes] = await Promise.all([
+      const results = await Promise.allSettled([
         getPatients(),
         getUsers()
       ]);
-      setPatients(Array.isArray(patientsRes) ? patientsRes : []);
-      setDoctors(Array.isArray(usersRes) ? usersRes : []);
+      
+      const patientsRes = results[0].status === 'fulfilled' ? results[0].value : [];
+      const usersRes = results[1].status === 'fulfilled' ? results[1].value : [];
+
+      const patientsData = patientsRes?.data || patientsRes || [];
+      const usersData = usersRes?.data || usersRes || [];
+      
+      setPatients(Array.isArray(patientsData) ? patientsData : []);
+      setDoctors(Array.isArray(usersData) ? usersData : []);
     } catch (e) {
-      console.error(e);
+      console.error("fetchFormData error:", e);
     }
   };
 
