@@ -4,8 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Phone, MapPin, Calendar, Clock, Stethoscope, FlaskConical, FileText } from "lucide-react";
 import { format } from "date-fns";
 
-export default async function PatientProfilePage({ params }: { params: { id: string } }) {
-  const patientId = params.id;
+export default async function PatientProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const patientId = resolvedParams.id;
 
   const patient = await prisma.patient.findUnique({
     where: { id: patientId },
