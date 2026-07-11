@@ -7,18 +7,42 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar, Clock, User, Users, Plus, Search, CalendarDays } from "lucide-react";
-import { getAppointments, updateAppointmentStatus } from "@/app/actions/clinic";
+import { getAppointments, updateAppointmentStatus, createAppointment } from "@/app/actions/clinic";
+import { getPatients } from "@/lib/actions/patient";
+import { getUsers } from "@/lib/actions/user";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 export default function AppointmentsPage() {
   const { data: session } = useSession();
   const [appointments, setAppointments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [patients, setPatients] = useState<any[]>([]);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [formData, setFormData] = useState({ patientId: "", doctorId: "", appointmentDate: "", time: "", reason: "" });
+
   useEffect(() => {
     if (session?.user?.businessId) {
       fetchAppointments();
+      fetchFormData();
     }
   }, [session]);
+
+  const fetchFormData = async () => {
+    try {
+      const [patientsRes, usersRes] = await Promise.all([
+        getPatients(),
+        getUsers()
+      ]);
+      if (patientsRes?.success) setPatients(patientsRes.data || []);
+      if (usersRes?.success) setDoctors(usersRes.data || []);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchAppointments = async () => {
     setLoading(true);
@@ -27,6 +51,34 @@ export default function AppointmentsPage() {
       setAppointments(res.data || []);
     }
     setLoading(false);
+  };
+
+  const handleCreateAppointment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.patientId || !formData.doctorId || !formData.appointmentDate || !formData.time) {
+      toast.error("Please fill all required fields");
+      return;
+    }
+    try {
+      const dateTime = new Date(`${formData.appointmentDate}T${formData.time}`);
+      const res = await createAppointment({
+        patientId: formData.patientId,
+        doctorId: formData.doctorId,
+        appointmentDate: dateTime,
+        reason: formData.reason,
+        businessId: session!.user.businessId,
+      });
+      if (res.success) {
+        toast.success("Appointment created successfully");
+        setIsDialogOpen(false);
+        setFormData({ patientId: "", doctorId: "", appointmentDate: "", time: "", reason: "" });
+        fetchAppointments();
+      } else {
+        toast.error(res.message || "Failed to create appointment");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "An error occurred");
+    }
   };
 
   const handleStatusUpdate = async (id: string, status: string) => {
@@ -43,7 +95,7 @@ export default function AppointmentsPage() {
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Appointments</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage patient schedules and doctor availability</p>
         </div>
-        <Button className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20">
+        <Button onClick={() => setIsDialogOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20">
           <Plus className="mr-2 h-4 w-4" /> New Appointment
         </Button>
       </div>
@@ -76,19 +128,19 @@ export default function AppointmentsPage() {
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
                   {appointments.map((apt) => (
-                    <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex items-center justify-between">
+                    <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center font-bold">
+                        <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center font-bold shrink-0">
                           <span className="text-xs">{new Date(apt.appointmentDate).getHours()}:{new Date(apt.appointmentDate).getMinutes().toString().padStart(2, '0')}</span>
                         </div>
-                        <div>
-                          <p className="font-bold text-slate-900 dark:text-white">{apt.patient?.name || "Unknown Patient"}</p>
-                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
-                            <User className="h-3 w-3" /> Dr. {apt.doctor?.name || "Unassigned"}
+                        <div className="min-w-0 flex-1">
+                          <p className="font-bold text-slate-900 dark:text-white truncate">{apt.patient?.name || "Unknown Patient"}</p>
+                          <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5 truncate">
+                            <User className="h-3 w-3 shrink-0" /> Dr. {apt.doctor?.name || "Unassigned"}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 shrink-0">
                         <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-widest rounded-lg ${
                           apt.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' : 
                           apt.status === 'IN_PROGRESS' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
@@ -97,7 +149,7 @@ export default function AppointmentsPage() {
                           {apt.status}
                         </span>
                         {apt.status === 'SCHEDULED' && (
-                          <Button size="sm" variant="outline" className="rounded-xl h-8 text-xs" onClick={() => handleStatusUpdate(apt.id, 'IN_PROGRESS')}>
+                          <Button size="sm" variant="outline" className="rounded-xl h-8 text-xs shrink-0" onClick={() => handleStatusUpdate(apt.id, 'IN_PROGRESS')}>
                             Check In
                           </Button>
                         )}
@@ -138,6 +190,65 @@ export default function AppointmentsPage() {
           </Card>
         </div>
       </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="sm:max-w-md border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-[2rem]">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black uppercase tracking-tight">New Appointment</DialogTitle>
+            <DialogDescription className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+              Schedule a patient visit
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleCreateAppointment} className="space-y-4 mt-4">
+            <div className="space-y-1">
+              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Select Patient *</Label>
+              <Select value={formData.patientId} onValueChange={v => setFormData({ ...formData, patientId: v })}>
+                <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-slate-950/50 border-slate-100 dark:border-slate-800 h-12">
+                  <SelectValue placeholder="Select patient" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800">
+                  {patients.map(p => (
+                    <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Select Doctor *</Label>
+              <Select value={formData.doctorId} onValueChange={v => setFormData({ ...formData, doctorId: v })}>
+                <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-slate-950/50 border-slate-100 dark:border-slate-800 h-12">
+                  <SelectValue placeholder="Select doctor" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800">
+                  {doctors.map(d => (
+                    <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+               <div className="space-y-1">
+                 <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Date *</Label>
+                 <Input type="date" required value={formData.appointmentDate} onChange={e => setFormData({ ...formData, appointmentDate: e.target.value })} className="rounded-xl h-12" />
+               </div>
+               <div className="space-y-1">
+                 <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Time *</Label>
+                 <Input type="time" required value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} className="rounded-xl h-12" />
+               </div>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Reason for Visit</Label>
+              <Input value={formData.reason} onChange={e => setFormData({ ...formData, reason: e.target.value })} placeholder="e.g. Regular Checkup" className="rounded-xl h-12" />
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-xl h-12 px-6">Cancel</Button>
+              <Button type="submit" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl h-12 px-8 font-black uppercase tracking-widest text-[10px]">
+                Create
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
