@@ -147,17 +147,17 @@ export default function ConsultationsPage() {
         <div className="lg:col-span-3 space-y-4">
            {selectedAppointment ? (
              <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
-               <div className="bg-slate-900 dark:bg-slate-950 text-white p-6 flex items-center justify-between border-b dark:border-slate-800">
+               <div className="bg-slate-900 dark:bg-slate-950 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b dark:border-slate-800">
                   <div className="flex items-center gap-4">
-                     <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center font-bold text-xl">
+                     <div className="h-12 w-12 rounded-full bg-white/10 flex items-center justify-center font-bold text-xl shrink-0">
                        {selectedAppointment.patient?.name?.charAt(0)}
                      </div>
-                     <div>
-                       <h2 className="text-xl font-bold">{selectedAppointment.patient?.name}</h2>
-                       <p className="text-slate-400 text-sm">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
+                     <div className="min-w-0">
+                       <h2 className="text-xl font-bold truncate">{selectedAppointment.patient?.name}</h2>
+                       <p className="text-slate-400 text-sm truncate">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
                      </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                      <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0">
                         <History className="mr-2 h-4 w-4" /> History
                      </Button>
@@ -252,8 +252,8 @@ export default function ConsultationsPage() {
                     />
                  </div>
 
-                 <div className="flex justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <Button onClick={handleSaveConsultation} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 px-8">
+                 <div className="flex flex-col sm:flex-row sm:justify-end gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <Button onClick={handleSaveConsultation} className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-600/20 px-8 w-full sm:w-auto">
                        <Save className="mr-2 h-4 w-4" /> Finish Consultation
                     </Button>
                  </div>
