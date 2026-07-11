@@ -165,7 +165,7 @@ export default function ConsultationsPage() {
                         <DialogTrigger asChild>
                            <Button variant="secondary" size="sm" className="bg-teal-600/20 hover:bg-teal-600/40 text-teal-100 border border-teal-500/30 transition-colors">
                               <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
-                           </Button>n>
+                           </Button>
                         </DialogTrigger>
                         <DialogContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-[425px]">
                           <DialogHeader>

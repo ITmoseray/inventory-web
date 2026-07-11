@@ -9,6 +9,7 @@ import { FlaskConical, CheckCircle2, Clock, Printer } from "lucide-react";
 import { getLabTests, submitLabResults } from "@/app/actions/clinic";
 import { jsPDF } from "jspdf";
 import { format } from "date-fns";
+import autoTable from "jspdf-autotable";
 
 export default function LabTestsPage() {
   const { data: session } = useSession();
@@ -42,9 +43,6 @@ export default function LabTestsPage() {
       fetchTests();
     }
   };
-
-import autoTable from "jspdf-autotable";
-
   const handleDownloadPDF = (test: any) => {
     const doc = new jsPDF();
     const clinicName = session?.user?.businessName || "Clinic Laboratory";
