@@ -5,8 +5,10 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { FlaskConical, CheckCircle2, Clock } from "lucide-react";
+import { FlaskConical, CheckCircle2, Clock, Printer } from "lucide-react";
 import { getLabTests, submitLabResults } from "@/app/actions/clinic";
+import { jsPDF } from "jspdf";
+import { format } from "date-fns";
 
 export default function LabTestsPage() {
   const { data: session } = useSession();
@@ -39,6 +41,34 @@ export default function LabTestsPage() {
       setResultsText("");
       fetchTests();
     }
+  };
+
+  const handleDownloadPDF = (test: any) => {
+    const doc = new jsPDF();
+    
+    // Header
+    doc.setFontSize(22);
+    doc.text(session?.user?.businessName || "Clinic Lab Report", 105, 20, { align: "center" });
+    
+    doc.setFontSize(14);
+    doc.text("Laboratory Test Result", 105, 30, { align: "center" });
+
+    doc.setFontSize(10);
+    doc.text(`Date: ${format(new Date(test.updatedAt || test.createdAt), "MMM dd, yyyy h:mm a")}`, 14, 45);
+    doc.text(`Patient: ${test.patient?.name || "Unknown"}`, 14, 51);
+    doc.text(`Requested By: Dr. ${test.doctor?.name || "Unknown"}`, 14, 57);
+    doc.text(`Test Name: ${test.testName}`, 14, 63);
+
+    // Results Body
+    doc.setFontSize(12);
+    doc.text("Results:", 14, 75);
+    
+    doc.setFontSize(10);
+    // Split text to fit width
+    const splitResults = doc.splitTextToSize(test.results || "No results available.", 180);
+    doc.text(splitResults, 14, 82);
+
+    doc.save(`LabResult_${test.testName.replace(/\s+/g, '_')}_${test.patient?.name?.replace(/\s+/g, '_')}.pdf`);
   };
 
   const pendingTests = tests.filter(t => t.status === 'PENDING' || t.status === 'IN_PROGRESS');
@@ -110,7 +140,7 @@ export default function LabTestsPage() {
                     <div key={test.id} className="p-4 flex flex-col gap-2">
                        <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+                            <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                                <FlaskConical className="h-4 w-4" />
                             </div>
                             <div>
@@ -118,7 +148,12 @@ export default function LabTestsPage() {
                                <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest">{test.patient?.name}</p>
                             </div>
                           </div>
-                          <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md uppercase">Completed</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md uppercase hidden sm:inline-block">Completed</span>
+                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg text-slate-500 hover:text-indigo-600" onClick={() => handleDownloadPDF(test)} title="Download PDF">
+                               <Printer className="h-4 w-4" />
+                            </Button>
+                          </div>
                        </div>
                        <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 ml-11">
                           <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{test.results}</p>
