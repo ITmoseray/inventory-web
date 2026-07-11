@@ -128,15 +128,15 @@ export default function PatientsRegistryPage() {
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1 col-span-2">
-                  <Label htmlFor="name" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Patient Name *</Label>
+                  <Label htmlFor="name" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Patient Name *</Label>
                   <Input id="name" required value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Fatmata Kamara" className="rounded-xl" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="dob" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Date of Birth</Label>
+                  <Label htmlFor="dob" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Date of Birth</Label>
                   <Input id="dob" type="date" value={dob} onChange={e => setDob(e.target.value)} className="rounded-xl" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="gender" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Gender</Label>
+                  <Label htmlFor="gender" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Gender</Label>
                   <select id="gender" value={gender} onChange={e => setGender(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm">
                     <option value="">Select Gender</option>
                     <option value="FEMALE">Female</option>
@@ -145,23 +145,23 @@ export default function PatientsRegistryPage() {
                   </select>
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="phone" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Phone Number</Label>
+                  <Label htmlFor="phone" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Phone Number</Label>
                   <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 23277123456" className="rounded-xl" />
                 </div>
                 <div className="space-y-1">
-                  <Label htmlFor="email" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Email Address</Label>
+                  <Label htmlFor="email" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Email Address</Label>
                   <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. fatmata@example.com" className="rounded-xl" />
                 </div>
                 <div className="space-y-1 col-span-2">
-                  <Label htmlFor="address" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Home Address</Label>
+                  <Label htmlFor="address" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Home Address</Label>
                   <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 45 Siaka Stevens St, Freetown" className="rounded-xl" />
                 </div>
                 <div className="space-y-1 col-span-2">
-                  <Label htmlFor="allergies" className="text-[10px] font-black uppercase text-slate-405 tracking-wider text-rose-500">Known Allergies / Contraindications</Label>
+                  <Label htmlFor="allergies" className="text-[10px] font-black uppercase text-rose-500 tracking-wider">Known Allergies / Contraindications</Label>
                   <Input id="allergies" value={allergies} onChange={e => setAllergies(e.target.value)} placeholder="e.g. Penicillin, Sulfa drugs" className="rounded-xl border-rose-200 focus:border-rose-500" />
                 </div>
                 <div className="space-y-1 col-span-2">
-                  <Label htmlFor="medicalNotes" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Medical Notes</Label>
+                  <Label htmlFor="medicalNotes" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Medical Notes</Label>
                   <Input id="medicalNotes" value={medicalNotes} onChange={e => setMedicalNotes(e.target.value)} placeholder="e.g. Diabetic, hypertensive under treatment" className="rounded-xl" />
                 </div>
               </div>
@@ -188,9 +188,10 @@ export default function PatientsRegistryPage() {
       </Card>
 
       {/* Directory Table */}
-      <div className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-        <Table>
-          <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
+      <div className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden overflow-x-auto custom-scrollbar">
+        <div className="min-w-[800px]">
+          <Table>
+            <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
             <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-850">
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-6">Patient Name</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">DOB / Gender</TableHead>
@@ -279,6 +280,7 @@ export default function PatientsRegistryPage() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );

@@ -241,9 +241,10 @@ export default function PrescriptionsPage() {
       </Card>
 
       {/* Directory Table */}
-      <div className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-        <Table>
-          <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
+      <div className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden overflow-x-auto custom-scrollbar">
+        <div className="min-w-[800px]">
+          <Table>
+            <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
             <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-850">
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-6">Rx Number</TableHead>
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Patient Name</TableHead>
@@ -348,6 +349,7 @@ export default function PrescriptionsPage() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );
