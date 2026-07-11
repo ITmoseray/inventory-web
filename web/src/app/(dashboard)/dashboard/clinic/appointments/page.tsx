@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Clock, User, Plus, Search, CalendarDays } from "lucide-react";
+import { Calendar, Clock, User, Users, Plus, Search, CalendarDays } from "lucide-react";
 import { getAppointments, updateAppointmentStatus } from "@/app/actions/clinic";
 
 export default function AppointmentsPage() {
