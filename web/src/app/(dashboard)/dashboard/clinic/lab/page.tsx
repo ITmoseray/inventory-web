@@ -43,32 +43,108 @@ export default function LabTestsPage() {
     }
   };
 
+import autoTable from "jspdf-autotable";
+
   const handleDownloadPDF = (test: any) => {
     const doc = new jsPDF();
+    const clinicName = session?.user?.businessName || "Clinic Laboratory";
     
-    // Header
-    doc.setFontSize(22);
-    doc.text(session?.user?.businessName || "Clinic Lab Report", 105, 20, { align: "center" });
+    // Theme colors
+    const primaryColor: [number, number, number] = [79, 74, 133]; // Indigo/Purple
+    const secondaryColor: [number, number, number] = [241, 245, 249]; // Slate 50
+    const textColor: [number, number, number] = [15, 23, 42]; // Slate 900
+
+    // Header Background
+    doc.setFillColor(...primaryColor);
+    doc.rect(0, 0, 210, 40, "F");
+
+    // Clinic Name
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.text(clinicName, 105, 20, { align: "center" });
     
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text("OFFICIAL LABORATORY REPORT", 105, 28, { align: "center" });
+
+    // Reset Text Color
+    doc.setTextColor(...textColor);
+
+    // Document Info
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "bold");
+    doc.text(`Report ID: LAB-${test.id.substring(0, 8).toUpperCase()}`, 14, 55);
+    doc.text(`Date: ${format(new Date(test.updatedAt || test.createdAt), "MMMM dd, yyyy - h:mm a")}`, 140, 55);
+
+    // Patient & Doctor Info Table
+    autoTable(doc, {
+      startY: 65,
+      theme: 'grid',
+      headStyles: { fillColor: primaryColor, textColor: 255, fontStyle: 'bold' },
+      bodyStyles: { textColor: 50 },
+      head: [['Patient Information', 'Physician Information']],
+      body: [
+        [
+          `Name: ${test.patient?.name || "Unknown"}\nPatient ID: ${test.patientId?.substring(0,8).toUpperCase() || "N/A"}`,
+          `Referring Doctor: Dr. ${test.doctor?.name || "Unknown"}\nStatus: COMPLETED`
+        ],
+      ],
+    });
+
+    // Test Results Header
+    let finalY = (doc as any).lastAutoTable.finalY + 15;
     doc.setFontSize(14);
-    doc.text("Laboratory Test Result", 105, 30, { align: "center" });
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(...primaryColor);
+    doc.text(`Test Name: ${test.testName}`, 14, finalY);
+
+    finalY += 5;
+
+    // Results Box
+    autoTable(doc, {
+      startY: finalY,
+      theme: 'plain',
+      bodyStyles: { 
+        fillColor: secondaryColor,
+        textColor: textColor,
+        cellPadding: 8,
+        fontSize: 11,
+        font: "helvetica",
+        lineColor: [226, 232, 240], // slate-200
+        lineWidth: 0.5
+      },
+      body: [
+        [test.results || "No results available."]
+      ],
+    });
+
+    finalY = (doc as any).lastAutoTable.finalY + 30;
+
+    // Footer Signatures
+    if (finalY > 250) {
+      doc.addPage();
+      finalY = 40;
+    }
 
     doc.setFontSize(10);
-    doc.text(`Date: ${format(new Date(test.updatedAt || test.createdAt), "MMM dd, yyyy h:mm a")}`, 14, 45);
-    doc.text(`Patient: ${test.patient?.name || "Unknown"}`, 14, 51);
-    doc.text(`Requested By: Dr. ${test.doctor?.name || "Unknown"}`, 14, 57);
-    doc.text(`Test Name: ${test.testName}`, 14, 63);
+    doc.setTextColor(0, 0, 0);
+    doc.line(14, finalY, 74, finalY); // Signature line 1
+    doc.text("Laboratory Technician", 14, finalY + 5);
 
-    // Results Body
-    doc.setFontSize(12);
-    doc.text("Results:", 14, 75);
-    
-    doc.setFontSize(10);
-    // Split text to fit width
-    const splitResults = doc.splitTextToSize(test.results || "No results available.", 180);
-    doc.text(splitResults, 14, 82);
+    doc.line(136, finalY, 196, finalY); // Signature line 2
+    doc.text("Authorized Doctor", 136, finalY + 5);
 
-    doc.save(`LabResult_${test.testName.replace(/\s+/g, '_')}_${test.patient?.name?.replace(/\s+/g, '_')}.pdf`);
+    // Footer Page Number
+    const pageCount = (doc as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(150);
+      doc.text(`Page ${i} of ${pageCount}  |  Generated on ${format(new Date(), "MMM dd, yyyy")}`, 105, 290, { align: "center" });
+    }
+
+    doc.save(`LabReport_${test.testName.replace(/\s+/g, '_')}_${test.patient?.name?.replace(/\s+/g, '_')}.pdf`);
   };
 
   const pendingTests = tests.filter(t => t.status === 'PENDING' || t.status === 'IN_PROGRESS');
