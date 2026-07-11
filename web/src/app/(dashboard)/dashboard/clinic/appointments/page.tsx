@@ -22,6 +22,7 @@ export default function AppointmentsPage() {
   const [patients, setPatients] = useState<any[]>([]);
   const [doctors, setDoctors] = useState<any[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [formData, setFormData] = useState({ patientId: "", doctorId: "", appointmentDate: "", time: "", reason: "" });
 
   useEffect(() => {
@@ -88,6 +89,10 @@ export default function AppointmentsPage() {
     }
   };
 
+  const filteredAppointments = appointments.filter(apt => 
+    apt.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -110,24 +115,29 @@ export default function AppointmentsPage() {
                 </CardTitle>
                 <div className="relative w-full sm:w-64 shrink-0">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <Input placeholder="Search patient..." className="pl-9 rounded-xl bg-white dark:bg-slate-950 dark:border-slate-800 w-full" />
+                  <Input 
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search patient..." 
+                    className="pl-9 rounded-xl bg-white dark:bg-slate-950 dark:border-slate-800 w-full" 
+                  />
                 </div>
               </div>
             </CardHeader>
             <CardContent className="p-0">
               {loading ? (
                 <div className="p-8 text-center text-slate-500">Loading appointments...</div>
-              ) : appointments.length === 0 ? (
+              ) : filteredAppointments.length === 0 ? (
                 <div className="p-12 text-center flex flex-col items-center justify-center">
                    <div className="h-16 w-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                     <Calendar className="h-8 w-8 text-slate-400 dark:text-slate-500" />
+                     <Search className="h-8 w-8 text-slate-400 dark:text-slate-500" />
                    </div>
-                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No appointments found</h3>
-                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">There are no appointments scheduled for today. Click the button above to create one.</p>
+                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">No matches found</h3>
+                   <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm">No appointments found matching your search query.</p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {appointments.map((apt) => (
+                  {filteredAppointments.map((apt) => (
                     <div key={apt.id} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex flex-col items-center justify-center font-bold shrink-0">
