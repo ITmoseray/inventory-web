@@ -195,13 +195,19 @@ export default function ProtechCloudHomepage() {
                   Designed by Protech Assist (SL) Limited to provide mission-critical intelligence for retail, wholesale, and distribution enterprises across the continent.
                 </motion.p>
                 
-                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 mb-16">
+                <motion.div variants={itemVariants} className="flex flex-col sm:flex-row flex-wrap gap-4 mb-16">
                   <Link 
                     href={ctaHref} 
                     className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-xl shadow-indigo-600/20 hover:shadow-indigo-600/40 dark:shadow-[0_0_30px_rgba(99,102,241,0.6)] dark:hover:shadow-[0_0_50px_rgba(99,102,241,0.9)] dark:border dark:border-indigo-400/50 hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center justify-center group font-bold"
                   >
                     {ctaText}
                     <ArrowRight className="ml-3 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                  <Link 
+                    href="/register" 
+                    className="h-16 px-10 text-xs font-black uppercase tracking-[0.2em] border border-slate-200 dark:border-purple-500/50 bg-white dark:bg-purple-950/30 hover:border-slate-900 dark:hover:border-purple-400 dark:hover:shadow-[0_0_30px_rgba(168,85,247,0.4)] text-slate-900 dark:text-purple-50 rounded-xl transition-all flex items-center justify-center font-bold"
+                  >
+                    Register Your Business
                   </Link>
                   <button 
                     onClick={() => setIsDemoModalOpen(true)}
