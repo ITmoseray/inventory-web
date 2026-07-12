@@ -60,6 +60,7 @@ model Business {
   appointments           Appointment[]
   consultations          Consultation[]
   labTests               LabTest[]
+  salesDrafts            SalesDraft[]
 
   @@index([slug])
 }
@@ -95,6 +96,7 @@ model User {
   consultations      Consultation[]
   labTests           LabTest[]            @relation("LabTechnician")
   requestedLabTests  LabTest[]            @relation("DoctorLabTests")
+  salesDrafts        SalesDraft[]
 
   @@index([businessId])
   @@index([roleId])
@@ -276,6 +278,7 @@ model Customer {
   business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
   debts      Debt[]
   sales      Sale[]
+  salesDrafts SalesDraft[]
 
   @@index([businessId])
   @@index([businessId, deletedAt])
@@ -785,4 +788,27 @@ model LabTest {
   @@index([businessId])
   @@index([patientId])
   @@index([doctorId])
+}
+
+model SalesDraft {
+  id            String    @id @default(cuid())
+  draftNumber   String    @unique
+  businessId    String
+  userId        String
+  customerId    String?
+  customerName  String?   
+  customerPhone String?   
+  items         Json      
+  totalAmount   Decimal   @db.Decimal(10, 2)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  expiresAt     DateTime?
+
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id])
+  customer      Customer? @relation(fields: [customerId], references: [id])
+
+  @@index([businessId])
+  @@index([userId])
 }

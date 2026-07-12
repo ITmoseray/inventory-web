@@ -49,6 +49,7 @@ import { cn, getIndustryColor } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { createSale } from "@/lib/actions/sale";
+import { createDraft, updateDraft, getDrafts, deleteDraft } from "@/lib/actions/drafts";
 import { getCustomers } from "@/lib/actions/customer";
 import { getCurrentBusiness } from "@/lib/actions/business";
 import { getPendingPrescriptions } from "@/lib/actions/prescription";
@@ -151,7 +152,7 @@ export default function POSPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isHappyHour = searchParams.get("mode") === "happyhour";
-  const { cart, addItem, removeItem, updateQuantity, clearCart, total, tax, grandTotal, heldCarts, holdCart, restoreCart, removeHeldCart } = usePOSStore();
+  const { cart, addItem, removeItem, updateQuantity, clearCart, total, tax, grandTotal, currentDraftId, setDraftId, setCart } = usePOSStore();
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -197,6 +198,83 @@ export default function POSPage() {
   const [momoSmsPaste, setMomoSmsPaste] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
   const [prescriptionId, setPrescriptionId] = useState("");
+
+  // Drafts State
+  const [drafts, setDrafts] = useState<any[]>([]);
+  const [isDraftsModalOpen, setIsDraftsModalOpen] = useState(false);
+  const [draftSearchQuery, setDraftSearchQuery] = useState("");
+  const [isHolding, setIsHolding] = useState(false);
+  const [holdCustomerName, setHoldCustomerName] = useState("");
+  const [holdCustomerPhone, setHoldCustomerPhone] = useState("");
+  const [isHoldSaleModalOpen, setIsHoldSaleModalOpen] = useState(false);
+
+  const fetchDrafts = async () => {
+    const res = await getDrafts();
+    if (res.success && res.drafts) {
+      setDrafts(res.drafts);
+    }
+  };
+
+  useEffect(() => {
+    fetchDrafts();
+  }, []);
+
+  // Auto-save logic
+  useEffect(() => {
+    if (currentDraftId && cart.length > 0) {
+      const delayDebounceFn = setTimeout(async () => {
+        await updateDraft(currentDraftId, {
+          items: cart,
+          totalAmount: total,
+        });
+        fetchDrafts();
+      }, 3000);
+      return () => clearTimeout(delayDebounceFn);
+    }
+  }, [cart, total, currentDraftId]);
+
+  const handleCreateDraft = async () => {
+    if (cart.length === 0) return;
+    setIsHolding(true);
+    try {
+      const res = await createDraft({
+        customerName: holdCustomerName || undefined,
+        customerPhone: holdCustomerPhone || undefined,
+        items: cart,
+        totalAmount: total,
+      });
+      if (res.success && res.draft) {
+        toast.success(`Draft saved as ${res.draft.draftNumber}`);
+        clearCart();
+        setIsHoldSaleModalOpen(false);
+        setHoldCustomerName("");
+        setHoldCustomerPhone("");
+        fetchDrafts();
+      } else {
+        toast.error(res.error || "Failed to hold sale");
+      }
+    } catch (e) {
+      toast.error("An error occurred while saving draft.");
+    } finally {
+      setIsHolding(false);
+    }
+  };
+
+  const handleResumeDraft = (draft: any) => {
+    setCart(draft.items);
+    setDraftId(draft.id);
+    setIsDraftsModalOpen(false);
+    toast.info(`Resumed ${draft.draftNumber}`);
+  };
+
+  const handleDeleteDraft = async (id: string) => {
+    await deleteDraft(id);
+    if (currentDraftId === id) {
+      clearCart();
+    }
+    fetchDrafts();
+    toast.success("Draft discarded");
+  };
 
   const isPharmacy = session?.user?.businessType === "PHARMACY";
   const cartRequiresPrescription = isPharmacy && cart.some(item => item.requiresPrescription);
@@ -467,6 +545,10 @@ export default function POSPage() {
           businessPhone: businessInfo?.phone || undefined
         });
 
+        if (currentDraftId) {
+          deleteDraft(currentDraftId).then(() => fetchDrafts());
+        }
+
         clearCart();
         setIsCheckoutOpen(false);
         setIsCartVisible(false);
@@ -680,20 +762,26 @@ export default function POSPage() {
               <Button 
                 variant="ghost" 
                 className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative"
-                onClick={() => setIsHeldCartsOpen(true)}
-                title="View Held Carts"
+                onClick={() => setIsDraftsModalOpen(true)}
+                title="View Drafts Queue"
               >
                 <History size={24} />
-                {heldCarts.length > 0 && (
+                {drafts.length > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-500 text-white text-[10px] font-black flex items-center justify-center">
-                    {heldCarts.length}
+                    {drafts.length}
                   </span>
                 )}
               </Button>
               <Button 
                 variant="ghost" 
                 className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
-                onClick={() => holdCart("")}
+                onClick={() => {
+                  if (currentDraftId) {
+                    toast.success("Draft is automatically saving.");
+                  } else {
+                    setIsHoldSaleModalOpen(true);
+                  }
+                }}
                 disabled={cart.length === 0}
                 title="Hold Active Cart"
               >
@@ -702,7 +790,10 @@ export default function POSPage() {
               <Button 
                 variant="ghost" 
                 className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
-                onClick={() => clearCart()}
+                onClick={() => {
+                  if (currentDraftId) deleteDraft(currentDraftId).then(() => fetchDrafts());
+                  clearCart();
+                }}
                 title="Clear Active Cart"
               >
                 <Trash2 size={24} />
@@ -1125,42 +1216,97 @@ export default function POSPage() {
         </DialogContent>
       </Dialog>
 
-      {/* HELD CARTS MODAL */}
-      <Dialog open={isHeldCartsOpen} onOpenChange={setIsHeldCartsOpen}>
+      {/* HOLD SALE MODAL */}
+      <Dialog open={isHoldSaleModalOpen} onOpenChange={setIsHoldSaleModalOpen}>
+        <DialogContent className="sm:max-w-[400px] rounded-[2rem] border-none shadow-2xl p-6 sm:p-10 bg-white dark:bg-slate-950 flex flex-col gap-6">
+          <div className="flex flex-col text-center">
+            <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Hold Sale</h3>
+            <p className="text-xs text-slate-500 mt-2">Enter an optional reference for this draft.</p>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer Name</label>
+              <Input 
+                value={holdCustomerName}
+                onChange={(e) => setHoldCustomerName(e.target.value)}
+                placeholder="e.g. John Doe"
+                className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none px-4"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Phone Number</label>
+              <Input 
+                value={holdCustomerPhone}
+                onChange={(e) => setHoldCustomerPhone(e.target.value)}
+                placeholder="e.g. 077 123 456"
+                className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none px-4"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => setIsHoldSaleModalOpen(false)} className="flex-1 rounded-2xl">Cancel</Button>
+            <Button onClick={handleCreateDraft} disabled={isHolding} className="flex-1 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black uppercase tracking-widest shadow-xl shadow-amber-500/20">
+              {isHolding ? <RefreshCw className="animate-spin" /> : "Save Draft"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* DRAFTS MODAL */}
+      <Dialog open={isDraftsModalOpen} onOpenChange={setIsDraftsModalOpen}>
         <DialogContent className="sm:max-w-[500px] w-[95vw] rounded-[2rem] border-none shadow-2xl p-6 sm:p-10 bg-white dark:bg-slate-950 flex flex-col gap-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Held Carts</h3>
-            <Badge variant="outline" className="text-indigo-500 border-indigo-500/30">{heldCarts.length} Paused</Badge>
+            <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Sales Drafts</h3>
+            <Badge variant="outline" className="text-indigo-500 border-indigo-500/30">{drafts.length} Paused</Badge>
           </div>
           
+          <Input 
+            value={draftSearchQuery}
+            onChange={(e) => setDraftSearchQuery(e.target.value)}
+            placeholder="Search by Name, Phone, or DRAFT-..."
+            className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none px-4"
+          />
+
           <div className="space-y-4 max-h-[60vh] overflow-y-auto custom-scrollbar">
-            {heldCarts.length === 0 ? (
+            {drafts.filter(d => 
+              (d.draftNumber || "").toLowerCase().includes(draftSearchQuery.toLowerCase()) || 
+              (d.customerName || "").toLowerCase().includes(draftSearchQuery.toLowerCase()) ||
+              (d.customerPhone || "").toLowerCase().includes(draftSearchQuery.toLowerCase())
+            ).length === 0 ? (
               <div className="text-center py-10 opacity-50">
                 <FileText className="mx-auto h-12 w-12 text-slate-400 mb-4" />
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">No ledgers on hold</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">No matching drafts</p>
               </div>
             ) : (
-              heldCarts.map((hc) => (
-                <div key={hc.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex flex-col gap-4">
+              drafts.filter(d => 
+                (d.draftNumber || "").toLowerCase().includes(draftSearchQuery.toLowerCase()) || 
+                (d.customerName || "").toLowerCase().includes(draftSearchQuery.toLowerCase()) ||
+                (d.customerPhone || "").toLowerCase().includes(draftSearchQuery.toLowerCase())
+              ).map((d) => (
+                <div key={d.id} className={cn("p-4 rounded-2xl border flex flex-col gap-4 transition-all", currentDraftId === d.id ? "bg-indigo-50 dark:bg-indigo-900/20 border-indigo-200 dark:border-indigo-800" : "bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800")}>
                   <div className="flex justify-between items-start">
                     <div>
-                      <p className="text-sm font-black text-slate-900 dark:text-white">{hc.name}</p>
-                      <p className="text-[10px] text-slate-400 uppercase tracking-widest">{new Date(hc.timestamp).toLocaleTimeString()} - {hc.items.length} Assets</p>
+                      <p className="text-sm font-black text-slate-900 dark:text-white">
+                        {d.customerName || "Walk-in Customer"} 
+                        {d.customerPhone && <span className="text-xs text-slate-500 ml-2 font-normal">{d.customerPhone}</span>}
+                      </p>
+                      <p className="text-[10px] text-slate-400 font-mono mt-1">{d.draftNumber} • {new Date(d.updatedAt).toLocaleTimeString()}</p>
                     </div>
-                    <span className="text-sm font-[1000] text-primary">Le {Math.round(hc.total).toLocaleString()}</span>
+                    <div className="text-right">
+                      <span className="text-sm font-[1000] text-primary">Le {Math.round(d.totalAmount).toLocaleString()}</span>
+                      <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">{d.items.length} Items</p>
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button 
-                      onClick={() => {
-                        restoreCart(hc.id);
-                        setIsHeldCartsOpen(false);
-                      }}
+                      onClick={() => handleResumeDraft(d)}
+                      disabled={currentDraftId === d.id}
                       className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] tracking-widest uppercase rounded-xl"
                     >
-                      Restore Session
+                      {currentDraftId === d.id ? "Active" : "Resume Session"}
                     </Button>
                     <Button 
-                      onClick={() => removeHeldCart(hc.id)}
+                      onClick={() => handleDeleteDraft(d.id)}
                       variant="outline"
                       className="text-rose-500 hover:bg-rose-50 border-rose-100 hover:text-rose-600 font-black text-[10px] tracking-widest uppercase rounded-xl"
                     >
