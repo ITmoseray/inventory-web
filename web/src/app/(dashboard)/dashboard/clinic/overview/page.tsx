@@ -69,7 +69,7 @@ export default function ClinicOverviewPage() {
       <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-teal-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#0f766e]/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[150px] pointer-events-none"></div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-10">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-50">
         <h1 className="text-3xl font-black text-foreground tracking-tight">Clinic Overview</h1>
         <div className="flex items-center gap-4">
           <p className="text-muted-foreground font-medium text-sm hidden sm:block">{format(new Date(), "hh:mm a")}</p>
