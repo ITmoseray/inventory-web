@@ -288,7 +288,16 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column: Registration Form */}
-      <div className="flex-1 flex flex-col items-center p-8 lg:p-24 bg-slate-50/50 dark:bg-slate-950 min-h-screen">
+      <div className="flex-1 flex flex-col items-center p-8 lg:p-24 bg-slate-50/50 dark:bg-slate-950 min-h-screen relative">
+        
+        {/* Back Button */}
+        <Link href="/" className="absolute top-6 left-6 sm:top-8 sm:left-8 z-10">
+          <Button variant="ghost" className="gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Button>
+        </Link>
+
         <div className="w-full max-w-md space-y-10 sm:space-y-16 py-12 lg:py-16 my-auto">
           
           <div className="space-y-6">
