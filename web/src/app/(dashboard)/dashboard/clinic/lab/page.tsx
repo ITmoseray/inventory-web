@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -59,6 +59,8 @@ export default function LabTestsPage() {
   const [generateBill, setGenerateBill] = useState(true);
   const [fee, setFee] = useState("50.00");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     if (session?.user?.businessId) {
@@ -243,7 +245,9 @@ export default function LabTestsPage() {
   const pendingTests = tests.filter(t => t.status === 'PENDING' || t.status === 'IN_PROGRESS');
   const completedTests = tests.filter(t => t.status === 'COMPLETED');
   
-  const filteredPending = pendingTests.filter(t => t.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || t.testName?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const displayedTests = searchQuery 
+    ? tests.filter(t => t.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || t.testName?.toLowerCase().includes(searchQuery.toLowerCase()))
+    : pendingTests;
 
   const getAvatar = (name: string) => {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
@@ -276,12 +280,29 @@ export default function LabTestsPage() {
         </div>
         
         <div className="flex items-center gap-6">
-           <div className="relative cursor-pointer hover:text-emerald-400 transition-colors">
+           <div className="relative cursor-pointer hover:text-emerald-400 transition-colors" onClick={() => setShowNotifications(!showNotifications)}>
               <Bell className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-emerald-500 rounded-full border-2 border-[#1c1d21]"></span>
+              {showNotifications && (
+                 <div className="absolute top-8 right-0 w-64 bg-[#25262b] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden cursor-default" onClick={e => e.stopPropagation()}>
+                    <div className="p-3 border-b border-white/5 bg-[#1c1d21]">
+                       <p className="text-xs font-bold text-white">Notifications</p>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto">
+                       <div className="p-3 hover:bg-white/5 transition-colors border-b border-white/5">
+                          <p className="text-sm font-bold text-emerald-400">Lab Ready</p>
+                          <p className="text-xs text-slate-400">System is online and ready for processing.</p>
+                       </div>
+                       <div className="p-3 hover:bg-white/5 transition-colors">
+                          <p className="text-sm font-bold text-amber-400">Pending Tests</p>
+                          <p className="text-xs text-slate-400">You have {pendingTests.length} tests awaiting results.</p>
+                       </div>
+                    </div>
+                 </div>
+              )}
            </div>
            <Settings className="h-5 w-5 cursor-pointer hover:text-emerald-400 transition-colors text-slate-400" />
-           <div className="flex items-center gap-3 border-l border-white/10 pl-6">
+           <div className="flex items-center gap-3 border-l border-white/10 pl-6 cursor-pointer relative" onClick={() => setShowProfileMenu(!showProfileMenu)}>
               <div className="text-right hidden sm:block">
                  <p className="text-sm font-bold text-white">{session?.user?.name || "Technician"}</p>
                  <p className="text-[10px] text-emerald-500 flex items-center justify-end gap-1">
@@ -290,6 +311,16 @@ export default function LabTestsPage() {
               </div>
               <img src={`https://ui-avatars.com/api/?name=${session?.user?.name || 'Tech'}&background=10b981&color=fff`} className="h-9 w-9 rounded-full border border-white/10" />
               <ChevronDown className="h-4 w-4 text-slate-500" />
+              {showProfileMenu && (
+                 <div className="absolute top-12 right-0 w-48 bg-[#25262b] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden cursor-default" onClick={e => e.stopPropagation()}>
+                    <div className="p-3 hover:bg-white/5 transition-colors cursor-pointer" onClick={() => window.location.href = '/dashboard/settings'}>
+                       <p className="text-sm text-white">Account Settings</p>
+                    </div>
+                    <div className="p-3 hover:bg-rose-500/10 transition-colors cursor-pointer text-rose-400 border-t border-white/5" onClick={() => signOut({ callbackUrl: '/auth/login' })}>
+                       <p className="text-sm font-bold">Sign Out</p>
+                    </div>
+                 </div>
+              )}
            </div>
         </div>
       </div>
@@ -299,17 +330,17 @@ export default function LabTestsPage() {
         {/* Left Panel: PENDING LAB TESTS */}
         <div className="w-full xl:w-[450px] shrink-0 flex flex-col gap-4">
            <div>
-              <h2 className="text-lg font-bold text-emerald-400 uppercase tracking-widest">Pending Lab Tests</h2>
-              <p className="text-sm text-slate-500">Recent patients who needed testing</p>
+              <h2 className="text-lg font-bold text-emerald-400 uppercase tracking-widest">{searchQuery ? 'Search Results' : 'Pending Lab Tests'}</h2>
+              <p className="text-sm text-slate-500">{searchQuery ? `Found ${displayedTests.length} tests` : 'Recent patients who needed testing'}</p>
            </div>
            
            <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar pb-10" style={{ maxHeight: 'calc(100vh - 200px)' }}>
               {loading ? (
                  <div className="p-8 text-center text-slate-500">Loading requests...</div>
-              ) : filteredPending.length === 0 ? (
-                 <div className="p-8 text-center text-slate-500 bg-[#1c1d21] rounded-2xl border border-white/5">No pending lab tests.</div>
+              ) : displayedTests.length === 0 ? (
+                 <div className="p-8 text-center text-slate-500 bg-[#1c1d21] rounded-2xl border border-white/5">No tests found.</div>
               ) : (
-                 filteredPending.map((test) => (
+                 displayedTests.map((test) => (
                    <div 
                      key={test.id}
                      onClick={() => handleSelectTest(test)}
