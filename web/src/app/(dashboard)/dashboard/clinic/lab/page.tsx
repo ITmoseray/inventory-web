@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { FlaskConical, CheckCircle2, Clock, Printer } from "lucide-react";
+import { FlaskConical, CheckCircle2, Clock, Printer, Receipt } from "lucide-react";
 import { getLabTests, submitLabResults } from "@/app/actions/clinic";
 import { jsPDF } from "jspdf";
 import { format } from "date-fns";
@@ -13,7 +13,6 @@ import autoTable from "jspdf-autotable";
 import { generateLabBill } from "@/app/actions/clinic-billing";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Receipt } from "lucide-react";
 
 export default function LabTestsPage() {
   const { data: session } = useSession();
@@ -61,15 +60,13 @@ export default function LabTestsPage() {
     const clinicName = session?.user?.businessName || "Clinic Laboratory";
     
     // Theme colors
-    const primaryColor: [number, number, number] = [79, 74, 133]; // Indigo/Purple
+    const primaryColor: [number, number, number] = [16, 185, 129]; // Emerald 500
     const secondaryColor: [number, number, number] = [241, 245, 249]; // Slate 50
     const textColor: [number, number, number] = [15, 23, 42]; // Slate 900
 
-    // Header Background
     doc.setFillColor(...primaryColor);
     doc.rect(0, 0, 210, 40, "F");
 
-    // Clinic Name
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(24);
@@ -79,16 +76,12 @@ export default function LabTestsPage() {
     doc.setFontSize(10);
     doc.text("OFFICIAL LABORATORY REPORT", 105, 28, { align: "center" });
 
-    // Reset Text Color
     doc.setTextColor(...textColor);
-
-    // Document Info
     doc.setFontSize(10);
     doc.setFont("helvetica", "bold");
     doc.text(`Report ID: LAB-${test.id.substring(0, 8).toUpperCase()}`, 14, 55);
     doc.text(`Date: ${format(new Date(test.updatedAt || test.createdAt), "MMMM dd, yyyy - h:mm a")}`, 140, 55);
 
-    // Patient & Doctor Info Table
     autoTable(doc, {
       startY: 65,
       theme: 'grid',
@@ -103,7 +96,6 @@ export default function LabTestsPage() {
       ],
     });
 
-    // Test Results Header
     let finalY = (doc as any).lastAutoTable.finalY + 15;
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
@@ -112,7 +104,6 @@ export default function LabTestsPage() {
 
     finalY += 5;
 
-    // Results Box
     autoTable(doc, {
       startY: finalY,
       theme: 'plain',
@@ -132,7 +123,6 @@ export default function LabTestsPage() {
 
     finalY = (doc as any).lastAutoTable.finalY + 30;
 
-    // Footer Signatures
     if (finalY > 250) {
       doc.addPage();
       finalY = 40;
@@ -140,13 +130,12 @@ export default function LabTestsPage() {
 
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
-    doc.line(14, finalY, 74, finalY); // Signature line 1
+    doc.line(14, finalY, 74, finalY); 
     doc.text("Laboratory Technician", 14, finalY + 5);
 
-    doc.line(136, finalY, 196, finalY); // Signature line 2
+    doc.line(136, finalY, 196, finalY); 
     doc.text("Authorized Doctor", 136, finalY + 5);
 
-    // Footer Page Number
     const pageCount = (doc as any).internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -162,20 +151,23 @@ export default function LabTestsPage() {
   const completedTests = tests.filter(t => t.status === 'COMPLETED');
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 min-h-[80vh] p-4 -m-4 bg-slate-950 text-slate-50 relative overflow-hidden rounded-3xl">
+      {/* Decorative Glow Background */}
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-emerald-600/10 rounded-full mix-blend-screen filter blur-[100px] pointer-events-none"></div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         <div>
-          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-cyan-600 dark:from-teal-400 dark:to-cyan-300 tracking-tight">Laboratory</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage lab tests and submit results</p>
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-500 tracking-tight">Laboratory Center</h1>
+          <p className="text-sm text-slate-400 mt-1">Manage lab tests and submit diagnostic results</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
         <div className="lg:col-span-2 space-y-6">
           {/* Pending Tests */}
-          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
-             <CardHeader className="bg-amber-50/50 dark:bg-amber-900/10 border-b border-amber-100/50 dark:border-amber-900/20 pb-4">
-               <CardTitle className="text-sm uppercase tracking-widest text-amber-700 dark:text-amber-500 font-black flex items-center gap-2">
+          <Card className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+             <CardHeader className="bg-amber-500/10 border-b border-amber-500/20 pb-4">
+               <CardTitle className="text-sm uppercase tracking-widest text-amber-400 font-black flex items-center gap-2">
                  <Clock className="h-4 w-4" /> Pending Tests
                </CardTitle>
              </CardHeader>
@@ -185,21 +177,20 @@ export default function LabTestsPage() {
                ) : pendingTests.length === 0 ? (
                  <div className="p-8 text-center text-slate-500">No pending lab tests.</div>
                ) : (
-                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                 <div className="divide-y divide-white/5">
                     {pendingTests.map(test => (
-                      <div key={test.id} className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all duration-300 border-l-4 border-transparent hover:border-amber-400 dark:hover:border-amber-500 hover:pl-5 hover:shadow-sm">
+                      <div key={test.id} className="p-5 flex items-center justify-between hover:bg-white/5 transition-all duration-300 border-l-4 border-transparent hover:border-amber-500 group">
                          <div className="flex items-center gap-4">
-                            <div className="h-10 w-10 rounded-xl bg-amber-100 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center">
-                               <FlaskConical className="h-5 w-5" />
+                            <div className="h-12 w-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                               <FlaskConical className="h-6 w-6" />
                             </div>
                             <div>
-                               <p className="font-bold text-slate-900 dark:text-white">{test.testName}</p>
-                               <p className="text-xs text-slate-500 dark:text-slate-400">Patient: {test.patient?.name} • Ordered by: Dr. {test.doctor?.name}</p>
+                               <p className="font-bold text-white text-lg">{test.testName}</p>
+                               <p className="text-sm text-slate-400">Patient: <span className="text-amber-100">{test.patient?.name}</span> • Doctor: {test.doctor?.name}</p>
                             </div>
                          </div>
                          <Button 
-                           variant={selectedTest?.id === test.id ? "default" : "outline"}
-                           className="rounded-xl shadow-sm"
+                           className={`rounded-full px-6 shadow-md transition-all ${selectedTest?.id === test.id ? "bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_15px_-3px_#f59e0b]" : "bg-white/10 hover:bg-white/20 text-white border border-white/10"}`}
                            onClick={() => {
                              setSelectedTest(test);
                              setResultsText(test.results || "");
@@ -215,35 +206,35 @@ export default function LabTestsPage() {
           </Card>
 
           {/* Completed Tests */}
-          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden dark:bg-slate-900">
-             <CardHeader className="bg-emerald-50/50 dark:bg-emerald-900/10 border-b border-emerald-100/50 dark:border-emerald-900/20 pb-4">
-               <CardTitle className="text-sm uppercase tracking-widest text-emerald-700 dark:text-emerald-500 font-black flex items-center gap-2">
+          <Card className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+             <CardHeader className="bg-emerald-500/10 border-b border-emerald-500/20 pb-4">
+               <CardTitle className="text-sm uppercase tracking-widest text-emerald-400 font-black flex items-center gap-2">
                  <CheckCircle2 className="h-4 w-4" /> Completed Tests
                </CardTitle>
              </CardHeader>
              <CardContent className="p-0">
-               <div className="divide-y divide-slate-100 dark:divide-slate-800">
+               <div className="divide-y divide-white/5">
                   {completedTests.slice(0, 5).map(test => (
-                    <div key={test.id} className="p-4 flex flex-col gap-2 hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all duration-300 border-l-4 border-transparent hover:border-emerald-400 dark:hover:border-emerald-500 rounded-r-xl">
+                    <div key={test.id} className="p-5 flex flex-col gap-3 hover:bg-white/5 transition-all duration-300 border-l-4 border-transparent hover:border-emerald-500 rounded-r-3xl">
                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="h-8 w-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-                               <FlaskConical className="h-4 w-4" />
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                               <FlaskConical className="h-5 w-5" />
                             </div>
                             <div>
-                               <p className="font-bold text-sm text-slate-900 dark:text-white">{test.testName}</p>
-                               <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-widest">{test.patient?.name}</p>
+                               <p className="font-bold text-base text-white">{test.testName}</p>
+                               <p className="text-[10px] text-slate-400 uppercase tracking-widest">{test.patient?.name}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-black bg-emerald-50 dark:bg-emerald-500/10 px-2 py-1 rounded-md uppercase hidden sm:inline-block">Completed</span>
-                            <Button variant="outline" size="icon" className="h-8 w-8 rounded-lg text-slate-500 hover:text-teal-600 border-slate-200 dark:border-slate-800 hover:bg-teal-50 dark:hover:bg-teal-900/50" onClick={() => handleDownloadPDF(test)} title="Download PDF">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] text-emerald-400 font-black bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-full uppercase hidden sm:inline-block">Completed</span>
+                            <Button variant="outline" size="icon" className="h-10 w-10 rounded-full text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition-colors" onClick={() => handleDownloadPDF(test)} title="Download PDF">
                                <Printer className="h-4 w-4" />
                             </Button>
                           </div>
                        </div>
-                       <div className="bg-slate-50 dark:bg-slate-950 p-3 rounded-lg border border-slate-100 dark:border-slate-800 ml-11">
-                          <p className="text-xs text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{test.results}</p>
+                       <div className="bg-black/40 p-4 rounded-2xl border border-white/10 ml-14">
+                          <p className="text-sm text-slate-300 whitespace-pre-wrap">{test.results}</p>
                        </div>
                     </div>
                   ))}
@@ -258,49 +249,49 @@ export default function LabTestsPage() {
         {/* Right Side - Entry Form */}
         <div>
            {selectedTest ? (
-             <Card className="rounded-2xl border-teal-100 dark:border-teal-900 shadow-2xl shadow-teal-600/10 sticky top-24 dark:bg-slate-900 overflow-hidden">
-               <CardHeader className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white pb-6">
-                 <CardTitle className="text-lg">Submit Results</CardTitle>
-                 <p className="text-teal-100 text-sm mt-1">{selectedTest.testName} for {selectedTest.patient?.name}</p>
+             <Card className="rounded-3xl border border-emerald-500/30 shadow-[0_0_30px_-5px_#10b981] sticky top-24 bg-slate-900/90 backdrop-blur-xl overflow-hidden">
+               <CardHeader className="bg-gradient-to-r from-emerald-600/50 to-teal-600/50 text-white pb-6 border-b border-emerald-500/30">
+                 <CardTitle className="text-2xl font-black">Submit Results</CardTitle>
+                 <p className="text-emerald-100 text-sm mt-1">{selectedTest.testName} for <span className="font-bold">{selectedTest.patient?.name}</span></p>
                </CardHeader>
-               <CardContent className="p-6 space-y-4">
+               <CardContent className="p-6 space-y-6">
                  <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Test Results / Notes</label>
+                    <label className="text-xs font-black text-emerald-400 uppercase tracking-widest">Test Results / Notes</label>
                     <Textarea 
                       value={resultsText} 
                       onChange={(e) => setResultsText(e.target.value)} 
                       placeholder="Enter detailed lab results here..."
-                      className="min-h-[250px] resize-y bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl"
+                      className="min-h-[250px] resize-y bg-black/40 border border-white/10 text-white focus-visible:ring-emerald-500 rounded-2xl p-4 shadow-inner"
                     />
                  </div>
                  <div className="flex flex-col gap-4 pt-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-3 rounded-xl border border-slate-200 dark:border-slate-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-emerald-900/20 p-3 rounded-2xl border border-emerald-500/30">
                       <div className="flex items-center gap-2 pl-2">
-                        <input type="checkbox" id="generate-bill" checked={generateBill} onChange={(e) => setGenerateBill(e.target.checked)} className="h-4 w-4 text-teal-600 rounded border-slate-300" />
-                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-slate-700 dark:text-slate-300">
-                          <Receipt className="h-4 w-4" /> Bill Patient
+                        <input type="checkbox" id="generate-bill" checked={generateBill} onChange={(e) => setGenerateBill(e.target.checked)} className="h-5 w-5 rounded bg-black/40 border-emerald-500 text-emerald-500 focus:ring-emerald-500" />
+                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-emerald-300">
+                          <Receipt className="h-4 w-4" /> Lab Billing
                         </Label>
                       </div>
                       {generateBill && (
-                        <div className="flex items-center gap-2 ml-auto">
-                           <Label className="text-xs uppercase text-slate-500 font-bold">Fee:</Label>
-                           <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} className="w-24 h-8 bg-white dark:bg-slate-950 focus-visible:ring-teal-500 rounded-lg text-right font-mono" />
+                        <div className="flex items-center gap-2 pr-1 ml-auto">
+                           <Label className="text-[10px] uppercase text-emerald-400 font-black">Fee:</Label>
+                           <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} className="w-24 h-10 bg-black/40 border-white/10 focus-visible:ring-emerald-500 rounded-xl text-right font-mono text-white font-bold" />
                         </div>
                       )}
                     </div>
-                    <Button onClick={handleSubmitResults} className="w-full bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 h-12 text-sm font-bold uppercase tracking-widest transition-all hover:shadow-teal-600/40">
+                    <Button onClick={handleSubmitResults} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-[0_0_20px_-5px_#10b981] h-14 text-sm font-black uppercase tracking-widest transition-all">
                        Submit & Mark Completed
                     </Button>
-                    <Button variant="ghost" onClick={() => setSelectedTest(null)} className="w-full rounded-xl text-slate-500 dark:text-slate-400 dark:hover:bg-slate-800">
+                    <Button variant="ghost" onClick={() => setSelectedTest(null)} className="w-full rounded-full text-slate-400 hover:text-white hover:bg-white/5 h-12">
                        Cancel
                     </Button>
                  </div>
                </CardContent>
              </Card>
            ) : (
-             <div className="h-[300px] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 bg-slate-50/50 dark:bg-slate-900/50">
-                <FlaskConical className="h-12 w-12 mb-4 text-slate-300 dark:text-slate-600" />
-                <p className="font-bold text-sm">Select a test to enter results</p>
+             <div className="h-[400px] rounded-3xl border border-white/5 flex flex-col items-center justify-center text-slate-500 bg-white/5 backdrop-blur-xl">
+                <FlaskConical className="h-16 w-16 mb-4 text-emerald-500/30" />
+                <p className="font-black text-slate-400 uppercase tracking-widest text-sm">Select a test to enter results</p>
              </div>
            )}
         </div>

@@ -41,7 +41,6 @@ export default function ConsultationsPage() {
 
   const fetchQueue = async () => {
     setLoading(true);
-    // Fetch IN_PROGRESS appointments for today
     const res = await getAppointments(session!.user.businessId);
     if (res.success) {
       setAppointments((res.data || []).filter((a: any) => a.status === 'IN_PROGRESS'));
@@ -51,21 +50,11 @@ export default function ConsultationsPage() {
 
   const handleSaveConsultation = async () => {
     if (!selectedAppointment) return;
-    
     try {
       const res = await createConsultation({
-        patientId: selectedAppointment.patientId,
-        doctorId: session!.user.id,
-        appointmentId: selectedAppointment.id,
-        vitals,
-        chiefComplaint,
-        symptoms,
-        diagnosis,
-        treatmentPlan,
-        doctorNotes,
-        businessId: session!.user.businessId
+        patientId: selectedAppointment.patientId, doctorId: session!.user.id, appointmentId: selectedAppointment.id,
+        vitals, chiefComplaint, symptoms, diagnosis, treatmentPlan, doctorNotes, businessId: session!.user.businessId
       });
-
       if (res.success) {
         if (generateBill && parseFloat(fee) > 0) {
            await generateConsultationBill(res.data.id, parseFloat(fee), selectedAppointment.patientId);
@@ -74,61 +63,54 @@ export default function ConsultationsPage() {
            toast.success("Consultation saved successfully!");
         }
         setSelectedAppointment(null);
-        // Reset form
         setVitals({ bp: "", temp: "", weight: "", heartRate: "" });
-        setChiefComplaint("");
-        setSymptoms("");
-        setDiagnosis("");
-        setTreatmentPlan("");
-        setDoctorNotes("");
-        setGenerateBill(true);
-        setFee("100.00");
+        setChiefComplaint(""); setSymptoms(""); setDiagnosis(""); setTreatmentPlan(""); setDoctorNotes("");
+        setGenerateBill(true); setFee("100.00");
         fetchQueue();
-      } else {
-        toast.error(res.error || "Failed to save consultation");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred");
-    }
+      } else toast.error(res.error || "Failed to save consultation");
+    } catch (error: any) { toast.error(error.message); }
   };
 
   const handleOrderLab = async () => {
     if (!selectedAppointment || !testName.trim()) return;
     try {
-      const res = await createLabTest({
-        patientId: selectedAppointment.patientId,
-        doctorId: session!.user.id,
-        testName,
-        businessId: session!.user.businessId
-      });
+      const res = await createLabTest({ patientId: selectedAppointment.patientId, doctorId: session!.user.id, testName, businessId: session!.user.businessId });
       if (res.success) {
         toast.success("Lab Test Ordered successfully!");
-        setTestName("");
-        setLabDialogOpen(false);
-      } else {
-        toast.error(res.error || "Failed to order lab test");
-      }
-    } catch (error: any) {
-      toast.error(error.message || "An error occurred");
-    }
+        setTestName(""); setLabDialogOpen(false);
+      } else toast.error(res.error || "Failed to order lab test");
+    } catch (error: any) { toast.error(error.message); }
+  };
+
+  // Abstract Avatar Generator
+  const getAvatar = (name: string, seed: number) => {
+     const initial = name ? name.charAt(0).toUpperCase() : '?';
+     return (
+        <div className="h-12 w-12 rounded-xl bg-slate-800/80 border border-white/10 text-slate-300 flex items-center justify-center font-black text-lg shrink-0 overflow-hidden relative">
+          <img src={`https://ui-avatars.com/api/?name=${initial}&background=random&color=fff&size=128`} className="absolute inset-0 w-full h-full object-cover opacity-90" alt="Avatar" />
+        </div>
+     );
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 min-h-[80vh] p-4 -m-4 bg-slate-950 text-slate-50 relative overflow-hidden rounded-3xl">
+      {/* Decorative Glow Background */}
+      <div className="absolute top-1/3 left-0 w-96 h-96 bg-purple-600/10 rounded-full mix-blend-screen filter blur-[100px] pointer-events-none"></div>
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
         <div>
-          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-teal-700 to-cyan-600 dark:from-teal-400 dark:to-cyan-300 tracking-tight">Consultations</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Doctor workspace and clinical notes</p>
+          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500 tracking-tight">Clinical Consultations</h1>
+          <p className="text-sm text-slate-400 mt-1">Doctor workspace and clinical notes</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 relative z-10">
         {/* Left Side - Queue */}
         <div className="lg:col-span-1 space-y-4">
-          <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-sm dark:bg-slate-900">
-             <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4 rounded-t-2xl">
-               <CardTitle className="text-sm uppercase tracking-widest text-slate-500 font-black flex items-center gap-2">
-                 <User className="h-4 w-4" /> Waiting Queue
+          <Card className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+             <CardHeader className="bg-black/20 border-b border-white/10 pb-4 rounded-t-3xl">
+               <CardTitle className="text-sm uppercase tracking-widest text-slate-400 font-black flex items-center gap-2">
+                 <User className="h-4 w-4 text-purple-400" /> Waiting Queue
                </CardTitle>
              </CardHeader>
              <CardContent className="p-0">
@@ -137,15 +119,15 @@ export default function ConsultationsPage() {
                ) : appointments.length === 0 ? (
                  <div className="p-6 text-center text-xs text-slate-500">No patients waiting.</div>
                ) : (
-                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                     {appointments.map(apt => (
+                 <div className="divide-y divide-white/5">
+                     {appointments.map((apt, idx) => (
                       <div 
                         key={apt.id} 
                         onClick={() => setSelectedAppointment(apt)}
-                        className={`p-4 cursor-pointer transition-all duration-300 ${selectedAppointment?.id === apt.id ? 'bg-teal-50 dark:bg-teal-500/10 border-l-4 border-teal-600 dark:border-teal-500' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 border-l-4 border-transparent hover:border-slate-200 dark:hover:border-slate-700'}`}
+                        className={`p-4 cursor-pointer transition-all duration-300 ${selectedAppointment?.id === apt.id ? 'bg-purple-500/10 border-l-4 border-purple-500' : 'hover:bg-white/5 border-l-4 border-transparent'}`}
                       >
-                         <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{apt.patient?.name}</p>
-                         <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider truncate">{apt.reason || "General Visit"}</p>
+                         <p className="font-bold text-sm text-white truncate">{apt.patient?.name}</p>
+                         <p className="text-[10px] text-purple-400 mt-1 uppercase tracking-wider truncate">{apt.reason || "General Visit"}</p>
                       </div>
                     ))}
                  </div>
@@ -157,77 +139,75 @@ export default function ConsultationsPage() {
         {/* Right Side - Workspace */}
         <div className="lg:col-span-3 space-y-4">
            {selectedAppointment ? (
-              <Card className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-xl shadow-teal-500/5 overflow-hidden dark:bg-slate-900">
-               <div className="bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-950 dark:to-slate-900 text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-teal-900/50 dark:border-slate-800">
+              <Card className="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+               <div className="bg-gradient-to-r from-purple-900/40 to-indigo-900/40 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10">
                   <div className="flex items-center gap-4">
-                     <div className="h-12 w-12 rounded-full bg-teal-500/20 text-teal-100 flex items-center justify-center font-bold text-xl shrink-0 border border-teal-500/30">
-                       {selectedAppointment.patient?.name?.charAt(0)}
-                     </div>
+                     {getAvatar(selectedAppointment.patient?.name, 1)}
                      <div className="min-w-0">
-                       <h2 className="text-xl font-bold truncate">{selectedAppointment.patient?.name}</h2>
-                       <p className="text-slate-300 text-sm truncate font-medium">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
+                       <h2 className="text-2xl font-black text-white truncate">{selectedAppointment.patient?.name}</h2>
+                       <p className="text-purple-300 text-sm truncate font-medium">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
                      </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
-                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0 transition-colors">
+                     <Button variant="secondary" size="sm" className="rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-colors">
                         <History className="mr-2 h-4 w-4" /> History
                      </Button>
                      <Dialog open={labDialogOpen} onOpenChange={setLabDialogOpen}>
                         <DialogTrigger asChild>
-                           <Button variant="secondary" size="sm" className="bg-teal-600/20 hover:bg-teal-600/40 text-teal-100 border border-teal-500/30 transition-colors">
+                           <Button variant="secondary" size="sm" className="rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-500/30 transition-colors shadow-[0_0_15px_-3px_#10b981]">
                               <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
                            </Button>
                         </DialogTrigger>
-                        <DialogContent className="bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-900 dark:text-white sm:max-w-[425px]">
+                        <DialogContent className="bg-slate-900/95 backdrop-blur-xl border border-white/10 text-white sm:max-w-[425px] rounded-3xl shadow-2xl">
                           <DialogHeader>
-                            <DialogTitle>Order Lab Test</DialogTitle>
+                            <DialogTitle className="text-2xl font-black text-white">Order Lab Test</DialogTitle>
                           </DialogHeader>
                           <div className="py-4 space-y-4">
                             <div className="space-y-2">
-                              <Label className="font-bold">Test Name / Description</Label>
+                              <Label className="text-[10px] font-black uppercase text-emerald-400 tracking-wider">Test Name / Description</Label>
                               <Input 
                                 value={testName} 
                                 onChange={(e) => setTestName(e.target.value)} 
                                 placeholder="E.g. Complete Blood Count, Malaria Rapid Test..." 
-                                className="bg-slate-50 dark:bg-slate-800"
+                                className="bg-black/40 border-white/10 text-white rounded-xl h-12"
                               />
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button onClick={handleOrderLab} className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white">
+                            <Button onClick={handleOrderLab} className="rounded-full h-12 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-black shadow-[0_0_20px_-5px_#10b981]">
                               Send to Lab
                             </Button>
                           </DialogFooter>
                         </DialogContent>
                      </Dialog>
-                     <Button variant="secondary" size="sm" className="bg-white/10 hover:bg-white/20 text-white border-0 transition-colors">
+                     <Button variant="secondary" size="sm" className="rounded-full bg-white/10 hover:bg-white/20 text-white border border-white/10 transition-colors">
                         <Pill className="mr-2 h-4 w-4" /> Rx
                      </Button>
                   </div>
                </div>
 
-               <CardContent className="p-6 space-y-6">
+               <CardContent className="p-6 space-y-8">
                  {/* Vitals */}
-                 <div className="bg-slate-50 dark:bg-slate-900/40 p-5 rounded-2xl border border-slate-100 dark:border-slate-800/60">
-                   <h3 className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                     <Stethoscope className="h-4 w-4 text-teal-600 dark:text-teal-400" /> Patient Vitals
+                 <div className="bg-black/20 p-6 rounded-3xl border border-white/10 shadow-inner">
+                   <h3 className="text-xs font-black text-purple-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+                     <Stethoscope className="h-4 w-4" /> Patient Vitals
                    </h3>
                    <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-                     <div className="space-y-1">
+                     <div className="space-y-2">
                        <Label className="text-[10px] font-bold uppercase text-slate-400">Blood Pressure</Label>
-                       <Input value={vitals.bp} onChange={(e) => setVitals({...vitals, bp: e.target.value})} placeholder="120/80" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Input value={vitals.bp} onChange={(e) => setVitals({...vitals, bp: e.target.value})} placeholder="120/80" className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                      </div>
-                     <div className="space-y-1">
+                     <div className="space-y-2">
                        <Label className="text-[10px] font-bold uppercase text-slate-400">Heart Rate (bpm)</Label>
-                       <Input value={vitals.heartRate} onChange={(e) => setVitals({...vitals, heartRate: e.target.value})} placeholder="72" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Input value={vitals.heartRate} onChange={(e) => setVitals({...vitals, heartRate: e.target.value})} placeholder="72" className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                      </div>
-                     <div className="space-y-1">
+                     <div className="space-y-2">
                        <Label className="text-[10px] font-bold uppercase text-slate-400">Temperature (°C)</Label>
-                       <Input value={vitals.temp} onChange={(e) => setVitals({...vitals, temp: e.target.value})} placeholder="36.5" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Input value={vitals.temp} onChange={(e) => setVitals({...vitals, temp: e.target.value})} placeholder="36.5" className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                      </div>
-                     <div className="space-y-1">
+                     <div className="space-y-2">
                        <Label className="text-[10px] font-bold uppercase text-slate-400">Weight (kg)</Label>
-                       <Input value={vitals.weight} onChange={(e) => setVitals({...vitals, weight: e.target.value})} placeholder="70" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Input value={vitals.weight} onChange={(e) => setVitals({...vitals, weight: e.target.value})} placeholder="70" className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                      </div>
                    </div>
                  </div>
@@ -235,60 +215,60 @@ export default function ConsultationsPage() {
                  {/* Notes */}
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                       <Label className="font-bold text-slate-700 dark:text-slate-300">Chief Complaint</Label>
-                       <Input value={chiefComplaint} onChange={(e) => setChiefComplaint(e.target.value)} placeholder="Main reason for visit..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Label className="font-bold text-slate-300">Chief Complaint</Label>
+                       <Input value={chiefComplaint} onChange={(e) => setChiefComplaint(e.target.value)} placeholder="Main reason for visit..." className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                     </div>
                     <div className="space-y-2">
-                       <Label className="font-bold text-slate-700 dark:text-slate-300">Symptoms</Label>
-                       <Input value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="E.g., fever, cough, headache..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Label className="font-bold text-slate-300">Symptoms</Label>
+                       <Input value={symptoms} onChange={(e) => setSymptoms(e.target.value)} placeholder="E.g., fever, cough, headache..." className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                     </div>
                     <div className="space-y-2">
-                       <Label className="font-bold text-slate-700 dark:text-slate-300">Diagnosis</Label>
-                       <Input value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Primary diagnosis..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Label className="font-bold text-slate-300">Diagnosis</Label>
+                       <Input value={diagnosis} onChange={(e) => setDiagnosis(e.target.value)} placeholder="Primary diagnosis..." className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12 border-purple-500/50 shadow-[0_0_15px_-3px_#a855f7]" />
                     </div>
                     <div className="space-y-2">
-                       <Label className="font-bold text-slate-700 dark:text-slate-300">Treatment Plan</Label>
-                       <Input value={treatmentPlan} onChange={(e) => setTreatmentPlan(e.target.value)} placeholder="Medications, rest, follow-up..." className="dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl" />
+                       <Label className="font-bold text-slate-300">Treatment Plan</Label>
+                       <Input value={treatmentPlan} onChange={(e) => setTreatmentPlan(e.target.value)} placeholder="Medications, rest, follow-up..." className="bg-white/5 border-white/10 text-white focus-visible:ring-purple-500 rounded-xl h-12" />
                     </div>
                  </div>
 
                  {/* Detailed Notes */}
                  <div className="space-y-2">
-                    <Label className="font-bold text-slate-700 dark:text-slate-300">Comprehensive Doctor Notes</Label>
+                    <Label className="font-bold text-slate-300">Comprehensive Doctor Notes</Label>
                     <Textarea 
                       value={doctorNotes} 
                       onChange={(e) => setDoctorNotes(e.target.value)} 
                       placeholder="Detailed clinical observations, examination findings, and additional remarks..."
-                      className="min-h-[150px] resize-y bg-slate-50 dark:bg-slate-950 dark:border-slate-800 focus-visible:ring-teal-500 rounded-xl"
+                      className="min-h-[150px] resize-y bg-black/20 border-white/10 text-white focus-visible:ring-purple-500 rounded-2xl p-4 shadow-inner"
                     />
                  </div>
 
-                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50 dark:bg-slate-900/50 p-2 rounded-xl border border-slate-200 dark:border-slate-800">
+                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-6 border-t border-white/10">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-purple-900/20 p-3 rounded-2xl border border-purple-500/30">
                       <div className="flex items-center gap-2 pl-2">
-                        <input type="checkbox" id="generate-bill" checked={generateBill} onChange={(e) => setGenerateBill(e.target.checked)} className="h-4 w-4 text-teal-600 rounded border-slate-300" />
-                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-slate-700 dark:text-slate-300">
-                          <Receipt className="h-4 w-4" /> Bill Patient
+                        <input type="checkbox" id="generate-bill" checked={generateBill} onChange={(e) => setGenerateBill(e.target.checked)} className="h-5 w-5 rounded bg-black/40 border-purple-500 text-purple-500 focus:ring-purple-500" />
+                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-purple-300">
+                          <Receipt className="h-4 w-4" /> Point-of-Care Billing
                         </Label>
                       </div>
                       {generateBill && (
-                        <div className="flex items-center gap-2">
-                           <Label className="text-xs uppercase text-slate-500 font-bold ml-2">Fee:</Label>
-                           <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} className="w-24 h-8 bg-white dark:bg-slate-950 focus-visible:ring-teal-500 rounded-lg text-right font-mono" />
+                        <div className="flex items-center gap-2 pr-1">
+                           <Label className="text-[10px] uppercase text-purple-400 font-black">Fee:</Label>
+                           <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} className="w-24 h-10 bg-black/40 border-white/10 focus-visible:ring-purple-500 rounded-xl text-right font-mono text-white font-bold" />
                         </div>
                       )}
                     </div>
 
-                    <Button onClick={handleSaveConsultation} className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-xl shadow-lg shadow-teal-600/20 transition-all hover:shadow-teal-600/40 px-8 w-full sm:w-auto h-12 font-bold uppercase tracking-widest text-xs">
-                       <Save className="mr-2 h-4 w-4" /> Finish Consultation
+                    <Button onClick={handleSaveConsultation} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-full shadow-[0_0_20px_-5px_#9333ea] px-8 h-12 font-black uppercase tracking-widest text-xs transition-all">
+                       <Save className="mr-2 h-4 w-4" /> Finish & Submit
                     </Button>
                  </div>
                </CardContent>
              </Card>
            ) : (
-             <div className="h-[500px] rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500">
-                <Stethoscope className="h-12 w-12 mb-4 text-slate-300" />
-                <p className="font-bold">Select a patient from the queue to start</p>
+             <div className="h-[500px] rounded-3xl border border-white/5 bg-white/5 flex flex-col items-center justify-center text-slate-500 backdrop-blur-xl">
+                <Stethoscope className="h-16 w-16 mb-4 text-purple-500/50" />
+                <p className="font-black text-slate-400 uppercase tracking-widest">Select Patient to Begin</p>
              </div>
            )}
         </div>

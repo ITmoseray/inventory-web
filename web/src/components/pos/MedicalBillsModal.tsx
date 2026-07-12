@@ -71,57 +71,76 @@ export function MedicalBillsModal({ onPaymentSuccess }: MedicalBillsModalProps) 
     }
   };
 
+  const getAvatar = (name: string) => {
+     const initial = name ? name.charAt(0).toUpperCase() : '?';
+     return (
+        <div className="h-10 w-10 rounded-full bg-slate-800/80 border border-white/10 text-slate-300 flex items-center justify-center font-black text-sm shrink-0 overflow-hidden relative shadow-[0_0_10px_-2px_#14b8a6]">
+          <img src={`https://ui-avatars.com/api/?name=${initial}&background=random&color=fff&size=128`} className="absolute inset-0 w-full h-full object-cover opacity-90" alt="Avatar" />
+        </div>
+     );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-12 px-6 rounded-2xl border-teal-200 dark:border-teal-900 bg-teal-50 dark:bg-teal-900/20 font-black text-[10px] uppercase tracking-widest gap-2 text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/40">
+        <Button variant="outline" className="h-12 px-6 rounded-2xl border-teal-500/50 bg-teal-500/10 font-black text-[10px] uppercase tracking-widest gap-2 text-teal-400 hover:bg-teal-500/30 hover:text-white transition-all shadow-[0_0_15px_-3px_#14b8a6]">
           <Receipt className="h-4 w-4" />
           Medical Bills
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-            <Receipt className="h-5 w-5 text-teal-500" /> Pending Medical Bills
+      <DialogContent className="sm:max-w-[650px] bg-slate-900/95 backdrop-blur-3xl border border-white/10 text-white shadow-2xl rounded-[2rem] overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/10 rounded-full mix-blend-screen filter blur-[80px] pointer-events-none"></div>
+        <DialogHeader className="relative z-10 border-b border-white/10 pb-4">
+          <DialogTitle className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-3">
+            <div className="p-2 bg-teal-500/20 rounded-xl border border-teal-500/30">
+               <Receipt className="h-6 w-6 text-teal-400" /> 
+            </div>
+            Pending Medical Bills
           </DialogTitle>
         </DialogHeader>
 
-        <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+        <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar relative z-10">
           {loading ? (
-            <div className="text-center py-8 text-slate-500">Loading bills...</div>
+            <div className="text-center py-12 text-slate-400 font-bold tracking-widest uppercase text-xs">Loading bills...</div>
           ) : bills.length === 0 ? (
-            <div className="text-center py-12 flex flex-col items-center">
-              <CheckCircle2 className="h-12 w-12 text-slate-300 mb-3" />
-              <p className="text-slate-500 font-bold">No pending medical bills</p>
+            <div className="text-center py-16 flex flex-col items-center">
+              <CheckCircle2 className="h-16 w-16 text-teal-500/30 mb-4" />
+              <p className="text-slate-400 font-black uppercase tracking-widest text-sm">No pending medical bills</p>
             </div>
           ) : (
             bills.map((bill) => (
-              <div key={bill.id} className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 hover:border-teal-400 transition-colors bg-slate-50 dark:bg-slate-950">
-                <div className="flex justify-between items-start mb-3">
-                  <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">{bill.patient?.name}</h3>
-                    <p className="text-xs text-slate-500">{bill.invoiceNumber} • {format(new Date(bill.createdAt), "MMM dd, hh:mm a")}</p>
+              <div key={bill.id} className="border border-white/5 rounded-2xl p-5 hover:border-teal-500/50 transition-all duration-300 bg-black/40 backdrop-blur-xl group hover:shadow-[0_0_20px_-5px_#14b8a6]">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex items-center gap-4">
+                    {getAvatar(bill.patient?.name)}
+                    <div>
+                      <h3 className="font-bold text-white text-lg">{bill.patient?.name}</h3>
+                      <p className="text-xs text-slate-400 font-mono mt-0.5">{bill.invoiceNumber} • {format(new Date(bill.createdAt), "MMM dd, hh:mm a")}</p>
+                    </div>
                   </div>
-                  <Badge variant="outline" className="bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800">
+                  <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/30 rounded-full px-3 py-1 text-[10px] uppercase font-black tracking-widest">
                     PENDING
                   </Badge>
                 </div>
                 
-                <div className="space-y-1 mb-4">
+                <div className="space-y-2 mb-5 bg-white/5 p-4 rounded-xl border border-white/5">
                   {bill.items?.map((item: any) => (
-                    <div key={item.id} className="flex justify-between text-sm text-slate-600 dark:text-slate-400">
-                      <span>{item.productName}</span>
-                      <span className="font-bold">Le {Number(item.total).toLocaleString()}</span>
+                    <div key={item.id} className="flex justify-between text-sm text-slate-300 items-center">
+                      <span className="flex items-center gap-2">
+                        <span className="h-1.5 w-1.5 rounded-full bg-teal-500"></span>
+                        {item.productName}
+                      </span>
+                      <span className="font-black font-mono">Le {Number(item.total).toLocaleString()}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800">
-                  <span className="font-black text-lg text-slate-900 dark:text-white">Le {Number(bill.totalAmount).toLocaleString()}</span>
+                <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                  <span className="font-black text-2xl text-white font-mono tracking-tight"><span className="text-teal-500 text-lg">Le</span> {Number(bill.totalAmount).toLocaleString()}</span>
                   <Button 
                     onClick={() => handlePay(bill.id, Number(bill.totalAmount))}
                     disabled={payingBillId === bill.id}
-                    className="bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-700 hover:to-cyan-700 text-white rounded-lg shadow-md"
+                    className="bg-brand-500 hover:bg-brand-600 text-white rounded-full shadow-[0_0_15px_-3px_#14b8a6] px-8 h-12 font-black uppercase tracking-widest text-xs transition-all"
                   >
                     {payingBillId === bill.id ? "Processing..." : "Quick Pay (CASH)"}
                   </Button>
