@@ -96,7 +96,7 @@ export default function ClinicOverviewPage() {
               <CardContent className="p-4 space-y-3">
                 <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
                 <div className="flex items-end justify-between">
-                  <h3 className="text-3xl font-black text-foreground">{stats?.totalPatients?.toLocaleString() || "1,843"}</h3>
+                  <h3 className="text-3xl font-black text-foreground">{stats?.totalPatients?.toLocaleString() || "0"}</h3>
                   <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" /> 8.2%
                   </span>
@@ -113,7 +113,7 @@ export default function ClinicOverviewPage() {
               <CardContent className="p-4 space-y-3">
                 <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
                 <div className="flex items-end justify-between">
-                  <h3 className="text-3xl font-black text-foreground">{stats?.todaysAppointments || "34"}</h3>
+                  <h3 className="text-3xl font-black text-foreground">{stats?.todaysAppointments || "0"}</h3>
                   <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" /> 12%
                   </span>
@@ -127,7 +127,7 @@ export default function ClinicOverviewPage() {
                </div>
                <CardContent className="p-4">
                  <p className="text-xs text-muted-foreground font-medium mb-1">New Registrations</p>
-                 <h3 className="text-2xl font-black text-foreground">{stats?.newRegistrations || "19"}</h3>
+                 <h3 className="text-2xl font-black text-foreground">{stats?.newRegistrations || "0"}</h3>
                </CardContent>
             </Card>
 
@@ -137,7 +137,7 @@ export default function ClinicOverviewPage() {
                </div>
                <CardContent className="p-4">
                  <p className="text-xs text-muted-foreground font-medium mb-1">Active Cases</p>
-                 <h3 className="text-2xl font-black text-foreground">{stats?.activeCases || "411"}</h3>
+                 <h3 className="text-2xl font-black text-foreground">{stats?.activeCases || "0"}</h3>
                </CardContent>
             </Card>
           </div>
