@@ -45,7 +45,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getUsers, getRoles, createUser, deleteUser } from "@/lib/actions/user";
+import { getUsers, getRoles, createUser, deleteUser, updateUser } from "@/lib/actions/user";
 import { getPermissions } from "@/lib/actions/role";
 import { generateAIEmployeeProfile } from "@/lib/actions/ai";
 import { format } from "date-fns";
@@ -62,6 +62,15 @@ export default function EmployeesPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  
+  const [editFormData, setEditFormData] = useState({
+    name: "",
+    email: "",
+    roleId: "",
+    specialization: ""
+  });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -134,6 +143,36 @@ export default function EmployeesPage() {
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to initialize employee node.");
+    }
+  }
+
+  function handleEditClick(user: any) {
+    setEditFormData({
+      name: user.name || "",
+      email: user.email || "",
+      roleId: user.roleId || "",
+      specialization: user.specialization || ""
+    });
+    setEditingUserId(user.id);
+    setIsEditOpen(true);
+  }
+
+  async function handleEditSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editingUserId) return;
+    try {
+      await updateUser(editingUserId, {
+        name: editFormData.name,
+        email: editFormData.email,
+        roleId: editFormData.roleId,
+        specialization: editFormData.specialization
+      });
+      toast.success("Employee node updated successfully.");
+      setIsEditOpen(false);
+      setEditingUserId(null);
+      fetchData();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update employee node.");
     }
   }
 
@@ -240,6 +279,51 @@ export default function EmployeesPage() {
               </form>
            </DialogContent>
         </Dialog>
+
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh] sm:max-h-none">
+              <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
+                 <div className="min-w-0 flex-1">
+                    <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic truncate">Node Reconfiguration</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 truncate">Modify Authorized User</p>
+                 </div>
+              </div>
+              <form onSubmit={handleEditSubmit} className="p-8 space-y-5">
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</Label>
+                    <Input required className="h-12 rounded-xl" value={editFormData.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, name: e.target.value})} />
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
+                    <Input required type="email" className="h-12 rounded-xl" value={editFormData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, email: e.target.value})} />
+                 </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intelligence Role</Label>
+                    <Select value={editFormData.roleId} onValueChange={(v: string) => setEditFormData({...editFormData, roleId: v})}>
+                       <SelectTrigger className="h-12 rounded-xl">
+                          <SelectValue placeholder="Select Privilege Level" />
+                       </SelectTrigger>
+                       <SelectContent className="rounded-xl">
+                          {roles.filter((r: any) => r.name !== 'SUPER_ADMIN' && r.name !== 'Super Admin').map((r: any) => (
+                            <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>
+                          ))}
+                       </SelectContent>
+                    </Select>
+                 </div>
+
+                 {roles.find((r: any) => r.id === editFormData.roleId)?.name.toUpperCase() === "DOCTOR" && (
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Medical Specialization</Label>
+                       <Input required className="h-12 rounded-xl" placeholder="e.g. Cardiology, Pediatrics" value={editFormData.specialization} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, specialization: e.target.value})} />
+                    </div>
+                  )}
+
+                 <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl mt-4", colors.primary)}>
+                    Save Configuration
+                 </Button>
+              </form>
+           </DialogContent>
+        </Dialog>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -320,7 +404,7 @@ export default function EmployeesPage() {
                    </TableCell>
                    <TableCell className="text-right pr-8">
                       <div className="flex justify-end gap-2">
-                         <Button variant="ghost" size="sm" className="h-9 w-9 rounded-xl text-slate-400 hover:text-primary transition-all">
+                         <Button variant="ghost" size="sm" onClick={() => handleEditClick(u)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-primary transition-all">
                             <Edit2 size={14} />
                          </Button>
                          <Button variant="ghost" size="sm" onClick={() => handleDelete(u.id)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-500 transition-all">
