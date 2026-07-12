@@ -233,3 +233,77 @@ export async function submitLabResults(id: string, results: string, labTechnicia
     return { success: false, error: "Failed to submit lab results" };
   }
 }
+
+// --- Overview Stats ---
+
+export async function getClinicOverviewStats(businessId: string) {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const [
+      totalPatients,
+      newRegistrations,
+      todaysAppointments,
+      activeCases,
+      doctors,
+      recentAppointments
+    ] = await Promise.all([
+      prisma.patient.count({ where: { businessId } }),
+      prisma.patient.count({
+        where: {
+          businessId,
+          createdAt: { gte: today, lt: tomorrow }
+        }
+      }),
+      prisma.appointment.count({
+        where: {
+          businessId,
+          appointmentDate: { gte: today, lt: tomorrow }
+        }
+      }),
+      prisma.appointment.count({
+        where: {
+          businessId,
+          status: 'IN_PROGRESS'
+        }
+      }),
+      prisma.user.findMany({
+        where: { businessId, role: 'DOCTOR' },
+        select: { id: true, name: true, email: true },
+        take: 5
+      }),
+      prisma.appointment.findMany({
+        where: { businessId, appointmentDate: { gte: today } },
+        include: { patient: true, doctor: true },
+        orderBy: { appointmentDate: 'asc' },
+        take: 5
+      })
+    ]);
+
+    // Map doctor load roughly based on their appointments today
+    const doctorStats = await Promise.all(doctors.map(async (doc) => {
+      const pts = await prisma.appointment.count({
+         where: { businessId, doctorId: doc.id, appointmentDate: { gte: today, lt: tomorrow } }
+      });
+      return { ...doc, points: pts };
+    }));
+
+    return {
+      success: true,
+      data: {
+        totalPatients,
+        newRegistrations,
+        todaysAppointments,
+        activeCases,
+        doctors: doctorStats,
+        recentAppointments
+      }
+    };
+  } catch (error) {
+    console.error("Failed to fetch clinic overview stats:", error);
+    return { success: false, error: "Failed to fetch stats" };
+  }
+}

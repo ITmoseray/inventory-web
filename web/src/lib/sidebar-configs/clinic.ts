@@ -11,6 +11,7 @@ export const clinicSidebarConfig = [
   { 
     label: "Clinic Ops", 
     items: [
+      { title: "Overview", url: "/dashboard/clinic/overview", icon: LayoutDashboard, permission: "menu:clinic:overview" },
       { title: "Appointments", url: "/dashboard/clinic/appointments", icon: Calendar, permission: "menu:clinic:appointments" }, 
       { title: "Consultations", url: "/dashboard/clinic/consultations", icon: Stethoscope, permission: "menu:clinic:consultations" }, 
       { title: "Lab Tests", url: "/dashboard/clinic/lab", icon: FlaskConical, permission: "menu:clinic:lab" },
