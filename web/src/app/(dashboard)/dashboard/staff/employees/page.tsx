@@ -222,8 +222,8 @@ export default function EmployeesPage() {
            <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh] sm:max-h-none">
               <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
-                    <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic truncate">Node Initialization</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 truncate">Create New Authorized User</p>
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-[1000] tracking-tighter uppercase italic">Node Initialization</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm md:text-base font-black uppercase tracking-widest mt-1 sm:mt-2">Create New Authorized User</p>
                  </div>
                  <Button 
                    type="button" 
@@ -284,8 +284,8 @@ export default function EmployeesPage() {
            <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh] sm:max-h-none">
               <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
-                    <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic truncate">Node Reconfiguration</h3>
-                    <p className="text-slate-500 dark:text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1 truncate">Modify Authorized User</p>
+                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-[1000] tracking-tighter uppercase italic">Node Reconfiguration</h3>
+                    <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm md:text-base font-black uppercase tracking-widest mt-1 sm:mt-2">Modify Authorized User</p>
                  </div>
               </div>
               <form onSubmit={handleEditSubmit} className="p-8 space-y-5">
