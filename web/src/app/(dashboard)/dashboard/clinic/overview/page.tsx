@@ -43,13 +43,13 @@ export default function ClinicOverviewPage() {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
     if (isDoctor) {
        return (
-         <div className="h-10 w-10 rounded-full border-2 border-teal-500/50 overflow-hidden relative bg-slate-200 dark:bg-slate-800 shrink-0">
+         <div className="h-10 w-10 rounded-full border-2 border-teal-500/50 overflow-hidden relative bg-muted shrink-0">
             <img src={`https://ui-avatars.com/api/?name=${initial}&background=14b8a6&color=fff&size=128`} alt={name} className="object-cover w-full h-full opacity-90" />
          </div>
        );
     }
     return (
-       <div className="h-10 w-10 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-white/10 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden relative">
+       <div className="h-10 w-10 rounded-full bg-muted border border-border text-muted-foreground flex items-center justify-center font-bold text-sm shrink-0 overflow-hidden relative">
          <img src={`https://ui-avatars.com/api/?name=${initial}&background=random&color=fff&size=128`} className="absolute inset-0 w-full h-full object-cover opacity-80" alt="Avatar" />
        </div>
     );
@@ -57,30 +57,30 @@ export default function ClinicOverviewPage() {
 
   if (loading) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center bg-slate-50 dark:bg-[#1c1d21] text-teal-600 dark:text-teal-500 font-bold tracking-widest uppercase -m-4">
+      <div className="min-h-[80vh] flex items-center justify-center bg-background text-teal-600 dark:text-teal-500 font-bold tracking-widest uppercase -m-4">
         Loading Overview...
       </div>
     );
   }
 
   return (
-    <div className="min-h-[80vh] p-6 sm:p-8 -m-4 bg-slate-50 dark:bg-[#1e2025] text-slate-900 dark:text-slate-50 relative overflow-hidden rounded-3xl font-sans transition-colors duration-300">
+    <div className="min-h-[80vh] p-6 sm:p-8 -m-4 bg-background text-foreground relative overflow-hidden rounded-3xl font-sans transition-colors duration-300">
       <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-teal-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#0f766e]/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[150px] pointer-events-none"></div>
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 relative z-10">
-        <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Clinic Overview</h1>
+        <h1 className="text-3xl font-black text-foreground tracking-tight">Clinic Overview</h1>
         <div className="flex items-center gap-4">
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm hidden sm:block">{format(new Date(), "hh:mm a")}</p>
+          <p className="text-muted-foreground font-medium text-sm hidden sm:block">{format(new Date(), "hh:mm a")}</p>
           <div className="flex items-center gap-2">
-            <button className="h-10 w-10 rounded-xl bg-white dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center hover:bg-slate-100 dark:hover:bg-white/10 transition-colors shadow-sm dark:shadow-none">
+            <button className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors shadow-sm dark:shadow-none">
               <Bell className="h-4 w-4 text-slate-500 dark:text-slate-300" />
             </button>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-teal-600 dark:text-teal-400" />
               </div>
-              <input type="text" placeholder="Search" className="h-10 w-32 sm:w-48 pl-9 pr-4 rounded-xl bg-white dark:bg-teal-500/20 border border-slate-200 dark:border-teal-500/30 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-teal-300/50 focus:outline-none focus:ring-2 focus:ring-teal-500/50 text-sm shadow-sm dark:shadow-none" />
+              <input type="text" placeholder="Search" className="h-10 w-32 sm:w-48 pl-9 pr-4 rounded-xl bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/50 text-sm shadow-sm dark:shadow-none" />
             </div>
           </div>
         </div>
@@ -97,17 +97,17 @@ export default function ClinicOverviewPage() {
               <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white dark:border-[#1e2025] rounded-full z-10"></div>
             </div>
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Welcome,</p>
-              <h2 className="text-2xl font-black text-slate-900 dark:text-white">Dr. {session?.user?.name || "Sarah Okonkwo"}</h2>
+              <p className="text-sm text-muted-foreground">Welcome,</p>
+              <h2 className="text-2xl font-black text-foreground">Dr. {session?.user?.name || "Sarah Okonkwo"}</h2>
             </div>
           </div>
 
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg">
               <CardContent className="p-4 space-y-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Patients</p>
+                <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
                 <div className="flex items-end justify-between">
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats?.totalPatients?.toLocaleString() || "1,843"}</h3>
+                  <h3 className="text-3xl font-black text-foreground">{stats?.totalPatients?.toLocaleString() || "1,843"}</h3>
                   <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" /> 8.2%
                   </span>
@@ -122,9 +122,9 @@ export default function ClinicOverviewPage() {
 
             <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg">
               <CardContent className="p-4 space-y-3">
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Today's Appointments</p>
+                <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
                 <div className="flex items-end justify-between">
-                  <h3 className="text-3xl font-black text-slate-900 dark:text-white">{stats?.todaysAppointments || "34"}</h3>
+                  <h3 className="text-3xl font-black text-foreground">{stats?.todaysAppointments || "34"}</h3>
                   <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
                     <TrendingUp className="h-3 w-3" /> 12%
                   </span>
@@ -137,8 +137,8 @@ export default function ClinicOverviewPage() {
                  <ChevronRight className="h-5 w-5" />
                </div>
                <CardContent className="p-4">
-                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">New Registrations</p>
-                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">{stats?.newRegistrations || "19"}</h3>
+                 <p className="text-xs text-muted-foreground font-medium mb-1">New Registrations</p>
+                 <h3 className="text-2xl font-black text-foreground">{stats?.newRegistrations || "19"}</h3>
                </CardContent>
             </Card>
 
@@ -147,8 +147,8 @@ export default function ClinicOverviewPage() {
                  <ChevronRight className="h-5 w-5" />
                </div>
                <CardContent className="p-4">
-                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-1">Active Cases</p>
-                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">{stats?.activeCases || "411"}</h3>
+                 <p className="text-xs text-muted-foreground font-medium mb-1">Active Cases</p>
+                 <h3 className="text-2xl font-black text-foreground">{stats?.activeCases || "411"}</h3>
                </CardContent>
             </Card>
           </div>
@@ -156,7 +156,7 @@ export default function ClinicOverviewPage() {
           <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-3xl shadow-sm dark:shadow-lg overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-6 border-b border-slate-200 dark:border-white/5">
               <CardTitle className="text-lg font-bold text-slate-800 dark:text-slate-200">Patient Demographics</CardTitle>
-              <div className="flex items-center gap-4 text-xs font-bold text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-4 text-xs font-bold text-muted-foreground">
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-teal-500"></span> Age</span>
                 <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-amber-500"></span> Data</span>
               </div>
@@ -190,7 +190,7 @@ export default function ClinicOverviewPage() {
             <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-3xl shadow-sm dark:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-200 dark:border-white/5">
                 <CardTitle className="text-sm font-bold text-slate-800 dark:text-slate-200">Doctor Availability</CardTitle>
-                <MoreHorizontal className="h-5 w-5 text-slate-400 dark:text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-white" />
+                <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
@@ -200,17 +200,17 @@ export default function ClinicOverviewPage() {
                     { name: "Dr. Koffi Mensah", specialization: "Oncology", points: 3, available: true },
                     { name: "Dr. Ngozi Eze", specialization: "General Medicine", points: 7, available: true }
                   ]).map((doc: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(doc.name, true)}
                          <div>
-                           <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{doc.name}</p>
-                           <p className="text-xs text-slate-500 dark:text-slate-400">{doc.specialization || "General"}</p>
+                           <p className="text-sm font-bold text-foreground leading-tight">{doc.name}</p>
+                           <p className="text-xs text-muted-foreground">{doc.specialization || "General"}</p>
                          </div>
                       </div>
                       <div className="text-right">
                          <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-1">Available</p>
-                         <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">{doc.points} pts</p>
+                         <p className="text-xs text-muted-foreground font-mono">{doc.points} pts</p>
                       </div>
                     </div>
                   ))}
@@ -221,7 +221,7 @@ export default function ClinicOverviewPage() {
             <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-3xl shadow-sm dark:shadow-lg">
               <CardHeader className="flex flex-row items-center justify-between pb-2 border-b border-slate-200 dark:border-white/5">
                 <CardTitle className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent In</CardTitle>
-                <select className="bg-slate-100 dark:bg-white/5 border border-slate-300 dark:border-white/10 text-xs text-slate-700 dark:text-slate-300 rounded-md px-2 py-1 outline-none">
+                <select className="bg-slate-100 dark:bg-card/50 border border-border text-xs text-muted-foreground rounded-md px-2 py-1 outline-none">
                   <option>Data</option>
                   <option>Today</option>
                 </select>
@@ -233,12 +233,12 @@ export default function ClinicOverviewPage() {
                     { patient: { name: "Mark Brown" }, doctor: { name: "Dr. Bello" } },
                     { patient: { name: "Samuel Chen" }, doctor: { name: "Dr. Mensah" } }
                   ]).slice(0,3).map((apt: any, i: number) => (
-                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                    <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(apt.patient?.name)}
                          <div>
-                           <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{apt.patient?.name}</p>
-                           <p className="text-xs text-slate-500 dark:text-slate-400">{apt.doctor?.name}</p>
+                           <p className="text-sm font-bold text-foreground leading-tight">{apt.patient?.name}</p>
+                           <p className="text-xs text-muted-foreground">{apt.doctor?.name}</p>
                          </div>
                       </div>
                       <span className="text-xs font-bold text-teal-700 dark:text-teal-400 bg-teal-100 dark:bg-teal-500/10 px-3 py-1 rounded-full border border-teal-200 dark:border-teal-500/20">
@@ -258,7 +258,7 @@ export default function ClinicOverviewPage() {
           <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-3xl shadow-sm dark:shadow-lg">
              <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-sm font-bold text-slate-800 dark:text-slate-200">Healthcare Professionals</CardTitle>
-                <MoreHorizontal className="h-5 w-5 text-slate-400 dark:text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-white" />
+                <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-3">
                  {(stats?.doctors || [
@@ -274,14 +274,14 @@ export default function ClinicOverviewPage() {
                            <div className="absolute bottom-0 right-0 h-3 w-3 bg-emerald-500 border-2 border-white dark:border-[#31343d] rounded-full z-10"></div>
                          </div>
                          <div>
-                           <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight flex items-center gap-1">
-                             {doc.name} <ChevronRight className="h-3 w-3 text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+                           <p className="text-sm font-bold text-foreground leading-tight flex items-center gap-1">
+                             {doc.name} <ChevronRight className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                            </p>
-                           <p className="text-xs text-slate-500 dark:text-slate-400">{doc.specialization || "General"}</p>
+                           <p className="text-xs text-muted-foreground">{doc.specialization || "General"}</p>
                            <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-bold mt-0.5 bg-emerald-100 dark:bg-emerald-500/10 inline-block px-1.5 rounded">Available</p>
                          </div>
                       </div>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 font-mono self-end pb-1">{doc.points} pts today</p>
+                      <p className="text-xs text-muted-foreground font-mono self-end pb-1">{doc.points} pts today</p>
                    </div>
                  ))}
               </CardContent>
@@ -290,7 +290,7 @@ export default function ClinicOverviewPage() {
           <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-3xl shadow-sm dark:shadow-lg flex-1">
              <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <CardTitle className="text-sm font-bold text-slate-800 dark:text-slate-200">Recent Appointments</CardTitle>
-                <MoreHorizontal className="h-5 w-5 text-slate-400 dark:text-slate-500 cursor-pointer hover:text-slate-700 dark:hover:text-white" />
+                <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
@@ -299,12 +299,12 @@ export default function ClinicOverviewPage() {
                     { patient: { name: "Mark Brown" }, doctor: { name: "Dr. Bello" }, time: "11:00 AM" },
                     { patient: { name: "Samuel Chen" }, doctor: { name: "Dr. Mensah" }, time: "11:30 AM", checkin: true }
                    ]).map((apt: any, i: number) => (
-                     <div key={i} className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                     <div key={i} className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                         <div className="flex items-center gap-3">
                            {getAvatar(apt.patient?.name)}
                            <div>
-                             <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{apt.patient?.name}</p>
-                             <p className="text-xs text-slate-500 dark:text-slate-400">{apt.doctor?.name}</p>
+                             <p className="text-sm font-bold text-foreground leading-tight">{apt.patient?.name}</p>
+                             <p className="text-xs text-muted-foreground">{apt.doctor?.name}</p>
                            </div>
                         </div>
                         <div className="text-right">
