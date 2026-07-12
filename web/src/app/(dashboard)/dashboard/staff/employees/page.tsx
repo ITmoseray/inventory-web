@@ -254,7 +254,7 @@ export default function EmployeesPage() {
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intelligence Role</Label>
-                    <Select value={formData.roleId} onValueChange={(v: string | null) => setFormData({...formData, roleId: v ?? ""})}>
+                    <Select value={formData.roleId || undefined} onValueChange={(v: string) => setFormData({...formData, roleId: v})}>
                        <SelectTrigger className="h-12 rounded-xl">
                           <SelectValue placeholder="Select Privilege Level" />
                        </SelectTrigger>
@@ -266,7 +266,7 @@ export default function EmployeesPage() {
                     </Select>
                  </div>
 
-                 {roles.find((r: any) => r.id === formData.roleId)?.name.toUpperCase() === "DOCTOR" && (
+                 {roles.find((r: any) => r.id === formData.roleId)?.name?.toUpperCase() === "DOCTOR" && (
                     <div className="space-y-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Medical Specialization</Label>
                        <Input required className="h-12 rounded-xl" placeholder="e.g. Cardiology, Pediatrics" value={formData.specialization} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, specialization: e.target.value})} />
@@ -299,7 +299,7 @@ export default function EmployeesPage() {
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intelligence Role</Label>
-                    <Select value={editFormData.roleId} onValueChange={(v: string) => setEditFormData({...editFormData, roleId: v})}>
+                    <Select value={editFormData.roleId || undefined} onValueChange={(v: string) => setEditFormData({...editFormData, roleId: v})}>
                        <SelectTrigger className="h-12 rounded-xl">
                           <SelectValue placeholder="Select Privilege Level" />
                        </SelectTrigger>
@@ -311,7 +311,7 @@ export default function EmployeesPage() {
                     </Select>
                  </div>
 
-                 {roles.find((r: any) => r.id === editFormData.roleId)?.name.toUpperCase() === "DOCTOR" && (
+                 {roles.find((r: any) => r.id === editFormData.roleId)?.name?.toUpperCase() === "DOCTOR" && (
                     <div className="space-y-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Medical Specialization</Label>
                        <Input required className="h-12 rounded-xl" placeholder="e.g. Cardiology, Pediatrics" value={editFormData.specialization} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, specialization: e.target.value})} />
