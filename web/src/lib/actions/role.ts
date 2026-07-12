@@ -14,9 +14,26 @@ export async function getRoles() {
 }
 
 export async function getPermissions() {
-  return await prisma.permission.findMany({
+  const session = await auth();
+  const businessType = session?.user?.businessType || "SHOP";
+
+  let permissions = await prisma.permission.findMany({
     orderBy: { key: "asc" }
   });
+
+  // Filter out permissions irrelevant to the business type
+  if (businessType === "CLINIC" || businessType === "HOSPITAL") {
+    permissions = permissions.filter(p => !p.key.includes("restaurant") && !p.key.includes("kitchen") && !p.key.includes("bar") && !p.key.includes("tables"));
+  } else if (businessType === "RESTAURANT" || businessType === "BAR") {
+    permissions = permissions.filter(p => !p.key.includes("clinic") && !p.key.includes("hospital") && !p.key.includes("patients") && !p.key.includes("prescriptions"));
+  } else if (businessType === "PHARMACY") {
+    permissions = permissions.filter(p => !p.key.includes("restaurant") && !p.key.includes("kitchen") && !p.key.includes("bar") && !p.key.includes("clinic") && !p.key.includes("patients"));
+  } else {
+    // Default SHOP, BOUTIQUE, ELECTRONICS, etc.
+    permissions = permissions.filter(p => !p.key.includes("restaurant") && !p.key.includes("kitchen") && !p.key.includes("clinic") && !p.key.includes("hospital") && !p.key.includes("patients") && !p.key.includes("prescriptions") && !p.key.includes("bar"));
+  }
+
+  return permissions;
 }
 
 export async function createRole(data: { name: string; permissions: string[] }) {
