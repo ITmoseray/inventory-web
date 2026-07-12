@@ -65,7 +65,7 @@ export default function ClinicOverviewPage() {
   );
 
   return (
-    <div className="min-h-[80vh] p-6 sm:p-8 -m-4 bg-background text-foreground relative overflow-hidden rounded-3xl font-sans transition-colors duration-300">
+    <div className="min-h-[80vh] p-6 sm:p-8 -m-4 bg-background text-foreground relative rounded-3xl font-sans transition-colors duration-300">
       <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-teal-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-5%] w-[600px] h-[600px] bg-[#0f766e]/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[150px] pointer-events-none"></div>
 

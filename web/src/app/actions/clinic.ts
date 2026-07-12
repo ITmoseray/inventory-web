@@ -276,7 +276,7 @@ export async function getClinicOverviewStats(businessId: string) {
         }
       }),
       prisma.user.findMany({
-        where: { businessId, role: { name: 'DOCTOR' } },
+        where: { businessId, role: { name: { contains: 'doctor', mode: 'insensitive' } } },
         select: { id: true, name: true, email: true, specialization: true },
         take: 5
       }),
