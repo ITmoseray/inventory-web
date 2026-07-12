@@ -9,7 +9,11 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 
-export function MedicalBillsModal() {
+interface MedicalBillsModalProps {
+  onPaymentSuccess?: (receiptData: any) => void;
+}
+
+export function MedicalBillsModal({ onPaymentSuccess }: MedicalBillsModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [bills, setBills] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +41,26 @@ export function MedicalBillsModal() {
       if (res.success) {
         toast.success("Medical bill paid successfully!");
         fetchBills();
+        if (onPaymentSuccess && res.data) {
+          onPaymentSuccess({
+            id: res.data.id,
+            transactionId: res.data.invoiceNumber,
+            total: res.data.totalAmount,
+            paid: res.data.totalAmount,
+            paymentMethod: "CASH",
+            customerName: res.data.patient?.name || "Walk-in Patient",
+            items: res.data.items?.map((item: any) => ({
+              name: item.productName,
+              quantity: item.quantity,
+              price: item.unitPrice,
+              total: item.total
+            })) || [],
+            cashierName: res.data.user?.name || "Cashier",
+            businessName: res.data.business?.name || "Clinic",
+            businessAddress: res.data.business?.address || "",
+            businessPhone: res.data.business?.phone || ""
+          });
+        }
       } else {
         toast.error(res.error || "Failed to pay bill");
       }

@@ -172,7 +172,8 @@ export async function payMedicalBill(saleId: string, paymentMethod: string, amou
       include: {
         items: true,
         patient: true,
-        business: true
+        business: true,
+        user: true
       }
     });
 
