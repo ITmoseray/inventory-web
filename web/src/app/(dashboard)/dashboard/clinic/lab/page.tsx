@@ -5,7 +5,7 @@ import { useSession, signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { FlaskConical, CheckCircle2, Search, Bell, Settings, Receipt, Printer, Edit2, ChevronDown, Check, Activity, Trash2, Plus } from "lucide-react";
+import { FlaskConical, CheckCircle2, Search, Bell, Settings, Receipt, Printer, Edit2, ChevronDown, Check, Activity, Trash2, Plus, ArrowLeft } from "lucide-react";
 import { getLabTests, submitLabResults } from "@/app/actions/clinic";
 import { jsPDF } from "jspdf";
 import { format } from "date-fns";
@@ -328,7 +328,7 @@ export default function LabTestsPage() {
       <div className="flex flex-col xl:flex-row gap-6 flex-1 z-10 relative">
         
         {/* Left Panel: PENDING LAB TESTS */}
-        <div className="w-full xl:w-[450px] shrink-0 flex flex-col gap-4">
+        <div className={`w-full xl:w-[450px] shrink-0 flex-col gap-4 ${selectedTest ? 'hidden xl:flex' : 'flex'}`}>
            <div>
               <h2 className="text-lg font-bold text-emerald-400 uppercase tracking-widest">{searchQuery ? 'Search Results' : 'Pending Lab Tests'}</h2>
               <p className="text-sm text-slate-500">{searchQuery ? `Found ${displayedTests.length} tests` : 'Recent patients who needed testing'}</p>
@@ -381,8 +381,13 @@ export default function LabTestsPage() {
         </div>
 
         {/* Right Panel: RESULTS INPUT */}
-        <div className="flex-1 flex flex-col gap-4">
+        <div className={`flex-1 flex-col gap-4 ${!selectedTest ? 'hidden xl:flex' : 'flex'}`}>
            <div>
+              <div className="flex items-center gap-2 xl:hidden mb-2">
+                 <Button variant="ghost" size="sm" className="text-emerald-500 hover:text-emerald-400 hover:bg-transparent p-0 h-auto font-bold uppercase tracking-widest text-[10px]" onClick={() => setSelectedTest(null)}>
+                    <ArrowLeft className="h-3 w-3 mr-1" /> Back to Tests
+                 </Button>
+              </div>
               <h2 className="text-lg font-bold text-white uppercase tracking-widest">Results Input & Verification</h2>
               <p className="text-sm text-slate-500">Patient selected: <span className="text-emerald-400">{selectedTest?.patient?.name || "None"}</span></p>
            </div>
