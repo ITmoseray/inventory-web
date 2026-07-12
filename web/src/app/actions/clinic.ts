@@ -250,7 +250,11 @@ export async function getClinicOverviewStats(businessId: string) {
       activeCases,
       doctors,
       recentAppointments,
-      allPatients
+      allPatients,
+      patientsLast30Days,
+      patientsPrev30Days,
+      appointmentsLast30Days,
+      appointmentsPrev30Days
     ] = await Promise.all([
       prisma.patient.count({ where: { businessId } }),
       prisma.patient.count({
@@ -284,7 +288,23 @@ export async function getClinicOverviewStats(businessId: string) {
       }),
       prisma.patient.findMany({
         where: { businessId },
-        select: { dateOfBirth: true }
+        select: { dateOfBirth: true, createdAt: true }
+      }),
+      // 30 days patients count
+      prisma.patient.count({
+        where: { businessId, createdAt: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
+      }),
+      // 60-30 days patients count
+      prisma.patient.count({
+        where: { businessId, createdAt: { gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
+      }),
+      // 30 days appointments count
+      prisma.appointment.count({
+        where: { businessId, appointmentDate: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
+      }),
+      // 60-30 days appointments count
+      prisma.appointment.count({
+        where: { businessId, appointmentDate: { gte: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000), lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) } }
       })
     ]);
 
@@ -319,6 +339,29 @@ export async function getClinicOverviewStats(businessId: string) {
       };
     });
 
+    // Calculate Growth Percentages
+    const calcGrowth = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0;
+      return Math.round(((current - previous) / previous) * 100);
+    };
+    
+    const patientGrowth = calcGrowth(patientsLast30Days, patientsPrev30Days);
+    const appointmentGrowth = calcGrowth(appointmentsLast30Days, appointmentsPrev30Days);
+
+    // Calculate Patient Sparkline (last 8 days)
+    const sparklineData = Array(8).fill(0);
+    const msPerDay = 24 * 60 * 60 * 1000;
+    allPatients.forEach(p => {
+      const daysAgo = Math.floor((today.getTime() - new Date(p.createdAt).getTime()) / msPerDay);
+      if (daysAgo >= 0 && daysAgo < 8) {
+        sparklineData[7 - daysAgo]++; // 0 is oldest, 7 is today
+      }
+    });
+
+    // If sparkline is empty (all 0s), provide a tiny default bar so the chart isn't invisible
+    const maxSpark = Math.max(...sparklineData);
+    const sparklineHeights = sparklineData.map(val => maxSpark > 0 ? Math.max(10, Math.round((val / maxSpark) * 100)) : 10);
+
     return {
       success: true,
       data: {
@@ -328,7 +371,10 @@ export async function getClinicOverviewStats(businessId: string) {
         activeCases,
         doctors: doctorStats,
         recentAppointments,
-        chartData
+        chartData,
+        patientGrowth,
+        appointmentGrowth,
+        sparklineHeights
       }
     };
   } catch (error) {

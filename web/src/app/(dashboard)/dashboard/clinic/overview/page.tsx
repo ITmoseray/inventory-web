@@ -97,12 +97,12 @@ export default function ClinicOverviewPage() {
                 <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
                 <div className="flex items-end justify-between">
                   <h3 className="text-3xl font-black text-foreground">{stats?.totalPatients?.toLocaleString() || "0"}</h3>
-                  <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" /> 0%
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1 ${stats?.patientGrowth >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'}`}>
+                    <TrendingUp className={`h-3 w-3 ${stats?.patientGrowth < 0 ? 'rotate-180' : ''}`} /> {Math.abs(stats?.patientGrowth || 0)}%
                   </span>
                 </div>
                 <div className="flex items-end gap-1 h-8 pt-2">
-                  {[40, 60, 30, 80, 50, 70, 90, 60].map((h, i) => (
+                  {(stats?.sparklineHeights || [10, 10, 10, 10, 10, 10, 10, 10]).map((h: number, i: number) => (
                     <div key={i} className="flex-1 bg-teal-500 rounded-sm hover:bg-teal-400 transition-colors" style={{ height: `${h}%` }}></div>
                   ))}
                 </div>
@@ -114,8 +114,8 @@ export default function ClinicOverviewPage() {
                 <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
                 <div className="flex items-end justify-between">
                   <h3 className="text-3xl font-black text-foreground">{stats?.todaysAppointments || "0"}</h3>
-                  <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" /> 0%
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1 ${stats?.appointmentGrowth >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'}`}>
+                    <TrendingUp className={`h-3 w-3 ${stats?.appointmentGrowth < 0 ? 'rotate-180' : ''}`} /> {Math.abs(stats?.appointmentGrowth || 0)}%
                   </span>
                 </div>
               </CardContent>
@@ -183,6 +183,9 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
+                  {(!stats?.doctors || stats.doctors.length === 0) && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">No doctors available.</div>
+                  )}
                   {(stats?.doctors || []).map((doc: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
@@ -212,6 +215,9 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
+                  {(!stats?.recentAppointments || stats.recentAppointments.length === 0) && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">No recent patients.</div>
+                  )}
                   {(stats?.recentAppointments || []).slice(0,3).map((apt: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
@@ -241,6 +247,9 @@ export default function ClinicOverviewPage() {
                 <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-3">
+                 {(!stats?.doctors || stats.doctors.length === 0) && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">No doctors available.</div>
+                  )}
                  {(stats?.doctors || []).map((doc: any, i: number) => (
                    <div key={i} className="bg-slate-50 dark:bg-[#31343d] border border-slate-200 dark:border-white/5 p-3 rounded-2xl flex items-center justify-between group hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
@@ -269,6 +278,9 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
+                   {(!stats?.recentAppointments || stats.recentAppointments.length === 0) && (
+                     <div className="p-6 text-center text-sm text-muted-foreground">No recent appointments.</div>
+                   )}
                    {(stats?.recentAppointments || []).map((apt: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                         <div className="flex items-center gap-3">
