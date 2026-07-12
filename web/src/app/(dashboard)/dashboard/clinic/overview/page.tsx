@@ -26,18 +26,7 @@ export default function ClinicOverviewPage() {
     setLoading(false);
   };
 
-  const chartData = [
-    { age: 0, series1: 0, series2: 0 },
-    { age: 10, series1: 15, series2: 5 },
-    { age: 20, series1: 20, series2: 12 },
-    { age: 30, series1: 12, series2: 18 },
-    { age: 40, series1: 35, series2: 24 },
-    { age: 50, series1: 25, series2: 28 },
-    { age: 60, series1: 28, series2: 26 },
-    { age: 70, series1: 22, series2: 18 },
-    { age: 80, series1: 20, series2: 25 },
-    { age: 90, series1: 15, series2: 38 },
-  ];
+  const chartData = stats?.chartData || [];
 
   const getAvatar = (name: string, isDoctor = false) => {
     const initial = name ? name.charAt(0).toUpperCase() : '?';
@@ -194,12 +183,7 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                  {(stats?.doctors || [
-                    { name: "Dr. David Adebayo", specialization: "Cardiology", points: 6, available: true },
-                    { name: "Dr. Amina Bello", specialization: "Pediatrics", points: 6, available: true },
-                    { name: "Dr. Koffi Mensah", specialization: "Oncology", points: 3, available: true },
-                    { name: "Dr. Ngozi Eze", specialization: "General Medicine", points: 7, available: true }
-                  ]).map((doc: any, i: number) => (
+                  {(stats?.doctors || []).map((doc: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(doc.name, true)}
@@ -228,11 +212,7 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                  {(stats?.recentAppointments || [
-                    { patient: { name: "Jane Doe" }, doctor: { name: "Dr. Adebayo" } },
-                    { patient: { name: "Mark Brown" }, doctor: { name: "Dr. Bello" } },
-                    { patient: { name: "Samuel Chen" }, doctor: { name: "Dr. Mensah" } }
-                  ]).slice(0,3).map((apt: any, i: number) => (
+                  {(stats?.recentAppointments || []).slice(0,3).map((apt: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(apt.patient?.name)}
@@ -261,12 +241,7 @@ export default function ClinicOverviewPage() {
                 <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-3">
-                 {(stats?.doctors || [
-                    { name: "Dr. David Adebayo", specialization: "Cardiology", points: 4 },
-                    { name: "Dr. Amina Bello", specialization: "Pediatrics", points: 6 },
-                    { name: "Dr. Koffi Mensah", specialization: "Oncology", points: 3 },
-                    { name: "Dr. Ngozi Eze", specialization: "General Medicine", points: 7 }
-                 ]).map((doc: any, i: number) => (
+                 {(stats?.doctors || []).map((doc: any, i: number) => (
                    <div key={i} className="bg-slate-50 dark:bg-[#31343d] border border-slate-200 dark:border-white/5 p-3 rounded-2xl flex items-center justify-between group hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                          <div className="relative">
@@ -294,11 +269,7 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                   {(stats?.recentAppointments || [
-                    { patient: { name: "Jane Doe" }, doctor: { name: "Dr. Adebayo" }, time: "10:30 AM" },
-                    { patient: { name: "Mark Brown" }, doctor: { name: "Dr. Bello" }, time: "11:00 AM" },
-                    { patient: { name: "Samuel Chen" }, doctor: { name: "Dr. Mensah" }, time: "11:30 AM", checkin: true }
-                   ]).map((apt: any, i: number) => (
+                   {(stats?.recentAppointments || []).map((apt: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                         <div className="flex items-center gap-3">
                            {getAvatar(apt.patient?.name)}
