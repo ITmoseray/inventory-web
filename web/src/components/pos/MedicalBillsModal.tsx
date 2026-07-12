@@ -86,7 +86,7 @@ export function MedicalBillsModal({ onPaymentSuccess }: MedicalBillsModalProps) 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="h-12 px-6 rounded-2xl border-brand-500/50 bg-brand-500/10 font-black text-[10px] uppercase tracking-widest gap-2 text-brand-400 hover:bg-brand-500/30 hover:text-foreground transition-all shadow-[0_0_15px_-3px_#14b8a6]">
+        <Button variant="outline" className="h-12 px-6 rounded-2xl border-brand-500/50 bg-brand-500/10 font-black text-[10px] uppercase tracking-widest gap-2 text-brand-600 dark:text-brand-400 hover:bg-brand-500/30 hover:text-foreground transition-all shadow-[0_0_15px_-3px_#14b8a6]">
           <Receipt className="h-4 w-4" />
           Medical Bills
         </Button>
@@ -106,7 +106,7 @@ export function MedicalBillsModal({ onPaymentSuccess }: MedicalBillsModalProps) 
           
           {/* Top Info Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <h2 className="text-xl font-bold text-brand-400 tracking-tight">Unpaid Medical Bills</h2>
+            <h2 className="text-xl font-bold text-brand-600 dark:text-brand-400 tracking-tight">Unpaid Medical Bills</h2>
             <div className="text-base font-medium">Total Due: <span className="font-bold">Le {grandTotal.toLocaleString()}</span></div>
           </div>
 
@@ -166,11 +166,11 @@ export function MedicalBillsModal({ onPaymentSuccess }: MedicalBillsModalProps) 
                         </TableCell>
                         <TableCell>
                            {isOverdue ? (
-                             <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/30 rounded-md px-2 py-0.5 text-xs font-semibold">
+                             <Badge variant="outline" className="bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/30 rounded-md px-2 py-0.5 text-xs font-semibold">
                                Overdue
                              </Badge>
                            ) : (
-                             <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/30 rounded-md px-2 py-0.5 text-xs font-semibold">
+                             <Badge variant="outline" className="bg-amber-500/10 text-amber-600 dark:text-amber-500 border-amber-500/30 rounded-md px-2 py-0.5 text-xs font-semibold">
                                Unpaid
                              </Badge>
                            )}
