@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { BusinessType } from "@prisma/client";
 import { generateVerificationToken, sendVerificationEmail, sendPendingApprovalNotification } from "@/lib/mail";
 import { getSystemSettings } from "@/lib/actions/system-settings";
+import { getDefaultPermissionsForRole } from "@/lib/actions/user";
 
 export async function registerBusiness(data: any) {
   const { businessName, email, password, businessType, plan, logoUrl, phone, address, currency, timezone, businessEmail } = data;
@@ -58,10 +59,21 @@ export async function registerBusiness(data: any) {
       defaultRolesToCreate.push('CASHIER', 'STOCK_KEEPER');
     }
 
+    const allPermissions = await tx.permission.findMany();
+
     const createdRoles = await Promise.all(
-      defaultRolesToCreate.map(name => 
-        tx.role.create({ data: { name, businessId: business.id } })
-      )
+      defaultRolesToCreate.map(name => {
+        const defaultKeys = getDefaultPermissionsForRole(name);
+        const permIds = allPermissions.filter(p => defaultKeys.includes(p.key)).map(p => ({ id: p.id }));
+        
+        return tx.role.create({ 
+          data: { 
+            name, 
+            businessId: business.id,
+            permissions: { connect: permIds }
+          } 
+        });
+      })
     );
 
     const adminRole = createdRoles.find(r => r.name === 'ADMIN');

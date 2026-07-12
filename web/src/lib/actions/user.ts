@@ -52,6 +52,19 @@ export async function getUsers() {
   }
 }
 
+export function getDefaultPermissionsForRole(roleName: string): string[] {
+  switch (roleName) {
+    case 'DOCTOR': return ['menu:overview', 'menu:clinic:overview', 'menu:clinic:appointments', 'menu:clinic:consultations', 'menu:patients', 'menu:prescriptions', 'menu:clinic:lab'];
+    case 'NURSE': return ['menu:overview', 'menu:clinic:overview', 'menu:patients', 'menu:prescriptions', 'menu:clinic:appointments'];
+    case 'LAB_TECH': return ['menu:overview', 'menu:clinic:lab', 'menu:inventory'];
+    case 'RECEPTIONIST': return ['menu:overview', 'menu:clinic:appointments', 'menu:sales', 'menu:patients'];
+    case 'PHARMACIST': return ['menu:overview', 'menu:inventory', 'menu:prescriptions', 'menu:patients', 'menu:sales'];
+    case 'CASHIER': return ['menu:overview', 'menu:sales'];
+    case 'STOCK_KEEPER': return ['menu:overview', 'menu:inventory', 'menu:purchases:suppliers'];
+    default: return ['menu:overview'];
+  }
+}
+
 export async function getRoles() {
   try {
     const session = await auth();
@@ -81,16 +94,45 @@ export async function getRoles() {
       if (!roleNames.includes("STOCK_KEEPER")) rolesToCreate.push("STOCK_KEEPER");
     }
 
+    const allPerms = await prisma.permission.findMany();
+
     if (rolesToCreate.length > 0) {
-      await Promise.all(rolesToCreate.map(name => 
-        prisma.role.create({
+      await Promise.all(rolesToCreate.map(name => {
+        const defaultKeys = getDefaultPermissionsForRole(name);
+        const permIds = allPerms.filter(p => defaultKeys.includes(p.key)).map(p => ({ id: p.id }));
+
+        return prisma.role.create({
           data: {
             name,
-            businessId: session.user.businessId
+            businessId: session.user.businessId,
+            permissions: { connect: permIds }
           }
-        })
-      ));
+        });
+      }));
 
+      roles = await prisma.role.findMany({
+        include: { permissions: true },
+        orderBy: { name: "asc" }
+      });
+    }
+
+    // Auto-heal existing roles that have 0 permissions
+    let healed = false;
+    for (const role of roles) {
+      if (role.permissions.length === 0 && role.name.toUpperCase() !== "SUPERADMIN") {
+        const defaultKeys = getDefaultPermissionsForRole(role.name.toUpperCase());
+        const permIds = allPerms.filter(p => defaultKeys.includes(p.key)).map(p => ({ id: p.id }));
+        if (permIds.length > 0) {
+          await prisma.role.update({
+            where: { id: role.id },
+            data: { permissions: { connect: permIds } }
+          });
+          healed = true;
+        }
+      }
+    }
+
+    if (healed) {
       roles = await prisma.role.findMany({
         include: { permissions: true },
         orderBy: { name: "asc" }
