@@ -21,16 +21,21 @@ export async function getPermissions() {
     orderBy: { key: "asc" }
   });
 
-  // Filter out permissions irrelevant to the business type
+  // Comprehensive Blacklists
+  const clinicBlacklist = ["restaurant", "kitchen", "bar", "tables", "recipes", "reservations", "hotel", "supermarket"];
+  const restaurantBlacklist = ["clinic", "hospital", "patients", "prescriptions", "lab", "consultations", "hotel", "supermarket"];
+  const pharmacyBlacklist = ["restaurant", "kitchen", "bar", "tables", "recipes", "reservations", "hotel", "supermarket", "clinic:", "consultations", "lab"];
+  const standardBlacklist = ["restaurant", "kitchen", "bar", "tables", "recipes", "reservations", "hotel", "clinic", "hospital", "patients", "prescriptions", "lab", "consultations"];
+
   if (businessType === "CLINIC" || businessType === "HOSPITAL") {
-    permissions = permissions.filter(p => !p.key.includes("restaurant") && !p.key.includes("kitchen") && !p.key.includes("bar") && !p.key.includes("tables"));
+    permissions = permissions.filter(p => !clinicBlacklist.some(term => p.key.includes(term)));
   } else if (businessType === "RESTAURANT" || businessType === "BAR") {
-    permissions = permissions.filter(p => !p.key.includes("clinic") && !p.key.includes("hospital") && !p.key.includes("patients") && !p.key.includes("prescriptions"));
+    permissions = permissions.filter(p => !restaurantBlacklist.some(term => p.key.includes(term)));
   } else if (businessType === "PHARMACY") {
-    permissions = permissions.filter(p => !p.key.includes("restaurant") && !p.key.includes("kitchen") && !p.key.includes("bar") && !p.key.includes("clinic") && !p.key.includes("patients"));
+    permissions = permissions.filter(p => !pharmacyBlacklist.some(term => p.key.includes(term)));
   } else {
     // Default SHOP, BOUTIQUE, ELECTRONICS, etc.
-    permissions = permissions.filter(p => !p.key.includes("restaurant") && !p.key.includes("kitchen") && !p.key.includes("clinic") && !p.key.includes("hospital") && !p.key.includes("patients") && !p.key.includes("prescriptions") && !p.key.includes("bar"));
+    permissions = permissions.filter(p => !standardBlacklist.some(term => p.key.includes(term)));
   }
 
   return permissions;
