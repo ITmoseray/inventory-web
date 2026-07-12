@@ -52,7 +52,7 @@ export async function getUsers() {
   }
 }
 
-export function getDefaultPermissionsForRole(roleName: string): string[] {
+export async function getDefaultPermissionsForRole(roleName: string): Promise<string[]> {
   switch (roleName) {
     case 'DOCTOR': return ['menu:overview', 'menu:clinic:overview', 'menu:clinic:appointments', 'menu:clinic:consultations', 'menu:patients', 'menu:prescriptions', 'menu:clinic:lab'];
     case 'NURSE': return ['menu:overview', 'menu:clinic:overview', 'menu:patients', 'menu:prescriptions', 'menu:clinic:appointments'];
@@ -97,8 +97,8 @@ export async function getRoles() {
     const allPerms = await prisma.permission.findMany();
 
     if (rolesToCreate.length > 0) {
-      await Promise.all(rolesToCreate.map(name => {
-        const defaultKeys = getDefaultPermissionsForRole(name);
+      await Promise.all(rolesToCreate.map(async (name) => {
+        const defaultKeys = await getDefaultPermissionsForRole(name);
         const permIds = allPerms.filter(p => defaultKeys.includes(p.key)).map(p => ({ id: p.id }));
 
         return prisma.role.create({
@@ -120,7 +120,7 @@ export async function getRoles() {
     let healed = false;
     for (const role of roles) {
       if (role.permissions.length === 0 && role.name.toUpperCase() !== "SUPERADMIN") {
-        const defaultKeys = getDefaultPermissionsForRole(role.name.toUpperCase());
+        const defaultKeys = await getDefaultPermissionsForRole(role.name.toUpperCase());
         const permIds = allPerms.filter(p => defaultKeys.includes(p.key)).map(p => ({ id: p.id }));
         if (permIds.length > 0) {
           await prisma.role.update({

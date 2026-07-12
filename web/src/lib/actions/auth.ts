@@ -62,8 +62,8 @@ export async function registerBusiness(data: any) {
     const allPermissions = await tx.permission.findMany();
 
     const createdRoles = await Promise.all(
-      defaultRolesToCreate.map(name => {
-        const defaultKeys = getDefaultPermissionsForRole(name);
+      defaultRolesToCreate.map(async (name) => {
+        const defaultKeys = await getDefaultPermissionsForRole(name);
         const permIds = allPermissions.filter(p => defaultKeys.includes(p.key)).map(p => ({ id: p.id }));
         
         return tx.role.create({ 
@@ -79,7 +79,6 @@ export async function registerBusiness(data: any) {
     const adminRole = createdRoles.find(r => r.name === 'ADMIN');
 
     // 2b. Auto-assign all permissions to ADMIN role
-    const allPermissions = await tx.permission.findMany();
     if (adminRole && allPermissions.length > 0) {
       await tx.role.update({
         where: { id: adminRole.id },
