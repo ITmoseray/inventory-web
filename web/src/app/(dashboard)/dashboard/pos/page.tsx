@@ -795,7 +795,7 @@ export default function POSPage() {
               </Button>
               <Button 
                 variant="ghost" 
-                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative"
+                className="flex h-12 w-12 rounded-2xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative"
                 onClick={() => setIsDraftsModalOpen(true)}
                 title="View Drafts Queue"
               >
@@ -808,7 +808,7 @@ export default function POSPage() {
               </Button>
               <Button 
                 variant="ghost" 
-                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
+                className="flex h-12 w-12 rounded-2xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
                 onClick={() => {
                   if (currentDraftId) {
                     toast.success("Draft is automatically saving.");
@@ -823,7 +823,7 @@ export default function POSPage() {
               </Button>
               <Button 
                 variant="ghost" 
-                className="hidden xl:flex h-12 w-12 rounded-2xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
+                className="flex h-12 w-12 rounded-2xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
                 onClick={() => {
                   if (currentDraftId) deleteDraft(currentDraftId).then(() => fetchDrafts());
                   clearCart();
