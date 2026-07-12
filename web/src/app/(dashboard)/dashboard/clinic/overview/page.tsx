@@ -83,7 +83,7 @@ export default function ClinicOverviewPage() {
             </button>
             
             {showNotifications && (
-               <div className="absolute top-12 right-0 sm:right-auto sm:left-0 w-72 bg-white dark:bg-[#26282e] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl z-[9999] overflow-hidden">
+               <div className="absolute top-12 left-0 sm:left-auto sm:right-0 w-72 bg-white dark:bg-[#26282e] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl z-[9999] overflow-hidden">
                   <div className="p-3 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-black/20">
                      <p className="text-xs font-bold text-foreground">Notifications</p>
                   </div>

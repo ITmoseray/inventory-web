@@ -257,16 +257,18 @@ export default function LabTestsPage() {
   return (
     <div className="bg-[#131417] min-h-[90vh] text-slate-200 -m-4 p-4 lg:p-6 font-sans relative overflow-hidden flex flex-col">
       {/* Top Header matching mockup */}
-      <div className="flex items-center justify-between mb-8 z-10 relative bg-[#1c1d21] p-4 rounded-2xl border border-white/5 shadow-lg">
-        <div className="flex items-center gap-3">
-           <Activity className="h-8 w-8 text-emerald-500" />
-           <div>
-             <h1 className="text-xl font-black text-white tracking-tight">MEDLAB</h1>
-             <p className="text-[10px] text-emerald-500 tracking-widest uppercase font-bold">Bio-Analytics</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 z-10 relative bg-[#1c1d21] p-4 rounded-2xl border border-white/5 shadow-lg gap-4">
+        <div className="flex items-center justify-between w-full sm:w-auto">
+           <div className="flex items-center gap-3">
+              <Activity className="h-8 w-8 text-emerald-500" />
+              <div>
+                <h1 className="text-xl font-black text-white tracking-tight">MEDLAB</h1>
+                <p className="text-[10px] text-emerald-500 tracking-widest uppercase font-bold">Bio-Analytics</p>
+              </div>
            </div>
         </div>
         
-        <div className="flex-1 max-w-xl mx-8">
+        <div className="w-full sm:flex-1 sm:max-w-xl sm:mx-8">
            <div className="relative group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 group-focus-within:text-emerald-500 transition-colors" />
               <input 
@@ -279,12 +281,12 @@ export default function LabTestsPage() {
            </div>
         </div>
         
-        <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-6">
            <div className="relative cursor-pointer hover:text-emerald-400 transition-colors" onClick={() => setShowNotifications(!showNotifications)}>
               <Bell className="h-5 w-5" />
               <span className="absolute -top-1 -right-1 h-2.5 w-2.5 bg-emerald-500 rounded-full border-2 border-[#1c1d21]"></span>
               {showNotifications && (
-                 <div className="absolute top-8 right-0 w-64 bg-[#25262b] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden cursor-default" onClick={e => e.stopPropagation()}>
+                 <div className="absolute top-8 left-0 sm:left-auto sm:right-0 w-64 bg-[#25262b] border border-white/10 rounded-xl shadow-xl z-50 overflow-hidden cursor-default" onClick={e => e.stopPropagation()}>
                     <div className="p-3 border-b border-white/5 bg-[#1c1d21]">
                        <p className="text-xs font-bold text-white">Notifications</p>
                     </div>
