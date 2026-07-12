@@ -45,30 +45,40 @@ export async function createRole(data: { name: string; permissions: string[] }) 
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
 
-  return await prisma.role.create({
-    data: {
-      name: data.name,
-      businessId: session.user.businessId,
-      permissions: {
-        connect: data.permissions.map(id => ({ id }))
+  try {
+    return await prisma.role.create({
+      data: {
+        name: data.name,
+        businessId: session.user.businessId,
+        permissions: {
+          connect: data.permissions.map(id => ({ id }))
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.error("Error creating role:", error);
+    throw new Error("Failed to create role");
+  }
 }
 
 export async function updateRole(id: string, data: { name: string; permissions: string[] }) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
 
-  return await prisma.role.update({
-    where: { id },
-    data: {
-      name: data.name,
-      permissions: {
-        set: data.permissions.map(id => ({ id }))
+  try {
+    return await prisma.role.update({
+      where: { id },
+      data: {
+        name: data.name,
+        permissions: {
+          set: data.permissions.map(id => ({ id }))
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    throw new Error("Failed to update role");
+  }
 }
 
 export async function deleteRole(id: string) {
