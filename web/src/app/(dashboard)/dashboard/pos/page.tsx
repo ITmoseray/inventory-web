@@ -624,10 +624,12 @@ export default function POSPage() {
             </div>
           )}
           <div className="flex items-center gap-2 w-full lg:w-auto">
-             <MedicalBillsModal onPaymentSuccess={(data) => {
-               setReceiptData(data);
-               setTimeout(() => setIsReceiptModalOpen(true), 300);
-             }} />
+             {(session?.user?.businessType === "CLINIC" || session?.user?.businessType === "HOSPITAL") && (
+               <MedicalBillsModal onPaymentSuccess={(data) => {
+                 setReceiptData(data);
+                 setTimeout(() => setIsReceiptModalOpen(true), 300);
+               }} />
+             )}
              <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest gap-2">
                 <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />
                 African Trade Sync
