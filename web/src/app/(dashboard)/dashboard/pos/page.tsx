@@ -638,6 +638,38 @@ export default function POSPage() {
           </div>
         </header>
 
+        {/* ACTIVE DRAFT BANNER */}
+        {currentDraftId && (() => {
+          const activeDraft = drafts.find(d => d.id === currentDraftId);
+          return activeDraft ? (
+            <div className="mx-4 sm:mx-6 mt-4 flex items-center justify-between gap-3 px-5 py-3 rounded-2xl bg-gradient-to-r from-amber-400/20 to-orange-400/10 border border-amber-300/40 dark:border-amber-600/30">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-xl bg-amber-500 flex items-center justify-center shrink-0">
+                  <Save className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest">
+                    Draft Active — {activeDraft.customerName || "Walk-in Customer"}
+                    {activeDraft.customerPhone && <span className="font-normal ml-2 opacity-70">{activeDraft.customerPhone}</span>}
+                  </p>
+                  <p className="text-[10px] text-amber-600 dark:text-amber-400 font-mono">{activeDraft.draftNumber} · Auto-saving changes</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-amber-700 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/20 text-[10px] font-black uppercase tracking-widest rounded-xl h-8 px-3"
+                onClick={() => {
+                  clearCart();
+                  toast.info("Draft kept in queue. Cart cleared.");
+                }}
+              >
+                Close Draft
+              </Button>
+            </div>
+          ) : null;
+        })()}
+
         <div className="p-4 sm:p-6 space-y-4 shrink-0 bg-white dark:bg-slate-900 z-20">
            <div className="relative group max-w-4xl mx-auto w-full">
               <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
@@ -1221,17 +1253,25 @@ export default function POSPage() {
         <DialogContent className="sm:max-w-[400px] rounded-[2rem] border-none shadow-2xl p-6 sm:p-10 bg-white dark:bg-slate-950 flex flex-col gap-6">
           <div className="flex flex-col text-center">
             <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Hold Sale</h3>
-            <p className="text-xs text-slate-500 mt-2">Enter an optional reference for this draft.</p>
+            <p className="text-xs text-slate-500 mt-2">Add a customer name so you can find this draft later.</p>
           </div>
           <div className="space-y-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer Name</label>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                Customer Name <span className="text-rose-500">*</span>
+              </label>
               <Input 
                 value={holdCustomerName}
                 onChange={(e) => setHoldCustomerName(e.target.value)}
-                placeholder="e.g. John Doe"
-                className="h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 border-none px-4"
+                placeholder="e.g. Amadu Koroma"
+                className={cn("h-12 rounded-2xl bg-slate-50 dark:bg-slate-900 border px-4 transition-colors", !holdCustomerName.trim() ? "border-amber-300 dark:border-amber-700" : "border-emerald-400 dark:border-emerald-700")}
+                autoFocus
               />
+              {!holdCustomerName.trim() && (
+                <p className="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1">
+                  <AlertTriangle className="h-3 w-3" /> Name helps identify this draft quickly
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Phone Number</label>
@@ -1287,10 +1327,15 @@ export default function POSPage() {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="text-sm font-black text-slate-900 dark:text-white">
-                        {d.customerName || "Walk-in Customer"} 
+                        {d.customerName || <span className="text-amber-500">⚠ No Name Set</span>} 
                         {d.customerPhone && <span className="text-xs text-slate-500 ml-2 font-normal">{d.customerPhone}</span>}
                       </p>
                       <p className="text-[10px] text-slate-400 font-mono mt-1">{d.draftNumber} • {new Date(d.updatedAt).toLocaleTimeString()}</p>
+                      {/* Item preview */}
+                      <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1.5 leading-relaxed">
+                        {Array.isArray(d.items) && d.items.slice(0, 3).map((item: any) => item.name).join(', ')}
+                        {Array.isArray(d.items) && d.items.length > 3 && ` +${d.items.length - 3} more`}
+                      </p>
                     </div>
                     <div className="text-right">
                       <span className="text-sm font-[1000] text-primary">Le {Math.round(d.totalAmount).toLocaleString()}</span>
