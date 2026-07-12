@@ -58,11 +58,46 @@ export async function getRoles() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const prisma = getTenantPrisma(session.user.businessId);
+    const businessType = session.user.businessType || "SHOP";
 
-    return await prisma.role.findMany({
+    let roles = await prisma.role.findMany({
       include: { permissions: true },
       orderBy: { name: "asc" }
     });
+
+    const roleNames = roles.map(r => r.name.toUpperCase());
+    const rolesToCreate = [];
+
+    if (businessType === "CLINIC") {
+      if (!roleNames.includes("DOCTOR")) rolesToCreate.push("DOCTOR");
+      if (!roleNames.includes("NURSE")) rolesToCreate.push("NURSE");
+      if (!roleNames.includes("LAB_TECH")) rolesToCreate.push("LAB_TECH");
+      if (!roleNames.includes("RECEPTIONIST")) rolesToCreate.push("RECEPTIONIST");
+    } else if (businessType === "PHARMACY") {
+      if (!roleNames.includes("PHARMACIST")) rolesToCreate.push("PHARMACIST");
+      if (!roleNames.includes("CASHIER")) rolesToCreate.push("CASHIER");
+    } else {
+      if (!roleNames.includes("CASHIER")) rolesToCreate.push("CASHIER");
+      if (!roleNames.includes("STOCK_KEEPER")) rolesToCreate.push("STOCK_KEEPER");
+    }
+
+    if (rolesToCreate.length > 0) {
+      await Promise.all(rolesToCreate.map(name => 
+        prisma.role.create({
+          data: {
+            name,
+            businessId: session.user.businessId
+          }
+        })
+      ));
+
+      roles = await prisma.role.findMany({
+        include: { permissions: true },
+        orderBy: { name: "asc" }
+      });
+    }
+
+    return roles;
   } catch (error) {
     console.error("Failed to fetch roles:", error);
     throw error;

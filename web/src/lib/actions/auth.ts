@@ -48,15 +48,27 @@ export async function registerBusiness(data: any) {
     });
 
     // 2. Create Default roles for the business
-    const [adminRole, managerRole, employeeRole] = await Promise.all([
-      tx.role.create({ data: { name: 'ADMIN', businessId: business.id } }),
-      tx.role.create({ data: { name: 'MANAGER', businessId: business.id } }),
-      tx.role.create({ data: { name: 'EMPLOYEE', businessId: business.id } }),
-    ]);
+    const defaultRolesToCreate = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
+    
+    if (businessType === 'CLINIC') {
+      defaultRolesToCreate.push('DOCTOR', 'NURSE', 'LAB_TECH', 'RECEPTIONIST');
+    } else if (businessType === 'PHARMACY') {
+      defaultRolesToCreate.push('PHARMACIST', 'CASHIER');
+    } else {
+      defaultRolesToCreate.push('CASHIER', 'STOCK_KEEPER');
+    }
+
+    const createdRoles = await Promise.all(
+      defaultRolesToCreate.map(name => 
+        tx.role.create({ data: { name, businessId: business.id } })
+      )
+    );
+
+    const adminRole = createdRoles.find(r => r.name === 'ADMIN');
 
     // 2b. Auto-assign all permissions to ADMIN role
     const allPermissions = await tx.permission.findMany();
-    if (allPermissions.length > 0) {
+    if (adminRole && allPermissions.length > 0) {
       await tx.role.update({
         where: { id: adminRole.id },
         data: {
@@ -73,7 +85,7 @@ export async function registerBusiness(data: any) {
         email,
         passwordHash,
         name: "Admin",
-        roleId: adminRole.id,
+        roleId: adminRole ? adminRole.id : createdRoles[0].id,
         businessId: business.id,
         verificationToken,
       },
