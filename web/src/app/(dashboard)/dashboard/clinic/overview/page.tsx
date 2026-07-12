@@ -98,7 +98,7 @@ export default function ClinicOverviewPage() {
                 <div className="flex items-end justify-between">
                   <h3 className="text-3xl font-black text-foreground">{stats?.totalPatients?.toLocaleString() || "0"}</h3>
                   <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" /> 8.2%
+                    <TrendingUp className="h-3 w-3" /> 0%
                   </span>
                 </div>
                 <div className="flex items-end gap-1 h-8 pt-2">
@@ -115,7 +115,7 @@ export default function ClinicOverviewPage() {
                 <div className="flex items-end justify-between">
                   <h3 className="text-3xl font-black text-foreground">{stats?.todaysAppointments || "0"}</h3>
                   <span className="text-[10px] bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" /> 12%
+                    <TrendingUp className="h-3 w-3" /> 0%
                   </span>
                 </div>
               </CardContent>
