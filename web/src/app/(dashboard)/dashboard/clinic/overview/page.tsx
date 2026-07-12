@@ -12,6 +12,8 @@ export default function ClinicOverviewPage() {
   const { data: session } = useSession();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     if (session?.user?.businessId) {
@@ -61,15 +63,46 @@ export default function ClinicOverviewPage() {
         <h1 className="text-3xl font-black text-foreground tracking-tight">Clinic Overview</h1>
         <div className="flex items-center gap-4">
           <p className="text-muted-foreground font-medium text-sm hidden sm:block">{format(new Date(), "hh:mm a")}</p>
-          <div className="flex items-center gap-2">
-            <button className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors shadow-sm dark:shadow-none">
+          <div className="flex items-center gap-2 relative">
+            <button 
+               onClick={() => setShowNotifications(!showNotifications)}
+               className="h-10 w-10 rounded-xl bg-card border border-border flex items-center justify-center hover:bg-muted transition-colors shadow-sm dark:shadow-none relative"
+            >
               <Bell className="h-4 w-4 text-slate-500 dark:text-slate-300" />
+              <span className="absolute top-2 right-2.5 h-2 w-2 bg-rose-500 rounded-full"></span>
             </button>
+            
+            {showNotifications && (
+               <div className="absolute top-12 right-0 sm:right-auto sm:left-0 w-72 bg-white dark:bg-[#26282e] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden">
+                  <div className="p-3 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-black/20">
+                     <p className="text-xs font-bold text-foreground">Notifications</p>
+                  </div>
+                  <div className="max-h-64 overflow-y-auto divide-y divide-slate-100 dark:divide-white/5">
+                     {(stats?.recentAppointments || []).slice(0,2).map((apt: any, i: number) => (
+                        <div key={i} className="p-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                           <p className="text-sm font-bold text-foreground">Upcoming Appointment</p>
+                           <p className="text-xs text-muted-foreground mt-0.5">{apt.patient?.name} with Dr. {apt.doctor?.name}</p>
+                        </div>
+                     ))}
+                     <div className="p-3 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer">
+                        <p className="text-sm font-bold text-foreground">System Status</p>
+                        <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">All clinic services running perfectly.</p>
+                     </div>
+                  </div>
+               </div>
+            )}
+
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-teal-600 dark:text-teal-400" />
               </div>
-              <input type="text" placeholder="Search" className="h-10 w-32 sm:w-48 pl-9 pr-4 rounded-xl bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/50 text-sm shadow-sm dark:shadow-none" />
+              <input 
+                type="text" 
+                placeholder="Search patients, doctors..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-10 w-32 sm:w-48 pl-9 pr-4 rounded-xl bg-muted/50 border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-teal-500/50 text-sm shadow-sm dark:shadow-none transition-all focus:w-48 sm:focus:w-64" 
+              />
             </div>
           </div>
         </div>
@@ -183,10 +216,10 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                  {(!stats?.doctors || stats.doctors.length === 0) && (
-                    <div className="p-6 text-center text-sm text-muted-foreground">No doctors available.</div>
+                  {(!(stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">No doctors found.</div>
                   )}
-                  {(stats?.doctors || []).map((doc: any, i: number) => (
+                  {(stats?.doctors || []).filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).map((doc: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(doc.name, true)}
@@ -215,10 +248,10 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                  {(!stats?.recentAppointments || stats.recentAppointments.length === 0) && (
-                    <div className="p-6 text-center text-sm text-muted-foreground">No recent patients.</div>
+                  {(!(stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">No recent patients found.</div>
                   )}
-                  {(stats?.recentAppointments || []).slice(0,3).map((apt: any, i: number) => (
+                  {(stats?.recentAppointments || []).filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0,3).map((apt: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(apt.patient?.name)}
@@ -247,10 +280,10 @@ export default function ClinicOverviewPage() {
                 <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-3">
-                 {(!stats?.doctors || stats.doctors.length === 0) && (
-                    <div className="p-6 text-center text-sm text-muted-foreground">No doctors available.</div>
+                 {(!(stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                    <div className="p-6 text-center text-sm text-muted-foreground">No doctors found.</div>
                   )}
-                 {(stats?.doctors || []).map((doc: any, i: number) => (
+                 {(stats?.doctors || []).filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).map((doc: any, i: number) => (
                    <div key={i} className="bg-slate-50 dark:bg-[#31343d] border border-slate-200 dark:border-white/5 p-3 rounded-2xl flex items-center justify-between group hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                          <div className="relative">
@@ -278,10 +311,10 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                   {(!stats?.recentAppointments || stats.recentAppointments.length === 0) && (
-                     <div className="p-6 text-center text-sm text-muted-foreground">No recent appointments.</div>
+                   {(!(stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                     <div className="p-6 text-center text-sm text-muted-foreground">No recent appointments found.</div>
                    )}
-                   {(stats?.recentAppointments || []).map((apt: any, i: number) => (
+                   {(stats?.recentAppointments || []).filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((apt: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                         <div className="flex items-center gap-3">
                            {getAvatar(apt.patient?.name)}

@@ -67,7 +67,8 @@ export default function EmployeesPage() {
     name: "",
     email: "",
     password: "",
-    roleId: ""
+    roleId: "",
+    specialization: ""
   });
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -129,7 +130,7 @@ export default function EmployeesPage() {
       await createUser(formData);
       toast.success("Employee node initialized successfully.");
       setIsAddOpen(false);
-      setFormData({ name: "", email: "", password: "", roleId: roles.find(r => r.name.toUpperCase() === "EMPLOYEE" || r.name === "Employee")?.id || "" });
+      setFormData({ name: "", email: "", password: "", roleId: roles.find(r => r.name.toUpperCase() === "EMPLOYEE" || r.name === "Employee")?.id || "", specialization: "" });
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to initialize employee node.");
@@ -225,6 +226,13 @@ export default function EmployeesPage() {
                        </SelectContent>
                     </Select>
                  </div>
+
+                 {roles.find((r: any) => r.id === formData.roleId)?.name.toUpperCase() === "DOCTOR" && (
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Medical Specialization</Label>
+                       <Input required className="h-12 rounded-xl" placeholder="e.g. Cardiology, Pediatrics" value={formData.specialization} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, specialization: e.target.value})} />
+                    </div>
+                  )}
 
                  <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl mt-4", colors.primary)}>
                     Finalize Initialization

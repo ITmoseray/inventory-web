@@ -34,6 +34,7 @@ export async function getUsers() {
       phone: u.phone ?? null,
       department: u.department ?? null,
       jobTitle: u.jobTitle ?? null,
+      specialization: u.specialization ?? null,
       imageUrl: u.imageUrl ?? null,
       isActive: u.isActive,
       businessId: u.businessId,
@@ -68,7 +69,7 @@ export async function getRoles() {
   }
 }
 
-export async function createUser(data: { name: string; email: string; password: string; roleId: string }) {
+export async function createUser(data: { name: string; email: string; password: string; roleId: string; specialization?: string }) {
   try {
     console.log("DEBUG: createUser called with:", { name: data.name, email: data.email, roleId: data.roleId });
     const session = await auth();
@@ -186,6 +187,7 @@ export async function createUser(data: { name: string; email: string; password: 
         roleId: targetRoleId,
         businessId: businessId,
         verificationToken,
+        specialization: data.specialization || null,
       },
     });
     console.log("DEBUG: User created:", user.id);

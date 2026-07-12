@@ -7,59 +7,59 @@ datasource db {
 }
 
 model Business {
-  id                  String               @id @default(cuid())
-  name                String
-  slug                String               @unique
-  logoUrl             String?
-  type                BusinessType         @default(SHOP)
-  plan                SubscriptionPlan     @default(FREE)
-  status              String               @default("PENDING")
-  trialStartDate      DateTime?            @default(now())
-  trialEndDate        DateTime?
-  enabledModules      String[]             @default([])
-  currency            String               @default("SLL")
-  timezone            String               @default("UTC")
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  registrationReceipt String?
-  address             String?
-  email               String?
-  phone               String?
-  flutterwaveRef      String?
-  subscriptionStatus        String               @default("INACTIVE")
-  requestedBillingPeriod    String               @default("monthly")
-  attendance          Attendance[]
-  auditLogs           AuditLog[]
-  batches             Batch[]
-  categories          Category[]
-  customers           Customer[]
-  debts               Debt[]
-  expenses            Expense[]
-  invoices            Invoice[]
-  loyaltyCampaigns    LoyaltyCampaign[]
-  loyaltyTiers        LoyaltyTier[]
-  notifications       Notification[]
-  orderStatusHistory  OrderStatusHistory[]
-  payments            Payment[]
-  payrolls            Payroll[]
-  products            Product[]
-  purchases           Purchase[]
-  purchaseItems       PurchaseItem[]
-  restaurantTables    RestaurantTable[]
-  roles               Role[]
-  sales               Sale[]
-  saleItems           SaleItem[]
-  stockMovements      StockMovement[]
-  subscriptions       Subscription[]
-  suppliers           Supplier[]
-  users               User[]
-  pushSubscriptions   PushSubscription[]
-  patients            Patient[]
-  prescriptions       Prescription[]
-  locations           Location[]
-  appointments        Appointment[]
-  consultations       Consultation[]
-  labTests            LabTest[]
+  id                     String               @id @default(cuid())
+  name                   String
+  slug                   String               @unique
+  logoUrl                String?
+  type                   BusinessType         @default(SHOP)
+  plan                   SubscriptionPlan     @default(FREE)
+  status                 String               @default("PENDING")
+  trialStartDate         DateTime?            @default(now())
+  trialEndDate           DateTime?
+  enabledModules         String[]             @default([])
+  currency               String               @default("SLL")
+  timezone               String               @default("UTC")
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  registrationReceipt    String?
+  address                String?
+  email                  String?
+  phone                  String?
+  flutterwaveRef         String?
+  subscriptionStatus     String               @default("INACTIVE")
+  requestedBillingPeriod String               @default("monthly")
+  attendance             Attendance[]
+  auditLogs              AuditLog[]
+  batches                Batch[]
+  categories             Category[]
+  customers              Customer[]
+  debts                  Debt[]
+  expenses               Expense[]
+  invoices               Invoice[]
+  loyaltyCampaigns       LoyaltyCampaign[]
+  loyaltyTiers           LoyaltyTier[]
+  notifications          Notification[]
+  orderStatusHistory     OrderStatusHistory[]
+  payments               Payment[]
+  payrolls               Payroll[]
+  products               Product[]
+  purchases              Purchase[]
+  purchaseItems          PurchaseItem[]
+  restaurantTables       RestaurantTable[]
+  roles                  Role[]
+  sales                  Sale[]
+  saleItems              SaleItem[]
+  stockMovements         StockMovement[]
+  subscriptions          Subscription[]
+  suppliers              Supplier[]
+  users                  User[]
+  pushSubscriptions      PushSubscription[]
+  patients               Patient[]
+  prescriptions          Prescription[]
+  locations              Location[]
+  appointments           Appointment[]
+  consultations          Consultation[]
+  labTests               LabTest[]
 
   @@index([slug])
 }
@@ -76,6 +76,7 @@ model User {
   updatedAt          DateTime             @updatedAt
   deletedAt          DateTime?
   roleId             String
+  specialization     String?
   hourlyRate         Decimal?             @db.Decimal(10, 2)
   salary             Decimal?             @db.Decimal(10, 2)
   emailVerified      DateTime?
@@ -173,40 +174,40 @@ model Category {
 }
 
 model Product {
-  id                 String          @id @default(cuid())
-  name               String
-  sku                String?
-  description        String?
-  barcode            String?
-  unitPrice          Decimal         @db.Decimal(10, 2)
-  costPrice          Decimal?        @db.Decimal(10, 2)
-  stockQuantity      Decimal         @default(0) @db.Decimal(10, 2)
-  minStockLevel      Int             @default(10)
-  status             String          @default("active")
-  metadata           Json?
-  businessId         String
-  categoryId         String?
-  createdAt          DateTime        @default(now())
-  updatedAt          DateTime        @updatedAt
-  deletedAt          DateTime?
-  isNetworkAvailable Boolean         @default(false)
-  requiresPrescription Boolean       @default(false)
-  genericAlternative   String?
-  isControlledSubstance Boolean      @default(false)
-  originalBusinessId String?
-  originalProductId  String?
-  type               ProductType     @default(PRODUCT)
-  imageUrl           String?
-  baseUnit           String          @default("Unit")
-  batches            Batch[]
-  business           Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  category           Category?       @relation(fields: [categoryId], references: [id])
-  units              ProductUnit[]
-  purchaseItems      PurchaseItem[]
-  saleItems          SaleItem[]
-  stockMovements     StockMovement[]
-  locationStocks     LocationStock[]
-  transfers          StockTransfer[]
+  id                    String          @id @default(cuid())
+  name                  String
+  sku                   String?
+  description           String?
+  barcode               String?
+  unitPrice             Decimal         @db.Decimal(10, 2)
+  costPrice             Decimal?        @db.Decimal(10, 2)
+  stockQuantity         Decimal         @default(0) @db.Decimal(10, 2)
+  minStockLevel         Int             @default(10)
+  status                String          @default("active")
+  metadata              Json?
+  businessId            String
+  categoryId            String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  deletedAt             DateTime?
+  isNetworkAvailable    Boolean         @default(false)
+  requiresPrescription  Boolean         @default(false)
+  genericAlternative    String?
+  isControlledSubstance Boolean         @default(false)
+  originalBusinessId    String?
+  originalProductId     String?
+  type                  ProductType     @default(PRODUCT)
+  imageUrl              String?
+  baseUnit              String          @default("Unit")
+  batches               Batch[]
+  business              Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category              Category?       @relation(fields: [categoryId], references: [id])
+  units                 ProductUnit[]
+  purchaseItems         PurchaseItem[]
+  saleItems             SaleItem[]
+  stockMovements        StockMovement[]
+  locationStocks        LocationStock[]
+  transfers             StockTransfer[]
 
   @@index([businessId, sku])
   @@index([businessId, deletedAt])
@@ -619,74 +620,74 @@ model PushSubscription {
 }
 
 model Patient {
-  id             String         @id @default(cuid())
-  name           String
-  dateOfBirth    DateTime?
-  gender         String?
-  phone          String?
-  email          String?
-  address        String?
-  allergies      String?
-  medicalNotes   String?
-  businessId     String
-  business       Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  prescriptions  Prescription[]
-  appointments   Appointment[]
-  consultations  Consultation[]
-  labTests       LabTest[]
-  sales          Sale[]
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  dateOfBirth   DateTime?
+  gender        String?
+  phone         String?
+  email         String?
+  address       String?
+  allergies     String?
+  medicalNotes  String?
+  businessId    String
+  business      Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  prescriptions Prescription[]
+  appointments  Appointment[]
+  consultations Consultation[]
+  labTests      LabTest[]
+  sales         Sale[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 
   @@index([businessId])
 }
 
 model Prescription {
-  id                 String           @id @default(cuid())
-  prescriptionNumber String           @unique
+  id                 String   @id @default(cuid())
+  prescriptionNumber String   @unique
   patientId          String
-  patient            Patient          @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient            Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctorName         String
-  dateIssued         DateTime         @default(now())
-  status             String           @default("PENDING") // PENDING, DISPENSED, CANCELLED
+  dateIssued         DateTime @default(now())
+  status             String   @default("PENDING") // PENDING, DISPENSED, CANCELLED
   notes              String?
-  instructions       String?          // e.g. "Take 1 tablet after meals"
+  instructions       String? // e.g. "Take 1 tablet after meals"
   businessId         String
-  business           Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  saleId             String?          @unique
-  sale               Sale?            @relation("PrescriptionSale", fields: [saleId], references: [id])
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
+  business           Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  saleId             String?  @unique
+  sale               Sale?    @relation("PrescriptionSale", fields: [saleId], references: [id])
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
   @@index([businessId])
   @@index([patientId])
 }
 
 model Location {
-  id             String           @id @default(cuid())
-  name           String
-  type           String           @default("STORE") // STORE, WAREHOUSE, OUTLET
-  address        String?
-  businessId     String
-  business       Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  stocks         LocationStock[]
-  transfersFrom  StockTransfer[]  @relation("TransfersFrom")
-  transfersTo    StockTransfer[]  @relation("TransfersTo")
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  id            String          @id @default(cuid())
+  name          String
+  type          String          @default("STORE") // STORE, WAREHOUSE, OUTLET
+  address       String?
+  businessId    String
+  business      Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  stocks        LocationStock[]
+  transfersFrom StockTransfer[] @relation("TransfersFrom")
+  transfersTo   StockTransfer[] @relation("TransfersTo")
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   @@index([businessId])
 }
 
 model LocationStock {
-  id          String   @id @default(cuid())
-  locationId  String
-  productId   String
-  quantity    Decimal  @db.Decimal(10, 2)
-  location    Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  locationId String
+  productId  String
+  quantity   Decimal  @db.Decimal(10, 2)
+  location   Location @relation(fields: [locationId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([locationId, productId])
   @@index([locationId])
@@ -713,19 +714,19 @@ model StockTransfer {
 }
 
 model Appointment {
-  id              String         @id @default(cuid())
+  id              String        @id @default(cuid())
   patientId       String
-  patient         Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patient         Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
   doctorId        String
-  doctor          User           @relation(fields: [doctorId], references: [id])
+  doctor          User          @relation(fields: [doctorId], references: [id])
   appointmentDate DateTime
-  status          String         @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
+  status          String        @default("SCHEDULED") // SCHEDULED, IN_PROGRESS, COMPLETED, CANCELLED
   reason          String?
   notes           String?
   businessId      String
-  business        Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
   consultation    Consultation?
 
   @@index([businessId])
@@ -734,26 +735,26 @@ model Appointment {
 }
 
 model Consultation {
-  id              String         @id @default(cuid())
-  patientId       String
-  patient         Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctorId        String
-  doctor          User           @relation(fields: [doctorId], references: [id])
-  appointmentId   String?        @unique
-  appointment     Appointment?   @relation(fields: [appointmentId], references: [id])
-  vitals          Json?          // { bp, temp, weight, heartRate, etc. }
-  chiefComplaint  String?
-  symptoms        String?
-  diagnosis       String?
-  treatmentPlan   String?
-  doctorNotes     String?        @db.Text
-  businessId      String
-  business        Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  saleId          String?        @unique
-  sale            Sale?          @relation("ConsultationSale", fields: [saleId], references: [id])
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  labTests        LabTest[]
+  id             String       @id @default(cuid())
+  patientId      String
+  patient        Patient      @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId       String
+  doctor         User         @relation(fields: [doctorId], references: [id])
+  appointmentId  String?      @unique
+  appointment    Appointment? @relation(fields: [appointmentId], references: [id])
+  vitals         Json? // { bp, temp, weight, heartRate, etc. }
+  chiefComplaint String?
+  symptoms       String?
+  diagnosis      String?
+  treatmentPlan  String?
+  doctorNotes    String?      @db.Text
+  businessId     String
+  business       Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  saleId         String?      @unique
+  sale           Sale?        @relation("ConsultationSale", fields: [saleId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  labTests       LabTest[]
 
   @@index([businessId])
   @@index([patientId])
@@ -761,25 +762,25 @@ model Consultation {
 }
 
 model LabTest {
-  id               String         @id @default(cuid())
-  patientId        String
-  patient          Patient        @relation(fields: [patientId], references: [id], onDelete: Cascade)
-  doctorId         String
-  doctor           User           @relation("DoctorLabTests", fields: [doctorId], references: [id])
-  consultationId   String?
-  consultation     Consultation?  @relation(fields: [consultationId], references: [id])
-  testName         String
-  testCategory     String?
-  results          String?        @db.Text
-  status           String         @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
-  labTechnicianId  String?
-  labTechnician    User?          @relation("LabTechnician", fields: [labTechnicianId], references: [id])
-  businessId       String
-  business         Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  saleId           String?        @unique
-  sale             Sale?          @relation("LabTestSale", fields: [saleId], references: [id])
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
+  id              String        @id @default(cuid())
+  patientId       String
+  patient         Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId        String
+  doctor          User          @relation("DoctorLabTests", fields: [doctorId], references: [id])
+  consultationId  String?
+  consultation    Consultation? @relation(fields: [consultationId], references: [id])
+  testName        String
+  testCategory    String?
+  results         String?       @db.Text
+  status          String        @default("PENDING") // PENDING, IN_PROGRESS, COMPLETED
+  labTechnicianId String?
+  labTechnician   User?         @relation("LabTechnician", fields: [labTechnicianId], references: [id])
+  businessId      String
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  saleId          String?       @unique
+  sale            Sale?         @relation("LabTestSale", fields: [saleId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   @@index([businessId])
   @@index([patientId])
