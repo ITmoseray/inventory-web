@@ -277,7 +277,7 @@ export async function getClinicOverviewStats(businessId: string) {
       }),
       prisma.user.findMany({
         where: { businessId, role: { name: 'DOCTOR' } },
-        select: { id: true, name: true, email: true },
+        select: { id: true, name: true, email: true, specialization: true },
         take: 5
       }),
       prisma.appointment.findMany({

@@ -54,6 +54,16 @@ export default function ClinicOverviewPage() {
     );
   }
 
+  const filteredDoctors = (stats?.doctors || []).filter((d:any) => 
+     (d.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+     (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredAppointments = (stats?.recentAppointments || []).filter((a:any) => 
+     (a.patient?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) || 
+     (a.doctor?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-[80vh] p-6 sm:p-8 -m-4 bg-background text-foreground relative overflow-hidden rounded-3xl font-sans transition-colors duration-300">
       <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-teal-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] pointer-events-none"></div>
@@ -73,7 +83,7 @@ export default function ClinicOverviewPage() {
             </button>
             
             {showNotifications && (
-               <div className="absolute top-12 right-0 sm:right-auto sm:left-0 w-72 bg-white dark:bg-[#26282e] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl z-50 overflow-hidden">
+               <div className="absolute top-12 right-0 sm:right-auto sm:left-0 w-72 bg-white dark:bg-[#26282e] border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl z-[9999] overflow-hidden">
                   <div className="p-3 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-black/20">
                      <p className="text-xs font-bold text-foreground">Notifications</p>
                   </div>
@@ -216,10 +226,10 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                  {(!(stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                  {filteredDoctors.length === 0 && (
                     <div className="p-6 text-center text-sm text-muted-foreground">No doctors found.</div>
                   )}
-                  {(stats?.doctors || []).filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).map((doc: any, i: number) => (
+                  {filteredDoctors.map((doc: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(doc.name, true)}
@@ -248,10 +258,10 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                  {(!(stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                  {filteredAppointments.length === 0 && (
                     <div className="p-6 text-center text-sm text-muted-foreground">No recent patients found.</div>
                   )}
-                  {(stats?.recentAppointments || []).filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).slice(0,3).map((apt: any, i: number) => (
+                  {filteredAppointments.slice(0,3).map((apt: any, i: number) => (
                     <div key={i} className="flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                       <div className="flex items-center gap-3">
                          {getAvatar(apt.patient?.name)}
@@ -280,10 +290,10 @@ export default function ClinicOverviewPage() {
                 <MoreHorizontal className="h-5 w-5 text-muted-foreground cursor-pointer hover:text-slate-700 dark:hover:text-white" />
               </CardHeader>
               <CardContent className="p-4 pt-0 space-y-3">
-                 {(!(stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.doctors?.filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                 {filteredDoctors.length === 0 && (
                     <div className="p-6 text-center text-sm text-muted-foreground">No doctors found.</div>
                   )}
-                 {(stats?.doctors || []).filter((d:any) => d.name.toLowerCase().includes(searchQuery.toLowerCase()) || (d.specialization || '').toLowerCase().includes(searchQuery.toLowerCase())).map((doc: any, i: number) => (
+                 {filteredDoctors.map((doc: any, i: number) => (
                    <div key={i} className="bg-slate-50 dark:bg-[#31343d] border border-slate-200 dark:border-white/5 p-3 rounded-2xl flex items-center justify-between group hover:border-slate-300 dark:hover:border-white/20 transition-all cursor-pointer">
                       <div className="flex items-center gap-3">
                          <div className="relative">
@@ -311,10 +321,10 @@ export default function ClinicOverviewPage() {
               </CardHeader>
               <CardContent className="p-0">
                 <div className="divide-y divide-slate-200 dark:divide-white/5">
-                   {(!(stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase()))) || stats?.recentAppointments?.filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).length === 0) && (
+                   {filteredAppointments.length === 0 && (
                      <div className="p-6 text-center text-sm text-muted-foreground">No recent appointments found.</div>
                    )}
-                   {(stats?.recentAppointments || []).filter((a:any) => a.patient?.name?.toLowerCase().includes(searchQuery.toLowerCase()) || a.doctor?.name?.toLowerCase().includes(searchQuery.toLowerCase())).map((apt: any, i: number) => (
+                   {filteredAppointments.map((apt: any, i: number) => (
                      <div key={i} className="flex items-center justify-between p-5 hover:bg-slate-50 dark:hover:bg-card/50 transition-colors">
                         <div className="flex items-center gap-3">
                            {getAvatar(apt.patient?.name)}
