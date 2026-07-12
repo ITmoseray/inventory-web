@@ -174,7 +174,7 @@ export default function SmartSchedulingPage() {
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-blue-500 tracking-tight">Appointments & Schedule</h1>
+          <h1 className="text-3xl font-black text-foreground tracking-tight">Appointments & Schedule</h1>
           <p className="text-sm text-muted-foreground mt-1">Effortlessly manage patient visits and daily calendars.</p>
         </div>
         <div className="flex items-center gap-3">
