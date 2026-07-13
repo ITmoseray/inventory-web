@@ -1,9 +1,6 @@
 import { PrismaClient } from "@prisma/client";
-import { PrismaNeon } from "@prisma/adapter-neon";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { Pool as NeonPool, neonConfig } from "@neondatabase/serverless";
 import { Pool as PgPool } from "pg";
-import ws from "ws";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
@@ -21,22 +18,13 @@ const createPrismaClient = () => {
   const maskedUrl = connectionString.replace(/:([^:@]+)@/, ":****@");
   console.log(`🔌 Initializing Prisma with connection: ${maskedUrl}`);
 
-  let adapter;
-  if (connectionString.includes("neon.tech")) {
-    neonConfig.webSocketConstructor = ws;
-    const pool = new NeonPool({ connectionString });
-    adapter = new PrismaNeon(pool);
-    console.log("🚀 Using Neon Driver Adapter");
-  } else {
-    // For local or standard Postgres, use pg pool with SSL if needed
-    const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
-    const pool = new PgPool({ 
-      connectionString,
-      ssl: isLocal ? false : { rejectUnauthorized: false }
-    });
-    adapter = new PrismaPg(pool);
-    console.log(`🐘 Using Standard Postgres Driver Adapter (${isLocal ? 'local' : 'remote'})`);
-  }
+  const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
+  const pool = new PgPool({ 
+    connectionString,
+    ssl: isLocal ? false : { rejectUnauthorized: false }
+  });
+  const adapter = new PrismaPg(pool);
+  console.log(`🐘 Using Standard Postgres Driver Adapter (${isLocal ? 'local' : 'remote'})`);
 
   return new PrismaClient({
     adapter,
