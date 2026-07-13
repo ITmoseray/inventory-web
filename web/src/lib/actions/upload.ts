@@ -2,12 +2,12 @@
 
 import cloudinary from "@/lib/cloudinary";
 
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 
 async function uploadToCloudinary(file: File, folder: string) {
   if (!file) throw new Error("No file provided");
-  if (file.size > MAX_FILE_SIZE) throw new Error("File size exceeds 5MB limit");
+  if (file.size > MAX_FILE_SIZE) throw new Error("File size exceeds 10MB limit");
   if (!ALLOWED_MIME_TYPES.includes(file.type)) throw new Error("Invalid file type");
 
   try {
