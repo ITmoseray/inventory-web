@@ -30,6 +30,9 @@ export async function registerBusiness(data: any) {
     const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7 }));
     const trialEndDate = plan === 'FREE' ? new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000) : null;
 
+    const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL"];
+    const dbBusinessType = allowedTypes.includes(businessType) ? (businessType as BusinessType) : BusinessType.SHOP;
+
     const business = await tx.business.create({
       data: {
         name: businessName,
@@ -39,7 +42,7 @@ export async function registerBusiness(data: any) {
         currency: currency || "SLL",
         timezone: timezone || "UTC",
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
-        type: businessType as BusinessType,
+        type: dbBusinessType,
         plan: plan,
         status: "ACTIVE",
         logoUrl: logoUrl,
