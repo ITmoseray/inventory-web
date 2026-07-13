@@ -13,7 +13,7 @@ runConfig:
 env:
   # Database Connection String
   - variable: DATABASE_URL
-    secret: DATABASE_URL
+    secret: DATABASE_URL@latest
     availability:
       - BUILD
       - RUNTIME
