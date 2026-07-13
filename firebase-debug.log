@@ -1,0 +1,29 @@
+[debug] [2026-07-13T22:14:19.746Z] ----------------------------------------------------------------------
+[debug] [2026-07-13T22:14:19.755Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js login --reauth
+[debug] [2026-07-13T22:14:19.757Z] CLI Version:   15.22.3
+[debug] [2026-07-13T22:14:19.757Z] Platform:      win32
+[debug] [2026-07-13T22:14:19.757Z] Node Version:  v24.12.0
+[debug] [2026-07-13T22:14:19.758Z] Detected Agent: unknown
+[debug] [2026-07-13T22:14:19.759Z] Time:          Mon Jul 13 2026 22:14:19 GMT+0000 (Greenwich Mean Time)
+[debug] [2026-07-13T22:14:19.759Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-07-13T22:14:19.763Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
+[info] 
+[info] Visit this URL on this device to log in:
+[info] https://accounts.google.com/o/oauth2/auth?client_id=563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com&scope=email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloudplatformprojects.readonly%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Ffirebase%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&response_type=code&state=408307070&redirect_uri=http%3A%2F%2Flocalhost%3A9005&login_hint=strangesteven001%40gmail.com
+[info] 
+[info] Waiting for authentication...
+[debug] [2026-07-13T22:14:21.281Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
+[debug] [2026-07-13T22:14:21.281Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
+[debug] [2026-07-13T22:14:34.880Z] >>> [apiv2][query] POST https://accounts.google.com/o/oauth2/token [none]
+[debug] [2026-07-13T22:14:34.880Z] >>> [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
+[debug] [2026-07-13T22:14:36.749Z] <<< [apiv2][status] POST https://accounts.google.com/o/oauth2/token 200
+[debug] [2026-07-13T22:14:36.750Z] <<< [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
+[info] 
+[info] +  Success! Logged in as strangesteven001@gmail.com 
+[debug] [2026-07-13T22:14:44.294Z] Error: Timed out.
+    at Timeout._onTimeout (C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:313:49)
+    at listOnTimeout (node:internal/timers:605:17)
+    at process.processTimers (node:internal/timers:541:7)
+[error] 
+[error] Error: An unexpected error has occurred.

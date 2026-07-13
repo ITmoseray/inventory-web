@@ -1,0 +1,1 @@
+import 'dotenv/config'; import { prisma } from './src/lib/prisma'; async function test() { try { const user = await prisma.user.findFirst(); console.log('User:', user); } catch (e) { console.error('Prisma Error:', e); } } test();

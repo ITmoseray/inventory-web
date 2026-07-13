@@ -6,12 +6,16 @@ import { revalidatePath } from "next/cache";
 import webpush from "web-push";
 
 // Configure Web Push VAPID credentials
-if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
-  webpush.setVapidDetails(
-    "mailto:protechassist36@gmail.com",
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
-  );
+try {
+  if (process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+    webpush.setVapidDetails(
+      "mailto:protechassist36@gmail.com",
+      process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+      process.env.VAPID_PRIVATE_KEY
+    );
+  }
+} catch (error) {
+  console.warn("Failed to initialize Web Push VAPID keys. Push notifications disabled.");
 }
 
 export async function getNotifications() {
