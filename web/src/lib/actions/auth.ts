@@ -14,9 +14,10 @@ export async function registerBusiness(data: any) {
   const passwordHash = await bcrypt.hash(password, 10);
   const verificationToken = generateVerificationToken();
 
-  // Use a transaction to create both
-  const result = await prisma.$transaction(async (tx) => {
-    // 1. Check if user already exists (should be done before calling this, but for safety)
+  try {
+    // Use a transaction to create both
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Check if user already exists (should be done before calling this, but for safety)
     const existingUser = await tx.user.findUnique({ where: { email } });
     if (existingUser) throw new Error("An account already exists for this email address.");
 
@@ -123,18 +124,26 @@ export async function registerBusiness(data: any) {
   // Send verification email outside the transaction
   await sendVerificationEmail(email, verificationToken);
 
-  // Notify Super Admin — fire-and-forget, never blocks registration
-  sendPendingApprovalNotification({
-    businessName: result.business.name,
-    businessType: result.business.type,
-    email: email,
-    phone: data.phone || null,
-    plan: data.plan || 'FREE',
-    billingPeriod: 'monthly',
-    reason: 'NEW_REGISTRATION',
-  }).catch(console.error);
+    // Notify Super Admin — fire-and-forget, never blocks registration
+    sendPendingApprovalNotification({
+      businessName: result.business.name,
+      businessType: result.business.type,
+      email: email,
+      phone: data.phone || null,
+      plan: data.plan || 'FREE',
+      billingPeriod: 'monthly',
+      reason: 'NEW_REGISTRATION',
+    }).catch(console.error);
 
-  return result;
+    return result;
+  } catch (error: any) {
+    console.error("Registration error:", error);
+    // If it's a Prisma unique constraint violation (e.g. duplicate email or slug)
+    if (error.code === 'P2002') {
+      return { error: "An account or business with this name/email already exists." };
+    }
+    return { error: error.message || "Registration failed due to a server error." };
+  }
 }
 
 export async function checkUserExists(email: string) {
