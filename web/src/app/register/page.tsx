@@ -24,7 +24,8 @@ import {
   MapPin,
   Briefcase,
   Coins,
-  Clock
+  Clock,
+  ArrowLeft
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
