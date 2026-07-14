@@ -61,7 +61,7 @@ export default function DashboardPage() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState<any>(null);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<any>({
     revenue: 0,
     revenueChange: 0,
     orders: 0,
@@ -71,7 +71,14 @@ export default function DashboardPage() {
     expiringItems: 0,
     activeTransactions: 0,
     staffCount: 0,
-    topProducts: [] as any[]
+    topProducts: [] as any[],
+    employeeCount: 0,
+    activeTodayCount: 0,
+    monthlyExpenses: 0,
+    departmentsCount: 0,
+    recentCheckins: [] as any[],
+    recentExpenses: [] as any[],
+    departmentDistribution: [] as any[]
   });
   const [loading, setLoading] = useState(true);
 
