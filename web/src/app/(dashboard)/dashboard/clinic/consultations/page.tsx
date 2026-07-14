@@ -110,14 +110,14 @@ export default function ConsultationsPage() {
           <Card className="rounded-3xl border border-border bg-card/50 backdrop-blur-xl shadow-2xl overflow-hidden">
              <CardHeader className="bg-black/20 border-b border-border pb-4 rounded-t-3xl">
                <CardTitle className="text-sm uppercase tracking-widest text-muted-foreground font-black flex items-center gap-2">
-                 <User className="h-4 w-4 text-purple-400" /> Waiting Queue
+                 <User className="h-4 w-4 text-purple-600 dark:text-purple-400" /> Waiting Queue
                </CardTitle>
              </CardHeader>
              <CardContent className="p-0">
                {loading ? (
-                 <div className="p-4 text-center text-xs text-foreground0">Loading queue...</div>
+                 <div className="p-4 text-center text-xs text-muted-foreground">Loading queue...</div>
                ) : appointments.length === 0 ? (
-                 <div className="p-6 text-center text-xs text-foreground0">No patients waiting.</div>
+                 <div className="p-6 text-center text-xs text-muted-foreground">No patients waiting.</div>
                ) : (
                  <div className="divide-y divide-white/5">
                      {appointments.map((apt, idx) => (
@@ -145,7 +145,7 @@ export default function ConsultationsPage() {
                      {getAvatar(selectedAppointment.patient?.name, 1)}
                      <div className="min-w-0">
                        <h2 className="text-2xl font-black text-foreground truncate">{selectedAppointment.patient?.name}</h2>
-                       <p className="text-purple-300 text-sm truncate font-medium">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
+                       <p className="text-purple-600 dark:text-purple-300 text-sm truncate font-medium">{selectedAppointment.patient?.phone} • {selectedAppointment.reason}</p>
                      </div>
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -154,7 +154,7 @@ export default function ConsultationsPage() {
                      </Button>
                      <Dialog open={labDialogOpen} onOpenChange={setLabDialogOpen}>
                         <DialogTrigger asChild>
-                           <Button variant="secondary" size="sm" className="rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-300 border border-emerald-500/30 transition-colors shadow-[0_0_15px_-3px_#10b981]">
+                           <Button variant="secondary" size="sm" className="rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 transition-colors shadow-[0_0_15px_-3px_#10b981]">
                               <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
                            </Button>
                         </DialogTrigger>
@@ -174,7 +174,7 @@ export default function ConsultationsPage() {
                             </div>
                           </div>
                           <DialogFooter>
-                            <Button onClick={handleOrderLab} className="rounded-full h-12 px-8 bg-emerald-500 hover:bg-emerald-600 text-foreground font-black shadow-[0_0_20px_-5px_#10b981]">
+                            <Button onClick={handleOrderLab} className="rounded-full h-12 px-8 bg-emerald-500 hover:bg-emerald-600 text-white font-black shadow-[0_0_20px_-5px_#10b981]">
                               Send to Lab
                             </Button>
                           </DialogFooter>
@@ -247,26 +247,26 @@ export default function ConsultationsPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-4 bg-purple-900/20 p-3 rounded-2xl border border-purple-500/30">
                       <div className="flex items-center gap-2 pl-2">
                         <input type="checkbox" id="generate-bill" checked={generateBill} onChange={(e) => setGenerateBill(e.target.checked)} className="h-5 w-5 rounded bg-muted/50 border-purple-500 text-purple-500 focus:ring-purple-500" />
-                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-purple-300">
+                        <Label htmlFor="generate-bill" className="font-bold cursor-pointer flex items-center gap-1 text-purple-700 dark:text-purple-300">
                           <Receipt className="h-4 w-4" /> Point-of-Care Billing
                         </Label>
                       </div>
                       {generateBill && (
                         <div className="flex items-center gap-2 pr-1">
-                           <Label className="text-[10px] uppercase text-purple-400 font-black">Fee:</Label>
+                           <Label className="text-[10px] uppercase text-purple-600 dark:text-purple-400 font-black">Fee:</Label>
                            <Input type="number" value={fee} onChange={(e) => setFee(e.target.value)} className="w-24 h-10 bg-muted/50 border-border focus-visible:ring-purple-500 rounded-xl text-right font-mono text-foreground font-bold" />
                         </div>
                       )}
                     </div>
 
-                    <Button onClick={handleSaveConsultation} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-foreground rounded-full shadow-[0_0_20px_-5px_#9333ea] px-8 h-12 font-black uppercase tracking-widest text-xs transition-all">
+                    <Button onClick={handleSaveConsultation} className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-full shadow-[0_0_20px_-5px_#9333ea] px-8 h-12 font-black uppercase tracking-widest text-xs transition-all">
                        <Save className="mr-2 h-4 w-4" /> Finish & Submit
                     </Button>
                  </div>
                </CardContent>
              </Card>
            ) : (
-             <div className="h-[500px] rounded-3xl border border-white/5 bg-card/50 flex flex-col items-center justify-center text-foreground0 backdrop-blur-xl">
+             <div className="h-[500px] rounded-3xl border border-white/5 bg-card/50 flex flex-col items-center justify-center text-muted-foreground backdrop-blur-xl">
                 <Stethoscope className="h-16 w-16 mb-4 text-purple-500/50" />
                 <p className="font-black text-muted-foreground uppercase tracking-widest">Select Patient to Begin</p>
              </div>
