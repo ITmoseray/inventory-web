@@ -326,21 +326,21 @@ export default function SmartSchedulingPage() {
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-md border border-border bg-card/95 backdrop-blur-2xl text-foreground rounded-3xl shadow-2xl">
+        <DialogContent className="sm:max-w-md border border-border bg-card/95 backdrop-blur-2xl text-slate-900 dark:text-white rounded-3xl shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black tracking-tight text-foreground">New Appointment</DialogTitle>
+            <DialogTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">New Appointment</DialogTitle>
             <DialogDescription className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
               Schedule a patient visit
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleCreateAppointment} className="space-y-4 mt-4">
             <div className="space-y-1">
-              <Label className="text-[10px] font-black uppercase text-brand-400 tracking-wider">Select Patient *</Label>
+              <Label className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 tracking-wider">Select Patient *</Label>
               <Select value={formData.patientId} onValueChange={v => setFormData({ ...formData, patientId: v })}>
-                <SelectTrigger className="rounded-xl bg-muted/50 border-border text-foreground h-12">
+                <SelectTrigger className="w-full rounded-xl bg-muted/50 border-border text-slate-900 dark:text-white h-12">
                   <SelectValue placeholder="Select patient" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-border bg-card text-foreground">
+                <SelectContent className="rounded-xl border-border bg-card text-slate-900 dark:text-white">
                   {patients.map(p => (
                     <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                   ))}
@@ -348,12 +348,12 @@ export default function SmartSchedulingPage() {
               </Select>
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] font-black uppercase text-brand-400 tracking-wider">Select Doctor *</Label>
+              <Label className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 tracking-wider">Select Doctor *</Label>
               <Select value={formData.doctorId} onValueChange={v => setFormData({ ...formData, doctorId: v })}>
-                <SelectTrigger className="rounded-xl bg-muted/50 border-border text-foreground h-12">
+                <SelectTrigger className="w-full rounded-xl bg-muted/50 border-border text-slate-900 dark:text-white h-12">
                   <SelectValue placeholder="Select doctor" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-border bg-card text-foreground">
+                <SelectContent className="rounded-xl border-border bg-card text-slate-900 dark:text-white">
                   {doctors.map(d => (
                     <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
                   ))}
@@ -362,17 +362,17 @@ export default function SmartSchedulingPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
                <div className="space-y-1">
-                 <Label className="text-[10px] font-black uppercase text-brand-400 tracking-wider">Date *</Label>
-                 <Input type="date" required value={formData.appointmentDate} onChange={e => setFormData({ ...formData, appointmentDate: e.target.value })} className="rounded-xl h-12 bg-muted/50 border-border text-foreground " />
+                 <Label className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 tracking-wider">Date *</Label>
+                 <Input type="date" required value={formData.appointmentDate} onChange={e => setFormData({ ...formData, appointmentDate: e.target.value })} className="rounded-xl h-12 bg-muted/50 border-border text-slate-900 dark:text-white " />
                </div>
                <div className="space-y-1">
-                 <Label className="text-[10px] font-black uppercase text-brand-400 tracking-wider">Time *</Label>
-                 <Input type="time" required value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} className="rounded-xl h-12 bg-muted/50 border-border text-foreground " />
+                 <Label className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 tracking-wider">Time *</Label>
+                 <Input type="time" required value={formData.time} onChange={e => setFormData({ ...formData, time: e.target.value })} className="rounded-xl h-12 bg-muted/50 border-border text-slate-900 dark:text-white " />
                </div>
             </div>
             <div className="space-y-1">
-              <Label className="text-[10px] font-black uppercase text-brand-400 tracking-wider">Reason for Visit</Label>
-              <Input value={formData.reason} onChange={e => setFormData({ ...formData, reason: e.target.value })} placeholder="e.g. Regular Checkup" className="rounded-xl h-12 bg-muted/50 border-border text-foreground placeholder:text-muted-foreground" />
+              <Label className="text-[10px] font-black uppercase text-brand-600 dark:text-brand-400 tracking-wider">Reason for Visit</Label>
+              <Input value={formData.reason} onChange={e => setFormData({ ...formData, reason: e.target.value })} placeholder="e.g. Regular Checkup" className="rounded-xl h-12 bg-muted/50 border-border text-slate-900 dark:text-white placeholder:text-muted-foreground" />
             </div>
             <div className="flex justify-end gap-3 pt-6">
               <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-full h-12 px-6 text-muted-foreground hover:bg-card/50 hover:text-foreground">Cancel</Button>
