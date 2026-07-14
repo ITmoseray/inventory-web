@@ -230,7 +230,7 @@ export async function createUser(data: {
 
     if (!employeeRole) {
         console.log("DEBUG: Employee role not found, creating it...");
-        employeeRole = await prisma.role.create({
+        employeeRole = await globalPrisma.role.create({
             data: {
                 name: "EMPLOYEE",
                 businessId: businessId,
@@ -243,7 +243,7 @@ export async function createUser(data: {
     } else {
         console.log("DEBUG: Updating existing Employee role:", employeeRole.id);
         // Update permissions for existing Employee role
-        await prisma.role.update({
+        await globalPrisma.role.update({
             where: { id: employeeRole.id },
             data: {
                 permissions: {
@@ -268,7 +268,7 @@ export async function createUser(data: {
       targetRoleId = employeeRole.id;
     }
 
-    const user = await prisma.user.create({
+    const user = await globalPrisma.user.create({
       data: {
         name: data.name,
         email: data.email,
