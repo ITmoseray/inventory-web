@@ -43,6 +43,12 @@ export default function PatientsRegistryPage() {
   const [address, setAddress] = useState("");
   const [allergies, setAllergies] = useState("");
   const [medicalNotes, setMedicalNotes] = useState("");
+  const [nationality, setNationality] = useState("");
+  const [emergencyContact, setEmergencyContact] = useState("");
+  const [conditions, setConditions] = useState("");
+  const [pastProcedures, setPastProcedures] = useState("");
+  const [currentMedications, setCurrentMedications] = useState("");
+  const [immunizations, setImmunizations] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -76,6 +82,12 @@ export default function PatientsRegistryPage() {
         address: address || undefined,
         allergies: allergies || undefined,
         medicalNotes: medicalNotes || undefined,
+        nationality: nationality || undefined,
+        emergencyContact: emergencyContact || undefined,
+        conditions: conditions || undefined,
+        pastProcedures: pastProcedures || undefined,
+        currentMedications: currentMedications || undefined,
+        immunizations: immunizations || undefined,
       });
 
       if (res.success) {
@@ -90,6 +102,12 @@ export default function PatientsRegistryPage() {
         setAddress("");
         setAllergies("");
         setMedicalNotes("");
+        setNationality("");
+        setEmergencyContact("");
+        setConditions("");
+        setPastProcedures("");
+        setCurrentMedications("");
+        setImmunizations("");
         fetchPatients();
       }
     } catch (err: any) {
@@ -120,13 +138,17 @@ export default function PatientsRegistryPage() {
               <Plus className="h-4 w-4" /> Register Patient
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-xl border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem] text-slate-900 dark:text-white">
+          <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto custom-scrollbar border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem] text-slate-900 dark:text-white">
             <DialogHeader>
               <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Register Patient Profile</DialogTitle>
               <DialogDescription className="text-slate-500 text-xs">Create a secure medical record card for checkups and prescriptions.</DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-2">
               <div className="grid grid-cols-2 gap-4">
+                {/* Demographics Group */}
+                <div className="col-span-2 border-b border-slate-100 dark:border-slate-800 pb-1 mt-2">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400">Demographics & Information</h3>
+                </div>
                 <div className="space-y-1 col-span-2">
                   <Label htmlFor="name" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Patient Name *</Label>
                   <Input id="name" required value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Fatmata Kamara" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
@@ -149,6 +171,15 @@ export default function PatientsRegistryPage() {
                     <option value="OTHER" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">Other</option>
                   </select>
                 </div>
+                <div className="space-y-1 col-span-2">
+                  <Label htmlFor="nationality" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Nationality</Label>
+                  <Input id="nationality" value={nationality} onChange={e => setNationality(e.target.value)} placeholder="e.g. Sierra Leonean, Nigerian" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+
+                {/* Contact Group */}
+                <div className="col-span-2 border-b border-slate-100 dark:border-slate-800 pb-1 mt-4">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400">Contact & Address</h3>
+                </div>
                 <div className="space-y-1">
                   <Label htmlFor="phone" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Phone Number</Label>
                   <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 23277123456" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
@@ -162,12 +193,37 @@ export default function PatientsRegistryPage() {
                   <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 45 Siaka Stevens St, Freetown" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1 col-span-2">
-                  <Label htmlFor="allergies" className="text-[10px] font-black uppercase text-rose-500 tracking-wider">Known Allergies / Contraindications</Label>
-                  <Input id="allergies" value={allergies} onChange={e => setAllergies(e.target.value)} placeholder="e.g. Penicillin, Sulfa drugs" className="rounded-xl border-rose-200 focus:border-rose-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                  <Label htmlFor="emergencyContact" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Emergency Contact</Label>
+                  <Input id="emergencyContact" value={emergencyContact} onChange={e => setEmergencyContact(e.target.value)} placeholder="e.g. John Kamara (Spouse) - 23277999888" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+
+                {/* Medical History Group */}
+                <div className="col-span-2 border-b border-slate-100 dark:border-slate-800 pb-1 mt-4">
+                  <h3 className="text-xs font-black uppercase tracking-wider text-indigo-650 dark:text-indigo-400">Secure Medical History</h3>
                 </div>
                 <div className="space-y-1 col-span-2">
-                  <Label htmlFor="medicalNotes" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Medical Notes</Label>
-                  <Input id="medicalNotes" value={medicalNotes} onChange={e => setMedicalNotes(e.target.value)} placeholder="e.g. Diabetic, hypertensive under treatment" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                  <Label htmlFor="allergies" className="text-[10px] font-black uppercase text-rose-500 tracking-wider">Known Allergies / Contraindications</Label>
+                  <Input id="allergies" value={allergies} onChange={e => setAllergies(e.target.value)} placeholder="e.g. Penicillin, Sulfa drugs, Limotine" className="rounded-xl border-rose-200 focus:border-rose-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <Label htmlFor="conditions" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Medical Conditions</Label>
+                  <Input id="conditions" value={conditions} onChange={e => setConditions(e.target.value)} placeholder="e.g. Type 2 Diabetes, Hypertension" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <Label htmlFor="pastProcedures" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Past Procedures</Label>
+                  <Input id="pastProcedures" value={pastProcedures} onChange={e => setPastProcedures(e.target.value)} placeholder="e.g. Appendectomy 2018" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+                <div className="space-y-1 col-span-2">
+                  <Label htmlFor="currentMedications" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Current Medications</Label>
+                  <Input id="currentMedications" value={currentMedications} onChange={e => setCurrentMedications(e.target.value)} placeholder="e.g. Metformin 1000mg, Lisinopril 20mg" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="immunizations" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Immunization Status</Label>
+                  <Input id="immunizations" value={immunizations} onChange={e => setImmunizations(e.target.value)} placeholder="e.g. Updated, BCG, MMR" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="medicalNotes" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Other Medical Notes</Label>
+                  <Input id="medicalNotes" value={medicalNotes} onChange={e => setMedicalNotes(e.target.value)} placeholder="e.g. Regular checkup every 6 months" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
               </div>
               <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">

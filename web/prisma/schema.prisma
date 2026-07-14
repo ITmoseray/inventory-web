@@ -636,9 +636,15 @@ model Patient {
   email         String?
   address       String?
   allergies     String?
-  medicalNotes  String?
-  businessId    String
-  business      Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  medicalNotes       String?
+  nationality        String?
+  emergencyContact   String?
+  conditions         String?
+  pastProcedures     String?
+  currentMedications String?
+  immunizations      String?
+  businessId         String
+  business           Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
   prescriptions Prescription[]
   appointments  Appointment[]
   consultations Consultation[]

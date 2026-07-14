@@ -30,6 +30,12 @@ export async function createPatient(data: {
   address?: string;
   allergies?: string;
   medicalNotes?: string;
+  nationality?: string;
+  emergencyContact?: string;
+  conditions?: string;
+  pastProcedures?: string;
+  currentMedications?: string;
+  immunizations?: string;
 }) {
   try {
     const session = await auth();
@@ -48,6 +54,12 @@ export async function createPatient(data: {
         address: data.address || null,
         allergies: data.allergies || null,
         medicalNotes: data.medicalNotes || null,
+        nationality: data.nationality || null,
+        emergencyContact: data.emergencyContact || null,
+        conditions: data.conditions || null,
+        pastProcedures: data.pastProcedures || null,
+        currentMedications: data.currentMedications || null,
+        immunizations: data.immunizations || null,
         businessId,
       },
     });

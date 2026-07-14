@@ -73,22 +73,22 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
                  </div>
                  <div className="grid grid-cols-3 gap-2">
                    <span className="text-muted-foreground font-medium">Nationality</span>
-                   <span className="col-span-2 font-medium text-foreground">Nigerian</span>
+                   <span className="col-span-2 font-medium text-foreground">{patient.nationality || "Not specified"}</span>
                  </div>
                  <div className="grid grid-cols-3 gap-2">
                    <span className="text-muted-foreground font-medium">Address</span>
-                   <span className="col-span-2 font-medium text-foreground">{patient.address || "Lagos, Nigeria"}</span>
+                   <span className="col-span-2 font-medium text-foreground">{patient.address || "Not specified"}</span>
                  </div>
                  <div className="grid grid-cols-3 gap-2">
                    <span className="text-muted-foreground font-medium">Contact</span>
                    <span className="col-span-2 font-medium text-foreground flex flex-col">
-                     <span>{patient.phone || "+234 812 345 6789"}</span>
-                     <span className="text-sm">{patient.email || "sarah.a@email.com"}</span>
+                     <span>{patient.phone || "Not specified"}</span>
+                     {patient.email && <span className="text-sm">{patient.email}</span>}
                    </span>
                  </div>
                  <div className="grid grid-cols-3 gap-2 border-t border-border pt-4 mt-2">
                    <span className="text-muted-foreground font-medium">Emergency Contact</span>
-                   <span className="col-span-2 font-medium text-muted-foreground/70 italic">Not specified</span>
+                   <span className="col-span-2 font-medium text-foreground">{patient.emergencyContact || "Not specified"}</span>
                  </div>
                </div>
              </div>
@@ -104,29 +104,23 @@ export default async function PatientProfilePage({ params }: { params: Promise<{
               <div className="space-y-4 text-sm sm:text-base">
                  <div className="grid grid-cols-3 gap-2 border-b border-border/50 pb-4">
                    <span className="text-muted-foreground font-medium">Allergy</span>
-                   <span className="col-span-2 font-medium text-foreground">{patient.allergies || "Peanuts - Severe"}</span>
+                   <span className="col-span-2 font-medium text-foreground">{patient.allergies || "None noted"}</span>
                  </div>
                  <div className="grid grid-cols-3 gap-2 border-b border-border/50 pb-4">
                    <span className="text-muted-foreground font-medium">Conditions</span>
-                   <span className="col-span-2 font-medium text-foreground">
-                     Type 2 Diabetes<br/>
-                     Hypertension
-                   </span>
+                   <span className="col-span-2 font-medium text-foreground whitespace-pre-line">{patient.conditions || "None noted"}</span>
                  </div>
                  <div className="grid grid-cols-3 gap-2 border-b border-border/50 pb-4">
                    <span className="text-muted-foreground font-medium">Past Procedures</span>
-                   <span className="col-span-2 font-medium text-foreground">Appendectomy 2018</span>
+                   <span className="col-span-2 font-medium text-foreground whitespace-pre-line">{patient.pastProcedures || "None noted"}</span>
                  </div>
                  <div className="grid grid-cols-3 gap-2 border-b border-border/50 pb-4">
                    <span className="text-muted-foreground font-medium">Current Medications</span>
-                   <span className="col-span-2 font-medium text-foreground">
-                     Metformin 1000mg<br/>
-                     Lisinopril 20mg
-                   </span>
+                   <span className="col-span-2 font-medium text-foreground whitespace-pre-line">{patient.currentMedications || "None noted"}</span>
                  </div>
                  <div className="grid grid-cols-3 gap-2">
                    <span className="text-muted-foreground font-medium">Immunizations</span>
-                   <span className="col-span-2 font-medium text-foreground">Updated</span>
+                   <span className="col-span-2 font-medium text-foreground">{patient.immunizations || "Not specified"}</span>
                  </div>
               </div>
            </div>
