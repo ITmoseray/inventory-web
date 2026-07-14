@@ -267,7 +267,7 @@ export default function EmployeesPage() {
                  <UserPlus className="h-4 w-4 mr-2" /> Add Employee Node
               </Button>
            } />
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh] sm:max-h-none">
+           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh]">
               <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
                     <h3 className="text-2xl sm:text-3xl md:text-4xl font-[1000] tracking-tighter uppercase italic">Node Initialization</h3>
@@ -363,7 +363,7 @@ export default function EmployeesPage() {
         </Dialog>
 
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh] sm:max-h-none">
+           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md text-slate-900 dark:text-white overflow-y-auto max-h-[90vh]">
               <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
                     <h3 className="text-2xl sm:text-3xl md:text-4xl font-[1000] tracking-tighter uppercase italic">Node Reconfiguration</h3>
