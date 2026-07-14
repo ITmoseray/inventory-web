@@ -36,7 +36,7 @@ export async function getUsers() {
       jobTitle: u.jobTitle ?? null,
       specialization: u.specialization ?? null,
       imageUrl: u.imageUrl ?? null,
-      isActive: u.isActive,
+      isActive: u.status === "active",
       businessId: u.businessId,
       roleId: u.roleId ?? null,
       roleName: u.role?.name || "No Role",
@@ -146,7 +146,19 @@ export async function getRoles() {
   }
 }
 
-export async function createUser(data: { name: string; email: string; password: string; roleId: string; specialization?: string }) {
+export async function createUser(data: { 
+  name: string; 
+  email: string; 
+  password: string; 
+  roleId: string; 
+  specialization?: string;
+  phone?: string;
+  department?: string;
+  jobTitle?: string;
+  imageUrl?: string;
+  salary?: number;
+  hourlyRate?: number;
+}) {
   try {
     console.log("DEBUG: createUser called with:", { name: data.name, email: data.email, roleId: data.roleId });
     const session = await auth();
@@ -265,6 +277,12 @@ export async function createUser(data: { name: string; email: string; password: 
         businessId: businessId,
         verificationToken,
         specialization: data.specialization || null,
+        phone: data.phone || null,
+        department: data.department || null,
+        jobTitle: data.jobTitle || null,
+        imageUrl: data.imageUrl || null,
+        salary: data.salary || null,
+        hourlyRate: data.hourlyRate || null,
       },
     });
     console.log("DEBUG: User created:", user.id);

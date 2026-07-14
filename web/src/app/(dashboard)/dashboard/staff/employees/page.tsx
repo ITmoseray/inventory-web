@@ -69,7 +69,13 @@ export default function EmployeesPage() {
     name: "",
     email: "",
     roleId: "",
-    specialization: ""
+    specialization: "",
+    phone: "",
+    department: "",
+    jobTitle: "",
+    imageUrl: "",
+    salary: "",
+    hourlyRate: ""
   });
   
   const [formData, setFormData] = useState({
@@ -77,7 +83,13 @@ export default function EmployeesPage() {
     email: "",
     password: "",
     roleId: "",
-    specialization: ""
+    specialization: "",
+    phone: "",
+    department: "",
+    jobTitle: "",
+    imageUrl: "",
+    salary: "",
+    hourlyRate: ""
   });
   const [aiLoading, setAiLoading] = useState(false);
 
@@ -136,10 +148,34 @@ export default function EmployeesPage() {
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await createUser(formData);
+      await createUser({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        roleId: formData.roleId,
+        specialization: formData.specialization || undefined,
+        phone: formData.phone || undefined,
+        department: formData.department || undefined,
+        jobTitle: formData.jobTitle || undefined,
+        imageUrl: formData.imageUrl || undefined,
+        salary: formData.salary ? parseFloat(formData.salary) : undefined,
+        hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined
+      });
       toast.success("Employee node initialized successfully.");
       setIsAddOpen(false);
-      setFormData({ name: "", email: "", password: "", roleId: roles.find(r => r.name.toUpperCase() === "EMPLOYEE" || r.name === "Employee")?.id || "", specialization: "" });
+      setFormData({ 
+        name: "", 
+        email: "", 
+        password: "", 
+        roleId: roles.find(r => r.name.toUpperCase() === "EMPLOYEE" || r.name === "Employee")?.id || "", 
+        specialization: "",
+        phone: "",
+        department: "",
+        jobTitle: "",
+        imageUrl: "",
+        salary: "",
+        hourlyRate: ""
+      });
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to initialize employee node.");
@@ -151,7 +187,13 @@ export default function EmployeesPage() {
       name: user.name || "",
       email: user.email || "",
       roleId: user.roleId || "",
-      specialization: user.specialization || ""
+      specialization: user.specialization || "",
+      phone: user.phone || "",
+      department: user.department || "",
+      jobTitle: user.jobTitle || "",
+      imageUrl: user.imageUrl || "",
+      salary: user.salary !== null && user.salary !== undefined ? user.salary.toString() : "",
+      hourlyRate: user.hourlyRate !== null && user.hourlyRate !== undefined ? user.hourlyRate.toString() : ""
     });
     setEditingUserId(user.id);
     setIsEditOpen(true);
@@ -165,7 +207,13 @@ export default function EmployeesPage() {
         name: editFormData.name,
         email: editFormData.email,
         roleId: editFormData.roleId,
-        specialization: editFormData.specialization
+        specialization: editFormData.specialization || null,
+        phone: editFormData.phone || null,
+        department: editFormData.department || null,
+        jobTitle: editFormData.jobTitle || null,
+        imageUrl: editFormData.imageUrl || null,
+        salary: editFormData.salary ? parseFloat(editFormData.salary) : null,
+        hourlyRate: editFormData.hourlyRate ? parseFloat(editFormData.hourlyRate) : null
       });
       toast.success("Employee node updated successfully.");
       setIsEditOpen(false);
@@ -273,6 +321,40 @@ export default function EmployeesPage() {
                     </div>
                   )}
 
+                  {businessType === "OFFICE" && (
+                     <>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Department</Label>
+                              <Select value={formData.department || undefined} onValueChange={(v: string) => setFormData({...formData, department: v})}>
+                                 <SelectTrigger className="h-12 rounded-xl">
+                                    <SelectValue placeholder="Department" />
+                                 </SelectTrigger>
+                                 <SelectContent className="rounded-xl">
+                                    {["Administration", "HR", "Finance", "IT / Engineering", "Sales & Marketing", "Operations"].map((d) => (
+                                       <SelectItem key={d} value={d}>{d}</SelectItem>
+                                    ))}
+                                 </SelectContent>
+                              </Select>
+                           </div>
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Job Title</Label>
+                              <Input className="h-12 rounded-xl" placeholder="e.g. Accountant" value={formData.jobTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, jobTitle: e.target.value})} />
+                           </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone</Label>
+                              <Input type="tel" className="h-12 rounded-xl" placeholder="e.g. +232..." value={formData.phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, phone: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Salary (Monthly)</Label>
+                              <Input type="number" step="0.01" className="h-12 rounded-xl" placeholder="Le 0.00" value={formData.salary} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, salary: e.target.value})} />
+                           </div>
+                        </div>
+                     </>
+                  )}
+
                  <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl mt-4", colors.primary)}>
                     Finalize Initialization
                  </Button>
@@ -318,6 +400,40 @@ export default function EmployeesPage() {
                     </div>
                   )}
 
+                  {businessType === "OFFICE" && (
+                     <>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Department</Label>
+                              <Select value={editFormData.department || undefined} onValueChange={(v: string) => setEditFormData({...editFormData, department: v})}>
+                                 <SelectTrigger className="h-12 rounded-xl">
+                                    <SelectValue placeholder="Department" />
+                                 </SelectTrigger>
+                                 <SelectContent className="rounded-xl">
+                                    {["Administration", "HR", "Finance", "IT / Engineering", "Sales & Marketing", "Operations"].map((d) => (
+                                       <SelectItem key={d} value={d}>{d}</SelectItem>
+                                    ))}
+                                 </SelectContent>
+                              </Select>
+                           </div>
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Job Title</Label>
+                              <Input className="h-12 rounded-xl" placeholder="e.g. Accountant" value={editFormData.jobTitle} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, jobTitle: e.target.value})} />
+                           </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone</Label>
+                              <Input type="tel" className="h-12 rounded-xl" placeholder="e.g. +232..." value={editFormData.phone} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, phone: e.target.value})} />
+                           </div>
+                           <div className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Salary (Monthly)</Label>
+                              <Input type="number" step="0.01" className="h-12 rounded-xl" placeholder="Le 0.00" value={editFormData.salary} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, salary: e.target.value})} />
+                           </div>
+                        </div>
+                     </>
+                  )}
+
                  <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl mt-4", colors.primary)}>
                     Save Configuration
                  </Button>
@@ -357,16 +473,24 @@ export default function EmployeesPage() {
            </Button>
         </CardHeader>
         <CardContent className="p-0">
-           <Table>
-             <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-               <TableRow className="hover:bg-transparent border-none">
-                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Personnel Node</TableHead>
-                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Access Level</TableHead>
-                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Registration</TableHead>
-                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Actions</TableHead>
-               </TableRow>
-             </TableHeader>
-                 <TableBody>
+           <div className="overflow-x-auto w-full">
+              <Table className="min-w-[800px] sm:min-w-full">
+                <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                  <TableRow className="hover:bg-transparent border-none">
+                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Personnel Node</TableHead>
+                    {businessType === "OFFICE" && (
+                      <>
+                        <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Department</TableHead>
+                        <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Phone</TableHead>
+                        <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Salary</TableHead>
+                      </>
+                    )}
+                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Access Level</TableHead>
+                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Registration</TableHead>
+                    <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                    <TableBody>
                {loading ? (
                  Array.from({ length: 3 }).map((_, i) => <TableRow key={i} className="h-24 border-b border-slate-50 animate-pulse"><TableCell colSpan={4} /></TableRow>)
                ) : filteredUsers.length === 0 ? (
@@ -376,49 +500,71 @@ export default function EmployeesPage() {
                    </TableCell>
                  </TableRow>
                ) : (
-               filteredUsers.map((u) => {
-                 console.log("DEBUG: Rendering user node:", u);
-                 return (
-                 <TableRow key={u.id} className="group transition-all duration-300 cursor-pointer relative z-0 hover:z-10 hover:bg-blue-50/80 dark:hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/5 border-b border-slate-50 hover:border-blue-200 dark:border-slate-800/50 dark:hover:border-blue-500/30 hover:scale-[1.005] h-24">
-                   <TableCell className="px-8">
-                      <div className="flex items-center gap-4">
-                         <Avatar className="h-12 w-12 rounded-2xl border-2 border-white dark:border-slate-800 shadow-md">
-                            <AvatarFallback className={cn("rounded-2xl text-white font-black text-sm", colors.primary)}>{String(u.name || "U").charAt(0)}</AvatarFallback>
-                         </Avatar>
-                         <div>
-                            <div className="font-black text-slate-900 dark:text-white tracking-tight">{String(u.name || "")}</div>
-                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                               <Mail size={10} /> {String(u.email || "")}
-                            </div>
-                         </div>
-                      </div>
-                   </TableCell>
-                   <TableCell>
-                      <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
-                         String(u.roleName || "") === 'ADMIN' ? "bg-indigo-500/10 text-indigo-600 border border-indigo-200/50" : "bg-slate-100 text-slate-600 border border-slate-200")}>
-                         <Shield size={10} /> {String(u.roleName || "Staff")}
-                      </div>
-                   </TableCell>
-                   <TableCell>
-                      <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{u.createdAt ? format(new Date(u.createdAt), "MMM dd, yyyy") : ""}</div>
-                   </TableCell>
-                   <TableCell className="text-right pr-8">
-                      <div className="flex justify-end gap-2">
-                         <Button variant="ghost" size="sm" onClick={() => handleEditClick(u)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-primary transition-all">
-                            <Edit2 size={14} />
-                         </Button>
-                         <Button variant="ghost" size="sm" onClick={() => handleDelete(u.id)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-500 transition-all">
-                            <Trash2 size={14} />
-                        </Button>
-                      </div>
-                   </TableCell>
-                 </TableRow>
-                 )
-               })
-               )}
-             </TableBody>
-           </Table>
-        </CardContent>
+                filteredUsers.map((u) => {
+                  console.log("DEBUG: Rendering user node:", u);
+                  return (
+                  <TableRow key={u.id} className="group transition-all duration-300 cursor-pointer relative z-0 hover:z-10 hover:bg-blue-50/80 dark:hover:bg-blue-500/10 hover:shadow-lg hover:shadow-blue-500/5 border-b border-slate-50 hover:border-blue-200 dark:border-slate-800/50 dark:hover:border-blue-500/30 hover:scale-[1.005] h-24">
+                    <TableCell className="px-8">
+                       <div className="flex items-center gap-4">
+                          <Avatar className="h-12 w-12 rounded-2xl border-2 border-white dark:border-slate-800 shadow-md">
+                             <AvatarFallback className={cn("rounded-2xl text-white font-black text-sm", colors.primary)}>{String(u.name || "U").charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                             <div className="font-black text-slate-900 dark:text-white tracking-tight">{String(u.name || "")}</div>
+                             <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
+                                <Mail size={10} /> {String(u.email || "")}
+                                {u.jobTitle && (
+                                  <>
+                                    <span className="h-1 w-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
+                                    <span className="text-slate-500 font-bold">{u.jobTitle}</span>
+                                  </>
+                                )}
+                             </div>
+                          </div>
+                       </div>
+                    </TableCell>
+                    {businessType === "OFFICE" && (
+                      <>
+                        <TableCell>
+                           <div className="text-xs font-bold text-slate-700 dark:text-slate-300">{u.department || "N/A"}</div>
+                        </TableCell>
+                        <TableCell>
+                           <div className="text-xs font-bold text-slate-500">{u.phone || "N/A"}</div>
+                        </TableCell>
+                        <TableCell>
+                           <div className="text-xs font-bold text-slate-900 dark:text-white">
+                             {u.salary !== null && u.salary !== undefined ? `Le ${Number(u.salary).toLocaleString()}` : "N/A"}
+                           </div>
+                        </TableCell>
+                      </>
+                    )}
+                    <TableCell>
+                       <div className={cn("inline-flex items-center gap-2 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
+                          String(u.roleName || "") === 'ADMIN' ? "bg-indigo-500/10 text-indigo-600 border border-indigo-200/50" : "bg-slate-100 text-slate-600 border border-slate-200")}>
+                          <Shield size={10} /> {String(u.roleName || "Staff")}
+                       </div>
+                    </TableCell>
+                    <TableCell>
+                       <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{u.createdAt ? format(new Date(u.createdAt), "MMM dd, yyyy") : ""}</div>
+                    </TableCell>
+                    <TableCell className="text-right pr-8">
+                       <div className="flex justify-end gap-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleEditClick(u)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-primary transition-all">
+                             <Edit2 size={14} />
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => handleDelete(u.id)} className="h-9 w-9 rounded-xl text-slate-400 hover:text-rose-500 transition-all">
+                             <Trash2 size={14} />
+                          </Button>
+                       </div>
+                    </TableCell>
+                  </TableRow>
+                  )
+                })
+                )}
+              </TableBody>
+            </Table>
+          </div>
+         </CardContent>
       </Card>
 
       <Card className="border-none bg-slate-900 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden">

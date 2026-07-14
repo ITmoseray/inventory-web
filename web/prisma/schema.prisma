@@ -78,6 +78,10 @@ model User {
   deletedAt          DateTime?
   roleId             String
   specialization     String?
+  phone              String?
+  department         String?
+  jobTitle           String?
+  imageUrl           String?
   hourlyRate         Decimal?             @db.Decimal(10, 2)
   salary             Decimal?             @db.Decimal(10, 2)
   emailVerified      DateTime?
@@ -599,6 +603,7 @@ enum BusinessType {
   SUPERMARKET
   CLINIC
   HOSPITAL
+  OFFICE
 }
 
 enum SubscriptionPlan {

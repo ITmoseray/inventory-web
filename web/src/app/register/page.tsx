@@ -413,6 +413,7 @@ export default function RegisterPage() {
                      <option value="WAREHOUSE">Warehouse</option>
                      <option value="RESTAURANT">Restaurant</option>
                      <option value="BAR">Bar</option>
+                     <option value="OFFICE">Corporate Office</option>
                    </select>
                 </div>
               </div>

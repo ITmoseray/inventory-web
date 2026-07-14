@@ -6,6 +6,14 @@ import { useSession } from "next-auth/react";
 import { format, subDays } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { format, subDays } from "date-fns";
+import { cn, getIndustryColor } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -15,14 +23,23 @@ import {
   Plus, Box, Users, FileText, ShoppingCart, Truck, Globe, ShieldCheck, 
   CreditCard, MapPin, Activity, Sparkles, History, Clock, ArrowRight, 
   Play, MessageCircle, Wallet, Smartphone, SmartphoneIcon, Printer, Receipt, 
-  DollarSign, AlertCircle, Package, Book, Zap, Cpu
+  DollarSign, AlertCircle, Package, Book, Zap, Cpu, UserCheck, Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { getRecentSales } from "@/lib/actions/sale";
-import { getDashboardStats } from "@/lib/actions/dashboard";
+import { getDashboardStats, getOfficeDashboardStats } from "@/lib/actions/dashboard";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getWelcomeUpdate } from "@/lib/actions/ai";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
@@ -133,13 +150,17 @@ export default function DashboardPage() {
   async function fetchDashboardData() {
     try {
       setLoading(true);
-      const [sales, dashboardStats] = await Promise.all([
-        getRecentSales(),
-        getDashboardStats()
-      ]);
-
-      setRecentSales(sales);
-      setStats(dashboardStats);
+      if (businessType === "OFFICE") {
+        const officeStats = await getOfficeDashboardStats();
+        setStats(officeStats);
+      } else {
+        const [sales, dashboardStats] = await Promise.all([
+          getRecentSales(),
+          getDashboardStats()
+        ]);
+        setRecentSales(sales);
+        setStats(dashboardStats);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -275,7 +296,7 @@ export default function DashboardPage() {
            </div>
         </div>
 
-        {activeTab === "Dashboard" && (
+        {activeTab === "Dashboard" && businessType !== "OFFICE" && (
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
              <Button 
                onClick={() => router.push("/dashboard/manual")}
@@ -322,8 +343,12 @@ export default function DashboardPage() {
             exit={{ opacity: 0, y: -20 }}
             className="space-y-10"
           >
-            {/* KPI Cards */}
-            <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {businessType === "OFFICE" ? (
+              <OfficeDashboardView stats={stats} />
+            ) : (
+              <>
+                {/* KPI Cards */}
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               <StatCard 
                 title="Total Revenue" 
                 value={stats.revenue} 
@@ -549,6 +574,8 @@ export default function DashboardPage() {
                  </CardContent>
               </Card>
             </div>
+            </>
+          )}
           </motion.div>
         )}
 
@@ -1232,6 +1259,150 @@ export default function DashboardPage() {
            </div>
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function OfficeDashboardView({ stats }: { stats: any }) {
+  const attendanceRate = stats.employeeCount > 0 
+    ? Math.round((stats.activeTodayCount / stats.employeeCount) * 100) 
+    : 0;
+
+  return (
+    <div className="space-y-10">
+      {/* KPI Cards */}
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <StatCard 
+          title="Total Employees" 
+          value={stats.employeeCount} 
+          description="Registered personnel" 
+          icon={Users}
+          colorClass="text-blue-600 animate-pulse"
+          bgClass="bg-blue-50 dark:bg-blue-950/30"
+          delay={0.1}
+          href="/dashboard/staff/employees"
+        />
+        <StatCard 
+          title="Active Today" 
+          value={stats.activeTodayCount} 
+          description={`${attendanceRate}% attendance rate`} 
+          icon={UserCheck}
+          colorClass="text-emerald-600"
+          bgClass="bg-emerald-50 dark:bg-emerald-950/30"
+          delay={0.2}
+          href="/dashboard/staff/attendance"
+        />
+        <StatCard 
+          title="Monthly Expenses" 
+          value={stats.monthlyExpenses} 
+          prefix="Le "
+          description="Current month operations" 
+          icon={Wallet}
+          colorClass="text-rose-600"
+          bgClass="bg-rose-50 dark:bg-rose-950/30"
+          delay={0.3}
+          href="/dashboard/accounting/expenses"
+        />
+        <StatCard 
+          title="Departments" 
+          value={stats.departmentsCount} 
+          description="Active team units" 
+          icon={Briefcase}
+          colorClass="text-purple-600"
+          bgClass="bg-purple-50 dark:bg-purple-950/30"
+          delay={0.4}
+          href="/dashboard/staff/employees"
+        />
+      </div>
+
+      <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
+        {/* Left Column: Recent Checkins */}
+        <div className="lg:col-span-2 space-y-8">
+           <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
+              <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50">
+                 <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Recent Check-ins</CardTitle>
+                 <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Live employee activity logs</CardDescription>
+              </CardHeader>
+              <CardContent className="p-0">
+                 <div className="overflow-x-auto w-full">
+                    <Table className="min-w-[600px] sm:min-w-full">
+                       <TableHeader>
+                          <TableRow>
+                             <TableHead>Employee</TableHead>
+                             <TableHead>Department</TableHead>
+                             <TableHead>Check In</TableHead>
+                             <TableHead>Status</TableHead>
+                          </TableRow>
+                       </TableHeader>
+                       <TableBody>
+                          {stats.recentCheckins.length === 0 ? (
+                             <TableRow>
+                                <TableCell colSpan={4} className="h-32 text-center text-slate-400 font-bold uppercase text-[10px]">No check-ins logged today</TableCell>
+                             </TableRow>
+                          ) : (
+                             stats.recentCheckins.map((c: any) => (
+                                <TableRow key={c.id}>
+                                   <TableCell className="font-bold flex items-center gap-3 py-4">
+                                      <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-800">
+                                         <AvatarFallback className="bg-slate-100 dark:bg-slate-800 font-black text-xs">{c.employeeName.charAt(0)}</AvatarFallback>
+                                      </Avatar>
+                                      <div>
+                                         <p className="text-sm text-slate-900 dark:text-white leading-tight">{c.employeeName}</p>
+                                         <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">{c.jobTitle}</p>
+                                      </div>
+                                   </TableCell>
+                                   <TableCell className="font-bold text-slate-500 text-sm">{c.department}</TableCell>
+                                   <TableCell className="font-bold text-slate-500 text-sm">
+                                     {format(new Date(c.clockIn), "hh:mm a")}
+                                   </TableCell>
+                                   <TableCell>
+                                      <span className={cn(
+                                         "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-wider",
+                                         c.status === "PRESENT" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30" : "bg-amber-50 text-amber-700 dark:bg-amber-950/30"
+                                      )}>
+                                         {c.status}
+                                      </span>
+                                   </TableCell>
+                                </TableRow>
+                             ))
+                          )}
+                       </TableBody>
+                    </Table>
+                 </div>
+              </CardContent>
+           </Card>
+        </div>
+
+        {/* Right Column: Office Expenses */}
+        <div className="space-y-8">
+           <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm flex flex-col overflow-hidden h-full">
+              <CardHeader className="p-8 pb-4">
+                 <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Recent Expenses</CardTitle>
+                 <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Latest office expenditures</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 pt-4 flex-1">
+                 <div className="space-y-4">
+                    {stats.recentExpenses.length === 0 ? (
+                       <p className="text-center text-slate-400 font-bold uppercase text-[10px] py-12">No expenses logged yet</p>
+                    ) : (
+                       stats.recentExpenses.map((e: any) => (
+                          <div key={e.id} className="flex justify-between items-center p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100/50 dark:border-slate-800/30">
+                             <div>
+                                <p className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{e.description}</p>
+                                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1">{e.categoryName}</p>
+                             </div>
+                             <div className="text-right">
+                                <p className="font-black text-sm text-slate-950 dark:text-white">Le {e.amount.toLocaleString()}</p>
+                                <p className="text-[9px] text-slate-400 font-bold mt-1">{format(new Date(e.date), "MMM dd")}</p>
+                             </div>
+                          </div>
+                       ))
+                    )}
+                 </div>
+              </CardContent>
+           </Card>
+        </div>
+      </div>
     </div>
   );
 }
