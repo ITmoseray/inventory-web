@@ -107,36 +107,61 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
   }
 
   // PDF Generator for Statement
-  function handleDownloadStatement() {
+  async function handleDownloadStatement() {
     try {
       const doc = new jsPDF();
+      
+      // Load and add Logo asynchronously
+      try {
+        const logoBase64 = await new Promise<string>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.src = "/images/logo.jpeg";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL("image/jpeg"));
+            } else {
+              reject(new Error("Canvas context failed"));
+            }
+          };
+          img.onerror = () => reject(new Error("Failed to load logo"));
+        });
+        doc.addImage(logoBase64, "JPEG", 14, 12, 16, 16);
+      } catch (err) {
+        console.warn("Clinic logo failed to render in PDF", err);
+      }
       
       // Title & Branding
       doc.setFontSize(22);
       doc.setTextColor(20, 184, 166); // Teal
-      doc.text("CLINIC BILLING STATEMENT", 14, 20);
+      doc.text("CLINIC BILLING STATEMENT", 34, 22);
 
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(`Generated At: ${format(new Date(), "dd-MMM-yyyy hh:mm a")}`, 14, 26);
+      doc.text(`Generated At: ${format(new Date(), "dd-MMM-yyyy hh:mm a")}`, 34, 28);
       
       // Horizontal Rule
       doc.setDrawColor(230);
-      doc.line(14, 30, 196, 30);
+      doc.line(14, 34, 196, 34);
 
       // Patient Information Block
       doc.setFontSize(12);
       doc.setTextColor(50);
-      doc.text("PATIENT INFORMATION", 14, 38);
+      doc.text("PATIENT INFORMATION", 14, 42);
       
       doc.setFontSize(10);
       doc.setTextColor(80);
-      doc.text(`Name: ${patient.name}`, 14, 44);
-      doc.text(`MRN: ${mrn}`, 14, 50);
-      doc.text(`Gender: ${patient.gender || "Not specified"}`, 14, 56);
-      doc.text(`Phone: ${patient.phone || "Not specified"}`, 14, 62);
-      doc.text(`Outstanding Balance: Le ${outstandingBalance.toLocaleString()}`, 130, 44);
-      doc.text(`Total Billed: Le ${totalBilled.toLocaleString()}`, 130, 50);
+      doc.text(`Name: ${patient.name}`, 14, 48);
+      doc.text(`MRN: ${mrn}`, 14, 54);
+      doc.text(`Gender: ${patient.gender || "Not specified"}`, 14, 60);
+      doc.text(`Phone: ${patient.phone || "Not specified"}`, 14, 66);
+      doc.text(`Outstanding Balance: Le ${outstandingBalance.toLocaleString()}`, 130, 48);
+      doc.text(`Total Billed: Le ${totalBilled.toLocaleString()}`, 130, 54);
 
       // Table mapping
       const tableRows = sales.map((sale) => [
@@ -148,7 +173,7 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
       ]);
 
       autoTable(doc, {
-        startY: 70,
+        startY: 74,
         head: [["Date", "Description", "Invoice #", "Amount", "Status"]],
         body: tableRows,
         theme: "striped",
@@ -164,38 +189,63 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
   }
 
   // PDF Generator for Single Invoice
-  function handleDownloadInvoice(sale: any) {
+  async function handleDownloadInvoice(sale: any) {
     try {
       const doc = new jsPDF();
+
+      // Load and add Logo asynchronously
+      try {
+        const logoBase64 = await new Promise<string>((resolve, reject) => {
+          const img = new Image();
+          img.crossOrigin = "Anonymous";
+          img.src = "/images/logo.jpeg";
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            if (ctx) {
+              ctx.drawImage(img, 0, 0);
+              resolve(canvas.toDataURL("image/jpeg"));
+            } else {
+              reject(new Error("Canvas context failed"));
+            }
+          };
+          img.onerror = () => reject(new Error("Failed to load logo"));
+        });
+        doc.addImage(logoBase64, "JPEG", 14, 12, 16, 16);
+      } catch (err) {
+        console.warn("Clinic logo failed to render in PDF", err);
+      }
 
       // Invoice Header
       doc.setFontSize(22);
       doc.setTextColor(59, 130, 246); // Blue
-      doc.text("INVOICE", 14, 20);
+      doc.text("INVOICE", 34, 22);
 
       doc.setFontSize(10);
       doc.setTextColor(100);
-      doc.text(`Invoice #: ${sale.invoiceNumber}`, 14, 26);
-      doc.text(`Date Issued: ${format(new Date(sale.createdAt), "dd-MMM-yyyy hh:mm a")}`, 14, 32);
+      doc.text(`Invoice #: ${sale.invoiceNumber}`, 34, 28);
+      doc.text(`Date Issued: ${format(new Date(sale.createdAt), "dd-MMM-yyyy hh:mm a")}`, 34, 34);
 
       // Rule
       doc.setDrawColor(230);
-      doc.line(14, 36, 196, 36);
+      doc.line(14, 38, 196, 38);
 
       // Patient Details
       doc.setFontSize(12);
       doc.setTextColor(50);
-      doc.text("BILLED TO:", 14, 44);
+      doc.text("BILLED TO:", 14, 46);
 
       doc.setFontSize(10);
       doc.setTextColor(80);
-      doc.text(`Patient Name: ${patient.name}`, 14, 50);
-      doc.text(`MRN: ${mrn}`, 14, 56);
-      doc.text(`Contact: ${patient.phone || "N/A"}`, 14, 62);
+      doc.text(`Patient Name: ${patient.name}`, 14, 52);
+      doc.text(`MRN: ${mrn}`, 14, 58);
+      doc.text(`Contact: ${patient.phone || "N/A"}`, 14, 64);
 
       // Billing details
       autoTable(doc, {
-        startY: 70,
+        startY: 72,
         head: [["Item Description", "Qty", "Unit Price", "Total Amount"]],
         body: [
           ["Medical & Consultation Services", "1", `Le ${Number(sale.totalAmount).toLocaleString()}`, `Le ${Number(sale.totalAmount).toLocaleString()}`]
