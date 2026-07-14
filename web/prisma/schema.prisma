@@ -823,3 +823,14 @@ model SalesDraft {
   @@index([businessId])
   @@index([userId])
 }
+
+model SystemSetting {
+  id                          String   @id @default("singleton")
+  registrationOpen            Boolean  @default(true)
+  defaultTrialDays            Int      @default(7)
+  announcementBanner          String   @default("")
+  announcementBannerUpdatedAt String   @default("")
+  emailAlertsEnabled          Boolean  @default(true)
+  createdAt                   DateTime @default(now())
+  updatedAt                   DateTime @updatedAt
+}
