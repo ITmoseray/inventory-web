@@ -37,10 +37,10 @@ export default function SmartSchedulingPage() {
     try {
       const results = await Promise.allSettled([getPatients(), getUsers()]);
       const patientsRes = results[0].status === 'fulfilled' ? results[0].value : [];
-      const usersRes = results[1].status === 'fulfilled' ? results[1].value : [];
-      setPatients(Array.isArray(patientsRes?.data) ? patientsRes.data : []);
+      const usersRes = 	results[1].status === 'fulfilled' ? results[1].value : [];
+      setPatients(Array.isArray(patientsRes) ? patientsRes : []);
       // Filter out non-doctors if needed, but for now just use users as doctors
-      setDoctors(Array.isArray(usersRes?.data) ? usersRes.data : []);
+      setDoctors(Array.isArray(usersRes) ? usersRes : []);
     } catch (e) {
       console.error("fetchFormData error:", e);
     }
