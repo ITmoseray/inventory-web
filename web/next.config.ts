@@ -36,6 +36,40 @@ const config: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  async redirects() {
+    return [
+      {
+        source: "/dashboard/staff",
+        destination: "/dashboard/staff/employees",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/inventory",
+        destination: "/dashboard/inventory/overview",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/sales",
+        destination: "/dashboard/sales/history",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/accounting",
+        destination: "/dashboard/accounting/pl",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/system",
+        destination: "/dashboard/system/settings",
+        permanent: true,
+      },
+      {
+        source: "/dashboard/clinic",
+        destination: "/dashboard/clinic/overview",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 const nextConfig = withPWA({
