@@ -239,8 +239,7 @@ export async function createUser(data: {
     sendVerificationEmail(user.email, verificationToken)
       .catch((e) => console.error("sendVerificationEmail failed:", e));
 
-    revalidatePath("/dashboard/staff/employees");
-
+    // Note: No revalidatePath here — the client calls fetchData() on success.
     // 6. Return only plain serializable values (NO Decimal / Date objects)
     return {
       success: true,
