@@ -9,13 +9,13 @@ export const PLAN_LIMITS = {
   },
   [SubscriptionPlan.BASIC]: {
     maxProducts: 500,
-    maxStaff: 1,
+    maxStaff: 5,
     analyticsEnabled: true,
     posEnabled: true,
   },
   [SubscriptionPlan.STANDARD]: {
     maxProducts: 5000,
-    maxStaff: 5,
+    maxStaff: 10,
     analyticsEnabled: true,
     posEnabled: true,
   },

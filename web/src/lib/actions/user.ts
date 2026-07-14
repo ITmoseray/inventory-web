@@ -303,9 +303,9 @@ export async function createUser(data: {
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to create user:", error);
-    throw error;
+    throw new Error(error?.message || "Failed to initialize employee node. Please try again.");
   }
 }
 
