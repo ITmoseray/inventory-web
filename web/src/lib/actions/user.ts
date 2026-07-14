@@ -287,19 +287,33 @@ export async function createUser(data: {
     });
     console.log("DEBUG: User created:", user.id);
 
-    await logAudit({
+    // Fire-and-forget non-critical operations
+    logAudit({
       action: "CREATE",
       entity: "USER",
       entityId: user.id,
       newData: { name: user.name, email: user.email, roleId: targetRoleId }
-    });
+    }).catch((e) => console.error("logAudit failed (non-critical):", e));
 
-    await sendVerificationEmail(data.email, verificationToken);
+    sendVerificationEmail(data.email, verificationToken)
+      .catch((e) => console.error("sendVerificationEmail failed (non-critical):", e));
 
     revalidatePath("/dashboard/staff/employees");
-    
+
+    // Return only plain, serializable values — NO Decimal/Date objects
     return {
-      ...user,
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      roleId: user.roleId,
+      businessId: user.businessId,
+      phone: user.phone,
+      department: user.department,
+      jobTitle: user.jobTitle,
+      specialization: user.specialization,
+      imageUrl: user.imageUrl,
+      salary: user.salary ? user.salary.toNumber() : null,
+      hourlyRate: user.hourlyRate ? user.hourlyRate.toNumber() : null,
       createdAt: user.createdAt.toISOString(),
       updatedAt: user.updatedAt.toISOString(),
     };
