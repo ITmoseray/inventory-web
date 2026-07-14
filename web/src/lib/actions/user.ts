@@ -160,168 +160,111 @@ export async function createUser(data: {
   hourlyRate?: number;
 }) {
   try {
-    console.log("DEBUG: createUser called with:", { name: data.name, email: data.email, roleId: data.roleId });
     const session = await auth();
-    if (!session?.user?.businessId) throw new Error("Unauthorized");
+    if (!session?.user?.businessId) throw new Error("Unauthorized: No business session.");
 
     const businessId = session.user.businessId;
-    const prisma = getTenantPrisma(businessId);
-    console.log("DEBUG: Tenant Prisma initialized for business:", businessId);
 
     // 1. Check Plan Limits
     const business = await globalPrisma.business.findUnique({
       where: { id: businessId },
       select: { 
         plan: true, 
-        _count: { 
-          select: { 
-            users: { where: { deletedAt: null } } 
-          } 
-        } 
+        _count: { select: { users: { where: { deletedAt: null } } } } 
       }
     });
 
-    const userCount = business?._count.users || 0;
-    const plan = business?.plan || "FREE";
-    console.log("DEBUG: Plan check:", { plan, userCount });
+    const userCount = business?._count?.users ?? 0;
+    const plan = business?.plan ?? "FREE";
 
     const check = canPerformAction(plan, "maxStaff", userCount);
-    if (!check.allowed) {
-      console.error("DEBUG: Plan limit reached:", check.message);
-      throw new Error(check.message);
+    if (!check.allowed) throw new Error(check.message);
+
+    // 2. Validate roleId belongs to this business
+    let targetRoleId = data.roleId;
+    if (targetRoleId) {
+      const roleExists = await globalPrisma.role.findFirst({
+        where: { id: targetRoleId, businessId },
+        select: { id: true }
+      });
+      if (!roleExists) {
+        // Fall back to first available role for this business
+        const fallbackRole = await globalPrisma.role.findFirst({
+          where: { businessId },
+          select: { id: true }
+        });
+        if (!fallbackRole) throw new Error("No roles found for this business. Please set up roles first.");
+        targetRoleId = fallbackRole.id;
+      }
+    } else {
+      const fallbackRole = await globalPrisma.role.findFirst({
+        where: { businessId },
+        select: { id: true }
+      });
+      if (!fallbackRole) throw new Error("No roles found for this business. Please set up roles first.");
+      targetRoleId = fallbackRole.id;
     }
 
-    // 2. Hash Password and create User
+    // 3. Hash password
     const passwordHash = await bcrypt.hash(data.password, 10);
     const verificationToken = generateVerificationToken();
 
-    // 3. Find/Create the 'EMPLOYEE' role and ensure permissions
-    console.log("DEBUG: Searching for Employee/EMPLOYEE role...");
-    let employeeRole = await prisma.role.findFirst({
-        where: { businessId: businessId, name: { in: ["EMPLOYEE", "Employee"] } }
-    });
-
-    const restrictedPermissions = [
-        "menu:overview", // Dashboard Overview
-        "menu:inventory", // Inventory (Base)
-        "menu:inventory:products", // Products
-        "menu:inventory:history", // Stock History
-        "menu:inventory:expiry", // Expiry Tracking
-        "menu:sales", // Commerce (Sales Base)
-        "menu:sales:pos", // Launch POS
-        "menu:sales:history", // Sales History
-        "menu:sales:returns", // Returns
-        "menu:customers", // Relationships
-        "menu:customers:registry", // Customer Registry
-        "menu:customers:loyalty", // Loyalty Program
-        "menu:staff:attendance", // Attendance
-        "menu:system:notifications", // Notifications
-        "menu:support:manual" // System Manual
-    ];
-    
-    // Find permission IDs for these keys
-    const allPermissions = await prisma.permission.findMany();
-    console.log("DEBUG: All available permissions:", allPermissions.map(p => p.key));
-    
-    const permissions = await prisma.permission.findMany({
-        where: { key: { in: restrictedPermissions } }
-    });
-    console.log("DEBUG: Found permissions:", permissions.length);
-
-    if (!employeeRole) {
-        console.log("DEBUG: Employee role not found, creating it...");
-        employeeRole = await globalPrisma.role.create({
-            data: {
-                name: "EMPLOYEE",
-                businessId: businessId,
-                permissions: {
-                    connect: permissions.map(p => ({ id: p.id }))
-                }
-            }
-        });
-        console.log("DEBUG: Employee role created:", employeeRole.id);
-    } else {
-        console.log("DEBUG: Updating existing Employee role:", employeeRole.id);
-        // Update permissions for existing Employee role
-        await globalPrisma.role.update({
-            where: { id: employeeRole.id },
-            data: {
-                permissions: {
-                    set: permissions.map(p => ({ id: p.id }))
-                }
-            }
-        });
-    }
-
-    // Determine target role id
-    let targetRoleId = data.roleId;
-    if (targetRoleId) {
-      const selectedRole = await prisma.role.findUnique({
-        where: { id: targetRoleId }
-      });
-      if (selectedRole) {
-        targetRoleId = selectedRole.id;
-      } else {
-        targetRoleId = employeeRole.id;
-      }
-    } else {
-      targetRoleId = employeeRole.id;
-    }
-
+    // 4. Create the user
     const user = await globalPrisma.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email: data.email.toLowerCase().trim(),
         passwordHash,
         roleId: targetRoleId,
-        businessId: businessId,
+        businessId,
         verificationToken,
         specialization: data.specialization || null,
         phone: data.phone || null,
         department: data.department || null,
         jobTitle: data.jobTitle || null,
         imageUrl: data.imageUrl || null,
-        salary: data.salary || null,
-        hourlyRate: data.hourlyRate || null,
+        salary: data.salary ?? null,
+        hourlyRate: data.hourlyRate ?? null,
       },
     });
-    console.log("DEBUG: User created:", user.id);
 
-    // Fire-and-forget non-critical operations
+    // 5. Fire-and-forget non-critical side effects
     logAudit({
-      action: "CREATE",
+      action: "CREATE_USER",
       entity: "USER",
       entityId: user.id,
-      newData: { name: user.name, email: user.email, roleId: targetRoleId }
-    }).catch((e) => console.error("logAudit failed (non-critical):", e));
+      newData: { name: user.name, email: user.email }
+    }).catch((e) => console.error("logAudit failed:", e));
 
-    sendVerificationEmail(data.email, verificationToken)
-      .catch((e) => console.error("sendVerificationEmail failed (non-critical):", e));
+    sendVerificationEmail(user.email, verificationToken)
+      .catch((e) => console.error("sendVerificationEmail failed:", e));
 
     revalidatePath("/dashboard/staff/employees");
 
-    // Return only plain, serializable values — NO Decimal/Date objects
+    // 6. Return only plain serializable values (NO Decimal / Date objects)
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      roleId: user.roleId,
-      businessId: user.businessId,
-      phone: user.phone,
-      department: user.department,
-      jobTitle: user.jobTitle,
-      specialization: user.specialization,
-      imageUrl: user.imageUrl,
-      salary: user.salary ? user.salary.toNumber() : null,
-      hourlyRate: user.hourlyRate ? user.hourlyRate.toNumber() : null,
-      createdAt: user.createdAt.toISOString(),
-      updatedAt: user.updatedAt.toISOString(),
+      success: true,
+      user: {
+        id: user.id,
+        name: user.name ?? "",
+        email: user.email,
+        roleId: user.roleId,
+        businessId: user.businessId,
+        phone: user.phone ?? null,
+        department: user.department ?? null,
+        jobTitle: user.jobTitle ?? null,
+        specialization: user.specialization ?? null,
+        salary: user.salary ? Number(user.salary) : null,
+        hourlyRate: user.hourlyRate ? Number(user.hourlyRate) : null,
+        createdAt: user.createdAt.toISOString(),
+      }
     };
   } catch (error: any) {
-    console.error("Failed to create user:", error);
-    throw new Error(error?.message || "Failed to initialize employee node. Please try again.");
+    console.error("createUser ERROR:", error?.message, error?.code, error?.stack);
+    throw new Error(error?.message ?? "Failed to create user. Please try again.");
   }
 }
+
 
 export async function changePassword(data: { current: string; new: string }) {
   try {
