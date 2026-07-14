@@ -120,7 +120,7 @@ export default function PatientsRegistryPage() {
               <Plus className="h-4 w-4" /> Register Patient
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-xl border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem]">
+          <DialogContent className="sm:max-w-xl border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem] text-slate-900 dark:text-white">
             <DialogHeader>
               <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Register Patient Profile</DialogTitle>
               <DialogDescription className="text-slate-500 text-xs">Create a secure medical record card for checkups and prescriptions.</DialogDescription>
@@ -129,40 +129,45 @@ export default function PatientsRegistryPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1 col-span-2">
                   <Label htmlFor="name" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Patient Name *</Label>
-                  <Input id="name" required value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Fatmata Kamara" className="rounded-xl" />
+                  <Input id="name" required value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Fatmata Kamara" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="dob" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Date of Birth</Label>
-                  <Input id="dob" type="date" value={dob} onChange={e => setDob(e.target.value)} className="rounded-xl" />
+                  <Input id="dob" type="date" value={dob} onChange={e => setDob(e.target.value)} className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="gender" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Gender</Label>
-                  <select id="gender" value={gender} onChange={e => setGender(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm">
-                    <option value="">Select Gender</option>
-                    <option value="FEMALE">Female</option>
-                    <option value="MALE">Male</option>
-                    <option value="OTHER">Other</option>
+                  <select 
+                    id="gender" 
+                    value={gender} 
+                    onChange={e => setGender(e.target.value)} 
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 text-slate-900 dark:text-white text-sm focus:outline-none"
+                  >
+                    <option value="" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">Select Gender</option>
+                    <option value="FEMALE" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">Female</option>
+                    <option value="MALE" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">Male</option>
+                    <option value="OTHER" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">Other</option>
                   </select>
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="phone" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Phone Number</Label>
-                  <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 23277123456" className="rounded-xl" />
+                  <Input id="phone" value={phone} onChange={e => setPhone(e.target.value)} placeholder="e.g. 23277123456" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1">
                   <Label htmlFor="email" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Email Address</Label>
-                  <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. fatmata@example.com" className="rounded-xl" />
+                  <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="e.g. fatmata@example.com" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1 col-span-2">
                   <Label htmlFor="address" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Home Address</Label>
-                  <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 45 Siaka Stevens St, Freetown" className="rounded-xl" />
+                  <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="e.g. 45 Siaka Stevens St, Freetown" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1 col-span-2">
                   <Label htmlFor="allergies" className="text-[10px] font-black uppercase text-rose-500 tracking-wider">Known Allergies / Contraindications</Label>
-                  <Input id="allergies" value={allergies} onChange={e => setAllergies(e.target.value)} placeholder="e.g. Penicillin, Sulfa drugs" className="rounded-xl border-rose-200 focus:border-rose-500" />
+                  <Input id="allergies" value={allergies} onChange={e => setAllergies(e.target.value)} placeholder="e.g. Penicillin, Sulfa drugs" className="rounded-xl border-rose-200 focus:border-rose-500 bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
                 <div className="space-y-1 col-span-2">
                   <Label htmlFor="medicalNotes" className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-400 tracking-wider">Medical Notes</Label>
-                  <Input id="medicalNotes" value={medicalNotes} onChange={e => setMedicalNotes(e.target.value)} placeholder="e.g. Diabetic, hypertensive under treatment" className="rounded-xl" />
+                  <Input id="medicalNotes" value={medicalNotes} onChange={e => setMedicalNotes(e.target.value)} placeholder="e.g. Diabetic, hypertensive under treatment" className="rounded-xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white" />
                 </div>
               </div>
               <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
