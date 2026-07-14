@@ -6,14 +6,6 @@ import { useSession } from "next-auth/react";
 import { format, subDays } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-"use client";
-
-import { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { format, subDays } from "date-fns";
-import { cn, getIndustryColor } from "@/lib/utils";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
