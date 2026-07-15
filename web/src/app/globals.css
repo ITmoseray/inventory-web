@@ -264,3 +264,11 @@
     overscroll-behavior: contain;
   }
   }
+
+@media print {
+  /* Hide everything except the invoice */
+  body > *:not(#invoice-print-root) { display: none !important; }
+  .print\:hidden { display: none !important; }
+  @page { margin: 0; size: A4; }
+  body { background: white !important; }
+}

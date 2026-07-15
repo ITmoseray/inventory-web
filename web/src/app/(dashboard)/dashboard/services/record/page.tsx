@@ -86,8 +86,8 @@ function RecordFeeForm() {
       });
       
       if (res.success) {
-        toast.success("Fee recorded successfully! Invoice generated.");
-        router.push(`/dashboard/sales/history`);
+        toast.success("Payment recorded! Generating invoice...");
+        router.push(`/invoice/${res.data.id}`);
       } else {
         toast.error(res.error || "Failed to record fee");
       }
