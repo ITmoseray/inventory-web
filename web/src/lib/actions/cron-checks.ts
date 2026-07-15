@@ -13,7 +13,10 @@ export async function runAutomatedSystemChecks() {
 
     // 1. Scan for Low Stock Products (Across all businesses)
     const allProducts = await prisma.product.findMany({
-      where: { deletedAt: null },
+      where: { 
+        deletedAt: null,
+        type: { not: "SERVICE" }
+      },
       select: { id: true, name: true, stockQuantity: true, minStockLevel: true, businessId: true }
     });
     

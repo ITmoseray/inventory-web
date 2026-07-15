@@ -110,6 +110,7 @@ model User {
   payrolls           Payroll[]
   purchases          Purchase[]
   sales              Sale[]
+  assignedSales      Sale[]               @relation("StaffSale")
   stockMovements     StockMovement[]
   business           Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
   role               Role                 @relation(fields: [roleId], references: [id])
@@ -321,6 +322,7 @@ model Sale {
   customerId    String?
   patientId     String?
   tableId       String?
+  staffId       String?
   createdAt     DateTime             @default(now())
   deletedAt     DateTime?
   updatedAt     DateTime             @updatedAt
@@ -331,6 +333,7 @@ model Sale {
   patient       Patient?             @relation(fields: [patientId], references: [id])
   table         RestaurantTable?     @relation(fields: [tableId], references: [id])
   user          User                 @relation(fields: [userId], references: [id])
+  staff         User?                @relation("StaffSale", fields: [staffId], references: [id])
   items         SaleItem[]
   consultation  Consultation?        @relation("ConsultationSale")
   labTest       LabTest?             @relation("LabTestSale")

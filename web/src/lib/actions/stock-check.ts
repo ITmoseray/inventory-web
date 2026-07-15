@@ -18,7 +18,7 @@ export async function syncLowStockNotifications() {
       }
     });
 
-    const lowStockProducts = allProducts.filter(p => p.stockQuantity <= p.minStockLevel);
+    const lowStockProducts = allProducts.filter(p => p.type !== "SERVICE" && p.stockQuantity <= p.minStockLevel);
 
 
     if (lowStockProducts.length === 0) return { success: true, count: 0 };

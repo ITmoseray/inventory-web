@@ -385,7 +385,7 @@ export async function getPredictiveReplenishment() {
 
     // 3. Fetch products
     const products = await tenantPrisma.product.findMany({
-      where: { businessId, deletedAt: null },
+      where: { businessId, deletedAt: null, type: "PRODUCT" },
       select: {
         id: true,
         name: true,

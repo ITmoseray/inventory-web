@@ -95,8 +95,8 @@ export async function getInventoryOverview() {
   const tenantPrisma = getTenantPrisma(session.user.businessId);
 
   const products = await tenantPrisma.product.findMany({
-    where: { businessId: session.user.businessId },
-    select: { stockQuantity: true, costPrice: true, minStockLevel: true }
+    where: { businessId: session.user.businessId, type: "PRODUCT" },
+    select: { stockQuantity: true, costPrice: true, minStockLevel: true, type: true }
   });
 
   const totalValue = products.reduce((acc, p) => acc + (p.costPrice?.toNumber() || 0) * p.stockQuantity, 0);
@@ -150,8 +150,9 @@ export async function getLowStockProducts() {
   const products = await tenantPrisma.$queryRaw`
     SELECT id, name, "stockQuantity", "minStockLevel" 
     FROM "Product" 
-    WHERE "businessId" = ${session.user.businessId}
-    AND "stockQuantity" <= "minStockLevel"
+    WHERE "businessId" = ${session.user.businessId} AND "deletedAt" IS NULL
+    AND "stockQuantity" <= "minStockLevel" 
+    AND "type" != 'SERVICE'
     AND "stockQuantity" > 0
   ` as any[];
 

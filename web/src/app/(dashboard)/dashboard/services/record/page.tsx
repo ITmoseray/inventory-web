@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getServices, recordServiceFee } from "@/lib/actions/services";
 import { getCustomers } from "@/lib/actions/customer";
+import { getUsers } from "@/lib/actions/user";
 import { Briefcase, ArrowLeft, Loader2, DollarSign, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,23 +22,27 @@ function RecordFeeForm() {
   const [isLoading, setIsLoading] = useState(true);
   const [services, setServices] = useState<any[]>([]);
   const [customers, setCustomers] = useState<any[]>([]);
+  const [staff, setStaff] = useState<any[]>([]);
   
   const [formData, setFormData] = useState({
     serviceId: initialServiceId || "",
     amount: "",
     paymentMethod: "CASH",
-    customerId: "walk-in"
+    customerId: "walk-in",
+    staffId: "none"
   });
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [servicesData, customersData] = await Promise.all([
+        const [servicesData, customersData, staffData] = await Promise.all([
           getServices(),
-          getCustomers()
+          getCustomers(),
+          getUsers()
         ]);
         setServices(servicesData);
         setCustomers(customersData);
+        setStaff(staffData);
         
         // If a service was pre-selected, auto-fill its price
         if (initialServiceId) {
@@ -74,7 +79,8 @@ function RecordFeeForm() {
         serviceId: formData.serviceId,
         amount: Number(formData.amount),
         paymentMethod: formData.paymentMethod,
-        customerId: formData.customerId === "walk-in" ? undefined : formData.customerId
+        customerId: formData.customerId === "walk-in" ? undefined : formData.customerId,
+        staffId: formData.staffId === "none" ? undefined : formData.staffId
       });
       
       if (res.success) {
@@ -145,19 +151,36 @@ function RecordFeeForm() {
           </div>
         </div>
 
-        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800 mt-4">
-          <Label className="text-xs font-black uppercase tracking-widest text-slate-500 block mt-4">Customer (Optional)</Label>
-          <Select value={formData.customerId} onValueChange={(v) => setFormData({...formData, customerId: v})}>
-            <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="walk-in">Walk-in Customer (None)</SelectItem>
-              {customers.map((c) => (
-                <SelectItem key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest text-slate-500 block">Customer (Optional)</Label>
+            <Select value={formData.customerId} onValueChange={(v) => setFormData({...formData, customerId: v})}>
+              <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="walk-in">Walk-in Customer (None)</SelectItem>
+                {customers.map((c) => (
+                  <SelectItem key={c.id} value={c.id}>{c.name} {c.phone ? `(${c.phone})` : ''}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label className="text-xs font-black uppercase tracking-widest text-slate-500 block">Staff / Employee Assigned (Optional)</Label>
+            <Select value={formData.staffId} onValueChange={(v) => setFormData({...formData, staffId: v})}>
+              <SelectTrigger className="h-12 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Not Assigned</SelectItem>
+                {staff.map((s) => (
+                  <SelectItem key={s.id} value={s.id}>{s.name} ({s.role?.name || "Staff"})</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
       </div>

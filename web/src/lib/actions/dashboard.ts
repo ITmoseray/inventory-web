@@ -68,7 +68,7 @@ export async function getDashboardStats() {
       // Low Stock Count
       prisma.$queryRawUnsafe<{ count: number }[]>(`
         SELECT COUNT(*)::int as count FROM "Product" 
-        WHERE "businessId" = $1 AND "stockQuantity" <= "minStockLevel"
+        WHERE "businessId" = $1 AND "stockQuantity" <= "minStockLevel" AND "type" != 'SERVICE'
       `, businessId),
       // Expiring Items (within 30 days)
       prisma.batch.count({
