@@ -382,7 +382,7 @@ export default function NexusSuperControl() {
       setIsCreatingSuperAdmin(true);
       await createSuperAdmin({
         name: newSuperAdminName,
-        username: newSuperAdminUsername || undefined,
+        username: newSuperAdminUsername,
         email: newSuperAdminEmail,
         passwordStr: newSuperAdminPassword
       });
