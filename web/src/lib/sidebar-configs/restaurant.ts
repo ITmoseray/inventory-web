@@ -13,7 +13,8 @@ export const restaurantSidebarConfig = [
     label: "Kitchen Ops", 
     items: [
       { title: "POS", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" }, 
-      { title: "Kitchen Display", url: "/dashboard/restaurant/kitchen", icon: ClipboardList, permission: "menu:kitchen" }, 
+      { title: "Invoices", url: "/dashboard/sales/invoices" },
+          { title: "Kitchen Display", url: "/dashboard/restaurant/kitchen", icon: ClipboardList, permission: "menu:kitchen" }, 
       { title: "Table Management", url: "/dashboard/restaurant/tables", icon: LayoutDashboard, permission: "menu:tables" }, 
       { title: "Reservations", url: "/dashboard/customers", icon: CalendarCheck, permission: "menu:reservations" }
     ] 

@@ -21,7 +21,8 @@ export const electronicsSidebarConfig = [
     items: [
       { title: "POS", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" },
       { title: "Sales History", url: "/dashboard/sales/history", icon: FileText, permission: "menu:sales:history" },
-    ]
+    { title: "Invoices", url: "/dashboard/sales/invoices" },
+          ]
   },
   {
     label: "Settings",

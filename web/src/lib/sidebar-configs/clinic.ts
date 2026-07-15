@@ -30,7 +30,8 @@ export const clinicSidebarConfig = [
     label: "Finance", 
     items: [
       { title: "Billing / POS", url: "/dashboard/pos", icon: Wallet, permission: "menu:sales" },
-      { title: "Expenses", url: "/dashboard/accounting/expenses", icon: Wallet, permission: "menu:accounting:expenses" }, 
+      { title: "Invoices", url: "/dashboard/sales/invoices" },
+          { title: "Expenses", url: "/dashboard/accounting/expenses", icon: Wallet, permission: "menu:accounting:expenses" }, 
       { title: "Profit & Loss", url: "/dashboard/accounting/pl", icon: BarChart3, permission: "menu:accounting:pl" }
     ] 
   },

@@ -14,7 +14,8 @@ export const supermarketSidebarConfig = [
     label: "Operations", 
     items: [
       { title: "POS", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" }, 
-      { title: "Stock Management", url: "/dashboard/inventory", icon: Package, permission: "menu:inventory" }
+      { title: "Invoices", url: "/dashboard/sales/invoices" },
+          { title: "Stock Management", url: "/dashboard/inventory", icon: Package, permission: "menu:inventory" }
     ] 
   },
   { 

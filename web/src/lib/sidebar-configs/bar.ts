@@ -28,6 +28,7 @@ export const barSidebarConfig = [
           { title: "Launch POS", url: "/dashboard/pos" },
           { title: "Open Tabs", url: "/dashboard/sales/orders" },
           { title: "Sales History", url: "/dashboard/sales/history" },
+          { title: "Invoices", url: "/dashboard/sales/invoices" },
           { title: "Credit Sales", url: "/dashboard/customers/debts" },
           { title: "Returns", url: "/dashboard/sales/returns" },
         ],

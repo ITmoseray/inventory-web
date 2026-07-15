@@ -14,7 +14,8 @@ export const pharmacySidebarConfig = [
     label: "Pharmacy Ops", 
     items: [
       { title: "POS", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" }, 
-      { title: "Prescriptions", url: "/dashboard/patients/prescriptions", icon: FileText, permission: "menu:prescriptions" }, 
+      { title: "Invoices", url: "/dashboard/sales/invoices" },
+          { title: "Prescriptions", url: "/dashboard/patients/prescriptions", icon: FileText, permission: "menu:prescriptions" }, 
       { title: "Patients", url: "/dashboard/patients", icon: Users, permission: "menu:patients" }
     ] 
   },
