@@ -109,3 +109,92 @@ export async function deleteCourse(id: string) {
   revalidatePath('/dashboard/school/courses');
   return { success: true };
 }
+
+// PAYMENTS CRUD
+export async function getPayments() {
+  const { businessId } = await getAuthSession();
+  return prisma.schoolPayment.findMany({
+    where: { businessId },
+    include: {
+      student: true,
+      course: true
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}
+
+export async function updatePaymentStatus(id: string, status: string) {
+  const { businessId } = await getAuthSession();
+  await prisma.schoolPayment.update({
+    where: { id, businessId },
+    data: { status }
+  });
+  revalidatePath('/dashboard/school/payments');
+  return { success: true };
+}
+
+// ATTENDANCE CRUD
+export async function getAttendanceByDate(dateStr: string) {
+  const { businessId } = await getAuthSession();
+  
+  // Parse date string to start and end of day
+  const date = new Date(dateStr);
+  const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+  return prisma.schoolAttendance.findMany({
+    where: { 
+      businessId,
+      date: {
+        gte: startOfDay,
+        lte: endOfDay
+      }
+    },
+    include: {
+      student: true,
+      course: true
+    }
+  });
+}
+
+export async function markAttendance(studentId: string, courseId: string, dateStr: string, status: string) {
+  const { businessId } = await getAuthSession();
+  const date = new Date(dateStr);
+  
+  // Using upsert based on unique constraint [studentId, courseId, date]
+  await prisma.schoolAttendance.upsert({
+    where: {
+      studentId_courseId_date: {
+        studentId,
+        courseId,
+        date
+      }
+    },
+    update: {
+      status,
+      businessId // Ensure businessId is maintained
+    },
+    create: {
+      businessId,
+      studentId,
+      courseId,
+      date,
+      status
+    }
+  });
+  
+  revalidatePath('/dashboard/school/attendance');
+  return { success: true };
+}
+
+// PAYROLL
+export async function getStaffPayroll() {
+  const { businessId } = await getAuthSession();
+  return prisma.payroll.findMany({
+    where: { businessId },
+    include: {
+      user: true
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+}
