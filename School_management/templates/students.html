@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Students - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Student List</h1>
+  <div>
+    <a href="/students/add" class="btn btn-primary me-2">Add New Student</a>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <label for="search_query" class="visually-hidden">Search Students</label>
+                <input type="text" class="form-control" id="search_query" name="search_query" placeholder="Search by ID, name, or email..." value="{{ request.args.get('search_query', '') }}">
+            </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-outline-secondary" onclick="document.getElementById('search_query').value = ''; fetchStudents('');">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Student ID</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Gender</th>
+      <th>Date of Birth</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Status</th>
+      <th>Login</th>
+      <th>Source</th>
+      <th>Course 1</th>
+      <th>Course 2</th>
+      <th>Assigned Lecturer</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="student-table-body">
+    {# Students will be rendered dynamically by JavaScript #}
+  </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('search_query');
+        const studentTableBody = document.getElementById('student-table-body');
+        let debounceTimer;
+
+        async function fetchStudents(query = '') {
+            try {
+                const response = await fetch(`/api/students/search?query=${encodeURIComponent(query)}`);
+                const students = await response.json();
+                
+                studentTableBody.innerHTML = ''; // Clear existing rows
+
+                if (students.length === 0) {
+                    studentTableBody.innerHTML = '<tr><td colspan="13">No students found.</td></tr>';
+                    return;
+                }
+
+                students.forEach(student => {
+                    const row = document.createElement('tr');
+                    
+                    // Determine login badge
+                    const loginBadge = student.password_hash 
+                        ? '<span class="badge bg-success small"><i class="fas fa-check-circle"></i> Active</span>'
+                        : '<span class="badge bg-secondary opacity-50 small">Not Set</span>';
+
+                    // Determine source badge
+                    const sourceBadge = student.application_source === 'manual'
+                        ? '<span class="badge bg-warning text-dark"><i class="fas fa-file-alt"></i> Manual</span>'
+                        : '<span class="badge bg-primary"><i class="fas fa-globe"></i> Online</span>';
+
+                    row.innerHTML = `
+                        <td>${student.student_id}</td>
+                        <td>${student.first_name}</td>
+                        <td>${student.last_name}</td>
+                        <td>${student.gender}</td>
+                        <td>${student.date_of_birth}</td>
+                        <td>${student.email || ''}</td>
+                        <td>${student.phone || ''}</td>
+                        <td>${student.status || ''}</td>
+                        <td>${loginBadge}</td>
+                        <td>${sourceBadge}</td>
+                        <td>${student.course_1 || ''}</td>
+                        <td>${student.course_2 || ''}</td>
+                        <td>${student.lecturers || ''}</td>
+                        <td>
+                            <a href="/students/edit/${student.student_id}" class="btn btn-sm btn-warning me-1">Edit</a>
+                            <form action="/students/delete/${student.student_id}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to deactivate this student?');">
+                                <button type="submit" class="btn btn-sm btn-info me-1">Deactivate</button>
+                            </form>
+                            <form action="/students/delete-permanently/${student.student_id}" method="post" style="display:inline;" onsubmit="return confirm('WARNING: Are you absolutely sure you want to PERMANENTLY DELETE this student? This action cannot be undone and will remove all associated records. Confirm permanent deletion?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete Permanently</button>
+                            </form>
+                        </td>
+                    `;
+                    studentTableBody.appendChild(row);
+                });
+
+            } catch (error) {
+                console.error('Error fetching students:', error);
+                studentTableBody.innerHTML = '<tr><td colspan="12">Error loading students.</td></tr>';
+            }
+        }
+
+        // Initial load of all students when the page loads
+        fetchStudents(searchInput.value);
+
+        searchInput.addEventListener('keyup', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                fetchStudents(searchInput.value);
+            }, 300); // 300ms debounce delay
+        });
+
+        // Event delegation for double-click on dynamically loaded rows
+        studentTableBody.addEventListener('dblclick', function(event) {
+            let targetRow = event.target.closest('tr');
+            if (targetRow && studentTableBody.contains(targetRow)) {
+                const studentId = targetRow.cells[0].innerText.trim();
+                if (studentId) {
+                    window.location.href = `/students/view/${studentId}`;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

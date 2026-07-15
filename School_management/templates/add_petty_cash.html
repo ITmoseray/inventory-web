@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Petty Cash Transaction - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Add New Petty Cash Transaction</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="/petty-cash/add" method="post">
+                    <div class="mb-3">
+                        <label for="transaction_date" class="form-label">Transaction Date:</label>
+                        <input type="date" class="form-control" id="transaction_date" name="transaction_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description:</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="transaction_type" class="form-label">Transaction Type:</label>
+                        <select class="form-select" id="transaction_type" name="transaction_type" required>
+                            <option value="Income">Income</option>
+                            <option value="Expense">Expense</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="authorized_by" class="form-label">Authorized By:</label>
+                        <input type="text" class="form-control" id="authorized_by" name="authorized_by" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Transaction</button>
+                    <a href="/petty-cash" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

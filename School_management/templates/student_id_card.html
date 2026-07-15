@@ -1,0 +1,218 @@
+{% extends "base.html" %}
+
+{% block title %}Student ID Card - {{ student.first_name }} {{ student.last_name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5 d-flex flex-column align-items-center">
+    <!-- Controls (Hidden on Print) -->
+    <div class="d-print-none text-center mb-5 w-100" style="max-width: 500px;">
+        <div class="card border-0 shadow-sm rounded-4 p-4">
+            <h2 class="fw-bold text-primary mb-3"><i class="fas fa-id-card me-2"></i>Digital Student ID</h2>
+            <p class="text-muted small mb-4">This ID card is generated automatically from your portal profile. You can print it for physical use or keep the digital version.</p>
+            <div class="d-flex gap-2 justify-content-center">
+                <button onclick="window.print()" class="btn btn-primary rounded-pill px-4 fw-bold">
+                    <i class="fas fa-print me-2"></i>Print Card
+                </button>
+                <a href="/students/view/{{ student.student_id }}" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Professional ID Card Wrapper -->
+    <div class="id-card-print-container">
+        <div class="id-card shadow-2xl overflow-hidden position-relative">
+            <!-- Background Decoration -->
+            <div class="card-bg-accent"></div>
+            
+            <!-- Header Section -->
+            <div class="id-header d-flex align-items-center px-4 py-3">
+                <div class="bg-white rounded-3 p-1 me-3 shadow-sm">
+                    <img src="/static/images/LOGO.jpeg" alt="Logo" class="school-logo">
+                </div>
+                <div class="header-text">
+                    <h5 class="m-0 fw-bold text-white letter-spacing-1">EASI ACADEMY</h5>
+                    <p class="m-0 text-white opacity-75 x-small fw-bold">Empowerment Academy of Skills and Innovation</p>
+                </div>
+            </div>
+
+            <!-- Main Body -->
+            <div class="id-body px-4 py-3">
+                <div class="row g-0 align-items-center">
+                    <!-- Photo Section -->
+                    <div class="col-5 text-center pe-3">
+                        <div class="photo-frame shadow-md">
+                            {% if student.photo_path %}
+                                <img src="{{ student.photo_path if student.photo_path.startswith('http') else url_for('static', filename=student.photo_path.split('static/')[-1]) }}" alt="Student Photo">
+                            {% else %}
+                                <img src="https://ui-avatars.com/api/?name={{ student.first_name }}+{{ student.last_name }}&background=6c5ce7&color=fff&size=200" alt="Avatar">
+                            {% endif %}
+                        </div>
+                        <div class="mt-2">
+                            <span class="badge rounded-pill bg-primary px-3 py-1 fw-bold smaller shadow-sm border border-white border-2">STUDENT</span>
+                        </div>
+                    </div>
+
+                    <!-- Details Section -->
+                    <div class="col-7 border-start border-light ps-4">
+                        <div class="mb-3">
+                            <label class="d-block text-muted x-small fw-bold text-uppercase mb-0">Full Name</label>
+                            <h5 class="fw-bold text-dark mb-0 text-nowrap">{{ student.first_name }} {{ student.last_name }}</h5>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label class="d-block text-muted x-small fw-bold text-uppercase mb-0">Student ID</label>
+                            <span class="fw-bold text-primary fs-6">{{ student.student_id }}</span>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="d-block text-muted x-small fw-bold text-uppercase mb-0">Academic Unit</label>
+                            <p class="m-0 fw-bold text-dark smaller line-height-1">{{ primary_course.course_name }}</p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-end mt-3">
+                            <div>
+                                <label class="d-block text-muted x-small fw-bold text-uppercase mb-0">Status</label>
+                                <span class="fw-bold text-success smaller"><i class="fas fa-check-circle me-1"></i>VERIFIED</span>
+                            </div>
+                            <!-- QR Code -->
+                            <div class="qr-box shadow-sm bg-white p-1 rounded-2">
+                                <img src="{{ url_for('static', filename=qr_code_path) }}" alt="QR Code">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Section -->
+            <div class="id-footer d-flex justify-content-between align-items-center px-4 py-2">
+                <div class="footer-dots">
+                    <span></span><span></span><span></span>
+                </div>
+                <div class="text-white fw-bold x-small opacity-50">EASI PORTAL VERIFIED ID</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Professional ID Card Styling */
+    .id-card-print-container {
+        perspective: 1000px;
+    }
+
+    .id-card {
+        width: 480px; /* Slightly larger for better detail */
+        height: 280px;
+        background-color: #ffffff;
+        border-radius: 1.25rem;
+        font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+        border: 1px solid rgba(0,0,0,0.05);
+        color: #1a1a1a;
+    }
+
+    .card-bg-accent {
+        position: absolute;
+        top: -100px;
+        right: -50px;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(108, 92, 231, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    .id-header {
+        background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
+        position: relative;
+        z-index: 1;
+        border-bottom: 3px solid rgba(255,255,255,0.2);
+    }
+
+    .school-logo {
+        width: 45px;
+        height: 45px;
+        object-fit: contain;
+    }
+
+    .letter-spacing-1 { letter-spacing: 1px; }
+    .x-small { font-size: 0.65rem; }
+    .smaller { font-size: 0.75rem; }
+    .line-height-1 { line-height: 1.2; }
+
+    .photo-frame {
+        width: 120px;
+        height: 120px;
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 4px solid #fff;
+        display: inline-block;
+        background: #f8f9fa;
+    }
+
+    .photo-frame img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .qr-box {
+        border: 1px solid #eee;
+    }
+
+    .qr-box img {
+        width: 55px;
+        height: 55px;
+    }
+
+    .id-footer {
+        background-color: #2d3436;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .footer-dots span {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background-color: #6c5ce7;
+        border-radius: 50%;
+        margin-right: 4px;
+        opacity: 0.7;
+    }
+
+    /* Print Optimizations */
+    @media print {
+        body {
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .container {
+            width: 100% !important;
+            max-width: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            display: block !important;
+        }
+        .d-print-none {
+            display: none !important;
+        }
+        .id-card-print-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .id-card {
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+    }
+</style>
+{% endblock %}

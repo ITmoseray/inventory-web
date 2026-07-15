@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lecturer - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Edit Lecturer</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="/lecturers/edit/{{ lecturer.id }}" method="post">
+                    <div class="mb-3">
+                        <label for="lecturer_id" class="form-label">Lecturer ID:</label>
+                        <input type="text" class="form-control" id="lecturer_id" name="lecturer_id" value="{{ lecturer.lecturer_id }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name:</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" value="{{ lecturer.first_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name:</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" value="{{ lecturer.last_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ lecturer.email }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone:</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ lecturer.phone }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Department:</label>
+                        <input type="text" class="form-control" id="department" name="department" value="{{ lecturer.department }}">
+                    </div>
+                    <hr>
+                    <h6 class="text-primary mb-3">Login Credentials</h6>
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Portal Username:</label>
+                        <input type="text" class="form-control" id="username" name="username" value="{{ lecturer_user.username if lecturer_user else '' }}" placeholder="Set a username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Portal Password (leave blank to keep current):</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Set a new password">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Lecturer</button>
+                    <a href="/lecturers" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

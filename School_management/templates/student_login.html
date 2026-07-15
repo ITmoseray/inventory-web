@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Student Login - EASI Academy Hub{% endblock %}
+
+{% block content %}
+<style>
+    .auth-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 1.5rem;
+        padding: 0;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        margin-top: 50px;
+        overflow: hidden;
+    }
+
+    .auth-header {
+        background: #0891b2;
+        color: white;
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+
+    .auth-body {
+        padding: 3rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control, .form-select {
+        background-color: #f8fafc;
+        border: 2px solid transparent;
+        border-radius: 0.75rem;
+        padding: 0.75rem 1rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background-color: #ffffff;
+        border-color: #0891b2;
+        box-shadow: none;
+    }
+
+    .btn-student {
+        background-color: #0891b2;
+        border-color: #0891b2;
+        border-radius: 0.75rem;
+        padding: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-top: 1rem;
+        color: white;
+    }
+
+    .btn-student:hover {
+        background-color: #0e7490;
+        border-color: #0e7490;
+        color: white;
+    }
+</style>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="mb-3">
+                    <img src="{{ url_for('static', filename='images/LOGO.jpeg') }}" alt="EASI Academy" class="rounded-circle shadow-sm" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid rgba(255,255,255,0.3);">
+                </div>
+                <h3 class="fw-bold mb-1">Student Portal</h3>
+                <p class="mb-0 opacity-75">Access your academic profile</p>
+            </div>
+            
+            <div class="auth-body">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} border-0 rounded-3 mb-4" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('student_portal.student_login') }}">
+                    <div class="mb-4">
+                        <label for="tenant_id" class="form-label">Institution</label>
+                        <select class="form-select form-select-lg" id="tenant_id" name="tenant_id" required>
+                            <option value="" selected disabled>Choose your school...</option>
+                            {% for tenant in tenants %}
+                                <option value="{{ tenant.id }}">{{ tenant.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="email" class="form-label">Student ID or Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fas fa-id-card text-muted"></i></span>
+                            <input type="text" class="form-control form-control-lg" id="email" name="email" placeholder="e.g. STU2026..." required>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-0"><i class="fas fa-lock text-muted"></i></span>
+                            <input type="password" class="form-control form-control-lg" id="password" name="password" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-student w-100 shadow-sm">Enter Portal</button>
+                    
+                    <div class="text-center mt-4">
+                        <a href="/" class="text-muted small text-decoration-none fw-bold">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Home
+                        </a>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="bg-light p-4 text-center border-top">
+                <small class="text-muted fw-bold">Trouble logging in? Contact your institution's registrar.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

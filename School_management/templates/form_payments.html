@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Form Payments - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Form Payment List</h1>
+  <div>
+    <a href="/form-payments/add" class="btn btn-primary me-2">Add New Form Payment</a>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form action="/form-payments" method="get" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <label for="search_query" class="visually-hidden">Search Form Payments</label>
+                <input type="text" class="form-control" id="search_query" name="search_query" placeholder="Search by student ID, name, form type, or status..." value="{{ request.args.get('search_query', '') }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-info me-2">Search</button>
+                <a href="/form-payments" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Payment ID</th>
+      <th>Receipt Number</th>
+      <th>Student ID</th>
+      <th>Student Name</th>
+      <th>Form Type</th>
+      <th>Amount</th>
+      <th>Payment Date</th>
+      <th>Status</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for payment in form_payments %}
+    <tr>
+      <td>{{ payment.id }}</td>
+      <td>{{ payment.receipt_number }}</td>
+      <td>{{ payment.student_identifier }}</td>
+      <td>{{ payment.first_name }} {{ payment.last_name }}</td>
+      <td>{{ payment.form_type }}</td>
+      <td>Le {{ payment.amount }}</td>
+      <td>{{ payment.payment_date }}</td>
+      <td>{{ payment.status }}</td>
+      <td>
+        <a href="/form-payments/edit/{{ payment.id }}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="/form-payments/delete/{{ payment.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this form payment?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="8">No form payments found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formPaymentRows = document.querySelectorAll('table.table tbody tr');
+        formPaymentRows.forEach(row => {
+            row.addEventListener('dblclick', function() {
+                // Get the form payment ID from the edit link's href attribute
+                const editLink = row.querySelector('a.btn-warning');
+                if (editLink) {
+                    const href = editLink.getAttribute('href');
+                    const formPaymentId = href.split('/').pop(); // Extracts the ID from '/form-payments/edit/ID'
+                    if (formPaymentId) {
+                        window.location.href = `/form-payments/view/${formPaymentId}`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

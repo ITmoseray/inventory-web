@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Add Course Material - Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white py-3">
+                <h4 class="m-0 fw-bold"><i class="fas fa-upload me-2"></i>Upload Course Material (Bulk Upload Supported)</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label fw-bold">Select Course:</label>
+                        <select class="form-select" id="course_id" name="course_id" required>
+                            <option value="">-- Choose Course --</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.course_name }} ({{ course.course_code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label fw-bold">Material Title (Main Title for bulk upload):</label>
+                        <input type="text" class="form-control" id="title" name="title" placeholder="e.g. Introduction to Excel" required>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="tag" class="form-label fw-bold">Tag (Topic/Category):</label>
+                            <input type="text" class="form-control" id="tag" name="tag" placeholder="e.g. Week 1, Advanced, etc.">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="deadline" class="form-label fw-bold">Availability Deadline (Optional):</label>
+                            <input type="datetime-local" class="form-control" id="deadline" name="deadline">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="material_type" class="form-label fw-bold">Material Type:</label>
+                        <select class="form-select" id="material_type" name="material_type">
+                            <option value="PDF">PDF Document</option>
+                            <option value="Video">Video Lesson</option>
+                            <option value="Doc">Word/Doc Document</option>
+                            <option value="Link">External Website Link</option>
+                        </select>
+                    </div>
+
+                    <div class="card bg-light border-0 mb-3">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">Provide Resource:</h6>
+                            <div class="mb-3">
+                                <label for="file" class="form-label small">Option 1: Upload Files (Select multiple files for bulk upload)</label>
+                                <input type="file" class="form-control" id="file" name="file" multiple>
+                            </div>
+                            <div class="text-center my-2 text-muted small">-- OR (for single link only) --</div>
+                            <div class="mb-0">
+                                <label for="external_url" class="form-label small">Option 2: External URL (YouTube, Drive, etc.)</label>
+                                <input type="url" class="form-control" id="external_url" name="external_url" placeholder="https://youtube.com/...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg rounded-pill shadow-sm">
+                            <i class="fas fa-cloud-upload-alt me-2"></i>Save & Share with Students
+                        </button>
+                        <a href="/admin/materials" class="btn btn-link text-muted">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Lecturer Details - {{ lecturer.full_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Lecturer Details: {{ lecturer.full_name }}</h1>
+    <a href="/lecturers" class="btn btn-secondary">Back to Lecturer List</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Lecturer Information
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Lecturer ID: {{ lecturer.lecturer_id }}</h5>
+        <p class="card-text"><strong>Full Name:</strong> {{ lecturer.full_name }}</p>
+        <p class="card-text"><strong>Email:</strong> {{ lecturer.email }}</p>
+        <p class="card-text"><strong>Phone:</strong> {{ lecturer.phone }}</p>
+        <p class="card-text"><strong>Department:</strong> {{ lecturer.department }}</p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-start">
+    <a href="/lecturers/edit/{{ lecturer.id }}" class="btn btn-warning me-2">Edit Lecturer</a>
+    <form action="/lecturers/delete/{{ lecturer.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this lecturer?');">
+        <button type="submit" class="btn btn-danger">Delete Lecturer</button>
+    </form>
+</div>
+
+{% endblock %}

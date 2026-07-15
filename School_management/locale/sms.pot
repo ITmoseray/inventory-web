@@ -1,0 +1,280 @@
+# Translations template for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-01-12 11:32+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ui/dashboard.py:33
+msgid "Pending Payment Reminders"
+msgstr ""
+
+#: ui/dashboard.py:38
+msgid "⚠️ Students with Pending Payments"
+msgstr ""
+
+#: ui/dashboard.py:44
+msgid "No pending payments found."
+msgstr ""
+
+#: ui/dashboard.py:56 ui/dashboard.py:130
+msgid "Close"
+msgstr ""
+
+#: ui/dashboard.py:60
+msgid "Send Email Reminders"
+msgstr ""
+
+#: ui/dashboard.py:65
+msgid "Confirm"
+msgstr ""
+
+#: ui/dashboard.py:80
+msgid "Pending Payment Reminder - EASI"
+msgstr ""
+
+#: ui/dashboard.py:106
+msgid "Email Results"
+msgstr ""
+
+#: ui/dashboard.py:112
+msgid "Ending Course Alerts"
+msgstr ""
+
+#: ui/dashboard.py:116
+msgid "🔔 Student Enrollments Ending Soon"
+msgstr ""
+
+#: ui/dashboard.py:122
+msgid "No enrollments are ending within the next 14 days."
+msgstr ""
+
+#: ui/dashboard.py:138
+msgid "Student Management System - Dashboard"
+msgstr ""
+
+#: ui/dashboard.py:228
+msgid "EASI Student Management"
+msgstr ""
+
+#: ui/dashboard.py:250
+msgid "Quick Stats"
+msgstr ""
+
+#: ui/dashboard.py:259 ui/dashboard.py:441 ui/dashboard.py:442
+msgid "Today's Attendance"
+msgstr ""
+
+#: ui/dashboard.py:259
+msgid "View today's attendance records"
+msgstr ""
+
+#: ui/dashboard.py:260 ui/dashboard.py:403 ui/dashboard.py:443
+#: ui/dashboard.py:444 ui/dashboard.py:447 ui/dashboard.py:449
+msgid "Pending Payments"
+msgstr ""
+
+#: ui/dashboard.py:260
+msgid "View pending payments"
+msgstr ""
+
+#: ui/dashboard.py:261 ui/dashboard.py:450 ui/dashboard.py:451
+msgid "Active Courses"
+msgstr ""
+
+#: ui/dashboard.py:261
+msgid "View all active courses"
+msgstr ""
+
+#: ui/dashboard.py:286
+msgid "📊 Dashboard"
+msgstr ""
+
+#: ui/dashboard.py:286
+msgid "Return to the main dashboard overview"
+msgstr ""
+
+#: ui/dashboard.py:287
+msgid "🧑‍🎓 Students"
+msgstr ""
+
+#: ui/dashboard.py:287
+msgid "Manage student records"
+msgstr ""
+
+#: ui/dashboard.py:288
+msgid "📚 Courses"
+msgstr ""
+
+#: ui/dashboard.py:288
+msgid "Manage course information"
+msgstr ""
+
+#: ui/dashboard.py:289
+msgid "💵 Payments"
+msgstr ""
+
+#: ui/dashboard.py:289
+msgid "Manage student payments"
+msgstr ""
+
+#: ui/dashboard.py:290
+msgid "✅ Attendance"
+msgstr ""
+
+#: ui/dashboard.py:290
+msgid "Track student attendance"
+msgstr ""
+
+#: ui/dashboard.py:291
+msgid "📄 Reports"
+msgstr ""
+
+#: ui/dashboard.py:291
+msgid "Generate and view reports"
+msgstr ""
+
+#: ui/dashboard.py:292
+msgid "⚙️ Settings"
+msgstr ""
+
+#: ui/dashboard.py:292
+msgid "Configure application settings"
+msgstr ""
+
+#: ui/dashboard.py:293
+msgid "📝 Form Payments"
+msgstr ""
+
+#: ui/dashboard.py:293
+msgid "Manage form-related payments"
+msgstr ""
+
+#: ui/dashboard.py:294
+msgid "⭐ User Approvals"
+msgstr ""
+
+#: ui/dashboard.py:294
+msgid "Approve or deny new user registrations"
+msgstr ""
+
+#: ui/dashboard.py:295
+msgid "💾 Backup/Restore"
+msgstr ""
+
+#: ui/dashboard.py:295
+msgid "Backup or restore the database"
+msgstr ""
+
+#: ui/dashboard.py:316
+msgid "🚪 Logout"
+msgstr ""
+
+#: ui/dashboard.py:322
+msgid "Logout from the application"
+msgstr ""
+
+#: ui/dashboard.py:361
+msgid "Dashboard Overview"
+msgstr ""
+
+#: ui/dashboard.py:366
+msgid "🔄 Refresh"
+msgstr ""
+
+#: ui/dashboard.py:368
+msgid "Reload the dashboard data"
+msgstr ""
+
+#: ui/dashboard.py:399
+msgid "Total Students"
+msgstr ""
+
+#: ui/dashboard.py:400
+msgid "Active Students"
+msgstr ""
+
+#: ui/dashboard.py:401
+msgid "Attendance Rate"
+msgstr ""
+
+#: ui/dashboard.py:428
+msgid "Error"
+msgstr ""
+
+#: ui/dashboard.py:466
+msgid "Students Distribution by Course"
+msgstr ""
+
+#: ui/dashboard.py:472
+msgid "Monthly Admission Trends (last 12 Months)"
+msgstr ""
+
+#: ui/dashboard.py:476
+msgid "Enrollment vs Payments (Last 12 Months)"
+msgstr ""
+
+#: ui/dashboard.py:512 ui/dashboard.py:514
+msgid "New Enrollments"
+msgstr ""
+
+#: ui/dashboard.py:513
+msgid "Month"
+msgstr ""
+
+#: ui/dashboard.py:521 ui/dashboard.py:522
+msgid "Total Payments (Le)"
+msgstr ""
+
+#: ui/dashboard.py:581
+msgid "Export CSV"
+msgstr ""
+
+#: ui/dashboard.py:584
+msgid "No data available"
+msgstr ""
+
+#: ui/dashboard.py:614
+msgid "Legend"
+msgstr ""
+
+#: ui/dashboard.py:636
+msgid "Values"
+msgstr ""
+
+#: ui/dashboard.py:718 ui/dashboard.py:740
+msgid "Export Error"
+msgstr ""
+
+#: ui/dashboard.py:718
+msgid "No data to export."
+msgstr ""
+
+#: ui/dashboard.py:726
+msgid "CSV files"
+msgstr ""
+
+#: ui/dashboard.py:733
+msgid "Label"
+msgstr ""
+
+#: ui/dashboard.py:733
+msgid "Value"
+msgstr ""
+
+#: ui/dashboard.py:737
+msgid "Export Successful"
+msgstr ""
+

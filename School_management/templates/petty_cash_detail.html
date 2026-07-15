@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Petty Cash Details - {{ transaction.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Petty Cash Details: {{ transaction.id }}</h1>
+    <a href="/petty-cash" class="btn btn-secondary">Back to Petty Cash List</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Transaction Information
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Transaction ID: {{ transaction.id }}</h5>
+        <p class="card-text"><strong>Transaction Date:</strong> {{ transaction.transaction_date }}</p>
+        <p class="card-text"><strong>Description:</strong> {{ transaction.description }}</p>
+        <p class="card-text"><strong>Amount:</strong> {{ "Le {:,.2f}".format(transaction.amount) }}</p>
+        <p class="card-text"><strong>Transaction Type:</strong> {{ transaction.transaction_type }}</p>
+        <p class="card-text"><strong>Authorized By:</strong> {{ transaction.authorized_by }}</p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-start">
+    <a href="/petty-cash/edit/{{ transaction.id }}" class="btn btn-warning me-2">Edit Transaction</a>
+    <form action="/petty-cash/delete/{{ transaction.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+        <button type="submit" class="btn btn-danger">Delete Transaction</button>
+    </form>
+</div>
+
+{% endblock %}

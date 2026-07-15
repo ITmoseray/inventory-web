@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Course - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Edit Course</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="/courses/edit/{{ course.id }}" method="post">
+                    <div class="mb-3">
+                        <label for="course_name" class="form-label">Course Name:</label>
+                        <input type="text" class="form-control" id="course_name" name="course_name" value="{{ course.course_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="course_code" class="form-label">Course Code:</label>
+                        <input type="text" class="form-control" id="course_code" name="course_code" value="{{ course.course_code }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description:</label>
+                        <textarea class="form-control" id="description" name="description" rows="3">{{ course.description }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duration" class="form-label">Duration (e.g., 3 months):</label>
+                        <input type="text" class="form-control" id="duration" name="duration" value="{{ course.duration }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="schedule" class="form-label">Class Schedule:</label>
+                        <input type="text" class="form-control" id="schedule" name="schedule" value="{{ course.schedule }}" placeholder="e.g. Monday - Friday, 4:00 PM – 6:30 PM">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fee" class="form-label">Fee:</label>
+                        <input type="number" class="form-control" id="fee" name="fee" step="0.01" value="{{ course.fee }}" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Course</button>
+                    <a href="/courses" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

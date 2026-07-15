@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Order Details - Tailor Shop{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">🧵 Order Details: {{ payment.receipt_number }}</h3>
+                    <a href="/tailor-shop" class="btn btn-secondary btn-sm">Back to List</a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Receipt Number:</div>
+                        <div class="col-sm-8">{{ payment.receipt_number }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Student Name:</div>
+                        <div class="col-sm-8">{{ payment.last_name }}, {{ payment.first_name }} ({{ payment.student_unique_id }})</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Item Type:</div>
+                        <div class="col-sm-8">{{ payment.item_type }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Measurements/Notes:</div>
+                        <div class="col-sm-8">
+                            <pre class="border p-2 bg-light">{% if payment.measurement %}{{ payment.measurement }}{% else %}N/A{% endif %}</pre>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Amount:</div>
+                        <div class="col-sm-8">Le {{ "{:,.2f}".format(payment.amount) }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Payment Date:</div>
+                        <div class="col-sm-8">{{ payment.payment_date }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Status:</div>
+                        <div class="col-sm-8">
+                            <span class="badge {% if payment.status == 'Paid' %}bg-success{% elif payment.status == 'Pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                {{ payment.status }}
+                            </span>
+                        </div>
+                    </div>
+                    {% if payment.created_at %}
+                    <div class="row mb-3">
+                        <div class="col-sm-4 fw-bold">Created At:</div>
+                        <div class="col-sm-8">{{ payment.created_at }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

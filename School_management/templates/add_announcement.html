@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Add Announcement - Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="m-0">Create New Announcement</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title:</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="category" class="form-label">Category:</label>
+                        <select class="form-select" id="category" name="category">
+                            <option value="General">General News</option>
+                            <option value="Important">⚠️ Important / Urgent</option>
+                            <option value="Event">📅 Upcoming Event</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="content" class="form-label">Content:</label>
+                        <textarea class="form-control" id="content" name="content" rows="5" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="target_audience" class="form-label">Target Audience:</label>
+                        <select class="form-select" id="target_audience" name="target_audience">
+                            <option value="all">All</option>
+                            <option value="students">Students Only</option>
+                            <option value="staff">Staff Only</option>
+                        </select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Post Announcement</button>
+                        <a href="/announcements" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

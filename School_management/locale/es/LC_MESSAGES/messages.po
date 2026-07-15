@@ -1,0 +1,283 @@
+# Spanish translations for PROJECT.
+# Copyright (C) 2026 ORGANIZATION
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT VERSION\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2026-01-12 11:32+0000\n"
+"PO-Revision-Date: 2026-01-12 11:32+0000\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: es\n"
+"Language-Team: es <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.17.0\n"
+
+#: ui/dashboard.py:33
+msgid "Pending Payment Reminders"
+msgstr "Recordatorios de Pagos Pendientes"
+
+#: ui/dashboard.py:38
+msgid "⚠️ Students with Pending Payments"
+msgstr "⚠️ Estudiantes con Pagos Pendientes"
+
+#: ui/dashboard.py:44
+msgid "No pending payments found."
+msgstr "No se encontraron pagos pendientes."
+
+#: ui/dashboard.py:56 ui/dashboard.py:130
+msgid "Close"
+msgstr "Cerrar"
+
+#: ui/dashboard.py:60
+msgid "Send Email Reminders"
+msgstr "Enviar Recordatorios por Correo"
+
+#: ui/dashboard.py:65
+msgid "Confirm"
+msgstr "Confirmar"
+
+#: ui/dashboard.py:80
+msgid "Pending Payment Reminder - EASI"
+msgstr "Recordatorio de Pago Pendiente - EASI"
+
+#: ui/dashboard.py:106
+msgid "Email Results"
+msgstr "Resultados del Correo"
+
+#: ui/dashboard.py:112
+msgid "Ending Course Alerts"
+msgstr "Alertas de Cursos que Finalizan"
+
+#: ui/dashboard.py:116
+msgid "🔔 Student Enrollments Ending Soon"
+msgstr "🔔 Inscripciones de Estudiantes que Finalizan Pronto"
+
+#: ui/dashboard.py:122
+msgid "No enrollments are ending within the next 14 days."
+msgstr "No hay inscripciones que finalicen en los próximos 14 días."
+
+#: ui/dashboard.py:138
+msgid "Student Management System - Dashboard"
+msgstr "Sistema de Gestión de Estudiantes - Panel de Control"
+
+#: ui/dashboard.py:228
+msgid "EASI Student Management"
+msgstr "Gestión de Estudiantes EASI"
+
+#: ui/dashboard.py:250
+msgid "Quick Stats"
+msgstr "Estadísticas Rápidas"
+
+#: ui/dashboard.py:259 ui/dashboard.py:441 ui/dashboard.py:442
+msgid "Today's Attendance"
+msgstr "Asistencia de Hoy"
+
+#: ui/dashboard.py:259
+msgid "View today's attendance records"
+msgstr "Ver registros de asistencia de hoy"
+
+#: ui/dashboard.py:260 ui/dashboard.py:403 ui/dashboard.py:443
+#: ui/dashboard.py:444 ui/dashboard.py:447 ui/dashboard.py:449
+msgid "Pending Payments"
+msgstr "Pagos Pendientes"
+
+#: ui/dashboard.py:260
+msgid "View pending payments"
+msgstr "Ver pagos pendientes"
+
+#: ui/dashboard.py:261 ui/dashboard.py:450 ui/dashboard.py:451
+msgid "Active Courses"
+msgstr "Cursos Activos"
+
+#: ui/dashboard.py:261
+msgid "View all active courses"
+msgstr "Ver todos los cursos activos"
+
+#: ui/dashboard.py:286
+msgid "📊 Dashboard"
+msgstr "📊 Panel de Control"
+
+#: ui/dashboard.py:286
+msgid "Return to the main dashboard overview"
+msgstr "Volver a la vista general del panel de control"
+
+#: ui/dashboard.py:287
+msgid "🧑‍🎓 Students"
+msgstr "🧑‍🎓 Estudiantes"
+
+#: ui/dashboard.py:287
+msgid "Manage student records"
+msgstr "Gestionar registros de estudiantes"
+
+#: ui/dashboard.py:288
+msgid "📚 Courses"
+msgstr "📚 Cursos"
+
+#: ui/dashboard.py:288
+msgid "Manage course information"
+msgstr "Gestionar información del curso"
+
+#: ui/dashboard.py:289
+msgid "💵 Payments"
+msgstr "💵 Pagos"
+
+#: ui/dashboard.py:289
+msgid "Manage student payments"
+msgstr "Gestionar pagos de estudiantes"
+
+#: ui/dashboard.py:290
+msgid "✅ Attendance"
+msgstr "✅ Asistencia"
+
+#: ui/dashboard.py:290
+msgid "Track student attendance"
+msgstr "Registrar asistencia de estudiantes"
+
+#: ui/dashboard.py:291
+msgid "📄 Reports"
+msgstr "📄 Informes"
+
+#: ui/dashboard.py:291
+msgid "Generate and view reports"
+msgstr "Generar y ver informes"
+
+#: ui/dashboard.py:292
+msgid "⚙️ Settings"
+msgstr "⚙️ Configuración"
+
+#: ui/dashboard.py:292
+msgid "Configure application settings"
+msgstr "Configurar ajustes de la aplicación"
+
+#: ui/dashboard.py:293
+msgid "📝 Form Payments"
+msgstr "📝 Pagos de Formularios"
+
+#: ui/dashboard.py:293
+msgid "Manage form-related payments"
+msgstr "Gestionar pagos relacionados con formularios"
+
+#: ui/dashboard.py:294
+msgid "⭐ User Approvals"
+msgstr "⭐ Aprobaciones de Usuario"
+
+#: ui/dashboard.py:294
+msgid "Approve or deny new user registrations"
+msgstr "Aprobar o denegar nuevos registros de usuario"
+
+#: ui/dashboard.py:295
+msgid "💾 Backup/Restore"
+msgstr "💾 Copia de Seguridad/Restaurar"
+
+#: ui/dashboard.py:295
+msgid "Backup or restore the database"
+msgstr "Hacer copia de seguridad o restaurar la base de datos"
+
+#: ui/dashboard.py:316
+msgid "🚪 Logout"
+msgstr "🚪 Cerrar Sesión"
+
+#: ui/dashboard.py:322
+msgid "Logout from the application"
+msgstr "Cerrar sesión de la aplicación"
+
+#: ui/dashboard.py:361
+msgid "Dashboard Overview"
+msgstr "Vista General del Panel de Control"
+
+#: ui/dashboard.py:366
+msgid "🔄 Refresh"
+msgstr "🔄 Actualizar"
+
+#: ui/dashboard.py:368
+msgid "Reload the dashboard data"
+msgstr "Recargar datos del panel de control"
+
+#: ui/dashboard.py:399
+msgid "Total Students"
+msgstr "Total de Estudiantes"
+
+#: ui/dashboard.py:400
+msgid "Active Students"
+msgstr "Estudiantes Activos"
+
+#: ui/dashboard.py:401
+msgid "Attendance Rate"
+msgstr "Tasa de Asistencia"
+
+#: ui/dashboard.py:428
+msgid "Error"
+msgstr "Error"
+
+#: ui/dashboard.py:466
+msgid "Students Distribution by Course"
+msgstr "Distribución de Estudiantes por Curso"
+
+#: ui/dashboard.py:472
+msgid "Monthly Admission Trends (last 12 Months)"
+msgstr "Tendencias de Admisión Mensual (últimos 12 meses)"
+
+#: ui/dashboard.py:476
+msgid "Enrollment vs Payments (Last 12 Months)"
+msgstr "Inscripciones vs Pagos (últimos 12 meses)"
+
+#: ui/dashboard.py:512 ui/dashboard.py:514
+msgid "New Enrollments"
+msgstr "Nuevas Inscripciones"
+
+#: ui/dashboard.py:513
+msgid "Month"
+msgstr "Mes"
+
+#: ui/dashboard.py:521 ui/dashboard.py:522
+msgid "Total Payments (Le)"
+msgstr "Pagos Totales (Le)"
+
+#: ui/dashboard.py:581
+msgid "Export CSV"
+msgstr "Exportar CSV"
+
+#: ui/dashboard.py:584
+msgid "No data available"
+msgstr "No hay datos disponibles"
+
+#: ui/dashboard.py:614
+msgid "Legend"
+msgstr "Leyenda"
+
+#: ui/dashboard.py:636
+msgid "Values"
+msgstr "Valores"
+
+#: ui/dashboard.py:718 ui/dashboard.py:740
+msgid "Export Error"
+msgstr "Error de Exportación"
+
+#: ui/dashboard.py:718
+msgid "No data to export."
+msgstr "No hay datos para exportar."
+
+#: ui/dashboard.py:726
+msgid "CSV files"
+msgstr "Archivos CSV"
+
+#: ui/dashboard.py:733
+msgid "Label"
+msgstr "Etiqueta"
+
+#: ui/dashboard.py:733
+msgid "Value"
+msgstr "Valor"
+
+#: ui/dashboard.py:737
+msgid "Export Successful"
+msgstr "Exportación Exitosa"
+
+
+

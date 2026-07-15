@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Mark Attendance</h1>
+    <a href="/attendance" class="btn btn-secondary">Back to Attendance List</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        Select Course and Date
+    </div>
+    <div class="card-body">
+        <form id="mark-attendance-form" action="/attendance/save-mark" method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="course_id" class="form-label">Course:</label>
+                    <select class="form-select" id="course_id" name="course_id" required>
+                        <option value="">Select Course</option>
+                        {% for course in all_courses %}
+                            <option value="{{ course.id }}">{{ course.course_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="attendance_date" class="form-label">Date:</label>
+                    <input type="date" class="form-control" id="attendance_date" name="attendance_date" value="{{ today }}" required>
+                </div>
+            </div>
+            <button type="button" class="btn btn-info mt-3" id="load-students-btn">Load Students for Marking</button>
+            <hr class="my-4">
+
+            <h3>Students in Selected Course:</h3>
+            <div id="students-list-container" class="mb-3">
+                <p class="text-muted">Select a course and date, then click "Load Students for Marking".</p>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3" id="save-attendance-btn" disabled>Save Attendance</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const courseSelect = document.getElementById('course_id');
+        const attendanceDateInput = document.getElementById('attendance_date');
+        const loadStudentsBtn = document.getElementById('load-students-btn');
+        const studentsListContainer = document.getElementById('students-list-container');
+        const saveAttendanceBtn = document.getElementById('save-attendance-btn');
+        const markAttendanceForm = document.getElementById('mark-attendance-form');
+
+        async function loadStudentsForCourse(courseId, date) {
+            studentsListContainer.innerHTML = '<p>Loading students...</p>';
+            saveAttendanceBtn.disabled = true;
+
+            if (!courseId) {
+                studentsListContainer.innerHTML = '<p class="text-muted">Select a course to load students.</p>';
+                return;
+            }
+
+            try {
+                // Fetch students for the course
+                const studentsResponse = await fetch(`/api/attendance/students-for-course/${courseId}`);
+                const students = await studentsResponse.json();
+
+                // Fetch existing attendance for this course and date
+                const existingAttendanceResponse = await fetch(`/api/attendance/for-date-course?date=${date}&course_id=${courseId}`);
+                const existingAttendance = await existingAttendanceResponse.json();
+                const existingAttendanceMap = new Map(existingAttendance.map(item => [item.student_id, item.status]));
+
+                if (students.length === 0) {
+                    studentsListContainer.innerHTML = '<p class="text-muted">No active students enrolled in this course.</p>';
+                    return;
+                }
+
+                studentsListContainer.innerHTML = ''; // Clear loading message
+                students.forEach(student => {
+                    const studentDiv = document.createElement('div');
+                    studentDiv.classList.add('student-row', 'mb-3', 'p-3', 'border', 'rounded');
+
+                    const studentStatus = existingAttendanceMap.get(student.id) || 'Present';
+                    const arrivalTime = existingAttendance.find(a => a.student_id === student.id)?.arrival_time || '';
+                    
+                    studentDiv.innerHTML = `
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <p class="mb-0 fw-bold">${student.first_name} ${student.last_name}</p>
+                                <small class="text-muted">${student.student_id}</small>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="student_status_${student.id}" id="present_${student.id}" value="Present" ${studentStatus === 'Present' ? 'checked' : ''} onchange="toggleArrivalTime(${student.id}, false)">
+                                    <label class="btn btn-outline-success" for="present_${student.id}">Present</label>
+
+                                    <input type="radio" class="btn-check" name="student_status_${student.id}" id="late_${student.id}" value="Late" ${studentStatus === 'Late' ? 'checked' : ''} onchange="toggleArrivalTime(${student.id}, true)">
+                                    <label class="btn btn-outline-warning" for="late_${student.id}">Late</label>
+
+                                    <input type="radio" class="btn-check" name="student_status_${student.id}" id="absent_${student.id}" value="Absent" ${studentStatus === 'Absent' ? 'checked' : ''} onchange="toggleArrivalTime(${student.id}, false)">
+                                    <label class="btn btn-outline-danger" for="absent_${student.id}">Absent</label>
+
+                                    <input type="radio" class="btn-check" name="student_status_${student.id}" id="excused_${student.id}" value="Excused" ${studentStatus === 'Excused' ? 'checked' : ''} onchange="toggleArrivalTime(${student.id}, false)">
+                                    <label class="btn btn-outline-secondary" for="excused_${student.id}">Excused</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div id="arrival_time_container_${student.id}" class="${studentStatus === 'Late' ? '' : 'd-none'}">
+                                    <input type="time" class="form-control" name="arrival_time_${student.id}" value="${arrivalTime}" placeholder="Arrival Time">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    studentsListContainer.appendChild(studentDiv);
+                });
+                saveAttendanceBtn.disabled = false;
+
+            } catch (error) {
+                console.error('Error loading students or attendance:', error);
+                studentsListContainer.innerHTML = '<p class="text-danger">Error loading students. Please try again.</p>';
+            }
+        }
+
+        // Helper to toggle arrival time visibility
+        window.toggleArrivalTime = function(studentId, show) {
+            const container = document.getElementById(`arrival_time_container_${studentId}`);
+            if (show) {
+                container.classList.remove('d-none');
+            } else {
+                container.classList.add('d-none');
+            }
+        };
+
+        loadStudentsBtn.addEventListener('click', () => {
+            const selectedCourseId = courseSelect.value;
+            const selectedDate = attendanceDateInput.value;
+            if (selectedCourseId && selectedDate) {
+                loadStudentsForCourse(selectedCourseId, selectedDate);
+            } else {
+                alert('Please select a course and a date.');
+            }
+        });
+    });
+</script>
+{% endblock %}

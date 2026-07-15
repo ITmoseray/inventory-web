@@ -1,0 +1,26 @@
+from db.database import get_db_manager
+import logging
+
+logger = logging.getLogger(__name__)
+
+def apply_migration():
+    db_manager = get_db_manager()
+    try:
+        print("Starting migration to drop old 'attendance' table.")
+        print("WARNING: This will delete all existing data in the 'attendance' table.")
+
+        db_manager.execute("""
+            DROP TABLE IF EXISTS attendance CASCADE;
+        """)
+        print("'attendance' table dropped if it existed.")
+
+        print("Migration to drop 'attendance' table completed.")
+
+    except Exception as e:
+        logger.error(f"Error applying attendance table drop migration: {e}")
+        print(f"Error applying attendance table drop migration: {e}")
+        raise
+
+if __name__ == "__main__":
+    apply_migration()
+    print("Migration script 'apply_schema_change_drop_attendance_table.py' executed.")

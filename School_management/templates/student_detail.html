@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}Student Details - {{ student.first_name }} {{ student.last_name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Student Details: {{ student.first_name }} {{ student.last_name }}</h1>
+        <div class="btn-group">
+            <a href="/students/view/{{ student.student_id }}/id-card" class="btn btn-info">View ID Card</a>
+            <a href="/students/edit/{{ student.student_id }}" class="btn btn-warning">Edit Student</a>
+            <a href="/students" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <div class="col-md-3">
+            <style>
+                .student-photo-container img {
+                    width: 150px;
+                    height: 150px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 3px solid #f8f9fa;
+                }
+            </style>
+            <div class="card shadow-sm mb-4">
+                <div class="card-body text-center">
+                    <div class="student-photo-container mb-3">
+                        {% if student.photo_path %}
+                            {% if student.photo_path.startswith('http') %}
+                                <img src="{{ student.photo_path }}" alt="Student Photo" class="shadow-sm">
+                            {% else %}
+                                <img src="{{ url_for('static', filename=student.photo_path.split('static/')[-1]) }}" alt="Student Photo" class="shadow-sm">
+                            {% endif %}
+                        {% else %}
+                            <img src="https://ui-avatars.com/api/?name={{ student.first_name }}+{{ student.last_name }}&background=random&size=150" alt="Default Avatar" class="shadow-sm">
+                        {% endif %}
+                    </div>
+                    <h5 class="mb-1">{{ student.first_name }} {{ student.last_name }}</h5>
+                    <p class="text-muted small mb-3">{{ student.student_id }}</p>
+                    <div class="mb-3">
+                        <span class="badge {% if student.status == 'Active' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ student.status }}
+                        </span>
+                    </div>
+
+                    <!-- Portal Access Info -->
+                    <div class="border-top pt-3 mt-3 text-start">
+                        <h6 class="small fw-bold text-uppercase text-muted mb-2">Portal Access</h6>
+                        <p class="small mb-1"><strong>Login:</strong> {{ student.email or 'No email set' }}</p>
+                        <p class="small mb-3">
+                            <strong>Password:</strong> 
+                            {% if student.password_hash %}
+                                <span class="text-success"><i class="fas fa-check-circle"></i> Set (Encrypted)</span>
+                            {% else %}
+                                <span class="text-danger"><i class="fas fa-times-circle"></i> Not Set</span>
+                            {% endif %}
+                        </p>
+                        <a href="/students/edit/{{ student.student_id }}" class="btn btn-sm btn-outline-secondary w-100">
+                            <i class="fas fa-key"></i> Set / Reset Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="studentTab" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab">Personal Info</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="courses-tab" data-bs-toggle="tab" data-bs-target="#courses" type="button" role="tab">Enrolled Courses</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="grades-tab" data-bs-toggle="tab" data-bs-target="#grades" type="button" role="tab">🎓 Grades</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="attendance-tab" data-bs-toggle="tab" data-bs-target="#attendance" type="button" role="tab">📅 Attendance</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="payments-tab" data-bs-toggle="tab" data-bs-target="#payments" type="button" role="tab">💳 Payments</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" id="tailoring-tab" data-bs-toggle="tab" data-bs-target="#tailoring" type="button" role="tab">🧵 Tailoring Fees</button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="studentTabContent">
+                        <!-- Personal Info Tab -->
+                        <div class="tab-pane fade show active" id="info" role="tabpanel">
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <p><strong>Gender:</strong> {{ student.gender }}</p>
+                                    <p><strong>Date of Birth:</strong> {{ student.date_of_birth }}</p>
+                                    <p><strong>Email:</strong> {{ student.email or 'N/A' }}</p>
+                                    <p><strong>Phone:</strong> {{ student.phone or 'N/A' }}</p>
+                                </div>
+                                <div class="col-sm-6">
+                                    <p><strong>Address:</strong> {{ student.address or 'N/A' }}</p>
+                                    <p><strong>Lecturer:</strong> {{ lecturer.full_name if lecturer else 'None Assigned' }}</p>
+                                    <p><strong>Joined:</strong> {{ student.created_at }}</p>
+                                    <p><strong>Source:</strong> 
+                                        {% if student.application_source == 'manual' %}
+                                            <span class="badge bg-warning text-dark"><i class="fas fa-file-alt"></i> Manual (Paper)</span>
+                                        {% else %}
+                                            <span class="badge bg-primary"><i class="fas fa-globe"></i> Online Application</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Courses Tab -->
+                        <div class="tab-pane fade" id="courses" role="tabpanel">
+                            {% if enrolled_courses %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Course Name</th>
+                                                <th>Code</th>
+                                                <th>Fee</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for course in enrolled_courses %}
+                                                <tr>
+                                                    <td>{{ course.course_name }}</td>
+                                                    <td>{{ course.course_code }}</td>
+                                                    <td>Le {{ "{:,.2f}".format(course.fee) }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted">No additional courses enrolled.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Grades Tab -->
+                        <div class="tab-pane fade" id="grades" role="tabpanel">
+                            {% if grades %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Course</th>
+                                                <th>Term</th>
+                                                <th>Grade</th>
+                                                <th>Date Posted</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for g in grades %}
+                                                <tr>
+                                                    <td>{{ g.course_name }} ({{ g.course_code }})</td>
+                                                    <td>{{ g.term }}</td>
+                                                    <td><span class="badge bg-primary">{{ g.grade }}</span></td>
+                                                    <td>{{ g.date_created }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-4">No grades have been posted for this student.</p>
+                            {% endif %}
+                            <div class="text-end">
+                                <a href="/grades/add" class="btn btn-sm btn-outline-primary">Post New Grade</a>
+                            </div>
+                        </div>
+
+                        <!-- Attendance Tab -->
+                        <div class="tab-pane fade" id="attendance" role="tabpanel">
+                            {% if attendance_history %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Course</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for att in attendance_history %}
+                                                <tr>
+                                                    <td>{{ att.date }}</td>
+                                                    <td>{{ att.course_name }}</td>
+                                                    <td>
+                                                        <span class="badge {% if att.status == 'Present' %}bg-success{% elif att.status == 'Late' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                                            {{ att.status }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-4">No attendance history found for this student.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Course Payments Tab -->
+                        <div class="tab-pane fade" id="payments" role="tabpanel">
+                            {% if course_payments %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Receipt #</th>
+                                                <th>Course</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for p in course_payments %}
+                                                <tr>
+                                                    <td>{{ p.receipt_number or 'N/A' }}</td>
+                                                    <td>{{ p.course_name }} ({{ p.course_code }})</td>
+                                                    <td>Le {{ "{:,.2f}".format(p.amount) }}</td>
+                                                    <td>{{ p.payment_date }}</td>
+                                                    <td>
+                                                        <span class="badge {% if p.status == 'Paid' %}bg-success{% elif p.status == 'Partial' %}bg-warning text-dark{% else %}bg-danger{% endif %}">
+                                                            {{ p.status }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="/payments/{{ p.id }}/generate-receipt" class="btn btn-link btn-sm p-0">Download</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-4">No regular payment records found for this student.</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Tailoring Fees Tab -->
+                        <div class="tab-pane fade" id="tailoring" role="tabpanel">
+                            {% if tailoring_payments %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-hover">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Receipt #</th>
+                                                <th>Period</th>
+                                                <th>Amount</th>
+                                                <th>Date</th>
+                                                <th>Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for p in tailoring_payments %}
+                                                <tr>
+                                                    <td>{{ p.receipt_number }}</td>
+                                                    <td>{{ p.item_type }}</td>
+                                                    <td>Le {{ "{:,.2f}".format(p.amount) }}</td>
+                                                    <td>{{ p.payment_date }}</td>
+                                                    <td>
+                                                        <span class="badge {% if p.status == 'Paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                                            {{ p.status }}
+                                                        </span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="/tailor-shop/{{ p.id }}/generate-receipt" class="btn btn-link btn-sm p-0">Download</a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-4">No tailoring fee records found for this student.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

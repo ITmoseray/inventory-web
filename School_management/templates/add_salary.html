@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Salary - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Add New Salary</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="/salaries/add" method="post">
+                    <div class="mb-3">
+                        <label for="lecturer_pk_id" class="form-label">Lecturer:</label>
+                        <select class="form-select" id="lecturer_pk_id" name="lecturer_pk_id" required>
+                            <option value="">Select Lecturer</option>
+                            {% for lecturer in all_lecturers %}
+                                <option value="{{ lecturer.id }}">{{ lecturer.full_name or (lecturer.first_name + ' ' + lecturer.last_name) }} ({{ lecturer.lecturer_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_date" class="form-label">Payment Date:</label>
+                        <input type="date" class="form-control" id="payment_date" name="payment_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status:</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Pending">Pending</option>
+                            <option value="Paid">Paid</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes:</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="receipt_number" class="form-label">Receipt Number:</label>
+                        <input type="text" class="form-control" id="receipt_number" name="receipt_number">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Salary</button>
+                    <a href="/salaries" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

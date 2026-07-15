@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Form Payment - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Edit Form Payment</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="/form-payments/edit/{{ form_payment.id }}" method="post">
+                    <div class="mb-3">
+                        <label for="student_id_identifier" class="form-label">Student:</label>
+                        <select class="form-select" id="student_id_identifier" name="student_id_identifier" required>
+                            <option value="">Select Student</option>
+                            {% for student in all_students %}
+                                <option value="{{ student.student_id }}" {% if student.id == form_payment.student_db_id %}selected{% endif %}>{{ student.first_name }} {{ student.last_name }} ({{ student.student_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="form_type" class="form-label">Form Type:</label>
+                        <input type="text" class="form-control" id="form_type" name="form_type" value="{{ form_payment.form_type }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount:</label>
+                        <input type="number" class="form-control" id="amount" name="amount" step="0.01" value="{{ form_payment.amount }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_date" class="form-label">Payment Date:</label>
+                        <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ form_payment.payment_date }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Payment Method:</label>
+                        <select class="form-select" id="payment_method" name="payment_method" required>
+                            <option value="Cash" {% if form_payment.payment_method == 'Cash' %}selected{% endif %}>Cash</option>
+                            <option value="Bank Transfer" {% if form_payment.payment_method == 'Bank Transfer' %}selected{% endif %}>Bank Transfer</option>
+                            <option value="Mobile Money" {% if form_payment.payment_method == 'Mobile Money' %}selected{% endif %}>Mobile Money</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="receipt_number" class="form-label">Receipt Number:</label>
+                        <input type="text" class="form-control" id="receipt_number" name="receipt_number" value="{{ form_payment.receipt_number }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status:</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Paid" {% if form_payment.status == 'Paid' %}selected{% endif %}>Paid</option>
+                            <option value="Pending" {% if form_payment.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Waived" {% if form_payment.status == 'Waived' %}selected{% endif %}>Waived</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Update Form Payment</button>
+                    <a href="/form-payments" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

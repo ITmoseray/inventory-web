@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}Add New Student - Student Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card mt-5">
+            <div class="card-body">
+                <h3 class="card-title text-center mb-4">Add New Student</h3>
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}" role="alert">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                <form action="/students/add" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Student ID:</label>
+                        <input type="text" class="form-control" id="student_id" name="student_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="first_name" class="form-label">First Name:</label>
+                        <input type="text" class="form-control" id="first_name" name="first_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="last_name" class="form-label">Last Name:</label>
+                        <input type="text" class="form-control" id="last_name" name="last_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="gender" class="form-label">Gender:</label>
+                        <select class="form-select" id="gender" name="gender" required>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="date_of_birth" class="form-label">Date of Birth:</label>
+                        <input type="text" class="form-control" id="date_of_birth" name="date_of_birth" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" class="form-control" id="email" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Portal Password:</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Set password for Student Portal">
+                        <small class="text-muted">Required for student to log in.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone:</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address:</label>
+                        <input type="text" class="form-control" id="address" name="address">
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status:</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Active">Active</option>
+                            <option value="Not Active">Not Active</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="courses" class="form-label">Other Courses (Multi-select):</label>
+                        <select class="form-select" id="courses" name="courses" multiple>
+                            {% for course in all_courses %}
+                                <option value="{{ course.course_code }}">{{ course.course_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="primary_course_1_id" class="form-label">Primary Course 1:</label>
+                        <select class="form-select" id="primary_course_1_id" name="primary_course_1_id">
+                            <option value="">None</option>
+                            {% for course in all_courses %}
+                                <option value="{{ course.course_code }}">{{ course.course_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="primary_course_2_id" class="form-label">Primary Course 2:</label>
+                        <select class="form-select" id="primary_course_2_id" name="primary_course_2_id">
+                            <option value="">None</option>
+                            {% for course in all_courses %}
+                                <option value="{{ course.course_code }}">{{ course.course_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="lecturer_id" class="form-label">Assigned Lecturer:</label>
+                        <select class="form-select" id="lecturer_id" name="lecturer_id">
+                            <option value="">None</option>
+                            {% for lecturer in all_lecturers %}
+                                <option value="{{ lecturer.lecturer_id }}">{{ lecturer.full_name or (lecturer.first_name + ' ' + lecturer.last_name) }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="photo" class="form-label">Student Photo:</label>
+                        <input type="file" class="form-control" id="photo" name="photo" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Student</button>
+                    <a href="/students" class="btn btn-secondary w-100 mt-2">Cancel</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

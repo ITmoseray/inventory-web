@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings - EASI Academy{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="fw-bold text-primary"><i class="fas fa-cog me-2"></i>System Settings</h1>
+    <a href="/dashboard" class="btn btn-outline-secondary shadow-sm"><i class="fas fa-arrow-left me-2"></i>Back to Dashboard</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row g-4">
+    <!-- Sidebar Tabs -->
+    <div class="col-md-3">
+        <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+            <div class="list-group list-group-flush" id="settings-tabs" role="tablist">
+                <a class="list-group-item list-group-item-action active p-3" id="profile-tab" data-bs-toggle="list" href="#profile" role="tab">
+                    <i class="fas fa-school me-2"></i>School Profile
+                </a>
+                <a class="list-group-item list-group-item-action p-3" id="notifications-tab" data-bs-toggle="list" href="#notifications" role="tab">
+                    <i class="fas fa-bell me-2"></i>Notification Config
+                </a>
+                <a class="list-group-item list-group-item-action p-3" id="appearance-tab" data-bs-toggle="list" href="#appearance" role="tab">
+                    <i class="fas fa-paint-brush me-2"></i>Appearance
+                </a>
+                
+                {% if session.is_super_admin %}
+                <div class="mt-3 px-3 py-2 small text-uppercase text-muted fw-bold border-top">Platform Control</div>
+                <a class="list-group-item list-group-item-action p-3 text-info fw-bold" id="roadmap-tab" data-bs-toggle="list" href="#roadmap" role="tab">
+                    <i class="fas fa-rocket me-2"></i>Platform Roadmap
+                </a>
+                <a class="list-group-item list-group-item-action p-3 text-danger fw-bold" href="/super-admin/schools">
+                    <i class="fas fa-user-shield me-2"></i>School Management
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="col-md-9">
+        <div class="card shadow border-0 rounded-4 p-4">
+            <div class="tab-content">
+                <!-- Profile Settings -->
+                <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                    <h4 class="fw-bold mb-4">School Profile</h4>
+                    <form action="/settings" method="POST">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">School Name</label>
+                            <input type="text" class="form-control form-control-lg" name="school_name" value="{{ tenant.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Contact Email</label>
+                            <input type="email" class="form-control form-control-lg" name="contact_email" value="{{ tenant.contact_email or '' }}">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">School Subdomain</label>
+                            <input type="text" class="form-control form-control-lg bg-light" value="{{ tenant.subdomain }}" disabled>
+                            <div class="form-text">Subdomain cannot be changed manually.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg px-5 rounded-pill shadow">Save Profile Changes</button>
+                    </form>
+                </div>
+
+                <!-- Notification Settings -->
+                <div class="tab-pane fade" id="notifications" role="tabpanel">
+                    <h4 class="fw-bold mb-4">SMS & WhatsApp Configuration</h4>
+                    
+                    {% if session.is_super_admin %}
+                    <form action="/settings" method="POST">
+                        <div class="alert alert-info border-0 shadow-sm rounded-3">
+                            <i class="fas fa-key me-2"></i>
+                            Enter your Twilio API credentials here to enable live messaging.
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Twilio Account SID</label>
+                                <input type="text" name="twilio_sid" class="form-control" value="{{ twilio.sid }}" placeholder="ACxxxxxxxxxxxx">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Twilio Auth Token</label>
+                                <input type="password" name="twilio_token" class="form-control" value="{{ twilio.token }}" placeholder="Enter Token">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">SMS Sender Number</label>
+                                <input type="text" name="twilio_sms_num" class="form-control" value="{{ twilio.sms_num }}" placeholder="+123456789">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">WhatsApp Sender Number</label>
+                                <input type="text" name="twilio_wa_num" class="form-control" value="{{ twilio.wa_num }}" placeholder="whatsapp:+14155238886">
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary rounded-pill px-4">Update API Keys</button>
+                        </div>
+                    </form>
+
+                    <hr class="my-5">
+                    
+                    <h5 class="fw-bold mb-3"><i class="fas fa-vial me-2 text-warning"></i>Test Connection</h5>
+                    <div class="p-4 bg-light rounded-4 border">
+                        <p class="small text-muted mb-4">Send a test message to verify your Twilio credentials and WhatsApp Sandbox connection.</p>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold">Test Phone Number</label>
+                                <input type="text" id="test_number" class="form-control" placeholder="+232...">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Type</label>
+                                <select id="test_type" class="form-select">
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="sms">SMS</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button type="button" onclick="sendTestMessage()" class="btn btn-warning w-100 rounded-pill fw-bold">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Test
+                                </button>
+                            </div>
+                        </div>
+                        <div id="test_result" class="mt-3 small d-none"></div>
+                    </div>
+
+                    <script>
+                    function sendTestMessage() {
+                        const num = document.getElementById('test_number').value;
+                        const type = document.getElementById('test_type').value;
+                        const resultDiv = document.getElementById('test_result');
+                        
+                        if(!num) { alert('Please enter a phone number'); return; }
+                        
+                        resultDiv.className = 'mt-3 small text-info';
+                        resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Sending test...';
+                        resultDiv.classList.remove('d-none');
+                        
+                        const formData = new FormData();
+                        formData.append('target_number', num);
+                        formData.append('message_type', type);
+                        
+                        fetch('/super-admin/test-notification', {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.success) {
+                                resultDiv.className = 'mt-3 small text-success';
+                                resultDiv.innerHTML = '<i class="fas fa-check-circle me-2"></i>' + data.message;
+                            } else {
+                                resultDiv.className = 'mt-3 small text-danger';
+                                resultDiv.innerHTML = '<i class="fas fa-times-circle me-2"></i>' + data.message;
+                            }
+                        })
+                        .catch(error => {
+                            resultDiv.className = 'mt-3 small text-danger';
+                            resultDiv.innerHTML = 'Error: ' + error;
+                        });
+                    }
+                    </script>
+                    {% else %}
+                    <div class="alert alert-warning border-0 shadow-sm rounded-3">
+                        <i class="fas fa-lock me-2"></i>
+                        These settings are managed by the Platform Owner (Super Admin).
+                    </div>
+                    <div class="row g-3 opacity-50">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Twilio Account SID</label>
+                            <input type="text" class="form-control" value="************" disabled>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Appearance Settings -->
+                <div class="tab-pane fade" id="appearance" role="tabpanel">
+                    <h4 class="fw-bold mb-4">Portal Appearance</h4>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Theme Preference</label>
+                        <select class="form-select" onchange="window.toggleTheme()">
+                            <option>Follow System</option>
+                            <option>Light Mode</option>
+                            <option>Dark Mode</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">School Logo</label>
+                        <div class="d-flex align-items-center">
+                            <div class="bg-light rounded-3 p-3 me-3">
+                                <img src="{{ url_for('static', filename='images/LOGO.jpeg') }}" alt="Logo" style="height: 60px;">
+                            </div>
+                            <button class="btn btn-outline-primary btn-sm"><i class="fas fa-upload me-2"></i>Upload New Logo</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roadmap Settings -->
+                <div class="tab-pane fade" id="roadmap" role="tabpanel">
+                    <h4 class="fw-bold mb-4 text-info"><i class="fas fa-map-signs me-2"></i>Next Steps for Platform Evolution</h4>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border border-info border-opacity-25 bg-info bg-opacity-10 h-100 shadow-sm">
+                                <h5 class="fw-bold"><i class="fas fa-user-shield me-2"></i>Super Admin Portal</h5>
+                                <p class="text-muted small">Building a hidden "Master Dashboard" to register and manage new schools, view platform-wide revenue, and control tenant accounts.</p>
+                                <span class="badge bg-info">Upcoming Phase</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4 border border-primary border-opacity-25 bg-primary bg-opacity-10 h-100 shadow-sm">
+                                <h5 class="fw-bold"><i class="fas fa-filter me-2"></i>Global Query Filtering</h5>
+                                <p class="text-muted small">Updating all core reports and lists to use the <code>tenant_id</code> from the session, ensuring absolute data separation between schools.</p>
+                                <span class="badge bg-primary">In Development</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 p-3 bg-light rounded-3 border-start border-4 border-info">
+                        <p class="mb-0 small text-muted"><em>"These features will transform the EASI system into a full SaaS product that can be deployed for any educational institution."</em></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

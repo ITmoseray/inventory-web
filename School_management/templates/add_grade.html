@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Post Exam Grade - Admin{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="m-0">Post New Exam Grade</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Select Student:</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="">-- Choose Student --</option>
+                            {% for student in students %}
+                                <option value="{{ student.id }}">{{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="course_id" class="form-label">Select Course:</label>
+                        <select class="form-select" id="course_id" name="course_id" required>
+                            <option value="">-- Choose Course --</option>
+                            {% for course in courses %}
+                                <option value="{{ course.id }}">{{ course.course_name }} ({{ course.course_code }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="term" class="form-label">Term / Period:</label>
+                            <input type="text" class="form-control" id="term" name="term" placeholder="e.g. Semester 1 2026" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="grade" class="form-label">Grade:</label>
+                            <input type="text" class="form-control" id="grade" name="grade" placeholder="e.g. A, 85%, etc." required>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Post Grade</button>
+                        <a href="/grades" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

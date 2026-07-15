@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Approvals - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>User Approvals</h1>
+    <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-4">
+    <div class="card-header">
+        Pending User Registrations
+    </div>
+    <div class="card-body">
+        {% if pending_users %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Username</th>
+                        <th>Role</th>
+                        {% if session.is_super_admin %}
+                        <th>School (Tenant ID)</th>
+                        {% endif %}
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in pending_users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.username }}</td>
+                        <td><span class="badge bg-info text-dark">{{ user.role }}</span></td>
+                        {% if session.is_super_admin %}
+                        <td>{{ user.tenant_id }}</td>
+                        {% endif %}
+                        <td>
+                            <form action="/admin/approve-user/{{ user.id }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                            </form>
+                            <form action="/admin/disapprove-user/{{ user.id }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-sm btn-warning">Disapprove</button>
+                            </form>
+                            <form action="/admin/delete-user/{{ user.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to permanently delete user {{ user.username }}?');">
+                                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="text-muted">No pending user registrations found.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

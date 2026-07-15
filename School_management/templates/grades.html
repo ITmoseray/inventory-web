@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Exam Grades - Admin{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Exam Grades</h1>
+    <a href="/grades/add" class="btn btn-primary">Post New Grade</a>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Course</th>
+                    <th>Term</th>
+                    <th>Grade</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if grades %}
+                    {% for g in grades %}
+                        <tr>
+                            <td>{{ g.student_unique_id }}</td>
+                            <td>{{ g.first_name }} {{ g.last_name }}</td>
+                            <td>{{ g.course_name }}</td>
+                            <td>{{ g.term }}</td>
+                            <td><span class="badge bg-primary fs-6">{{ g.grade }}</span></td>
+                            <td>
+                                <form action="/grades/delete/{{ g.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this grade record?');">
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center">No grade records found.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

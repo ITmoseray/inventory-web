@@ -1,0 +1,16 @@
+{% macro render_card(title, text, link_href=None, link_text="Go", card_class="", body_class="", title_class="", text_class="", footer_content=None) %}
+<div class="card h-100 {{ card_class }}">
+    <div class="card-body {{ body_class }}">
+        <h5 class="card-title {{ title_class }}">{{ title }}</h5>
+        <p class="card-text {{ text_class }}">{{ text }}</p>
+        {% if link_href %}
+            <a href="{{ link_href }}" class="btn btn-primary">{{ link_text }}</a>
+        {% endif %}
+    </div>
+    {% if footer_content %}
+    <div class="card-footer">
+        {{ footer_content }}
+    </div>
+    {% endif %}
+</div>
+{% endmacro %}

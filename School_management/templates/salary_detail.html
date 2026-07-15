@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Salary Details - {{ salary.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Salary Details: {{ salary.id }}</h1>
+    <a href="/salaries" class="btn btn-secondary">Back to Salary List</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Salary Information
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Salary ID: {{ salary.id }}</h5>
+        <p class="card-text"><strong>Lecturer:</strong> {{ salary.full_name }}</p>
+        <p class="card-text"><strong>Amount:</strong> {{ "Le {:,.2f}".format(salary.amount) }}</p>
+        <p class="card-text"><strong>Payment Date:</strong> {{ salary.payment_date }}</p>
+        <p class="card-text"><strong>Status:</strong> {{ salary.status }}</p>
+        <p class="card-text"><strong>Notes:</strong> {{ salary.notes }}</p>
+        <p class="card-text"><strong>Receipt Number:</strong> {{ salary.receipt_number }}</p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-start">
+    <a href="/salaries/edit/{{ salary.id }}" class="btn btn-warning me-2">Edit Salary</a>
+    <form action="/salaries/delete/{{ salary.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this salary record?');">
+        <button type="submit" class="btn btn-danger">Delete Salary</button>
+    </form>
+</div>
+
+{% endblock %}

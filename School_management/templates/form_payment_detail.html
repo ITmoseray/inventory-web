@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Form Payment Details - {{ form_payment.id }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Form Payment Details: {{ form_payment.id }}</h1>
+    <a href="/form-payments" class="btn btn-secondary">Back to Form Payment List</a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header">
+        Form Payment Information
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">Form Payment ID: {{ form_payment.id }}</h5>
+        <p class="card-text"><strong>Receipt Number:</strong> {{ form_payment.receipt_number }}</p>
+        <p class="card-text"><strong>Student ID:</strong> {{ form_payment.student_id }}</p>
+        <p class="card-text"><strong>Form Type:</strong> {{ form_payment.form_type }}</p>
+        <p class="card-text"><strong>Amount:</strong> {{ "Le {:,.2f}".format(form_payment.amount) }}</p>
+        <p class="card-text"><strong>Payment Date:</strong> {{ form_payment.payment_date }}</p>
+        <p class="card-text"><strong>Payment Method:</strong> {{ form_payment.payment_method }}</p>
+        <p class="card-text"><strong>Status:</strong> {{ form_payment.status }}</p>
+    </div>
+</div>
+
+<div class="d-flex justify-content-start">
+    <a href="/form-payments/{{ form_payment.id }}/generate-receipt" class="btn btn-info me-2">Generate Receipt</a>
+    <a href="/form-payments/edit/{{ form_payment.id }}" class="btn btn-warning me-2">Edit Form Payment</a>
+    <form action="/form-payments/delete/{{ form_payment.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this form payment?');">
+        <button type="submit" class="btn btn-danger">Delete Form Payment</button>
+    </form>
+</div>
+
+{% endblock %}

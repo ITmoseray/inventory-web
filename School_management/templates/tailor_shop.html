@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block title %}Tailoring Fee Management - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>🧵 Student Tailoring Fees</h1>
+  <div class="h4">Total Fees Collected: Le {{ "{:,.2f}".format(total_revenue) }}</div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                Record Monthly Fee
+            </div>
+            <div class="card-body">
+                <form id="tailor-payment-form" action="/tailor-shop/add" method="post">
+                    <input type="hidden" name="payment_id" id="payment_id">
+                    
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Select Student:</label>
+                        <select class="form-select" id="student_id" name="student_id" required>
+                            <option value="">Select Student</option>
+                            {% for student in all_students %}
+                                <option value="{{ student.id }}">
+                                    {{ student.student_id }} - {{ student.last_name }}, {{ student.first_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="month" class="form-label">Month:</label>
+                            <select class="form-select" id="month" name="month" required>
+                                {% for m in ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] %}
+                                    <option value="{{ m }}" {% if m == today_month %}selected{% endif %}>{{ m }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="year" class="form-label">Year:</label>
+                            <select class="form-select" id="year" name="year" required>
+                                {% for y in range(today_year - 2, today_year + 5) %}
+                                    <option value="{{ y }}" {% if y == today_year %}selected{% endif %}>{{ y }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (Le):</label>
+                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="payment_date" class="form-label">Payment Date:</label>
+                        <input type="date" class="form-control" id="payment_date" name="payment_date" value="{{ today }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="receipt_number" class="form-label">Receipt Number:</label>
+                        <input type="text" class="form-control" id="receipt_number" name="receipt_number" placeholder="Auto-generated if blank">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status:</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Waived">Waived</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100" id="submit-btn">Add Fee Payment</button>
+                    <button type="button" class="btn btn-secondary w-100 mt-2" onclick="clearForm()">Clear Form</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-dark text-white">
+                Recent Fee Payments
+            </div>
+            <div class="card-body">
+                 <div class="mb-3">
+                    <input type="text" class="form-control" id="search_query" placeholder="Search by receipt or student name...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Receipt #</th>
+                                <th>Student</th>
+                                <th>Period</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tailor-payments-table-body">
+                            {% for payment in payments %}
+                            <tr data-payment-id="{{ payment.id }}" title="Double-click to see details">
+                                <td>{{ payment.receipt_number }}</td>
+                                <td>{{ payment.last_name }}, {{ payment.first_name }}</td>
+                                <td>{{ payment.item_type }}</td>
+                                <td>Le {{ "{:,.2f}".format(payment.amount) }}</td>
+                                <td>
+                                    <span class="badge {% if payment.status == 'Paid' %}bg-success{% elif payment.status == 'Pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ payment.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-sm btn-outline-primary edit-btn" data-payment-id="{{ payment.id }}">Edit</button>
+                                        <a href="/tailor-shop/{{ payment.id }}/generate-receipt" class="btn btn-sm btn-outline-info">Receipt</a>
+                                        <form action="/tailor-shop/delete/{{ payment.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this record?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="6" class="text-center">No tailoring fee records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function clearForm() {
+        document.getElementById('payment_id').value = '';
+        document.getElementById('student_id').value = '';
+        document.getElementById('month').value = "{{ today_month }}";
+        document.getElementById('year').value = "{{ today_year }}";
+        document.getElementById('amount').value = '';
+        document.getElementById('payment_date').value = "{{ today }}";
+        document.getElementById('receipt_number').value = '';
+        document.getElementById('status').value = 'Paid';
+        document.getElementById('submit-btn').textContent = 'Add Fee Payment';
+        document.getElementById('tailor-payment-form').action = '/tailor-shop/add';
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const tableBody = document.getElementById('tailor-payments-table-body');
+        const searchInput = document.getElementById('search_query');
+
+        // Handle Edit button
+        tableBody.addEventListener('click', async function(e) {
+            if (e.target.classList.contains('edit-btn')) {
+                const id = e.target.dataset.paymentId;
+                try {
+                    const response = await fetch(`/api/tailor-shop/${id}`);
+                    const payment = await response.json();
+                    
+                    document.getElementById('payment_id').value = payment.id;
+                    document.getElementById('student_id').value = payment.student_id;
+                    
+                    // Parse month/year from item_type
+                    if (payment.item_type) {
+                        const parts = payment.item_type.split(' ');
+                        if (parts.length === 2) {
+                            document.getElementById('month').value = parts[0];
+                            document.getElementById('year').value = parts[1];
+                        }
+                    }
+
+                    document.getElementById('amount').value = payment.amount;
+                    document.getElementById('payment_date').value = payment.payment_date;
+                    document.getElementById('receipt_number').value = payment.receipt_number;
+                    document.getElementById('status').value = payment.status;
+                    
+                    document.getElementById('submit-btn').textContent = 'Update Record';
+                    document.getElementById('tailor-payment-form').action = `/tailor-shop/edit/${id}`;
+                    
+                    // Scroll to form
+                    document.getElementById('tailor-payment-form').scrollIntoView({ behavior: 'smooth' });
+                } catch (error) {
+                    console.error('Error loading payment:', error);
+                    alert('Failed to load payment details.');
+                }
+            }
+        });
+
+        // Handle Double Click for details
+        tableBody.addEventListener('dblclick', function(e) {
+            const row = e.target.closest('tr');
+            if (row && row.dataset.paymentId) {
+                window.location.href = `/tailor-shop/view/${row.dataset.paymentId}`;
+            }
+        });
+
+        // Search
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase();
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    });
+</script>
+{% endblock %}

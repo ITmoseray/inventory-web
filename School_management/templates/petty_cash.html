@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Petty Cash Transactions - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Petty Cash Transactions</h1>
+  <div>
+    <a href="/petty-cash/add" class="btn btn-primary me-2">Add New Transaction</a>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form action="/petty-cash" method="get" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <label for="search_query" class="visually-hidden">Search Petty Cash</label>
+                <input type="text" class="form-control" id="search_query" name="search_query" placeholder="Search by description, type, or authorized by..." value="{{ request.args.get('search_query', '') }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-info me-2">Search</button>
+                <a href="/petty-cash" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Date</th>
+      <th>Description</th>
+      <th>Amount</th>
+      <th>Type</th>
+      <th>Authorized By</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for transaction in petty_cash_transactions %}
+    <tr>
+      <td>{{ transaction.id }}</td>
+      <td>{{ transaction.transaction_date }}</td>
+      <td>{{ transaction.description }}</td>
+      <td>Le {{ transaction.amount }}</td>
+      <td>{{ transaction.transaction_type }}</td>
+      <td>{{ transaction.authorized_by }}</td>
+      <td>
+        <a href="/petty-cash/edit/{{ transaction.id }}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="/petty-cash/delete/{{ transaction.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this transaction?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="7">No petty cash transactions found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const transactionRows = document.querySelectorAll('table.table tbody tr');
+        transactionRows.forEach(row => {
+            row.addEventListener('dblclick', function() {
+                // Get the transaction ID from the edit link's href attribute
+                const editLink = row.querySelector('a.btn-warning');
+                if (editLink) {
+                    const href = editLink.getAttribute('href');
+                    const transactionId = href.split('/').pop(); // Extracts the ID from '/petty-cash/edit/ID'
+                    if (transactionId) {
+                        window.location.href = `/petty-cash/view/${transactionId}`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

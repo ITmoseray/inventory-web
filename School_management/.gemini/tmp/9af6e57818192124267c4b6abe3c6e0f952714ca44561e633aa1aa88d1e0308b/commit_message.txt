@@ -1,0 +1,9 @@
+Fix: Student Add/List functionality and improve logging
+
+Addressed issues with student management:
+- Ensured student data is correctly saved to the PostgreSQL database by verifying the `add_student` function's transaction commitment.
+- Verified the "list students" route correctly fetches and displays all students by simplifying queries in `student_queries.py`.
+- Added comprehensive debug logging to `web_app.py` and `db/student_queries.py` to:
+    - Confirm correct DATABASE_URL usage on startup.
+    - Log the number of students retrieved in the listing route.
+    - Provide detailed tracing for adding, updating, and enrolling students.

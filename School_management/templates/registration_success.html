@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}Registration Submitted - EASI Academy{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                title: 'Registration Successful!',
+                text: 'Your application has been received successfully.',
+                icon: 'success',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#0d6efd',
+                timer: 5000,
+                timerProgressBar: true
+            });
+        });
+    </script>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="card shadow-lg border-0 rounded-4 p-5">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x text-success"></i>
+                </div>
+                <h1 class="fw-bold text-primary mb-3">Application Received!</h1>
+                
+                <div class="alert alert-info py-4 rounded-4 shadow-sm border-0 mb-5">
+                    <h5 class="fw-bold mb-2">YOUR APPLICATION CODE:</h5>
+                    <h1 class="display-4 fw-black text-primary m-0" style="letter-spacing: 2px;">{{ app_code }}</h1>
+                    <p class="mt-2 mb-0 small fw-bold text-uppercase">Use this as your payment reference</p>
+                </div>
+
+                <p class="fs-5 text-muted mb-5">Your registration details have been saved. To complete your application and activate your profile, please pay the registration fee using the instructions below.</p>
+
+                <div class="bg-light p-4 rounded-4 border-start border-primary border-4 mb-5 text-start">
+                    <h4 class="fw-bold mb-3 text-dark"><i class="fas fa-mobile-alt me-2"></i>Payment Instructions</h4>
+                    <ul class="list-unstyled fs-5">
+                        <li class="mb-2"><strong>Amount:</strong> <span class="text-primary">100 Leones</span></li>
+                        <li class="mb-2"><strong>Account Number:</strong> <span class="text-primary fw-bold">073019699 (EASI Academy)</span></li>
+                        <li class="mb-2"><strong>Reference to Use:</strong> <span class="bg-warning px-2 fw-bold text-dark">{{ app_code }}</span></li>
+                    </ul>
+                    <hr>
+                    <div class="alert alert-warning border-0 mb-0">
+                        <h6 class="fw-bold mb-1"><i class="fas fa-info-circle me-2"></i>Paying via Agent?</h6>
+                        <p class="mb-0 small">If paying through an agent, tell them to enter <strong>{{ app_code }}</strong> as the reference. Make sure you collect the Transaction ID from the agent after payment.</p>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning shadow-sm mb-5">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>What happens next?</strong> Our admin will verify your payment reference. Once verified, you will receive an SMS/Email with your Student ID to log in.
+                </div>
+
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="/" class="btn btn-primary btn-lg px-5 rounded-pill shadow">Return to Homepage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

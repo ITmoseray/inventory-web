@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+
+{% block title %}Graduation Payments - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Graduation Payments</h1>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                Add/Edit Payment
+            </div>
+            <div class="card-body">
+                <form id="graduation-payment-form" action="/graduation/add" method="post">
+                    <input type="hidden" name="payment_id" id="payment_id">
+                    <div class="mb-3">
+                        <label for="student_id_identifier" class="form-label">Select Student:</label>
+                        <select class="form-select" id="student_id_identifier" name="student_id_identifier" required>
+                            <option value="">Select Student</option>
+                            {% for student in all_students %}
+                                <option value="{{ student.student_id }}">
+                                    {{ student.student_id }} - {{ student.first_name }} {{ student.last_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount:</label>
+                        <input type="number" step="0.01" class="form-control" id="amount" name="amount" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_date" class="form-label">Payment Date:</label>
+                        <input type="date" class="form-control" id="payment_date" name="payment_date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_method" class="form-label">Payment Method:</label>
+                        <select class="form-select" id="payment_method" name="payment_method" required>
+                            <option value="Cash">Cash</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Mobile Money">Mobile Money</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="receipt_number" class="form-label">Receipt Number:</label>
+                        <input type="text" class="form-control" id="receipt_number" name="receipt_number">
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status:</label>
+                        <select class="form-select" id="status" name="status" required>
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+
+                    <input type="submit" value="Add Payment" class="btn btn-primary w-100">
+                    <button type="button" class="btn btn-secondary w-100 mt-2" onclick="clearForm()">Clear Form</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header">
+                Payment List
+            </div>
+            <div class="card-body">
+                 <div class="mb-3">
+                    <input type="text" class="form-control" id="search_query" placeholder="Search by student, receipt, or status...">
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student ID</th>
+                                <th>Student Name</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Receipt #</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="graduation-payments-table-body">
+                            {# Payments will be rendered dynamically by JavaScript or initial load #}
+                            {% for payment in graduation_payments %}
+                            <tr data-payment-id="{{ payment.id }}">
+                                <td>{{ payment.id }}</td>
+                                <td>{{ payment.student_identifier }}</td>
+                                <td>{{ payment.first_name }} {{ payment.last_name }}</td>
+                                <td>Le {{ payment.amount }}</td>
+
+                                <td>{{ payment.payment_date }}</td>
+                                <td>{{ payment.status }}</td>
+                                <td>{{ payment.receipt_number }}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-warning edit-btn" data-payment-id="{{ payment.id }}">Edit</button>
+                                    <form action="/graduation/delete/{{ payment.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this payment?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="8">No graduation payments found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const paymentForm = document.getElementById('graduation-payment-form');
+        const paymentIdField = document.getElementById('payment_id');
+        const studentIdSelect = document.getElementById('student_id_identifier');
+        const amountField = document.getElementById('amount');
+        const paymentDateField = document.getElementById('payment_date');
+        const paymentMethodField = document.getElementById('payment_method');
+        const receiptNumberField = document.getElementById('receipt_number');
+        const statusSelect = document.getElementById('status');
+        const submitButton = paymentForm.querySelector('button[type="submit"]');
+        const paymentTableBody = document.getElementById('graduation-payments-table-body');
+        const searchInput = document.getElementById('search_query');
+        let debounceTimer;
+
+        // Set today's date for date input
+        const today = new Date().toISOString().split('T')[0];
+        paymentDateField.value = today;
+
+        window.clearForm = function() {
+            paymentIdField.value = '';
+            studentIdSelect.value = ''; // Reset select
+            amountField.value = '';
+            paymentDateField.value = today;
+            paymentMethodField.value = '';
+            receiptNumberField.value = '';
+            statusSelect.value = 'Paid';
+            submitButton.textContent = 'Add Payment';
+            paymentForm.action = '/graduation/add';
+        };
+
+        // Function to load payment into form for editing
+        window.loadPaymentIntoForm = async function(id) {
+            try {
+                const response = await fetch(`/api/form-payments/${id}`); // Assuming an API endpoint for single payment
+                const payment = await response.json();
+                
+                paymentIdField.value = payment.id;
+                studentIdSelect.value = payment.student_identifier;
+                amountField.value = payment.amount;
+                paymentDateField.value = payment.payment_date;
+                paymentMethodField.value = payment.payment_method || '';
+                receiptNumberField.value = payment.receipt_number || '';
+                statusSelect.value = payment.status;
+                
+                submitButton.textContent = 'Update Payment';
+                paymentForm.action = `/graduation/edit/${payment.id}`; // Update form action for edit
+            } catch (error) {
+                console.error('Error loading payment for edit:', error);
+                alert('Failed to load payment for editing.');
+            }
+        };
+
+        // Event delegation for edit buttons
+        paymentTableBody.addEventListener('click', function(event) {
+            if (event.target.classList.contains('edit-btn')) {
+                const paymentId = event.target.dataset.paymentId;
+                window.loadPaymentIntoForm(paymentId);
+            }
+        });
+
+        // Event delegation for double-click to view details
+        paymentTableBody.addEventListener('dblclick', function(event) {
+            let targetRow = event.target.closest('tr');
+            if (targetRow && paymentTableBody.contains(targetRow)) {
+                const paymentId = targetRow.dataset.paymentId;
+                if (paymentId) {
+                    window.location.href = `/form-payments/view/${paymentId}`; // Using generic form-payments view for now
+                }
+            }
+        });
+
+        // Search functionality (can be converted to AJAX later)
+        searchInput.addEventListener('keyup', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const query = searchInput.value.toLowerCase();
+                Array.from(paymentTableBody.children).forEach(row => {
+                    const rowText = row.textContent.toLowerCase();
+                    if (rowText.includes(query)) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }, 300);
+        });
+
+        // Initial fetch of data if you want it loaded dynamically
+        // async function fetchGraduationPayments(query = '') {
+        //     // Would need a new API endpoint like /api/form-payments/graduation/search
+        // }
+        // fetchGraduationPayments();
+    });
+</script>
+{% endblock %}

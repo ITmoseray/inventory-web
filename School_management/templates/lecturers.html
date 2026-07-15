@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}Lecturers - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Lecturer List</h1>
+  <div>
+    <a href="/lecturers/add" class="btn btn-primary me-2">Add New Lecturer</a>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form action="/lecturers" method="get" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <label for="search_query" class="visually-hidden">Search Lecturers</label>
+                <input type="text" class="form-control" id="search_query" name="search_query" placeholder="Search by ID, name, email, or department..." value="{{ request.args.get('search_query', '') }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-info me-2">Search</button>
+                <a href="/lecturers" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Lecturer ID</th>
+      <th>Full Name</th>
+      <th>Email</th>
+      <th>Phone</th>
+      <th>Department</th>
+      <th>Portal</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for lecturer in lecturers %}
+    <tr>
+      <td>{{ lecturer.lecturer_id }}</td>
+      <td>{{ lecturer.full_name or (lecturer.first_name + ' ' + lecturer.last_name) }}</td>
+      <td>{{ lecturer.email }}</td>
+      <td>{{ lecturer.phone }}</td>
+      <td>{{ lecturer.department }}</td>
+      <td>
+        {% if lecturer.user_id %}
+            <span class="badge bg-success small"><i class="fas fa-link"></i> Linked</span>
+        {% else %}
+            <span class="badge bg-secondary opacity-50 small">Not Set</span>
+        {% endif %}
+      </td>
+      <td>
+        <a href="/lecturers/edit/{{ lecturer.id }}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="/lecturers/delete/{{ lecturer.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this lecturer?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="6">No lecturers found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const lecturerRows = document.querySelectorAll('table.table tbody tr');
+        lecturerRows.forEach(row => {
+            row.addEventListener('dblclick', function() {
+                // Get the lecturer ID from the edit link's href attribute
+                const editLink = row.querySelector('a.btn-warning');
+                if (editLink) {
+                    const href = editLink.getAttribute('href');
+                    const lecturerId = href.split('/').pop(); // Extracts the ID from '/lecturers/edit/ID'
+                    if (lecturerId) {
+                        window.location.href = `/lecturers/view/${lecturerId}`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

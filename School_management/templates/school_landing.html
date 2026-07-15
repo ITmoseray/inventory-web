@@ -1,0 +1,391 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tenant.name }} - Excellence in Education{% endblock %}
+
+{% block extra_head %}
+<!-- Inject Tailwind CSS without Preflight to prevent Bootstrap conflicts -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    corePlugins: {
+      preflight: false,
+    },
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          primary: '#6d28d9',
+          secondary: '#4c1d95',
+          school: {
+            primary: '#4c1d95',
+            accent: '#8b5cf6',
+          }
+        }
+      }
+    }
+  }
+</script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<!-- AOS Animation -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+
+<style>
+  /* Glassmorphism Cards */
+  .feature-card {
+    background: white;
+    border: 1px solid #e2e8f0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  [data-bs-theme="dark"] .feature-card, .dark .feature-card {
+    background: rgba(30, 41, 59, 0.7);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 30px 60px -12px rgba(0,0,0,0.1);
+    border-color: #8b5cf6;
+  }
+
+  /* Custom Hero Background */
+  .school-hero {
+    position: relative;
+    padding: 140px 0 180px;
+    background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #7c3aed 100%);
+    color: white;
+    border-radius: 0 0 100px 100px;
+    margin-top: -24px;
+    overflow: hidden;
+  }
+
+  .school-hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+    z-index: 0;
+  }
+
+  .slideshow-card {
+    border-radius: 2.5rem;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -15px rgba(0,0,0,0.3);
+    border: 8px solid white;
+  }
+  
+  [data-bs-theme="dark"] .slideshow-card, .dark .slideshow-card {
+    border-color: #1e293b;
+  }
+
+  .carousel-item img {
+    height: 550px;
+    object-fit: cover;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="relative min-h-screen bg-slate-50 dark:bg-slate-900 font-sans">
+  
+  <!-- School Hero -->
+  <section class="school-hero text-center relative">
+    <div class="container mx-auto px-4 relative z-10">
+      
+      <div data-aos="zoom-in" data-aos-duration="1000" class="mb-8 flex justify-center">
+        <div class="p-2 bg-white/20 backdrop-blur-md rounded-full shadow-2xl border-4 border-white/30">
+          <img src="{{ url_for('static', filename='images/LOGO.jpeg') }}" alt="{{ tenant.name }} Logo" class="w-40 h-40 rounded-full object-cover">
+        </div>
+      </div>
+      
+      <div data-aos="fade-down" data-aos-delay="200" class="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold uppercase tracking-wider text-sm mb-8 shadow-lg">
+        <i data-lucide="award" class="w-5 h-5 text-yellow-400"></i>
+        Accredited Center of Excellence
+      </div>
+      
+      <h1 data-aos="fade-up" data-aos-delay="400" class="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 drop-shadow-lg">
+        Forge Your Future at <br>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-white">{{ tenant.name }}</span>
+      </h1>
+      
+      <p data-aos="fade-up" data-aos-delay="600" class="max-w-3xl mx-auto text-xl text-blue-100 mb-12 leading-relaxed opacity-95">
+        {{ tenant.motto or 'Advancing Knowledge, Transforming Lives through Innovative, Industry-Leading Education.' }}
+      </p>
+      
+      <div data-aos="fade-up" data-aos-delay="800" class="flex flex-col sm:flex-row justify-center gap-6">
+        <button data-bs-toggle="modal" data-bs-target="#regModal" class="px-8 py-4 rounded-2xl bg-white text-school-primary font-bold uppercase tracking-wide hover:scale-105 hover:bg-slate-50 hover:text-school-accent transition-all shadow-xl flex items-center justify-center gap-2">
+          Begin Application
+          <i data-lucide="file-signature" class="w-5 h-5"></i>
+        </button>
+        <a href="/student/login" class="px-8 py-4 rounded-2xl border-2 border-white/50 text-white font-bold uppercase tracking-wide hover:bg-white hover:text-school-primary transition-all flex items-center justify-center gap-2" style="text-decoration: none;">
+          Student Gateway
+          <i data-lucide="log-in" class="w-5 h-5"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Values Section -->
+  <section class="py-16 -mt-20 relative z-20">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div data-aos="fade-up" data-aos-delay="100">
+          <div class="feature-card rounded-3xl p-10 h-full flex flex-col items-start">
+            <div class="w-16 h-16 rounded-2xl bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400 flex items-center justify-center mb-6">
+              <i data-lucide="brain-circuit" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Practical Mastery</h4>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Our curriculum is 80% hands-on, ensuring you graduate with job-ready skills that employers demand.</p>
+          </div>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="200">
+          <div class="feature-card rounded-3xl p-10 h-full flex flex-col items-start">
+            <div class="w-16 h-16 rounded-2xl bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400 flex items-center justify-center mb-6">
+              <i data-lucide="globe" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Global Recognition</h4>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Earn certifications recognized across industries, giving you a competitive edge in the global market.</p>
+          </div>
+        </div>
+
+        <div data-aos="fade-up" data-aos-delay="300">
+          <div class="feature-card rounded-3xl p-10 h-full flex flex-col items-start">
+            <div class="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 flex items-center justify-center mb-6">
+              <i data-lucide="rocket" class="w-8 h-8"></i>
+            </div>
+            <h4 class="text-2xl font-bold text-slate-900 dark:text-white mb-4">Career Acceleration</h4>
+            <p class="text-slate-500 dark:text-slate-400 leading-relaxed">Dedicated mentorship and industry placements designed to launch your professional journey immediately.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Us Section -->
+  <section class="py-24">
+    <div class="container mx-auto px-4">
+      <div class="flex flex-col lg:flex-row items-center gap-16">
+        
+        <div class="w-full lg:w-5/12" data-aos="fade-right">
+          <h6 class="text-violet-600 dark:text-violet-400 font-bold uppercase tracking-widest mb-4">Academic Legacy</h6>
+          <h2 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-6 leading-tight">Leading the Way in Modern Education</h2>
+          <p class="text-lg text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
+            At {{ tenant.name }}, we don't just teach; we inspire. Our mission is to transform Sierra Leone's educational landscape by blending traditional values with future-ready technology.
+          </p>
+          
+          <div class="space-y-8">
+            <div class="flex items-start gap-5">
+              <div class="bg-violet-600 text-white p-3 rounded-2xl shadow-lg shadow-violet-500/30 shrink-0">
+                <i data-lucide="users" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h5 class="text-xl font-bold text-slate-900 dark:text-white mb-2">Expert Faculty</h5>
+                <p class="text-slate-500 dark:text-slate-400">Learn from seasoned industry professionals and academic leaders.</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-5">
+              <div class="bg-violet-600 text-white p-3 rounded-2xl shadow-lg shadow-violet-500/30 shrink-0">
+                <i data-lucide="flask-conical" class="w-6 h-6"></i>
+              </div>
+              <div>
+                <h5 class="text-xl font-bold text-slate-900 dark:text-white mb-2">State-of-the-Art Labs</h5>
+                <p class="text-slate-500 dark:text-slate-400">Access modern facilities equipped with latest industry technology.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="w-full lg:w-7/12" data-aos="fade-left">
+          <!-- Graduation Slideshow using Bootstrap Carousel -->
+          <div id="graduationCarousel" class="carousel slide slideshow-card" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="{{ url_for('static', filename='photos/612062462_122118262947041204_5760001156940222948_n.jpg') }}" class="block w-full" alt="Graduation 1">
+                <div class="carousel-caption hidden md:block bg-slate-900/60 backdrop-blur-md rounded-2xl p-6 mb-4 mx-8 border border-white/10">
+                  <h5 class="text-xl font-bold text-white mb-2">A Journey of Achievement</h5>
+                  <p class="text-slate-200">Celebrating our latest cohort of professional graduates.</p>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <img src="{{ url_for('static', filename='photos/612127641_122118262881041204_1977282256037570241_n.jpg') }}" class="block w-full" alt="Graduation 2">
+              </div>
+              <div class="carousel-item">
+                <img src="{{ url_for('static', filename='photos/613574104_122118260649041204_8085815600680617434_n.jpg') }}" class="block w-full" alt="Graduation 3">
+              </div>
+              <div class="carousel-item">
+                <img src="{{ url_for('static', filename='photos/614547326_122118259779041204_5534677985603166764_n.jpg') }}" class="block w-full" alt="Graduation 4">
+              </div>
+              <div class="carousel-item">
+                <img src="{{ url_for('static', filename='photos/647441033_122124012543041204_4339308732729833368_n.jpg') }}" class="block w-full" alt="Graduation 5">
+              </div>
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#graduationCarousel" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon bg-slate-900/50 rounded-full p-6" aria-hidden="true"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#graduationCarousel" data-bs-slide="next">
+              <span class="carousel-control-next-icon bg-slate-900/50 rounded-full p-6" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<!-- Registration Modal (Maintains Bootstrap structure but styled with Bootstrap classes to prevent functional breakage) -->
+<div class="modal fade" id="regModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-2xl overflow-hidden border-0" style="border-radius: 1.5rem;">
+            <form action="/register-student" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="tenant_id" value="{{ tenant.id }}">
+                <div class="modal-header bg-dark text-white p-4 border-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="bg-primary rounded-3 p-2"><i class="fas fa-university"></i></div>
+                        <h5 class="modal-title fw-bold">Admission Application</h5>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4 p-md-5 bg-light">
+                    <div class="alert alert-primary bg-white shadow-sm border-0 rounded-4 p-4 mb-4 d-flex align-items-center gap-3">
+                        <i class="fas fa-info-circle fa-2x text-primary"></i>
+                        <p class="small mb-0 text-dark">You are submitting a formal application to <strong>{{ tenant.name }}</strong>. Please ensure all details are accurate.</p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-12">
+                            <div class="bg-white shadow-sm border-0 rounded-4 p-4 mb-2 border-start border-5 border-success">
+                                <h6 class="fw-bold text-success mb-2"><i class="fas fa-money-bill-wave me-2"></i>Registration Fee: 100 Leones</h6>
+                                <p class="small mb-2 text-dark">To complete your application, please send the <strong>100 Leones</strong> registration fee to the following number:</p>
+                                <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 mb-3 border">
+                                    <div class="h4 fw-bold text-primary mb-0" id="payment-number">073019699</div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary fw-bold" onclick="navigator.clipboard.writeText('073019699'); this.innerText='Copied!'; setTimeout(() => this.innerText='Copy', 2000);">Copy</button>
+                                </div>
+                                <p class="small mb-0 text-muted"><em>Note: Your application will remain <strong>Pending</strong> until an administrator verifies your payment. Please keep your transaction ID.</em></p>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-secondary">Payment Transaction ID / Reference</label>
+                            <input type="text" name="payment_reference" class="form-control form-control-lg bg-white border" required placeholder="Enter the ID from your payment message">
+                        </div>
+
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold text-secondary">Full Name of Student</label>
+                            <input type="text" name="full_name" class="form-control form-control-lg bg-white border" required placeholder="As it appears on ID">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold text-secondary">Age</label>
+                            <input type="number" name="age" class="form-control form-control-lg bg-white border" required placeholder="Age">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold text-secondary">Gender</label>
+                            <select name="gender" class="form-select form-select-lg bg-white border" required>
+                                <option value="" selected disabled>Select</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-secondary">Address</label>
+                            <input type="text" name="address" class="form-control form-control-lg bg-white border" required placeholder="Current Residential Address">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">Phone Number</label>
+                            <input type="text" name="phone" class="form-control form-control-lg bg-white border" required placeholder="+232...">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">Email (Optional)</label>
+                            <input type="email" name="email" class="form-control form-control-lg bg-white border" placeholder="example@email.com">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">Guardian or Friend's Name</label>
+                            <input type="text" name="guardian_name" class="form-control form-control-lg bg-white border" required placeholder="Emergency Contact Name">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-secondary">Guardian/Friend Phone Number</label>
+                            <input type="text" name="guardian_phone" class="form-control form-control-lg bg-white border" required placeholder="+232...">
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-secondary">Preferred Course (Select One)</label>
+                            <select name="course" class="form-select form-select-lg bg-white border" required>
+                                <option value="" selected disabled>Select Course...</option>
+                                <option value="Catering">Catering</option>
+                                <option value="Cake & Pastry">Cake & Pastry</option>
+                                <option value="Makeup Artistry">Makeup Artistry</option>
+                                <option value="Installations">Installations</option>
+                                <option value="Hairdressing">Hairdressing</option>
+                                <option value="Art and Craft Designs">Art and Craft Designs</option>
+                                <option value="Event Decorations and Management">Event Decorations and Management</option>
+                                <option value="Gara Tie-Dying Techniques">Gara Tie-Dying Techniques</option>
+                                <option value="Soap Making">Soap Making</option>
+                                <option value="Tailoring & Fashion Designs">Tailoring & Fashion Designs</option>
+                                <option value="Computer Classes (Microsoft Office & Internet)">Computer Classes (Microsoft Office & the Internet)</option>
+                                <option value="Graphics Designs">Graphics Designs</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-secondary">How did you hear about us?</label>
+                            <select name="referral_source" class="form-select form-select-lg bg-white border" required>
+                                <option value="" selected disabled>Select Source...</option>
+                                <option value="Social Media">Social Media</option>
+                                <option value="Flyer">Flyer</option>
+                                <option value="Friend/Relatives">Friend/Relatives</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label fw-bold text-secondary">Passport Photograph</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border"><i class="fas fa-camera"></i></span>
+                                <input type="file" name="photo" class="form-control form-control-lg bg-white border" accept="image/*">
+                            </div>
+                            <div class="form-text mt-2 small">Format: JPG/PNG. Max size: 2MB.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer p-4 bg-white border-top">
+                    <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow">Submit Admission Application</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+  // Initialize AOS
+  AOS.init({
+      duration: 1000,
+      once: true,
+      mirror: false,
+      offset: 120
+  });
+
+  // Initialize Lucide Icons
+  lucide.createIcons();
+</script>
+
+{% if show_register %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var myModal = new bootstrap.Modal(document.getElementById('regModal'));
+        myModal.show();
+    });
+</script>
+{% endif %}
+
+{% endblock %}

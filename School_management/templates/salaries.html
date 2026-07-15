@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Salaries - Student Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Salary List</h1>
+  <div>
+    <a href="/salaries/add" class="btn btn-primary me-2">Add New Salary</a>
+    <a href="/" class="btn btn-secondary">Back to Home</a>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form action="/salaries" method="get" class="row g-3 align-items-center">
+            <div class="col-md-8">
+                <label for="search_query" class="visually-hidden">Search Salaries</label>
+                <input type="text" class="form-control" id="search_query" name="search_query" placeholder="Search by lecturer ID, name, status, or receipt number..." value="{{ request.args.get('search_query', '') }}">
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-info me-2">Search</button>
+                <a href="/salaries" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Salary ID</th>
+      <th>Lecturer ID</th>
+      <th>Lecturer Name</th>
+      <th>Amount</th>
+      <th>Payment Date</th>
+      <th>Status</th>
+      <th>Notes</th>
+      <th>Receipt Number</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for salary in salaries %}
+    <tr>
+      <td>{{ salary.id }}</td>
+      <td>{{ salary.lecturer_string_id }}</td> {# Display the string ID #}
+      <td>{{ salary.full_name }}</td>
+      <td>Le {{ salary.amount }}</td>
+      <td>{{ salary.payment_date }}</td>
+      <td>{{ salary.status }}</td>
+      <td>{{ salary.notes }}</td>
+      <td>{{ salary.receipt_number }}</td>
+      <td>
+        <a href="/salaries/edit/{{ salary.id }}" class="btn btn-sm btn-warning">Edit</a>
+        <form action="/salaries/delete/{{ salary.id }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this salary record?');">
+            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="9">No salaries found.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const salaryRows = document.querySelectorAll('table.table tbody tr');
+        salaryRows.forEach(row => {
+            row.addEventListener('dblclick', function() {
+                // Get the salary ID from the edit link's href attribute
+                const editLink = row.querySelector('a.btn-warning');
+                if (editLink) {
+                    const href = editLink.getAttribute('href');
+                    const salaryId = href.split('/').pop(); // Extracts the ID from '/salaries/edit/ID'
+                    if (salaryId) {
+                        window.location.href = `/salaries/view/${salaryId}`;
+                    }
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
