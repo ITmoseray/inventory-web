@@ -6,7 +6,7 @@ import {
   ArrowRight, Shield, ShoppingCart, TrendingUp, Box, Truck, Users, HardHat, 
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
-  ChevronDown, Globe, MessageSquare, BarChart, Layers, Menu, X
+  ChevronDown, Globe, MessageSquare, BarChart, Layers, Menu, X, FileText
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -341,7 +341,7 @@ export default function ProtechCloudHomepage() {
                  <p className="text-lg text-slate-600 dark:text-slate-400">Manage every department from one unified dashboard with real-time intelligence.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {[
                    { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box },
                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart },
@@ -351,6 +351,7 @@ export default function ProtechCloudHomepage() {
                    { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart },
                    { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe },
                    { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers },
+                   { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText },
                  ].map((mod, i) => (
                    <div key={i} className="p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
                       <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center mb-4">
