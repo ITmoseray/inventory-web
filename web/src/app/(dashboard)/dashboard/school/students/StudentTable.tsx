@@ -2,13 +2,15 @@
 
 import React, { useState, useTransition } from 'react';
 import { updateStudentStatus, deleteStudent } from '@/actions/schoolAdminActions';
-import { MoreHorizontal, CheckCircle, XCircle, Trash2, Search } from 'lucide-react';
+import { MoreHorizontal, CheckCircle, XCircle, Trash2, Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
+import AddStudentModal from './AddStudentModal';
 
 export default function StudentTable({ initialStudents }: { initialStudents: any[] }) {
   const [students, setStudents] = useState(initialStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [isPending, startTransition] = useTransition();
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     startTransition(async () => {
@@ -43,6 +45,8 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
 
   return (
     <div>
+      <AddStudentModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
         <div className="relative w-64">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -54,6 +58,13 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
             className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-sm focus:ring-2 focus:ring-violet-500 outline-none"
           />
         </div>
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-sm font-medium flex items-center gap-2 transition-colors shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+          Add Student
+        </button>
       </div>
       
       <div className="overflow-x-auto">

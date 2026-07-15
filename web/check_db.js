@@ -1,18 +1,11 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-async function main() {
-  const patients = await prisma.patient.findMany();
-  console.log('Patients count:', patients.length);
-  if (patients.length > 0) {
-    console.log(patients.map(p => ({ id: p.id, name: p.name, businessId: p.businessId })));
-  }
-
-  const users = await prisma.user.findMany();
-  console.log('Users count:', users.length);
-  if (users.length > 0) {
-    console.log(users.map(u => ({ id: u.id, name: u.name, businessId: u.businessId })));
-  }
+async function check() {
+  const b = await prisma.business.findFirst({ where: { slug: 'protech-nexus-core' } });
+  console.log('Business:', b);
 }
 
-main().finally(() => prisma.$disconnect());
+check()
+  .then(() => process.exit(0))
+  .catch(e => { console.error(e); process.exit(1); });

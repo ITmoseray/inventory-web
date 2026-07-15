@@ -63,6 +63,43 @@ export async function deleteStudent(id: string) {
   return { success: true };
 }
 
+export async function createStudent(formData: FormData) {
+  try {
+    const { businessId } = await getAuthSession();
+    
+    const studentId = formData.get('studentId') as string || `STU-${Math.floor(1000 + Math.random() * 9000)}`;
+    const firstName = formData.get('firstName') as string;
+    const lastName = formData.get('lastName') as string;
+    const gender = formData.get('gender') as string;
+    const email = formData.get('email') as string;
+    const phone = formData.get('phone') as string;
+    const address = formData.get('address') as string;
+    const dobStr = formData.get('dateOfBirth') as string;
+    
+    await prisma.schoolStudent.create({
+      data: {
+        businessId,
+        studentId,
+        firstName,
+        lastName,
+        gender,
+        email,
+        phone,
+        address,
+        dateOfBirth: dobStr ? new Date(dobStr) : null,
+        status: 'ACTIVE',
+        applicationSource: 'MANUAL_ENTRY'
+      }
+    });
+    
+    revalidatePath('/dashboard/school/students');
+    return { success: true };
+  } catch (error: any) {
+    console.error(error);
+    return { success: false, error: error.message };
+  }
+}
+
 // COURSES CRUD
 export async function getCourses() {
   const { businessId } = await getAuthSession();
