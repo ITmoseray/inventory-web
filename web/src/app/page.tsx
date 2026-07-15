@@ -21,13 +21,62 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-// Example Country List
+// African Countries List
 const countries = [
-  { name: "Sierra Leone", flag: "🇸🇱" },
-  { name: "Nigeria", flag: "🇳🇬" },
+  { name: "Algeria", flag: "🇩🇿" },
+  { name: "Angola", flag: "🇦🇴" },
+  { name: "Benin", flag: "🇧🇯" },
+  { name: "Botswana", flag: "🇧🇼" },
+  { name: "Burkina Faso", flag: "🇧🇫" },
+  { name: "Burundi", flag: "🇧🇮" },
+  { name: "Cabo Verde", flag: "🇨🇻" },
+  { name: "Cameroon", flag: "🇨🇲" },
+  { name: "CAR", flag: "🇨🇫" },
+  { name: "Chad", flag: "🇹🇩" },
+  { name: "Comoros", flag: "🇰🇲" },
+  { name: "Congo", flag: "🇨🇬" },
+  { name: "DR Congo", flag: "🇨🇩" },
+  { name: "Djibouti", flag: "🇩🇯" },
+  { name: "Egypt", flag: "🇪🇬" },
+  { name: "Equatorial Guinea", flag: "🇬🇶" },
+  { name: "Eritrea", flag: "🇪🇷" },
+  { name: "Eswatini", flag: "🇸🇿" },
+  { name: "Ethiopia", flag: "🇪🇹" },
+  { name: "Gabon", flag: "🇬🇦" },
+  { name: "Gambia", flag: "🇬🇲" },
   { name: "Ghana", flag: "🇬🇭" },
+  { name: "Guinea", flag: "🇬🇳" },
+  { name: "Guinea-Bissau", flag: "🇬🇼" },
+  { name: "Ivory Coast", flag: "🇨🇮" },
   { name: "Kenya", flag: "🇰🇪" },
+  { name: "Lesotho", flag: "🇱🇸" },
+  { name: "Liberia", flag: "🇱🇷" },
+  { name: "Libya", flag: "🇱🇾" },
+  { name: "Madagascar", flag: "🇲🇬" },
+  { name: "Malawi", flag: "🇲🇼" },
+  { name: "Mali", flag: "🇲🇱" },
+  { name: "Mauritania", flag: "🇲🇷" },
+  { name: "Mauritius", flag: "🇲🇺" },
+  { name: "Morocco", flag: "🇲🇦" },
+  { name: "Mozambique", flag: "🇲🇿" },
+  { name: "Namibia", flag: "🇳🇦" },
+  { name: "Niger", flag: "🇳🇪" },
+  { name: "Nigeria", flag: "🇳🇬" },
+  { name: "Rwanda", flag: "🇷🇼" },
+  { name: "Sao Tome", flag: "🇸🇹" },
+  { name: "Senegal", flag: "🇸🇳" },
+  { name: "Seychelles", flag: "🇸🇨" },
+  { name: "Sierra Leone", flag: "🇸🇱" },
+  { name: "Somalia", flag: "🇸🇴" },
   { name: "South Africa", flag: "🇿🇦" },
+  { name: "South Sudan", flag: "🇸🇸" },
+  { name: "Sudan", flag: "🇸🇩" },
+  { name: "Tanzania", flag: "🇹🇿" },
+  { name: "Togo", flag: "🇹🇬" },
+  { name: "Tunisia", flag: "🇹🇳" },
+  { name: "Uganda", flag: "🇺🇬" },
+  { name: "Zambia", flag: "🇿🇲" },
+  { name: "Zimbabwe", flag: "🇿🇼" },
 ];
 
 export default function ProtechCloudHomepage() {
@@ -76,16 +125,17 @@ export default function ProtechCloudHomepage() {
               onMouseEnter={() => setShowCountryDropdown(true)}
               onMouseLeave={() => setShowCountryDropdown(false)}
             >
-              <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-2">
-                <Globe className="h-5 w-5" />
+              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-2">
+                <div className="relative h-6 w-6 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700">
+                   <Image src="/images/images.jpg" alt="Globe" fill className="object-cover" />
+                </div>
                 <ChevronDown className="h-4 w-4" />
               </div>
               
-              {/* Dropdown Menu */}
               <div 
-                className={`absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 origin-top-right ${showCountryDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
+                className={`absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 origin-top-right ${showCountryDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
               >
-                <div className="p-2">
+                <div className="p-2 max-h-80 overflow-y-auto">
                   <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Select Region</div>
                   {countries.map((country) => (
                     <button key={country.name} className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center gap-3">
