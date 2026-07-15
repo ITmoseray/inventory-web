@@ -69,6 +69,17 @@ export const shopSidebarConfig = [
           { title: "Returns", url: "/dashboard/sales/returns" },
         ],
       },
+      {
+        title: "Services",
+        url: "/dashboard/services",
+        icon: Briefcase,
+        permission: "menu:services",
+        items: [
+          { title: "Service List", url: "/dashboard/services" },
+          { title: "Record Fee", url: "/dashboard/services/record" },
+          { title: "Add New Service", url: "/dashboard/services/new" },
+        ],
+      },
     ],
   },
   {

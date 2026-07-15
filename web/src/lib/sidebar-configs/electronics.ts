@@ -21,8 +21,19 @@ export const electronicsSidebarConfig = [
     items: [
       { title: "POS", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" },
       { title: "Sales History", url: "/dashboard/sales/history", icon: FileText, permission: "menu:sales:history" },
-    { title: "Invoices", url: "/dashboard/sales/invoices" },
-          ]
+      { title: "Invoices", url: "/dashboard/sales/invoices" },
+      {
+        title: "Services",
+        url: "/dashboard/services",
+        icon: Cpu,
+        permission: "menu:services",
+        items: [
+          { title: "Service List", url: "/dashboard/services" },
+          { title: "Record Fee", url: "/dashboard/services/record" },
+          { title: "Add New Service", url: "/dashboard/services/new" },
+        ],
+      },
+    ]
   },
   {
     label: "Settings",
