@@ -53,6 +53,7 @@ import { warehouseSidebarConfig } from "@/lib/sidebar-configs/warehouse";
 import { clinicSidebarConfig } from "@/lib/sidebar-configs/clinic";
 import { hospitalSidebarConfig } from "@/lib/sidebar-configs/hospital";
 import { officeSidebarConfig } from "@/lib/sidebar-configs/office";
+import { schoolSidebarConfig } from "@/lib/sidebar-configs/school";
 
 const getSidebarConfig = (type: string) => {
   switch (type) {
@@ -67,6 +68,7 @@ const getSidebarConfig = (type: string) => {
     case "CLINIC": return clinicSidebarConfig;
     case "HOSPITAL": return hospitalSidebarConfig;
     case "OFFICE": return officeSidebarConfig;
+    case "SCHOOL": return schoolSidebarConfig;
     default: return null; 
   }
 };

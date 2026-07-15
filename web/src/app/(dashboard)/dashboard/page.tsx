@@ -113,8 +113,12 @@ export default function DashboardPage() {
   const colors = getIndustryColor(businessType);
 
   useEffect(() => {
+    if (session?.user?.businessType === "SCHOOL") {
+      router.push("/dashboard/school");
+      return;
+    }
     fetchDashboardData();
-  }, [session]);
+  }, [session, router]);
 
   useEffect(() => {
     async function fetchWelcome() {
