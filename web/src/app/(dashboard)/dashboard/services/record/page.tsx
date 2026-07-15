@@ -3,7 +3,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { getServices, recordServiceFee } from "@/lib/actions/services";
-import { getCustomers } from "@/lib/actions/customers";
+import { getCustomers } from "@/lib/actions/customer";
 import { Briefcase, ArrowLeft, Loader2, DollarSign, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
