@@ -125,7 +125,7 @@ export async function createInvoice(data: {
         if (item.productId) {
           await tx.product.update({
             where: { id: item.productId },
-            data: { currentStock: { decrement: item.quantity } }
+            data: { stockQuantity: { decrement: item.quantity } }
           });
           
           await tx.stockMovement.create({
