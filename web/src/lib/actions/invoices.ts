@@ -21,7 +21,7 @@ export async function getInvoices() {
       orderBy: { createdAt: 'desc' }
     });
     
-    return invoices;
+    return JSON.parse(JSON.stringify(invoices));
   } catch (error) {
     console.error("Error fetching invoices:", error);
     return [];
@@ -57,7 +57,7 @@ export async function getInvoiceById(id: string) {
       }
     });
     
-    return invoice;
+    return invoice ? JSON.parse(JSON.stringify(invoice)) : null;
   } catch (error) {
     console.error("Error fetching invoice:", error);
     return null;
