@@ -8,7 +8,7 @@ import { getSystemSettings } from "@/lib/actions/system-settings";
 import { getDefaultPermissionsForRole } from "@/lib/actions/user";
 
 export async function registerBusiness(data: any) {
-  const { businessName, email, password, businessType, plan, logoUrl, phone, address, currency, timezone, businessEmail } = data;
+  const { businessName, email, password, businessType, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail } = data;
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -30,7 +30,7 @@ export async function registerBusiness(data: any) {
     const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7 }));
     const trialEndDate = plan === 'FREE' ? new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000) : null;
 
-    const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL", "OFFICE"];
+    const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL", "OFFICE", "SCHOOL"];
     const dbBusinessType = allowedTypes.includes(businessType) ? (businessType as BusinessType) : BusinessType.SHOP;
 
     const business = await tx.business.create({
@@ -43,6 +43,7 @@ export async function registerBusiness(data: any) {
         timezone: timezone || "UTC",
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: dbBusinessType,
+        institutionType: institutionType || null,
         plan: plan,
         status: "ACTIVE",
         logoUrl: logoUrl,

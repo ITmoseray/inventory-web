@@ -53,9 +53,9 @@ import { warehouseSidebarConfig } from "@/lib/sidebar-configs/warehouse";
 import { clinicSidebarConfig } from "@/lib/sidebar-configs/clinic";
 import { hospitalSidebarConfig } from "@/lib/sidebar-configs/hospital";
 import { officeSidebarConfig } from "@/lib/sidebar-configs/office";
-import { schoolSidebarConfig } from "@/lib/sidebar-configs/school";
+import { getSchoolSidebarConfig } from "@/lib/sidebar-configs/school";
 
-const getSidebarConfig = (type: string) => {
+const getSidebarConfig = (type: string, institutionType?: string | null) => {
   switch (type) {
     case "BAR": return barSidebarConfig;
     case "RESTAURANT": return restaurantSidebarConfig;
@@ -68,7 +68,7 @@ const getSidebarConfig = (type: string) => {
     case "CLINIC": return clinicSidebarConfig;
     case "HOSPITAL": return hospitalSidebarConfig;
     case "OFFICE": return officeSidebarConfig;
-    case "SCHOOL": return schoolSidebarConfig;
+    case "SCHOOL": return getSchoolSidebarConfig(institutionType);
     default: return null; 
   }
 };
@@ -363,7 +363,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   });
 
   const navGroups = React.useMemo(() => {
-    const configs = businessTypes.map(getSidebarConfig).filter(Boolean);
+    const configs = businessTypes.map(type => getSidebarConfig(type, session?.user?.institutionType)).filter(Boolean);
     if (configs.length === 0) {
       console.warn("DEBUG Sidebar: No configurations found for types:", businessTypes);
       return [];
@@ -384,7 +384,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         });
     });
     return merged;
-  }, [businessTypesString]);
+  }, [businessTypesString, session?.user?.institutionType]);
   
   const filteredNavGroups = React.useMemo(() => {
     if (status === "loading") return [];

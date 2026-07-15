@@ -430,6 +430,36 @@ export default function RegisterPage() {
                 </div>
               </div>
 
+              <AnimatePresence>
+                {formData.businessType === 'SCHOOL' && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }} 
+                    animate={{ opacity: 1, height: 'auto' }} 
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-2 col-span-2 mt-2"
+                  >
+                    <Label htmlFor="institutionType" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select School Level</Label>
+                    <div className="relative">
+                       <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
+                       <select 
+                         id="institutionType" 
+                         value={(formData as any).institutionType || ''} 
+                         onChange={(e) => setFormData({...formData, institutionType: e.target.value} as any)} 
+                         required
+                         className="h-14 w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold dark:text-white appearance-none cursor-pointer" 
+                       >
+                         <option value="">Select Level</option>
+                         <option value="PRIMARY_SECONDARY">Primary / Secondary School</option>
+                         <option value="UNIVERSITY_COLLEGE">University / College</option>
+                         <option value="NURSING_MEDICAL">Nursing / Medical Institute</option>
+                         <option value="TRAINING_INSTITUTE">Vocational / Training Institute</option>
+                         <option value="OTHER">Other Educational Institute</option>
+                       </select>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <div className="space-y-2">
                 <Label htmlFor="currency" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Currency</Label>
                 <div className="relative">

@@ -12,6 +12,7 @@ model Business {
   slug                   String               @unique
   logoUrl                String?
   type                   BusinessType         @default(SHOP)
+  institutionType        String?
   plan                   SubscriptionPlan     @default(FREE)
   status                 String               @default("PENDING")
   trialStartDate         DateTime?            @default(now())
