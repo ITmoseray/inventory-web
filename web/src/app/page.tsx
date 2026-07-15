@@ -170,7 +170,7 @@ export default function ProtechCloudHomepage() {
             </Link>
             <Link 
               href={ctaHref} 
-              className="h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all flex items-center justify-center whitespace-nowrap"
+              className="hidden sm:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all items-center justify-center whitespace-nowrap"
             >
               {ctaText}
             </Link>
@@ -200,7 +200,7 @@ export default function ProtechCloudHomepage() {
                 </Link>
               ))}
               
-              <div className="flex flex-col gap-3 mt-4 sm:hidden">
+              <div className="flex flex-col gap-3 mt-4">
                 <Link 
                   href="/login" 
                   onClick={() => setIsMobileMenuOpen(false)}
