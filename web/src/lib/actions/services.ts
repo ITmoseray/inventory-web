@@ -115,6 +115,7 @@ export async function recordServiceFee(data: { serviceId: string; amount: number
               quantity: 1,
               unitPrice: amount,
               total: amount,
+              businessId: session.user.businessId,
             }
           ]
         }

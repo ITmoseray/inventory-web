@@ -32,8 +32,9 @@ export async function getServicesOverview() {
   }
 
   // All service sales (items where productId is a service)
+  // Note: SaleItem.businessId can be null for service items, so we filter only by productId
   const allServiceItems = await prisma.saleItem.findMany({
-    where: { productId: { in: serviceProductIds }, businessId },
+    where: { productId: { in: serviceProductIds } },
     include: {
       sale: {
         select: {
@@ -41,7 +42,8 @@ export async function getServicesOverview() {
           paymentMethod: true, totalAmount: true,
           customer: { select: { name: true } },
           staff: { select: { name: true } },
-          staffName: true
+          staffName: true,
+          businessId: true,
         }
       },
       product: { select: { name: true } }
@@ -49,27 +51,30 @@ export async function getServicesOverview() {
     orderBy: { sale: { createdAt: "desc" } }
   });
 
+  // Filter to only this business's sales (via the sale's businessId)
+  const businessItems = allServiceItems.filter(i => i.sale.businessId === businessId);
+
   // Total Revenue
-  const totalRevenue = allServiceItems.reduce((sum, i) => sum + Number(i.total), 0);
-  const totalTransactions = new Set(allServiceItems.map(i => i.saleId)).size;
+  const totalRevenue = businessItems.reduce((sum, i) => sum + Number(i.total), 0);
+  const totalTransactions = new Set(businessItems.map(i => i.saleId)).size;
   const avgServiceValue = totalTransactions > 0 ? totalRevenue / totalTransactions : 0;
 
   // This month
-  const monthItems = allServiceItems.filter(i => i.sale.createdAt >= startOfMonth);
+  const monthItems = businessItems.filter(i => i.sale.createdAt >= startOfMonth);
   const monthRevenue = monthItems.reduce((sum, i) => sum + Number(i.total), 0);
   const monthTransactions = new Set(monthItems.map(i => i.saleId)).size;
 
   // Last month
-  const lastMonthItems = allServiceItems.filter(i => i.sale.createdAt >= startOfLastMonth && i.sale.createdAt <= endOfLastMonth);
+  const lastMonthItems = businessItems.filter(i => i.sale.createdAt >= startOfLastMonth && i.sale.createdAt <= endOfLastMonth);
   const lastMonthRevenue = lastMonthItems.reduce((sum, i) => sum + Number(i.total), 0);
 
   // This week
-  const weekItems = allServiceItems.filter(i => i.sale.createdAt >= startOf7Days);
+  const weekItems = businessItems.filter(i => i.sale.createdAt >= startOf7Days);
   const weekRevenue = weekItems.reduce((sum, i) => sum + Number(i.total), 0);
 
   // Top services by revenue
   const serviceRevMap: Record<string, { name: string; revenue: number; count: number }> = {};
-  for (const item of allServiceItems) {
+  for (const item of businessItems) {
     const pid = item.productId!;
     if (!serviceRevMap[pid]) serviceRevMap[pid] = { name: item.product?.name || "Unknown", revenue: 0, count: 0 };
     serviceRevMap[pid].revenue += Number(item.total);
@@ -81,7 +86,7 @@ export async function getServicesOverview() {
 
   // Staff performance
   const staffMap: Record<string, { name: string; revenue: number; count: number }> = {};
-  for (const item of allServiceItems) {
+  for (const item of businessItems) {
     const staffName = item.sale.staff?.name || item.sale.staffName || "Unassigned";
     if (!staffMap[staffName]) staffMap[staffName] = { name: staffName, revenue: 0, count: 0 };
     staffMap[staffName].revenue += Number(item.total);
@@ -94,7 +99,7 @@ export async function getServicesOverview() {
   // Recent 10 transactions
   const seen = new Set<string>();
   const recentTransactions: any[] = [];
-  for (const item of allServiceItems) {
+  for (const item of businessItems) {
     if (!seen.has(item.saleId)) {
       seen.add(item.saleId);
       recentTransactions.push({
