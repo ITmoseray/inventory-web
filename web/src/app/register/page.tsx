@@ -304,29 +304,38 @@ export default function RegisterPage() {
           <div className="space-y-6">
              <div className="h-1 w-20 bg-indigo-600 rounded-full" />
              <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white tracking-tighter leading-[0.85]">
-                CREATE YOUR <br /> <span className="text-indigo-600">BUSINESS ACCOUNT.</span>
+                CREATE YOUR <br /> 
+                <span className="text-indigo-600">
+                  {formData.businessType === 'SCHOOL' ? 'SCHOOL PORTAL.' : 'BUSINESS ACCOUNT.'}
+                </span>
              </h1>
-             <p className="text-lg text-slate-500 font-bold tracking-tight">Register your business and get started in seconds.</p>
+             <p className="text-lg text-slate-500 font-bold tracking-tight">
+               {formData.businessType === 'SCHOOL' ? 'Register your educational institution in seconds.' : 'Register your business and get started in seconds.'}
+             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Logo</Label>
+              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {formData.businessType === 'SCHOOL' ? 'School Crest / Logo' : 'Business Logo'}
+              </Label>
               <ImageUploader 
                 value={formData.logoUrl} 
                 onChange={(url) => setFormData({...formData, logoUrl: url})} 
                 uploadAction={uploadBusinessLogo} 
-                label="Upload Company Logo"
+                label={formData.businessType === 'SCHOOL' ? 'Upload School Crest' : 'Upload Company Logo'}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="businessName" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Company Name</Label>
+              <Label htmlFor="businessName" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {formData.businessType === 'SCHOOL' ? 'School / Institution Name' : 'Company Name'}
+              </Label>
               <div className="relative">
                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                  <Input 
                    id="businessName" 
-                   placeholder="Enter your business name"
+                   placeholder={formData.businessType === 'SCHOOL' ? 'Enter your school name' : 'Enter your business name'}
                    value={formData.businessName} 
                    onChange={(e) => setFormData({...formData, businessName: e.target.value})} 
                    required 
@@ -377,13 +386,15 @@ export default function RegisterPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="address" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Address</Label>
+              <Label htmlFor="address" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                {formData.businessType === 'SCHOOL' ? 'Campus Address' : 'Business Address'}
+              </Label>
               <div className="relative">
                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                  <Input 
                    id="address" 
                    type="text" 
-                   placeholder="123 Business St, City, Country"
+                   placeholder={formData.businessType === 'SCHOOL' ? '123 University Road, City' : '123 Business St, City'}
                    value={formData.address} 
                    onChange={(e) => setFormData({...formData, address: e.target.value})} 
                    required 
@@ -394,7 +405,7 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="businessType" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Type</Label>
+                <Label htmlFor="businessType" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Institution Type</Label>
                 <div className="relative">
                    <Briefcase className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300" />
                    <select 
