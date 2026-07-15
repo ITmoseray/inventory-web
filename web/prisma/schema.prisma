@@ -75,6 +75,9 @@ model Business {
   schoolInvoices          SchoolInvoice[]
   schoolTerms             SchoolTerm[]
   schoolGrades            SchoolGrade[]
+  schoolStaffs            SchoolStaff[]
+  schoolLeaveRequests     SchoolLeaveRequest[]
+  schoolPayslips          SchoolPayslip[]
 
   @@index([slug])
 }
@@ -1161,4 +1164,70 @@ model SchoolGrade {
   @@index([studentId])
   @@index([courseId])
   @@index([termId])
+}
+
+// -----------------------------------------
+// PHASE 6: STAFF & HR MANAGEMENT
+// -----------------------------------------
+
+model SchoolStaff {
+  id         String   @id @default(cuid())
+  businessId String
+  firstName  String
+  lastName   String
+  email      String?
+  phone      String?
+  role       String // e.g. "Teacher", "Admin", "Bursar"
+  department String?
+  salary     Decimal  @db.Decimal(10, 2)
+  hireDate   DateTime
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business      Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  leaveRequests SchoolLeaveRequest[]
+  payslips      SchoolPayslip[]
+
+  @@index([businessId])
+}
+
+model SchoolLeaveRequest {
+  id         String   @id @default(cuid())
+  businessId String
+  staffId    String
+  leaveType  String // e.g. "Sick", "Vacation", "Maternity"
+  startDate  DateTime
+  endDate    DateTime
+  reason     String?
+  status     String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  staff    SchoolStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([staffId])
+}
+
+model SchoolPayslip {
+  id          String    @id @default(cuid())
+  businessId  String
+  staffId     String
+  month       String // e.g. "October 2026"
+  baseSalary  Decimal   @db.Decimal(10, 2)
+  deductions  Decimal   @default(0) @db.Decimal(10, 2)
+  bonuses     Decimal   @default(0) @db.Decimal(10, 2)
+  netPay      Decimal   @db.Decimal(10, 2)
+  status      String    @default("PENDING") // PENDING, PAID
+  paymentDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  business Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  staff    SchoolStaff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([staffId])
 }

@@ -50,8 +50,9 @@ export const getSchoolSidebarConfig = (institutionType?: string | null) => {
       ] 
     },
     { 
-      label: "Financials", 
+      label: "Staff & Financials", 
       items: [
+        { title: "Staff Directory", url: "/dashboard/school/staff", icon: Users, permission: "menu:overview" },
         { title: "Payments & Fees", url: "/dashboard/school/payments", icon: CreditCard, permission: "menu:overview" },
         { title: "Staff Payroll", url: "/dashboard/school/payroll", icon: Wallet, permission: "menu:overview" }
       ] 
