@@ -227,8 +227,9 @@ export default async function DashboardLayout({
             {children}
           </main>
           <QuickActions />
-      </AppShell>
+        </AppShell>
       </div>
+    </div>
     </div>
   );
 }
