@@ -71,6 +71,7 @@ model Business {
   schoolBookCheckouts     SchoolBookCheckout[]
   schoolHostels           SchoolHostel[]
   schoolHostelAllocations SchoolHostelAllocation[]
+  schoolBroadcasts        SchoolBroadcast[]
 
   @@index([slug])
 }
@@ -871,12 +872,13 @@ model SchoolStudent {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  business                Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  enrollments             SchoolEnrollment[]
-  attendance              SchoolAttendance[]
-  payments                SchoolPayment[]
-  schoolBookCheckouts     SchoolBookCheckout[]
-  schoolHostelAllocations SchoolHostelAllocation[]
+  business                  Business                   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  enrollments               SchoolEnrollment[]
+  attendance                SchoolAttendance[]
+  payments                  SchoolPayment[]
+  schoolBookCheckouts       SchoolBookCheckout[]
+  schoolHostelAllocations   SchoolHostelAllocation[]
+  schoolBroadcastRecipients SchoolBroadcastRecipient[]
 
   @@unique([businessId, studentId])
   @@index([businessId])
@@ -1047,4 +1049,43 @@ model SchoolHostelAllocation {
   @@index([businessId])
   @@index([studentId])
   @@index([hostelId])
+}
+
+// -----------------------------------------
+// PHASE 4: COMMUNICATION HUB
+// -----------------------------------------
+
+model SchoolBroadcast {
+  id         String    @id @default(cuid())
+  businessId String
+  subject    String
+  content    String
+  channel    String // EMAIL, SMS, WHATSAPP, IN_APP
+  audience   String // ALL_STUDENTS, SPECIFIC_COURSE, etc.
+  status     String    @default("PENDING") // PENDING, SENT, FAILED
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  business   Business                   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  recipients SchoolBroadcastRecipient[]
+
+  @@index([businessId])
+}
+
+model SchoolBroadcastRecipient {
+  id          String    @id @default(cuid())
+  broadcastId String
+  studentId   String
+  status      String    @default("PENDING") // PENDING, DELIVERED, FAILED
+  errorReason String?
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  broadcast SchoolBroadcast @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  student   SchoolStudent   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([broadcastId])
+  @@index([studentId])
 }

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, BookOpen, CreditCard, Wallet, Settings, Activity, GraduationCap, Building2, Calendar } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, CreditCard, Wallet, Settings, Activity, GraduationCap, Building2, Calendar, Mail } from "lucide-react";
 
 export const getSchoolSidebarConfig = (institutionType?: string | null) => {
   const isNursing = institutionType === 'NURSING_MEDICAL';
@@ -40,6 +40,12 @@ export const getSchoolSidebarConfig = (institutionType?: string | null) => {
       items: [
         { title: "Library Catalog", url: "/dashboard/school/library", icon: BookOpen, permission: "menu:overview" },
         { title: "Hostel & Rooms", url: "/dashboard/school/hostel", icon: Building2, permission: "menu:overview" }
+      ] 
+    },
+    { 
+      label: "Connectivity", 
+      items: [
+        { title: "Broadcasts & Alerts", url: "/dashboard/school/communications", icon: Mail, permission: "menu:overview" }
       ] 
     },
     { 
