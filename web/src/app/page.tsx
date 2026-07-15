@@ -6,7 +6,7 @@ import {
   ArrowRight, Shield, ShoppingCart, TrendingUp, Box, Truck, Users, HardHat, 
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
-  ChevronDown, Globe, MessageSquare
+  ChevronDown, Globe, MessageSquare, BarChart3, Layers
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
