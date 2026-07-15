@@ -5,12 +5,16 @@ import { updateStudentStatus, deleteStudent } from '@/actions/schoolAdminActions
 import { MoreHorizontal, CheckCircle, XCircle, Trash2, Search, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import AddStudentModal from './AddStudentModal';
+import StudentDetailsModal from './StudentDetailsModal';
+import Image from 'next/image';
+import { User } from 'lucide-react';
 
 export default function StudentTable({ initialStudents }: { initialStudents: any[] }) {
   const [students, setStudents] = useState(initialStudents);
   const [searchTerm, setSearchTerm] = useState('');
   const [isPending, startTransition] = useTransition();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     startTransition(async () => {
@@ -46,6 +50,7 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
   return (
     <div>
       <AddStudentModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} />
+      <StudentDetailsModal isOpen={!!selectedStudent} onClose={() => setSelectedStudent(null)} student={selectedStudent} />
       
       <div className="p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
         <div className="relative w-64">
@@ -81,13 +86,31 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
           </thead>
           <tbody className="divide-y divide-slate-200 dark:divide-slate-800">
             {filteredStudents.length > 0 ? filteredStudents.map(student => (
-              <tr key={student.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+              <tr 
+                key={student.id} 
+                className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer"
+                onDoubleClick={() => setSelectedStudent(student)}
+                title="Double click to view details"
+              >
                 <td className="p-4">
                   <span className="font-mono text-sm text-violet-600 dark:text-violet-400 font-medium">{student.studentId}</span>
                 </td>
                 <td className="p-4">
-                  <div className="font-medium text-slate-900 dark:text-white">{student.firstName} {student.lastName}</div>
-                  <div className="text-xs text-slate-500">{new Date(student.createdAt).toLocaleDateString()}</div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full border border-slate-200 dark:border-slate-700 overflow-hidden bg-slate-100 dark:bg-slate-800 shrink-0 relative">
+                      {student.photoPath ? (
+                        <Image src={student.photoPath} alt={student.firstName} fill className="object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                          <User className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-medium text-slate-900 dark:text-white">{student.firstName} {student.lastName}</div>
+                      <div className="text-xs text-slate-500">{student.currentLevel || new Date(student.createdAt).toLocaleDateString()}</div>
+                    </div>
+                  </div>
                 </td>
                 <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{student.gender}</td>
                 <td className="p-4 text-sm text-slate-600 dark:text-slate-300">

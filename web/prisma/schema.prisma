@@ -854,6 +854,13 @@ model SchoolStudent {
   phone              String?
   email              String?
   photoPath          String?
+  guardianName       String?
+  guardianPhone      String?
+  guardianEmail      String?
+  guardianRelation   String?
+  bloodGroup         String?
+  medicalConditions  String?
+  currentLevel       String?
   enrollmentDate     DateTime           @default(now())
   status             String             @default("ACTIVE")
   applicationSource  String             @default("ONLINE")

@@ -76,6 +76,16 @@ export async function createStudent(formData: FormData) {
     const address = formData.get('address') as string;
     const dobStr = formData.get('dateOfBirth') as string;
     
+    // New comprehensive fields
+    const photoPath = formData.get('photoPath') as string;
+    const guardianName = formData.get('guardianName') as string;
+    const guardianPhone = formData.get('guardianPhone') as string;
+    const guardianEmail = formData.get('guardianEmail') as string;
+    const guardianRelation = formData.get('guardianRelation') as string;
+    const bloodGroup = formData.get('bloodGroup') as string;
+    const medicalConditions = formData.get('medicalConditions') as string;
+    const currentLevel = formData.get('currentLevel') as string;
+    
     await prisma.schoolStudent.create({
       data: {
         businessId,
@@ -86,6 +96,14 @@ export async function createStudent(formData: FormData) {
         email,
         phone,
         address,
+        photoPath,
+        guardianName,
+        guardianPhone,
+        guardianEmail,
+        guardianRelation,
+        bloodGroup,
+        medicalConditions,
+        currentLevel,
         dateOfBirth: dobStr ? new Date(dobStr) : null,
         status: 'ACTIVE',
         applicationSource: 'MANUAL_ENTRY'
