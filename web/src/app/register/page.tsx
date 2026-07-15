@@ -408,6 +408,7 @@ export default function RegisterPage() {
                      <option value="SUPERMARKET">Supermarket</option>
                      <option value="CLINIC">Clinic</option>
                      <option value="HOSPITAL">Hospital</option>
+                     <option value="SCHOOL">School / Educational Institution</option>
                      <option value="BOUTIQUE">Boutique</option>
                      <option value="ELECTRONICS">Electronics</option>
                      <option value="WAREHOUSE">Warehouse</option>
