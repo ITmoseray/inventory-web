@@ -11,11 +11,13 @@ export async function getServices() {
     
     const prisma = getTenantPrisma(session.user.businessId);
     
+    // Fetch both SERVICE type items AND legacy PRODUCT items with stockQty=0 that are services
     const services = await prisma.product.findMany({
       where: { 
-        type: "SERVICE",
-        deletedAt: null 
+        deletedAt: null,
+        type: "SERVICE"
       },
+      include: { category: true },
       orderBy: { createdAt: 'desc' }
     });
     
@@ -23,6 +25,31 @@ export async function getServices() {
   } catch (error) {
     console.error("Error fetching services:", error);
     return [];
+  }
+}
+
+/**
+ * Fix a misclassified product — change its type from PRODUCT to SERVICE.
+ * Use this for items like "Camera Installation" that were created before
+ * the Services module existed.
+ */
+export async function fixServiceType(productId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+    
+    const prisma = getTenantPrisma(session.user.businessId);
+    
+    await prisma.product.update({
+      where: { id: productId },
+      data: { type: "SERVICE", stockQuantity: 0, minStockLevel: 0 }
+    });
+    
+    revalidatePath("/dashboard/services");
+    revalidatePath("/dashboard/inventory/products");
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, error: error.message };
   }
 }
 
