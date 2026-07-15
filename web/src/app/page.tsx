@@ -23,66 +23,67 @@ import {
 
 // African Countries List
 const countries = [
-  { name: "Algeria", flag: "🇩🇿" },
-  { name: "Angola", flag: "🇦🇴" },
-  { name: "Benin", flag: "🇧🇯" },
-  { name: "Botswana", flag: "🇧🇼" },
-  { name: "Burkina Faso", flag: "🇧🇫" },
-  { name: "Burundi", flag: "🇧🇮" },
-  { name: "Cabo Verde", flag: "🇨🇻" },
-  { name: "Cameroon", flag: "🇨🇲" },
-  { name: "CAR", flag: "🇨🇫" },
-  { name: "Chad", flag: "🇹🇩" },
-  { name: "Comoros", flag: "🇰🇲" },
-  { name: "Congo", flag: "🇨🇬" },
-  { name: "DR Congo", flag: "🇨🇩" },
-  { name: "Djibouti", flag: "🇩🇯" },
-  { name: "Egypt", flag: "🇪🇬" },
-  { name: "Equatorial Guinea", flag: "🇬🇶" },
-  { name: "Eritrea", flag: "🇪🇷" },
-  { name: "Eswatini", flag: "🇸🇿" },
-  { name: "Ethiopia", flag: "🇪🇹" },
-  { name: "Gabon", flag: "🇬🇦" },
-  { name: "Gambia", flag: "🇬🇲" },
-  { name: "Ghana", flag: "🇬🇭" },
-  { name: "Guinea", flag: "🇬🇳" },
-  { name: "Guinea-Bissau", flag: "🇬🇼" },
-  { name: "Ivory Coast", flag: "🇨🇮" },
-  { name: "Kenya", flag: "🇰🇪" },
-  { name: "Lesotho", flag: "🇱🇸" },
-  { name: "Liberia", flag: "🇱🇷" },
-  { name: "Libya", flag: "🇱🇾" },
-  { name: "Madagascar", flag: "🇲🇬" },
-  { name: "Malawi", flag: "🇲🇼" },
-  { name: "Mali", flag: "🇲🇱" },
-  { name: "Mauritania", flag: "🇲🇷" },
-  { name: "Mauritius", flag: "🇲🇺" },
-  { name: "Morocco", flag: "🇲🇦" },
-  { name: "Mozambique", flag: "🇲🇿" },
-  { name: "Namibia", flag: "🇳🇦" },
-  { name: "Niger", flag: "🇳🇪" },
-  { name: "Nigeria", flag: "🇳🇬" },
-  { name: "Rwanda", flag: "🇷🇼" },
-  { name: "Sao Tome", flag: "🇸🇹" },
-  { name: "Senegal", flag: "🇸🇳" },
-  { name: "Seychelles", flag: "🇸🇨" },
-  { name: "Sierra Leone", flag: "🇸🇱" },
-  { name: "Somalia", flag: "🇸🇴" },
-  { name: "South Africa", flag: "🇿🇦" },
-  { name: "South Sudan", flag: "🇸🇸" },
-  { name: "Sudan", flag: "🇸🇩" },
-  { name: "Tanzania", flag: "🇹🇿" },
-  { name: "Togo", flag: "🇹🇬" },
-  { name: "Tunisia", flag: "🇹🇳" },
-  { name: "Uganda", flag: "🇺🇬" },
-  { name: "Zambia", flag: "🇿🇲" },
-  { name: "Zimbabwe", flag: "🇿🇼" },
+  { name: "Algeria", code: "dz" },
+  { name: "Angola", code: "ao" },
+  { name: "Benin", code: "bj" },
+  { name: "Botswana", code: "bw" },
+  { name: "Burkina Faso", code: "bf" },
+  { name: "Burundi", code: "bi" },
+  { name: "Cabo Verde", code: "cv" },
+  { name: "Cameroon", code: "cm" },
+  { name: "CAR", code: "cf" },
+  { name: "Chad", code: "td" },
+  { name: "Comoros", code: "km" },
+  { name: "Congo", code: "cg" },
+  { name: "DR Congo", code: "cd" },
+  { name: "Djibouti", code: "dj" },
+  { name: "Egypt", code: "eg" },
+  { name: "Equatorial Guinea", code: "gq" },
+  { name: "Eritrea", code: "er" },
+  { name: "Eswatini", code: "sz" },
+  { name: "Ethiopia", code: "et" },
+  { name: "Gabon", code: "ga" },
+  { name: "Gambia", code: "gm" },
+  { name: "Ghana", code: "gh" },
+  { name: "Guinea", code: "gn" },
+  { name: "Guinea-Bissau", code: "gw" },
+  { name: "Ivory Coast", code: "ci" },
+  { name: "Kenya", code: "ke" },
+  { name: "Lesotho", code: "ls" },
+  { name: "Liberia", code: "lr" },
+  { name: "Libya", code: "ly" },
+  { name: "Madagascar", code: "mg" },
+  { name: "Malawi", code: "mw" },
+  { name: "Mali", code: "ml" },
+  { name: "Mauritania", code: "mr" },
+  { name: "Mauritius", code: "mu" },
+  { name: "Morocco", code: "ma" },
+  { name: "Mozambique", code: "mz" },
+  { name: "Namibia", code: "na" },
+  { name: "Niger", code: "ne" },
+  { name: "Nigeria", code: "ng" },
+  { name: "Rwanda", code: "rw" },
+  { name: "Sao Tome", code: "st" },
+  { name: "Senegal", code: "sn" },
+  { name: "Seychelles", code: "sc" },
+  { name: "Sierra Leone", code: "sl" },
+  { name: "Somalia", code: "so" },
+  { name: "South Africa", code: "za" },
+  { name: "South Sudan", code: "ss" },
+  { name: "Sudan", code: "sd" },
+  { name: "Tanzania", code: "tz" },
+  { name: "Togo", code: "tg" },
+  { name: "Tunisia", code: "tn" },
+  { name: "Uganda", code: "ug" },
+  { name: "Zambia", code: "zm" },
+  { name: "Zimbabwe", code: "zw" },
 ];
 
 export default function ProtechCloudHomepage() {
   const { data: session } = useSession();
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.code === "sl") || countries[0]);
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
@@ -133,14 +134,30 @@ export default function ProtechCloudHomepage() {
               </div>
               
               <div 
-                className={`absolute right-0 top-full mt-2 w-56 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 origin-top-right ${showCountryDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
+                className={`absolute right-0 top-full mt-2 w-64 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-200 origin-top-right ${showCountryDropdown ? 'opacity-100 scale-100 visible' : 'opacity-0 scale-95 invisible'}`}
               >
                 <div className="p-2 max-h-80 overflow-y-auto">
-                  <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">Select Region</div>
+                  <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+                    Select Region
+                    {selectedCountry && (
+                      <span className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400">
+                        <img src={`https://flagcdn.com/w20/${selectedCountry.code}.png`} width="16" alt={selectedCountry.name} className="rounded-sm" />
+                        {selectedCountry.code.toUpperCase()}
+                      </span>
+                    )}
+                  </div>
                   {countries.map((country) => (
-                    <button key={country.name} className="w-full text-left px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center gap-3">
-                      <span className="text-lg">{country.flag}</span>
+                    <button 
+                      key={country.code}
+                      onClick={() => {
+                        setSelectedCountry(country);
+                        setShowCountryDropdown(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 text-sm font-medium hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors flex items-center gap-3 ${selectedCountry.code === country.code ? 'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300' : 'text-slate-700 dark:text-slate-200'}`}
+                    >
+                      <img src={`https://flagcdn.com/w20/${country.code}.png`} width="20" alt={country.name} className="shadow-sm rounded-sm" />
                       {country.name}
+                      {selectedCountry.code === country.code && <Check className="h-4 w-4 ml-auto" />}
                     </button>
                   ))}
                 </div>
