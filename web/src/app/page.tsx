@@ -82,6 +82,7 @@ const countries = [
 export default function ProtechCloudHomepage() {
   const { data: session } = useSession();
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.code === "sl") || countries[0]);
@@ -241,13 +242,13 @@ export default function ProtechCloudHomepage() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
-              <Link 
-                href="/register" 
-                className="h-14 px-8 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center"
+              <button 
+                onClick={() => setIsAuthModalOpen(true)}
+                className="h-14 px-8 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center shrink-0 min-w-max"
               >
-                Register Your Business
+                Try It Now
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
+              </button>
               <button 
                 onClick={() => setIsDemoModalOpen(true)}
                 className="h-14 px-8 text-base font-semibold border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-lg shadow-sm transition-all flex items-center justify-center"
@@ -613,6 +614,32 @@ export default function ProtechCloudHomepage() {
       </Dialog>
 
       <ExpertPopup />
+
+      {/* Auth Selection Modal */}
+      <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+        <DialogContent className="sm:max-w-md border-0 shadow-2xl rounded-2xl bg-white dark:bg-slate-900">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold text-center text-slate-900 dark:text-white">Welcome to Protech Assist</DialogTitle>
+            <DialogDescription className="text-center pt-2 text-base text-slate-600 dark:text-slate-400">
+              To connect to the system, please select an option below:
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-6 mb-4 px-2">
+            <Link 
+              href="/login" 
+              className="w-full h-14 flex items-center justify-center rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-indigo-600 dark:hover:border-indigo-500 font-bold text-lg text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+            >
+              Login to Existing Account
+            </Link>
+            <Link 
+              href="/register" 
+              className="w-full h-14 flex items-center justify-center rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-md transition-all"
+            >
+              Create New Account
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
