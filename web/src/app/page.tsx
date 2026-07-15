@@ -130,7 +130,7 @@ export default function ProtechCloudHomepage() {
             >
               <div className="flex items-center gap-1 sm:gap-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1 sm:p-2">
                 <div className="relative h-7 w-7 lg:h-10 lg:w-10 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
-                   <Image src="/images/images.jpg" alt="Globe" fill className="object-cover" unoptimized />
+                   <Image src="/images/globe-icon.jpg" alt="Globe" fill className="object-cover" unoptimized />
                 </div>
                 <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
               </div>
