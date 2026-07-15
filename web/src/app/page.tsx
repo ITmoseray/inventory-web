@@ -343,23 +343,23 @@ export default function ProtechCloudHomepage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                  {[
-                   { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box },
-                   { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart },
-                   { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck },
-                   { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users },
-                   { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: BarChart },
-                   { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart },
-                   { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe },
-                   { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers },
-                   { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText },
+                   { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory" },
+                   { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos" },
+                   { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck, href: "/dashboard/purchases" },
+                   { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users, href: "/dashboard/customers" },
+                   { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: BarChart, href: "/dashboard/accounting" },
+                   { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart, href: "/dashboard/analytics" },
+                   { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe, href: "/dashboard/system" },
+                   { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory" },
+                   { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/billing" },
                  ].map((mod, i) => (
-                   <div key={i} className="p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center mb-4">
+                   <Link href={mod.href} key={i} className="group block p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-1 cursor-pointer">
+                      <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-4 transition-colors">
                          <mod.icon className="h-5 w-5" />
                       </div>
-                      <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{mod.title}</h4>
+                      <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{mod.title}</h4>
                       <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mod.desc}</p>
-                   </div>
+                   </Link>
                  ))}
               </div>
            </div>
