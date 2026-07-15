@@ -6,7 +6,7 @@ import {
   ArrowRight, Shield, ShoppingCart, TrendingUp, Box, Truck, Users, HardHat, 
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
-  ChevronDown, Globe, MessageSquare, BarChart, Layers
+  ChevronDown, Globe, MessageSquare, BarChart, Layers, Menu, X
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -83,6 +83,7 @@ export default function ProtechCloudHomepage() {
   const { data: session } = useSession();
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.code === "sl") || countries[0]);
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
@@ -173,8 +174,41 @@ export default function ProtechCloudHomepage() {
             >
               {ctaText}
             </Link>
+            
+            {/* Mobile Menu Toggle */}
+            <button 
+              className="xl:hidden p-1 sm:p-2 -mr-1 sm:-mr-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="h-6 w-6 lg:h-8 lg:w-8" /> : <Menu className="h-6 w-6 lg:h-8 lg:w-8" />}
+            </button>
           </div>
         </nav>
+
+        {/* Mobile Navigation Dropdown */}
+        {isMobileMenuOpen && (
+          <div className="xl:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
+            <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
+              {["Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
+                <Link 
+                  key={item} 
+                  href={`#${item.toLowerCase()}`} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-3 border-b border-slate-100 dark:border-slate-800/50 last:border-0"
+                >
+                  {item}
+                </Link>
+              ))}
+              <Link 
+                href="/login" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-3 sm:hidden"
+              >
+                Login
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
       <main className="flex-1 pt-28">
