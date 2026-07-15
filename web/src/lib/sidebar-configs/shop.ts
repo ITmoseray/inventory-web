@@ -75,6 +75,7 @@ export const shopSidebarConfig = [
         icon: Briefcase,
         permission: "menu:services",
         items: [
+          { title: "Overview", url: "/dashboard/services/overview" },
           { title: "Service List", url: "/dashboard/services" },
           { title: "Record Fee", url: "/dashboard/services/record" },
           { title: "Add New Service", url: "/dashboard/services/new" },
