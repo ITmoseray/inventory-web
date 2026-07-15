@@ -67,7 +67,13 @@ export default function InvoiceClient({ sale }: { sale: any }) {
     <div className="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-900 dark:to-slate-950 py-8 px-4">
       {/* Action Buttons — hidden on print */}
       <div className="max-w-2xl mx-auto mb-6 flex justify-between items-center print:hidden">
-        <p className="text-sm text-slate-500 font-medium">Share or save this invoice</p>
+        <button
+          onClick={() => window.history.back()}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white dark:bg-slate-800 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm font-bold hover:bg-slate-50 transition-colors shadow-sm"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Back
+        </button>
         <div className="flex gap-3">
           <button
             onClick={handlePrint}
