@@ -1,8 +1,16 @@
 'use server';
 
-import { getAuthSession } from "@/lib/auth";
-import prisma from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+
+async function getAuthSession() {
+  const session = await auth();
+  if (!session?.user?.businessId) {
+    throw new Error("Unauthorized");
+  }
+  return { session, businessId: session.user.businessId };
+}
 
 export async function getAttendanceForCourse(courseId: string, dateStr: string) {
   try {
