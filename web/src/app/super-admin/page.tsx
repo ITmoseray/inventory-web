@@ -380,12 +380,15 @@ export default function NexusSuperControl() {
     }
     try {
       setIsCreatingSuperAdmin(true);
-      await createSuperAdmin({
+      const result = await createSuperAdmin({
         name: newSuperAdminName,
         username: newSuperAdminUsername,
         email: newSuperAdminEmail,
         passwordStr: newSuperAdminPassword
       });
+      if (result && result.error) {
+        throw new Error(result.error);
+      }
       toast.success("New Super Admin account registered successfully.");
       setIsAddSuperAdminOpen(false);
       setNewSuperAdminName("");
