@@ -170,7 +170,7 @@ export default function ProtechCloudHomepage() {
             </Link>
             <Link 
               href={ctaHref} 
-              className="hidden sm:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all items-center justify-center whitespace-nowrap"
+              className="hidden sm:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all items-center justify-center whitespace-nowrap shrink-0 min-w-max"
             >
               {ctaText}
             </Link>
@@ -497,15 +497,12 @@ export default function ProtechCloudHomepage() {
                  Join the growing number of businesses using Protech Assist to increase profits and reduce operational losses.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <Link 
-                   href={ctaHref} 
-                   className="h-14 px-8 rounded-lg bg-white text-indigo-600 text-base font-bold shadow-lg hover:bg-slate-50 transition-colors flex items-center justify-center"
-                 >
-                   {ctaText} Today
-                 </Link>
+                 <Link href={ctaHref} className="h-14 px-8 rounded-xl bg-white text-slate-900 font-bold text-lg hover:bg-indigo-50 shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 min-w-max w-fit mx-auto sm:mx-0">
+                  {ctaText} Today <ArrowRight className="h-5 w-5" />
+                </Link>
                  <button 
                    onClick={() => setIsDemoModalOpen(true)}
-                   className="h-14 px-8 rounded-lg border-2 border-indigo-400 hover:bg-indigo-700 text-white text-base font-bold transition-colors flex items-center justify-center"
+                   className="h-14 px-8 rounded-lg border-2 border-indigo-400 hover:bg-indigo-700 text-white text-base font-bold transition-colors flex items-center justify-center shrink-0 min-w-max"
                  >
                    Schedule Live Demo
                  </button>
