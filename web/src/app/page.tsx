@@ -96,41 +96,41 @@ export default function ProtechCloudHomepage() {
       
       {/* 1. Global Navigation */}
       <header className="fixed top-0 w-full z-[100] bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all">
-        <nav className="container mx-auto px-6 h-20 flex items-center justify-between">
-          <Link className="flex items-center gap-3" href="/">
-            <div className="relative h-10 w-10 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white">
-              <Image src="/images/logo.jpeg" alt="Protech Logo" fill sizes="40px" className="object-cover" />
+        <nav className="container mx-auto px-4 sm:px-6 h-20 lg:h-24 flex items-center justify-between">
+          <Link className="flex items-center gap-2 sm:gap-3 shrink-0" href="/">
+            <div className="relative h-10 w-10 lg:h-14 lg:w-14 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white shrink-0">
+              <Image src="/images/logo.jpeg" alt="Protech Logo" fill sizes="(max-width: 1024px) 40px, 56px" className="object-cover" />
             </div>
             <div className="flex flex-col">
-              <span className="font-bold text-lg tracking-tight text-slate-900 dark:text-white leading-tight">
+              <span className="font-bold text-lg lg:text-2xl tracking-tight text-slate-900 dark:text-white leading-tight">
                 Protech Assist
               </span>
-              <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-0.5">
+              <span className="text-[10px] lg:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">
                 Enterprise Inventory OS
               </span>
             </div>
           </Link>
 
-          <div className="hidden lg:flex items-center gap-8">
+          <div className="hidden xl:flex items-center gap-8">
             {["Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
-              <Link key={item} href={`#${item.toLowerCase()}`} className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+              <Link key={item} href={`#${item.toLowerCase()}`} className="text-base font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                 {item}
               </Link>
             ))}
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3 sm:gap-6">
             {/* Globe Icon with Dropdown */}
             <div 
-              className="relative group cursor-pointer hidden sm:block"
+              className="relative group cursor-pointer"
               onMouseEnter={() => setShowCountryDropdown(true)}
               onMouseLeave={() => setShowCountryDropdown(false)}
             >
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-2">
-                <div className="relative h-6 w-6 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700">
+              <div className="flex items-center gap-1 sm:gap-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1 sm:p-2">
+                <div className="relative h-7 w-7 lg:h-10 lg:w-10 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
                    <Image src="/images/images.jpg" alt="Globe" fill className="object-cover" />
                 </div>
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
               </div>
               
               <div 
@@ -164,12 +164,12 @@ export default function ProtechCloudHomepage() {
               </div>
             </div>
 
-            <Link href="/login" className="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors hidden sm:block">
+            <Link href="/login" className="text-sm lg:text-lg font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors hidden sm:block">
               Login
             </Link>
             <Link 
               href={ctaHref} 
-              className="h-10 px-6 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all flex items-center justify-center"
+              className="h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all flex items-center justify-center whitespace-nowrap"
             >
               {ctaText}
             </Link>
