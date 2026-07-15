@@ -1,3 +1,5 @@
+"use client";
+
 import { FileText, Plus, Search, Filter } from "lucide-react";
 import { ModuleHeader } from "@/components/layout/ModuleHeader";
 import { Button } from "@/components/ui/button";
