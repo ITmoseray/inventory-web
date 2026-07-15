@@ -148,7 +148,7 @@ export default function EmployeesPage() {
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     try {
-      await createUser({
+      const result = await createUser({
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -161,6 +161,11 @@ export default function EmployeesPage() {
         salary: formData.salary ? parseFloat(formData.salary) : undefined,
         hourlyRate: formData.hourlyRate ? parseFloat(formData.hourlyRate) : undefined
       });
+      
+      if (result && result.error) {
+        throw new Error(result.error);
+      }
+      
       toast.success("Employee node initialized successfully.");
       setIsAddOpen(false);
       setFormData({ 

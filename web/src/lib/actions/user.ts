@@ -260,7 +260,13 @@ export async function createUser(data: {
     };
   } catch (error: any) {
     console.error("createUser ERROR:", error?.message, error?.code, error?.stack);
-    throw new Error(error?.message ?? "Failed to create user. Please try again.");
+    
+    // Check for Prisma unique constraint violation (e.g. email already exists)
+    if (error?.code === "P2002") {
+      return { error: "A user with this email or username already exists." };
+    }
+    
+    return { error: error?.message ?? "Failed to create user. Please try again." };
   }
 }
 
