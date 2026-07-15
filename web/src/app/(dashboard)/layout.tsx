@@ -174,14 +174,20 @@ export default async function DashboardLayout({
       {isImpersonating && (
         <ImpersonationBanner businessName={session?.user?.businessName || "Business"} />
       )}
-      {/* Banner sits OUTSIDE AppShell — full viewport width, no sidebar padding */}
-      <AnnouncementBanner />
+    <div className="flex min-h-screen bg-background relative overflow-hidden">
+      {/* App-like Animated Background Mesh */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px]" />
+      </div>
+      
+      <div className="relative z-10 flex min-h-screen w-full">
       <AppShell>
           <ToastManager />
           <OnboardingTrigger businessCreatedAt={business?.createdAt ? new Date(business.createdAt).toISOString() : undefined} />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
-          <header className="flex h-16 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-slate-100 dark:border-slate-800 bg-white dark:bg-background sticky top-0 z-40 px-4 md:px-6 transition-all">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-border/50 bg-background/60 backdrop-blur-xl sticky top-0 z-40 px-4 md:px-6 transition-all">
             <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0 overflow-hidden">
               <SidebarTrigger className="-ml-1 flex-shrink-0" />
               <div className="flex-shrink-0">
@@ -216,12 +222,13 @@ export default async function DashboardLayout({
                </div>
             </div>
           </header>
-          <main className="flex-1 px-4 md:px-8 py-6">
+          <main className="flex-1 px-4 md:px-8 py-6 relative z-10">
             <DynamicBreadcrumb />
             {children}
           </main>
           <QuickActions />
       </AppShell>
+      </div>
     </div>
   );
 }
