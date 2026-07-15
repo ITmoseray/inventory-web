@@ -323,6 +323,7 @@ model Sale {
   patientId     String?
   tableId       String?
   staffId       String?
+  staffName     String?
   createdAt     DateTime             @default(now())
   deletedAt     DateTime?
   updatedAt     DateTime             @updatedAt

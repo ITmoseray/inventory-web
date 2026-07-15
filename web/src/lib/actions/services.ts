@@ -81,7 +81,7 @@ export async function createService(data: { name: string; description: string; p
   }
 }
 
-export async function recordServiceFee(data: { serviceId: string; amount: number; paymentMethod: string; customerId?: string; staffId?: string }) {
+export async function recordServiceFee(data: { serviceId: string; amount: number; paymentMethod: string; customerId?: string; staffId?: string; staffName?: string }) {
   try {
     const session = await auth();
     if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
@@ -104,6 +104,7 @@ export async function recordServiceFee(data: { serviceId: string; amount: number
         userId: session.user.id,
         ...(data.customerId ? { customerId: data.customerId } : {}),
         ...(data.staffId ? { staffId: data.staffId } : {}),
+        ...(data.staffName ? { staffName: data.staffName } : {}),
         items: {
           create: [
             {

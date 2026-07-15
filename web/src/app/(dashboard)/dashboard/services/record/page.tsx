@@ -29,7 +29,8 @@ function RecordFeeForm() {
     amount: "",
     paymentMethod: "CASH",
     customerId: "walk-in",
-    staffId: "none"
+    staffId: "none",
+    staffName: ""
   });
 
   useEffect(() => {
@@ -80,7 +81,8 @@ function RecordFeeForm() {
         amount: Number(formData.amount),
         paymentMethod: formData.paymentMethod,
         customerId: formData.customerId === "walk-in" ? undefined : formData.customerId,
-        staffId: formData.staffId === "none" ? undefined : formData.staffId
+        staffId: formData.staffId === "none" ? undefined : formData.staffId,
+        staffName: formData.staffName.trim() || undefined
       });
       
       if (res.success) {
@@ -181,6 +183,19 @@ function RecordFeeForm() {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Manual staff name override */}
+        <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+          <Label className="text-xs font-black uppercase tracking-widest text-slate-500 block">Or Type Staff Name Manually (Optional)</Label>
+          <Input
+            type="text"
+            placeholder="e.g. John Kamara, Ahmed Conteh..."
+            className="h-12 bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800"
+            value={formData.staffName}
+            onChange={(e) => setFormData({...formData, staffName: e.target.value})}
+          />
+          <p className="text-[10px] text-slate-400 font-medium">Use this if the staff member is not in the system yet.</p>
         </div>
 
       </div>
