@@ -32,7 +32,58 @@ export async function getSchoolDashboardStats() {
   
   const totalRevenue = payments.reduce((sum, p) => sum + Number(p.amount), 0);
 
-  return { totalStudents, activeStudents, totalCourses, pendingPayments, totalRevenue };
+  // Fetch recent enrollments
+  const recentStudents = await prisma.schoolStudent.findMany({
+    where: { businessId },
+    orderBy: { createdAt: 'desc' },
+    take: 5,
+    select: { id: true, firstName: true, lastName: true, studentId: true, photoPath: true, currentLevel: true, createdAt: true }
+  });
+
+  // Calculate 7-day attendance trend
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(today.getDate() - 6);
+
+  const rawAttendance = await prisma.schoolAttendance.findMany({
+    where: { 
+      businessId, 
+      date: { gte: sevenDaysAgo, lte: today } 
+    }
+  });
+
+  // Group by date string (YYYY-MM-DD)
+  const groupedAttendance = rawAttendance.reduce((acc, curr) => {
+    const dateStr = curr.date.toISOString().split('T')[0];
+    if (!acc[dateStr]) acc[dateStr] = { present: 0, absent: 0, late: 0 };
+    
+    if (curr.status === 'PRESENT') acc[dateStr].present++;
+    if (curr.status === 'ABSENT') acc[dateStr].absent++;
+    if (curr.status === 'LATE') acc[dateStr].late++;
+    
+    return acc;
+  }, {} as Record<string, { present: number, absent: number, late: number }>);
+
+  // Format for Recharts (fill in missing days with zeros)
+  const attendanceTrend = [];
+  for (let i = 0; i <= 6; i++) {
+    const d = new Date(sevenDaysAgo);
+    d.setDate(sevenDaysAgo.getDate() + i);
+    const dateStr = d.toISOString().split('T')[0];
+    
+    // Format label to something nicer like "Mon 15"
+    const label = d.toLocaleDateString('en-US', { weekday: 'short', day: 'numeric' });
+    
+    attendanceTrend.push({
+      date: label,
+      present: groupedAttendance[dateStr]?.present || 0,
+      absent: groupedAttendance[dateStr]?.absent || 0,
+      late: groupedAttendance[dateStr]?.late || 0
+    });
+  }
+
+  return { totalStudents, activeStudents, totalCourses, pendingPayments, totalRevenue, attendanceTrend, recentStudents };
 }
 
 // STUDENTS CRUD
