@@ -61,6 +61,11 @@ model Business {
   consultations          Consultation[]
   labTests               LabTest[]
   salesDrafts            SalesDraft[]
+  schoolStudents         SchoolStudent[]
+  schoolCourses          SchoolCourse[]
+  schoolEnrollments      SchoolEnrollment[]
+  schoolAttendance       SchoolAttendance[]
+  schoolPayments         SchoolPayment[]
 
   @@index([slug])
 }
@@ -604,6 +609,7 @@ enum BusinessType {
   CLINIC
   HOSPITAL
   OFFICE
+  SCHOOL
 }
 
 enum SubscriptionPlan {
@@ -834,3 +840,119 @@ model SystemSetting {
   createdAt                   DateTime @default(now())
   updatedAt                   DateTime @updatedAt
 }
+
+model SchoolStudent {
+  id                 String             @id @default(cuid())
+  businessId         String
+  studentId          String
+  firstName          String
+  lastName           String
+  gender             String
+  dateOfBirth        DateTime?
+  address            String?
+  phone              String?
+  email              String?
+  photoPath          String?
+  enrollmentDate     DateTime           @default(now())
+  status             String             @default("ACTIVE")
+  applicationSource  String             @default("ONLINE")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  enrollments        SchoolEnrollment[]
+  attendance         SchoolAttendance[]
+  payments           SchoolPayment[]
+  
+  @@unique([businessId, studentId])
+  @@index([businessId])
+}
+
+model SchoolCourse {
+  id                 String             @id @default(cuid())
+  businessId         String
+  courseName         String
+  courseCode         String
+  description        String?
+  duration           String
+  fee                Decimal            @db.Decimal(10, 2)
+  schedule           String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  enrollments        SchoolEnrollment[]
+  attendance         SchoolAttendance[]
+  payments           SchoolPayment[]
+  
+  @@unique([businessId, courseCode])
+  @@index([businessId])
+}
+
+model SchoolEnrollment {
+  id                 String             @id @default(cuid())
+  businessId         String
+  studentId          String
+  courseId           String
+  enrollmentDate     DateTime           @default(now())
+  completionDate     DateTime?
+  status             String             @default("ACTIVE")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student            SchoolStudent      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course             SchoolCourse       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId])
+  @@index([businessId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model SchoolAttendance {
+  id                 String             @id @default(cuid())
+  businessId         String
+  studentId          String
+  courseId           String
+  date               DateTime
+  status             String             @default("PRESENT")
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student            SchoolStudent      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course             SchoolCourse       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId, date])
+  @@index([businessId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model SchoolPayment {
+  id                 String             @id @default(cuid())
+  businessId         String
+  studentId          String
+  courseId           String?
+  amount             Decimal            @db.Decimal(10, 2)
+  paymentDate        DateTime
+  paymentMethod      String?
+  status             String             @default("PAID")
+  receiptNumber      String?            @unique
+  formType           String?
+  paymentReference   String?            // External reference (e.g., mobile money transaction ID)
+  guardianName       String?            // For registration form
+  guardianPhone      String?            // For registration form
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student            SchoolStudent      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course             SchoolCourse?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
