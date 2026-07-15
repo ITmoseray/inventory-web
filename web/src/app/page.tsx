@@ -100,7 +100,7 @@ export default function ProtechCloudHomepage() {
         <nav className="container mx-auto px-4 sm:px-6 h-20 lg:h-24 flex items-center justify-between">
           <Link className="flex items-center gap-2 sm:gap-3 shrink-0" href="/">
             <div className="relative h-10 w-10 lg:h-14 lg:w-14 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white shrink-0">
-              <Image src="/images/logo.jpeg" alt="Protech Logo" fill sizes="(max-width: 1024px) 40px, 56px" className="object-cover" />
+              <Image src="/images/logo.jpeg" alt="Protech Logo" fill sizes="(max-width: 1024px) 40px, 56px" className="object-cover" unoptimized />
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg lg:text-2xl tracking-tight text-slate-900 dark:text-white leading-tight">
@@ -129,7 +129,7 @@ export default function ProtechCloudHomepage() {
             >
               <div className="flex items-center gap-1 sm:gap-2 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors p-1 sm:p-2">
                 <div className="relative h-7 w-7 lg:h-10 lg:w-10 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
-                   <Image src="/images/images.jpg" alt="Globe" fill className="object-cover" />
+                   <img src="/images/images.jpg" alt="Globe" className="h-full w-full object-cover" />
                 </div>
                 <ChevronDown className="h-3 w-3 sm:h-4 sm:w-4" />
               </div>
@@ -165,12 +165,12 @@ export default function ProtechCloudHomepage() {
               </div>
             </div>
 
-            <Link href="/login" className="hidden sm:flex h-9 sm:h-10 lg:h-12 px-4 lg:px-6 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-sm lg:text-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+            <Link href="/login" className="hidden xl:flex h-9 sm:h-10 lg:h-12 px-4 lg:px-6 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-sm lg:text-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
               Login
             </Link>
             <Link 
               href={ctaHref} 
-              className="hidden sm:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all items-center justify-center whitespace-nowrap shrink-0 min-w-max"
+              className="hidden xl:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all items-center justify-center whitespace-nowrap shrink-0 min-w-max"
             >
               {ctaText}
             </Link>
