@@ -19,18 +19,20 @@ export default async function ServicesPage() {
           <p className="text-sm text-slate-500 mt-2 font-medium">Manage billable services and record fees.</p>
         </div>
         <div className="flex gap-3">
-          <Button asChild variant="outline" className="font-bold border-primary/20 text-primary hover:bg-primary/10">
-            <Link href="/dashboard/services/record">
-              <DollarSign className="mr-2 h-4 w-4" />
-              Record Fee
-            </Link>
-          </Button>
-          <Button asChild className="font-bold shadow-lg shadow-primary/20">
-            <Link href="/dashboard/services/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Add Service
-            </Link>
-          </Button>
+          <Link 
+            href="/dashboard/services/record" 
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:text-accent-foreground h-10 px-4 py-2 border-primary/20 text-primary hover:bg-primary/10"
+          >
+            <DollarSign className="mr-2 h-4 w-4" />
+            Record Fee
+          </Link>
+          <Link 
+            href="/dashboard/services/new" 
+            className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-lg shadow-primary/20"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add Service
+          </Link>
         </div>
       </div>
 
@@ -53,9 +55,12 @@ export default async function ServicesPage() {
                     <Briefcase className="h-12 w-12 mx-auto text-slate-300 mb-4" />
                     <p className="font-medium text-lg text-slate-900 dark:text-white">No services found</p>
                     <p className="text-sm mb-4">You haven't added any services yet.</p>
-                    <Button asChild variant="outline">
-                      <Link href="/dashboard/services/new">Add Your First Service</Link>
-                    </Button>
+                    <Link 
+                      href="/dashboard/services/new" 
+                      className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                    >
+                      Add Your First Service
+                    </Link>
                   </td>
                 </tr>
               ) : (
@@ -77,11 +82,12 @@ export default async function ServicesPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Button asChild variant="ghost" size="sm" className="font-bold">
-                        <Link href={`/dashboard/services/record?serviceId=${service.id}`}>
-                          Record Fee
-                        </Link>
-                      </Button>
+                      <Link 
+                        href={`/dashboard/services/record?serviceId=${service.id}`}
+                        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-bold ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-3"
+                      >
+                        Record Fee
+                      </Link>
                     </td>
                   </tr>
                 ))

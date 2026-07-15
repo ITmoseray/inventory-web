@@ -163,8 +163,13 @@ function RecordFeeForm() {
       </div>
 
       <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-        <Button asChild variant="ghost" className="font-bold">
-          <Link href="/dashboard/services">Cancel</Link>
+        <Button 
+          type="button" 
+          variant="ghost" 
+          className="font-bold"
+          onClick={() => router.push("/dashboard/services")}
+        >
+          Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting || !formData.serviceId} className="font-bold shadow-lg shadow-emerald-500/20 bg-emerald-600 hover:bg-emerald-700 text-white min-w-[140px]">
           {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <><CheckCircle2 className="mr-2 h-4 w-4" /> Complete Sale</>}
@@ -175,13 +180,19 @@ function RecordFeeForm() {
 }
 
 export default function RecordServiceFeePage() {
+  const router = useRouter();
+
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Button asChild variant="ghost" size="icon" className="h-10 w-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-          <Link href="/dashboard/services">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
+        <Button 
+          type="button" 
+          variant="ghost" 
+          size="icon" 
+          className="h-10 w-10 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800"
+          onClick={() => router.push("/dashboard/services")}
+        >
+          <ArrowLeft className="h-5 w-5" />
         </Button>
         <div>
           <h1 className="text-2xl font-[1000] tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
