@@ -89,7 +89,7 @@ export default function ProtechCloudHomepage() {
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
 
-  const ctaText = isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Start Free Trial";
+  const ctaText = isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Create Account";
   const ctaHref = isTrialExpired || hasUsedTrial ? "/pricing" : "/register";
 
   return (
@@ -165,7 +165,7 @@ export default function ProtechCloudHomepage() {
               </div>
             </div>
 
-            <Link href="/login" className="text-sm lg:text-lg font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors hidden sm:block">
+            <Link href="/login" className="hidden sm:flex h-9 sm:h-10 lg:h-12 px-4 lg:px-6 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-sm lg:text-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
               Login
             </Link>
             <Link 
@@ -199,13 +199,23 @@ export default function ProtechCloudHomepage() {
                   {item}
                 </Link>
               ))}
-              <Link 
-                href="/login" 
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-3 sm:hidden"
-              >
-                Login
-              </Link>
+              
+              <div className="flex flex-col gap-3 mt-4 sm:hidden">
+                <Link 
+                  href="/login" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full h-12 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Login
+                </Link>
+                <Link 
+                  href={ctaHref} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full h-12 flex items-center justify-center rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-colors"
+                >
+                  {ctaText}
+                </Link>
+              </div>
             </div>
           </div>
         )}
