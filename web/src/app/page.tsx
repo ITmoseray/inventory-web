@@ -6,7 +6,7 @@ import {
   ArrowRight, Shield, ShoppingCart, TrendingUp, Box, Truck, Users, HardHat, 
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
-  ChevronDown, Globe, MessageSquare, BarChart3, Layers
+  ChevronDown, Globe, MessageSquare, BarChart, Layers
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -236,8 +236,8 @@ export default function ProtechCloudHomepage() {
                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart },
                    { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck },
                    { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users },
-                   { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: TrendingUp },
-                   { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart3 },
+                   { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: BarChart },
+                   { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart },
                    { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe },
                    { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers },
                  ].map((mod, i) => (
