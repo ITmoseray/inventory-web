@@ -14,7 +14,7 @@ export async function getProducts() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const products = await prisma.product.findMany({
-      where: { businessId: session.user.businessId },
+      where: { businessId: session.user.businessId, type: "PRODUCT" },
       include: { 
         category: true,
         units: true
