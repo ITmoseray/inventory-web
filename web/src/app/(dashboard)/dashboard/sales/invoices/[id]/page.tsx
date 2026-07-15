@@ -97,10 +97,13 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       {/* Action Bar (Hidden when printing) */}
       <div className="flex items-center justify-between print-hidden">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className="rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">
-            <Link href="/dashboard/sales/invoices">
-              <ArrowLeft className="h-5 w-5" />
-            </Link>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => router.push('/dashboard/sales/invoices')}
+            className="rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700"
+          >
+            <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Invoice {invoice.invoiceNumber}</h1>
