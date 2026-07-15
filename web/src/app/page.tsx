@@ -89,7 +89,7 @@ export default function ProtechCloudHomepage() {
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
 
-  const ctaText = isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Create Account";
+  const ctaText = isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Start Your Free Trial";
   const ctaHref = isTrialExpired || hasUsedTrial ? "/pricing" : "/register";
 
   return (
