@@ -7,66 +7,70 @@ datasource db {
 }
 
 model Business {
-  id                     String               @id @default(cuid())
-  name                   String
-  slug                   String               @unique
-  logoUrl                String?
-  type                   BusinessType         @default(SHOP)
-  institutionType        String?
-  plan                   SubscriptionPlan     @default(FREE)
-  status                 String               @default("PENDING")
-  trialStartDate         DateTime?            @default(now())
-  trialEndDate           DateTime?
-  enabledModules         String[]             @default([])
-  currency               String               @default("SLL")
-  timezone               String               @default("UTC")
-  createdAt              DateTime             @default(now())
-  updatedAt              DateTime             @updatedAt
-  registrationReceipt    String?
-  address                String?
-  email                  String?
-  phone                  String?
-  flutterwaveRef         String?
-  subscriptionStatus     String               @default("INACTIVE")
-  requestedBillingPeriod String               @default("monthly")
-  attendance             Attendance[]
-  auditLogs              AuditLog[]
-  batches                Batch[]
-  categories             Category[]
-  customers              Customer[]
-  debts                  Debt[]
-  expenses               Expense[]
-  invoices               Invoice[]
-  loyaltyCampaigns       LoyaltyCampaign[]
-  loyaltyTiers           LoyaltyTier[]
-  notifications          Notification[]
-  orderStatusHistory     OrderStatusHistory[]
-  payments               Payment[]
-  payrolls               Payroll[]
-  products               Product[]
-  purchases              Purchase[]
-  purchaseItems          PurchaseItem[]
-  restaurantTables       RestaurantTable[]
-  roles                  Role[]
-  sales                  Sale[]
-  saleItems              SaleItem[]
-  stockMovements         StockMovement[]
-  subscriptions          Subscription[]
-  suppliers              Supplier[]
-  users                  User[]
-  pushSubscriptions      PushSubscription[]
-  patients               Patient[]
-  prescriptions          Prescription[]
-  locations              Location[]
-  appointments           Appointment[]
-  consultations          Consultation[]
-  labTests               LabTest[]
-  salesDrafts            SalesDraft[]
-  schoolStudents         SchoolStudent[]
-  schoolCourses          SchoolCourse[]
-  schoolEnrollments      SchoolEnrollment[]
-  schoolAttendance       SchoolAttendance[]
-  schoolPayments         SchoolPayment[]
+  id                      String                   @id @default(cuid())
+  name                    String
+  slug                    String                   @unique
+  logoUrl                 String?
+  type                    BusinessType             @default(SHOP)
+  institutionType         String?
+  plan                    SubscriptionPlan         @default(FREE)
+  status                  String                   @default("PENDING")
+  trialStartDate          DateTime?                @default(now())
+  trialEndDate            DateTime?
+  enabledModules          String[]                 @default([])
+  currency                String                   @default("SLL")
+  timezone                String                   @default("UTC")
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  registrationReceipt     String?
+  address                 String?
+  email                   String?
+  phone                   String?
+  flutterwaveRef          String?
+  subscriptionStatus      String                   @default("INACTIVE")
+  requestedBillingPeriod  String                   @default("monthly")
+  attendance              Attendance[]
+  auditLogs               AuditLog[]
+  batches                 Batch[]
+  categories              Category[]
+  customers               Customer[]
+  debts                   Debt[]
+  expenses                Expense[]
+  invoices                Invoice[]
+  loyaltyCampaigns        LoyaltyCampaign[]
+  loyaltyTiers            LoyaltyTier[]
+  notifications           Notification[]
+  orderStatusHistory      OrderStatusHistory[]
+  payments                Payment[]
+  payrolls                Payroll[]
+  products                Product[]
+  purchases               Purchase[]
+  purchaseItems           PurchaseItem[]
+  restaurantTables        RestaurantTable[]
+  roles                   Role[]
+  sales                   Sale[]
+  saleItems               SaleItem[]
+  stockMovements          StockMovement[]
+  subscriptions           Subscription[]
+  suppliers               Supplier[]
+  users                   User[]
+  pushSubscriptions       PushSubscription[]
+  patients                Patient[]
+  prescriptions           Prescription[]
+  locations               Location[]
+  appointments            Appointment[]
+  consultations           Consultation[]
+  labTests                LabTest[]
+  salesDrafts             SalesDraft[]
+  schoolStudents          SchoolStudent[]
+  schoolCourses           SchoolCourse[]
+  schoolEnrollments       SchoolEnrollment[]
+  schoolAttendance        SchoolAttendance[]
+  schoolPayments          SchoolPayment[]
+  schoolLibraryBooks      SchoolLibraryBook[]
+  schoolBookCheckouts     SchoolBookCheckout[]
+  schoolHostels           SchoolHostel[]
+  schoolHostelAllocations SchoolHostelAllocation[]
 
   @@index([slug])
 }
@@ -276,18 +280,18 @@ model RestaurantTable {
 }
 
 model Customer {
-  id         String    @id @default(cuid())
-  name       String
-  email      String?
-  phone      String?
-  address    String?
-  businessId String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
-  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  debts      Debt[]
-  sales      Sale[]
+  id          String       @id @default(cuid())
+  name        String
+  email       String?
+  phone       String?
+  address     String?
+  businessId  String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  deletedAt   DateTime?
+  business    Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  debts       Debt[]
+  sales       Sale[]
   salesDrafts SalesDraft[]
 
   @@index([businessId])
@@ -635,14 +639,14 @@ model PushSubscription {
 }
 
 model Patient {
-  id            String         @id @default(cuid())
-  name          String
-  dateOfBirth   DateTime?
-  gender        String?
-  phone         String?
-  email         String?
-  address       String?
-  allergies     String?
+  id                 String         @id @default(cuid())
+  name               String
+  dateOfBirth        DateTime?
+  gender             String?
+  phone              String?
+  email              String?
+  address            String?
+  allergies          String?
   medicalNotes       String?
   nationality        String?
   emergencyContact   String?
@@ -652,13 +656,13 @@ model Patient {
   immunizations      String?
   businessId         String
   business           Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  prescriptions Prescription[]
-  appointments  Appointment[]
-  consultations Consultation[]
-  labTests      LabTest[]
-  sales         Sale[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  prescriptions      Prescription[]
+  appointments       Appointment[]
+  consultations      Consultation[]
+  labTests           LabTest[]
+  sales              Sale[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
 
   @@index([businessId])
 }
@@ -814,18 +818,18 @@ model SalesDraft {
   businessId    String
   userId        String
   customerId    String?
-  customerName  String?   
-  customerPhone String?   
-  items         Json      
+  customerName  String?
+  customerPhone String?
+  items         Json
   totalAmount   Decimal   @db.Decimal(10, 2)
   notes         String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   expiresAt     DateTime?
 
-  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user          User      @relation(fields: [userId], references: [id])
-  customer      Customer? @relation(fields: [customerId], references: [id])
+  business Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id])
+  customer Customer? @relation(fields: [customerId], references: [id])
 
   @@index([businessId])
   @@index([userId])
@@ -843,74 +847,76 @@ model SystemSetting {
 }
 
 model SchoolStudent {
-  id                 String             @id @default(cuid())
-  businessId         String
-  studentId          String
-  firstName          String
-  lastName           String
-  gender             String
-  dateOfBirth        DateTime?
-  address            String?
-  phone              String?
-  email              String?
-  photoPath          String?
-  guardianName       String?
-  guardianPhone      String?
-  guardianEmail      String?
-  guardianRelation   String?
-  bloodGroup         String?
-  medicalConditions  String?
-  currentLevel       String?
-  enrollmentDate     DateTime           @default(now())
-  status             String             @default("ACTIVE")
-  applicationSource  String             @default("ONLINE")
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  
-  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  enrollments        SchoolEnrollment[]
-  attendance         SchoolAttendance[]
-  payments           SchoolPayment[]
-  
+  id                String    @id @default(cuid())
+  businessId        String
+  studentId         String
+  firstName         String
+  lastName          String
+  gender            String
+  dateOfBirth       DateTime?
+  address           String?
+  phone             String?
+  email             String?
+  photoPath         String?
+  guardianName      String?
+  guardianPhone     String?
+  guardianEmail     String?
+  guardianRelation  String?
+  bloodGroup        String?
+  medicalConditions String?
+  currentLevel      String?
+  enrollmentDate    DateTime  @default(now())
+  status            String    @default("ACTIVE")
+  applicationSource String    @default("ONLINE")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  business                Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  enrollments             SchoolEnrollment[]
+  attendance              SchoolAttendance[]
+  payments                SchoolPayment[]
+  schoolBookCheckouts     SchoolBookCheckout[]
+  schoolHostelAllocations SchoolHostelAllocation[]
+
   @@unique([businessId, studentId])
   @@index([businessId])
 }
 
 model SchoolCourse {
-  id                 String             @id @default(cuid())
-  businessId         String
-  courseName         String
-  courseCode         String
-  description        String?
-  duration           String
-  fee                Decimal            @db.Decimal(10, 2)
-  schedule           String?
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  
-  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  enrollments        SchoolEnrollment[]
-  attendance         SchoolAttendance[]
-  payments           SchoolPayment[]
-  
+  id          String   @id @default(cuid())
+  businessId  String
+  courseName  String
+  courseCode  String
+  description String?
+  duration    String
+  fee         Decimal  @db.Decimal(10, 2)
+  schedule    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business    Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  enrollments SchoolEnrollment[]
+  attendance  SchoolAttendance[]
+  payments    SchoolPayment[]
+
   @@unique([businessId, courseCode])
   @@index([businessId])
 }
 
 model SchoolEnrollment {
-  id                 String             @id @default(cuid())
-  businessId         String
-  studentId          String
-  courseId           String
-  enrollmentDate     DateTime           @default(now())
-  completionDate     DateTime?
-  status             String             @default("ACTIVE")
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id             String    @id @default(cuid())
+  businessId     String
+  studentId      String
+  courseId       String
+  enrollmentDate DateTime  @default(now())
+  completionDate DateTime?
+  status         String    @default("ACTIVE")
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
-  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  student            SchoolStudent      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course             SchoolCourse       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student  SchoolStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course   SchoolCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId])
   @@index([businessId])
@@ -919,18 +925,18 @@ model SchoolEnrollment {
 }
 
 model SchoolAttendance {
-  id                 String             @id @default(cuid())
-  businessId         String
-  studentId          String
-  courseId           String
-  date               DateTime
-  status             String             @default("PRESENT")
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id         String   @id @default(cuid())
+  businessId String
+  studentId  String
+  courseId   String
+  date       DateTime
+  status     String   @default("PRESENT")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  student            SchoolStudent      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course             SchoolCourse       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student  SchoolStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course   SchoolCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, courseId, date])
   @@index([businessId])
@@ -939,28 +945,106 @@ model SchoolAttendance {
 }
 
 model SchoolPayment {
-  id                 String             @id @default(cuid())
-  businessId         String
-  studentId          String
-  courseId           String?
-  amount             Decimal            @db.Decimal(10, 2)
-  paymentDate        DateTime
-  paymentMethod      String?
-  status             String             @default("PAID")
-  receiptNumber      String?            @unique
-  formType           String?
-  paymentReference   String?            // External reference (e.g., mobile money transaction ID)
-  guardianName       String?            // For registration form
-  guardianPhone      String?            // For registration form
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  id               String   @id @default(cuid())
+  businessId       String
+  studentId        String
+  courseId         String?
+  amount           Decimal  @db.Decimal(10, 2)
+  paymentDate      DateTime
+  paymentMethod    String?
+  status           String   @default("PAID")
+  receiptNumber    String?  @unique
+  formType         String?
+  paymentReference String? // External reference (e.g., mobile money transaction ID)
+  guardianName     String? // For registration form
+  guardianPhone    String? // For registration form
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  business           Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  student            SchoolStudent      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  course             SchoolCourse?      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student  SchoolStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course   SchoolCourse? @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([studentId])
   @@index([courseId])
 }
 
+// -----------------------------------------
+// PHASE 3: LIBRARY & HOSTEL MANAGEMENT
+// -----------------------------------------
+
+model SchoolLibraryBook {
+  id              String   @id @default(cuid())
+  businessId      String
+  title           String
+  author          String?
+  isbn            String?
+  category        String?
+  totalCopies     Int      @default(1)
+  availableCopies Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  business  Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  checkouts SchoolBookCheckout[]
+
+  @@index([businessId])
+}
+
+model SchoolBookCheckout {
+  id           String    @id @default(cuid())
+  businessId   String
+  bookId       String
+  studentId    String
+  checkoutDate DateTime  @default(now())
+  dueDate      DateTime
+  returnDate   DateTime?
+  status       String    @default("ACTIVE") // ACTIVE, RETURNED, OVERDUE
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  business Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  book     SchoolLibraryBook @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  student  SchoolStudent     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([studentId])
+  @@index([bookId])
+}
+
+model SchoolHostel {
+  id         String   @id @default(cuid())
+  businessId String
+  blockName  String
+  roomNumber String
+  capacity   Int      @default(1)
+  type       String? // BOYS, GIRLS, MIXED
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business    Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  allocations SchoolHostelAllocation[]
+
+  @@unique([businessId, blockName, roomNumber])
+  @@index([businessId])
+}
+
+model SchoolHostelAllocation {
+  id             String   @id @default(cuid())
+  businessId     String
+  hostelId       String
+  studentId      String
+  allocationDate DateTime @default(now())
+  status         String   @default("ACTIVE") // ACTIVE, VACATED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  hostel   SchoolHostel  @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  student  SchoolStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([studentId])
+  @@index([hostelId])
+}

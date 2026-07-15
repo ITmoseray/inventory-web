@@ -36,6 +36,13 @@ export const getSchoolSidebarConfig = (institutionType?: string | null) => {
       ] 
     },
     { 
+      label: "Facilities & Assets", 
+      items: [
+        { title: "Library Catalog", url: "/dashboard/school/library", icon: BookOpen, permission: "menu:overview" },
+        { title: "Hostel & Rooms", url: "/dashboard/school/hostel", icon: Building2, permission: "menu:overview" }
+      ] 
+    },
+    { 
       label: "Financials", 
       items: [
         { title: "Payments & Fees", url: "/dashboard/school/payments", icon: CreditCard, permission: "menu:overview" },
