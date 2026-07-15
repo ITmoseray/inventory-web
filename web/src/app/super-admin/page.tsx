@@ -36,7 +36,6 @@ import {
   getAllBusinesses,
   sendEcosystemPushNotification,
   broadcastSystemUpdate,
-  createSuperAdmin,
   getInactiveBusinesses
 } from "@/lib/actions/super-admin";
 import { getSystemSettings, updateSystemSettings } from "@/lib/actions/system-settings";
@@ -380,14 +379,22 @@ export default function NexusSuperControl() {
     }
     try {
       setIsCreatingSuperAdmin(true);
-      const result = await createSuperAdmin({
-        name: newSuperAdminName,
-        username: newSuperAdminUsername,
-        email: newSuperAdminEmail,
-        passwordStr: newSuperAdminPassword
+      
+      const response = await fetch("/api/super-admin/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: newSuperAdminName,
+          username: newSuperAdminUsername,
+          email: newSuperAdminEmail,
+          passwordStr: newSuperAdminPassword
+        })
       });
-      if (result && result.error) {
-        throw new Error(result.error);
+      
+      const result = await response.json();
+      
+      if (!response.ok || (result && result.error)) {
+        throw new Error(result?.error || "Failed to create Super Admin.");
       }
       toast.success("New Super Admin account registered successfully.");
       setIsAddSuperAdminOpen(false);
