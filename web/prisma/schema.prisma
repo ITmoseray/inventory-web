@@ -72,6 +72,9 @@ model Business {
   schoolHostels           SchoolHostel[]
   schoolHostelAllocations SchoolHostelAllocation[]
   schoolBroadcasts        SchoolBroadcast[]
+  schoolInvoices          SchoolInvoice[]
+  schoolTerms             SchoolTerm[]
+  schoolGrades            SchoolGrade[]
 
   @@index([slug])
 }
@@ -879,6 +882,8 @@ model SchoolStudent {
   schoolBookCheckouts       SchoolBookCheckout[]
   schoolHostelAllocations   SchoolHostelAllocation[]
   schoolBroadcastRecipients SchoolBroadcastRecipient[]
+  schoolInvoices            SchoolInvoice[]
+  schoolGrades              SchoolGrade[]
 
   @@unique([businessId, studentId])
   @@index([businessId])
@@ -896,10 +901,11 @@ model SchoolCourse {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  business    Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  enrollments SchoolEnrollment[]
-  attendance  SchoolAttendance[]
-  payments    SchoolPayment[]
+  business     Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  enrollments  SchoolEnrollment[]
+  attendance   SchoolAttendance[]
+  payments     SchoolPayment[]
+  schoolGrades SchoolGrade[]
 
   @@unique([businessId, courseCode])
   @@index([businessId])
@@ -966,6 +972,9 @@ model SchoolPayment {
   business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   student  SchoolStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
   course   SchoolCourse? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  invoiceId String?
+  invoice   SchoolInvoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([studentId])
@@ -1088,4 +1097,68 @@ model SchoolBroadcastRecipient {
 
   @@index([broadcastId])
   @@index([studentId])
+}
+
+// -----------------------------------------
+// PHASE 5: FINANCE & ACADEMICS
+// -----------------------------------------
+
+model SchoolInvoice {
+  id          String   @id @default(cuid())
+  businessId  String
+  studentId   String
+  title       String // e.g. "Term 1 Tuition 2026"
+  description String?
+  totalAmount Decimal  @db.Decimal(10, 2)
+  dueDate     DateTime
+  status      String   @default("PENDING") // PENDING, PARTIAL, PAID
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  business Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student  SchoolStudent   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  payments SchoolPayment[]
+
+  @@index([businessId])
+  @@index([studentId])
+}
+
+model SchoolTerm {
+  id         String   @id @default(cuid())
+  businessId String
+  name       String // e.g. "First Term 2026"
+  startDate  DateTime
+  endDate    DateTime
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  grades   SchoolGrade[]
+
+  @@index([businessId])
+}
+
+model SchoolGrade {
+  id         String   @id @default(cuid())
+  businessId String
+  studentId  String
+  courseId   String
+  termId     String
+  score      Decimal  @db.Decimal(5, 2) // E.g., 95.50
+  grade      String? // E.g., "A", "B"
+  remarks    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  student  SchoolStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  course   SchoolCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  term     SchoolTerm    @relation(fields: [termId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, courseId, termId])
+  @@index([businessId])
+  @@index([studentId])
+  @@index([courseId])
+  @@index([termId])
 }

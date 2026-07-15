@@ -32,6 +32,7 @@ export const getSchoolSidebarConfig = (institutionType?: string | null) => {
       items: [
         { title: "Students / Trainees", url: "/dashboard/school/students", icon: Users, permission: "menu:overview" },
         { title: coursesTitle, url: "/dashboard/school/courses", icon: coursesIcon, permission: "menu:overview" },
+        { title: "Academic Records", url: "/dashboard/school/academics", icon: GraduationCap, permission: "menu:overview" },
         { title: "Daily Attendance", url: "/dashboard/school/attendance", icon: Calendar, permission: "menu:overview" }
       ] 
     },

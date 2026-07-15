@@ -1,20 +1,25 @@
 import React from 'react';
-import { getPayments } from '@/actions/schoolAdminActions';
-import PaymentTable from './PaymentTable';
+import { getInvoices } from '@/actions/feeActions';
+import { getStudents } from '@/actions/schoolAdminActions';
+import FinanceClient from './FinanceClient';
 
 export default async function PaymentsPage() {
-  const payments = await getPayments();
+  const [invoices, students] = await Promise.all([
+    getInvoices(),
+    getStudents()
+  ]);
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Payments & Financials</h1>
-        <p className="text-slate-500 dark:text-slate-400 mt-2">Manage student admissions and course tuition payments.</p>
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">Fee Management</h1>
+        <p className="text-slate-500 dark:text-slate-400">Manage student invoices, track payments, and view arrears.</p>
       </div>
 
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-        <PaymentTable initialPayments={payments} />
-      </div>
+      <FinanceClient 
+        initialInvoices={invoices} 
+        students={students} 
+      />
     </div>
   );
 }
