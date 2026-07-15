@@ -94,10 +94,13 @@ export async function recordServiceFee(data: { serviceId: string; amount: number
     const randomNum = Math.floor(1000 + Math.random() * 9000);
     const invoiceNumber = `SRV-${dateStr}-${randomNum}`;
     
+    // Round to 2 decimal places to avoid floating-point drift (e.g. 500 → 499.98)
+    const amount = Math.round(data.amount * 100) / 100;
+    
     const sale = await prisma.sale.create({
       data: {
         invoiceNumber,
-        totalAmount: data.amount,
+        totalAmount: amount,
         paymentMethod: data.paymentMethod,
         paymentStatus: "PAID",
         businessId: session.user.businessId,
@@ -110,8 +113,8 @@ export async function recordServiceFee(data: { serviceId: string; amount: number
             {
               productId: data.serviceId,
               quantity: 1,
-              unitPrice: data.amount,
-              total: data.amount,
+              unitPrice: amount,
+              total: amount,
             }
           ]
         }
