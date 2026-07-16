@@ -346,7 +346,19 @@ export default function ProtechCloudHomepage() {
                  <p className="text-lg text-slate-600 dark:text-slate-400">Manage every department from one unified dashboard with real-time intelligence.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <motion.div 
+                initial="hidden" 
+                whileInView="show" 
+                viewport={{ once: true, margin: "-100px" }}
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                  }
+                }}
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+              >
                  {[
                    { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory" },
                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos" },
@@ -364,32 +376,51 @@ export default function ProtechCloudHomepage() {
                    { title: "Services", desc: "Bookings and service analytics.", icon: Clock, href: "/dashboard/services/overview", isModal: true, image: "/images/services_screenshot.png", onClick: () => setShowServicesModal(true) },
                    { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat" },
                  ].map((mod, i) => {
+                    const cardVariants = {
+                      hidden: { opacity: 0, y: 30 },
+                      show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+                    };
+
                     if (mod.isModal) {
                       return (
-                       <div key={i} onClick={mod.onClick} className="group block p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-1 cursor-pointer overflow-hidden relative">
-                          <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-4 transition-colors relative z-10">
-                             <mod.icon className="h-5 w-5" />
+                       <motion.div 
+                          variants={cardVariants}
+                          whileHover={{ y: -5 }}
+                          key={i} 
+                          onClick={mod.onClick} 
+                          className="group block p-8 rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_-4px_rgba(79,70,229,0.15)] transition-all cursor-pointer overflow-hidden relative"
+                       >
+                          <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-4 group-hover:translate-x-0">
+                            <ArrowRight className="h-5 w-5 text-indigo-500" />
                           </div>
-                          <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">{mod.title}</h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed relative z-10 mb-4">{mod.desc}</p>
-                          <div className="relative h-48 -mx-6 -mb-6 mt-4 opacity-80 group-hover:opacity-100 transition-opacity">
+                          <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 group-hover:bg-gradient-to-br group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:text-white flex items-center justify-center mb-6 transition-all duration-300 relative z-10 shadow-sm group-hover:shadow-indigo-500/30 group-hover:scale-110">
+                             <mod.icon className="h-6 w-6" />
+                          </div>
+                          <h4 className="text-xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">{mod.title}</h4>
+                          <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed relative z-10 mb-6">{mod.desc}</p>
+                          <div className="relative h-48 -mx-8 -mb-8 mt-4 opacity-70 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105 origin-top">
                             <Image src={mod.image!} alt={`${mod.title} feature preview`} fill className="object-cover object-top" unoptimized />
-                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-transparent to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-white/50 dark:via-slate-950/50 to-transparent pointer-events-none" />
                           </div>
-                       </div>
+                       </motion.div>
                       )
                     }
                     return (
-                      <Link href={mod.href} key={i} className="group block p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-1 cursor-pointer">
-                         <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-4 transition-colors">
-                            <mod.icon className="h-5 w-5" />
-                         </div>
-                         <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{mod.title}</h4>
-                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mod.desc}</p>
-                      </Link>
+                      <motion.div variants={cardVariants} whileHover={{ y: -5 }} key={i}>
+                        <Link href={mod.href} className="group block p-8 rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_-4px_rgba(79,70,229,0.15)] transition-all cursor-pointer relative h-full">
+                           <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-4 group-hover:translate-x-0">
+                             <ArrowRight className="h-5 w-5 text-indigo-500" />
+                           </div>
+                           <div className="h-12 w-12 rounded-xl bg-slate-100 dark:bg-slate-800/50 text-slate-600 dark:text-slate-300 group-hover:bg-gradient-to-br group-hover:from-indigo-500 group-hover:to-purple-600 group-hover:text-white flex items-center justify-center mb-6 transition-all duration-300 shadow-sm group-hover:shadow-indigo-500/30 group-hover:scale-110">
+                              <mod.icon className="h-6 w-6" />
+                           </div>
+                           <h4 className="text-xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{mod.title}</h4>
+                           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{mod.desc}</p>
+                        </Link>
+                      </motion.div>
                     );
                  })}
-              </div>
+              </motion.div>
            </div>
         </section>
 
