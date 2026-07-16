@@ -137,7 +137,7 @@ export default function DebtsPage() {
       } catch (e) {}
     }
 
-    const businessName = "Our Shop";
+    const businessName = "Protech Enterprise";
     const dueDateText = debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "immediate settlement";
     const formattedMessage = template
       .replaceAll("{customer_name}", debt.customer.name)
@@ -158,7 +158,7 @@ export default function DebtsPage() {
     const finalPhone = msgPhone.replace(/[^0-9+]/g, "");
     
     if (msgMode === "whatsapp") {
-      const waLink = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(msgText)}`;
+      const waLink = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msgText)}`;
       window.open(waLink, "_blank");
       toast.success("WhatsApp redirection opened!");
     } else {
