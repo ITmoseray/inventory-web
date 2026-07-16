@@ -241,11 +241,14 @@ export default function StockTransfersPage() {
                              <SelectValue placeholder="Select Source" />
                            </SelectTrigger>
                            <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
-                             {locations.map(l => (
+                             {locations.filter(l => l.id !== toLocId).map(l => (
                                <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
                                  {l.name}
                                </SelectItem>
                              ))}
+                             {locations.filter(l => l.id !== toLocId).length === 0 && (
+                               <div className="p-4 text-xs font-bold text-slate-500 text-center">No other locations available</div>
+                             )}
                            </SelectContent>
                          </Select>
                        </div>
@@ -261,11 +264,14 @@ export default function StockTransfersPage() {
                              <SelectValue placeholder="Select Target" />
                            </SelectTrigger>
                            <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
-                             {locations.map(l => (
+                             {locations.filter(l => l.id !== fromLocId).map(l => (
                                <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
                                  {l.name}
                                </SelectItem>
                              ))}
+                             {locations.filter(l => l.id !== fromLocId).length === 0 && (
+                               <div className="p-4 text-xs font-bold text-slate-500 text-center">No other locations available</div>
+                             )}
                            </SelectContent>
                          </Select>
                        </div>
