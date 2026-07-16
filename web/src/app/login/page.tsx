@@ -147,12 +147,12 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950 p-6 sm:p-8 relative">
       
-      <Link href="/" className="absolute top-6 left-6 sm:top-8 sm:left-8">
-        <Button variant="ghost" className="gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+      <Button asChild variant="ghost" className="absolute top-6 left-6 sm:top-8 sm:left-8 z-50 gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+        <Link href="/">
           <ArrowLeft className="h-4 w-4" />
           Back to website
-        </Button>
-      </Link>
+        </Link>
+      </Button>
 
       {/* Branding Header */}
       <Link href="/" className="mb-10 flex flex-col items-center gap-4 group">
