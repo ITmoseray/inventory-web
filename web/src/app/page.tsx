@@ -86,6 +86,7 @@ export default function ProtechCloudHomepage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [showInvoicesModal, setShowInvoicesModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.code === "sl") || countries[0]);
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
@@ -353,16 +354,33 @@ export default function ProtechCloudHomepage() {
                    { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart, href: "/dashboard/analytics" },
                    { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe, href: "/dashboard/system" },
                    { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory" },
-                   { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices" },
-                 ].map((mod, i) => (
-                   <Link href={mod.href} key={i} className="group block p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-1 cursor-pointer">
-                      <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-4 transition-colors">
-                         <mod.icon className="h-5 w-5" />
-                      </div>
-                      <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{mod.title}</h4>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mod.desc}</p>
-                   </Link>
-                 ))}
+                   { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices", isModal: true },
+                 ].map((mod, i) => {
+                    if (mod.isModal) {
+                      return (
+                       <div key={i} onClick={() => setShowInvoicesModal(true)} className="group block p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-1 cursor-pointer overflow-hidden relative">
+                          <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-4 transition-colors relative z-10">
+                             <mod.icon className="h-5 w-5" />
+                          </div>
+                          <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">{mod.title}</h4>
+                          <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed relative z-10 mb-4">{mod.desc}</p>
+                          <div className="relative h-48 -mx-6 -mb-6 mt-4 opacity-80 group-hover:opacity-100 transition-opacity">
+                            <Image src="/images/invoices.png" alt="Invoices feature preview" fill className="object-cover object-top" unoptimized />
+                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-transparent to-transparent pointer-events-none" />
+                          </div>
+                       </div>
+                      )
+                    }
+                    return (
+                      <Link href={mod.href} key={i} className="group block p-6 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-lg hover:border-indigo-300 dark:hover:border-indigo-700 transition-all hover:-translate-y-1 cursor-pointer">
+                         <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 flex items-center justify-center mb-4 transition-colors">
+                            <mod.icon className="h-5 w-5" />
+                         </div>
+                         <h4 className="text-lg font-bold mb-2 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{mod.title}</h4>
+                         <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{mod.desc}</p>
+                      </Link>
+                    );
+                 })}
               </div>
            </div>
         </section>
@@ -610,6 +628,46 @@ export default function ProtechCloudHomepage() {
               </div>
               <ArrowRight className="h-5 w-5 text-slate-400" />
             </a>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showInvoicesModal} onOpenChange={setShowInvoicesModal}>
+        <DialogContent className="sm:max-w-4xl bg-white dark:bg-slate-950 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
+          <div className="relative h-[65vh] w-full bg-slate-900 flex items-end">
+            <Image 
+              src="/images/invoices.png" 
+              alt="Create and share professional invoices instantly" 
+              fill 
+              className="object-cover object-top opacity-60 mix-blend-screen"
+              unoptimized
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+            <div className="relative z-10 w-full p-8 sm:p-12 flex flex-col items-start gap-4">
+              <div className="flex items-center gap-3">
+                 <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
+                   <FileText className="h-6 w-6 text-white" />
+                 </div>
+                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Professional Invoicing</h2>
+              </div>
+              <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
+                Create, customize, and share professional invoices instantly. Automatically track payments, send reminders, and manage your receivables seamlessly without leaving the platform.
+              </p>
+              <div className="flex flex-wrap gap-4 mt-4 w-full sm:w-auto">
+                <Link 
+                  href={ctaHref} 
+                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] flex items-center justify-center flex-1 sm:flex-none text-center"
+                >
+                  Try Now
+                </Link>
+                <button 
+                  onClick={() => setShowInvoicesModal(false)} 
+                  className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
