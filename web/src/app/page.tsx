@@ -654,12 +654,15 @@ export default function ProtechCloudHomepage() {
                 Create, customize, and share professional invoices instantly. Automatically track payments, send reminders, and manage your receivables seamlessly without leaving the platform.
               </p>
               <div className="flex flex-wrap gap-4 mt-4 w-full sm:w-auto">
-                <Link 
-                  href={ctaHref} 
+                <button 
+                  onClick={() => {
+                    setShowInvoicesModal(false);
+                    setIsAuthModalOpen(true);
+                  }}
                   className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] flex items-center justify-center flex-1 sm:flex-none text-center"
                 >
                   Try Now
-                </Link>
+                </button>
                 <button 
                   onClick={() => setShowInvoicesModal(false)} 
                   className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
