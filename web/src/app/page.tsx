@@ -87,8 +87,7 @@ export default function ProtechCloudHomepage() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showInvoicesModal, setShowInvoicesModal] = useState(false);
-  const [showServicesModal, setShowServicesModal] = useState(false);
+  const [previewFeature, setPreviewFeature] = useState<any | null>(null);
   const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.code === "sl") || countries[0]);
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
@@ -360,22 +359,22 @@ export default function ProtechCloudHomepage() {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
                  {[
-                   { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory" },
-                   { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos" },
-                   { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck, href: "/dashboard/purchases" },
-                   { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users, href: "/dashboard/customers" },
-                   { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: BarChart, href: "/dashboard/accounting" },
-                   { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart, href: "/dashboard/analytics" },
-                   { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe, href: "/dashboard/system" },
-                   { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory" },
-                   { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices", isModal: true, image: "/images/invoices.png", onClick: () => setShowInvoicesModal(true) },
-                   { title: "Staff & Payroll", desc: "Manage employees, attendance, and payroll.", icon: Briefcase, href: "/dashboard/staff/employees" },
-                   { title: "Healthcare", desc: "Manage patients, prescriptions, and clinics.", icon: Stethoscope, href: "/dashboard/patients" },
-                   { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school" },
-                   { title: "Restaurant", desc: "Manage tables, kitchen orders, and menus.", icon: Utensils, href: "/dashboard/restaurant/tables" },
-                   { title: "Services", desc: "Bookings and service analytics.", icon: Clock, href: "/dashboard/services/overview", isModal: true, image: "/images/services_screenshot.png", onClick: () => setShowServicesModal(true) },
-                   { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat" },
-                 ].map((mod, i) => {
+                    { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory", isModal: true, image: "/images/Inventory.png" },
+                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos", isModal: true, image: "/images/Sales & POS.png" },
+                    { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck, href: "/dashboard/purchases", isModal: true, image: "/images/Purchasing.png" },
+                    { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users, href: "/dashboard/customers", isModal: true, image: "/images/CRM & Loyalty.png" },
+                    { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: TrendingUp, href: "/dashboard/accounting/pl", isModal: true, image: "/images/Finance 1.png" },
+                    { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart, href: "/dashboard/analytics", isModal: true, image: "/images/Intelligence.png" },
+                    { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe, href: "/dashboard/system", isModal: true, image: "/images/Multi-Warehouse.png" },
+                    { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory", isModal: true, image: "/images/Multi-Unit.png" },
+                    { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices", isModal: true, image: "/images/invoices.png" },
+                    { title: "Staff & Payroll", desc: "Manage employees, attendance, and payroll.", icon: Briefcase, href: "/dashboard/staff/employees", isModal: true, image: "/images/Staff & Payroll.png" },
+                    { title: "Healthcare", desc: "Manage patients, prescriptions, and clinics.", icon: Stethoscope, href: "/dashboard/patients" },
+                    { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school" },
+                    { title: "Restaurant", desc: "Manage tables, kitchen orders, and menus.", icon: Utensils, href: "/dashboard/restaurant/tables" },
+                    { title: "Services", desc: "Bookings and service analytics.", icon: Clock, href: "/dashboard/services/overview", isModal: true, image: "/images/services_screenshot.png" },
+                    { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat", isModal: true, image: "/images/AI Copilot.png" },
+                  ].map((mod, i) => {
                     const cardVariants = {
                       hidden: { opacity: 0, y: 30 },
                       show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
@@ -387,7 +386,7 @@ export default function ProtechCloudHomepage() {
                           variants={cardVariants}
                           whileHover={{ y: -5 }}
                           key={i} 
-                          onClick={mod.onClick} 
+                          onClick={() => setPreviewFeature(mod)} 
                           className="group block p-8 rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_-4px_rgba(79,70,229,0.15)] transition-all cursor-pointer overflow-hidden relative"
                        >
                           <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-4 group-hover:translate-x-0">
@@ -671,89 +670,48 @@ export default function ProtechCloudHomepage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showInvoicesModal} onOpenChange={setShowInvoicesModal}>
+      <Dialog open={!!previewFeature} onOpenChange={(open) => !open && setPreviewFeature(null)}>
         <DialogContent className="sm:max-w-4xl bg-white dark:bg-slate-950 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
-          <div className="relative h-[65vh] w-full bg-slate-900 flex items-end">
-            <Image 
-              src="/images/invoices.png" 
-              alt="Create and share professional invoices instantly" 
-              fill 
-              className="object-cover object-top opacity-60 mix-blend-screen"
-              unoptimized
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-            <div className="relative z-10 w-full p-8 sm:p-12 flex flex-col items-start gap-4">
-              <div className="flex items-center gap-3">
-                 <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
-                   <FileText className="h-6 w-6 text-white" />
-                 </div>
-                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Professional Invoicing</h2>
-              </div>
-              <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
-                Create, customize, and share professional invoices instantly. Automatically track payments, send reminders, and manage your receivables seamlessly without leaving the platform.
-              </p>
-              <div className="flex flex-wrap gap-4 mt-4 w-full sm:w-auto">
-                <button 
-                  onClick={() => {
-                    setShowInvoicesModal(false);
-                    setIsAuthModalOpen(true);
-                  }}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] flex items-center justify-center flex-1 sm:flex-none text-center"
-                >
-                  Try Now
-                </button>
-                <button 
-                  onClick={() => setShowInvoicesModal(false)} 
-                  className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
-                >
-                  Close
-                </button>
+          {previewFeature && (
+            <div className="relative h-[65vh] w-full bg-slate-900 flex items-end">
+              <Image 
+                src={previewFeature.image} 
+                alt={`${previewFeature.title} feature preview`} 
+                fill 
+                className="object-cover object-top opacity-60 mix-blend-screen"
+                unoptimized
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
+              <div className="relative z-10 w-full p-8 sm:p-12 flex flex-col items-start gap-4">
+                <div className="flex items-center gap-3">
+                   <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
+                     <previewFeature.icon className="h-6 w-6 text-white" />
+                   </div>
+                   <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{previewFeature.title}</h2>
+                </div>
+                <p className="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+                  {previewFeature.desc} Our business operating system delivers dynamic real-time reporting, automated workflows, and comprehensive security controls for your retail enterprise.
+                </p>
+                <div className="flex flex-wrap gap-4 mt-4 w-full sm:w-auto">
+                  <button 
+                    onClick={() => {
+                      setPreviewFeature(null);
+                      setIsAuthModalOpen(true);
+                    }}
+                    className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] flex items-center justify-center flex-1 sm:flex-none text-center"
+                  >
+                    Try Now
+                  </button>
+                  <button 
+                    onClick={() => setPreviewFeature(null)} 
+                    className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={showServicesModal} onOpenChange={setShowServicesModal}>
-        <DialogContent className="sm:max-w-4xl bg-white dark:bg-slate-950 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
-          <div className="relative h-[65vh] w-full bg-slate-900 flex items-end">
-            <Image 
-              src="/images/services_screenshot.png" 
-              alt="Services & Bookings Management" 
-              fill 
-              className="object-cover object-top opacity-60 mix-blend-screen"
-              unoptimized
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-            <div className="relative z-10 w-full p-8 sm:p-12 flex flex-col items-start gap-4">
-              <div className="flex items-center gap-3">
-                 <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
-                   <Clock className="h-6 w-6 text-white" />
-                 </div>
-                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">Services & Bookings</h2>
-              </div>
-              <p className="text-slate-300 text-lg max-w-2xl leading-relaxed">
-                Streamline your service-based operations. Manage appointments, schedule staff, track service analytics, and offer seamless booking experiences to your clients.
-              </p>
-              <div className="flex flex-wrap gap-4 mt-4 w-full sm:w-auto">
-                <button 
-                  onClick={() => {
-                    setShowServicesModal(false);
-                    setIsAuthModalOpen(true);
-                  }}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white px-8 py-3.5 rounded-xl font-bold transition-all shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] flex items-center justify-center flex-1 sm:flex-none text-center"
-                >
-                  Try Now
-                </button>
-                <button 
-                  onClick={() => setShowServicesModal(false)} 
-                  className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 
