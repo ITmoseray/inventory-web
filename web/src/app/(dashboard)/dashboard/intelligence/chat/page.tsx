@@ -30,6 +30,7 @@ const SUGGESTIONS = [
 
 export default function NeuralChatPage() {
   const { data: session } = useSession();
+  const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<"IDLE" | "CHECKING" | "ACTIVE" | "OFFLINE">("CHECKING");
   const [version, setVersion] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -37,12 +38,21 @@ export default function NeuralChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    setMounted(true);
+    checkConnection();
+  }, []);
+
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
 
-  useEffect(() => {
-    checkConnection();
-  }, []);
+  if (!mounted) {
+    return (
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-50/30 dark:bg-slate-950/30">
+         <RefreshCw className="h-8 w-8 animate-spin text-indigo-500" />
+      </div>
+    );
+  }
 
   useEffect(() => {
     scrollToBottom();
