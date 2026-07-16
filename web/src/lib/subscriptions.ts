@@ -2,32 +2,37 @@ import { SubscriptionPlan } from "@prisma/client";
 
 export const PLAN_LIMITS = {
   [SubscriptionPlan.FREE]: {
-    maxProducts: 100,
-    maxStaff: 2,
+    maxProducts: 500, // Matching Basic in table since FREE is default for new
+    maxStaff: 1,
+    maxBranches: 1,
     analyticsEnabled: false,
     posEnabled: true,
   },
   [SubscriptionPlan.BASIC]: {
     maxProducts: 500,
-    maxStaff: 5,
-    analyticsEnabled: true,
+    maxStaff: 1,
+    maxBranches: 1,
+    analyticsEnabled: false,
     posEnabled: true,
   },
   [SubscriptionPlan.STANDARD]: {
     maxProducts: 5000,
-    maxStaff: 10,
+    maxStaff: 5,
+    maxBranches: 1,
     analyticsEnabled: true,
     posEnabled: true,
   },
   [SubscriptionPlan.BUSINESS]: {
     maxProducts: Infinity,
     maxStaff: 15,
+    maxBranches: Infinity, // Multi-Branch Reports
     analyticsEnabled: true,
     posEnabled: true,
   },
   [SubscriptionPlan.ENTERPRISE]: {
     maxProducts: Infinity,
     maxStaff: Infinity,
+    maxBranches: Infinity,
     analyticsEnabled: true,
     posEnabled: true,
   },

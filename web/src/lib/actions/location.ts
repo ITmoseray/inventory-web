@@ -3,6 +3,7 @@
 import { prisma, getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { canPerformAction } from "@/lib/subscriptions";
 
 export async function getLocations() {
   try {
@@ -31,7 +32,22 @@ export async function createLocation(data: {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const businessId = session.user.businessId;
+
+    // 1. Check Plan Limits for Branches
+    // We use the global prisma because business data is on the global database
+    const business = await prisma.business.findUnique({
+      where: { id: businessId },
+      select: { plan: true }
+    });
+    
     const tenantPrisma = getTenantPrisma(businessId);
+
+    const locationCount = await tenantPrisma.location.count();
+    
+    const check = canPerformAction(business?.plan || "FREE", "maxBranches", locationCount);
+    if (!check.allowed) {
+      throw new Error(check.message);
+    }
 
     const newLocation = await tenantPrisma.location.create({
       data: {
