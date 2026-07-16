@@ -12,6 +12,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { PricingSection } from "@/components/shared/pricing-section";
 import { ExpertPopup } from "@/components/shared/expert-popup";
+import { CookieBanner } from "@/components/shared/cookie-banner";
 import { useSession } from "next-auth/react";
 import {
   Dialog,
