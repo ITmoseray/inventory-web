@@ -50,6 +50,8 @@ model Business {
   roles                   Role[]
   sales                   Sale[]
   saleItems               SaleItem[]
+  salesOrders             SalesOrder[]
+  salesOrderItems         SalesOrderItem[]
   stockMovements          StockMovement[]
   subscriptions           Subscription[]
   suppliers               Supplier[]
@@ -106,19 +108,21 @@ model User {
   attendance         Attendance[]
   auditLogs          AuditLog[]
   expenses           Expense[]
-  orderStatusHistory OrderStatusHistory[]
-  payrolls           Payroll[]
-  purchases          Purchase[]
-  sales              Sale[]
-  assignedSales      Sale[]               @relation("StaffSale")
-  stockMovements     StockMovement[]
-  business           Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  role               Role                 @relation(fields: [roleId], references: [id])
-  appointments       Appointment[]
-  consultations      Consultation[]
-  labTests           LabTest[]            @relation("LabTechnician")
-  requestedLabTests  LabTest[]            @relation("DoctorLabTests")
-  salesDrafts        SalesDraft[]
+  orderStatusHistory      OrderStatusHistory[]
+  payrolls                Payroll[]
+  purchases               Purchase[]
+  sales                   Sale[]
+  assignedSales           Sale[]               @relation("StaffSale")
+  stockMovements          StockMovement[]
+  salesOrders             SalesOrder[]
+  salesOrderStatusHistory SalesOrderStatusHistory[]
+  business                Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  role                    Role                 @relation(fields: [roleId], references: [id])
+  appointments            Appointment[]
+  consultations           Consultation[]
+  labTests                LabTest[]            @relation("LabTechnician")
+  requestedLabTests       LabTest[]            @relation("DoctorLabTests")
+  salesDrafts             SalesDraft[]
 
   @@index([businessId])
   @@index([roleId])
@@ -229,6 +233,7 @@ model Product {
   units                 ProductUnit[]
   purchaseItems         PurchaseItem[]
   saleItems             SaleItem[]
+  salesOrderItems       SalesOrderItem[]
   stockMovements        StockMovement[]
   locationStocks        LocationStock[]
   transfers             StockTransfer[]
@@ -303,6 +308,7 @@ model Customer {
   sales       Sale[]
   salesDrafts SalesDraft[]
   invoices    Invoice[]
+  salesOrders SalesOrder[]
 
   @@index([businessId])
   @@index([businessId, deletedAt])
@@ -342,6 +348,85 @@ model Sale {
 
   @@index([businessId])
   @@index([businessId, deletedAt])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SALES ORDER MODELS (distinct from Sale/Invoice)
+// A SalesOrder is created when a customer places an order.
+// It reserves stock and can be edited before fulfillment.
+// Once delivered, it can be converted to a Sale (Invoice).
+// ─────────────────────────────────────────────────────────────────
+
+model SalesOrder {
+  id              String                    @id @default(cuid())
+  soNumber        String                    @unique // e.g. SO-000045
+  orderDate       DateTime                  @default(now())
+  expectedDate    DateTime?
+  customerName    String
+  customerEmail   String?
+  customerPhone   String?
+  deliveryAddress String?
+  billingAddress  String?
+  paymentTerms    String                    @default("Due on Receipt")
+  deliveryMethod  String?                   // e.g. Pickup, Standard Delivery, Express
+  notes           String?
+  discount        Decimal                   @default(0) @db.Decimal(10, 2)
+  tax             Decimal                   @default(0) @db.Decimal(10, 2)
+  subtotal        Decimal                   @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal                   @db.Decimal(10, 2)
+  status          String                    @default("DRAFT")
+  // Status workflow: DRAFT → PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED → COMPLETED
+  // Any non-COMPLETED status can go to: CANCELLED
+  convertedSaleId String?                   // Set when this SO is converted to an invoice/sale
+  businessId      String
+  userId          String
+  customerId      String?
+  createdAt       DateTime                  @default(now())
+  updatedAt       DateTime                  @updatedAt
+  deletedAt       DateTime?
+
+  business        Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user            User                      @relation(fields: [userId], references: [id])
+  customer        Customer?                 @relation(fields: [customerId], references: [id])
+  items           SalesOrderItem[]
+  statusHistory   SalesOrderStatusHistory[]
+
+  @@index([businessId])
+  @@index([businessId, status])
+  @@index([businessId, deletedAt])
+  @@index([soNumber])
+}
+
+model SalesOrderItem {
+  id           String      @id @default(cuid())
+  salesOrderId String
+  productId    String?
+  productName  String
+  quantity     Int
+  unitPrice    Decimal     @db.Decimal(10, 2)
+  total        Decimal     @db.Decimal(10, 2)
+  businessId   String?
+
+  salesOrder   SalesOrder  @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  product      Product?    @relation(fields: [productId], references: [id])
+  business     Business?   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([salesOrderId])
+  @@index([businessId])
+}
+
+model SalesOrderStatusHistory {
+  id           String     @id @default(cuid())
+  salesOrderId String
+  status       String
+  note         String?
+  userId       String
+  createdAt    DateTime   @default(now())
+
+  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@index([salesOrderId])
 }
 
 model OrderStatusHistory {
