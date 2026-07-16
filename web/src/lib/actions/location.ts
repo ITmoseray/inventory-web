@@ -60,7 +60,7 @@ export async function createLocation(data: {
     });
 
     revalidatePath("/dashboard/inventory/transfers");
-    return { success: true, location: newLocation };
+    return { success: true, location: JSON.parse(JSON.stringify(newLocation)) };
   } catch (error: any) {
     console.error("Failed to create location:", error);
     throw new Error(error.message || "Failed to create inventory branch/location.");
