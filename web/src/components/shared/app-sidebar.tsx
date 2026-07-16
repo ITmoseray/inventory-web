@@ -128,7 +128,7 @@ const SidebarContentRenderer = ({
             >
                 <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-4 ring-primary/5">
                   <Image 
-                    src="/images/logo2.jpeg" 
+                    src="/images/PA.png" 
                     alt="Protech Logo" 
                     fill 
                     className="object-cover"

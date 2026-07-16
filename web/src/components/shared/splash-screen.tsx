@@ -18,7 +18,7 @@ export const SplashScreen = () => {
                 <div className="relative w-32 h-32 sm:w-48 sm:h-48 mb-8 group">
                     <div className="absolute inset-0 bg-indigo-500/20 blur-2xl rounded-full scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                     <Image 
-                        src="/images/logo2.png" 
+                        src="/images/PA.png" 
                         alt="Logo" 
                         fill 
                         priority

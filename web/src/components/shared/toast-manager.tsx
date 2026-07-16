@@ -87,7 +87,7 @@ export function ToastManager() {
       try {
         const notif = new Notification(title, {
           body: body,
-          icon: "/images/logo2.png",
+          icon: "/images/PA.png",
           tag: id
         });
         

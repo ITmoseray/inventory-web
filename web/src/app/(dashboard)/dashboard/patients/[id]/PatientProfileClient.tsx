@@ -116,7 +116,7 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
         const logoBase64 = await new Promise<string>((resolve, reject) => {
           const img = new Image();
           img.crossOrigin = "Anonymous";
-          img.src = "/images/logo.jpeg";
+          img.src = "/images/PA.png";
           img.onload = () => {
             const canvas = document.createElement("canvas");
             canvas.width = img.width;
@@ -198,7 +198,7 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
         const logoBase64 = await new Promise<string>((resolve, reject) => {
           const img = new Image();
           img.crossOrigin = "Anonymous";
-          img.src = "/images/logo.jpeg";
+          img.src = "/images/PA.png";
           img.onload = () => {
             const canvas = document.createElement("canvas");
             canvas.width = img.width;

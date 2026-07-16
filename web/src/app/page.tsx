@@ -103,7 +103,7 @@ export default function ProtechCloudHomepage() {
         <nav className="container mx-auto px-4 sm:px-6 h-20 lg:h-24 flex items-center justify-between">
           <Link className="flex items-center gap-2 sm:gap-3 shrink-0" href="/">
             <div className="relative h-10 w-10 lg:h-14 lg:w-14 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white shrink-0">
-              <Image src="/images/logo.jpeg" alt="Protech Logo" fill sizes="(max-width: 1024px) 40px, 56px" className="object-cover" unoptimized />
+              <Image src="/images/PA.png" alt="Protech Logo" fill sizes="(max-width: 1024px) 40px, 56px" className="object-cover" unoptimized />
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg lg:text-2xl tracking-tight text-slate-900 dark:text-white leading-tight">
@@ -538,7 +538,7 @@ export default function ProtechCloudHomepage() {
               <div className="lg:col-span-4">
                 <div className="flex items-center gap-3 mb-6">
                    <div className="relative h-10 w-10 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white">
-                      <Image src="/images/logo.jpeg" alt="Logo" fill sizes="40px" className="object-cover" />
+                      <Image src="/images/PA.png" alt="Logo" fill sizes="40px" className="object-cover" />
                    </div>
                    <div className="flex flex-col">
                       <span className="font-bold text-lg text-slate-900 dark:text-white leading-tight">PROTECH ASSIST</span>

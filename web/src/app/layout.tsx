@@ -47,7 +47,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="apple-touch-icon" href="/images/logo2.jpeg" />
+        <link rel="apple-touch-icon" href="/images/PA.png" />
       </head>
       <body className="min-h-full flex flex-col font-sans">
         <ThemeProvider

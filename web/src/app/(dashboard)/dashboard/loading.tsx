@@ -15,7 +15,7 @@ export default function DashboardLoading() {
         <div className="absolute inset-0 bg-primary/20 blur-[60px] rounded-full animate-pulse" />
         <div className="relative h-20 w-20 rounded-3xl overflow-hidden border-4 border-slate-900 dark:border-slate-800 shadow-2xl">
           <Image 
-            src="/images/logo2.png" 
+            src="/images/PA.png" 
             alt="Protech Logo" 
             fill 
             className="object-contain"

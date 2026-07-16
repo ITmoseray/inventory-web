@@ -45,7 +45,7 @@ export default function TrialExpiredPage() {
         <GlassCard className="p-8 md:p-12 border-rose-500/20 bg-slate-900/40 text-center">
           <div className="flex flex-col items-center gap-6 mb-10">
             <div className="relative h-20 w-20 rounded-3xl overflow-hidden border-4 border-slate-900 shadow-2xl rotate-3 mb-4">
-               <Image src="/images/logo2.jpeg" alt="Protech Logo" fill className="object-cover" />
+               <Image src="/images/PA.png" alt="Protech Logo" fill className="object-cover" />
             </div>
             
             <div className="space-y-2">

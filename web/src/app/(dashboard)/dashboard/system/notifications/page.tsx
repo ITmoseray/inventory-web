@@ -65,7 +65,7 @@ export default function NotificationsPage() {
         toast.success("Device alerts and background push sync authorized successfully!");
         new Notification("Device Alerts Activated", {
           body: "You will now receive native alerts for critical inventory events even when logged out or closed.",
-          icon: "/images/logo2.png"
+          icon: "/images/PA.png"
         });
       } catch (err: any) {
         toast.error(`Push subscription sync failed: ${err.message}`);
@@ -157,7 +157,7 @@ export default function NotificationsPage() {
               <Button onClick={() => {
                 new Notification("Device Alert Test", {
                   body: "This is a native device notification test. System connection verified!",
-                  icon: "/images/logo2.png"
+                  icon: "/images/PA.png"
                 });
                 toast.success("Native test alert dispatched!");
               }} variant="outline" className="flex-1 md:flex-none h-12 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2 text-indigo-600 dark:text-indigo-400">

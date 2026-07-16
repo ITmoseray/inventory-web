@@ -672,7 +672,7 @@ export default function NexusSuperControl() {
       <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10 relative z-10">
          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
             <div className="relative h-12 w-12 md:h-16 md:w-16 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-900 shadow-lg rotate-3 flex-shrink-0 bg-white">
-               <Image src="/images/logo2.jpeg" alt="Protech Logo" fill className="object-cover" />
+               <Image src="/images/PA.png" alt="Protech Logo" fill className="object-cover" />
             </div>
             <div className="space-y-1">
                <div className="flex items-center justify-center sm:justify-start gap-2">
