@@ -80,48 +80,49 @@ model Business {
   schoolStaffs            SchoolStaff[]
   schoolLeaveRequests     SchoolLeaveRequest[]
   schoolPayslips          SchoolPayslip[]
+  quotes                  Quote[]
 
   @@index([slug])
 }
 
 model User {
-  id                 String               @id @default(cuid())
-  name               String?
-  username           String?              @unique
-  email              String               @unique
-  passwordHash       String
-  status             String               @default("active")
-  businessId         String
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  deletedAt          DateTime?
-  roleId             String
-  specialization     String?
-  phone              String?
-  department         String?
-  jobTitle           String?
-  imageUrl           String?
-  hourlyRate         Decimal?             @db.Decimal(10, 2)
-  salary             Decimal?             @db.Decimal(10, 2)
-  emailVerified      DateTime?
-  verificationToken  String?
-  attendance         Attendance[]
-  auditLogs          AuditLog[]
-  expenses           Expense[]
+  id                      String                    @id @default(cuid())
+  name                    String?
+  username                String?                   @unique
+  email                   String                    @unique
+  passwordHash            String
+  status                  String                    @default("active")
+  businessId              String
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  deletedAt               DateTime?
+  roleId                  String
+  specialization          String?
+  phone                   String?
+  department              String?
+  jobTitle                String?
+  imageUrl                String?
+  hourlyRate              Decimal?                  @db.Decimal(10, 2)
+  salary                  Decimal?                  @db.Decimal(10, 2)
+  emailVerified           DateTime?
+  verificationToken       String?
+  attendance              Attendance[]
+  auditLogs               AuditLog[]
+  expenses                Expense[]
   orderStatusHistory      OrderStatusHistory[]
   payrolls                Payroll[]
   purchases               Purchase[]
   sales                   Sale[]
-  assignedSales           Sale[]               @relation("StaffSale")
+  assignedSales           Sale[]                    @relation("StaffSale")
   stockMovements          StockMovement[]
   salesOrders             SalesOrder[]
   salesOrderStatusHistory SalesOrderStatusHistory[]
-  business                Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  role                    Role                 @relation(fields: [roleId], references: [id])
+  business                Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  role                    Role                      @relation(fields: [roleId], references: [id])
   appointments            Appointment[]
   consultations           Consultation[]
-  labTests                LabTest[]            @relation("LabTechnician")
-  requestedLabTests       LabTest[]            @relation("DoctorLabTests")
+  labTests                LabTest[]                 @relation("LabTechnician")
+  requestedLabTests       LabTest[]                 @relation("DoctorLabTests")
   salesDrafts             SalesDraft[]
 
   @@index([businessId])
@@ -202,34 +203,34 @@ model Category {
 }
 
 model Product {
-  id                    String          @id @default(cuid())
+  id                    String           @id @default(cuid())
   name                  String
   sku                   String?
   description           String?
   barcode               String?
-  unitPrice             Decimal         @db.Decimal(10, 2)
-  costPrice             Decimal?        @db.Decimal(10, 2)
-  stockQuantity         Decimal         @default(0) @db.Decimal(10, 2)
-  minStockLevel         Int             @default(10)
-  status                String          @default("active")
+  unitPrice             Decimal          @db.Decimal(10, 2)
+  costPrice             Decimal?         @db.Decimal(10, 2)
+  stockQuantity         Decimal          @default(0) @db.Decimal(10, 2)
+  minStockLevel         Int              @default(10)
+  status                String           @default("active")
   metadata              Json?
   businessId            String
   categoryId            String?
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
   deletedAt             DateTime?
-  isNetworkAvailable    Boolean         @default(false)
-  requiresPrescription  Boolean         @default(false)
+  isNetworkAvailable    Boolean          @default(false)
+  requiresPrescription  Boolean          @default(false)
   genericAlternative    String?
-  isControlledSubstance Boolean         @default(false)
+  isControlledSubstance Boolean          @default(false)
   originalBusinessId    String?
   originalProductId     String?
-  type                  ProductType     @default(PRODUCT)
+  type                  ProductType      @default(PRODUCT)
   imageUrl              String?
-  baseUnit              String          @default("Unit")
+  baseUnit              String           @default("Unit")
   batches               Batch[]
-  business              Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  category              Category?       @relation(fields: [categoryId], references: [id])
+  business              Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category              Category?        @relation(fields: [categoryId], references: [id])
   units                 ProductUnit[]
   purchaseItems         PurchaseItem[]
   saleItems             SaleItem[]
@@ -238,6 +239,7 @@ model Product {
   locationStocks        LocationStock[]
   transfers             StockTransfer[]
   invoiceItems          InvoiceItem[]
+  quoteItems            QuoteItem[]
 
   @@index([businessId, sku])
   @@index([businessId, deletedAt])
@@ -309,6 +311,7 @@ model Customer {
   salesDrafts SalesDraft[]
   invoices    Invoice[]
   salesOrders SalesOrder[]
+  quotes      Quote[]
 
   @@index([businessId])
   @@index([businessId, deletedAt])
@@ -358,38 +361,38 @@ model Sale {
 // ─────────────────────────────────────────────────────────────────
 
 model SalesOrder {
-  id              String                    @id @default(cuid())
-  soNumber        String                    @unique // e.g. SO-000045
-  orderDate       DateTime                  @default(now())
+  id              String    @id @default(cuid())
+  soNumber        String    @unique // e.g. SO-000045
+  orderDate       DateTime  @default(now())
   expectedDate    DateTime?
   customerName    String
   customerEmail   String?
   customerPhone   String?
   deliveryAddress String?
   billingAddress  String?
-  paymentTerms    String                    @default("Due on Receipt")
-  deliveryMethod  String?                   // e.g. Pickup, Standard Delivery, Express
+  paymentTerms    String    @default("Due on Receipt")
+  deliveryMethod  String? // e.g. Pickup, Standard Delivery, Express
   notes           String?
-  discount        Decimal                   @default(0) @db.Decimal(10, 2)
-  tax             Decimal                   @default(0) @db.Decimal(10, 2)
-  subtotal        Decimal                   @default(0) @db.Decimal(10, 2)
-  totalAmount     Decimal                   @db.Decimal(10, 2)
-  status          String                    @default("DRAFT")
+  discount        Decimal   @default(0) @db.Decimal(10, 2)
+  tax             Decimal   @default(0) @db.Decimal(10, 2)
+  subtotal        Decimal   @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal   @db.Decimal(10, 2)
+  status          String    @default("DRAFT")
   // Status workflow: DRAFT → PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED → COMPLETED
   // Any non-COMPLETED status can go to: CANCELLED
-  convertedSaleId String?                   // Set when this SO is converted to an invoice/sale
+  convertedSaleId String? // Set when this SO is converted to an invoice/sale
   businessId      String
   userId          String
   customerId      String?
-  createdAt       DateTime                  @default(now())
-  updatedAt       DateTime                  @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  business        Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user            User                      @relation(fields: [userId], references: [id])
-  customer        Customer?                 @relation(fields: [customerId], references: [id])
-  items           SalesOrderItem[]
-  statusHistory   SalesOrderStatusHistory[]
+  business      Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User                      @relation(fields: [userId], references: [id])
+  customer      Customer?                 @relation(fields: [customerId], references: [id])
+  items         SalesOrderItem[]
+  statusHistory SalesOrderStatusHistory[]
 
   @@index([businessId])
   @@index([businessId, status])
@@ -398,33 +401,33 @@ model SalesOrder {
 }
 
 model SalesOrderItem {
-  id           String      @id @default(cuid())
+  id           String  @id @default(cuid())
   salesOrderId String
   productId    String?
   productName  String
   quantity     Int
-  unitPrice    Decimal     @db.Decimal(10, 2)
-  total        Decimal     @db.Decimal(10, 2)
+  unitPrice    Decimal @db.Decimal(10, 2)
+  total        Decimal @db.Decimal(10, 2)
   businessId   String?
 
-  salesOrder   SalesOrder  @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
-  product      Product?    @relation(fields: [productId], references: [id])
-  business     Business?   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  salesOrder SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  product    Product?   @relation(fields: [productId], references: [id])
+  business   Business?  @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([salesOrderId])
   @@index([businessId])
 }
 
 model SalesOrderStatusHistory {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   salesOrderId String
   status       String
   note         String?
   userId       String
-  createdAt    DateTime   @default(now())
+  createdAt    DateTime @default(now())
 
-  salesOrder   SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
-  user         User       @relation(fields: [userId], references: [id])
+  salesOrder SalesOrder @relation(fields: [salesOrderId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id])
 
   @@index([salesOrderId])
 }
@@ -641,29 +644,29 @@ model LoyaltyCampaign {
 }
 
 model Invoice {
-  id             String        @id @default(cuid())
-  invoiceNumber  String        @unique
+  id             String    @id @default(cuid())
+  invoiceNumber  String    @unique
   businessId     String
   customerId     String?
-  issueDate      DateTime      @default(now())
+  issueDate      DateTime  @default(now())
   dueDate        DateTime
-  subTotal       Decimal       @default(0) @db.Decimal(10, 2)
-  taxRate        Decimal       @default(0) @db.Decimal(5, 2)
-  taxAmount      Decimal       @default(0) @db.Decimal(10, 2)
-  discountAmount Decimal       @default(0) @db.Decimal(10, 2)
-  totalAmount    Decimal       @default(0) @db.Decimal(10, 2)
-  balanceDue     Decimal       @default(0) @db.Decimal(10, 2)
-  status         String        @default("DRAFT") // DRAFT, UNPAID, PARTIAL, PAID, OVERDUE, CANCELLED
-  notes          String?       @db.Text
-  terms          String?       @db.Text
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  subTotal       Decimal   @default(0) @db.Decimal(10, 2)
+  taxRate        Decimal   @default(0) @db.Decimal(5, 2)
+  taxAmount      Decimal   @default(0) @db.Decimal(10, 2)
+  discountAmount Decimal   @default(0) @db.Decimal(10, 2)
+  totalAmount    Decimal   @default(0) @db.Decimal(10, 2)
+  balanceDue     Decimal   @default(0) @db.Decimal(10, 2)
+  status         String    @default("DRAFT") // DRAFT, UNPAID, PARTIAL, PAID, OVERDUE, CANCELLED
+  notes          String?   @db.Text
+  terms          String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
-  
-  business       Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customer       Customer?     @relation(fields: [customerId], references: [id])
-  items          InvoiceItem[]
-  payments       Payment[]
+
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer Customer?     @relation(fields: [customerId], references: [id])
+  items    InvoiceItem[]
+  payments Payment[]
 
   @@index([businessId])
   @@index([customerId])
@@ -671,16 +674,16 @@ model Invoice {
 }
 
 model InvoiceItem {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
   invoiceId   String
   productId   String?
   description String
   quantity    Int
-  unitPrice   Decimal  @db.Decimal(10, 2)
-  total       Decimal  @db.Decimal(10, 2)
-  
-  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
-  product     Product? @relation(fields: [productId], references: [id])
+  unitPrice   Decimal @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
+
+  invoice Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
 
   @@index([invoiceId])
   @@index([productId])
@@ -1351,4 +1354,46 @@ model SchoolPayslip {
 
   @@index([businessId])
   @@index([staffId])
+}
+
+model Quote {
+  id          String      @id @default(cuid())
+  reference   String // e.g., QT-001, removed @unique to allow scoping by business or just rely on cuid
+  customerId  String?
+  customer    Customer?   @relation(fields: [customerId], references: [id])
+  status      QuoteStatus @default(DRAFT) // DRAFT, SENT, ACCEPTED, REJECTED, CONVERTED
+  totalAmount Decimal     @db.Decimal(10, 2)
+  notes       String?
+  validUntil  DateTime?
+  businessId  String
+  business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items       QuoteItem[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@unique([businessId, reference])
+  @@index([businessId])
+  @@index([customerId])
+}
+
+model QuoteItem {
+  id        String  @id @default(cuid())
+  quoteId   String
+  quote     Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Decimal @db.Decimal(10, 2)
+  amount    Decimal @db.Decimal(10, 2)
+
+  @@index([quoteId])
+  @@index([productId])
+}
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  CONVERTED
 }
