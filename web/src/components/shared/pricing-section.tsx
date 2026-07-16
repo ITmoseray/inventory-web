@@ -9,8 +9,7 @@ import { ManualPaymentModal } from './manual-payment-modal';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestSubscription } from '@/lib/actions/subscription';
-
-const plans = [
+import { FeatureComparisonTable } from './feature-comparison-table';
   {
     name: 'Basic',
     monthlyPrice: 200,
@@ -250,140 +249,7 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
         </div>
 
         {/* Dynamic Comparison Drawer */}
-        <div className="mt-20 flex flex-col items-center">
-          <div className="w-full max-w-4xl mt-8 overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200/80 dark:border-white/5 rounded-3xl shadow-xl">
-            <div className="p-8 overflow-x-auto">
-              <h3 className="text-2xl font-[1000] text-center uppercase tracking-tight text-slate-900 dark:text-white mb-8">
-                Detailed Feature Comparison
-              </h3>
-              <table className="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr className="border-b border-slate-200 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                        <th className="py-4 font-bold">Capability</th>
-                        <th className="py-4 font-bold">Basic</th>
-                        <th className="py-4 font-bold">Standard</th>
-                        <th className="py-4 font-bold">Business</th>
-                        <th className="py-4 font-bold">Enterprise</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-350">
-                      <tr>
-                        <td className="py-4 font-bold">Product Limit</td>
-                        <td className="py-4">Up to 500</td>
-                        <td className="py-4">Up to 5,000</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Staff / Users</td>
-                        <td className="py-4">1 User</td>
-                        <td className="py-4">5 Users</td>
-                        <td className="py-4">15 Users</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Stock Management</td>
-                        <td className="py-4">Standard</td>
-                        <td className="py-4">Advanced</td>
-                        <td className="py-4 text-indigo-500 font-bold">Multi-Warehouse</td>
-                        <td className="py-4 text-indigo-500 font-bold">Custom Logic</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Branches Connected</td>
-                        <td className="py-4">1 Store</td>
-                        <td className="py-4">1 Store</td>
-                        <td className="py-4">Multi-Branch Reports</td>
-                        <td className="py-4 text-indigo-500 font-bold">Full Sync Engine</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Supplier POs</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4">Included</td>
-                        <td className="py-4">Included</td>
-                        <td className="py-4">Custom Integrations</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Dynamic Reports</td>
-                        <td className="py-4">Basic Sales</td>
-                        <td className="py-4">Sales & Inventory</td>
-                        <td className="py-4 text-indigo-500 font-bold">Profit & Loss (P&L)</td>
-                        <td className="py-4 text-indigo-500 font-bold">Real-time BI Sync</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Invoicing</td>
-                        <td className="py-4 text-rose-500">50 / month</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Expense Tracking</td>
-                        <td className="py-4">Basic</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Quotes & Estimates</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Point of Sale (POS)</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-indigo-500 font-bold">Custom Interface</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Transaction Tagging</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">File Attachments</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Multiple Currencies</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Bank Reconciliation</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                        <td className="py-4 text-emerald-600">Included</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Payroll</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4">—</td>
-                        <td className="py-4 text-indigo-500 font-bold">Included</td>
-                      </tr>
-                      <tr>
-                        <td className="py-4 font-bold">Access Control</td>
-                        <td className="py-4">Admin only</td>
-                        <td className="py-4">Standard roles</td>
-                        <td className="py-4">Standard roles</td>
-                        <td className="py-4 text-indigo-500 font-bold">Granular (RBAC)</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-        </div>
+        <FeatureComparisonTable />
 
         {/* Premium FAQ Section */}
         <div className="mt-32 max-w-3xl mx-auto space-y-8">
