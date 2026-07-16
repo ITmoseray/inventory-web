@@ -424,6 +424,7 @@ export default function LoginPage() {
             <Link href="/super-admin" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Super Admin Node</Link>
          </div>
       </footer>
+        </div>
       </div>
     </div>
   );
