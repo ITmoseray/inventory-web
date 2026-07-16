@@ -234,24 +234,37 @@ export default function StockTransfersPage() {
                   {/* Locations: Source -> Target */}
                   <div className="p-4 rounded-[1.5rem] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-4">
                      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4">
-                       <div className="space-y-2">
-                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Source Location <span className="text-rose-500">*</span></Label>
-                         <Select required value={fromLocId} onValueChange={setFromLocId}>
-                           <SelectTrigger className="h-12 rounded-[1rem] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-bold shadow-sm">
-                             <SelectValue placeholder="Select Source" />
-                           </SelectTrigger>
-                           <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
-                             {locations.filter(l => l.id !== toLocId).map(l => (
-                               <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
-                                 {l.name}
-                               </SelectItem>
-                             ))}
-                             {locations.filter(l => l.id !== toLocId).length === 0 && (
-                               <div className="p-4 text-xs font-bold text-slate-500 text-center">No other locations available</div>
-                             )}
-                           </SelectContent>
-                         </Select>
-                       </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Source Location <span className="text-rose-500">*</span></Label>
+                          <Select required value={fromLocId} onValueChange={setFromLocId}>
+                            <SelectTrigger className="h-12 rounded-[1rem] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-bold shadow-sm">
+                              <SelectValue placeholder="Select Source">
+                                {fromLocId ? locations.find(l => l.id === fromLocId)?.name : "Select Source"}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
+                              {locations.filter(l => l.id !== toLocId).map(l => {
+                                const stockItem = l.stocks?.find((s: any) => s.productId === productId || s.product?.id === productId);
+                                const qty = stockItem ? stockItem.quantity : 0;
+                                return (
+                                  <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
+                                    <div className="flex justify-between items-center w-full min-w-[200px]">
+                                      <span>{l.name}</span>
+                                      {productId && (
+                                        <span className="text-[9px] px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500">
+                                          Stock: {qty}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                );
+                              })}
+                              {locations.filter(l => l.id !== toLocId).length === 0 && (
+                                <div className="p-4 text-xs font-bold text-slate-500 text-center">No other locations available</div>
+                              )}
+                            </SelectContent>
+                          </Select>
+                        </div>
                        
                        <div className="hidden sm:flex h-10 w-10 mt-6 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 items-center justify-center shrink-0 shadow-sm border border-indigo-100 dark:border-indigo-800">
                          <ArrowRightLeft className="h-4 w-4" />
