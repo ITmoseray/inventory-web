@@ -297,42 +297,44 @@ export default function ProtechCloudHomepage() {
         </section>
 
         {/* Before / After Transformation Section */}
-        <section className="py-24 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+        <section className="py-24 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
           <div className="container px-6 mx-auto">
-            <div className="text-center mb-16">
-              <div className="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-3">The Transformation</div>
-              <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">From Chaos to Clarity.</h2>
-              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Experience the difference a true Enterprise Operating System makes in your daily workflow.</p>
+            <div className="text-center mb-20">
+              <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">The Enterprise Transformation</h2>
+              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">See how Protech OS elevates your business from chaotic manual processes to a streamlined, intelligent operation.</p>
             </div>
             
-            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto items-stretch">
               {/* Before */}
-              <div className="relative rounded-3xl overflow-hidden group shadow-lg border border-slate-200/50 dark:border-slate-800/50">
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/30 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-                <div className="relative h-[400px] sm:h-[500px] w-full">
-                  <Image src="/images/black_1.png" alt="Having trouble with work" fill className="object-cover object-center transition-transform duration-700 group-hover:scale-105" unoptimized />
+              <div className="flex flex-col rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-shadow duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50">
+                <div className="relative h-[300px] sm:h-[400px] w-full border-b border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800">
+                  <Image src="/images/black_1.png" alt="Having trouble with work" fill className="object-cover object-center grayscale-[40%] transition-all duration-700 hover:grayscale-0 hover:scale-105" unoptimized />
                 </div>
-                <div className="absolute bottom-0 left-0 p-8 sm:p-10 z-20 w-full transform transition-transform duration-500 group-hover:-translate-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-200 text-sm font-bold mb-4 backdrop-blur-md border border-red-500/30">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500"></span> Before
+                <div className="p-8 sm:p-10 flex flex-col grow justify-center">
+                  <div className="flex items-center gap-3 mb-6">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-500 font-bold text-sm">01</span>
+                    <span className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">The Problem</span>
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 leading-tight">Having trouble with work</h3>
-                  <p className="text-slate-300 text-lg">Struggling with disconnected systems, manual paperwork, and stressful operations.</p>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-4">Having trouble with work</h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed">Struggling with disconnected systems, manual paperwork, and stressful operations that create bottlenecks in your daily workflow.</p>
                 </div>
               </div>
 
               {/* After */}
-              <div className="relative rounded-3xl overflow-hidden group shadow-[0_0_40px_-10px_rgba(79,70,229,0.3)] border border-indigo-500/20">
-                <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/95 via-slate-900/30 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-                <div className="relative h-[400px] sm:h-[500px] w-full">
-                  <Image src="/images/black_2.png" alt="Everything is simple with Protech" fill className="object-cover object-center transition-transform duration-700 group-hover:scale-105" unoptimized />
+              <div className="flex flex-col rounded-2xl overflow-hidden bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-200 dark:hover:shadow-indigo-900/40">
+                <div className="relative h-[300px] sm:h-[400px] w-full border-b border-indigo-100 dark:border-indigo-500/20 bg-indigo-100 dark:bg-indigo-900">
+                  <Image src="/images/black_2.png" alt="Everything is simple with Protech" fill className="object-cover object-center transition-transform duration-700 hover:scale-105" unoptimized />
                 </div>
-                <div className="absolute bottom-0 left-0 p-8 sm:p-10 z-20 w-full transform transition-transform duration-500 group-hover:-translate-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-sm font-bold mb-4 backdrop-blur-md border border-emerald-500/30">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> After
+                <div className="p-8 sm:p-10 flex flex-col grow justify-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+                    <TrendingUp className="w-48 h-48 text-indigo-600" />
                   </div>
-                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 leading-tight">Now with Protech Enterprise OS</h3>
-                  <p className="text-indigo-100 text-lg">Everything is simple, automated, and seamlessly integrated into one powerful dashboard.</p>
+                  <div className="flex items-center gap-3 mb-6 relative z-10">
+                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-600 text-white font-bold text-sm shadow-md shadow-indigo-600/30">02</span>
+                    <span className="text-sm font-bold uppercase tracking-widest text-indigo-600 dark:text-indigo-400">The Solution</span>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-4 relative z-10">Now with Protech Enterprise OS</h3>
+                  <p className="text-slate-600 dark:text-slate-400 text-lg leading-relaxed relative z-10">Everything is simple, automated, and seamlessly integrated into one powerful dashboard, giving you complete control over your business.</p>
                 </div>
               </div>
             </div>
