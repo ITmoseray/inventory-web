@@ -296,6 +296,49 @@ export default function ProtechCloudHomepage() {
           </div>
         </section>
 
+        {/* Before / After Transformation Section */}
+        <section className="py-24 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+          <div className="container px-6 mx-auto">
+            <div className="text-center mb-16">
+              <div className="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-3">The Transformation</div>
+              <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">From Chaos to Clarity.</h2>
+              <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Experience the difference a true Enterprise Operating System makes in your daily workflow.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+              {/* Before */}
+              <div className="relative rounded-3xl overflow-hidden group shadow-lg border border-slate-200/50 dark:border-slate-800/50">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/95 via-slate-900/30 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
+                <div className="relative h-[400px] sm:h-[500px] w-full">
+                  <Image src="/images/black_1.png" alt="Having trouble with work" fill className="object-cover object-center transition-transform duration-700 group-hover:scale-105" unoptimized />
+                </div>
+                <div className="absolute bottom-0 left-0 p-8 sm:p-10 z-20 w-full transform transition-transform duration-500 group-hover:-translate-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-200 text-sm font-bold mb-4 backdrop-blur-md border border-red-500/30">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500"></span> Before
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 leading-tight">Having trouble with work</h3>
+                  <p className="text-slate-300 text-lg">Struggling with disconnected systems, manual paperwork, and stressful operations.</p>
+                </div>
+              </div>
+
+              {/* After */}
+              <div className="relative rounded-3xl overflow-hidden group shadow-[0_0_40px_-10px_rgba(79,70,229,0.3)] border border-indigo-500/20">
+                <div className="absolute inset-0 bg-gradient-to-t from-indigo-950/95 via-slate-900/30 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
+                <div className="relative h-[400px] sm:h-[500px] w-full">
+                  <Image src="/images/black_2.png" alt="Everything is simple with Protech" fill className="object-cover object-center transition-transform duration-700 group-hover:scale-105" unoptimized />
+                </div>
+                <div className="absolute bottom-0 left-0 p-8 sm:p-10 z-20 w-full transform transition-transform duration-500 group-hover:-translate-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 text-sm font-bold mb-4 backdrop-blur-md border border-emerald-500/30">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span> After
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-3 leading-tight">Now with Protech Enterprise OS</h3>
+                  <p className="text-indigo-100 text-lg">Everything is simple, automated, and seamlessly integrated into one powerful dashboard.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* 3. Corporate Services */}
         <section id="services" className="py-24 bg-white dark:bg-slate-950">
            <div className="container px-6 mx-auto">
