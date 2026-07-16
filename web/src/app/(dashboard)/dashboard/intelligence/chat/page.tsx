@@ -46,6 +46,10 @@ export default function NeuralChatPage() {
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, isTyping]);
+
   if (!mounted) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-50/30 dark:bg-slate-950/30">
@@ -53,10 +57,6 @@ export default function NeuralChatPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
 
   async function checkConnection() {
     try {
