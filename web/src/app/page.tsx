@@ -6,7 +6,8 @@ import {
   ArrowRight, Shield, ShoppingCart, TrendingUp, Box, Truck, Users, HardHat, 
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
-  ChevronDown, Globe, MessageSquare, BarChart, Layers, Menu, X, FileText
+  ChevronDown, Globe, MessageSquare, BarChart, Layers, Menu, X, FileText,
+  Briefcase, Stethoscope
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -355,6 +356,12 @@ export default function ProtechCloudHomepage() {
                    { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe, href: "/dashboard/system" },
                    { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory" },
                    { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices", isModal: true },
+                   { title: "Staff & Payroll", desc: "Manage employees, attendance, and payroll.", icon: Briefcase, href: "/dashboard/staff/employees" },
+                   { title: "Healthcare", desc: "Manage patients, prescriptions, and clinics.", icon: Stethoscope, href: "/dashboard/patients" },
+                   { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school" },
+                   { title: "Restaurant", desc: "Manage tables, kitchen orders, and menus.", icon: Utensils, href: "/dashboard/restaurant/tables" },
+                   { title: "Services", desc: "Bookings and service analytics.", icon: Clock, href: "/dashboard/services/overview" },
+                   { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat" },
                  ].map((mod, i) => {
                     if (mod.isModal) {
                       return (
