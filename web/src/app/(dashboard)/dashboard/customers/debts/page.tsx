@@ -36,6 +36,11 @@ export default function DebtsPage() {
   const [paymentNote, setPaymentNote] = useState("");
   const [ageFilter, setAgeFilter] = useState<"ALL" | "0-30" | "31-60" | "61-90" | "90+">("ALL");
 
+  // WhatsApp Dialog State
+  const [isWaDialogOpen, setIsWaDialogOpen] = useState(false);
+  const [waDebt, setWaDebt] = useState<any>(null);
+  const [waPhone, setWaPhone] = useState("");
+
   useEffect(() => {
     fetchDebts();
   }, []);
@@ -120,6 +125,17 @@ export default function DebtsPage() {
   const [sendingSmsId, setSendingSmsId] = useState<string | null>(null);
 
   const handleWhatsAppReminder = (debt: any) => {
+    const customerPhone = debt.customer.phone || "";
+    const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
+    setWaDebt(debt);
+    setWaPhone(cleanPhone || "232");
+    setIsWaDialogOpen(true);
+  };
+
+  const executeWhatsAppReminder = () => {
+    if (!waDebt) return;
+    const debt = waDebt;
+    
     const savedTemplates = localStorage.getItem("comm_templates");
     let template = "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!";
     if (savedTemplates) {
@@ -136,14 +152,11 @@ export default function DebtsPage() {
       .replaceAll("{outstanding_amount}", Math.round(debt.totalAmount - debt.paidAmount).toLocaleString())
       .replaceAll("{due_date}", dueDateText);
 
-    const customerPhone = debt.customer.phone || "";
-    const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
-
-    const phoneInput = prompt(`Enter or confirm phone number for ${debt.customer.name} (with country code):`, cleanPhone || "232");
-    if (phoneInput === null) return;
-
-    const finalPhone = phoneInput.replace(/[^0-9]/g, "");
+    const finalPhone = waPhone.replace(/[^0-9]/g, "");
     const waLink = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(formattedMessage)}`;
+    
+    setIsWaDialogOpen(false);
+    
     window.open(waLink, "_blank");
     toast.success("WhatsApp redirection opened!");
   };
@@ -454,6 +467,32 @@ export default function DebtsPage() {
              <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 dark:border-slate-800/50">
                 <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
                 <Button className="rounded-xl px-8 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black" onClick={handlePayment}>Confirm Payment</Button>
+             </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* WhatsApp Dialog */}
+      <Dialog open={isWaDialogOpen} onOpenChange={setIsWaDialogOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl bg-white dark:bg-slate-950">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-black dark:text-white">WhatsApp Reminder</DialogTitle>
+            <p className="text-slate-400 font-bold text-sm">Send a WhatsApp reminder to {waDebt?.customer.name}</p>
+          </DialogHeader>
+          <div className="space-y-6 pt-6">
+             <div className="space-y-2">
+                <Label className="font-bold text-slate-700 dark:text-slate-300">Customer Phone Number (with Country Code)</Label>
+                <Input 
+                   type="text"
+                   value={waPhone}
+                   placeholder="e.g. 23277123456"
+                   onChange={(e) => setWaPhone(e.target.value)}
+                   className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
+                />
+             </div>
+             <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 dark:border-slate-800/50">
+                <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsWaDialogOpen(false)}>Cancel</Button>
+                <Button className="rounded-xl px-8 h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-black" onClick={executeWhatsAppReminder}>Send WhatsApp</Button>
              </div>
           </div>
         </DialogContent>
