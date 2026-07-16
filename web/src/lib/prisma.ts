@@ -19,16 +19,28 @@ const createPrismaClient = () => {
   console.log(`🔌 Initializing Prisma with connection: ${maskedUrl}`);
 
   const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
-  const pool = new PgPool({ 
+  const pool = new PgPool({
     connectionString,
-    ssl: isLocal ? false : { rejectUnauthorized: false }
+    ssl: isLocal ? false : { rejectUnauthorized: false },
+    // Prevent "Connection terminated unexpectedly" from Neon idle timeouts:
+    // Neon drops idle connections after ~5 min; we evict them at 4 min to avoid stale sockets.
+    idleTimeoutMillis: 240_000,       // remove idle connections after 4 min
+    connectionTimeoutMillis: 10_000,  // fail fast if can't connect within 10 s
+    keepAlive: true,                  // TCP keepalive to detect dropped connections early
+    max: 5,                           // keep pool small for serverless workloads
   });
+
+  // Prevent unhandled errors from killing the process when a pool connection is lost
+  pool.on("error", (err) => {
+    console.error("⚠️ Unexpected pg pool error (non-fatal):", err.message);
+  });
+
   const adapter = new PrismaPg(pool);
   console.log(`🐘 Using Standard Postgres Driver Adapter (${isLocal ? 'local' : 'remote'})`);
 
   return new PrismaClient({
     adapter,
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 };
 
