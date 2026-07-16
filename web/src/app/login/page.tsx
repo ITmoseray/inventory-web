@@ -182,7 +182,7 @@ export default function LoginPage() {
                 <button
                   onClick={handleResendEmail}
                   disabled={resending}
-                  className="mt-3 text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-300 underline underline-offset-2 hover:text-amber-900 disabled:opacity-50"
+                  className="mt-3 text-[10px] font-black uppercase tracking-widest text-amber-700 dark:text-amber-300 underline underline-offset-2 hover:text-amber-900 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {resending ? "Sending..." : "Resend verification email"}
                 </button>
@@ -260,7 +260,7 @@ export default function LoginPage() {
                    <button 
                      type="button"
                      onClick={() => setCurrentStep("EMAIL")}
-                     className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 px-3 py-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 shrink-0 transition-all"
+                     className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 px-3 py-1.5 rounded-lg hover:bg-white dark:hover:bg-slate-800 shrink-0 transition-all cursor-pointer"
                    >
                      Change
                    </button>
@@ -284,7 +284,7 @@ export default function LoginPage() {
                     <button 
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors cursor-pointer"
                     >
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
@@ -292,7 +292,7 @@ export default function LoginPage() {
                 </div>
 
                 <div className="flex items-center justify-center">
-                   <button type="button" className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors">
+                   <button type="button" className="text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors cursor-pointer">
                       Sign in using Email OTP
                    </button>
                 </div>
