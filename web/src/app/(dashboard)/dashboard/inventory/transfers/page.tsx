@@ -340,13 +340,17 @@ export default function StockTransfersPage() {
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
-                              {locations.filter(l => l.id !== toLocId).map(l => {
+                              {locations.map(l => {
                                 const stockItem = l.stocks?.find((s: any) => s.productId === productId || s.product?.id === productId);
                                 const qty = stockItem ? stockItem.quantity : 0;
+                                const isSelectedInTarget = l.id === toLocId;
                                 return (
-                                  <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
+                                  <SelectItem key={l.id} value={l.id} disabled={isSelectedInTarget} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
                                     <div className="flex justify-between items-center w-full min-w-[200px]">
-                                      <span>{l.name}</span>
+                                      <div className="flex flex-col">
+                                        <span>{l.name}</span>
+                                        {l.address && <span className="text-[9px] font-normal text-slate-400">{l.address}</span>}
+                                      </div>
                                       {productId && (
                                         <span className="text-[9px] px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500">
                                           Stock: {qty}
@@ -356,8 +360,8 @@ export default function StockTransfersPage() {
                                   </SelectItem>
                                 );
                               })}
-                              {locations.filter(l => l.id !== toLocId).length === 0 && (
-                                <div className="p-4 text-xs font-bold text-slate-500 text-center">No other locations available</div>
+                              {locations.length === 0 && (
+                                <div className="p-4 text-xs font-bold text-slate-500 text-center">No locations available</div>
                               )}
                             </SelectContent>
                           </Select>
@@ -374,13 +378,19 @@ export default function StockTransfersPage() {
                              <SelectValue placeholder="Select Target" />
                            </SelectTrigger>
                            <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
-                             {locations.filter(l => l.id !== fromLocId).map(l => (
-                               <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
-                                 {l.name}
-                               </SelectItem>
-                             ))}
-                             {locations.filter(l => l.id !== fromLocId).length === 0 && (
-                               <div className="p-4 text-xs font-bold text-slate-500 text-center">No other locations available</div>
+                             {locations.map(l => {
+                               const isSelectedInSource = l.id === fromLocId;
+                               return (
+                                 <SelectItem key={l.id} value={l.id} disabled={isSelectedInSource} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
+                                   <div className="flex flex-col">
+                                     <span>{l.name}</span>
+                                     {l.address && <span className="text-[9px] font-normal text-slate-400">{l.address}</span>}
+                                   </div>
+                                 </SelectItem>
+                               );
+                             })}
+                             {locations.length === 0 && (
+                               <div className="p-4 text-xs font-bold text-slate-500 text-center">No locations available</div>
                              )}
                            </SelectContent>
                          </Select>
