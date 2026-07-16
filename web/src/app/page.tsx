@@ -442,7 +442,7 @@ export default function ProtechCloudHomepage() {
 
         {/* Pricing Section */}
         <div className="bg-slate-50 dark:bg-slate-950/20 pt-10">
-          <PricingSection />
+          <PricingSection selectedCountry={selectedCountry} />
         </div>
 
         {/* 7. Social Proof */}

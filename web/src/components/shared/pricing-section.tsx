@@ -75,14 +75,28 @@ const faqs = [
     a: 'Yes! Our Enterprise plan includes custom feature development, database partitioning, multi-branch architecture audits, and dedicated implementation assistance.',
   },
 ];
+const getCurrencyConfig = (code?: string) => {
+  switch (code?.toLowerCase()) {
+    case 'sl': return { symbol: 'NLe', rate: 1 };
+    case 'ng': return { symbol: '₦', rate: 65 }; // Nigerian Naira
+    case 'gh': return { symbol: 'GH₵', rate: 0.65 }; // Ghanaian Cedi
+    case 'za': return { symbol: 'R', rate: 0.85 }; // South African Rand
+    case 'ke': return { symbol: 'KSh', rate: 6 }; // Kenyan Shilling
+    case 'lr': return { symbol: 'L$', rate: 9 }; // Liberian Dollar
+    case 'gm': return { symbol: 'D', rate: 3 }; // Gambian Dalasi
+    case 'gn': return { symbol: 'FG', rate: 400 }; // Guinean Franc
+    default: return { symbol: '$', rate: 0.045 }; // USD default for others
+  }
+};
 
-export function PricingSection() {
+export function PricingSection({ selectedCountry }: { selectedCountry?: { code: string, name: string } }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [showCompare, setShowCompare] = useState(false);
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+  
+  const currency = getCurrencyConfig(selectedCountry?.code || 'sl');
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
@@ -137,8 +151,9 @@ export function PricingSection() {
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pt-12 pb-16 px-2 sm:px-4">
           {plans.map((plan, idx) => {
-            const price = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
-            const savings = plan.monthlyPrice * 12 - plan.annualPrice * 12;
+            const basePrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
+            const price = Math.round(basePrice * currency.rate);
+            const savings = Math.round((plan.monthlyPrice * 12 - plan.annualPrice * 12) * currency.rate);
 
             return (
               <motion.div
@@ -178,7 +193,7 @@ export function PricingSection() {
                   <CardContent className="px-8 pb-6 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-baseline gap-1 mb-6 mt-2">
-                        <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">NLe</span>
+                        <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
                         <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
                           {price.toLocaleString()}
                         </span>
@@ -187,7 +202,7 @@ export function PricingSection() {
                       
                       {billingPeriod === 'annual' && savings > 0 && (
                         <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
-                          Billed annually (Save NLe {savings.toLocaleString()}/yr)
+                          Billed annually (Save {currency.symbol} {savings.toLocaleString()}/yr)
                         </div>
                       )}
 
