@@ -220,25 +220,12 @@ export default function PricingPage() {
 
         {/* Dynamic Comparison Drawer */}
         <div className="mt-20 flex flex-col items-center">
-          <Button 
-            variant="ghost" 
-            onClick={() => setShowCompare(prev => !prev)}
-            className="rounded-full px-6 py-5 border border-slate-200 dark:border-white/5 font-black text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-          >
-            {showCompare ? "Hide comparison details" : "Compare full features"}
-            {showCompare ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
-          </Button>
-
-          <AnimatePresence>
-            {showCompare && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="w-full max-w-4xl mt-8 overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200/80 dark:border-white/5 rounded-3xl shadow-xl"
-              >
-                <div className="p-8 overflow-x-auto">
-                  <table className="w-full text-left text-xs border-collapse">
+          <div className="w-full max-w-4xl mt-8 overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200/80 dark:border-white/5 rounded-3xl shadow-xl">
+            <div className="p-8 overflow-x-auto">
+              <h3 className="text-2xl font-[1000] text-center uppercase tracking-tight text-slate-900 dark:text-white mb-8">
+                Detailed Feature Comparison
+              </h3>
+              <table className="w-full text-left text-xs border-collapse">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
                         <th className="py-4 font-bold">Capability</th>
@@ -364,9 +351,7 @@ export default function PricingPage() {
                     </tbody>
                   </table>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
         </div>
 
         {/* Dynamic Pricing Calculator with matching base price */}
