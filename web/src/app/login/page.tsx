@@ -156,18 +156,19 @@ export default function LoginPage() {
         <span className="sm:hidden">Back</span>
       </Link>
 
-      <div className="flex-1 flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-20 sm:p-8 justify-center min-h-full">
-        {/* Branding Header */}
-        <Link href="/" className="mb-8 sm:mb-10 flex flex-col items-center gap-4 group">
-           <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
-              <User className="h-6 w-6 text-white" />
-           </div>
-           <div className="text-center">
-              <span className="font-bold text-2xl tracking-tight text-slate-900 dark:text-white">Protech <span className="text-indigo-600">Enterprise</span></span>
-           </div>
-        </Link>
+      <div className="flex-1 flex flex-col items-center w-full max-w-7xl mx-auto px-4 pt-24 pb-8 sm:p-8 min-h-full">
+        <div className="w-full max-w-[440px] flex flex-col m-auto">
+          {/* Branding Header */}
+          <Link href="/" className="mb-8 sm:mb-10 flex flex-col items-center gap-4 group">
+             <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
+                <User className="h-6 w-6 text-white" />
+             </div>
+             <div className="text-center">
+                <span className="font-bold text-2xl tracking-tight text-slate-900 dark:text-white">Protech <span className="text-indigo-600">Enterprise</span></span>
+             </div>
+          </Link>
 
-        <div className="w-full max-w-[440px] bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-12 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 relative">
+          <div className="w-full bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-12 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 relative">
 
         {/* Google Email Verification Pending Banner */}
         {googleVerifyPending && (
