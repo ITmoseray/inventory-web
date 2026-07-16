@@ -50,10 +50,81 @@ export function getIndustryColor(type: string | undefined) {
         accent: "bg-cyan-500",
         text: "text-blue-600",
         border: "border-blue-100",
-        gradient: "from-blue-600 via-dodgerblue-600 to-cyan-600",
-        gradientSoft: "from-blue-50/50 via-dodgerblue-50/50 to-cyan-50/50",
+        gradient: "from-blue-600 via-sky-600 to-indigo-600",
+        gradientSoft: "from-blue-50/50 via-sky-50/50 to-indigo-50/50",
         glow: "shadow-blue-500/20",
         ring: "ring-blue-500/10"
       };
   }
 }
+
+export const africanCountries = [
+  { name: "Algeria", code: "dz" },
+  { name: "Angola", code: "ao" },
+  { name: "Benin", code: "bj" },
+  { name: "Botswana", code: "bw" },
+  { name: "Burkina Faso", code: "bf" },
+  { name: "Burundi", code: "bi" },
+  { name: "Cabo Verde", code: "cv" },
+  { name: "Cameroon", code: "cm" },
+  { name: "CAR", code: "cf" },
+  { name: "Chad", code: "td" },
+  { name: "Comoros", code: "km" },
+  { name: "Congo", code: "cg" },
+  { name: "DR Congo", code: "cd" },
+  { name: "Djibouti", code: "dj" },
+  { name: "Egypt", code: "eg" },
+  { name: "Equatorial Guinea", code: "gq" },
+  { name: "Eritrea", code: "er" },
+  { name: "Eswatini", code: "sz" },
+  { name: "Ethiopia", code: "et" },
+  { name: "Gabon", code: "ga" },
+  { name: "Gambia", code: "gm" },
+  { name: "Ghana", code: "gh" },
+  { name: "Guinea", code: "gn" },
+  { name: "Guinea-Bissau", code: "gw" },
+  { name: "Ivory Coast", code: "ci" },
+  { name: "Kenya", code: "ke" },
+  { name: "Lesotho", code: "ls" },
+  { name: "Liberia", code: "lr" },
+  { name: "Libya", code: "ly" },
+  { name: "Madagascar", code: "mg" },
+  { name: "Malawi", code: "mw" },
+  { name: "Mali", code: "ml" },
+  { name: "Mauritania", code: "mr" },
+  { name: "Mauritius", code: "mu" },
+  { name: "Morocco", code: "ma" },
+  { name: "Mozambique", code: "mz" },
+  { name: "Namibia", code: "na" },
+  { name: "Niger", code: "ne" },
+  { name: "Nigeria", code: "ng" },
+  { name: "Rwanda", code: "rw" },
+  { name: "Sao Tome", code: "st" },
+  { name: "Senegal", code: "sn" },
+  { name: "Seychelles", code: "sc" },
+  { name: "Sierra Leone", code: "sl" },
+  { name: "Somalia", code: "so" },
+  { name: "South Africa", code: "za" },
+  { name: "South Sudan", code: "ss" },
+  { name: "Sudan", code: "sd" },
+  { name: "Tanzania", code: "tz" },
+  { name: "Togo", code: "tg" },
+  { name: "Tunisia", code: "tn" },
+  { name: "Uganda", code: "ug" },
+  { name: "Zambia", code: "zm" },
+  { name: "Zimbabwe", code: "zw" },
+];
+
+export const getCurrencyConfig = (code?: string) => {
+  switch (code?.toLowerCase()) {
+    case 'sl': return { symbol: 'NLe', rate: 1, name: 'Sierra Leonean Leone' };
+    case 'ng': return { symbol: '₦', rate: 65, name: 'Nigerian Naira' };
+    case 'gh': return { symbol: 'GH₵', rate: 0.65, name: 'Ghanaian Cedi' };
+    case 'za': return { symbol: 'R', rate: 0.85, name: 'South African Rand' };
+    case 'ke': return { symbol: 'KSh', rate: 6, name: 'Kenyan Shilling' };
+    case 'lr': return { symbol: 'L$', rate: 9, name: 'Liberian Dollar' };
+    case 'gm': return { symbol: 'D', rate: 3, name: 'Gambian Dalasi' };
+    case 'gn': return { symbol: 'FG', rate: 400, name: 'Guinean Franc' };
+    default: return { symbol: '$', rate: 0.045, name: 'US Dollar' };
+  }
+};

@@ -11,6 +11,7 @@ import { FeatureComparisonTable } from '@/components/shared/feature-comparison-t
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestSubscription } from '@/lib/actions/subscription';
+import { getCurrencyConfig } from '@/lib/utils';
 
 const plans = [
   {
@@ -58,6 +59,7 @@ const plans = [
 export default function PricingPage() {
   const { data: session } = useSession();
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
+  const currency = getCurrencyConfig('sl');
   const [selectedPlanForCalculator, setSelectedPlanForCalculator] = useState(plans[1]);
   const [activePaymentPlan, setActivePaymentPlan] = useState<string | null>(null);
   const [showCompare, setShowCompare] = useState(false);
@@ -116,8 +118,9 @@ export default function PricingPage() {
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pt-12 pb-16 px-2 sm:px-4">
           {plans.map((plan, idx) => {
-            const price = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
-            const savings = plan.monthlyPrice * 12 - plan.annualPrice * 12;
+            const basePrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
+            const price = Math.round(basePrice * currency.rate);
+            const savings = Math.round((plan.monthlyPrice * 12 - plan.annualPrice * 12) * currency.rate);
 
             return (
               <motion.div
@@ -156,7 +159,7 @@ export default function PricingPage() {
                   <CardContent className="px-6 sm:px-8 pb-6 flex-1 flex flex-col justify-between">
                     <div>
                       <div className="flex items-baseline gap-1 mb-6 mt-2">
-                        <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">NLe</span>
+                        <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
                         <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
                           {price.toLocaleString()}
                         </span>
@@ -165,7 +168,7 @@ export default function PricingPage() {
                       
                       {billingPeriod === 'annual' && savings > 0 && (
                         <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
-                          Billed annually (Save NLe {savings.toLocaleString()}/yr)
+                          Billed annually (Save {currency.symbol} {savings.toLocaleString()}/yr)
                         </div>
                       )}
 
@@ -224,7 +227,11 @@ export default function PricingPage() {
 
         {/* Dynamic Pricing Calculator with matching base price */}
         <div className="mt-24">
-          <PricingCalculator basePrice={selectedCalculatorBasePrice} />
+          <PricingCalculator 
+            basePrice={selectedCalculatorBasePrice * currency.rate}
+            currencySymbol={currency.symbol}
+            rate={currency.rate}
+          />
         </div>
 
         <ManualPaymentModal 

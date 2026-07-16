@@ -12,12 +12,12 @@ const ADD_ONS = [
   { name: 'Multiple Warehouses', price: 124.17, unit: 'per warehouse / month' },
 ];
 
-export function PricingCalculator({ basePrice }: { basePrice: number }) {
+export function PricingCalculator({ basePrice, currencySymbol = 'NLe', rate = 1 }: { basePrice: number, currencySymbol?: string, rate?: number }) {
   const [quantities, setQuantities] = useState(ADD_ONS.reduce((acc, addOn) => ({ ...acc, [addOn.name]: 0 }), {}));
 
   const calculateAddOnsTotal = () => {
     return ADD_ONS.reduce((total, addOn) => {
-      return total + (quantities[addOn.name] || 0) * addOn.price;
+      return total + (quantities[addOn.name] || 0) * (addOn.price * rate);
     }, 0);
   };
 
@@ -33,19 +33,19 @@ export function PricingCalculator({ basePrice }: { basePrice: number }) {
           <div key={addOn.name} className="flex items-center justify-between py-2">
             <div>
               <p className="font-bold">{addOn.name}</p>
-              <p className="text-xs text-slate-500">${addOn.price} {addOn.unit}</p>
+              <p className="text-xs text-slate-500">{currencySymbol} {(addOn.price * rate).toFixed(2)} {addOn.unit}</p>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" onClick={() => setQuantities({ ...quantities, [addOn.name]: Math.max(0, quantities[addOn.name] - 1) })}>-</Button>
               <span className="w-8 text-center">{quantities[addOn.name]}</span>
               <Button variant="outline" size="sm" onClick={() => setQuantities({ ...quantities, [addOn.name]: quantities[addOn.name] + 1 })}>+</Button>
-              <span className="w-20 text-right">${(quantities[addOn.name] * addOn.price).toFixed(2)}</span>
+              <span className="w-20 text-right">{currencySymbol} {(quantities[addOn.name] * addOn.price * rate).toFixed(2)}</span>
             </div>
           </div>
         ))}
         <div className="border-t mt-4 pt-4 flex justify-between font-black text-lg">
           <span>Total</span>
-          <span>NLe {total.toFixed(2)} / month</span>
+          <span>{currencySymbol} {total.toFixed(2)} / month</span>
         </div>
       </CardContent>
     </Card>
