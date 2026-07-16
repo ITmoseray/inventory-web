@@ -10,6 +10,8 @@ import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestSubscription } from '@/lib/actions/subscription';
 import { FeatureComparisonTable } from './feature-comparison-table';
+
+const plans = [
   {
     name: 'Basic',
     monthlyPrice: 200,
