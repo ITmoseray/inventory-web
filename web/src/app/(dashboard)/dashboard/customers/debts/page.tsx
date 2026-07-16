@@ -482,15 +482,20 @@ export default function DebtsPage() {
              </div>
              <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 dark:border-slate-800/50">
                 <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsMsgDialogOpen(false)}>Cancel</Button>
-                <Button 
+                <a 
+                   href={msgMode === "whatsapp" 
+                     ? `https://wa.me/${msgPhone.replace(/[^0-9]/g, "")}/?text=${encodeURIComponent(msgText)}` 
+                     : `sms:${msgPhone.replace(/[^0-9]/g, "")}?body=${encodeURIComponent(msgText)}`}
+                   target={msgMode === "whatsapp" ? "_blank" : "_self"}
+                   rel="noopener noreferrer"
                    className={cn(
-                     "rounded-xl px-8 h-12 font-black text-white",
+                     "inline-flex items-center justify-center rounded-xl px-8 h-12 font-black text-white",
                      msgMode === "whatsapp" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
                    )} 
-                   onClick={executeMessageSend}
+                   onClick={() => setIsMsgDialogOpen(false)}
                 >
                    {msgMode === "whatsapp" ? "Send WhatsApp" : "Send SMS"}
-                </Button>
+                </a>
              </div>
           </div>
         </DialogContent>
