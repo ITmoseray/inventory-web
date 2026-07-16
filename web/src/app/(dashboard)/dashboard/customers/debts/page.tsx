@@ -473,7 +473,21 @@ export default function DebtsPage() {
                 />
              </div>
              <div className="space-y-2">
-                <Label className="font-bold text-slate-700 dark:text-slate-300">Message Content</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="font-bold text-slate-700 dark:text-slate-300">Message Content</Label>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 px-3 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded-lg"
+                    onClick={() => {
+                      navigator.clipboard.writeText(msgText);
+                      toast.success("Message copied to clipboard!");
+                    }}
+                  >
+                    Copy Message
+                  </Button>
+                </div>
                 <Textarea 
                    value={msgText}
                    onChange={(e) => setMsgText(e.target.value)}
