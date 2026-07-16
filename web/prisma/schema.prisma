@@ -348,6 +348,7 @@ model Sale {
   consultation  Consultation?        @relation("ConsultationSale")
   labTest       LabTest?             @relation("LabTestSale")
   prescription  Prescription?        @relation("PrescriptionSale")
+  tags          TransactionTag[]
 
   @@index([businessId])
   @@index([businessId, deletedAt])
@@ -720,6 +721,7 @@ model Expense {
   deletedAt     DateTime?
   business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
   user          User      @relation(fields: [userId], references: [id])
+  tags          TransactionTag[]
 
   @@index([businessId])
 }

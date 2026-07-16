@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { FileText, Plus, Search, CheckCircle2, Clock, AlertCircle } from "lucide-react";
 import { ModuleHeader } from "@/components/layout/ModuleHeader";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getQuotes, updateQuoteStatus } from "@/lib/actions/quotes";
 import { format } from "date-fns";
@@ -96,12 +95,13 @@ export default function QuotesPage() {
         </div>
 
         <div className="flex w-full sm:w-auto shrink-0 gap-2">
-          <Button asChild className="h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm w-full sm:w-auto gap-2">
-            <Link href="/dashboard/sales/quotes/new">
-              <Plus className="h-4 w-4" />
-              Create Quote
-            </Link>
-          </Button>
+          <Link
+            href="/dashboard/sales/quotes/new"
+            className="inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm w-full sm:w-auto justify-center transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+            Create Quote
+          </Link>
         </div>
       </div>
 
