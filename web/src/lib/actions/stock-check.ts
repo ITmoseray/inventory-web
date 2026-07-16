@@ -11,58 +11,85 @@ export async function syncLowStockNotifications() {
     if (!session?.user?.businessId) return { success: false, message: "Unauthorized" };
     const businessId = session.user.businessId;
 
-    // 1. Find products with low stock
+    // 1. Get all non-service products
     const allProducts = await prisma.product.findMany({
-      where: {
-        businessId,
-      }
+      where: { businessId, type: { not: "SERVICE" }, deletedAt: null },
+      select: { id: true, name: true, stockQuantity: true, minStockLevel: true },
     });
 
-    const lowStockProducts = allProducts.filter(p => p.type !== "SERVICE" && p.stockQuantity <= p.minStockLevel);
+    // 2. Identify products that are NOW back above threshold
+    //    → auto-delete stale LOW_STOCK_CRITICAL notifications for those products
+    const healthyProducts = allProducts.filter(
+      (p) => Number(p.stockQuantity) > Number(p.minStockLevel)
+    );
 
+    if (healthyProducts.length > 0) {
+      const healthyTitles = healthyProducts.map((p) => `Critical Low Stock: ${p.name}`);
+      await prisma.notification.deleteMany({
+        where: {
+          businessId,
+          type: "LOW_STOCK_CRITICAL",
+          title: { in: healthyTitles },
+        },
+      });
+
+      // Also clean up ERROR-type low stock alerts (old format used type: "ERROR")
+      await prisma.notification.deleteMany({
+        where: {
+          businessId,
+          type: "ERROR",
+          title: { in: healthyTitles },
+        },
+      });
+    }
+
+    // 3. Identify products that are still low / critical
+    const lowStockProducts = allProducts.filter(
+      (p) => Number(p.stockQuantity) <= Number(p.minStockLevel)
+    );
 
     if (lowStockProducts.length === 0) return { success: true, count: 0 };
 
-    // 2. Check which products were already notified recently (last 4 hours)
-    // This satisfies the "5 alerts in 24 hours" requirement (24/4.8 = 5)
+    // 4. Check which low-stock products were already notified recently (last 4 hours)
+    //    to avoid spamming the same alert repeatedly
     const recentlyNotified = await prisma.notification.findMany({
       where: {
         businessId,
-        type: "LOW_STOCK_CRITICAL",
-        createdAt: {
-          gte: subHours(new Date(), 4)
-        }
+        createdAt: { gte: subHours(new Date(), 4) },
+        OR: [
+          { type: "LOW_STOCK_CRITICAL" },
+          { type: "ERROR", title: { startsWith: "Critical Low Stock:" } },
+        ],
       },
-      select: { title: true }
+      select: { title: true },
     });
 
-    const notifiedTitles = new Set(recentlyNotified.map(n => n.title));
-    let createdCount = 0;
+    const notifiedTitles = new Set(recentlyNotified.map((n) => n.title));
 
-    // Filter to products not yet notified recently
-    const productsToNotify = lowStockProducts.filter(p => !notifiedTitles.has(`Critical Low Stock: ${p.name}`));
+    // 5. Only notify for products not already notified in the last 4 hours
+    const productsToNotify = lowStockProducts.filter(
+      (p) => !notifiedTitles.has(`Critical Low Stock: ${p.name}`)
+    );
 
-    if (productsToNotify.length > 0) {
-      const product = productsToNotify[0];
-      const otherCount = productsToNotify.length - 1;
-      const alertTitle = `Critical Low Stock: ${product.name}`;
-      
-      let message = `Product "${product.name}" is at ${product.stockQuantity} units. Minimum required: ${product.minStockLevel}.`;
-      if (otherCount > 0) {
-        message += ` (Note: ${otherCount} other product(s) are also low on stock)`;
-      }
-      message += ` Please restock immediately.`;
+    if (productsToNotify.length === 0) return { success: true, count: 0 };
 
-      await createNotification({
-        title: alertTitle,
-        message: message,
-        type: "ERROR"
-      });
-      
-      createdCount = 1;
+    // 6. Create one grouped alert (most critical first: zero stock)
+    const sorted = [...productsToNotify].sort(
+      (a, b) => Number(a.stockQuantity) - Number(b.stockQuantity)
+    );
+    const product = sorted[0];
+    const otherCount = sorted.length - 1;
+    const alertTitle = `Critical Low Stock: ${product.name}`;
+
+    let message = `Product "${product.name}" is at ${product.stockQuantity} units. Minimum required: ${product.minStockLevel}.`;
+    if (otherCount > 0) {
+      message += ` (${otherCount} other product${otherCount > 1 ? "s" : ""} also low on stock)`;
     }
+    message += ` Please restock immediately.`;
 
-    return { success: true, count: createdCount };
+    await createNotification({ title: alertTitle, message, type: "ERROR" });
+
+    return { success: true, count: 1 };
   } catch (error) {
     console.error("Failed to sync stock alerts:", error);
     return { success: false };
