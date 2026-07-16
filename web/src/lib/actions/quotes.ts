@@ -1,9 +1,8 @@
 "use server";
 
-import { prisma, getTenantPrisma } from "@/lib/prisma";
+import { getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { Decimal } from "decimal.js";
 
 function serializeData(data: any) {
   return JSON.parse(JSON.stringify(data));
@@ -55,11 +54,11 @@ export async function createQuote(data: {
       return { success: false, error: "Quote must have at least one item." };
     }
 
-    // Calculate total
-    let totalAmount = new Decimal(0);
+    // Calculate total using plain JS arithmetic
+    let totalAmount = 0;
     const quoteItems = data.items.map(item => {
-      const amount = new Decimal(item.quantity).mul(item.unitPrice);
-      totalAmount = totalAmount.add(amount);
+      const amount = Number(item.quantity) * Number(item.unitPrice);
+      totalAmount += amount;
       return {
         productId: item.productId,
         quantity: item.quantity,
