@@ -69,9 +69,9 @@ export default function NeuralChatPage() {
     }
   }
 
-  const scrollToBottom = () => {
+  function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  }
 
   const handleSendMessage = async (textToSend: string) => {
     if (!textToSend.trim()) return;
