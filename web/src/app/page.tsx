@@ -397,9 +397,8 @@ export default function ProtechCloudHomepage() {
                           </div>
                           <h4 className="text-xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors relative z-10">{mod.title}</h4>
                           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed relative z-10 mb-6">{mod.desc}</p>
-                          <div className="relative h-48 -mx-8 -mb-8 mt-4 opacity-70 group-hover:opacity-100 transition-all duration-500 group-hover:scale-105 origin-top">
+                          <div className="relative h-48 -mx-8 -mb-8 mt-4 transition-all duration-500 group-hover:scale-[1.02] origin-top border-t border-slate-100 dark:border-slate-800/60">
                             <Image src={mod.image!} alt={`${mod.title} feature preview`} fill className="object-cover object-top" unoptimized />
-                            <div className="absolute inset-0 bg-gradient-to-t from-white dark:from-slate-950 via-white/50 dark:via-slate-950/50 to-transparent pointer-events-none" />
                           </div>
                        </motion.div>
                       )
@@ -673,23 +672,22 @@ export default function ProtechCloudHomepage() {
       <Dialog open={!!previewFeature} onOpenChange={(open) => !open && setPreviewFeature(null)}>
         <DialogContent className="sm:max-w-4xl bg-white dark:bg-slate-950 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
           {previewFeature && (
-            <div className="relative h-[65vh] w-full bg-slate-900 flex items-end">
+            <div className="relative h-[65vh] w-full bg-slate-100 dark:bg-slate-900 flex items-end">
               <Image 
                 src={previewFeature.image} 
                 alt={`${previewFeature.title} feature preview`} 
                 fill 
-                className="object-cover object-top opacity-60 mix-blend-screen"
+                className="object-cover object-top"
                 unoptimized
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent pointer-events-none" />
-              <div className="relative z-10 w-full p-8 sm:p-12 flex flex-col items-start gap-4">
+              <div className="relative z-10 w-full p-8 sm:p-12 flex flex-col items-start gap-4 bg-white/80 dark:bg-slate-950/80 backdrop-blur-xl border-t border-white/20 dark:border-slate-800/50">
                 <div className="flex items-center gap-3">
                    <div className="bg-indigo-600 p-2.5 rounded-xl shadow-lg shadow-indigo-600/30">
                      <previewFeature.icon className="h-6 w-6 text-white" />
                    </div>
-                   <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">{previewFeature.title}</h2>
+                   <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">{previewFeature.title}</h2>
                 </div>
-                <p className="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed">
+                <p className="text-slate-600 dark:text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed">
                   {previewFeature.desc} Our business operating system delivers dynamic real-time reporting, automated workflows, and comprehensive security controls for your retail enterprise.
                 </p>
                 <div className="flex flex-wrap gap-4 mt-4 w-full sm:w-auto">
@@ -704,7 +702,7 @@ export default function ProtechCloudHomepage() {
                   </button>
                   <button 
                     onClick={() => setPreviewFeature(null)} 
-                    className="bg-white/10 hover:bg-white/20 text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
+                    className="bg-slate-200/50 hover:bg-slate-200 dark:bg-slate-800/50 dark:hover:bg-slate-800 text-slate-700 dark:text-white backdrop-blur-md px-8 py-3.5 rounded-xl font-bold transition-all flex-1 sm:flex-none"
                   >
                     Close
                   </button>
