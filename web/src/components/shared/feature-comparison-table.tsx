@@ -1,5 +1,5 @@
-import React from 'react';
-import { CheckCircle2, Minus } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, Minus, Columns, Smartphone, Laptop, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const features = [
@@ -23,17 +23,26 @@ const features = [
 
 const renderFeatureCell = (value: string | boolean) => {
   if (value === true) {
-    return <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 mx-auto" />;
+    return <CheckCircle2 className="h-4.5 w-4.5 text-emerald-500 dark:text-emerald-400 mx-auto" />;
   }
   if (value === false) {
-    return <Minus className="h-4 w-4 text-slate-300 dark:text-slate-700 mx-auto" />;
+    return <Minus className="h-4.5 w-4.5 text-slate-300 dark:text-slate-700 mx-auto" />;
   }
-  return <span className="font-semibold">{value}</span>;
+  return <span className="font-bold text-slate-800 dark:text-slate-200 text-xs">{value}</span>;
 };
 
 export function FeatureComparisonTable() {
+  const [activeMobilePlan, setActiveMobilePlan] = useState<'basic' | 'standard' | 'business' | 'enterprise'>('business');
+
+  const plans = [
+    { id: 'basic', name: 'Basic', color: 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800' },
+    { id: 'standard', name: 'Standard', color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10' },
+    { id: 'business', name: 'Business', color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/10', popular: true },
+    { id: 'enterprise', name: 'Enterprise', color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/10' }
+  ] as const;
+
   return (
-    <div className="w-full max-w-5xl mx-auto mt-20">
+    <div className="w-full max-w-5xl mx-auto mt-20 px-4">
       <div className="text-center mb-10">
         <h3 className="text-3xl font-[1000] uppercase tracking-tight text-slate-900 dark:text-white mb-3">
           Detailed Feature Comparison
@@ -41,7 +50,55 @@ export function FeatureComparisonTable() {
         <p className="text-slate-500 font-medium text-sm">Compare plan capabilities side-by-side to find the right fit for your business.</p>
       </div>
 
-      <div className="bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
+      {/* Mobile & Tablet Plan Selector Tabs */}
+      <div className="lg:hidden flex flex-wrap justify-center gap-2 mb-6 bg-slate-100 dark:bg-slate-950 p-1.5 rounded-2xl border border-slate-200 dark:border-white/5">
+        {plans.map((p) => (
+          <button
+            key={p.id}
+            onClick={() => setActiveMobilePlan(p.id)}
+            className={cn(
+              "flex-1 min-w-[70px] py-2 px-3 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 relative",
+              activeMobilePlan === p.id 
+                ? "bg-white dark:bg-slate-900 shadow-md text-slate-900 dark:text-white border border-slate-200/50 dark:border-white/5" 
+                : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+            )}
+          >
+            {p.name}
+            {p.popular && (
+              <span className="absolute -top-2 -right-1 bg-purple-600 text-white text-[6px] px-1.5 py-0.5 rounded-full font-black uppercase tracking-widest">
+                Pop
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile/Tablet Card-based View */}
+      <div className="lg:hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-3xl shadow-xl overflow-hidden">
+        <div className="p-5 border-b border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-950/50 flex justify-between items-center">
+          <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Capability</span>
+          <span className={cn(
+            "text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-widest flex items-center gap-1",
+            plans.find(p => p.id === activeMobilePlan)?.color
+          )}>
+            <Sparkles className="h-3 w-3" />
+            {plans.find(p => p.id === activeMobilePlan)?.name}
+          </span>
+        </div>
+        <div className="divide-y divide-slate-100 dark:divide-white/5">
+          {features.map((feature, idx) => (
+            <div key={idx} className="p-4 flex justify-between items-center hover:bg-slate-50 dark:hover:bg-white/[0.02] transition-colors">
+              <span className="text-xs font-bold text-slate-900 dark:text-white w-1/2 pr-4">{feature.name}</span>
+              <div className="w-1/2 text-right">
+                {renderFeatureCell(feature[activeMobilePlan])}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop Side-by-Side Table View */}
+      <div className="hidden lg:block bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
