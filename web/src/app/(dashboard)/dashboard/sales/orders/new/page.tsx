@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +80,8 @@ export default function NewSalesOrderPage() {
   const [customerSearch, setCustomerSearch] = useState("");
   const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
+  const customerRef = useRef<HTMLDivElement>(null);
+  const productRef = useRef<HTMLDivElement>(null);
 
   // Delivery section
   const [deliveryAddress, setDeliveryAddress] = useState("");
@@ -113,14 +115,27 @@ export default function NewSalesOrderPage() {
       .catch(() => {});
   }, []);
 
+  // Close dropdowns on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (customerRef.current && !customerRef.current.contains(e.target as Node)) {
+        setShowCustomerDropdown(false);
+      }
+      if (productRef.current && !productRef.current.contains(e.target as Node)) {
+        setShowProductDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const subtotal = items.reduce((s, i) => s + i.total, 0);
   const taxAmount = subtotal * (taxRate / 100);
   const total = subtotal - discount + taxAmount;
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.status === "active" &&
-      p.name.toLowerCase().includes(productSearch.toLowerCase())
+  // getProducts returns all active products — no need to filter by status string
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(productSearch.toLowerCase())
   );
   const filteredCustomers = customers.filter((c) =>
     c.name.toLowerCase().includes(customerSearch.toLowerCase())
@@ -277,7 +292,7 @@ export default function NewSalesOrderPage() {
               </div>
 
               {/* Customer Search / Autofill */}
-              <div className="relative">
+              <div className="relative" ref={customerRef}>
                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2 block">
                   Search Existing Customer
                 </Label>
@@ -469,7 +484,7 @@ export default function NewSalesOrderPage() {
               </p>
               <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_140px_auto] gap-4 items-end">
                 {/* Product Search */}
-                <div className="relative">
+                <div className="relative" ref={productRef}>
                   <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1.5 block">
                     Product
                   </Label>
