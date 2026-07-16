@@ -83,11 +83,11 @@ export async function completeStockTransfer(transferId: string) {
     const businessId = session.user.businessId;
     const tenantPrisma = getTenantPrisma(businessId);
 
-    const result = await tenantPrisma.$transaction(async (tx) => {
+      const result = await tenantPrisma.$transaction(async (tx) => {
       // 1. Fetch transfer details
       const transfer = await tx.stockTransfer.findUnique({
         where: { id: transferId },
-        include: { product: true }
+        include: { product: true, fromLocation: true, toLocation: true }
       });
 
       if (!transfer) throw new Error("Transfer request not found.");
@@ -147,7 +147,7 @@ export async function completeStockTransfer(transferId: string) {
           productId: transfer.productId,
           quantity: -Number(transfer.quantity?.toString() || 0),
           type: "OUT",
-          reason: `Transfer to Location ID: ${transfer.toLocationId}`,
+          reason: `Transfer to Location: ${transfer.toLocation.name}`,
           businessId,
           userId: session.user.id!,
         }
@@ -158,7 +158,7 @@ export async function completeStockTransfer(transferId: string) {
           productId: transfer.productId,
           quantity: Number(transfer.quantity?.toString() || 0),
           type: "IN",
-          reason: `Transfer from Location ID: ${transfer.fromLocationId}`,
+          reason: `Transfer from Location: ${transfer.fromLocation.name}`,
           businessId,
           userId: session.user.id!,
         }
