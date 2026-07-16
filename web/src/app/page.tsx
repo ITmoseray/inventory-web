@@ -360,20 +360,20 @@ export default function ProtechCloudHomepage() {
               >
                  {[
                     { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory", isModal: true, image: "/images/Inventory.png" },
-                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos", isModal: true, image: "/images/Sales & POS.png" },
+                    { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos", isModal: true, image: "/images/Sales_and_POS.png" },
                     { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck, href: "/dashboard/purchases", isModal: true, image: "/images/Purchasing.png" },
-                    { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users, href: "/dashboard/customers", isModal: true, image: "/images/CRM & Loyalty.png" },
-                    { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: TrendingUp, href: "/dashboard/accounting/pl", isModal: true, image: "/images/Finance 1.png" },
+                    { title: "CRM & Loyalty", desc: "Track customer credit and loyalty programs.", icon: Users, href: "/dashboard/customers", isModal: true, image: "/images/CRM_and_Loyalty.png" },
+                    { title: "Finance", desc: "Full P&L tracking, income, and expenses.", icon: TrendingUp, href: "/dashboard/accounting/pl", isModal: true, image: "/images/Finance_1.png" },
                     { title: "Intelligence", desc: "Powerful dashboards with real-time analytics.", icon: BarChart, href: "/dashboard/analytics", isModal: true, image: "/images/Intelligence.png" },
                     { title: "Multi-Warehouse", desc: "Control multiple branches from one hub.", icon: Globe, href: "/dashboard/system", isModal: true, image: "/images/Multi-Warehouse.png" },
                     { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory", isModal: true, image: "/images/Multi-Unit.png" },
                     { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices", isModal: true, image: "/images/invoices.png" },
-                    { title: "Staff & Payroll", desc: "Manage employees, attendance, and payroll.", icon: Briefcase, href: "/dashboard/staff/employees", isModal: true, image: "/images/Staff & Payroll.png" },
+                    { title: "Staff & Payroll", desc: "Manage employees, attendance, and payroll.", icon: Briefcase, href: "/dashboard/staff/employees", isModal: true, image: "/images/Staff_and_Payroll.png" },
                     { title: "Healthcare", desc: "Manage patients, prescriptions, and clinics.", icon: Stethoscope, href: "/dashboard/patients", isModal: true, image: "/images/Healthcare.png" },
-                    { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school", isModal: true, image: "/images/School Management.png" },
+                    { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school", isModal: true, image: "/images/School_Management.png" },
                     { title: "Restaurant", desc: "Manage tables, kitchen orders, and menus.", icon: Utensils, href: "/dashboard/restaurant/tables", isModal: true, image: "/images/Restaurant.png" },
                     { title: "Services", desc: "Bookings and service analytics.", icon: Clock, href: "/dashboard/services/overview", isModal: true, image: "/images/services_screenshot.png" },
-                    { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat", isModal: true, image: "/images/AI Copilot.png" },
+                    { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat", isModal: true, image: "/images/AI_Copilot.png" },
                   ].map((mod, i) => {
                     const cardVariants = {
                       hidden: { opacity: 0, y: 30 },
