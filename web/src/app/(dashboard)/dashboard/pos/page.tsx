@@ -50,7 +50,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { createSale } from "@/lib/actions/sale";
 import { createDraft, updateDraft, getDrafts, deleteDraft } from "@/lib/actions/drafts";
-import { getCustomers } from "@/lib/actions/customer";
+import { getCustomers, createCustomer } from "@/lib/actions/customer";
 import { getCurrentBusiness } from "@/lib/actions/business";
 import { getPendingPrescriptions } from "@/lib/actions/prescription";
 import { 
@@ -197,6 +197,9 @@ export default function POSPage() {
   const [momoRefCode, setMomoRefCode] = useState("");
   const [momoSmsPaste, setMomoSmsPaste] = useState("");
   const [customers, setCustomers] = useState<any[]>([]);
+  const [isNewCustomerOpen, setIsNewCustomerOpen] = useState(false);
+  const [newCustomerData, setNewCustomerData] = useState({ name: "", phone: "", email: "", address: "" });
+  const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const [prescriptionId, setPrescriptionId] = useState("");
 
   // Drafts State
@@ -423,6 +426,24 @@ export default function POSPage() {
     window.open(waLink, "_blank");
     toast.success("Redirection to WhatsApp opened!");
   };
+
+  async function handleCreateCustomer(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newCustomerData.name) return toast.error("Name is required");
+    setIsCreatingCustomer(true);
+    try {
+      const customer = await createCustomer(newCustomerData);
+      setCustomers(prev => [customer, ...prev]);
+      setSelectedCustomer(customer.id);
+      setIsNewCustomerOpen(false);
+      setNewCustomerData({ name: "", phone: "", email: "", address: "" });
+      toast.success("Customer added successfully!");
+    } catch (err) {
+      toast.error("Failed to create customer");
+    } finally {
+      setIsCreatingCustomer(false);
+    }
+  }
 
   async function handleCheckout() {
     if (cart.length === 0) {
@@ -1005,7 +1026,7 @@ export default function POSPage() {
                         </div>
                         <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Customer Details</Label>
                      </div>
-                     <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Customer</button>
+                     <button onClick={() => setIsNewCustomerOpen(true)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Customer</button>
                   </div>
                   <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
                     <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-sm">
@@ -1229,6 +1250,21 @@ export default function POSPage() {
                </div>
             </div>
 
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 dark:border-slate-800">
+               <div className="flex items-center gap-2 text-slate-400">
+                  <ShieldCheck size={14} className="text-emerald-500" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">End-to-End Encryption</span>
+               </div>
+               <div className="flex items-center gap-2 text-slate-400">
+                  <CheckCircle2 size={14} className="text-blue-500" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Guaranteed Secure</span>
+               </div>
+               <div className="flex items-center gap-2 text-slate-400 hidden sm:flex">
+                  <Clock size={14} className="text-indigo-500" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Real-time Sync</span>
+               </div>
+            </div>
+
             <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-100 dark:border-slate-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                <Button 
                   variant="outline" 
@@ -1247,6 +1283,89 @@ export default function POSPage() {
                   )}
                </Button>
             </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ADD NEW CUSTOMER MODAL */}
+      <Dialog open={isNewCustomerOpen} onOpenChange={setIsNewCustomerOpen}>
+        <DialogContent className="sm:max-w-[450px] rounded-[2rem] sm:rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col">
+           <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-8 text-white relative overflow-hidden">
+             <div className="absolute top-0 right-0 p-6 opacity-10">
+               <User size={120} />
+             </div>
+             <div className="relative z-10">
+               <div className="flex items-center gap-3 mb-2">
+                 <Badge variant="outline" className="bg-white/10 border-white/20 text-white text-[9px] font-black uppercase tracking-[0.3em] backdrop-blur-md">CRM</Badge>
+               </div>
+               <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-md">
+                 New Customer
+               </h3>
+               <p className="text-indigo-100 text-[11px] font-bold mt-2 uppercase tracking-widest">
+                 Add to your database
+               </p>
+             </div>
+           </div>
+           
+           <div className="p-8">
+             <form onSubmit={handleCreateCustomer} className="space-y-5">
+               <div className="space-y-2">
+                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name <span className="text-rose-500">*</span></Label>
+                 <Input 
+                   required 
+                   value={newCustomerData.name} 
+                   onChange={(e) => setNewCustomerData({...newCustomerData, name: e.target.value})} 
+                   className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold dark:text-white transition-all focus:ring-2 focus:ring-indigo-500/20" 
+                   placeholder="e.g. John Doe"
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone Number</Label>
+                 <Input 
+                   value={newCustomerData.phone} 
+                   onChange={(e) => setNewCustomerData({...newCustomerData, phone: e.target.value})} 
+                   className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold dark:text-white transition-all focus:ring-2 focus:ring-indigo-500/20" 
+                   placeholder="e.g. 077 123 456"
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
+                 <Input 
+                   type="email"
+                   value={newCustomerData.email} 
+                   onChange={(e) => setNewCustomerData({...newCustomerData, email: e.target.value})} 
+                   className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold dark:text-white transition-all focus:ring-2 focus:ring-indigo-500/20" 
+                   placeholder="e.g. john@example.com"
+                 />
+               </div>
+               <div className="space-y-2">
+                 <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Physical Address</Label>
+                 <Input 
+                   value={newCustomerData.address} 
+                   onChange={(e) => setNewCustomerData({...newCustomerData, address: e.target.value})} 
+                   className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold dark:text-white transition-all focus:ring-2 focus:ring-indigo-500/20" 
+                   placeholder="e.g. 123 Main St, Freetown"
+                 />
+               </div>
+               
+               <div className="pt-4 flex gap-3">
+                 <Button 
+                   type="button" 
+                   variant="outline" 
+                   onClick={() => setIsNewCustomerOpen(false)} 
+                   className="flex-1 h-14 rounded-[1.2rem] font-black uppercase text-[10px] tracking-widest border-slate-200 dark:border-slate-800 text-slate-500"
+                 >
+                   Cancel
+                 </Button>
+                 <Button 
+                   type="submit" 
+                   disabled={isCreatingCustomer} 
+                   className="flex-[2] h-14 rounded-[1.2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 transition-all"
+                 >
+                   {isCreatingCustomer ? <RefreshCw className="animate-spin h-4 w-4" /> : "Save Customer"}
+                 </Button>
+               </div>
+             </form>
+           </div>
         </DialogContent>
       </Dialog>
 
