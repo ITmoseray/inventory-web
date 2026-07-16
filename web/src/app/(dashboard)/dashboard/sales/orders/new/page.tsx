@@ -280,7 +280,7 @@ export default function NewSalesOrderPage() {
         {/* ── Row 1: Customer + Delivery ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Customer Card */}
-          <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+          <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 relative z-50">
             <CardContent className="p-8 space-y-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="h-9 w-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center">
@@ -463,7 +463,7 @@ export default function NewSalesOrderPage() {
         </div>
 
         {/* ── Products Section ── */}
-        <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+        <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 relative z-40">
           <CardContent className="p-8 space-y-6">
             <div className="flex items-center gap-3">
               <div className="h-9 w-9 rounded-xl bg-amber-50 dark:bg-amber-950 flex items-center justify-center">
@@ -630,7 +630,7 @@ export default function NewSalesOrderPage() {
         {/* ── Bottom Row: Notes + Summary ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Notes */}
-          <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+          <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 relative z-30">
             <CardContent className="p-8 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
@@ -651,7 +651,7 @@ export default function NewSalesOrderPage() {
           </Card>
 
           {/* Order Summary */}
-          <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900">
+          <Card className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 relative z-30">
             <CardContent className="p-8 space-y-5">
               <div className="flex items-center gap-3">
                 <div className="h-9 w-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 flex items-center justify-center">
