@@ -11,11 +11,12 @@ export async function getLocations() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const businessId = session.user.businessId;
-    return await prisma.location.findMany({
+    const locations = await prisma.location.findMany({
       where: { businessId },
       include: { stocks: { include: { product: true } } },
       orderBy: { createdAt: "desc" },
     });
+    return JSON.parse(JSON.stringify(locations));
   } catch (error) {
     console.error("Failed to fetch locations:", error);
     throw error;

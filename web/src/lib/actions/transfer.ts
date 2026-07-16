@@ -10,7 +10,7 @@ export async function getStockTransfers() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const businessId = session.user.businessId;
-    return await prisma.stockTransfer.findMany({
+    const transfers = await prisma.stockTransfer.findMany({
       where: {
         fromLocation: { businessId }
       },
@@ -21,6 +21,7 @@ export async function getStockTransfers() {
       },
       orderBy: { createdAt: "desc" },
     });
+    return JSON.parse(JSON.stringify(transfers));
   } catch (error) {
     console.error("Failed to fetch stock transfers:", error);
     throw error;

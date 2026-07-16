@@ -224,10 +224,8 @@ export default function StockTransfersPage() {
 
         <div className="flex gap-2">
           <Dialog open={isLocationDialogOpen} onOpenChange={setIsLocationDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest gap-2 bg-white dark:bg-slate-900">
-                <Building2 className="h-4 w-4" /> Add Branch/Warehouse
-              </Button>
+            <DialogTrigger className="inline-flex items-center justify-center h-12 px-6 rounded-2xl border border-slate-200 dark:border-slate-800 text-[10px] font-black uppercase tracking-widest gap-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+              <Building2 className="h-4 w-4" /> Add Branch/Warehouse
             </DialogTrigger>
             <DialogContent className="sm:max-w-md border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem]">
               <DialogHeader>
@@ -306,10 +304,8 @@ export default function StockTransfersPage() {
           </Dialog>
 
           <Dialog open={isTransferDialogOpen} onOpenChange={setIsTransferDialogOpen}>
-            <DialogTrigger asChild>
-              <Button className="h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-500/25">
-                <ArrowRightLeft className="h-4 w-4" /> Transfer Stock
-              </Button>
+            <DialogTrigger className="inline-flex items-center justify-center h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-500/25 cursor-pointer transition-colors">
+              <ArrowRightLeft className="h-4 w-4" /> Transfer Stock
             </DialogTrigger>
             <DialogContent className="sm:max-w-[550px] w-[95vw] max-h-[95vh] rounded-[2rem] sm:rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col">
               <div className="bg-gradient-to-br from-indigo-600 to-indigo-900 p-6 sm:p-8 text-white relative overflow-hidden shrink-0">

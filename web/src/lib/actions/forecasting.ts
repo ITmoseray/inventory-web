@@ -78,7 +78,7 @@ export async function getInventoryForecast(businessId: string) {
     forecast.sort((a, b) => a.daysUntilDepletion - b.daysUntilDepletion);
 
     // Return top 5 critical items
-    return forecast.filter(f => f.status !== "HEALTHY").slice(0, 5);
+    return JSON.parse(JSON.stringify(forecast.filter(f => f.status !== "HEALTHY").slice(0, 5)));
 
   } catch (error) {
     console.error("Forecasting Error:", error);
