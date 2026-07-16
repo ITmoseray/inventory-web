@@ -145,7 +145,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-950 p-4 sm:p-8 relative">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-slate-950 relative">
       
       <Link 
         href="/" 
@@ -156,17 +156,18 @@ export default function LoginPage() {
         <span className="sm:hidden">Back</span>
       </Link>
 
-      {/* Branding Header */}
-      <Link href="/" className="mb-8 sm:mb-10 flex flex-col items-center gap-4 group mt-8 sm:mt-0">
-         <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
-            <User className="h-6 w-6 text-white" />
-         </div>
-         <div className="text-center">
-            <span className="font-bold text-2xl tracking-tight text-slate-900 dark:text-white">Protech <span className="text-indigo-600">Enterprise</span></span>
-         </div>
-      </Link>
+      <div className="flex-1 flex flex-col items-center w-full max-w-7xl mx-auto px-4 py-20 sm:p-8 justify-center min-h-full">
+        {/* Branding Header */}
+        <Link href="/" className="mb-8 sm:mb-10 flex flex-col items-center gap-4 group">
+           <div className="h-12 w-12 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 group-hover:scale-105 transition-transform">
+              <User className="h-6 w-6 text-white" />
+           </div>
+           <div className="text-center">
+              <span className="font-bold text-2xl tracking-tight text-slate-900 dark:text-white">Protech <span className="text-indigo-600">Enterprise</span></span>
+           </div>
+        </Link>
 
-      <div className="w-full max-w-[440px] bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-12 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 relative">
+        <div className="w-full max-w-[440px] bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-12 shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-slate-200 dark:border-slate-800 relative">
 
         {/* Google Email Verification Pending Banner */}
         {googleVerifyPending && (
@@ -412,16 +413,17 @@ export default function LoginPage() {
         )}
       </div>
 
-      <footer className="mt-12 text-center space-y-4">
+      <footer className="mt-12 text-center space-y-4 pb-8">
          <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
             © 2026 PROTECH ASSIST (SL) LIMITED. All rights reserved.
          </p>
-         <div className="flex justify-center gap-6 text-sm font-medium text-slate-500 dark:text-slate-400">
+         <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm font-medium text-slate-500 dark:text-slate-400">
             <Link href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Privacy Policy</Link>
             <Link href="#" className="hover:text-slate-900 dark:hover:text-white transition-colors">Terms of Service</Link>
             <Link href="/super-admin" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Super Admin Node</Link>
          </div>
       </footer>
+      </div>
     </div>
   );
 }
