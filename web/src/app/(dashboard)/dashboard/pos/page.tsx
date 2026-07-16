@@ -1288,8 +1288,8 @@ export default function POSPage() {
 
       {/* ADD NEW CUSTOMER MODAL */}
       <Dialog open={isNewCustomerOpen} onOpenChange={setIsNewCustomerOpen}>
-        <DialogContent className="sm:max-w-[450px] rounded-[2rem] sm:rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col">
-           <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-8 text-white relative overflow-hidden">
+        <DialogContent className="sm:max-w-[450px] w-[95vw] max-h-[95vh] rounded-[2rem] sm:rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col">
+           <div className="bg-gradient-to-br from-indigo-600 to-blue-700 p-6 sm:p-8 text-white relative overflow-hidden shrink-0">
              <div className="absolute top-0 right-0 p-6 opacity-10">
                <User size={120} />
              </div>
@@ -1297,17 +1297,17 @@ export default function POSPage() {
                <div className="flex items-center gap-3 mb-2">
                  <Badge variant="outline" className="bg-white/10 border-white/20 text-white text-[9px] font-black uppercase tracking-[0.3em] backdrop-blur-md">CRM</Badge>
                </div>
-               <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-md">
+               <h3 className="text-2xl sm:text-3xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-md">
                  New Customer
                </h3>
-               <p className="text-indigo-100 text-[11px] font-bold mt-2 uppercase tracking-widest">
+               <p className="text-indigo-100 text-[10px] sm:text-[11px] font-bold mt-2 uppercase tracking-widest">
                  Add to your database
                </p>
              </div>
            </div>
            
-           <div className="p-8">
-             <form onSubmit={handleCreateCustomer} className="space-y-5">
+           <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar">
+             <form onSubmit={handleCreateCustomer} className="space-y-4 sm:space-y-5">
                <div className="space-y-2">
                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name <span className="text-rose-500">*</span></Label>
                  <Input 
