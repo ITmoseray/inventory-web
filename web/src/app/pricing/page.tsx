@@ -1,14 +1,14 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Check, Star, Sparkles, ArrowLeft, Zap, Shield } from 'lucide-react';
+import { Check, Star, Sparkles, ArrowLeft, Zap, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { PricingCalculator } from '@/components/pricing/PricingCalculator';
 import { ManualPaymentModal } from '@/components/shared/manual-payment-modal';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { requestSubscription } from '@/lib/actions/subscription';
 
 const plans = [
@@ -59,6 +59,7 @@ export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const [selectedPlanForCalculator, setSelectedPlanForCalculator] = useState(plans[1]);
   const [activePaymentPlan, setActivePaymentPlan] = useState<string | null>(null);
+  const [showCompare, setShowCompare] = useState(false);
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
@@ -215,6 +216,157 @@ export default function PricingPage() {
               </motion.div>
             );
           })}
+        </div>
+
+        {/* Dynamic Comparison Drawer */}
+        <div className="mt-20 flex flex-col items-center">
+          <Button 
+            variant="ghost" 
+            onClick={() => setShowCompare(prev => !prev)}
+            className="rounded-full px-6 py-5 border border-slate-200 dark:border-white/5 font-black text-xs uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+          >
+            {showCompare ? "Hide comparison details" : "Compare full features"}
+            {showCompare ? <ChevronUp className="ml-2 h-4 w-4" /> : <ChevronDown className="ml-2 h-4 w-4" />}
+          </Button>
+
+          <AnimatePresence>
+            {showCompare && (
+              <motion.div 
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="w-full max-w-4xl mt-8 overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200/80 dark:border-white/5 rounded-3xl shadow-xl"
+              >
+                <div className="p-8 overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="border-b border-slate-200 dark:border-white/5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                        <th className="py-4 font-bold">Capability</th>
+                        <th className="py-4 font-bold">Basic</th>
+                        <th className="py-4 font-bold">Standard</th>
+                        <th className="py-4 font-bold">Business</th>
+                        <th className="py-4 font-bold">Enterprise</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-white/5 font-medium text-slate-700 dark:text-slate-350">
+                      <tr>
+                        <td className="py-4 font-bold">Product Limit</td>
+                        <td className="py-4">Up to 500</td>
+                        <td className="py-4">Up to 5,000</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Staff / Users</td>
+                        <td className="py-4">1 User</td>
+                        <td className="py-4">5 Users</td>
+                        <td className="py-4">15 Users</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Stock Management</td>
+                        <td className="py-4">Standard</td>
+                        <td className="py-4">Advanced</td>
+                        <td className="py-4 text-indigo-500 font-bold">Multi-Warehouse</td>
+                        <td className="py-4 text-indigo-500 font-bold">Custom Logic</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Branches Connected</td>
+                        <td className="py-4">1 Store</td>
+                        <td className="py-4">1 Store</td>
+                        <td className="py-4">Multi-Branch Reports</td>
+                        <td className="py-4 text-indigo-500 font-bold">Full Sync Engine</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Supplier POs</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">Included</td>
+                        <td className="py-4">Included</td>
+                        <td className="py-4">Custom Integrations</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Dynamic Reports</td>
+                        <td className="py-4">Basic Sales</td>
+                        <td className="py-4">Sales & Inventory</td>
+                        <td className="py-4 text-indigo-500 font-bold">Profit & Loss (P&L)</td>
+                        <td className="py-4 text-indigo-500 font-bold">Real-time BI Sync</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Invoicing</td>
+                        <td className="py-4 text-rose-500">50 / month</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Expense Tracking</td>
+                        <td className="py-4">Basic</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Quotes & Estimates</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Point of Sale (POS)</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-indigo-500 font-bold">Custom Interface</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Transaction Tagging</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">File Attachments</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Multiple Currencies</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Bank Reconciliation</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Payroll</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-indigo-500 font-bold">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Access Control</td>
+                        <td className="py-4">Admin only</td>
+                        <td className="py-4">Standard roles</td>
+                        <td className="py-4">Standard roles</td>
+                        <td className="py-4 text-indigo-500 font-bold">Granular (RBAC)</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Dynamic Pricing Calculator with matching base price */}
