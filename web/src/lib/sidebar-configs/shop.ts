@@ -110,6 +110,7 @@ export const shopSidebarConfig = [
         permission: "menu:accounting",
         items: [
           { title: "Expenses", url: "/dashboard/accounting/expenses" },
+          { title: "Transaction Tags", url: "/dashboard/accounting/tags" },
           { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
           { title: "Cash Flow", url: "/dashboard/accounting/cashflow" },
         ],

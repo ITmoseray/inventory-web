@@ -81,6 +81,7 @@ model Business {
   schoolLeaveRequests     SchoolLeaveRequest[]
   schoolPayslips          SchoolPayslip[]
   quotes                  Quote[]
+  transactionTags         TransactionTag[]
 
   @@index([slug])
 }
@@ -1398,4 +1399,20 @@ enum QuoteStatus {
   ACCEPTED
   REJECTED
   CONVERTED
+}
+
+model TransactionTag {
+  id         String    @id @default(cuid())
+  name       String
+  color      String    @default("#4F46E5")
+  businessId String
+  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  // Implicit many-to-many relations
+  expenses   Expense[]
+  sales      Sale[]
+
+  @@unique([businessId, name])
+  @@index([businessId])
 }
