@@ -369,9 +369,9 @@ export default function ProtechCloudHomepage() {
                     { title: "Multi-Unit", desc: "Sell by Piece, Carton, or Case automatically.", icon: Layers, href: "/dashboard/inventory", isModal: true, image: "/images/Multi-Unit.png" },
                     { title: "Invoicing", desc: "Create and share professional invoices instantly.", icon: FileText, href: "/dashboard/sales/invoices", isModal: true, image: "/images/invoices.png" },
                     { title: "Staff & Payroll", desc: "Manage employees, attendance, and payroll.", icon: Briefcase, href: "/dashboard/staff/employees", isModal: true, image: "/images/Staff & Payroll.png" },
-                    { title: "Healthcare", desc: "Manage patients, prescriptions, and clinics.", icon: Stethoscope, href: "/dashboard/patients" },
-                    { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school" },
-                    { title: "Restaurant", desc: "Manage tables, kitchen orders, and menus.", icon: Utensils, href: "/dashboard/restaurant/tables" },
+                    { title: "Healthcare", desc: "Manage patients, prescriptions, and clinics.", icon: Stethoscope, href: "/dashboard/patients", isModal: true, image: "/images/Healthcare.png" },
+                    { title: "School Management", desc: "Track students, academics, and school fees.", icon: GraduationCap, href: "/dashboard/school", isModal: true, image: "/images/School Management.png" },
+                    { title: "Restaurant", desc: "Manage tables, kitchen orders, and menus.", icon: Utensils, href: "/dashboard/restaurant/tables", isModal: true, image: "/images/Restaurant.png" },
                     { title: "Services", desc: "Bookings and service analytics.", icon: Clock, href: "/dashboard/services/overview", isModal: true, image: "/images/services_screenshot.png" },
                     { title: "AI Copilot", desc: "Intelligent chat and stock replenishment.", icon: MessageSquare, href: "/dashboard/intelligence/chat", isModal: true, image: "/images/AI Copilot.png" },
                   ].map((mod, i) => {
