@@ -178,3 +178,33 @@ export async function completeStockTransfer(transferId: string) {
     throw new Error(error.message || "Failed to finalize internal transfer.");
   }
 }
+
+export async function cancelStockTransfer(transferId: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    const businessId = session.user.businessId;
+    const tenantPrisma = getTenantPrisma(businessId);
+
+    const transfer = await tenantPrisma.stockTransfer.findUnique({
+      where: { id: transferId },
+    });
+
+    if (!transfer) throw new Error("Transfer request not found.");
+    if (transfer.status !== "PENDING") {
+      throw new Error(`Cannot cancel a transfer that is already ${transfer.status.toLowerCase()}.`);
+    }
+
+    const updated = await tenantPrisma.stockTransfer.update({
+      where: { id: transferId },
+      data: { status: "CANCELLED" },
+    });
+
+    revalidatePath("/dashboard/inventory/transfers");
+    return { success: true, transfer: updated };
+  } catch (error: any) {
+    console.error("Failed to cancel stock transfer:", error);
+    throw new Error(error.message || "Failed to cancel transfer.");
+  }
+}

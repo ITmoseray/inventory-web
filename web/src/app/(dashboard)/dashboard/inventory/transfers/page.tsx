@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Building2, ArrowRightLeft, MapPin, Package, CheckCircle2, RefreshCw } from "lucide-react";
+import { Plus, Search, Building2, ArrowRightLeft, MapPin, Package, CheckCircle2, RefreshCw, X, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,8 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { getLocations, createLocation } from "@/lib/actions/location";
-import { getStockTransfers, createStockTransfer, completeStockTransfer } from "@/lib/actions/transfer";
+import { getStockTransfers, createStockTransfer, completeStockTransfer, cancelStockTransfer } from "@/lib/actions/transfer";
+import { adjustLocationStock } from "@/lib/actions/location-stock";
 import { getProducts } from "@/lib/actions/product";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -59,6 +60,19 @@ export default function StockTransfersPage() {
   const [quantity, setQuantity] = useState(0);
   const [note, setNote] = useState("");
   const [creatingTransfer, setCreatingTransfer] = useState(false);
+
+  // Search & Filter States
+  const [branchSearch, setBranchSearch] = useState("");
+  const [ledgerSearch, setLedgerSearch] = useState("");
+  const [ledgerStatusFilter, setLedgerStatusFilter] = useState("ALL");
+
+  // Stock Adjustment Form
+  const [isAdjustDialogOpen, setIsAdjustDialogOpen] = useState(false);
+  const [adjustLocId, setAdjustLocId] = useState("");
+  const [adjustLocName, setAdjustLocName] = useState("");
+  const [adjustProductId, setAdjustProductId] = useState("");
+  const [adjustQty, setAdjustQty] = useState(0);
+  const [adjustingStock, setAdjustingStock] = useState(false);
 
   useEffect(() => {
     fetchInitialData();
@@ -157,6 +171,47 @@ export default function StockTransfersPage() {
     }
   }
 
+  async function handleAdjustStock(e: React.FormEvent) {
+    e.preventDefault();
+    if (!adjustLocId || !adjustProductId || adjustQty < 0) {
+      return toast.error("Please fill in all required fields.");
+    }
+
+    try {
+      setAdjustingStock(true);
+      const res = await adjustLocationStock({
+        locationId: adjustLocId,
+        productId: adjustProductId,
+        quantity: adjustQty,
+      });
+
+      if (res.success) {
+        toast.success("Stock levels manually adjusted.");
+        setIsAdjustDialogOpen(false);
+        setAdjustLocId("");
+        setAdjustProductId("");
+        setAdjustQty(0);
+        fetchInitialData();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to adjust stock levels.");
+    } finally {
+      setAdjustingStock(false);
+    }
+  }
+
+  async function handleCancelTransfer(id: string) {
+    try {
+      const res = await cancelStockTransfer(id);
+      if (res.success) {
+        toast.success("Stock transfer request cancelled.");
+        fetchInitialData();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to cancel transfer.");
+    }
+  }
+
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -199,6 +254,52 @@ export default function StockTransfersPage() {
                 <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
                   <Button type="button" variant="outline" onClick={() => setIsLocationDialogOpen(false)} className="rounded-xl h-11 text-xs">Cancel</Button>
                   <Button type="submit" disabled={creatingLoc} className="rounded-xl h-11 bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-6 font-bold">{creatingLoc ? "Creating..." : "Save Location"}</Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          {/* Quick Stock Adjustment Dialog */}
+          <Dialog open={isAdjustDialogOpen} onOpenChange={setIsAdjustDialogOpen}>
+            <DialogContent className="sm:max-w-md border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem]">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Adjust Branch Stock</DialogTitle>
+                <DialogDescription className="text-slate-500 text-xs">Directly override stock levels for a product at {adjustLocName}.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleAdjustStock} className="space-y-4 mt-2">
+                <div className="space-y-1">
+                  <Label htmlFor="adjustProduct" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Select Product *</Label>
+                  <Select required value={adjustProductId} onValueChange={setAdjustProductId}>
+                    <SelectTrigger className="h-11 rounded-xl bg-transparent border-slate-200 dark:border-slate-800 text-sm">
+                      <SelectValue placeholder="Choose product..." />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl border-slate-100 dark:border-slate-850 shadow-xl max-h-[200px]">
+                      {products.map(p => (
+                        <SelectItem key={p.id} value={p.id} className="text-xs">
+                          {p.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="adjustQty" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">New Quantity *</Label>
+                  <Input 
+                    id="adjustQty"
+                    type="number"
+                    required
+                    min="0"
+                    value={adjustQty}
+                    onChange={e => setAdjustQty(parseInt(e.target.value) || 0)}
+                    placeholder="e.g. 100"
+                    className="rounded-xl"
+                  />
+                </div>
+                <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
+                  <Button type="button" variant="outline" onClick={() => setIsAdjustDialogOpen(false)} className="rounded-xl h-11 text-xs">Cancel</Button>
+                  <Button type="submit" disabled={adjustingStock} className="rounded-xl h-11 bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-6 font-bold">
+                    {adjustingStock ? "Saving..." : "Update Stock"}
+                  </Button>
                 </div>
               </form>
             </DialogContent>
@@ -369,23 +470,39 @@ export default function StockTransfersPage() {
           <TabsTrigger value="transfers" className="rounded-xl text-xs font-black uppercase tracking-widest px-6 py-2.5">Transfers Ledger</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="locations">
+        <TabsContent value="locations" className="space-y-6">
+          <div className="relative max-w-sm">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Search branches or warehouses..." 
+              value={branchSearch}
+              onChange={e => setBranchSearch(e.target.value)}
+              className="pl-10 h-11 rounded-2xl bg-white dark:bg-slate-900 border-none shadow-sm font-semibold"
+            />
+          </div>
+
           <div className="grid gap-6 md:grid-cols-2">
             {loading ? (
               [1, 2].map(i => (
                 <Card key={i} className="h-48 border-none animate-pulse bg-slate-50/50 dark:bg-slate-800/50 rounded-3xl" />
               ))
-            ) : locations.length === 0 ? (
+            ) : locations.filter(loc => 
+              loc.name.toLowerCase().includes(branchSearch.toLowerCase()) ||
+              loc.type.toLowerCase().includes(branchSearch.toLowerCase())
+            ).length === 0 ? (
               <Card className="col-span-2 border-dashed border-slate-200 p-12 text-center rounded-3xl">
                 <Building2 className="h-12 w-12 text-slate-350 mx-auto mb-4" />
                 <h3 className="text-sm font-black uppercase text-slate-400">No Location Nodes Found</h3>
                 <p className="text-xs text-slate-550 mt-1 max-w-xs mx-auto">Create a warehouse or storefront location using the actions above.</p>
               </Card>
             ) : (
-              locations.map(loc => (
+              locations.filter(loc => 
+                loc.name.toLowerCase().includes(branchSearch.toLowerCase()) ||
+                loc.type.toLowerCase().includes(branchSearch.toLowerCase())
+              ).map(loc => (
                 <Card key={loc.id} className="border-none shadow-xl bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden relative p-6">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-2xl" />
-                  <div className="flex items-start justify-between">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 bg-indigo-50 dark:bg-indigo-950/20 rounded-xl flex items-center justify-center text-indigo-650 dark:text-indigo-400 font-black">
                         <MapPin className="h-5 w-5" />
@@ -395,6 +512,20 @@ export default function StockTransfersPage() {
                         <span className="text-[9px] font-black text-slate-400 tracking-widest uppercase">{loc.type}</span>
                       </div>
                     </div>
+                    <Button 
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setAdjustLocId(loc.id);
+                        setAdjustLocName(loc.name);
+                        setAdjustProductId("");
+                        setAdjustQty(0);
+                        setIsAdjustDialogOpen(true);
+                      }}
+                      className="rounded-xl h-8 text-[9px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/50"
+                    >
+                      <SlidersHorizontal className="h-3 w-3 mr-1" /> Adjust Stock
+                    </Button>
                   </div>
                   
                   {loc.address && (
@@ -415,7 +546,7 @@ export default function StockTransfersPage() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-slate-400 text-xs italic">No stock allocated to this node. Initiate a transfer to allocate.</span>
+                      <span className="text-slate-400 text-xs italic">No stock allocated to this node. Click "Adjust Stock" above to add inventory.</span>
                     )}
                   </div>
                 </Card>
@@ -424,7 +555,36 @@ export default function StockTransfersPage() {
           </div>
         </TabsContent>
 
-        <TabsContent value="transfers">
+        <TabsContent value="transfers" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+            <div className="relative max-w-sm w-full">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input 
+                placeholder="Search ledger by product, node, note..." 
+                value={ledgerSearch}
+                onChange={e => setLedgerSearch(e.target.value)}
+                className="pl-10 h-11 rounded-2xl bg-white dark:bg-slate-900 border-none shadow-sm font-semibold"
+              />
+            </div>
+            
+            <div className="flex gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+              {["ALL", "PENDING", "COMPLETED", "CANCELLED"].map(status => (
+                <button
+                  key={status}
+                  onClick={() => setLedgerStatusFilter(status)}
+                  className={cn(
+                    "px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer",
+                    ledgerStatusFilter === status
+                      ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/15"
+                      : "bg-white dark:bg-slate-900 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"
+                  )}
+                >
+                  {status}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
             <Table>
               <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
@@ -434,7 +594,7 @@ export default function StockTransfersPage() {
                   <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Route (From → To)</TableHead>
                   <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Quantity</TableHead>
                   <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest">Status</TableHead>
-                  <TableHead className="w-[120px] pr-6"></TableHead>
+                  <TableHead className="w-[150px] pr-6"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -444,14 +604,32 @@ export default function StockTransfersPage() {
                       <TableCell colSpan={6} className="h-20 animate-pulse bg-slate-50/50 dark:bg-slate-800/50" />
                     </TableRow>
                   ))
-                ) : transfers.length === 0 ? (
+                ) : transfers.filter(t => {
+                  const matchesSearch = 
+                    t.product.name.toLowerCase().includes(ledgerSearch.toLowerCase()) ||
+                    t.fromLocation.name.toLowerCase().includes(ledgerSearch.toLowerCase()) ||
+                    t.toLocation.name.toLowerCase().includes(ledgerSearch.toLowerCase()) ||
+                    (t.note && t.note.toLowerCase().includes(ledgerSearch.toLowerCase()));
+
+                  const matchesStatus = ledgerStatusFilter === "ALL" || t.status === ledgerStatusFilter;
+                  return matchesSearch && matchesStatus;
+                }).length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-slate-400 font-bold italic">
-                      No stock transfers requested yet.
+                    <TableCell colSpan={6} className="h-32 text-center text-slate-450 font-bold italic">
+                      No matching stock transfers found.
                     </TableCell>
                   </TableRow>
                 ) : (
-                  transfers.map(t => (
+                  transfers.filter(t => {
+                    const matchesSearch = 
+                      t.product.name.toLowerCase().includes(ledgerSearch.toLowerCase()) ||
+                      t.fromLocation.name.toLowerCase().includes(ledgerSearch.toLowerCase()) ||
+                      t.toLocation.name.toLowerCase().includes(ledgerSearch.toLowerCase()) ||
+                      (t.note && t.note.toLowerCase().includes(ledgerSearch.toLowerCase()));
+
+                    const matchesStatus = ledgerStatusFilter === "ALL" || t.status === ledgerStatusFilter;
+                    return matchesSearch && matchesStatus;
+                  }).map(t => (
                     <TableRow key={t.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-slate-100 dark:border-slate-850 transition-colors">
                       <TableCell className="pl-6 py-4">
                         <span className="font-bold text-xs text-slate-650 dark:text-slate-450">
@@ -481,21 +659,34 @@ export default function StockTransfersPage() {
                           "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
                           t.status === "COMPLETED" 
                             ? "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" 
-                            : "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            : t.status === "PENDING"
+                            ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                            : "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400"
                         )}>
                           {t.status}
                         </span>
                       </TableCell>
                       <TableCell className="pr-6">
-                        <div className="flex justify-end">
+                        <div className="flex justify-end gap-2">
                           {t.status === "PENDING" && (
-                            <Button
-                              size="sm"
-                              onClick={() => handleApproveTransfer(t.id)}
-                              className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/10"
-                            >
-                              Approve
-                            </Button>
+                            <>
+                              <Button
+                                size="sm"
+                                onClick={() => handleApproveTransfer(t.id)}
+                                className="h-8 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/10 cursor-pointer"
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleCancelTransfer(t.id)}
+                                className="h-8 w-8 p-0 rounded-lg border-rose-200 dark:border-rose-900/55 hover:bg-rose-50 dark:hover:bg-rose-950 text-rose-500 cursor-pointer"
+                                title="Cancel/Reject request"
+                              >
+                                <X className="h-4.5 w-4.5" />
+                              </Button>
+                            </>
                           )}
                         </div>
                       </TableCell>
