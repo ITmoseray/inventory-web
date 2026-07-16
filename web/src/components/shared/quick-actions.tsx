@@ -6,24 +6,70 @@ import {
   Package, 
   Users, 
   DollarSign,
-  ChevronUp
+  ChevronUp,
+  FileText,
+  Clock,
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Stethoscope
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSession } from "next-auth/react";
 
 export function QuickActions() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const { data: session } = useSession();
 
-  const actions = [
-    { label: "New Sale", icon: ShoppingCart, url: "/dashboard/pos", color: "bg-emerald-500" },
-    { label: "Add Product", icon: Package, url: "/dashboard/inventory/products", color: "bg-indigo-500" },
-    { label: "Add Patient", icon: Users, url: "/dashboard/patients", color: "bg-blue-500" },
-    { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
-  ];
+  const businessTypesString = session?.user?.businessType || "SHOP";
+  const types = businessTypesString.split(',').filter(Boolean);
+  const mainType = types[0] || "SHOP";
+
+  let actions = [];
+
+  switch (mainType) {
+    case "CLINIC":
+    case "HOSPITAL":
+      actions = [
+        { label: "New Consultation", icon: Stethoscope, url: "/dashboard/clinic/consultations", color: "bg-blue-500" },
+        { label: "Add Patient", icon: Users, url: "/dashboard/clinic/patients", color: "bg-indigo-500" },
+        { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
+      ];
+      break;
+    case "SCHOOL":
+      actions = [
+        { label: "Enroll Student", icon: Users, url: "/dashboard/school/students", color: "bg-blue-500" },
+        { label: "Fee Collection", icon: DollarSign, url: "/dashboard/school/fees", color: "bg-emerald-500" },
+        { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
+      ];
+      break;
+    case "RESTAURANT":
+    case "BAR":
+      actions = [
+        { label: "New Order", icon: ShoppingCart, url: "/dashboard/restaurant/pos", color: "bg-orange-500" },
+        { label: "Kitchen Queue", icon: Clock, url: "/dashboard/restaurant/kitchen", color: "bg-red-500" },
+        { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
+      ];
+      break;
+    case "WAREHOUSE":
+      actions = [
+        { label: "Add Product", icon: Package, url: "/dashboard/inventory/products", color: "bg-indigo-500" },
+        { label: "Receive Stock", icon: ArrowDownCircle, url: "/dashboard/purchases/orders", color: "bg-emerald-500" },
+        { label: "Dispatch Order", icon: ArrowUpCircle, url: "/dashboard/sales/orders/new", color: "bg-blue-500" },
+      ];
+      break;
+    default:
+      // SHOP, SUPERMARKET, BOUTIQUE, ELECTRONICS, PHARMACY
+      actions = [
+        { label: "New Sale", icon: ShoppingCart, url: "/dashboard/pos", color: "bg-emerald-500" },
+        { label: "Add Product", icon: Package, url: "/dashboard/inventory/products", color: "bg-indigo-500" },
+        { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
+      ];
+  }
 
   return (
     <div className="fixed bottom-24 right-8 z-30 flex flex-col items-end gap-4" id="quick-actions">
