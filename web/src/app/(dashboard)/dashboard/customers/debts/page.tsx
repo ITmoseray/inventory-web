@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { getDebts, createDebtPayment } from "@/lib/actions/debt";
 import { cn } from "@/lib/utils";
@@ -36,10 +37,12 @@ export default function DebtsPage() {
   const [paymentNote, setPaymentNote] = useState("");
   const [ageFilter, setAgeFilter] = useState<"ALL" | "0-30" | "31-60" | "61-90" | "90+">("ALL");
 
-  // WhatsApp Dialog State
-  const [isWaDialogOpen, setIsWaDialogOpen] = useState(false);
-  const [waDebt, setWaDebt] = useState<any>(null);
-  const [waPhone, setWaPhone] = useState("");
+  // Message Dialog State
+  const [isMsgDialogOpen, setIsMsgDialogOpen] = useState(false);
+  const [msgMode, setMsgMode] = useState<"whatsapp" | "sms">("whatsapp");
+  const [msgDebt, setMsgDebt] = useState<any>(null);
+  const [msgPhone, setMsgPhone] = useState("");
+  const [msgText, setMsgText] = useState("");
 
   useEffect(() => {
     fetchDebts();
@@ -122,19 +125,9 @@ export default function DebtsPage() {
     }
   }
 
-  const [sendingSmsId, setSendingSmsId] = useState<string | null>(null);
-
-  const handleWhatsAppReminder = (debt: any) => {
+  const openMessageDialog = (debt: any, mode: "whatsapp" | "sms") => {
     const customerPhone = debt.customer.phone || "";
     const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
-    setWaDebt(debt);
-    setWaPhone(cleanPhone || "232");
-    setIsWaDialogOpen(true);
-  };
-
-  const executeWhatsAppReminder = () => {
-    if (!waDebt) return;
-    const debt = waDebt;
     
     const savedTemplates = localStorage.getItem("comm_templates");
     let template = "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!";
@@ -152,43 +145,29 @@ export default function DebtsPage() {
       .replaceAll("{outstanding_amount}", Math.round(debt.totalAmount - debt.paidAmount).toLocaleString())
       .replaceAll("{due_date}", dueDateText);
 
-    const finalPhone = waPhone.replace(/[^0-9]/g, "");
-    const waLink = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(formattedMessage)}`;
-    
-    setIsWaDialogOpen(false);
-    
-    window.open(waLink, "_blank");
-    toast.success("WhatsApp redirection opened!");
+    setMsgDebt(debt);
+    setMsgMode(mode);
+    setMsgPhone(cleanPhone || "232");
+    setMsgText(formattedMessage);
+    setIsMsgDialogOpen(true);
   };
 
-  const handleSmsReminder = (debt: any) => {
-    setSendingSmsId(debt.id);
+  const executeMessageSend = () => {
+    if (!msgDebt) return;
     
-    setTimeout(() => {
-      setSendingSmsId(null);
-      
-      const savedTemplates = localStorage.getItem("comm_templates");
-      let template = "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!";
-      if (savedTemplates) {
-        try {
-          template = JSON.parse(savedTemplates).debt;
-        } catch (e) {}
-      }
-
-      const businessName = "Our Shop";
-      const dueDateText = debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "immediate settlement";
-      const formattedMessage = template
-        .replaceAll("{customer_name}", debt.customer.name)
-        .replaceAll("{business_name}", businessName)
-        .replaceAll("{outstanding_amount}", Math.round(debt.totalAmount - debt.paidAmount).toLocaleString())
-        .replaceAll("{due_date}", dueDateText);
-
-      console.log(`[SMS OUTBOUND] To: ${debt.customer.phone || "Customer"}, Msg: "${formattedMessage}"`);
-      
-      toast.success("SMS Reminder simulated & logged!", {
-        description: `SMS queued for ${debt.customer.name}. Check system logs for full payload.`
-      });
-    }, 800);
+    const finalPhone = msgPhone.replace(/[^0-9+]/g, "");
+    
+    if (msgMode === "whatsapp") {
+      const waLink = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(msgText)}`;
+      window.open(waLink, "_blank");
+      toast.success("WhatsApp redirection opened!");
+    } else {
+      const smsLink = `sms:${finalPhone}?body=${encodeURIComponent(msgText)}`;
+      window.open(smsLink, "_self");
+      toast.success("SMS app opened!");
+    }
+    
+    setIsMsgDialogOpen(false);
   };
 
   return (
@@ -393,7 +372,7 @@ export default function DebtsPage() {
                               variant="outline" 
                               className="h-8 w-8 p-0 rounded-lg border-emerald-100 dark:border-emerald-900/40 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/20"
                               title="WhatsApp Reminder"
-                              onClick={() => handleWhatsAppReminder(debt)}
+                              onClick={() => openMessageDialog(debt, "whatsapp")}
                             >
                               <MessageSquare size={14} />
                             </Button>
@@ -402,10 +381,9 @@ export default function DebtsPage() {
                               variant="outline" 
                               className="h-8 w-8 p-0 rounded-lg border-blue-100 dark:border-blue-900/40 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/20"
                               title="SMS Reminder"
-                              disabled={sendingSmsId === debt.id}
-                              onClick={() => handleSmsReminder(debt)}
+                              onClick={() => openMessageDialog(debt, "sms")}
                             >
-                              <Smartphone size={14} className={cn(sendingSmsId === debt.id && "animate-pulse")} />
+                              <Smartphone size={14} />
                             </Button>
                             <Button 
                               size="sm" 
@@ -472,27 +450,45 @@ export default function DebtsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* WhatsApp Dialog */}
-      <Dialog open={isWaDialogOpen} onOpenChange={setIsWaDialogOpen}>
+      {/* Message Dialog */}
+      <Dialog open={isMsgDialogOpen} onOpenChange={setIsMsgDialogOpen}>
         <DialogContent className="sm:max-w-[425px] rounded-[2rem] border-none shadow-2xl bg-white dark:bg-slate-950">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black dark:text-white">WhatsApp Reminder</DialogTitle>
-            <p className="text-slate-400 font-bold text-sm">Send a WhatsApp reminder to {waDebt?.customer.name}</p>
+            <DialogTitle className="text-2xl font-black dark:text-white">
+              {msgMode === "whatsapp" ? "WhatsApp Reminder" : "SMS Reminder"}
+            </DialogTitle>
+            <p className="text-slate-400 font-bold text-sm">Review & send to {msgDebt?.customer.name}</p>
           </DialogHeader>
-          <div className="space-y-6 pt-6">
+          <div className="space-y-6 pt-4">
              <div className="space-y-2">
                 <Label className="font-bold text-slate-700 dark:text-slate-300">Customer Phone Number (with Country Code)</Label>
                 <Input 
                    type="text"
-                   value={waPhone}
+                   value={msgPhone}
                    placeholder="e.g. 23277123456"
-                   onChange={(e) => setWaPhone(e.target.value)}
+                   onChange={(e) => setMsgPhone(e.target.value)}
                    className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white"
                 />
              </div>
+             <div className="space-y-2">
+                <Label className="font-bold text-slate-700 dark:text-slate-300">Message Content</Label>
+                <Textarea 
+                   value={msgText}
+                   onChange={(e) => setMsgText(e.target.value)}
+                   className="min-h-[120px] rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white resize-none"
+                />
+             </div>
              <div className="flex justify-end gap-3 pt-6 border-t border-slate-50 dark:border-slate-800/50">
-                <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsWaDialogOpen(false)}>Cancel</Button>
-                <Button className="rounded-xl px-8 h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-black" onClick={executeWhatsAppReminder}>Send WhatsApp</Button>
+                <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsMsgDialogOpen(false)}>Cancel</Button>
+                <Button 
+                   className={cn(
+                     "rounded-xl px-8 h-12 font-black text-white",
+                     msgMode === "whatsapp" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-blue-600 hover:bg-blue-700"
+                   )} 
+                   onClick={executeMessageSend}
+                >
+                   {msgMode === "whatsapp" ? "Send WhatsApp" : "Send SMS"}
+                </Button>
              </div>
           </div>
         </DialogContent>
