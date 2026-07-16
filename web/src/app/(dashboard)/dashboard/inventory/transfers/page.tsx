@@ -21,8 +21,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { getLocations, createLocation } from "@/lib/actions/location";
 import { getStockTransfers, createStockTransfer, completeStockTransfer } from "@/lib/actions/transfer";
@@ -203,52 +211,133 @@ export default function StockTransfersPage() {
                 <ArrowRightLeft className="h-4 w-4" /> Transfer Stock
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem]">
-              <DialogHeader>
-                <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Initiate Stock Transfer</DialogTitle>
-                <DialogDescription className="text-slate-500 text-xs">Move inventory from one branch or warehouse to another securely.</DialogDescription>
-              </DialogHeader>
-              <form onSubmit={handleCreateTransfer} className="space-y-4 mt-2">
-                <div className="space-y-1">
-                  <Label htmlFor="fromLoc" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Source Location *</Label>
-                  <select id="fromLoc" required value={fromLocId} onChange={e => setFromLocId(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm">
-                    <option value="">Select Source</option>
-                    {locations.map(l => (
-                      <option key={l.id} value={l.id}>{l.name} ({l.type})</option>
-                    ))}
-                  </select>
+            <DialogContent className="sm:max-w-[550px] w-[95vw] max-h-[95vh] rounded-[2rem] sm:rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col">
+              <div className="bg-gradient-to-br from-indigo-600 to-indigo-900 p-6 sm:p-8 text-white relative overflow-hidden shrink-0">
+                <div className="absolute top-0 right-0 p-6 opacity-10">
+                  <ArrowRightLeft size={120} />
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="toLoc" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Target Location *</Label>
-                  <select id="toLoc" required value={toLocId} onChange={e => setToLocId(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm">
-                    <option value="">Select Target</option>
-                    {locations.map(l => (
-                      <option key={l.id} value={l.id}>{l.name} ({l.type})</option>
-                    ))}
-                  </select>
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="px-3 py-1 rounded-xl bg-white/10 border border-white/20 text-[9px] font-black uppercase tracking-[0.3em] backdrop-blur-md">Logistics</div>
+                  </div>
+                  <h3 className="text-2xl sm:text-3xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-md">
+                    Stock Transfer
+                  </h3>
+                  <p className="text-indigo-200 text-[10px] sm:text-[11px] font-bold mt-2 uppercase tracking-widest">
+                    Move inventory securely
+                  </p>
                 </div>
-                <div className="space-y-1">
-                  <Label htmlFor="product" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Select Product *</Label>
-                  <select id="product" required value={productId} onChange={e => setProductId(e.target.value)} className="w-full h-10 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-transparent text-sm">
-                    <option value="">Select Product</option>
-                    {products.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} (Qty: {p.stockQuantity})</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="quantity" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Quantity to Transfer *</Label>
-                  <Input id="quantity" type="number" required min="1" value={quantity} onChange={e => setQuantity(parseInt(e.target.value) || 0)} className="rounded-xl" />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="note" className="text-[10px] font-black uppercase text-slate-405 tracking-wider">Transfer Note</Label>
-                  <Input id="note" value={note} onChange={e => setNote(e.target.value)} placeholder="e.g. Restocking downtown store" className="rounded-xl" />
-                </div>
-                <div className="flex gap-3 justify-end pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <Button type="button" variant="outline" onClick={() => setIsTransferDialogOpen(false)} className="rounded-xl h-11 text-xs">Cancel</Button>
-                  <Button type="submit" disabled={creatingTransfer} className="rounded-xl h-11 bg-indigo-650 hover:bg-indigo-600 text-white text-xs px-6 font-bold">{creatingTransfer ? "Submitting..." : "Submit Request"}</Button>
-                </div>
-              </form>
+              </div>
+
+              <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar">
+                <form onSubmit={handleCreateTransfer} className="space-y-6">
+                  
+                  {/* Locations: Source -> Target */}
+                  <div className="p-4 rounded-[1.5rem] bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 space-y-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4">
+                       <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Source Location <span className="text-rose-500">*</span></Label>
+                         <Select required value={fromLocId} onValueChange={setFromLocId}>
+                           <SelectTrigger className="h-12 rounded-[1rem] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-bold shadow-sm">
+                             <SelectValue placeholder="Select Source" />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
+                             {locations.map(l => (
+                               <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
+                                 {l.name}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       </div>
+                       
+                       <div className="hidden sm:flex h-10 w-10 mt-6 rounded-full bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 items-center justify-center shrink-0 shadow-sm border border-indigo-100 dark:border-indigo-800">
+                         <ArrowRightLeft className="h-4 w-4" />
+                       </div>
+                       
+                       <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Location <span className="text-rose-500">*</span></Label>
+                         <Select required value={toLocId} onValueChange={setToLocId}>
+                           <SelectTrigger className="h-12 rounded-[1rem] bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 font-bold shadow-sm">
+                             <SelectValue placeholder="Select Target" />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
+                             {locations.map(l => (
+                               <SelectItem key={l.id} value={l.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
+                                 {l.name}
+                               </SelectItem>
+                             ))}
+                           </SelectContent>
+                         </Select>
+                       </div>
+                     </div>
+                  </div>
+
+                  {/* Product Details */}
+                  <div className="space-y-4">
+                     <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Product <span className="text-rose-500">*</span></Label>
+                       <Select required value={productId} onValueChange={setProductId}>
+                         <SelectTrigger className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold">
+                           <SelectValue placeholder="Select Product" />
+                         </SelectTrigger>
+                         <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
+                           {products.map(p => (
+                             <SelectItem key={p.id} value={p.id} className="font-bold py-3 text-xs rounded-xl focus:bg-indigo-50 dark:focus:bg-indigo-950">
+                               <div className="flex justify-between items-center w-full min-w-[200px]">
+                                  <span>{p.name}</span>
+                                  <span className="text-[9px] px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-md text-slate-500">Qty: {p.stockQuantity}</span>
+                               </div>
+                             </SelectItem>
+                           ))}
+                         </SelectContent>
+                       </Select>
+                     </div>
+                     
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Transfer Qty <span className="text-rose-500">*</span></Label>
+                          <Input 
+                            type="number" 
+                            required 
+                            min="1" 
+                            value={quantity || ""} 
+                            onChange={e => setQuantity(parseInt(e.target.value) || 0)} 
+                            className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold" 
+                            placeholder="e.g. 50"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Reason / Note</Label>
+                          <Input 
+                            value={note} 
+                            onChange={e => setNote(e.target.value)} 
+                            placeholder="e.g. Restocking downtown..." 
+                            className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold" 
+                          />
+                        </div>
+                     </div>
+                  </div>
+
+                  <div className="pt-4 flex gap-3 border-t border-slate-100 dark:border-slate-800">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => setIsTransferDialogOpen(false)} 
+                      className="flex-1 h-14 rounded-[1.2rem] font-black uppercase text-[10px] tracking-widest border-slate-200 dark:border-slate-800 text-slate-500"
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={creatingTransfer} 
+                      className="flex-[2] h-14 rounded-[1.2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] shadow-xl hover:scale-105 transition-all gap-2"
+                    >
+                      {creatingTransfer ? <RefreshCw className="animate-spin h-4 w-4" /> : <><ArrowRightLeft className="h-4 w-4" /> Authorize Transfer</>}
+                    </Button>
+                  </div>
+                </form>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
