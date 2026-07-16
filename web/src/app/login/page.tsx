@@ -149,7 +149,7 @@ export default function LoginPage() {
       
       <Link 
         href="/" 
-        className="absolute top-6 left-6 sm:top-8 sm:left-8 z-50 inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-white transition-colors"
+        className="fixed top-6 left-6 sm:top-8 sm:left-8 z-[100] inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800/50 dark:hover:text-white transition-colors cursor-pointer"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to website
