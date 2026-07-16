@@ -155,10 +155,12 @@ export default function DebtsPage() {
   const executeMessageSend = () => {
     if (!msgDebt) return;
     
-    const finalPhone = msgPhone.replace(/[^0-9+]/g, "");
+    // WhatsApp API strictly requires no plus signs, brackets, or dashes.
+    const finalPhone = msgPhone.replace(/[^0-9]/g, "");
     
     if (msgMode === "whatsapp") {
-      const waLink = `https://wa.me/${finalPhone}?text=${encodeURIComponent(msgText)}`;
+      // api.whatsapp.com/send handles the handoff to native/web seamlessly and preserves the text parameter
+      const waLink = `https://api.whatsapp.com/send?phone=${finalPhone}&text=${encodeURIComponent(msgText)}`;
       window.open(waLink, "_blank");
       toast.success("WhatsApp redirection opened!");
     } else {
