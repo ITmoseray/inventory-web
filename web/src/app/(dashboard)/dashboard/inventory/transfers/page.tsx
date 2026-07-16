@@ -284,7 +284,9 @@ export default function StockTransfersPage() {
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Product <span className="text-rose-500">*</span></Label>
                        <Select required value={productId} onValueChange={setProductId}>
                          <SelectTrigger className="h-12 rounded-[1rem] bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold">
-                           <SelectValue placeholder="Select Product" />
+                           <SelectValue placeholder="Select Product">
+                             {productId ? products.find(p => p.id === productId)?.name : "Select Product"}
+                           </SelectValue>
                          </SelectTrigger>
                          <SelectContent className="rounded-[1.5rem] border-slate-100 dark:border-slate-800 shadow-xl">
                            {products.map(p => (
