@@ -308,6 +308,69 @@ export function PricingSection() {
                         <td className="py-4 text-indigo-500 font-bold">Real-time BI Sync</td>
                       </tr>
                       <tr>
+                        <td className="py-4 font-bold">Invoicing</td>
+                        <td className="py-4 text-rose-500">50 / month</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Expense Tracking</td>
+                        <td className="py-4">Basic</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Quotes & Estimates</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                        <td className="py-4 text-emerald-600 font-bold">Unlimited</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Point of Sale (POS)</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-indigo-500 font-bold">Custom Interface</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Transaction Tagging</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">File Attachments</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Multiple Currencies</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Bank Reconciliation</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                        <td className="py-4 text-emerald-600">Included</td>
+                      </tr>
+                      <tr>
+                        <td className="py-4 font-bold">Payroll</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4">—</td>
+                        <td className="py-4 text-indigo-500 font-bold">Included</td>
+                      </tr>
+                      <tr>
                         <td className="py-4 font-bold">Access Control</td>
                         <td className="py-4">Admin only</td>
                         <td className="py-4">Standard roles</td>
