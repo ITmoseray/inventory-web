@@ -47,7 +47,7 @@ export async function createLocation(data: {
     
     const check = canPerformAction(business?.plan || "FREE", "maxBranches", locationCount);
     if (!check.allowed) {
-      throw new Error(check.message);
+      return { success: false, error: check.message };
     }
 
     const newLocation = await tenantPrisma.location.create({
@@ -63,6 +63,6 @@ export async function createLocation(data: {
     return { success: true, location: JSON.parse(JSON.stringify(newLocation)) };
   } catch (error: any) {
     console.error("Failed to create location:", error);
-    throw new Error(error.message || "Failed to create inventory branch/location.");
+    return { success: false, error: error.message || "Failed to create inventory branch/location." };
   }
 }

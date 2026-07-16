@@ -115,6 +115,8 @@ export default function StockTransfersPage() {
         setLocType("STORE");
         setLocAddress("");
         fetchInitialData();
+      } else if (res.error) {
+        toast.error(res.error);
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to create location.");
