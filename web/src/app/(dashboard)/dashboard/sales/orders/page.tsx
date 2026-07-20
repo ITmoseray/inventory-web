@@ -169,8 +169,8 @@ export default function SalesOrdersPage() {
     <div className="min-h-screen bg-white dark:bg-slate-950 flex flex-col font-sans pb-20">
 
       {/* ── Header ── */}
-      <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80">
-        <div className="flex items-center gap-8 flex-1">
+      <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-4 sm:px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80">
+        <div className="flex items-center gap-4 sm:gap-8 flex-1">
           <DropdownMenu onOpenChange={(open) => !open && setViewSearch("")}>
             <DropdownMenuTrigger
               render={
@@ -239,7 +239,7 @@ export default function SalesOrdersPage() {
 
       {/* ── Stats Cards ── */}
       {stats && (
-        <div className="px-8 pt-8 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="px-4 sm:px-8 pt-4 sm:pt-8 grid grid-cols-2 lg:grid-cols-5 gap-4">
           {[
             { label: "Total Orders", value: stats.total,     icon: ShoppingCart, color: "text-slate-600 dark:text-slate-300",   bg: "bg-slate-50 dark:bg-slate-900" },
             { label: "Pending",      value: stats.pending,   icon: Clock,        color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30" },
@@ -257,7 +257,7 @@ export default function SalesOrdersPage() {
       )}
 
       {/* ── Main Table ── */}
-      <div className="flex-1 p-8 space-y-5 mt-4">
+      <div className="flex-1 px-4 sm:px-8 pb-8 space-y-5 mt-4">
 
         {/* Action Bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -328,8 +328,8 @@ export default function SalesOrdersPage() {
         </div>
 
         {/* Table */}
-        <div className="rounded-[3rem] border border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-          <Table>
+        <div className="rounded-[2rem] sm:rounded-[3rem] border border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl overflow-x-auto w-full">
+          <Table className="min-w-[800px]">
             <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 h-16">
               <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
                 <TableHead className="w-[60px] pl-8"><Checkbox className="rounded-md border-slate-300" /></TableHead>

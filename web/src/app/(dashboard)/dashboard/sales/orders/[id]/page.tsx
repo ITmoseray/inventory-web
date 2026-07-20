@@ -274,8 +274,8 @@ export default function SalesOrderDetailPage() {
                   </h2>
                 </div>
 
-                <div className="rounded-2xl overflow-hidden border border-slate-100 dark:border-slate-800">
-                  <table className="w-full text-sm">
+                <div className="rounded-2xl overflow-x-auto border border-slate-100 dark:border-slate-800 w-full">
+                  <table className="w-full text-sm min-w-[500px]">
                     <thead>
                       <tr className="bg-slate-50 dark:bg-slate-800 text-[10px] font-black uppercase tracking-widest text-slate-400">
                         <th className="text-left px-5 py-4">Product</th>
