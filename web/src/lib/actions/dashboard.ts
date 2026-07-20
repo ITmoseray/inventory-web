@@ -302,7 +302,7 @@ export async function getOfficeDashboardStats() {
         take: 5,
         include: {
           user: {
-            select: { name: true, email: true, jobTitle: true, department: true }
+            select: { name: true, email: true, jobTitle: true, department: true, imageUrl: true }
           }
         } as any
       }),
@@ -320,6 +320,7 @@ export async function getOfficeDashboardStats() {
       email: c.user?.email || "",
       jobTitle: c.user?.jobTitle || "Staff",
       department: c.user?.department || "General",
+      employeeImage: c.user?.imageUrl || null,
       clockIn: c.clockIn.toISOString(),
       clockOut: c.clockOut?.toISOString() || null,
       status: c.status

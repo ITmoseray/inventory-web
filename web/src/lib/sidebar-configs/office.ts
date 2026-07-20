@@ -47,6 +47,17 @@ export const officeSidebarConfig = [
     label: "Finance & Accounts",
     items: [
       {
+        title: "Sales & Invoicing",
+        url: "/dashboard/sales",
+        icon: FileText,
+        permission: "menu:sales",
+        items: [
+          { title: "Point of Sale", url: "/dashboard/pos" },
+          { title: "Quotes & Estimates", url: "/dashboard/sales/quotes" },
+          { title: "Invoices", url: "/dashboard/sales/invoices" },
+        ],
+      },
+      {
         title: "Accounting",
         url: "/dashboard/accounting",
         icon: Wallet,
@@ -54,6 +65,9 @@ export const officeSidebarConfig = [
         items: [
           { title: "Office Expenses", url: "/dashboard/accounting/expenses" },
           { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
+          { title: "Cashflow", url: "/dashboard/accounting/cashflow" },
+          { title: "Transaction Tags", url: "/dashboard/accounting/tags" },
+          { title: "Bank Reconciliation", url: "/dashboard/accounting/reconciliation" },
         ],
       },
       { title: "Plan Billing", url: "/dashboard/billing", icon: CreditCard, permission: "menu:accounting:billing" },

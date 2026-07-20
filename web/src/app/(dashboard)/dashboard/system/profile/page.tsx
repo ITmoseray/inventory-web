@@ -11,17 +11,53 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { changePassword } from "@/lib/actions/user";
+import { changePassword, updateProfileImage } from "@/lib/actions/user";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { uploadAvatar } from "@/lib/actions/upload";
 import { motion } from "framer-motion";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
+  
+  const [avatarLoading, setAvatarLoading] = useState(false);
+  const AVATAR_SEEDS = ["Sarah", "Jessica", "Maria", "Sophia", "Chloe", "Felix", "Aneka", "Jocelyn", "Robert", "Bandit", "Tinkerbell", "Bella", "Snickers", "Garfield", "Peanut", "Socks", "Midnight"];
+
+  const handleCustomUpload = async (formData: FormData) => {
+    try {
+      setAvatarLoading(true);
+      const url = await uploadAvatar(formData);
+      await updateProfileImage(url);
+      await update();
+      toast.success("Profile avatar updated!");
+      return url;
+    } catch (e: any) {
+      toast.error("Failed to upload avatar");
+      throw e;
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
+
+  const handleAvatarChange = async (seed: string) => {
+    setAvatarLoading(true);
+    const url = `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=e2e8f0`;
+    try {
+      await updateProfileImage(url);
+      await update();
+      toast.success("Profile avatar updated!");
+      // Note: session user image will update on next session refresh
+    } catch (e: any) {
+      toast.error("Failed to update avatar");
+    } finally {
+      setAvatarLoading(false);
+    }
+  };
 
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,8 +100,12 @@ export default function ProfilePage() {
           {/* User Profile Info */}
           <Card className="md:col-span-1 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] overflow-hidden">
              <div className="h-24 bg-indigo-600 relative">
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-20 w-20 rounded-2xl bg-white dark:bg-slate-900 border-4 border-slate-50 dark:border-slate-950 flex items-center justify-center shadow-lg">
-                   <UserCircle className="h-10 w-10 text-indigo-600" />
+                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-20 w-20 rounded-2xl bg-white dark:bg-slate-900 border-4 border-slate-50 dark:border-slate-950 flex items-center justify-center shadow-lg overflow-hidden">
+                   {session?.user?.image ? (
+                      <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover bg-slate-100" />
+                   ) : (
+                      <UserCircle className="h-10 w-10 text-indigo-600" />
+                   )}
                 </div>
              </div>
              <CardContent className="pt-14 pb-8 text-center space-y-4">
@@ -92,9 +132,54 @@ export default function ProfilePage() {
                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{session?.user?.businessName}</span>
                       </div>
                    </div>
-                </div>
-             </CardContent>
-          </Card>
+                 </div>
+              </CardContent>
+           </Card>
+
+           {/* Avatar Selection Card */}
+           <Card className="md:col-span-3 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem]">
+              <CardHeader className="p-8 pb-4">
+                 <div className="flex items-center gap-3 mb-2">
+                    <UserCircle className="h-5 w-5 text-indigo-500" />
+                    <CardTitle className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Choose Avatar</CardTitle>
+                 </div>
+                 <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 italic">Select your virtual identity</CardDescription>
+              </CardHeader>
+              <CardContent className="p-8 pt-4">
+                 <div className="flex overflow-x-auto pb-4 gap-4 scrollbar-hide">
+                    {AVATAR_SEEDS.map(seed => {
+                      const url = `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=e2e8f0`;
+                      const isSelected = session?.user?.image === url;
+                      return (
+                        <button
+                          key={seed}
+                          type="button"
+                          disabled={avatarLoading}
+                          onClick={() => handleAvatarChange(seed)}
+                          className={`relative h-20 w-20 rounded-2xl flex-shrink-0 transition-all border-4 overflow-hidden ${isSelected ? 'border-indigo-600 scale-105 shadow-xl' : 'border-transparent hover:border-slate-200 dark:hover:border-slate-800 opacity-70 hover:opacity-100 bg-slate-100 dark:bg-slate-800'}`}
+                        >
+                           <img src={url} alt={seed} className="w-full h-full object-cover" />
+                           {isSelected && (
+                             <div className="absolute top-1 right-1 bg-indigo-600 text-white rounded-full p-0.5">
+                                <CheckCircle2 className="h-3 w-3" />
+                             </div>
+                           )}
+                        </button>
+                      );
+                    })}
+                 </div>
+
+                 <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 italic mb-4">Or upload a custom picture</p>
+                    <ImageUploader 
+                       value={session?.user?.image || ""}
+                       onChange={() => {}}
+                       uploadAction={handleCustomUpload}
+                       label="Upload Custom Profile Picture"
+                    />
+                 </div>
+              </CardContent>
+           </Card>
 
           {/* Security / Password Change */}
           <Card className="md:col-span-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem]">

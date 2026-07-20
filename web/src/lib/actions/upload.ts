@@ -46,3 +46,13 @@ export async function uploadBusinessLogo(formData: FormData) {
   const file = formData.get("file") as File;
   return await uploadToCloudinary(file, "logos");
 }
+
+export async function uploadAvatar(formData: FormData) {
+  const file = formData.get("file") as File;
+  return await uploadToCloudinary(file, "avatars");
+}
+
+export async function uploadReceipt(formData: FormData) {
+  const file = formData.get("file") as File;
+  return await uploadToCloudinary(file, "receipts");
+}

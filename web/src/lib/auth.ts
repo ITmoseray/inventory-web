@@ -284,6 +284,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       console.log("SERVER AUTH: Session Callback Start", { sub: token.sub, role: token.role });
       
       if (token.sub && session.user) session.user.id = token.sub as string;
+      if (token.picture && session.user) session.user.image = token.picture as string;
       if (token.businessId && session.user) session.user.businessId = token.businessId as string;
       if (token.businessName && session.user) session.user.businessName = token.businessName as string;
       if (token.role && session.user) session.user.role = token.role as string;
@@ -314,6 +315,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.institutionType = (user as any).institutionType;
         token.trialEndDate = (user as any).trialEndDate;
         token.permissions = (user as any).permissions;
+        token.picture = (user as any).imageUrl || user.image;
         console.log(`SERVER AUTH: Initial Login - Role: ${token.role}, Perms: ${(token.permissions as string[] || []).length || 0}`);
       }
 
@@ -342,6 +344,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.businessName = dbUser.business.name;
             token.businessId = dbUser.businessId;
             token.trialEndDate = dbUser.business.trialEndDate;
+            token.picture = dbUser.imageUrl;
             console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);
           } else {
             console.error(`SERVER AUTH: DB User not found for sub: ${token.sub}, email: ${token.email}`);

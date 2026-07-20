@@ -22,7 +22,8 @@ export async function getAttendanceLogs() {
       SELECT 
         a.id, 
         u.name as "userName", 
-        u.email as "userEmail", 
+        u.email as "userEmail",
+        u."imageUrl" as "userImage",
         a."clockIn", 
         a."clockOut", 
         a.status, 
@@ -38,6 +39,7 @@ export async function getAttendanceLogs() {
       id: l.id,
       userName: l.userName || "Unknown",
       userEmail: l.userEmail,
+      userImage: l.userImage || null,
       clockIn: new Date(l.clockIn).toISOString(),
       clockOut: l.clockOut ? new Date(l.clockOut).toISOString() : null,
       status: l.status,

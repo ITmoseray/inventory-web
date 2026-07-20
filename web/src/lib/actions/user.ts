@@ -364,3 +364,32 @@ export async function deleteUser(id: string) {
     throw error;
   }
 }
+
+export async function updateProfileImage(imageUrl: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id || !session.user.businessId) {
+      throw new Error("Unauthorized");
+    }
+
+    const prisma = getTenantPrisma(session.user.businessId);
+
+    const user = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { imageUrl }
+    });
+
+    await logAudit({
+      action: "UPDATE_AVATAR",
+      entity: "USER",
+      entityId: user.id,
+      newData: { imageUrl }
+    });
+
+    revalidatePath("/dashboard");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update profile image:", error);
+    throw error;
+  }
+}

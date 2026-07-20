@@ -25,9 +25,9 @@ const createPrismaClient = () => {
     // Prevent "Connection terminated unexpectedly" from Neon idle timeouts:
     // Neon drops idle connections after ~5 min; we evict them at 4 min to avoid stale sockets.
     idleTimeoutMillis: 240_000,       // remove idle connections after 4 min
-    connectionTimeoutMillis: 10_000,  // fail fast if can't connect within 10 s
+    connectionTimeoutMillis: 30_000,  // wait up to 30s to allow Neon to wake from scale-to-zero
     keepAlive: true,                  // TCP keepalive to detect dropped connections early
-    max: 5,                           // keep pool small for serverless workloads
+    max: 20,                          // allow more concurrent connections (Next.js server components fire in parallel)
   });
 
   // Prevent unhandled errors from killing the process when a pool connection is lost

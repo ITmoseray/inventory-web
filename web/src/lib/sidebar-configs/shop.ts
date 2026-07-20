@@ -27,6 +27,7 @@ export const shopSidebarConfig = [
         icon: Package,
         permission: "menu:inventory",
         items: [
+          { title: "Stock Overview", url: "/dashboard/inventory/overview" },
           { title: "Products", url: "/dashboard/inventory/products" },
           { title: "Stock Transfers", url: "/dashboard/inventory/transfers" },
           { title: "Inventory Adjustments", url: "/dashboard/inventory/adjustments" },

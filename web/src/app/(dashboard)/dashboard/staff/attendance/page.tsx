@@ -35,7 +35,7 @@ import { format, differenceInHours } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Select,
   SelectContent,
@@ -131,7 +131,8 @@ export default function AttendancePage() {
         <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
            <div className="flex -space-x-3 ml-2">
               {logs.filter(l => !l.clockOut).slice(0, 3).map((l, i) => (
-                <Avatar key={i} className="h-8 w-8 border-2 border-white dark:border-slate-900 rounded-full">
+                <Avatar key={i} className="h-8 w-8 border-2 border-white dark:border-slate-800 shadow-md">
+                   <AvatarImage src={l.userImage} alt={l.userName} />
                    <AvatarFallback className={cn("text-[8px] font-black text-white", colors.primary)}>{l.userName.charAt(0)}</AvatarFallback>
                 </Avatar>
               ))}

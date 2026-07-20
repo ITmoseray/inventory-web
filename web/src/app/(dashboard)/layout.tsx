@@ -18,6 +18,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
 import { ImpersonationBanner } from "@/components/shared/impersonation-banner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export const dynamic = "force-dynamic";
 
@@ -174,20 +175,14 @@ export default async function DashboardLayout({
       {isImpersonating && (
         <ImpersonationBanner businessName={session?.user?.businessName || "Business"} />
       )}
-    <div className="flex min-h-screen bg-background relative overflow-hidden">
-      {/* App-like Animated Background Mesh */}
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary/10 dark:bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-indigo-500/10 dark:bg-indigo-500/5 rounded-full blur-[120px]" />
-      </div>
-      
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
       <div className="relative z-10 flex min-h-screen w-full">
       <AppShell>
           <ToastManager />
           <OnboardingTrigger businessCreatedAt={business?.createdAt ? new Date(business.createdAt).toISOString() : undefined} />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
-          <header className="flex h-16 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-border/50 bg-background/60 backdrop-blur-xl sticky top-0 z-40 px-4 md:px-6 transition-all">
+          <header className="flex h-14 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-40 px-4 md:px-6 transition-all shadow-sm">
             <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0 overflow-hidden">
               <SidebarTrigger className="-ml-1 flex-shrink-0" />
               <div className="flex-shrink-0">
@@ -202,22 +197,25 @@ export default async function DashboardLayout({
             {/* RIGHT: badges + user — flex-shrink-0 keeps it from wrapping */}
             <div className="flex items-center gap-2 xl:gap-4 flex-shrink-0">
                {/* Context Active: only xl+ */}
-               <div className="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-100 shadow-sm">
-                  <Zap className="h-3 w-3 text-indigo-600 animate-pulse" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em] text-indigo-600">Context Active</span>
+               <div className="hidden xl:flex items-center gap-2 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
+                  <Zap className="h-3 w-3 text-emerald-600 dark:text-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-semibold tracking-wide text-slate-700 dark:text-slate-300">System Online</span>
                </div>
                <NotificationBell />
-               <div className="flex items-center gap-2 xl:gap-3 pl-3 border-l border-slate-100 dark:border-slate-800">
+               <div className="flex items-center gap-2 xl:gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
                   {/* User name: only xl+ */}
                   <div className="text-right hidden xl:block">
-                     <p className="text-xs font-[1000] text-slate-900 dark:text-white leading-none">
+                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-none">
                         {session?.user?.name || "User Account"}
                      </p>
-                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">{session?.user?.role || "Member"} Account</p>
+                     <p className="text-[10px] font-medium text-slate-500 mt-1">{session?.user?.role || "Member"} Account</p>
                   </div>
-                  <div className="h-9 w-9 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center text-indigo-600 dark:text-indigo-400 font-black text-sm shadow-inner flex-shrink-0">
-                     {(session?.user?.name || "S").charAt(0).toUpperCase()}
-                  </div>
+                  <Avatar className="h-8 w-8 rounded-md after:rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm flex-shrink-0">
+                     <AvatarImage className="rounded-md" src={session?.user?.image || undefined} alt={session?.user?.name || "User"} />
+                     <AvatarFallback className="rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                        {(session?.user?.name || "S").charAt(0).toUpperCase()}
+                     </AvatarFallback>
+                  </Avatar>
                   <LogoutButton />
                </div>
             </div>

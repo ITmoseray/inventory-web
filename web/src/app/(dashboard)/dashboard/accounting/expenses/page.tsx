@@ -42,6 +42,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { getExpenses, createExpense } from "@/lib/actions/expense";
+import { getTags } from "@/lib/actions/tags";
+import { uploadReceipt } from "@/lib/actions/upload";
+import { ImageUploader } from "@/components/ui/image-uploader";
 import { format } from "date-fns";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -50,6 +53,7 @@ import { toast } from "sonner";
 export default function ExpensesPage() {
   const { data: session } = useSession();
   const [expenses, setExpenses] = useState<any[]>([]);
+  const [tags, setTags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -58,7 +62,9 @@ export default function ExpensesPage() {
     description: "",
     amount: "",
     category: "General",
-    paymentMethod: "CASH"
+    paymentMethod: "CASH",
+    attachments: [] as string[],
+    tags: [] as string[]
   });
 
   const businessType = session?.user?.businessType || "SHOP";
@@ -71,8 +77,9 @@ export default function ExpensesPage() {
   async function fetchExpenses() {
     try {
       setLoading(true);
-      const data = await getExpenses();
+      const [data, tagsData] = await Promise.all([getExpenses(), getTags()]);
       setExpenses(data);
+      setTags(tagsData);
     } catch (error) {
       toast.error("Failed to load expense ledger.");
     } finally {
@@ -89,7 +96,7 @@ export default function ExpensesPage() {
       });
       toast.success("Expense recorded successfully.");
       setIsDialogOpen(false);
-      setFormData({ description: "", amount: "", category: "General", paymentMethod: "CASH" });
+      setFormData({ description: "", amount: "", category: "General", paymentMethod: "CASH", attachments: [], tags: [] });
       fetchExpenses();
     } catch (error) {
       toast.error("Failed to record expense.");
@@ -139,6 +146,26 @@ export default function ExpensesPage() {
                       onChange={(e) => setFormData({...formData, description: e.target.value})}
                     />
                  </div>
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tags</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {tags.map(t => (
+                        <div 
+                          key={t.id} 
+                          onClick={() => {
+                            if (formData.tags.includes(t.id)) {
+                              setFormData({ ...formData, tags: formData.tags.filter(id => id !== t.id) });
+                            } else {
+                              setFormData({ ...formData, tags: [...formData.tags, t.id] });
+                            }
+                          }}
+                          className={cn("px-3 py-1 rounded-full text-xs font-bold cursor-pointer border transition-all", formData.tags.includes(t.id) ? "border-primary bg-primary/10 text-primary" : "border-slate-200 text-slate-500 hover:border-slate-300")}
+                        >
+                          {t.name}
+                        </div>
+                      ))}
+                    </div>
+                 </div>
                  <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Amount (Le)</Label>
@@ -152,21 +179,39 @@ export default function ExpensesPage() {
                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, amount: e.target.value})}
                        />
                     </div>
-                    <div className="space-y-2">
-                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</Label>
-                       <Select value={formData.category} onValueChange={(v: string | null) => setFormData({...formData, category: v ?? "Rent"})}>
-                          <SelectTrigger className="h-12 rounded-xl border-slate-200">
-                             <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-xl border-slate-200">
-                             <SelectItem value="Rent">Rent</SelectItem>
-                             <SelectItem value="Utilities">Utilities</SelectItem>
-                             <SelectItem value="Salaries">Salaries</SelectItem>
-                             <SelectItem value="Inventory">Inventory</SelectItem>
-                             <SelectItem value="General">General</SelectItem>
-                          </SelectContent>
-                       </Select>
-                    </div>
+                     <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Category</Label>
+                        <Select value={formData.category} onValueChange={(v: string | null) => setFormData({...formData, category: v ?? "Rent"})}>
+                           <SelectTrigger className="h-12 rounded-xl border-slate-200">
+                              <SelectValue />
+                           </SelectTrigger>
+                           <SelectContent className="rounded-xl border-slate-200">
+                              <SelectItem value="Rent">Rent</SelectItem>
+                              <SelectItem value="Utilities">Utilities</SelectItem>
+                              <SelectItem value="Salaries">Salaries</SelectItem>
+                              <SelectItem value="Inventory">Inventory</SelectItem>
+                              <SelectItem value="General">General</SelectItem>
+                           </SelectContent>
+                        </Select>
+                     </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Receipt Attachment</Label>
+                    <ImageUploader 
+                      uploadAction={async (fd) => {
+                        const url = await uploadReceipt(fd);
+                        if (url) {
+                          setFormData({ ...formData, attachments: [...formData.attachments, url] });
+                        }
+                        return url;
+                      }} 
+                      label="Upload Receipt Document" 
+                    />
+                    {formData.attachments.length > 0 && (
+                      <div className="text-xs font-bold text-emerald-600 mt-2">
+                        {formData.attachments.length} attachment(s) added
+                      </div>
+                    )}
                  </div>
                  <Button type="submit" className={cn("w-full h-14 rounded-2xl text-white font-black uppercase tracking-widest shadow-xl", colors.primary)}>
                     Finalize Entry
@@ -246,7 +291,14 @@ export default function ExpensesPage() {
                      </TableCell>
                      <TableCell>
                         <div className="text-lg font-[1000] text-rose-600 tracking-tighter">Le {Math.round(e.amount).toLocaleString()}</div>
-                        <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{e.paymentMethod}</div>
+                        <div className="flex gap-2 mt-1">
+                           <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{e.paymentMethod}</span>
+                           {e.attachments && e.attachments.length > 0 && (
+                             <a href={e.attachments[0]} target="_blank" rel="noreferrer" className="text-[9px] font-black text-blue-500 hover:underline uppercase tracking-widest flex items-center gap-1">
+                               <FileText size={10} /> View Receipt
+                             </a>
+                           )}
+                        </div>
                      </TableCell>
                      <TableCell className="text-right pr-8">
                         <div className="text-xs font-bold text-slate-600 dark:text-slate-400">{format(new Date(e.date), "MMM dd, yyyy")}</div>

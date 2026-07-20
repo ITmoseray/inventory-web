@@ -5,6 +5,7 @@ import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { BusinessProvider } from "@/components/providers/business-provider";
 import { LoadingProvider } from "@/components/providers/loading-provider";
+import { CurrencyProvider } from "@/components/providers/currency-provider";
 import { Suspense } from "react";
 import { GlobalThemeToggle } from "@/components/shared/global-theme-toggle";
 import { InstallPWA } from "@/components/shared/install-pwa";
@@ -57,7 +58,8 @@ export default function RootLayout({
             disableTransitionOnChange
         >
           <AuthProvider>
-            <Suspense>
+            <CurrencyProvider>
+              <Suspense>
               <LoadingProvider>
                 <BusinessProvider>
                   <SplashScreenWrapper>
@@ -65,10 +67,11 @@ export default function RootLayout({
                   </SplashScreenWrapper>
                 </BusinessProvider>
               </LoadingProvider>
+              <Toaster />
             </Suspense>
             <GlobalThemeToggle />
             <InstallPWA />
-            <Toaster />
+            </CurrencyProvider>
           </AuthProvider>
         </ThemeProvider>
       </body>

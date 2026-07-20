@@ -54,6 +54,8 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { uploadAvatar } from "@/lib/actions/upload";
 
 export default function EmployeesPage() {
   const { data: session } = useSession();
@@ -92,6 +94,19 @@ export default function EmployeesPage() {
     hourlyRate: ""
   });
   const [aiLoading, setAiLoading] = useState(false);
+  const AVATAR_SEEDS = ["Sarah", "Jessica", "Maria", "Sophia", "Chloe", "Felix", "Aneka", "Jocelyn", "Robert", "Bandit", "Tinkerbell", "Bella", "Snickers", "Garfield", "Peanut", "Socks", "Midnight"];
+
+  const handleCustomUploadAdd = async (fd: FormData) => {
+    const url = await uploadAvatar(fd);
+    setFormData({...formData, imageUrl: url});
+    return url;
+  };
+
+  const handleCustomUploadEdit = async (fd: FormData) => {
+    const url = await uploadAvatar(fd);
+    setEditFormData({...editFormData, imageUrl: url});
+    return url;
+  };
 
   async function handleAIAutofill() {
     try {
@@ -272,8 +287,8 @@ export default function EmployeesPage() {
                  <UserPlus className="h-4 w-4 mr-2" /> Add Employee Node
               </Button>
            } />
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md md:max-w-2xl text-slate-900 dark:text-white overflow-y-auto max-h-[90vh]">
-              <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
+           <DialogContent className="rounded-2xl sm:rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 w-[95vw] sm:w-auto sm:max-w-2xl md:max-w-3xl text-slate-900 dark:text-white overflow-y-auto max-h-[95vh]">
+              <div className="bg-slate-900 dark:bg-slate-900/50 p-5 sm:p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
                     <h3 className="text-2xl sm:text-3xl md:text-4xl font-[1000] tracking-tighter uppercase italic">Node Initialization</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm md:text-base font-black uppercase tracking-widest mt-1 sm:mt-2">Create New Authorized User</p>
@@ -292,7 +307,7 @@ export default function EmployeesPage() {
                    AI Autofill
                  </Button>
               </div>
-              <form onSubmit={handleAdd} className="p-8 space-y-5">
+              <form onSubmit={handleAdd} className="p-5 sm:p-8 space-y-5">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</Label>
                     <Input required className="h-12 rounded-xl" value={formData.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, name: e.target.value})} />
@@ -300,6 +315,41 @@ export default function EmployeesPage() {
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
                     <Input required type="email" className="h-12 rounded-xl" value={formData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({...formData, email: e.target.value})} />
+                 </div>
+                 
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Avatar (Optional)</Label>
+                    <div className="flex overflow-x-auto pb-4 gap-4 scrollbar-hide mt-1">
+                       {AVATAR_SEEDS.map(seed => {
+                         const url = `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=e2e8f0`;
+                         const isSelected = formData.imageUrl === url;
+                         return (
+                           <button
+                             key={seed}
+                             type="button"
+                             onClick={() => setFormData({...formData, imageUrl: url})}
+                             className={`relative h-16 w-16 rounded-2xl flex-shrink-0 transition-all border-4 overflow-hidden ${isSelected ? 'border-indigo-600 scale-105 shadow-md' : 'border-transparent hover:border-slate-200 dark:hover:border-slate-800 opacity-70 hover:opacity-100 bg-slate-100 dark:bg-slate-800'}`}
+                           >
+                              <img src={url} alt={seed} className="w-full h-full object-cover" />
+                              {isSelected && (
+                                <div className="absolute top-1 right-1 bg-indigo-600 text-white rounded-full p-0.5">
+                                   <ShieldCheck className="h-2 w-2" />
+                                </div>
+                              )}
+                           </button>
+                         );
+                       })}
+                    </div>
+                 </div>
+
+                 <div className="space-y-2 pt-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 italic mb-2">Or upload custom picture</p>
+                    <ImageUploader 
+                       value={formData.imageUrl || ""}
+                       onChange={() => {}}
+                       uploadAction={handleCustomUploadAdd}
+                       label="Upload Custom Profile Picture"
+                    />
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Access Key (Password)</Label>
@@ -368,14 +418,14 @@ export default function EmployeesPage() {
         </Dialog>
 
         <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-           <DialogContent className="rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 max-w-md md:max-w-2xl text-slate-900 dark:text-white overflow-y-auto max-h-[90vh]">
-              <div className="bg-slate-900 dark:bg-slate-900/50 p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
+           <DialogContent className="rounded-2xl sm:rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 w-[95vw] sm:max-w-2xl md:max-w-3xl text-slate-900 dark:text-white overflow-y-auto max-h-[95vh]">
+              <div className="bg-slate-900 dark:bg-slate-900/50 p-5 sm:p-8 text-white border-b border-slate-100 dark:border-slate-800/30 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
                     <h3 className="text-2xl sm:text-3xl md:text-4xl font-[1000] tracking-tighter uppercase italic">Node Reconfiguration</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm md:text-base font-black uppercase tracking-widest mt-1 sm:mt-2">Modify Authorized User</p>
                  </div>
               </div>
-              <form onSubmit={handleEditSubmit} className="p-8 space-y-5">
+              <form onSubmit={handleEditSubmit} className="p-5 sm:p-8 space-y-5">
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Full Name</Label>
                     <Input required className="h-12 rounded-xl" value={editFormData.name} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, name: e.target.value})} />
@@ -383,6 +433,31 @@ export default function EmployeesPage() {
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Address</Label>
                     <Input required type="email" className="h-12 rounded-xl" value={editFormData.email} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditFormData({...editFormData, email: e.target.value})} />
+                 </div>
+                 
+                 <div className="space-y-2">
+                    <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Avatar (Optional)</Label>
+                    <div className="flex overflow-x-auto pb-4 gap-4 scrollbar-hide mt-1">
+                       {AVATAR_SEEDS.map(seed => {
+                         const url = `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=e2e8f0`;
+                         const isSelected = editFormData.imageUrl === url;
+                         return (
+                           <button
+                             key={seed}
+                             type="button"
+                             onClick={() => setEditFormData({...editFormData, imageUrl: url})}
+                             className={`relative h-16 w-16 rounded-2xl flex-shrink-0 transition-all border-4 overflow-hidden ${isSelected ? 'border-indigo-600 scale-105 shadow-md' : 'border-transparent hover:border-slate-200 dark:hover:border-slate-800 opacity-70 hover:opacity-100 bg-slate-100 dark:bg-slate-800'}`}
+                           >
+                              <img src={url} alt={seed} className="w-full h-full object-cover" />
+                              {isSelected && (
+                                <div className="absolute top-1 right-1 bg-indigo-600 text-white rounded-full p-0.5">
+                                   <ShieldCheck className="h-2 w-2" />
+                                </div>
+                              )}
+                           </button>
+                         );
+                       })}
+                    </div>
                  </div>
                  <div className="space-y-2">
                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Intelligence Role</Label>
@@ -512,6 +587,7 @@ export default function EmployeesPage() {
                     <TableCell className="px-8">
                        <div className="flex items-center gap-4">
                           <Avatar className="h-12 w-12 rounded-2xl border-2 border-white dark:border-slate-800 shadow-md">
+                             <AvatarImage src={u.imageUrl || undefined} alt={u.name || "User"} />
                              <AvatarFallback className={cn("rounded-2xl text-white font-black text-sm", colors.primary)}>{String(u.name || "U").charAt(0)}</AvatarFallback>
                           </Avatar>
                           <div>

@@ -82,6 +82,7 @@ model Business {
   schoolPayslips          SchoolPayslip[]
   quotes                  Quote[]
   transactionTags         TransactionTag[]
+  bankTransactions        BankTransaction[]
 
   @@index([slug])
 }
@@ -346,6 +347,7 @@ model Sale {
   user          User                 @relation(fields: [userId], references: [id])
   staff         User?                @relation("StaffSale", fields: [staffId], references: [id])
   items         SaleItem[]
+  attachments   String[]             @default([])
   consultation  Consultation?        @relation("ConsultationSale")
   labTest       LabTest?             @relation("LabTestSale")
   prescription  Prescription?        @relation("PrescriptionSale")
@@ -502,6 +504,8 @@ model Purchase {
   supplier      Supplier?      @relation(fields: [supplierId], references: [id])
   user          User           @relation(fields: [userId], references: [id])
   items         PurchaseItem[]
+  attachments   String[]       @default([])
+  tags          TransactionTag[]
 
   @@index([businessId])
   @@index([businessId, deletedAt])
@@ -723,6 +727,7 @@ model Expense {
   business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
   user          User      @relation(fields: [userId], references: [id])
   tags          TransactionTag[]
+  attachments   String[]  @default([])
 
   @@index([businessId])
 }
@@ -1412,7 +1417,27 @@ model TransactionTag {
   // Implicit many-to-many relations
   expenses   Expense[]
   sales      Sale[]
+  purchases  Purchase[]
 
   @@unique([businessId, name])
+  @@index([businessId])
+}
+
+model BankTransaction {
+  id            String    @id @default(cuid())
+  businessId    String
+  date          DateTime
+  description   String
+  amount        Decimal   @db.Decimal(10, 2)
+  type          String    // CREDIT or DEBIT
+  status        String    @default("PENDING") // PENDING, RECONCILED, IGNORED
+  reference     String?
+  matchedWithId String?   // ID of the matched Sale or Expense
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
   @@index([businessId])
 }

@@ -11,6 +11,8 @@ export async function createExpense(data: {
   category: string;
   date?: Date;
   paymentMethod?: string;
+  attachments?: string[];
+  tags?: string[];
 }) {
   try {
     const session = await auth();
@@ -28,6 +30,12 @@ export async function createExpense(data: {
         paymentMethod: data.paymentMethod || "CASH",
         businessId: businessId,
         userId: session.user.id,
+        attachments: data.attachments || [],
+        ...(data.tags && data.tags.length > 0 ? {
+          tags: {
+            connect: data.tags.map(id => ({ id }))
+          }
+        } : {})
       },
     });
 

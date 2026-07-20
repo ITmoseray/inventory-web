@@ -266,53 +266,49 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="relative min-h-full pb-8 sm:p-6 md:p-10 bg-slate-50/30 dark:bg-slate-950/50 space-y-10">
-      {/* Dynamic Background Ornament */}
-      <div className={cn("absolute top-0 right-0 w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full blur-[120px] opacity-[0.05] dark:opacity-[0.03] pointer-events-none", colors.primary)} />
+    <div className="relative min-h-full p-4 sm:p-6 md:p-8 bg-slate-50 dark:bg-slate-950 space-y-6">
       
       {/* Top Header Section */}
       <motion.div 
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col xl:flex-row xl:items-end justify-between gap-8 relative z-10"
+        className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 relative z-10 border-b border-slate-200 dark:border-slate-800 pb-4"
       >
-        <div className="space-y-4">
-           <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 transition-all hover:scale-105">
-                 <div className="h-2 w-2 rounded-full bg-emerald-600 dark:bg-emerald-500 animate-pulse" />
-                 <span className="text-[9px] sm:text-[10px] font-[1000] text-emerald-700 dark:text-emerald-500 uppercase tracking-widest">Enterprise Hub Active</span>
+        <div className="space-y-2">
+           <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center gap-2 px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
+                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" />
+                 <span className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Enterprise Hub Active</span>
               </div>
-              <div className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-              <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em] sm:tracking-[0.4em] text-slate-400 dark:text-slate-500">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
                 {format(new Date(), "EEEE, MMMM dd, yyyy")}
               </span>
            </div>
 
-           <div className="space-y-2">
-              <h2 className="text-xs sm:text-sm md:text-base font-black uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400 drop-shadow-sm">
+           <div className="space-y-1">
+              <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400">
                 {getGreeting()}
               </h2>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-[1000] text-slate-900 dark:text-white tracking-tight leading-none italic uppercase">
-                {activeTab === "Dashboard" ? "Welcome " : ""}
-                <span className="text-indigo-600">{activeTab === "Dashboard" ? "Back" : activeTab}</span>
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                {activeTab === "Dashboard" ? "Dashboard Overview" : activeTab}
               </h1>
            </div>
         </div>
 
         {activeTab === "Dashboard" && businessType !== "OFFICE" && (
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
              <Button 
                onClick={() => router.push("/dashboard/manual")}
                variant="outline"
-               className="h-14 sm:h-16 px-6 sm:px-8 rounded-2xl sm:rounded-[2rem] border-slate-200 bg-white dark:bg-slate-900 font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-sm hover:bg-slate-50 transition-all hover:scale-[1.05] active:scale-95 gap-3"
+               className="h-10 px-4 rounded-md border-slate-300 bg-white dark:bg-slate-900 font-medium text-sm shadow-sm hover:bg-slate-100 transition-colors gap-2 text-slate-700 dark:text-slate-300"
              >
-               <Book className="h-5 w-5 text-indigo-600" /> Manual
+               <Book className="h-4 w-4" /> Manual
              </Button>
              <Button 
                onClick={() => router.push("/dashboard/pos")}
-               className={cn("h-14 sm:h-16 px-8 sm:px-10 rounded-2xl sm:rounded-[2rem] text-white font-black uppercase tracking-widest text-[10px] sm:text-xs shadow-2xl transition-all hover:scale-[1.05] active:scale-95", colors.primary)}
+               className={cn("h-10 px-5 rounded-md text-white font-medium text-sm shadow-sm hover:opacity-90 transition-opacity gap-2", colors.primary)}
              >
-               <ShoppingCart className="mr-3 h-5 w-5" /> New Transaction
+               <ShoppingCart className="h-4 w-4" /> New Transaction
              </Button>
           </div>
         )}
@@ -410,7 +406,7 @@ export default function DashboardPage() {
               </motion.div>
 
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
-                 <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm h-full flex flex-col">
+                 <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm h-full flex flex-col">
                    <CardHeader className="p-8 pb-4">
                       <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Nodes</CardTitle>
                       <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">System Operational Status</CardDescription>
@@ -455,14 +451,14 @@ export default function DashboardPage() {
 
             <div className="grid gap-8 lg:grid-cols-3 pb-12">
               <div className="lg:col-span-2">
-                <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
-                   <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-900/30">
+                <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden h-full">
+                   <CardHeader className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div className="space-y-1">
-                               <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Activity</CardTitle>
-                               <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Live ledger stream</CardDescription>
+                               <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wide">Recent Transactions</CardTitle>
+                               <CardDescription className="text-xs text-slate-500">Live ledger stream</CardDescription>
                             </div>
-                            <Button variant="ghost" size="sm" className="rounded-xl h-10 px-4 text-xs font-black uppercase tracking-widest text-slate-500 hover:bg-white dark:hover:bg-slate-800 self-start sm:self-auto" onClick={() => router.push("/dashboard/sales/history")}>History Explorer <ArrowRight className="ml-2 h-3.5 w-3.5" /></Button>
+                            <Button variant="ghost" size="sm" className="rounded-md h-8 px-3 text-xs font-medium text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-800" onClick={() => router.push("/dashboard/sales/history")}>View All <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Button>
                          </div>
                       </CardHeader>
                       <CardContent className="p-0">
@@ -479,23 +475,23 @@ export default function DashboardPage() {
                          ) : (
                            <div className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
                               {recentSales.slice(0, 6).map((sale: any) => (
-                                <div key={sale.id} className="p-6 flex items-center justify-between hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all cursor-pointer group" onClick={() => { setSelectedSale(sale); setIsDetailsOpen(true); }}>
-                                   <div className="flex items-center gap-5">
-                                      <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center border border-white dark:border-slate-800", colors.secondary)}>
-                                         <Activity className={cn("h-6 w-6", colors.text)} />
+                                <div key={sale.id} className="p-3 sm:p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group border-b border-slate-100 dark:border-slate-800/50 last:border-0" onClick={() => { setSelectedSale(sale); setIsDetailsOpen(true); }}>
+                                   <div className="flex items-center gap-4">
+                                      <div className={cn("h-10 w-10 rounded-md flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors")}>
+                                         <Activity className="h-5 w-5" />
                                       </div>
                                       <div>
-                                         <div className="font-black text-lg text-slate-900 dark:text-white tracking-tight group-hover:text-primary transition-colors">{sale.invoiceNumber}</div>
-                                         <div className="flex items-center gap-3 text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mt-0.5">
-                                            <div className="flex items-center gap-1.5"><Clock className="h-3 w-3" /> {format(new Date(sale.createdAt), "HH:mm")}</div>
-                                            <div className="h-1 w-1 rounded-full bg-slate-200 dark:bg-slate-700" />
-                                            <span className="italic">{sale.paymentMethod}</span>
+                                         <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">{sale.invoiceNumber}</div>
+                                         <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
+                                            <div className="flex items-center gap-1"><Clock className="h-3 w-3" /> {format(new Date(sale.createdAt), "HH:mm")}</div>
+                                            <span>•</span>
+                                            <span className="capitalize">{sale.paymentMethod}</span>
                                          </div>
                                       </div>
                                    </div>
                                    <div className="text-right">
-                                      <div className="font-[1000] text-xl text-slate-900 dark:text-white tracking-tighter">Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}</div>
-                                      <div className={cn("px-2 py-0.5 rounded-lg text-[9px] font-[1000] uppercase tracking-widest mt-1", sale.paymentStatus === "PAID" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600")}>{sale.paymentStatus}</div>
+                                      <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}</div>
+                                      <div className={cn("px-2 py-0.5 rounded text-[10px] font-medium mt-1 inline-block", sale.paymentStatus === "PAID" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>{sale.paymentStatus}</div>
                                    </div>
                                 </div>
                               ))}
@@ -505,33 +501,33 @@ export default function DashboardPage() {
                 </Card>
               </div>
 
-              <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm flex flex-col overflow-hidden h-full">
-                 <CardHeader className="p-8 pb-4">
-                    <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Top Performing SKUs</CardTitle>
-                    <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Highest volume products</CardDescription>
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col overflow-hidden h-full">
+                 <CardHeader className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                    <CardTitle className="text-sm font-semibold text-slate-800 dark:text-slate-200 uppercase tracking-wide">Top Products</CardTitle>
+                    <CardDescription className="text-xs text-slate-500">Highest volume items</CardDescription>
                  </CardHeader>
                  <CardContent className="p-8 pt-4 flex-1">
                     {!stats.topProducts || stats.topProducts.length === 0 ? (
-                       <div className="h-full flex flex-col items-center justify-center space-y-4 text-center opacity-50">
+                       <div className="h-full flex flex-col items-center justify-center space-y-4 text-center opacity-50 py-12">
                           <Package className="h-10 w-10 text-slate-400" />
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">No trade data yet</p>
                        </div>
                     ) : (
-                       <div className="space-y-4">
+                       <div className="space-y-0.5">
                           {stats.topProducts.map((product, i) => (
-                             <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all cursor-pointer group" onClick={() => router.push("/dashboard/analytics")}>
+                             <div key={i} className="flex items-center justify-between p-3 sm:p-4 border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => router.push("/dashboard/analytics")}>
                                 <div className="flex items-center gap-4 overflow-hidden">
-                                   <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border border-white dark:border-slate-700 shadow-sm", colors.secondary)}>
-                                      <span className={cn("text-lg font-black", colors.text)}>#{i + 1}</span>
+                                   <div className="h-8 w-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                                      <span className="text-xs font-semibold text-slate-500">#{i + 1}</span>
                                    </div>
                                    <div className="min-w-0">
-                                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight truncate group-hover:text-primary transition-colors">{product.name}</p>
-                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 truncate mt-0.5">{product.category}</p>
+                                      <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate group-hover:text-indigo-600 transition-colors">{product.name}</p>
+                                      <p className="text-xs text-slate-500 truncate mt-0.5 capitalize">{product.category}</p>
                                    </div>
                                 </div>
                                 <div className="text-right shrink-0 ml-4">
-                                   <p className="text-sm font-[1000] text-slate-900 dark:text-white">{product.quantitySold} units</p>
-                                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Le {product.revenue.toLocaleString()}</p>
+                                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{product.quantitySold} units</p>
+                                   <p className="text-[10px] font-medium text-emerald-600 mt-0.5">Le {product.revenue.toLocaleString()}</p>
                                 </div>
                              </div>
                           ))}
@@ -543,7 +539,7 @@ export default function DashboardPage() {
 
             {/* Third Row: Staff Leaderboard */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm flex flex-col overflow-hidden h-full">
+              <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col overflow-hidden h-full">
                  <CardHeader className="p-8 pb-4">
                     <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Staff Leaderboard</CardTitle>
                     <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Top Revenue Generators</CardDescription>
@@ -1321,7 +1317,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
       <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
         {/* Left Column: Recent Checkins */}
         <div className="lg:col-span-2 space-y-8">
-           <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
+           <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm overflow-hidden h-full">
               <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50">
                  <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Recent Check-ins</CardTitle>
                  <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Live employee activity logs</CardDescription>
@@ -1347,6 +1343,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
                                 <TableRow key={c.id}>
                                    <TableCell className="font-bold flex items-center gap-3 py-4">
                                       <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-800">
+                                         <AvatarImage src={c.employeeImage} alt={c.employeeName} />
                                          <AvatarFallback className="bg-slate-100 dark:bg-slate-800 font-black text-xs">{c.employeeName.charAt(0)}</AvatarFallback>
                                       </Avatar>
                                       <div>
@@ -1378,7 +1375,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
 
         {/* Right Column: Office Expenses */}
         <div className="space-y-8">
-           <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm flex flex-col overflow-hidden h-full">
+           <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col overflow-hidden h-full">
               <CardHeader className="p-8 pb-4">
                  <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Recent Expenses</CardTitle>
                  <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Latest office expenditures</CardDescription>
