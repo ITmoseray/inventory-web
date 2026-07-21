@@ -10,8 +10,9 @@ import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { requestSubscription } from '@/lib/actions/subscription';
 import { FeatureComparisonTable } from './feature-comparison-table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-const plans = [
+const shopPlans = [
   {
     name: 'Basic',
     monthlyPrice: 60,
@@ -44,6 +45,78 @@ const plans = [
     popular: true,
     color: 'purple',
     tag: 'Scale Pro',
+  },
+];
+
+const officePlans = [
+  {
+    name: 'Basic Office',
+    monthlyPrice: 60,
+    annualPrice: 50,
+    description: 'Perfect for small offices and clinics.',
+    features: ['1 User / Admin', 'Basic Expense Tracking', 'Invoice & Quotation Generation', 'Client CRM', 'Basic Reports'],
+    cta: 'Start Free Trial',
+    popular: false,
+    color: 'slate',
+    tag: 'Office Starter',
+  },
+  {
+    name: 'Standard Office',
+    monthlyPrice: 150,
+    annualPrice: 125,
+    description: 'For growing service-based businesses.',
+    features: ['Up to 5 Users', 'Advanced Expense & Budgeting', 'Payroll & Employee Attendance', 'Multi-currency Support', 'Performance Reports'],
+    cta: 'Start Free Trial',
+    popular: false,
+    color: 'blue',
+    tag: 'Corporate Growth',
+  },
+  {
+    name: 'Premium Office',
+    monthlyPrice: 300,
+    annualPrice: 250,
+    description: 'Everything you need to scale operations.',
+    features: ['Unlimited Users', 'Full HR & Payroll System', 'Advanced Profit & Loss', 'Role-Based Access Control', 'Multi-Branch Support'],
+    cta: 'Start Free Trial',
+    popular: true,
+    color: 'purple',
+    tag: 'Enterprise Office',
+  },
+];
+
+const educationPlans = [
+  {
+    name: 'Basic School',
+    monthlyPrice: 100,
+    annualPrice: 83,
+    description: 'Perfect for small schools and nurseries.',
+    features: ['Up to 100 Students', 'Student Registration & CRM', 'Basic Fee Collection', 'Class Attendance'],
+    cta: 'Start Free Trial',
+    popular: false,
+    color: 'slate',
+    tag: 'School Starter',
+  },
+  {
+    name: 'Standard School',
+    monthlyPrice: 250,
+    annualPrice: 208,
+    description: 'For growing educational institutions.',
+    features: ['Up to 500 Students', 'Automated Fee Invoicing', 'Grading & Report Cards', 'Parent Communication (SMS/Email)'],
+    cta: 'Start Free Trial',
+    popular: false,
+    color: 'blue',
+    tag: 'Academy Growth',
+  },
+  {
+    name: 'Premium School',
+    monthlyPrice: 500,
+    annualPrice: 416,
+    description: 'Complete management for large institutions.',
+    features: ['Unlimited Students', 'Full Academic & Hostel Mgmt', 'Advanced Staff Payroll', 'Complete Financial Ledger & P&L'],
+    cta: 'Start Free Trial',
+    popular: true,
+    color: 'purple',
+    tag: 'University Pro',
   },
 ];
 
@@ -90,6 +163,108 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
 
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
+
+  const renderPlanGrid = (plansToRender: typeof shopPlans) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto gap-8 pt-4 pb-16 px-2 sm:px-4">
+      {plansToRender.map((plan, idx) => {
+        const basePrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
+        const price = Math.round(basePrice * currency.rate);
+        const savings = Math.round((plan.monthlyPrice * 12 - plan.annualPrice * 12) * currency.rate);
+
+        return (
+          <motion.div
+            key={plan.name}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: idx * 0.1 }}
+            whileHover={{ y: -8 }}
+            className="flex flex-col w-full h-full"
+          >
+            <Card 
+              className={cn(
+                "relative flex flex-col w-full h-full overflow-visible transition-all duration-300 rounded-[2rem] border-2 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl",
+                plan.popular 
+                  ? "border-indigo-600 shadow-[0_20px_50px_rgba(99,102,241,0.15)] dark:shadow-[0_20px_50px_rgba(99,102,241,0.08)] lg:scale-105 z-10" 
+                  : "border-slate-200/60 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 shadow-xl shadow-slate-100/50 dark:shadow-none"
+              )}
+            >
+              {plan.popular && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-current text-white animate-spin-slow" />
+                  Most Popular
+                </div>
+              )}
+
+              <CardHeader className="p-6 sm:p-8 pb-4">
+                <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5 block">
+                  {plan.tag}
+                </span>
+                <CardTitle className="text-3xl font-[1000] text-slate-900 dark:text-white tracking-tight">{plan.name}</CardTitle>
+                <CardDescription className="text-slate-500 dark:text-slate-400 font-medium text-xs pt-1.5 leading-relaxed">
+                  {plan.description}
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="px-8 pb-6 flex-1 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-baseline gap-1 mb-6 mt-2">
+                    <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
+                    <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
+                      {price.toLocaleString()}
+                    </span>
+                    <span className="text-xs font-bold text-slate-400">/mo</span>
+                  </div>
+                  
+                  {billingPeriod === 'annual' && savings > 0 && (
+                    <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
+                      Billed annually (Save {currency.symbol} {savings.toLocaleString()}/yr)
+                    </div>
+                  )}
+
+                  <div className="h-px bg-slate-100 dark:bg-white/5 mb-6" />
+
+                  <ul className="space-y-4">
+                    {plan.features.map((feature) => (
+                      <li key={feature} className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-300">
+                        <div className="h-4.5 w-4.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                        <span className="font-semibold leading-normal">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </CardContent>
+
+              <CardFooter className="bg-transparent border-t-0 p-8 pt-0">
+                <Button 
+                  onClick={async () => {
+                    if (!session) return router.push('/register');
+                    try {
+                      await requestSubscription(plan.name, billingPeriod);
+                      setSelectedPlan(plan.name);
+                    } catch (err: any) {
+                      console.error("Subscription error:", err);
+                      setSelectedPlan(plan.name);
+                    }
+                  }}
+                  className={cn(
+                    "w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300",
+                    plan.popular 
+                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35" 
+                      : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
+                  )}
+                >
+                  {isTrialExpired || hasUsedTrial ? "Upgrade Now" : plan.cta}
+                </Button>
+              </CardFooter>
+            </Card>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
 
   return (
     <div className="py-32 px-6 bg-slate-50 dark:bg-slate-950 relative overflow-hidden" id="pricing">
@@ -138,108 +313,31 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
           </div>
         </div>
 
-        {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto gap-8 pt-12 pb-16 px-2 sm:px-4">
-          {plans.map((plan, idx) => {
-            const basePrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
-            const price = Math.round(basePrice * currency.rate);
-            const savings = Math.round((plan.monthlyPrice * 12 - plan.annualPrice * 12) * currency.rate);
+        {/* Sector Tabs */}
+        <Tabs defaultValue="shop" className="w-full">
+          <div className="flex justify-center mb-12">
+            <TabsList className="bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-inner">
+              <TabsTrigger value="shop" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all">Retail / Shop</TabsTrigger>
+              <TabsTrigger value="office" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all">Office / Corporate</TabsTrigger>
+              <TabsTrigger value="education" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all">School / Education</TabsTrigger>
+            </TabsList>
+          </div>
 
-            return (
-              <motion.div
-                key={plan.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: idx * 0.1 }}
-                whileHover={{ y: -8 }}
-                className="flex flex-col w-full h-full"
-              >
-                <Card 
-                  className={cn(
-                    "relative flex flex-col w-full h-full overflow-visible transition-all duration-300 rounded-[2rem] border-2 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl",
-                    plan.popular 
-                      ? "border-indigo-600 shadow-[0_20px_50px_rgba(99,102,241,0.15)] dark:shadow-[0_20px_50px_rgba(99,102,241,0.08)] lg:scale-105 z-10" 
-                      : "border-slate-200/60 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 shadow-xl shadow-slate-100/50 dark:shadow-none"
-                  )}
-                >
-                  {plan.popular && (
-                    <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-current text-white animate-spin-slow" />
-                      Most Popular
-                    </div>
-                  )}
+          <TabsContent value="shop" className="mt-0 outline-none">
+            {renderPlanGrid(shopPlans)}
+          </TabsContent>
 
-                  <CardHeader className="p-6 sm:p-8 pb-4">
-                    <span className="text-[9px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest mb-1.5 block">
-                      {plan.tag}
-                    </span>
-                    <CardTitle className="text-3xl font-[1000] text-slate-900 dark:text-white tracking-tight">{plan.name}</CardTitle>
-                    <CardDescription className="text-slate-500 dark:text-slate-400 font-medium text-xs pt-1.5 leading-relaxed">
-                      {plan.description}
-                    </CardDescription>
-                  </CardHeader>
+          <TabsContent value="office" className="mt-0 outline-none">
+            {renderPlanGrid(officePlans)}
+          </TabsContent>
 
-                  <CardContent className="px-8 pb-6 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-baseline gap-1 mb-6 mt-2">
-                        <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
-                        <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
-                          {price.toLocaleString()}
-                        </span>
-                        <span className="text-xs font-bold text-slate-400">/mo</span>
-                      </div>
-                      
-                      {billingPeriod === 'annual' && savings > 0 && (
-                        <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
-                          Billed annually (Save {currency.symbol} {savings.toLocaleString()}/yr)
-                        </div>
-                      )}
-
-                      <div className="h-px bg-slate-100 dark:bg-white/5 mb-6" />
-
-                      <ul className="space-y-4">
-                        {plan.features.map((feature) => (
-                          <li key={feature} className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-300">
-                            <div className="h-4.5 w-4.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 flex items-center justify-center shrink-0 mt-0.5">
-                              <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-                            </div>
-                            <span className="font-semibold leading-normal">{feature}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CardContent>
-
-                  <CardFooter className="bg-transparent border-t-0 p-8 pt-0">
-                    <Button 
-                      onClick={async () => {
-                        if (!session) return router.push('/register');
-                        try {
-                          await requestSubscription(plan.name, billingPeriod);
-                          setSelectedPlan(plan.name);
-                        } catch (err: any) {
-                          console.error("Subscription error:", err);
-                          setSelectedPlan(plan.name);
-                        }
-                      }}
-                      className={cn(
-                        "w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300",
-                        plan.popular 
-                          ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35" 
-                          : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
-                      )}
-                    >
-                      {isTrialExpired || hasUsedTrial ? "Upgrade Now" : plan.cta}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
+          <TabsContent value="education" className="mt-0 outline-none">
+            {renderPlanGrid(educationPlans)}
+          </TabsContent>
+        </Tabs>
 
         {/* Dynamic Comparison Drawer */}
+
         <FeatureComparisonTable />
 
         {/* Premium FAQ Section */}
