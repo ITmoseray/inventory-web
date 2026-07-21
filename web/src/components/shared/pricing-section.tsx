@@ -120,6 +120,42 @@ const educationPlans = [
   },
 ];
 
+const collegePlans = [
+  {
+    name: 'College Basic',
+    monthlyPrice: 200,
+    annualPrice: 160,
+    description: 'Perfect for small colleges and vocational institutes.',
+    features: ['Up to 500 Students', 'Course Registration', 'Basic Fee Collection', 'Faculty Directory'],
+    cta: 'Start Free Trial',
+    popular: false,
+    color: 'slate',
+    tag: 'College Starter',
+  },
+  {
+    name: 'University Standard',
+    monthlyPrice: 500,
+    annualPrice: 416,
+    description: 'For growing universities and large colleges.',
+    features: ['Up to 2,000 Students', 'Multi-department Mgmt', 'Advanced Grading System', 'Digital Library Mgmt', 'Student Portal'],
+    cta: 'Start Free Trial',
+    popular: false,
+    color: 'blue',
+    tag: 'University Growth',
+  },
+  {
+    name: 'Enterprise Campus',
+    monthlyPrice: 1000,
+    annualPrice: 833,
+    description: 'Complete campus management ecosystem.',
+    features: ['Unlimited Students', 'Hostel & Facility Mgmt', 'Advanced Staff Payroll', 'Alumni CRM', 'Full Financials & Audit'],
+    cta: 'Start Free Trial',
+    popular: true,
+    color: 'purple',
+    tag: 'Campus Enterprise',
+  },
+];
+
 const faqs = [
   {
     q: 'How does the 7-day free trial work?',
@@ -319,7 +355,8 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
             <TabsList className="bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-inner">
               <TabsTrigger value="shop" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all">Retail / Shop</TabsTrigger>
               <TabsTrigger value="office" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all">Office / Corporate</TabsTrigger>
-              <TabsTrigger value="education" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all">School / Education</TabsTrigger>
+              <TabsTrigger value="education" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all">School</TabsTrigger>
+              <TabsTrigger value="college" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-rose-600 data-[state=active]:text-white transition-all">College / University</TabsTrigger>
             </TabsList>
           </div>
 
@@ -333,6 +370,10 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
 
           <TabsContent value="education" className="mt-0 outline-none">
             {renderPlanGrid(educationPlans)}
+          </TabsContent>
+
+          <TabsContent value="college" className="mt-0 outline-none">
+            {renderPlanGrid(collegePlans)}
           </TabsContent>
         </Tabs>
 
