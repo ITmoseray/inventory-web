@@ -107,7 +107,7 @@ export function ToastManager() {
     
     toast.custom((t) => (
       <div 
-        className="w-[350px] bg-white dark:bg-slate-900 border-l-4 border-rose-500 shadow-2xl rounded-2xl p-4 flex gap-4 items-start animate-in slide-in-from-right duration-500 cursor-pointer hover:scale-[1.02] transition-transform"
+        className="w-[90vw] sm:w-[350px] bg-white dark:bg-slate-900 border-l-4 border-rose-500 shadow-2xl rounded-2xl p-4 flex gap-3 sm:gap-4 items-start animate-in slide-in-from-right duration-500 cursor-pointer hover:scale-[1.02] transition-transform"
         onClick={() => {
            toast.dismiss(t);
            router.push("/dashboard/inventory/products");
