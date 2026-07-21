@@ -3,22 +3,22 @@ import { CheckCircle2, Minus, Columns, Smartphone, Laptop, Sparkles } from 'luci
 import { cn } from '@/lib/utils';
 
 const features = [
-  { name: 'Product Limit', basic: 'Up to 500', standard: 'Up to 5,000', business: 'Unlimited', enterprise: 'Unlimited' },
-  { name: 'Staff / Users', basic: '1 User', standard: '5 Users', business: '15 Users', enterprise: 'Unlimited' },
-  { name: 'Stock Management', basic: 'Standard', standard: 'Advanced', business: 'Multi-Warehouse', enterprise: 'Custom Logic' },
-  { name: 'Branches Connected', basic: '1 Store', standard: '1 Store', business: 'Multi-Branch Reports', enterprise: 'Full Sync Engine' },
-  { name: 'Supplier POs', basic: false, standard: true, business: true, enterprise: 'Custom Integrations' },
-  { name: 'Dynamic Reports', basic: 'Basic Sales', standard: 'Sales & Inventory', business: 'Profit & Loss (P&L)', enterprise: 'Real-time BI Sync' },
-  { name: 'Invoicing', basic: '50 / month', standard: true, business: true, enterprise: true },
-  { name: 'Expense Tracking', basic: 'Basic', standard: true, business: true, enterprise: true },
-  { name: 'Quotes & Estimates', basic: false, standard: true, business: true, enterprise: true },
-  { name: 'Point of Sale (POS)', basic: true, standard: true, business: true, enterprise: 'Custom Interface' },
-  { name: 'Transaction Tagging', basic: false, standard: true, business: true, enterprise: true },
-  { name: 'File Attachments', basic: false, standard: true, business: true, enterprise: true },
-  { name: 'Multiple Currencies', basic: false, standard: false, business: true, enterprise: true },
-  { name: 'Bank Reconciliation', basic: false, standard: false, business: true, enterprise: true },
-  { name: 'Payroll', basic: false, standard: false, business: false, enterprise: true },
-  { name: 'Access Control', basic: 'Admin only', standard: 'Standard roles', business: 'Standard roles', enterprise: 'Granular (RBAC)' },
+  { name: 'Product Limit', basic: 'Up to 500', standard: 'Up to 5,000', premium: 'Unlimited' },
+  { name: 'Staff / Users', basic: '1 User', standard: '5 Users', premium: 'Unlimited' },
+  { name: 'Stock Management', basic: 'Standard', standard: 'Advanced', premium: 'Custom Logic' },
+  { name: 'Branches Connected', basic: '1 Store', standard: '1 Store', premium: 'Full Sync Engine' },
+  { name: 'Supplier POs', basic: false, standard: true, premium: 'Custom Integrations' },
+  { name: 'Dynamic Reports', basic: 'Basic Sales', standard: 'Sales & Inventory', premium: 'Real-time BI Sync' },
+  { name: 'Invoicing', basic: '50 / month', standard: true, premium: true },
+  { name: 'Expense Tracking', basic: 'Basic', standard: true, premium: true },
+  { name: 'Quotes & Estimates', basic: false, standard: true, premium: true },
+  { name: 'Point of Sale (POS)', basic: true, standard: true, premium: 'Custom Interface' },
+  { name: 'Transaction Tagging', basic: false, standard: true, premium: true },
+  { name: 'File Attachments', basic: false, standard: true, premium: true },
+  { name: 'Multiple Currencies', basic: false, standard: false, premium: true },
+  { name: 'Bank Reconciliation', basic: false, standard: false, premium: true },
+  { name: 'Payroll', basic: false, standard: false, premium: true },
+  { name: 'Access Control', basic: 'Admin only', standard: 'Standard roles', premium: 'Granular (RBAC)' },
 ];
 
 const renderFeatureCell = (value: string | boolean) => {
@@ -32,13 +32,12 @@ const renderFeatureCell = (value: string | boolean) => {
 };
 
 export function FeatureComparisonTable() {
-  const [activeMobilePlan, setActiveMobilePlan] = useState<'basic' | 'standard' | 'business' | 'enterprise'>('business');
+  const [activeMobilePlan, setActiveMobilePlan] = useState<'basic' | 'standard' | 'premium'>('premium');
 
   const plans = [
     { id: 'basic', name: 'Basic', color: 'text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800' },
     { id: 'standard', name: 'Standard', color: 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/10' },
-    { id: 'business', name: 'Business', color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/10', popular: true },
-    { id: 'enterprise', name: 'Enterprise', color: 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/10' }
+    { id: 'premium', name: 'Premium', color: 'text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/10', popular: true }
   ] as const;
 
   return (
@@ -106,18 +105,15 @@ export function FeatureComparisonTable() {
                 <th className="p-6 font-black text-slate-400 uppercase tracking-widest text-[10px] w-1/4">
                   Capability
                 </th>
-                <th className="p-6 font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest text-[10px] text-center w-[18%]">
+                <th className="p-6 font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest text-[10px] text-center w-[25%]">
                   Basic
                 </th>
-                <th className="p-6 font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest text-[10px] text-center w-[18%] bg-blue-50/50 dark:bg-blue-900/10">
+                <th className="p-6 font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest text-[10px] text-center w-[25%] bg-blue-50/50 dark:bg-blue-900/10">
                   Standard
                 </th>
-                <th className="p-6 font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest text-[10px] text-center w-[18%] bg-purple-50/50 dark:bg-purple-900/10 relative">
+                <th className="p-6 font-black text-purple-600 dark:text-purple-400 uppercase tracking-widest text-[10px] text-center w-[25%] bg-purple-50/50 dark:bg-purple-900/10 relative">
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-purple-600 text-white px-2 py-0.5 rounded-full text-[8px] tracking-widest uppercase shadow-sm">Popular</div>
-                  Business
-                </th>
-                <th className="p-6 font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest text-[10px] text-center w-[18%] bg-indigo-50/50 dark:bg-indigo-900/10">
-                  Enterprise
+                  Premium
                 </th>
               </tr>
             </thead>
@@ -134,10 +130,7 @@ export function FeatureComparisonTable() {
                     {renderFeatureCell(feature.standard)}
                   </td>
                   <td className="p-4 sm:px-6 text-center bg-purple-50/30 dark:bg-purple-900/10 group-hover:bg-transparent text-purple-700 dark:text-purple-300">
-                    {renderFeatureCell(feature.business)}
-                  </td>
-                  <td className="p-4 sm:px-6 text-center bg-indigo-50/20 dark:bg-indigo-900/5 group-hover:bg-transparent text-indigo-700 dark:text-indigo-300">
-                    {renderFeatureCell(feature.enterprise)}
+                    {renderFeatureCell(feature.premium)}
                   </td>
                 </tr>
               ))}

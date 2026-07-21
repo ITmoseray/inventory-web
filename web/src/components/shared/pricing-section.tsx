@@ -14,8 +14,8 @@ import { FeatureComparisonTable } from './feature-comparison-table';
 const plans = [
   {
     name: 'Basic',
-    monthlyPrice: 200,
-    annualPrice: 160,
+    monthlyPrice: 60,
+    annualPrice: 50,
     description: 'Perfect for small shops starting out.',
     features: ['1 User / Staff Member', 'Up to 500 Products', 'Stock Management', 'Sales Recording & Invoices', 'Basic Reports'],
     cta: 'Start Free Trial',
@@ -25,8 +25,8 @@ const plans = [
   },
   {
     name: 'Standard',
-    monthlyPrice: 500,
-    annualPrice: 400,
+    monthlyPrice: 150,
+    annualPrice: 125,
     description: 'For growing retail businesses.',
     features: ['Up to 5 Users / Staff', 'Up to 5,000 Products', 'Supplier Management', 'Purchase Orders & Receivables', 'Low Stock Smart Alerts', 'Sales & Inventory Reports'],
     cta: 'Start Free Trial',
@@ -35,26 +35,15 @@ const plans = [
     tag: 'Growth Business',
   },
   {
-    name: 'Business',
-    monthlyPrice: 1000,
-    annualPrice: 800,
+    name: 'Premium',
+    monthlyPrice: 300,
+    annualPrice: 250,
     description: 'Everything you need to scale.',
-    features: ['Up to 15 Users / Staff', 'Unlimited Products', 'Customer CRM & Credits', 'Profit & Loss Dynamic Reports', 'Barcode scan & generator', 'Multi-Branch Reporting'],
+    features: ['Unlimited Users / Staff', 'Unlimited Products', 'Customer CRM & Credits', 'Profit & Loss Dynamic Reports', 'Barcode scan & generator', 'Multi-Branch Reporting'],
     cta: 'Start Free Trial',
     popular: true,
     color: 'purple',
     tag: 'Scale Pro',
-  },
-  {
-    name: 'Enterprise',
-    monthlyPrice: 2500,
-    annualPrice: 2000,
-    description: 'For large-scale operations.',
-    features: ['Unlimited Users / Staff', 'Multi-Branch Management', 'Role-Based Access Control', 'Integrations & Developer APIs', 'Custom Feature Provision', '24/7 Dedicated Support Agent'],
-    cta: 'Contact Sales',
-    popular: false,
-    color: 'indigo',
-    tag: 'Enterprise OS',
   },
 ];
 
@@ -150,7 +139,7 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pt-12 pb-16 px-2 sm:px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto gap-8 pt-12 pb-16 px-2 sm:px-4">
           {plans.map((plan, idx) => {
             const basePrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
             const price = Math.round(basePrice * currency.rate);
