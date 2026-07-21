@@ -363,8 +363,8 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
 
         {/* Sector Tabs */}
         <Tabs defaultValue="shop" className="w-full">
-          <div className="flex justify-center mb-12">
-            <TabsList className="bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-inner">
+          <div className="flex justify-start md:justify-center mb-12 w-full overflow-x-auto pb-4 px-2 snap-x hide-scrollbar">
+            <TabsList className="bg-slate-200/50 dark:bg-slate-800/50 p-1.5 rounded-full border border-slate-200 dark:border-slate-700 shadow-inner flex shrink-0 min-w-max mx-auto md:mx-0">
               <TabsTrigger value="shop" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-indigo-600 data-[state=active]:text-white transition-all">Retail / Shop</TabsTrigger>
               <TabsTrigger value="office" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-purple-600 data-[state=active]:text-white transition-all">Office / Corporate</TabsTrigger>
               <TabsTrigger value="education" className="rounded-full px-6 py-2.5 text-xs font-black uppercase tracking-widest data-[state=active]:bg-emerald-600 data-[state=active]:text-white transition-all">School</TabsTrigger>
