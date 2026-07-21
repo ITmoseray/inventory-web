@@ -17,6 +17,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 const shopPlans = [
   {
     name: 'Basic',
+    id: 'BASIC',
     monthlyPrice: 60,
     annualPrice: 50,
     description: 'Perfect for small shops starting out.',
@@ -27,6 +28,7 @@ const shopPlans = [
   },
   {
     name: 'Standard',
+    id: 'STANDARD',
     monthlyPrice: 150,
     annualPrice: 125,
     description: 'For growing retail businesses.',
@@ -37,6 +39,7 @@ const shopPlans = [
   },
   {
     name: 'Premium',
+    id: 'ENTERPRISE',
     monthlyPrice: 300,
     annualPrice: 250,
     description: 'Everything you need to scale.',
@@ -50,6 +53,7 @@ const shopPlans = [
 const officePlans = [
   {
     name: 'Basic Office',
+    id: 'BASIC',
     monthlyPrice: 60,
     annualPrice: 50,
     description: 'Perfect for small offices and clinics.',
@@ -60,6 +64,7 @@ const officePlans = [
   },
   {
     name: 'Standard Office',
+    id: 'STANDARD',
     monthlyPrice: 150,
     annualPrice: 125,
     description: 'For growing service-based businesses.',
@@ -70,6 +75,7 @@ const officePlans = [
   },
   {
     name: 'Premium Office',
+    id: 'ENTERPRISE',
     monthlyPrice: 300,
     annualPrice: 250,
     description: 'Everything you need to scale operations.',
@@ -83,6 +89,7 @@ const officePlans = [
 const educationPlans = [
   {
     name: 'Basic School',
+    id: 'BASIC',
     monthlyPrice: 100,
     annualPrice: 83,
     description: 'Perfect for small schools and nurseries.',
@@ -93,6 +100,7 @@ const educationPlans = [
   },
   {
     name: 'Standard School',
+    id: 'STANDARD',
     monthlyPrice: 250,
     annualPrice: 208,
     description: 'For growing educational institutions.',
@@ -103,6 +111,7 @@ const educationPlans = [
   },
   {
     name: 'Premium School',
+    id: 'ENTERPRISE',
     monthlyPrice: 500,
     annualPrice: 416,
     description: 'Complete management for large institutions.',
@@ -116,6 +125,7 @@ const educationPlans = [
 const collegePlans = [
   {
     name: 'College Basic',
+    id: 'BASIC',
     monthlyPrice: 200,
     annualPrice: 160,
     description: 'Perfect for small colleges and vocational institutes.',
@@ -126,6 +136,7 @@ const collegePlans = [
   },
   {
     name: 'University Standard',
+    id: 'STANDARD',
     monthlyPrice: 500,
     annualPrice: 416,
     description: 'For growing universities and large colleges.',
@@ -136,6 +147,7 @@ const collegePlans = [
   },
   {
     name: 'Enterprise Campus',
+    id: 'ENTERPRISE',
     monthlyPrice: 1000,
     annualPrice: 833,
     description: 'Complete campus management ecosystem.',
@@ -234,7 +246,7 @@ export default function PricingPage() {
                 <Button 
                   onClick={async () => {
                     try {
-                      await requestSubscription(plan.name, billingPeriod);
+                      await requestSubscription(plan.id, billingPeriod);
                       setActivePaymentPlan(plan.name);
                     } catch (err) {
                       console.error("Subscription error:", err);
