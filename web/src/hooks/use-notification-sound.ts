@@ -24,30 +24,33 @@ function playSynth(type: SoundType) {
 
   const now = ctx.currentTime;
   const master = ctx.createGain();
-  master.gain.setValueAtTime(0.18, now);
+  master.gain.setValueAtTime(0.45, now);
   master.connect(ctx.destination);
 
   const configs: { freq: number; start: number; dur: number; type: OscillatorType }[][] = {
     info: [
-      [{ freq: 880, start: 0, dur: 0.12, type: "sine" }],
+      [
+        { freq: 1046.5, start: 0, dur: 0.15, type: "sine" }, // C6
+        { freq: 1318.5, start: 0.15, dur: 0.3, type: "sine" }, // E6
+      ],
     ],
     success: [
       [
-        { freq: 880, start: 0,    dur: 0.1, type: "sine" },
-        { freq: 1108, start: 0.1, dur: 0.15, type: "sine" },
+        { freq: 1046.5, start: 0, dur: 0.1, type: "triangle" },
+        { freq: 1318.5, start: 0.1, dur: 0.1, type: "triangle" },
+        { freq: 1567.9, start: 0.2, dur: 0.3, type: "triangle" },
       ],
     ],
     warning: [
       [
-        { freq: 660, start: 0,    dur: 0.12, type: "triangle" },
-        { freq: 660, start: 0.18, dur: 0.12, type: "triangle" },
+        { freq: 440, start: 0, dur: 0.2, type: "square" },
+        { freq: 440, start: 0.25, dur: 0.2, type: "square" },
       ],
     ],
     error: [
       [
-        { freq: 440, start: 0,    dur: 0.15, type: "sawtooth" },
-        { freq: 330, start: 0.18, dur: 0.15, type: "sawtooth" },
-        { freq: 220, start: 0.36, dur: 0.2,  type: "sawtooth" },
+        { freq: 440, start: 0, dur: 0.15, type: "sawtooth" },
+        { freq: 220, start: 0.15, dur: 0.35, type: "sawtooth" },
       ],
     ],
   };
