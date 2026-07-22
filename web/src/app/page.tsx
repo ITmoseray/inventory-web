@@ -101,7 +101,7 @@ export default function ProtechCloudHomepage() {
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
       <AnnouncementBanner />
       {/* 1. Global Navigation */}
-      <header className="fixed top-0 w-full z-[100] bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all">
+      <header className="sticky top-0 w-full z-[100] bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all">
         <nav className="container mx-auto px-4 sm:px-6 h-20 lg:h-24 flex items-center justify-between">
           <Link className="flex items-center gap-2 sm:gap-3 shrink-0" href="/">
             <div className="relative h-10 w-10 lg:h-14 lg:w-14 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white shrink-0">

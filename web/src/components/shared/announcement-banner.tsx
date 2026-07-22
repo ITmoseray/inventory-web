@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Zap } from "lucide-react";
+import { Megaphone } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function AnnouncementBanner() {
@@ -127,9 +127,9 @@ export function AnnouncementBanner() {
             transition={{ duration: 0.5, ease: "easeInOut" }}
             className="overflow-hidden w-full"
           >
-            <div className="w-full bg-gradient-to-r from-indigo-50 via-indigo-100/50 to-indigo-50 dark:from-indigo-950 dark:via-indigo-900 dark:to-indigo-950 text-indigo-950 dark:text-white py-2.5 px-4 text-center text-xs font-black uppercase tracking-[0.25em] flex items-center justify-center gap-2 border-b border-indigo-100 dark:border-indigo-500/20 shadow-md transition-colors duration-300">
-              <Zap className="h-3.5 w-3.5 text-indigo-650 dark:text-indigo-400 animate-pulse flex-shrink-0" />
-              <div className="overflow-hidden max-w-3xl w-full text-center">
+            <div className="w-full bg-slate-900 dark:bg-indigo-600 text-white py-3 px-4 text-center text-sm font-medium tracking-wide flex items-center justify-center gap-3 border-b border-slate-800 dark:border-indigo-500 shadow-sm transition-colors duration-300">
+              <Megaphone className="h-4 w-4 text-indigo-300 dark:text-white animate-pulse flex-shrink-0" />
+              <div className="overflow-hidden max-w-4xl w-full text-center">
                 <motion.span
                   className="inline-block whitespace-nowrap"
                   animate={banner.length > 80 ? { x: ["0%", "-50%"] } : {}}
@@ -144,7 +144,7 @@ export function AnnouncementBanner() {
                     : banner}
                 </motion.span>
               </div>
-              <Zap className="h-3.5 w-3.5 text-indigo-650 dark:text-indigo-400 animate-pulse flex-shrink-0" />
+              <Megaphone className="h-4 w-4 text-indigo-300 dark:text-white animate-pulse flex-shrink-0" />
             </div>
           </motion.div>
         )}

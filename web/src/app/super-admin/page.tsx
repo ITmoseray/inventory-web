@@ -1565,6 +1565,16 @@ export default function NexusSuperControl() {
                          >
                             Save Banner
                          </Button>
+                         <Button 
+                            onClick={() => {
+                               setSettings({ ...settings, announcementBanner: "" });
+                               handleSettingUpdate("announcementBanner", "");
+                            }}
+                            variant="outline"
+                            className="h-12 px-6 border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 hover:border-rose-300 dark:border-rose-900/50 dark:text-rose-400 dark:hover:bg-rose-950/50 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex-shrink-0"
+                         >
+                            Clear Banner
+                         </Button>
                       </div>
                    </div>
 

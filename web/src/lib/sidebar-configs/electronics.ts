@@ -13,6 +13,7 @@ export const electronicsSidebarConfig = [
     label: "Inventory",
     items: [
       { title: "Products", url: "/dashboard/inventory/products", icon: Cpu, permission: "menu:inventory" },
+      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" },
       { title: "Purchases", url: "/dashboard/purchases", icon: Package, permission: "menu:purchases" },
     ]
   },
@@ -44,3 +45,4 @@ export const electronicsSidebarConfig = [
     ]
   }
 ];
+

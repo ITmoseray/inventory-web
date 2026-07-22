@@ -1,4 +1,4 @@
-import { LayoutDashboard, Calendar, ClipboardList, Stethoscope, Users, Settings, Wallet, BarChart3, Pill, FileText, FlaskConical, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Calendar, ClipboardList, Stethoscope, Users, Settings, Wallet, BarChart3, Pill, FileText, FlaskConical, MessageSquare, Package } from "lucide-react";
 
 export const clinicSidebarConfig = [
   { 
@@ -22,7 +22,8 @@ export const clinicSidebarConfig = [
   { 
     label: "Inventory", 
     items: [
-      { title: "Medications", url: "/dashboard/inventory/products", icon: Pill, permission: "menu:inventory" }, 
+      { title: "Medications", url: "/dashboard/inventory/products", icon: Pill, permission: "menu:inventory" },
+      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" }, 
       { title: "Suppliers", url: "/dashboard/purchases/suppliers", icon: Users, permission: "menu:purchases:suppliers" }
     ] 
   },
@@ -42,3 +43,4 @@ export const clinicSidebarConfig = [
     ] 
   }
 ];
+

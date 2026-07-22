@@ -22,8 +22,10 @@ export const restaurantSidebarConfig = [
   { 
     label: "Inventory", 
     items: [
-      { title: "Ingredients", url: "/dashboard/inventory/products", icon: Package, permission: "menu:inventory" }, 
-      { title: "Recipes", url: "/dashboard/inventory/products", icon: FileText, permission: "menu:recipes" }, 
+      { title: "Ingredients", url: "/dashboard/inventory/products", icon: Package, permission: "menu:inventory" },
+      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" }, 
+      { title: "Recipes", url: "/dashboard/inventory/products", icon: FileText, permission: "menu:recipes" },
+      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" }, 
       { title: "Suppliers", url: "/dashboard/purchases/suppliers", icon: Users, permission: "menu:purchases:suppliers" }
     ] 
   },
@@ -41,3 +43,4 @@ export const restaurantSidebarConfig = [
     ] 
   }
 ];
+

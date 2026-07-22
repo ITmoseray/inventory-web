@@ -22,7 +22,8 @@ export const pharmacySidebarConfig = [
   { 
     label: "Inventory", 
     items: [
-      { title: "Medications", url: "/dashboard/inventory/products", icon: Pill, permission: "menu:inventory" }, 
+      { title: "Medications", url: "/dashboard/inventory/products", icon: Pill, permission: "menu:inventory" },
+      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" }, 
       { title: "Suppliers", url: "/dashboard/purchases/suppliers", icon: Users, permission: "menu:purchases:suppliers" }, 
       { title: "Expiry Tracking", url: "/dashboard/inventory/expiry", icon: Stethoscope, permission: "menu:inventory:expiry" }
     ] 
@@ -41,3 +42,4 @@ export const pharmacySidebarConfig = [
     ] 
   }
 ];
+

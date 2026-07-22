@@ -21,7 +21,8 @@ export const supermarketSidebarConfig = [
   { 
     label: "Inventory", 
     items: [
-      { title: "Products", url: "/dashboard/inventory/products", icon: Package, permission: "menu:inventory" }, 
+      { title: "Products", url: "/dashboard/inventory/products", icon: Package, permission: "menu:inventory" },
+      { title: "Categories", url: "/dashboard/inventory/categories", icon: Package, permission: "menu:inventory:categories" }, 
       { title: "Suppliers", url: "/dashboard/purchases/suppliers", icon: Users, permission: "menu:purchases:suppliers" }, 
       { title: "Purchases", url: "/dashboard/purchases", icon: Package, permission: "menu:purchases" }
     ] 
@@ -40,3 +41,4 @@ export const supermarketSidebarConfig = [
     ] 
   }
 ];
+
