@@ -448,7 +448,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
           </SheetHeader>
-          <div className="flex h-full flex-col">
+          <div className="flex flex-1 flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]">
              <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
           </div>
         </SheetContent>
