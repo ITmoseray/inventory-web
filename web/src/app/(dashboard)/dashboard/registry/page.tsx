@@ -77,16 +77,10 @@ export default function RegistryHubPage() {
   if (loading) {
     return (
       <div className="h-[calc(100vh-4rem)] flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <motion.div 
-          animate={{ scale: [1, 1.1, 1], opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="flex flex-col items-center gap-6"
-        >
-           <div className="h-20 w-20 rounded-3xl bg-indigo-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-500/20">
-              <ShieldCheck className="h-10 w-10" />
-           </div>
-           <p className="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">Synchronizing Global Commercial Nodes...</p>
-        </motion.div>
+        <div className="flex flex-col items-center gap-4">
+           <div className="h-16 w-16 rounded-xl border-4 border-indigo-600 border-t-transparent animate-spin" />
+           <p className="text-sm font-semibold text-slate-500">Loading Directory...</p>
+        </div>
       </div>
     );
   }
@@ -96,180 +90,172 @@ export default function RegistryHubPage() {
       
       {/* 1. MASTER HUB HEADER */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
-        <div className="space-y-4">
-           <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm w-fit">
-              <div className="h-2 w-2 rounded-full bg-indigo-600 animate-pulse" />
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 italic">Network Online</span>
-           </div>
-           <div className="space-y-1">
-              <h1 className="text-4xl md:text-6xl font-[1000] tracking-tighter uppercase italic text-slate-950 dark:text-white leading-none">Partner <span className="text-indigo-600">Directory</span></h1>
-              <p className="text-sm font-bold text-slate-400 uppercase tracking-[0.4em] italic mt-2">Business Insights & Profile Explorer</p>
-           </div>
+        <div className="space-y-1">
+           <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">Partner Directory</h1>
+           <p className="text-sm text-slate-500">Manage customers, suppliers, and trading partners.</p>
         </div>
         
-        <div className="flex gap-4">
-           <Button className="h-16 px-10 rounded-[2rem] bg-slate-950 dark:bg-indigo-600 text-white font-black uppercase text-xs tracking-widest shadow-2xl hover:scale-[1.05] transition-all active:scale-95 gap-3">
-              <Zap className="h-4 w-4" /> Refresh Data
+        <div className="flex gap-4 w-full md:w-auto">
+           <Button className="h-10 px-4 rounded-md w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm gap-2">
+              <Zap className="h-4 w-4" /> Refresh Directory
            </Button>
         </div>
       </div>
 
       {/* 2. INTELLIGENCE KPI GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-         <Card className="rounded-[3rem] border-none shadow-sm bg-white dark:bg-slate-900 p-10 group hover:shadow-2xl transition-all duration-700 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-full translate-x-1/2 -translate-y-1/2" />
-            <CardHeader className="p-0 pb-8 flex flex-row items-center justify-between">
-               <CardTitle className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Total Partners</CardTitle>
-               <div className="h-12 w-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600"><Users size={20} /></div>
+         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 p-6 rounded-xl">
+            <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
+               <CardTitle className="text-sm font-semibold text-slate-500">Total Partners</CardTitle>
+               <div className="h-10 w-10 rounded-lg bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600"><Users size={18} /></div>
             </CardHeader>
             <CardContent className="p-0">
-               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">{data?.stats?.totalEntities || 0}</div>
-
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Verified business partners</p>
+               <div className="text-3xl font-bold text-slate-900 dark:text-white">{data?.stats?.totalEntities || 0}</div>
+               <p className="text-xs text-slate-500 mt-1">Verified business partners</p>
             </CardContent>
          </Card>
 
-         <Card className="rounded-[3rem] border-none shadow-sm bg-white dark:bg-slate-900 p-10 group hover:shadow-2xl transition-all duration-700 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-full translate-x-1/2 -translate-y-1/2" />
-            <CardHeader className="p-0 pb-8 flex flex-row items-center justify-between">
-               <CardTitle className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Trust Score</CardTitle>
-               <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600"><Star size={20} /></div>
+         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 p-6 rounded-xl">
+            <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
+               <CardTitle className="text-sm font-semibold text-slate-500">Trust Score</CardTitle>
+               <div className="h-10 w-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600"><Star size={18} /></div>
             </CardHeader>
             <CardContent className="p-0">
-               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">{(data?.stats?.globalReliability || 0).toFixed(1)}%</div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4 italic">Aggregate network reliability</p>
+               <div className="text-3xl font-bold text-slate-900 dark:text-white">{(data?.stats?.globalReliability || 0).toFixed(1)}%</div>
+               <p className="text-xs text-slate-500 mt-1">Aggregate network reliability</p>
             </CardContent>
          </Card>
 
-         <Card className="rounded-[3rem] border-none shadow-sm bg-white dark:bg-slate-900 p-10 group hover:shadow-2xl transition-all duration-700 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-48 h-48 bg-indigo-950/90 rounded-full translate-x-1/2 -translate-y-1/2" />
-            <CardHeader className="p-0 pb-8 flex flex-row items-center justify-between relative z-10">
-               <CardTitle className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Trade Volume</CardTitle>
-               <div className="h-12 w-12 rounded-2xl bg-slate-950 dark:bg-slate-800 flex items-center justify-center text-white"><TrendingUp size={20} /></div>
+         <Card className="border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 p-6 rounded-xl">
+            <CardHeader className="p-0 pb-4 flex flex-row items-center justify-between">
+               <CardTitle className="text-sm font-semibold text-slate-500">Trade Volume</CardTitle>
+               <div className="h-10 w-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400"><TrendingUp size={18} /></div>
             </CardHeader>
-            <CardContent className="p-0 relative z-10">
-               <div className="text-6xl font-[1000] tracking-tighter italic text-slate-950 dark:text-white">NLe {(data?.stats?.totalTradeVolume || 0).toLocaleString()}</div>
-               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-4">Total transaction value</p>
+            <CardContent className="p-0">
+               <div className="text-3xl font-bold text-slate-900 dark:text-white truncate">Le {(data?.stats?.totalTradeVolume || 0).toLocaleString()}</div>
+               <p className="text-xs text-slate-500 mt-1">Total transaction value</p>
             </CardContent>
          </Card>
       </div>
 
       {/* 3. EXPLORER WORKSPACE */}
-      <Card className="rounded-[4rem] border-none shadow-sm bg-white dark:bg-slate-900 p-12 overflow-hidden">
+      <Card className="rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm bg-white dark:bg-slate-900 p-6 overflow-hidden">
          {/* Workspace Toolbar */}
-         <div className="flex flex-col md:flex-row items-center justify-between gap-8 mb-12 pb-10 border-b border-slate-50 dark:border-slate-800">
-            <div className="flex items-center gap-6 w-full md:w-auto">
-               <div className="flex bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700">
+         <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 mb-8 pb-6 border-b border-slate-100 dark:border-slate-800">
+            <div className="w-full xl:w-auto overflow-x-auto no-scrollbar">
+               <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700 w-max min-w-full">
                   <Button 
                     variant={typeFilter === "ALL" ? "default" : "ghost"} 
                     onClick={() => setTypeFilter("ALL")}
-                    className={cn("h-11 rounded-xl px-6 font-black uppercase text-[10px] tracking-widest transition-all", typeFilter === "ALL" && "bg-indigo-600 shadow-lg shadow-indigo-500/20")}
+                    className={cn("h-9 rounded-md px-4 text-sm font-medium transition-all whitespace-nowrap", typeFilter === "ALL" && "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm")}
                   >All Partners</Button>
                   <Button 
                     variant={typeFilter === "CUSTOMER" ? "default" : "ghost"} 
                     onClick={() => setTypeFilter("CUSTOMER")}
-                    className={cn("h-11 rounded-xl px-6 font-black uppercase text-[10px] tracking-widest transition-all", typeFilter === "CUSTOMER" && "bg-indigo-600 shadow-lg shadow-indigo-500/20")}
+                    className={cn("h-9 rounded-md px-4 text-sm font-medium transition-all whitespace-nowrap", typeFilter === "CUSTOMER" && "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm")}
                   >Customers</Button>
                   <Button 
                     variant={typeFilter === "SUPPLIER" ? "default" : "ghost"} 
                     onClick={() => setTypeFilter("SUPPLIER")}
-                    className={cn("h-11 rounded-xl px-6 font-black uppercase text-[10px] tracking-widest transition-all", typeFilter === "SUPPLIER" && "bg-indigo-600 shadow-lg shadow-indigo-500/20")}
+                    className={cn("h-9 rounded-md px-4 text-sm font-medium transition-all whitespace-nowrap", typeFilter === "SUPPLIER" && "bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-sm")}
                   >Suppliers</Button>
                </div>
             </div>
 
-            <div className="flex flex-1 items-center gap-4 w-full md:max-w-xl">
+            <div className="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-4 w-full xl:max-w-xl">
                <div className="relative flex-1 group">
-                  <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input 
                     placeholder="Search partner directory..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-16 pl-16 pr-8 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 focus:bg-white dark:focus:bg-slate-900 text-sm font-bold tracking-tight shadow-inner"
+                    className="h-10 pl-9 pr-4 rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 focus:ring-2 focus:ring-indigo-600 text-sm w-full"
                   />
                </div>
-               <Button variant="outline" className="h-16 px-8 rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 font-black uppercase text-[10px] tracking-widest gap-4"><Filter size={18} /> Filters</Button>
-               <Button variant="outline" className="h-16 px-8 rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 font-black uppercase text-[10px] tracking-widest gap-4"><Download size={18} /> Export</Button>
+               <div className="flex gap-2 sm:gap-4 w-full sm:w-auto">
+                 <Button variant="outline" className="h-10 flex-1 sm:flex-none px-4 rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-medium gap-2"><Filter size={16} /> Filters</Button>
+                 <Button variant="outline" className="h-10 flex-1 sm:flex-none px-4 rounded-md border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm font-medium gap-2"><Download size={16} /> Export</Button>
+               </div>
             </div>
          </div>
 
          {/* Intelligence Table */}
-         <div className="rounded-[2.5rem] border border-slate-50 dark:border-slate-800 bg-slate-50/20 dark:bg-slate-950/10 overflow-hidden">
+         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
             <Table>
-               <TableHeader className="bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800 sticky top-0 z-20">
-                  <TableRow className="hover:bg-transparent border-none text-[11px] font-[1000] uppercase tracking-[0.4em] text-slate-300">
-                     <TableHead className="h-20 px-10">Business Partner</TableHead>
-                     <TableHead className="h-20 text-center">Type</TableHead>
-                     <TableHead className="h-20">Reliability Score</TableHead>
-                     <TableHead className="h-20">Trade Volume</TableHead>
-                     <TableHead className="h-20">Last Order</TableHead>
-                     <TableHead className="h-20 text-right pr-10">Actions</TableHead>
+               <TableHeader className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-800">
+                  <TableRow className="hover:bg-transparent">
+                     <TableHead className="h-12 px-6 font-semibold text-slate-600 dark:text-slate-300">Business Partner</TableHead>
+                     <TableHead className="h-12 text-center font-semibold text-slate-600 dark:text-slate-300">Type</TableHead>
+                     <TableHead className="h-12 font-semibold text-slate-600 dark:text-slate-300">Reliability Score</TableHead>
+                     <TableHead className="h-12 font-semibold text-slate-600 dark:text-slate-300">Trade Volume</TableHead>
+                     <TableHead className="h-12 font-semibold text-slate-600 dark:text-slate-300">Last Order</TableHead>
+                     <TableHead className="h-12 text-right pr-6 font-semibold text-slate-600 dark:text-slate-300">Actions</TableHead>
                   </TableRow>
                </TableHeader>
                <TableBody>
                   {filteredNodes.map((node: any) => (
-                     <TableRow key={node.id} className="group hover:bg-white dark:hover:bg-slate-900/50 transition-all border-b border-slate-50 dark:border-slate-800/50">
-                        <TableCell className="px-10 h-28">
-                           <div className="flex items-center gap-6">
+                     <TableRow key={node.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors border-b border-slate-200 dark:border-slate-800">
+                        <TableCell className="px-6 py-4">
+                           <div className="flex items-center gap-4">
                               <div className={cn(
-                                "h-14 w-14 rounded-2xl flex items-center justify-center font-[1000] text-xl italic shadow-inner group-hover:scale-110 transition-transform",
-                                node.type === "CUSTOMER" ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30" : "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/30"
+                                "h-10 w-10 rounded-lg flex items-center justify-center font-bold text-lg",
+                                node.type === "CUSTOMER" ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300"
                               )}>
                                  {node.name.charAt(0)}
                               </div>
                               <div>
-                                 <div className="text-xl font-black text-slate-950 dark:text-white tracking-tighter italic leading-none mb-1.5">{node.name}</div>
-                                 <div className="flex items-center gap-3 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
-                                    <Globe className="h-3 w-3" /> {node.email || "NO_EMAIL_RECORDED"}
+                                 <div className="font-semibold text-slate-900 dark:text-white leading-tight">{node.name}</div>
+                                 <div className="text-xs text-slate-500 mt-1">
+                                    {node.email || "No email available"}
                                  </div>
                               </div>
                            </div>
                         </TableCell>
                         <TableCell className="text-center">
-                           <Badge className={cn(
-                             "h-10 px-6 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] shadow-lg border-none",
-                             node.type === "CUSTOMER" ? "bg-indigo-600 text-white shadow-indigo-500/20" : "bg-emerald-600 text-white shadow-emerald-500/20"
+                           <Badge variant="outline" className={cn(
+                             "px-2.5 py-1 text-[11px] font-semibold border",
+                             node.type === "CUSTOMER" ? "border-indigo-200 text-indigo-700 bg-indigo-50 dark:border-indigo-800 dark:text-indigo-400 dark:bg-indigo-950/30" : "border-emerald-200 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-400 dark:bg-emerald-950/30"
                            )}>
                               {node.type}
                            </Badge>
                         </TableCell>
                         <TableCell>
-                           <div className="space-y-3 w-48">
-                              <div className="flex justify-between items-end">
-                                 <div className="text-[10px] font-black uppercase tracking-widest text-slate-300 italic">Score</div>
-                                 <div className={cn("text-sm font-black italic", node.reliability > 70 ? "text-emerald-500" : "text-amber-500")}>
+                           <div className="w-32">
+                              <div className="flex justify-between items-center mb-1">
+                                 <span className="text-xs text-slate-500">Score</span>
+                                 <span className={cn("text-xs font-semibold", node.reliability > 70 ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400")}>
                                     {node.reliability.toFixed(0)}%
-                                 </div>
+                                 </span>
                               </div>
-                              <div className="h-2 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+                              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                                  <div 
-                                    className={cn("h-full rounded-full shadow-sm transition-all duration-1000", node.reliability > 70 ? "bg-emerald-500" : "bg-amber-500")}
+                                    className={cn("h-full rounded-full", node.reliability > 70 ? "bg-emerald-500" : "bg-amber-500")}
                                     style={{ width: `${node.reliability}%` }}
                                  />
                               </div>
                            </div>
                         </TableCell>
                         <TableCell>
-                           <div className="text-xl font-black text-slate-950 dark:text-white tracking-tighter italic">NLe {node.totalVolume.toLocaleString()}</div>
-                           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Total Trading Stream</div>
+                           <div className="font-semibold text-slate-900 dark:text-white">Le {node.totalVolume.toLocaleString()}</div>
+                           <div className="text-xs text-slate-500 mt-0.5">Total Value</div>
                         </TableCell>
                         <TableCell>
-                           <div className="text-sm font-black text-slate-700 dark:text-slate-300 italic">{format(new Date(node.lastInteraction), "MMM do, yyyy")}</div>
-                           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Temporal Data Sync</div>
+                           <div className="font-medium text-slate-700 dark:text-slate-300">{format(new Date(node.lastInteraction), "MMM d, yyyy")}</div>
+                           <div className="text-xs text-slate-500 mt-0.5">Latest Transaction</div>
                         </TableCell>
-                        <TableCell className="text-right pr-10">
+                        <TableCell className="text-right pr-6">
                            <DropdownMenu>
                               <DropdownMenuTrigger render={
-                                 <Button variant="ghost" className="h-12 w-12 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-                                    <MoreVertical className="h-5 w-5 text-slate-300" />
+                                 <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800">
+                                    <MoreVertical className="h-4 w-4 text-slate-500" />
                                  </Button>
                               } />
-                              <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 border-slate-100 dark:border-slate-800 shadow-2xl">
-                                 <DropdownMenuItem className="h-11 rounded-xl font-bold text-xs gap-3"><Activity size={16} /> Business Analytics</DropdownMenuItem>
-                                 <DropdownMenuItem className="h-11 rounded-xl font-bold text-xs gap-3"><Database size={16} /> Partner Profile</DropdownMenuItem>
-                                 <DropdownMenuItem className="h-11 rounded-xl font-bold text-xs gap-3"><LinkIcon size={16} /> View Invoices</DropdownMenuItem>
-                                 <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
-                                 <DropdownMenuItem className="h-11 rounded-xl font-bold text-xs gap-3 text-rose-500 focus:text-rose-600"><Zap size={16} /> End Relationship</DropdownMenuItem>
+                              <DropdownMenuContent align="end" className="w-48 rounded-lg shadow-md border-slate-200 dark:border-slate-800">
+                                 <DropdownMenuItem className="text-sm cursor-pointer"><Activity size={14} className="mr-2 text-slate-400" /> Analytics</DropdownMenuItem>
+                                 <DropdownMenuItem className="text-sm cursor-pointer"><Database size={14} className="mr-2 text-slate-400" /> View Profile</DropdownMenuItem>
+                                 <DropdownMenuItem className="text-sm cursor-pointer"><LinkIcon size={14} className="mr-2 text-slate-400" /> Invoices</DropdownMenuItem>
+                                 <div className="h-px bg-slate-100 dark:bg-slate-800 my-1" />
+                                 <DropdownMenuItem className="text-sm cursor-pointer text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/50"><Zap size={14} className="mr-2" /> Deactivate Partner</DropdownMenuItem>
                               </DropdownMenuContent>
                            </DropdownMenu>
                         </TableCell>

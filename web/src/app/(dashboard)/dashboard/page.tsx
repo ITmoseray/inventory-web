@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import {
   Dialog,
   DialogContent,
+  DialogTrigger,
+  DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import Image from "next/image";
 import { 
@@ -37,6 +40,8 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { SmartForecastingWidget } from "@/components/dashboard/smart-forecasting-widget";
 import { ExpiryWidget } from "@/components/dashboard/expiry-widget";
+import { Calculator as CalculatorIcon } from "lucide-react";
+import { ProfessionalCalculator } from "@/components/shared/professional-calculator";
 
 const TABS = ["Dashboard", "Getting Started"];
 
@@ -297,6 +302,18 @@ export default function DashboardPage() {
 
         {activeTab === "Dashboard" && businessType !== "OFFICE" && (
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+             <Dialog>
+               <DialogTrigger className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-slate-300 bg-white dark:bg-slate-900 font-medium text-sm shadow-sm hover:bg-slate-100 transition-colors text-slate-700 dark:text-slate-300">
+                 <CalculatorIcon className="h-4 w-4" /> Calculator
+               </DialogTrigger>
+               <DialogContent className="sm:max-w-[400px] p-0 border-none bg-transparent shadow-none">
+                 <DialogTitle className="sr-only">Professional Calculator</DialogTitle>
+                 <DialogDescription className="sr-only">A professional calculator for quick calculations</DialogDescription>
+                 <div className="w-full">
+                   <ProfessionalCalculator />
+                 </div>
+               </DialogContent>
+             </Dialog>
              <Button 
                onClick={() => router.push("/dashboard/manual")}
                variant="outline"

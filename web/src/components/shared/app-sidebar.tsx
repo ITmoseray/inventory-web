@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
-  CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle
+  CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator
 } from "lucide-react";
 
 import {
@@ -24,6 +24,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription, DialogHeader } from "@/components/ui/dialog";
+import { ProfessionalCalculator } from "@/components/shared/professional-calculator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -266,8 +268,28 @@ const SidebarContentRenderer = ({
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-slate-100 dark:border-slate-700/50">
+      <SidebarFooter className="p-4 border-t border-slate-100 dark:border-slate-700/50 space-y-2">
         <SidebarMenu>
+          <SidebarMenuItem>
+            <Dialog>
+              <SidebarMenuButton 
+                tooltip="Calculator"
+                className="w-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                render={<DialogTrigger />}
+              >
+                <Calculator className="h-5 w-5 mr-2" />
+                <span className="font-semibold">Calculator</span>
+              </SidebarMenuButton>
+              <DialogContent className="sm:max-w-[400px] p-0 border-none bg-transparent shadow-none">
+                <DialogTitle className="sr-only">Professional Calculator</DialogTitle>
+                <DialogDescription className="sr-only">A professional calculator for quick calculations</DialogDescription>
+                <div className="w-full">
+                  <ProfessionalCalculator />
+                </div>
+              </DialogContent>
+            </Dialog>
+          </SidebarMenuItem>
+
           <SidebarMenuItem id="user-profile">
             <DropdownMenu>
               <DropdownMenuTrigger 
