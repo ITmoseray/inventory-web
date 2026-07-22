@@ -325,29 +325,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (trigger === "update" || (lookupKey && (!token.permissions || (token.permissions as string[]).length === 0 || !token.businessId))) {
         try {
           console.log(`SERVER AUTH: Refreshing permissions (sub: ${token.sub}, email: ${token.email})`);
-          const dbUser = await prisma.user.findFirst({
-            where: { 
-              OR: [
-                ...(token.sub ? [{ id: token.sub }] : []),
-                ...(token.email ? [{ email: token.email }] : [])
-              ]
-            },
-            include: { role: { include: { permissions: true } }, business: true }
-          });
-          
-          if (dbUser) {
-            token.sub = dbUser.id; // Ensure sub is synced
-            token.role = dbUser.role.name;
-            token.permissions = dbUser.role.permissions.map(p => p.key);
-            token.businessType = dbUser.business.type;
-            token.institutionType = dbUser.business.institutionType;
-            token.businessName = dbUser.business.name;
-            token.businessId = dbUser.businessId;
-            token.trialEndDate = dbUser.business.trialEndDate;
-            token.picture = dbUser.imageUrl;
-            console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);
-          } else {
-            console.error(`SERVER AUTH: DB User not found for sub: ${token.sub}, email: ${token.email}`);
+          const orConditions = [
+            ...(token.sub ? [{ id: token.sub as string }] : []),
+            ...(token.email ? [{ email: token.email as string }] : [])
+          ];
+
+          if (orConditions.length > 0) {
+            const dbUser = await prisma.user.findFirst({
+              where: { OR: orConditions },
+              include: { role: { include: { permissions: true } }, business: true }
+            });
+            
+            if (dbUser) {
+              token.sub = dbUser.id; // Ensure sub is synced
+              token.role = dbUser.role.name;
+              token.permissions = dbUser.role.permissions.map(p => p.key);
+              token.businessType = dbUser.business.type;
+              token.institutionType = dbUser.business.institutionType;
+              token.businessName = dbUser.business.name;
+              token.businessId = dbUser.businessId;
+              token.trialEndDate = dbUser.business.trialEndDate;
+              token.picture = dbUser.imageUrl;
+              console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);
+            } else {
+              console.error(`SERVER AUTH: DB User not found for sub: ${token.sub}, email: ${token.email}`);
+            }
           }
         } catch (error) {
           console.error("SERVER AUTH: JWT Permission Refresh Error:", error);

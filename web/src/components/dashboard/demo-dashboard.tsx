@@ -20,7 +20,7 @@ import {
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 
-const TABS = ["Dashboard", "Getting Started", "Recent Updates"];
+const TABS = ["Dashboard", "Getting Started"];
 
 const MOCK_SALES_DATA = [
   { name: "01 Oct", value: 120 },
@@ -479,34 +479,7 @@ export function DemoDashboard() {
               </motion.div>
             )}
 
-            {activeTab === "Recent Updates" && (
-              <motion.div 
-                key="updates"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="max-w-4xl space-y-8"
-              >
-                {[
-                  { date: "28 April 2026", title: "Add as Credit Option for Bill Payment Deletion", desc: "We have enhanced bill payment deletion. You can now retain the amount as a Vendor Credit by selecting the Dissociate and Add as Credit option." },
-                  { date: "27 April 2026", title: "Set a Default Inventory Valuation Method for Items", desc: "You can now set a default inventory valuation method for items. The configured default is applied automatically during item creation." },
-                  { date: "21 April 2026", title: "Enhancement in Report Filters", desc: "You can now use Advanced Filters in Reports to include child options for reporting tags, making data filtering easier." },
-                ].map((update, i) => (
-                  <div key={i} className="flex gap-8 group">
-                    <div className="flex flex-col items-center">
-                       <div className="h-4 w-4 rounded-full bg-indigo-600 shadow-[0_0_10px_rgba(79,70,229,0.5)]" />
-                       <div className="flex-1 w-px bg-slate-200 mt-2" />
-                    </div>
-                    <div className="pb-12">
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{update.date}</span>
-                       <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight mt-2 mb-4 group-hover:text-indigo-600 transition-colors">{update.title}</h3>
-                       <p className="text-slate-500 font-medium leading-relaxed max-w-2xl">{update.desc}</p>
-                       <Button variant="outline" className="mt-6 rounded-xl border-slate-200 text-[10px] font-black uppercase tracking-widest px-6">Read More</Button>
-                    </div>
-                  </div>
-                ))}
-              </motion.div>
-            )}
+
           </AnimatePresence>
 
           {/* Footer Promo */}

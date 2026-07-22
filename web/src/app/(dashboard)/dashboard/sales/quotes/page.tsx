@@ -113,8 +113,8 @@ export default function QuotesPage() {
   return (
     <div className="space-y-6">
       <ModuleHeader
-        title="Quotes & Estimates"
-        description="Create, track, and convert price estimates into confirmed sales."
+        title="Quotes & Proposals"
+        description="Manage customer quotes, proposals, and pricing estimates."
         icon={FileText}
       />
 
@@ -181,7 +181,8 @@ export default function QuotesPage() {
 
       {/* Table */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
-        <Table>
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-[800px]">
           <TableHeader className="bg-slate-50 dark:bg-slate-800/60">
             <TableRow className="border-slate-200 dark:border-slate-700">
               <TableHead className="font-bold text-xs uppercase tracking-wider text-slate-500 pl-5">Quote Ref</TableHead>
@@ -332,7 +333,8 @@ export default function QuotesPage() {
               })
             )}
           </TableBody>
-        </Table>
+          </Table>
+        </div>
 
         {/* Footer */}
         {filtered.length > 0 && (

@@ -100,10 +100,10 @@ export default function AttendancePage() {
   async function handleClockOut(id: string) {
     try {
       await clockOut(id);
-      toast.success("Personnel node cycle terminated.");
+      toast.success("Clock-out successful.");
       fetchData();
     } catch (error) {
-      toast.error("Failed to terminate cycle.");
+      toast.error("Failed to clock out.");
     }
   }
 
@@ -122,10 +122,10 @@ export default function AttendancePage() {
               <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
                  <Clock className="h-4 w-4" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Shift Intelligence</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Attendance</span>
            </div>
-           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Attendance Monitoring</h1>
-           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Audit staff connectivity cycles and verify operational occupancy.</p>
+           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Staff Attendance</h1>
+           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Track employee work hours and daily attendance.</p>
         </div>
 
         <div className="flex items-center gap-3 p-2 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-inner">
@@ -138,7 +138,7 @@ export default function AttendancePage() {
               ))}
            </div>
            <div className="pr-4 py-1">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Live Nodes</div>
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none">Active Staff</div>
               <div className="text-xs font-black text-slate-900 dark:text-white mt-1">{activeLogs.toString().padStart(2, '0')} Online</div>
            </div>
         </div>
@@ -148,10 +148,10 @@ export default function AttendancePage() {
          <Card className="lg:col-span-1 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between">
             <div className="space-y-6">
                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Target Personnel</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Employee</Label>
                   <Select value={clockInData.userId} onValueChange={(v: string | null) => setClockInData({...clockInData, userId: v ?? ""})}>
                      <SelectTrigger className="h-12 rounded-xl bg-slate-50 border-slate-200">
-                        <SelectValue placeholder={users.length > 0 ? "Select staff member..." : "No personnel nodes detected"} />
+                        <SelectValue placeholder={users.length > 0 ? "Select employee..." : "No employees found"} />
                      </SelectTrigger>
                      <SelectContent className="rounded-xl border-slate-200 bg-white">
                         {users.map((u: any) => (
@@ -162,15 +162,15 @@ export default function AttendancePage() {
                   {users.length === 0 && !loading && (
                     <div className="mt-2 p-3 rounded-lg bg-rose-50 border border-rose-100 flex items-start gap-2">
                        <AlertCircle className="h-3 w-3 text-rose-500 shrink-0 mt-0.5" />
-                       <p className="text-[9px] text-rose-600 font-bold uppercase leading-tight">No personnel nodes found. Register staff in the "Staff Network" hub to initialize attendance logs.</p>
+                       <p className="text-[9px] text-rose-600 font-bold uppercase leading-tight">No employees found. Please add employees in the Staff Directory first.</p>
                     </div>
                   )}
                </div>
 
                <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Session Note</Label>
+                  <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Shift Note</Label>
                   <Input 
-                    placeholder="e.g. Morning Shift Alpha..." 
+                    placeholder="e.g. Morning Shift, Overtime..." 
                     className="h-12 rounded-xl"
                     value={clockInData.note}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setClockInData({...clockInData, note: e.target.value})}
@@ -179,7 +179,7 @@ export default function AttendancePage() {
             </div>
 
             <Button onClick={handleClockIn} className={cn("w-full h-16 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl mt-8", colors.primary)}>
-               <LogIn className="h-4 w-4 mr-2" /> Initialize Clock-In
+               <LogIn className="h-4 w-4 mr-2" /> Clock In
             </Button>
          </Card>
 
@@ -188,24 +188,24 @@ export default function AttendancePage() {
                <div className="relative flex-1 max-w-md group">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                   <Input 
-                    placeholder="Search personnel logs..." 
+                    placeholder="Search attendance records..." 
                     className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50"
                     value={searchQuery}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                   />
                </div>
                <Button variant="outline" className="h-12 rounded-2xl border-slate-200 px-6 font-bold text-[10px] uppercase tracking-widest text-slate-500">
-                  Daily Stream <Calendar className="ml-2 h-3 w-3" />
+                  Filter by Date <Calendar className="ml-2 h-3 w-3" />
                </Button>
             </CardHeader>
-            <CardContent className="p-0">
-               <Table>
+            <CardContent className="p-0 overflow-x-auto w-full">
+               <Table className="min-w-[800px]">
                  <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
                     <TableRow className="hover:bg-transparent border-none">
-                       <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Staff Node</TableHead>
+                       <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Employee</TableHead>
                        <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Clock In</TableHead>
                        <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Clock Out</TableHead>
-                       <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Cycle Duration</TableHead>
+                       <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Duration</TableHead>
                        <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Status</TableHead>
                     </TableRow>
                  </TableHeader>
@@ -216,7 +216,7 @@ export default function AttendancePage() {
                        <TableRow>
                           <TableCell colSpan={5} className="h-64 text-center">
                              <History className="h-8 w-8 text-slate-200 mx-auto mb-4" />
-                             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic">No shift entries registered</p>
+                             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic">No attendance records found</p>
                           </TableCell>
                        </TableRow>
                     ) : (
@@ -224,7 +224,7 @@ export default function AttendancePage() {
                          <TableRow key={log.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800/50 h-20">
                             <TableCell className="px-8">
                                <div className="font-black text-slate-900 dark:text-white tracking-tight leading-none">{log.userName}</div>
-                               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{log.note || "General Duty"}</div>
+                               <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{log.note || "Regular Shift"}</div>
                             </TableCell>
                             <TableCell>
                                <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase">
@@ -239,12 +239,12 @@ export default function AttendancePage() {
                                     {format(new Date(log.clockOut), "HH:mm")}
                                  </div>
                                ) : (
-                                 <Button variant="ghost" size="sm" onClick={() => handleClockOut(log.id)} className="h-8 px-3 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-black text-[8px] uppercase tracking-widest">Terminate Cycle</Button>
+                                 <Button variant="ghost" size="sm" onClick={() => handleClockOut(log.id)} className="h-8 px-3 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-100 font-black text-[8px] uppercase tracking-widest">Clock Out</Button>
                                )}
                             </TableCell>
                             <TableCell>
                                <div className="text-xs font-black text-slate-900 dark:text-white tracking-tighter">
-                                  {log.clockOut ? `${differenceInHours(new Date(log.clockOut), new Date(log.clockIn))}h node` : "Session Active"}
+                                  {log.clockOut ? `${differenceInHours(new Date(log.clockOut), new Date(log.clockIn))}h` : "Currently Working"}
                                </div>
                             </TableCell>
                             <TableCell className="text-right pr-8">

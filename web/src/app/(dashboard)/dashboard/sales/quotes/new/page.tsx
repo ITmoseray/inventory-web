@@ -164,7 +164,7 @@ export default function NewQuotePage() {
           <div className="flex items-center gap-2 text-xs text-slate-400 mb-1">
             <span>Sales</span>
             <span>/</span>
-            <span>Quotes & Estimates</span>
+            <span>Quotes & Proposals</span>
             <span>/</span>
             <span className="text-indigo-500 font-semibold">New Quote</span>
           </div>

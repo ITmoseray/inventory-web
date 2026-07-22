@@ -24,6 +24,7 @@ export async function getDashboardStats() {
       allTimeOrdersCount,
       skuCount,
       lowStockCount,
+      overStockCount,
       expiringCount,
       todayOrdersCount,
       yesterdayOrdersCount,
@@ -69,6 +70,11 @@ export async function getDashboardStats() {
       prisma.$queryRawUnsafe<{ count: number }[]>(`
         SELECT COUNT(*)::int as count FROM "Product" 
         WHERE "businessId" = $1 AND "stockQuantity" <= "minStockLevel" AND "type" != 'SERVICE'
+      `, businessId),
+      // Over Stock Count
+      prisma.$queryRawUnsafe<{ count: number }[]>(`
+        SELECT COUNT(*)::int as count FROM "Product" 
+        WHERE "businessId" = $1 AND "stockQuantity" >= "minStockLevel" * 3 AND "type" != 'SERVICE'
       `, businessId),
       // Expiring Items (within 30 days)
       prisma.batch.count({
@@ -230,6 +236,7 @@ export async function getDashboardStats() {
       ordersChange,
       skuCount: skuCount,
       lowStock: lowStockCount[0]?.count || 0,
+      overStock: overStockCount[0]?.count || 0,
       expiringItems: expiringCount,
       activeTransactions: todayOrdersCount, // Using today's active orders
       staffCount: staffCount,

@@ -85,7 +85,27 @@ export async function deleteRole(id: string) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
 
-  return await prisma.role.delete({
+  // Prevent deleting critical system roles
+  const role = await prisma.role.findUnique({
+    where: { id },
+    include: { _count: { select: { users: true } } }
+  });
+
+  if (!role) {
+    throw new Error("Role not found.");
+  }
+
+  if (role.name === "ADMIN" || role.name === "SUPERADMIN") {
+    throw new Error("Cannot delete core system roles.");
+  }
+
+  if (role._count.users > 0) {
+    throw new Error(`Cannot delete role because it is currently assigned to ${role._count.users} staff member(s). Reassign them first.`);
+  }
+
+  await prisma.role.delete({
     where: { id }
   });
+
+  return { success: true };
 }

@@ -11,7 +11,7 @@ const features = [
   { name: 'Dynamic Reports', basic: 'Basic Sales', standard: 'Sales & Inventory', premium: 'Real-time BI Sync' },
   { name: 'Invoicing', basic: '50 / month', standard: true, premium: true },
   { name: 'Expense Tracking', basic: 'Basic', standard: true, premium: true },
-  { name: 'Quotes & Estimates', basic: false, standard: true, premium: true },
+  { name: 'Quotes & Proposals', basic: false, standard: true, premium: true },
   { name: 'Point of Sale (POS)', basic: true, standard: true, premium: 'Custom Interface' },
   { name: 'Transaction Tagging', basic: false, standard: true, premium: true },
   { name: 'File Attachments', basic: false, standard: true, premium: true },

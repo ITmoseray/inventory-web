@@ -38,7 +38,7 @@ import { TrendChart } from "@/components/dashboard/trend-chart";
 import { SmartForecastingWidget } from "@/components/dashboard/smart-forecasting-widget";
 import { ExpiryWidget } from "@/components/dashboard/expiry-widget";
 
-const TABS = ["Dashboard", "Getting Started", "Recent Updates"];
+const TABS = ["Dashboard", "Getting Started"];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -347,7 +347,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 {/* KPI Cards */}
-                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               <StatCard 
                 title="Total Revenue" 
                 value={stats.revenue} 
@@ -389,6 +389,16 @@ export default function DashboardPage() {
                 colorClass="text-rose-600"
                 bgClass="bg-rose-50 dark:bg-rose-950/30"
                 delay={0.4}
+                href="/dashboard/inventory/products"
+              />
+              <StatCard 
+                title="Over Stock" 
+                value={stats.overStock || 0} 
+                description="Excess Inventory" 
+                icon={Box}
+                colorClass="text-amber-600"
+                bgClass="bg-amber-50 dark:bg-amber-950/30"
+                delay={0.45}
                 href="/dashboard/inventory/products"
               />
             </div>
@@ -806,8 +816,7 @@ export default function DashboardPage() {
                    items: [
                      { label: "Getting Started", onClick: () => setActiveTab("Getting Started") },
                      { label: "Mobile apps", onClick: () => toast.info("Download the app from the store using the badges below.") },
-                     { label: "Add-ons", onClick: () => toast.info("Add-ons module coming soon.") },
-                     { label: "What's New?", onClick: () => setActiveTab("Recent Updates") }
+                     { label: "Add-ons", onClick: () => toast.info("Add-ons module coming soon.") }
                    ] 
                  },
                  { 
@@ -844,148 +853,6 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {activeTab === "Recent Updates" && (
-          <motion.div 
-            key="updates-view"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="w-full max-w-4xl space-y-12 pb-20 overflow-hidden"
-          >
-             {[
-               { date: "28 April 2026", title: "Add as Credit Option for Bill Payment Deletion", desc: "We have enhanced bill payment deletion. You can now retain the amount as a Vendor Credit by selecting the Dissociate and Add as Credit option, allowing it to be applied to future bills." },
-               { date: "27 April 2026", title: "Set a Default Inventory Valuation Method for Items", desc: "You can now set a default inventory valuation method for items. The configured default is applied automatically during item creation or import if the valuation method is not specified." },
-               { date: "21 April 2026", title: "Enhancement in Report Filters", desc: "You can now use Advanced Filters in Reports to include child options for reporting tags, making data filtering easier." },
-               { date: "17 April 2026", title: "Import Applied Excess Vendor Payments With TDS Columns", desc: "The Import Applied Excess Payments option in the Payments Made module now supports the Bill TDS Amount and TDS Account columns." },
-               { date: "15 April 2026", title: "Filter Line Items by Warehouse on Purchase Receives", desc: "You can now filter line items by warehouse on the Purchase Receive creation page, making it easy to view and receive items for a specific warehouse." },
-               { date: "13 April 2026", title: "Android App Updates: Preferred Bin & Approvals", desc: "We've rolled out a new update with enhancements to improve your mobile experience. You can now use Preferred Bin in the Picklist module and perform simple approvals." },
-               { date: "08 April 2026", title: "Introducing Accessibility Preferences", desc: "Accessibility Preferences is a dedicated panel in the profile section that lets you customize text spacing, underline links, and access keyboard shortcuts." },
-               { date: "06 April 2026", title: "Introducing Purchase Returns", desc: "You can now create Purchase Returns in Protech Inventory to manage the return of purchased items to vendors. Note: Available only for Enterprise plan." },
-               { date: "01 April 2026", title: "Scan Items in Custom Modules", desc: "You can now use the Scan Item option in custom modules to quickly add and manage items using barcode scanning." },
-               { date: "31 March 2026", title: "Recount Option in Stock Counts", desc: "Create a new stock count using rejected items from an existing completed stock count through the Recount option." },
-               { date: "24 March 2026", title: "Quick Assembly Option in Assemblies", desc: "Instantly assemble component items using the Quick Assembly option without interrupting the workflow." },
-               { date: "18 March 2026", title: "Introducing Profit Margin", desc: "The Profit Margin feature is now available across all editions with configurable user access and permissions." },
-             ].map((update, i) => (
-               <div key={i} className="flex gap-4 sm:gap-10 group">
-                  <div className="flex flex-col items-center shrink-0">
-                     <div className="h-4 w-4 sm:h-5 sm:w-5 rounded-full bg-indigo-600 shadow-[0_0_20px_rgba(79,70,229,0.5)] group-hover:scale-125 transition-transform mt-1" />
-                     <div className="flex-1 w-px bg-slate-200 dark:bg-slate-800 mt-4" />
-                  </div>
-                  <div className="pb-10 sm:pb-16 min-w-0">
-                     <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{update.date}</span>
-                     <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic mt-2 mb-4 group-hover:text-indigo-600 transition-colors leading-tight">{update.title}</h3>
-                     <p className="text-slate-500 dark:text-slate-400 font-medium text-base leading-relaxed max-w-2xl">{update.desc}</p>
-                      <Button 
-                        onClick={() => {
-                          setSelectedUpdate(update);
-                          setIsUpdateOpen(true);
-                        }}
-                        variant="outline" 
-                        className="mt-8 rounded-2xl border-slate-200 text-[10px] font-black uppercase tracking-widest px-8 h-12 hover:bg-slate-50"
-                      >
-                        Read More
-                      </Button>
-                  </div>
-               </div>
-             ))}
-
-             <div className="pt-10 flex flex-col items-center border-t border-slate-100 dark:border-slate-800 gap-10">
-                <Button className="h-16 px-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl">
-                   More Updates
-                </Button>
-                
-                <section className="w-full bg-slate-900 rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-16 text-white overflow-hidden relative group">
-                   <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2" />
-                   <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center relative z-10">
-                      <div>
-                         <h2 className="text-5xl font-black tracking-tight uppercase italic mb-8 leading-[0.9]">Manage inventory <br /><span className="text-indigo-400">on the go!</span></h2>
-                         <p className="text-slate-400 font-medium text-lg leading-relaxed mb-12 max-w-md">Experience the ease of managing your inventory with the mobile app.</p>
-                         <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
-                            <Button className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 font-black flex items-center justify-center gap-4 uppercase text-[11px] tracking-widest hover:scale-105 transition-all whitespace-normal">
-                               <Smartphone className="h-5 w-5 shrink-0" /> Google Play
-                            </Button>
-                            <Button className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 font-black flex items-center justify-center gap-4 uppercase text-[11px] tracking-widest hover:scale-105 transition-all whitespace-normal">
-                               <SmartphoneIcon className="h-5 w-5 shrink-0" /> App Store
-                            </Button>
-                         </div>
-                      </div>
-                      <div className="flex flex-col items-center justify-center mt-6 lg:mt-0 p-6 sm:p-12 bg-white/5 rounded-[2rem] sm:rounded-[3rem] border border-white/10 backdrop-blur-xl group-hover:border-indigo-500/50 transition-colors">
-                         <div className="h-40 w-40 sm:h-48 sm:w-48 bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] mb-6 sm:mb-8 shadow-2xl">
-                            <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1 sm:gap-1.5 p-2 sm:p-3">
-                               {Array.from({ length: 25 }).map((_, i) => (
-                                 <div key={i} className={cn("rounded-sm", Math.random() > 0.4 ? "bg-slate-900" : "bg-transparent")} />
-                               ))}
-                            </div>
-                         </div>
-                         <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest sm:tracking-[0.4em] text-indigo-400 italic text-center">Scan to download</p>
-                      </div>
-                   </div>
-                </section>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pt-12 w-full">
-                   {[
-                     { 
-                       title: "Other Protech Apps", 
-                       items: [
-                         { label: "Accounting", onClick: () => router.push("/dashboard/accounting/expenses") },
-                         { label: "Ecommerce", onClick: () => toast.info("Ecommerce channel integrations are offline in free trial.") },
-                         { label: "Subscription Billing", onClick: () => router.push("/dashboard/billing") },
-                         { label: "Expense Reporting", onClick: () => router.push("/dashboard/accounting/expenses") },
-                         { label: "CRM", onClick: () => router.push("/dashboard/customers") }
-                       ] 
-                     },
-                     { 
-                       title: "Help & Support", 
-                       items: [
-                         { label: "Contact Support", onClick: () => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Request") },
-                         { label: "Help Documentation", onClick: () => router.push("/dashboard/manual") },
-                         { label: "Register for webinars", onClick: () => toast.success("Successfully registered for next Saturday's Protech Webinar!") },
-                         { label: "FAQ", onClick: () => router.push("/dashboard/manual") }
-                       ] 
-                     },
-                     { 
-                       title: "Quick Links", 
-                       items: [
-                         { label: "Getting Started", onClick: () => setActiveTab("Getting Started") },
-                         { label: "Mobile apps", onClick: () => toast.info("Download the app from the store using the badges below.") },
-                         { label: "Add-ons", onClick: () => toast.info("Add-ons module coming soon.") },
-                         { label: "What's New?", onClick: () => setActiveTab("Recent Updates") }
-                       ] 
-                     },
-                     { 
-                       title: "Talk to us", 
-                       items: [
-                         { label: "USA: +1 844...", onClick: () => toast.info("USA line is active for Premium customers.") },
-                         { label: "UK: +44 800...", onClick: () => toast.info("UK line is active for Premium customers.") },
-                         { label: "AU: +61 1800...", onClick: () => toast.info("Australia line is active for Premium customers.") }
-                       ], 
-                       italic: true 
-                     },
-                   ].map((section, i) => (
-                     <div key={i} className="space-y-6">
-                        <h5 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{section.title}</h5>
-                        <ul className="space-y-4">
-                           {section.items.map((item, j) => (
-                             <li key={j}>
-                                <button 
-                                  onClick={item.onClick}
-                                  className={cn("text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors text-left cursor-pointer", section.italic && "italic")}
-                                >
-                                   {item.label}
-                                </button>
-                             </li>
-                           ))}
-                        </ul>
-                     </div>
-                   ))}
-                </div>
-
-                <footer className="pt-20 pb-12 text-center w-full px-4">
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest sm:tracking-[0.5em] italic leading-relaxed break-words">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
-                </footer>
-             </div>
-          </motion.div>
-        )}
       </AnimatePresence>
 
       {/* INVOICE DETAILS MODAL */}

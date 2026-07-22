@@ -79,7 +79,7 @@ export default function ExpensesPage() {
       setLoading(true);
       const [data, tagsData] = await Promise.all([getExpenses(), getTags()]);
       setExpenses(data);
-      setTags(tagsData);
+      setTags(tagsData?.tags || []);
     } catch (error) {
       toast.error("Failed to load expense ledger.");
     } finally {
@@ -116,10 +116,10 @@ export default function ExpensesPage() {
               <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
                  <TrendingDown className="h-4 w-4" />
               </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Expense Intelligence</span>
-           </div>
-           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Business Costs</h1>
-           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Audit operational overhead and manage business expenditure nodes.</p>
+               <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Expenses</span>
+            </div>
+           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Business Expenses</h1>
+           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">Manage and track business expenses.</p>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -132,8 +132,8 @@ export default function ExpensesPage() {
            />
            <DialogContent className="rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
               <div className="bg-slate-900 p-8 text-white">
-                 <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic">Record Expenditure</h3>
-                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Operational Cost Intelligence</p>
+                 <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic">Record Expense</h3>
+                 <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mt-1">Log New Expense</p>
               </div>
               <form onSubmit={handleSubmit} className="p-8 space-y-6">
                  <div className="space-y-2">
@@ -222,20 +222,20 @@ export default function ExpensesPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-         <Card className="border-none bg-indigo-600 p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
+         <Card className="border-none bg-indigo-600 p-6 sm:p-8 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:rotate-12 transition-transform">
                <DollarSign size={80} />
             </div>
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-200 mb-2">Total Monthly Spend</p>
-            <h2 className="text-4xl font-[1000] tracking-tighter">Le {Math.round(expenses.reduce((sum, e) => sum + e.amount, 0)).toLocaleString()}</h2>
+            <h2 className="text-4xl font-[1000] tracking-tighter truncate">Le {Math.round(expenses.reduce((sum, e) => sum + e.amount, 0)).toLocaleString()}</h2>
          </Card>
-         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
+         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2.5rem] shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Highest Category</p>
-            <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter">Utilities</h2>
+            <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter truncate">Utilities</h2>
          </Card>
-         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] shadow-sm">
+         <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-[2.5rem] shadow-sm">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-2">Burn Rate</p>
-            <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter">Low Intensity</h2>
+            <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter truncate">Low Intensity</h2>
          </Card>
       </div>
 
@@ -244,20 +244,20 @@ export default function ExpensesPage() {
            <div className="relative max-w-md group">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
               <Input 
-                placeholder="Search expense nodes..." 
+                placeholder="Search expenses..." 
                 className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50 focus:bg-white transition-all"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
            </div>
         </CardHeader>
-        <CardContent className="p-0">
-           <Table>
+        <CardContent className="p-0 overflow-x-auto w-full">
+           <Table className="min-w-[600px]">
              <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
                <TableRow className="hover:bg-transparent border-none">
-                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Description Node</TableHead>
+                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Description</TableHead>
                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Category</TableHead>
-                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Yield Out</TableHead>
+                 <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Amount</TableHead>
                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Date</TableHead>
                </TableRow>
              </TableHeader>
@@ -271,7 +271,7 @@ export default function ExpensesPage() {
                          <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto">
                             <History className="h-8 w-8 text-slate-200" />
                          </div>
-                         <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No expenditures logged</p>
+                         <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No expenses found</p>
                       </div>
                    </TableCell>
                  </TableRow>

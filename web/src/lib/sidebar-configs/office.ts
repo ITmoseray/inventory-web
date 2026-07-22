@@ -53,7 +53,7 @@ export const officeSidebarConfig = [
         permission: "menu:sales",
         items: [
           { title: "Point of Sale", url: "/dashboard/pos" },
-          { title: "Quotes & Estimates", url: "/dashboard/sales/quotes" },
+          { title: "Quotes & Proposals", url: "/dashboard/sales/quotes" },
           { title: "Invoices", url: "/dashboard/sales/invoices" },
         ],
       },

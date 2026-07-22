@@ -14,10 +14,12 @@ export function usePermissions() {
       return false;
     }
 
-    // 3. Admin & Super Admin bypass all checks
-    if (session.user.role === "SUPERADMIN" || session.user.role === "ADMIN") return true;
+    // 3. Super Admin & Admin bypass all checks
+    if (session.user.role === "SUPERADMIN" || session.user.role?.toUpperCase() === "ADMIN") {
+      return true;
+    }
 
-    // 3.5. AI Assistant & Analytics are accessible to all authenticated business users (Managers & Employees)
+    // 3.8. AI Assistant & Analytics are accessible to all authenticated business users
     if (permission === "menu:intelligence:chat" || permission === "menu:intelligence:analytics") {
       return true;
     }

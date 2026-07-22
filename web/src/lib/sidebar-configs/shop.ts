@@ -64,7 +64,7 @@ export const shopSidebarConfig = [
         items: [
           { title: "Launch POS", url: "/dashboard/pos" },
           { title: "Sales History", url: "/dashboard/sales/history" },
-          { title: "Quotes & Estimates", url: "/dashboard/sales/quotes" },
+          { title: "Quotes & Proposals", url: "/dashboard/sales/quotes" },
           { title: "Invoices", url: "/dashboard/sales/invoices" },
           { title: "Sales Orders", url: "/dashboard/sales/orders" },
           { title: "Credit Sales", url: "/dashboard/customers/debts" },
