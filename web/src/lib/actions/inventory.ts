@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getTenantPrisma } from "@/lib/prisma"; // Need to use tenant prisma for businessId filtering
+import { createNotification } from "./notification";
 import { auth } from "@/lib/auth";
 import { StockMovementType } from "@prisma/client";
 
@@ -38,7 +39,7 @@ export async function updateStockLevel(
   const session = await auth();
   if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
 
-  return await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx) => {
     // 1. Update Product Level
     const product = await tx.product.update({
       where: { id: productId },
@@ -63,6 +64,22 @@ export async function updateStockLevel(
 
     return product;
   });
+
+  // Check for overstock after transaction completes
+  if (result.maxStockLevel && Number(result.stockQuantity) > result.maxStockLevel) {
+    try {
+      await createNotification({
+        title: "Overstock Alert",
+        message: `${result.name} stock (${result.stockQuantity}) has exceeded the maximum stock level (${result.maxStockLevel}).`,
+        type: "SYSTEM",
+        link: `/dashboard/inventory/products?search=${result.sku || result.name}`
+      });
+    } catch (e) {
+      console.error("Failed to send overstock notification", e);
+    }
+  }
+
+  return result;
 }
 
 export async function getStockMovements(productId?: string, startDate?: Date, endDate?: Date) {

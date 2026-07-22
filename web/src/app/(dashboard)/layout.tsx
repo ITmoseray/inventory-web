@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/layout/AppShell";
+import { AutoLogoutProvider } from "@/components/providers/auto-logout-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { Bell, Zap, AlertCircle, Clock } from "lucide-react";
@@ -178,8 +179,9 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 relative overflow-hidden">
       <div className="relative z-10 flex min-h-screen w-full">
       <AppShell>
-          <ToastManager />
-          <OnboardingTrigger businessCreatedAt={business?.createdAt ? new Date(business.createdAt).toISOString() : undefined} />
+          <AutoLogoutProvider>
+            <ToastManager />
+            <OnboardingTrigger businessCreatedAt={business?.createdAt ? new Date(business.createdAt).toISOString() : undefined} />
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <AnnouncementBanner />
@@ -226,6 +228,7 @@ export default async function DashboardLayout({
             {children}
           </main>
           <QuickActions />
+          </AutoLogoutProvider>
         </AppShell>
       </div>
     </div>

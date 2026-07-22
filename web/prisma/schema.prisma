@@ -214,6 +214,8 @@ model Product {
   costPrice             Decimal?         @db.Decimal(10, 2)
   stockQuantity         Decimal          @default(0) @db.Decimal(10, 2)
   minStockLevel         Int              @default(10)
+  maxStockLevel         Int?
+  isFavorite            Boolean          @default(false)
   status                String           @default("active")
   metadata              Json?
   businessId            String
@@ -325,7 +327,8 @@ model Sale {
   totalAmount   Decimal              @db.Decimal(10, 2)
   discount      Decimal              @default(0) @db.Decimal(10, 2)
   tax           Decimal              @default(0) @db.Decimal(10, 2)
-  paymentMethod String               @default("CASH")
+  paymentMethod String               @default("CASH") // Keep for backward compatibility, or "SPLIT"
+  splitPayments Json?                // [{ method: "CASH", amount: 100 }, { method: "CARD", amount: 50 }]
   paymentStatus String               @default("PAID")
   status        String               @default("COMPLETED")
   businessId    String
@@ -1440,4 +1443,20 @@ model BankTransaction {
   business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
+}
+
+model CashRegisterSession {
+  id                  String    @id @default(cuid())
+  businessId          String
+  userId              String    // The cashier
+  openedAt            DateTime  @default(now())
+  closedAt            DateTime?
+  startingCash        Decimal   @db.Decimal(10, 2) // Float
+  actualEndingCash    Decimal?  @db.Decimal(10, 2)
+  expectedEndingCash  Decimal?  @db.Decimal(10, 2)
+  status              String    @default("OPEN") // "OPEN" | "CLOSED"
+  notes               String?
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }

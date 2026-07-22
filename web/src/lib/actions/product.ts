@@ -37,6 +37,8 @@ export async function getProducts() {
         costPrice: p.costPrice?.toNumber() || null,
         stockQuantity: Number(p.stockQuantity?.toString() || 0),
         minStockLevel: Number(p.minStockLevel?.toString() || 0),
+        maxStockLevel: p.maxStockLevel ? Number(p.maxStockLevel.toString()) : null,
+        isFavorite: p.isFavorite || false,
         status: status, // Server-side computed status
         metadata: p.metadata,
         businessId: p.businessId,
@@ -120,7 +122,9 @@ export async function createProduct(data: any) {
       units,
       requiresPrescription,
       genericAlternative,
-      isControlledSubstance
+      isControlledSubstance,
+      maxStockLevel,
+      isFavorite
     } = data;
 
     const product = await prisma.product.create({
@@ -142,6 +146,8 @@ export async function createProduct(data: any) {
         requiresPrescription: requiresPrescription || false,
         genericAlternative: genericAlternative || null,
         isControlledSubstance: isControlledSubstance || false,
+        maxStockLevel: maxStockLevel || null,
+        isFavorite: isFavorite || false,
         units: {
           create: units?.map((u: any) => ({
             name: u.name,
@@ -228,7 +234,9 @@ export async function updateProduct(id: string, data: any) {
       units,
       requiresPrescription,
       genericAlternative,
-      isControlledSubstance
+      isControlledSubstance,
+      maxStockLevel,
+      isFavorite
     } = data;
 
     // Use a transaction to ensure atomicity
@@ -253,6 +261,8 @@ export async function updateProduct(id: string, data: any) {
           requiresPrescription: requiresPrescription !== undefined ? requiresPrescription : false,
           genericAlternative: genericAlternative !== undefined ? genericAlternative : null,
           isControlledSubstance: isControlledSubstance !== undefined ? isControlledSubstance : false,
+          maxStockLevel: maxStockLevel !== undefined ? maxStockLevel : null,
+          isFavorite: isFavorite !== undefined ? isFavorite : false,
         },
       });
 

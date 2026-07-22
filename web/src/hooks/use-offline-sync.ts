@@ -44,32 +44,35 @@ export function useOfflineSync() {
         getCategories(),
       ]);
 
-      // Update IndexedDB
-      await db.products.clear();
-      await db.products.bulkAdd(products.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        sku: p.sku,
-        barcode: p.barcode,
-        unitPrice: parseFloat(p.unitPrice),
-        stockQuantity: parseFloat(p.stockQuantity),
-        categoryId: p.categoryId,
-        imageUrl: p.imageUrl,
-        metadata: p.metadata,
-        baseUnit: p.baseUnit || "Unit",
-        units: p.units || [],
-        requiresPrescription: p.requiresPrescription || false,
-        genericAlternative: p.genericAlternative || null,
-        isControlledSubstance: p.isControlledSubstance || false,
-      })));
+      // Update IndexedDB safely
+      try {
+        await db.products.clear();
+        await db.products.bulkAdd(products.map((p: any) => ({
+          id: p.id,
+          name: p.name,
+          sku: p.sku,
+          barcode: p.barcode,
+          unitPrice: parseFloat(p.unitPrice),
+          stockQuantity: parseFloat(p.stockQuantity),
+          categoryId: p.categoryId,
+          imageUrl: p.imageUrl,
+          metadata: p.metadata,
+          baseUnit: p.baseUnit || "Unit",
+          units: p.units || [],
+          requiresPrescription: p.requiresPrescription || false,
+          genericAlternative: p.genericAlternative || null,
+          isControlledSubstance: p.isControlledSubstance || false,
+        })));
 
-      await db.categories.clear();
-      await db.categories.bulkAdd(categories.map((c: any) => ({
-        id: c.id,
-        name: c.name,
-      })));
-
-      console.log("Initial sync complete");
+        await db.categories.clear();
+        await db.categories.bulkAdd(categories.map((c: any) => ({
+          id: c.id,
+          name: c.name,
+        })));
+        console.log("Initial offline sync complete");
+      } catch (dbErr) {
+        console.warn("IndexedDB sync skipped (using live server fallback):", dbErr);
+      }
     } catch (error) {
       console.error("Initial sync failed", error);
     } finally {

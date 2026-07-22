@@ -53,6 +53,9 @@ import { createDraft, updateDraft, getDrafts, deleteDraft } from "@/lib/actions/
 import { getCustomers, createCustomer } from "@/lib/actions/customer";
 import { getCurrentBusiness } from "@/lib/actions/business";
 import { getPendingPrescriptions } from "@/lib/actions/prescription";
+import { getCurrentSession, openSession } from "@/lib/actions/cash-register";
+import { getProducts } from "@/lib/actions/product";
+import { getCategories } from "@/lib/actions/category";
 import { 
   Select, 
   SelectContent, 
@@ -72,18 +75,33 @@ import { UnitSelectorModal } from "@/components/pos/UnitSelectorModal";
 import { ThermalReceipt } from "@/components/pos/ThermalReceipt";
 import { CameraScanner } from "@/components/shared/camera-scanner";
 import { MedicalBillsModal } from "@/components/pos/MedicalBillsModal";
+import { CloseRegisterModal } from "@/components/pos/CloseRegisterModal";
 
 // Elite Product Card
 const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) => void }) => {
-  const isLowStock = p.stockQuantity <= p.minStockLevel;
-  const stockPercentage = Math.min((p.stockQuantity / (p.minStockLevel * 5)) * 100, 100);
+  const isOutOfStock = p.stockQuantity <= 0;
+  const isLowStock = !isOutOfStock && p.stockQuantity <= p.minStockLevel;
+  const stockPercentage = isOutOfStock ? 0 : Math.min((p.stockQuantity / (p.minStockLevel * 5)) * 100, 100);
+
+  const handleClick = () => {
+    if (isOutOfStock) {
+      toast.error(`"${p.name}" is OUT OF STOCK and cannot be added.`);
+      return;
+    }
+    addItem({ ...p, quantity: 1, price: p.unitPrice });
+  };
 
   return (
     <motion.div 
       layout
-      whileTap={{ scale: 0.97 }}
-      onClick={() => addItem({ ...p, quantity: 1, price: p.unitPrice })}
-      className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-3 sm:p-4 flex flex-col items-center hover:border-primary/40 transition-all cursor-pointer shadow-lg"
+      whileTap={isOutOfStock ? {} : { scale: 0.97 }}
+      onClick={handleClick}
+      className={cn(
+        "bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-3 sm:p-4 flex flex-col items-center transition-all shadow-lg",
+        isOutOfStock 
+          ? "opacity-60 grayscale cursor-not-allowed bg-slate-50/50 dark:bg-slate-950/40" 
+          : "hover:border-primary/40 cursor-pointer"
+      )}
     >
       <div className="relative aspect-square w-full rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden mb-3 sm:mb-4 shadow-inner border border-slate-100 dark:border-slate-800">
         {p.imageUrl ? (
@@ -97,9 +115,11 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
         
         {/* Dynamic Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-2">
-           {isLowStock && (
+           {isOutOfStock ? (
+             <div className="px-2 py-1 rounded-lg bg-rose-600 text-white text-[8px] font-black uppercase tracking-widest shadow-lg">OUT OF STOCK</div>
+           ) : isLowStock ? (
              <div className="px-2 py-1 rounded-lg bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg animate-pulse">Low Stock</div>
-           )}
+           ) : null}
            {p.requiresPrescription && (
              <div className="px-2 py-1 rounded-lg bg-indigo-600 text-white text-[8px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
                <ShieldCheck size={10} /> RX REQ
@@ -112,9 +132,11 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            )}
         </div>
         
-        <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
-          <Plus size={24} />
-        </div>
+        {!isOutOfStock && (
+          <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
+            <Plus size={24} />
+          </div>
+        )}
       </div>
       
       <div className="w-full space-y-3">
@@ -129,14 +151,14 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            </div>
            <div className="flex-1 flex flex-col items-end gap-1.5">
               <div className="flex items-center gap-1.5">
-                 <span className={cn("text-[10px] font-black tracking-tighter", isLowStock ? "text-rose-500" : "text-slate-700 dark:text-slate-300")}>{p.stockQuantity}</span>
+                 <span className={cn("text-[10px] font-black tracking-tighter", isOutOfStock ? "text-rose-600 font-bold" : isLowStock ? "text-rose-500" : "text-slate-700 dark:text-slate-300")}>{p.stockQuantity}</span>
                  <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nodes</span>
               </div>
               <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
                  <motion.div 
                     initial={{ width: 0 }}
                     animate={{ width: `${stockPercentage}%` }}
-                    className={cn("h-full rounded-full transition-all duration-1000", isLowStock ? "bg-rose-500" : "bg-emerald-500")}
+                    className={cn("h-full rounded-full transition-all duration-1000", isOutOfStock ? "bg-rose-600" : isLowStock ? "bg-rose-500" : "bg-emerald-500")}
                  />
               </div>
            </div>
@@ -161,20 +183,22 @@ export default function POSPage() {
   const handleCameraScan = async (result: string) => {
     if (!result) return;
     try {
-      const matched = await db.products
-        .filter(p => p.barcode === result || p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result))
-        .first();
+      const matched = products?.find(p => p.barcode === result || p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result));
 
       if (matched) {
-        addItem({
+        if (matched.stockQuantity <= 0) {
+          toast.error(`Scanned item "${matched.name}" is OUT OF STOCK.`);
+          return;
+        }
+        handleAddItem({
           id: matched.id,
           name: matched.name,
           price: matched.unitPrice,
-          stock: matched.stockQuantity,
+          stockQuantity: matched.stockQuantity,
           ratio: 1,
           isExternal: false,
         });
-        toast.success(`Scanned: ${matched.name} added to cart!`);
+        toast.success(`Scanned: ${matched.name} added!`);
       } else {
         setSearchQuery(result);
         toast.info(`Scanned code: "${result}". Search filters applied.`);
@@ -188,10 +212,11 @@ export default function POSPage() {
 
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<string | "WALKIN">("WALKIN");
-  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "MOBILE_MONEY" | "CARD" | "CREDIT">("CASH");
+  const [paymentMethod, setPaymentMethod] = useState<"CASH" | "MOBILE_MONEY" | "CARD" | "CREDIT" | "SPLIT">("CASH");
   const [paymentStatus, setPaymentStatus] = useState<"PAID" | "UNPAID" | "PARTIAL">("PAID");
   const [amountPaid, setAmountPaid] = useState<number>(0);
   const [creditAmountPaid, setCreditAmountPaid] = useState<string>(""); // partial payment on credit
+  const [splitPayments, setSplitPayments] = useState<{ method: "CASH" | "MOBILE_MONEY" | "CARD"; amount: number }[]>([]);
   const [momoProvider, setMomoProvider] = useState<"ORANGE_MONEY" | "AFRIMONEY">("ORANGE_MONEY");
   const [momoPhone, setMomoPhone] = useState("");
   const [momoRefCode, setMomoRefCode] = useState("");
@@ -201,6 +226,17 @@ export default function POSPage() {
   const [newCustomerData, setNewCustomerData] = useState({ name: "", phone: "", email: "", address: "" });
   const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const [prescriptionId, setPrescriptionId] = useState("");
+
+  // Fallback Server State in case IndexedDB fails or is blocked
+  const [serverProducts, setServerProducts] = useState<any[]>([]);
+  const [serverCategories, setServerCategories] = useState<any[]>([]);
+
+  // Cash Register State
+  const [registerSession, setRegisterSession] = useState<any>(null);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [isCloseRegisterModalOpen, setIsCloseRegisterModalOpen] = useState(false);
+  const [startingCash, setStartingCash] = useState("");
+  const [isOpeningRegister, setIsOpeningRegister] = useState(false);
 
   // Drafts State
   const [drafts, setDrafts] = useState<any[]>([]);
@@ -313,11 +349,18 @@ export default function POSPage() {
   useEffect(() => {
     async function init() {
       try {
-        const [biz, custs, scripts] = await Promise.all([
+        const [biz, custs, scripts, currentRegister] = await Promise.all([
           getCurrentBusiness(),
           getCustomers(),
-          getPendingPrescriptions().catch(() => []) // Catch in case business is not pharmacy
+          getPendingPrescriptions().catch(() => []), // Catch in case business is not pharmacy
+          getCurrentSession().catch(() => null)
         ]);
+        
+        if (currentRegister) {
+          setRegisterSession(currentRegister);
+        } else {
+          setIsRegisterModalOpen(true);
+        }
         
         if (biz) {
           setBusinessInfo(biz);
@@ -328,6 +371,14 @@ export default function POSPage() {
         if (custs) {
           setCustomers(custs);
         }
+
+        // Fetch products & categories directly as server fallback
+        const [directProds, directCats] = await Promise.all([
+          getProducts().catch(() => []),
+          getCategories().catch(() => [])
+        ]);
+        if (directProds) setServerProducts(directProds);
+        if (directCats) setServerCategories(directCats);
       } catch (error) {
         console.error("Error fetching POS setup data:", error);
       }
@@ -354,18 +405,41 @@ export default function POSPage() {
     }
   }
 
-  const products = useLiveQuery(
-    () => {
-      let collection = db.products;
-      if (selectedCategory) {
-        return collection.where("categoryId").equals(selectedCategory).toArray();
+  const dexieProducts = useLiveQuery(
+    async () => {
+      try {
+        let collection = db.products;
+        if (selectedCategory) {
+          return await collection.where("categoryId").equals(selectedCategory).toArray();
+        }
+        return await collection.toArray();
+      } catch (err) {
+        console.warn("Dexie products query error (using fallback):", err);
+        return [];
       }
-      return collection.toArray();
     },
-    [selectedCategory]
+    [selectedCategory],
+    []
   );
 
-  const categories = useLiveQuery(() => db.categories.toArray());
+  const dexieCategories = useLiveQuery(
+    async () => {
+      try {
+        return await db.categories.toArray();
+      } catch (err) {
+        console.warn("Dexie categories query error (using fallback):", err);
+        return [];
+      }
+    },
+    [],
+    []
+  );
+
+  const products = (dexieProducts && dexieProducts.length > 0) 
+    ? dexieProducts 
+    : (selectedCategory ? serverProducts.filter(p => p.categoryId === selectedCategory) : serverProducts);
+
+  const categories = (dexieCategories && dexieCategories.length > 0) ? dexieCategories : serverCategories;
 
   const filteredProducts = useMemo(() => products?.filter(p => 
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -461,6 +535,15 @@ export default function POSPage() {
          return;
       }
 
+      if (paymentMethod === "SPLIT") {
+        const totalSplit = splitPayments.reduce((acc, curr) => acc + curr.amount, 0);
+        if (totalSplit < grandTotal) {
+           toast.error(`Split payments total (Le ${totalSplit}) is less than the grand total (Le ${grandTotal}).`);
+           setLoading(false);
+           return;
+        }
+      }
+
       const partialPaid = isCredit ? (parseFloat(creditAmountPaid) || 0) : grandTotal;
       const creditPayStatus: "PAID" | "UNPAID" | "PARTIAL" = isCredit
         ? (partialPaid <= 0 ? "UNPAID" : partialPaid >= grandTotal ? "PAID" : "PARTIAL")
@@ -488,6 +571,7 @@ export default function POSPage() {
         })),
         totalAmount: grandTotal,
         paymentMethod: isCredit ? "CREDIT" : paymentMethod,
+        splitPayments: paymentMethod === "SPLIT" ? splitPayments : undefined,
         paymentStatus: isCredit ? creditPayStatus : "PAID",
         customerId: selectedCustomer === "WALKIN" ? undefined : selectedCustomer,
         amountPaid: isCredit ? partialPaid : grandTotal,
@@ -516,6 +600,7 @@ export default function POSPage() {
           })),
           totalAmount: saleData.totalAmount,
           paymentMethod: saleData.paymentMethod,
+          splitPayments: saleData.splitPayments,
           paymentStatus: saleData.paymentStatus,
           amountPaid: saleData.amountPaid,
           customerId: saleData.customerId,
@@ -578,6 +663,7 @@ export default function POSPage() {
         setMomoPhone("");
         setMomoSmsPaste("");
         setPaymentMethod("CASH");
+        setSplitPayments([]);
 
         // Open professional receipt modal after a tiny delay
         setTimeout(() => {
@@ -654,6 +740,10 @@ export default function POSPage() {
              <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest gap-2">
                 <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />
                 African Trade Sync
+             </Button>
+             <Button variant="destructive" size="sm" onClick={() => setIsCloseRegisterModalOpen(true)} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2">
+                <Banknote className="h-4 w-4" />
+                Close Shift
              </Button>
              <Button onClick={() => router.back()} variant="ghost" className="h-12 w-12 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50">
                 <X size={20} />
@@ -897,11 +987,19 @@ export default function POSPage() {
                               </button>
                               <span className="text-[12px] font-black w-10 text-center text-slate-900 dark:text-white">{item.quantity}</span>
                               <button 
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all shadow-sm"
-                              >
-                                  <Plus size={16} />
-                              </button>
+                                   onClick={() => {
+                                      const matchedProd = products?.find(p => p.id === item.id);
+                                      const maxStock = matchedProd?.stockQuantity ?? 99999;
+                                      if (item.quantity + 1 > maxStock) {
+                                         toast.error(`Cannot exceed available stock (${maxStock} available).`);
+                                         return;
+                                      }
+                                      updateQuantity(item.id, item.quantity + 1);
+                                   }}
+                                   className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all shadow-sm"
+                               >
+                                   <Plus size={16} />
+                               </button>
                            </div>
                            <div className="flex flex-col">
                               <span className="text-[12px] font-black text-slate-900 dark:text-white tracking-tighter">Le {Math.round(item.price * item.quantity).toLocaleString()}</span>
@@ -1055,6 +1153,7 @@ export default function POSPage() {
                        { id: 'MOBILE_MONEY', label: 'MOBILE MONEY', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-200 dark:hover:border-blue-800', active: 'bg-gradient-to-br from-blue-400 to-blue-600 border-transparent text-white shadow-[0_10px_30px_rgba(59,130,246,0.4)]' },
                        { id: 'CARD', label: 'CARD', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800', active: 'bg-gradient-to-br from-indigo-400 to-indigo-600 border-transparent text-white shadow-[0_10px_30px_rgba(99,102,241,0.4)]' },
                        { id: 'CREDIT', label: 'CREDIT', icon: HandCoins, color: 'text-amber-500', bg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-800', active: 'bg-gradient-to-br from-amber-400 to-amber-600 border-transparent text-white shadow-[0_10px_30px_rgba(245,158,11,0.4)]' },
+                       { id: 'SPLIT', label: 'SPLIT', icon: LayoutGrid, color: 'text-fuchsia-500', bg: 'hover:bg-fuchsia-50 dark:hover:bg-fuchsia-950/20 hover:border-fuchsia-200 dark:hover:border-fuchsia-800', active: 'bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 border-transparent text-white shadow-[0_10px_30px_rgba(217,70,239,0.4)]' },
                      ].map((m) => (
                        <button
                          key={m.id}
@@ -1080,6 +1179,55 @@ export default function POSPage() {
                        </button>
                      ))}
                   </div>
+
+                  {/* SPLIT PAYMENT UI */}
+                  {paymentMethod === 'SPLIT' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="rounded-[2rem] border-2 border-fuchsia-150 dark:border-fuchsia-900/40 bg-fuchsia-50/50 dark:bg-fuchsia-950/10 p-6 sm:p-8 space-y-5"
+                    >
+                      <div className="flex items-center gap-3">
+                        <LayoutGrid size={18} className="text-fuchsia-500 shrink-0" />
+                        <p className="text-[11px] font-black text-fuchsia-700 dark:text-fuchsia-400 uppercase tracking-widest flex-1">Split Configuration</p>
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                          Remaining: Le {Math.max(0, grandTotal - splitPayments.reduce((acc, curr) => acc + curr.amount, 0)).toLocaleString()}
+                        </span>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {(["CASH", "CARD", "MOBILE_MONEY"] as const).map(method => {
+                          const existingIndex = splitPayments.findIndex(s => s.method === method);
+                          const amount = existingIndex >= 0 ? splitPayments[existingIndex].amount : 0;
+                          
+                          return (
+                            <div key={method} className="space-y-2">
+                              <Label className="text-[10px] font-black uppercase text-slate-500">{method.replace('_', ' ')}</Label>
+                              <Input 
+                                type="number"
+                                min="0"
+                                placeholder="0"
+                                value={amount || ""}
+                                onChange={(e) => {
+                                  const val = parseFloat(e.target.value) || 0;
+                                  const newSplits = [...splitPayments];
+                                  const idx = newSplits.findIndex(s => s.method === method);
+                                  if (idx >= 0) {
+                                    if (val === 0) newSplits.splice(idx, 1);
+                                    else newSplits[idx].amount = val;
+                                  } else if (val > 0) {
+                                    newSplits.push({ method, amount: val });
+                                  }
+                                  setSplitPayments(newSplits);
+                                }}
+                                className="h-12 bg-white dark:bg-slate-900 font-mono"
+                              />
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </motion.div>
+                  )}
 
                   {/* Mobile Money Verification Panel */}
                   {paymentMethod === 'MOBILE_MONEY' && (
@@ -1552,6 +1700,63 @@ export default function POSPage() {
         open={showScanner} 
         onOpenChange={setShowScanner} 
         onScan={handleCameraScan} 
+      />
+
+      {/* CASH REGISTER OPEN SHIFT MODAL */}
+      <Dialog open={isRegisterModalOpen} onOpenChange={(open) => {
+        // Prevent closing if no session is open
+        if (!registerSession) return;
+        setIsRegisterModalOpen(open);
+      }}>
+        <DialogContent className="sm:max-w-[400px] rounded-[2rem] border-none shadow-2xl p-6 bg-white dark:bg-slate-900 flex flex-col gap-6">
+          <div className="text-center space-y-2">
+            <div className="mx-auto h-16 w-16 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 rounded-full flex items-center justify-center mb-4">
+              <Banknote size={32} />
+            </div>
+            <h3 className="text-xl font-black uppercase tracking-widest text-slate-900 dark:text-white">Open Register</h3>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-[0.2em]">Start a new sales shift</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-black uppercase text-slate-500">Starting Cash (Float)</Label>
+              <Input 
+                type="number"
+                min="0"
+                placeholder="Amount in Till"
+                value={startingCash}
+                onChange={(e) => setStartingCash(e.target.value)}
+                className="h-14 bg-slate-50 dark:bg-slate-950 font-mono text-lg rounded-xl"
+              />
+            </div>
+          </div>
+
+          <Button 
+            disabled={!startingCash || isOpeningRegister}
+            onClick={async () => {
+              setIsOpeningRegister(true);
+              try {
+                const session = await openSession(parseFloat(startingCash));
+                setRegisterSession(session);
+                setIsRegisterModalOpen(false);
+                toast.success("Shift opened successfully.");
+              } catch (e: any) {
+                toast.error(e.message || "Failed to open register");
+              } finally {
+                setIsOpeningRegister(false);
+              }
+            }}
+            className="w-full h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-indigo-600 text-white hover:bg-indigo-700 shadow-xl"
+          >
+            {isOpeningRegister ? <RefreshCw className="h-5 w-5 animate-spin" /> : "Start Shift"}
+          </Button>
+        </DialogContent>
+      </Dialog>
+      
+      <CloseRegisterModal 
+        isOpen={isCloseRegisterModalOpen} 
+        onClose={() => setIsCloseRegisterModalOpen(false)} 
+        sessionId={registerSession?.id || null} 
       />
     </>
   );

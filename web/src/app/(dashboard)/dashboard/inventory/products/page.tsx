@@ -324,6 +324,8 @@ export default function ProductsPage() {
     costPrice: "",
     stockQuantity: "",
     minStockLevel: "10",
+    maxStockLevel: "",
+    isFavorite: false,
     categoryId: "",
     description: "",
     expiryDate: "",
@@ -458,6 +460,8 @@ export default function ProductsPage() {
         costPrice: primaryCostPrice || (formData.costPrice ? parseFloat(formData.costPrice) : 0),
         stockQuantity: formData.type === "SERVICE" ? 0 : parseInt(formData.stockQuantity),
         minStockLevel: formData.type === "SERVICE" ? 0 : parseInt(formData.minStockLevel),
+        maxStockLevel: formData.type === "SERVICE" || !formData.maxStockLevel ? null : parseInt(formData.maxStockLevel),
+        isFavorite: formData.isFavorite,
         categoryId: formData.categoryId === "none" ? null : formData.categoryId,
         requiresPrescription: isPharmacy ? formData.requiresPrescription : false,
         genericAlternative: isPharmacy ? formData.genericAlternative : null,
@@ -542,6 +546,8 @@ export default function ProductsPage() {
       costPrice: product.costPrice?.toString() || "",
       stockQuantity: product.stockQuantity.toString(),
       minStockLevel: product.minStockLevel.toString(),
+      maxStockLevel: product.maxStockLevel?.toString() || "",
+      isFavorite: product.isFavorite || false,
       categoryId: product.categoryId || "none",
       description: product.description || "",
       expiryDate: metadata.expiryDate || "",
@@ -1026,6 +1032,18 @@ export default function ProductsPage() {
                                className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-slate-900 dark:text-slate-100"
                              />
                            </div>
+                           <div className="space-y-2">
+                             <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                               Max Stock (Overstock Alert)
+                             </Label>
+                             <Input
+                               type="number"
+                               value={formData.maxStockLevel}
+                               onChange={(e) => setFormData({ ...formData, maxStockLevel: e.target.value })}
+                               placeholder="Optional (e.g. 100)"
+                               className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-slate-900 dark:text-slate-100"
+                             />
+                           </div>
                          </div>
                        </div>
                      )}
@@ -1085,8 +1103,23 @@ export default function ProductsPage() {
                          </div>
                        </div>
                      )}
-
                    </div>
+                     {/* Favorite Toggle */}
+                     <div className="pt-4 border-t border-slate-100 dark:border-slate-800">
+                       <div className="flex items-center gap-3">
+                         <input
+                           type="checkbox"
+                           id="isFavorite"
+                           checked={formData.isFavorite || false}
+                           onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, isFavorite: e.target.checked })}
+                           className="h-5 w-5 rounded border-slate-200 text-amber-500 focus:ring-amber-500 dark:border-slate-700 dark:bg-slate-900"
+                         />
+                         <Label htmlFor="isFavorite" className="text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
+                           <Star className={cn("h-4 w-4", formData.isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400")} />
+                           Mark as Favorite Product
+                         </Label>
+                       </div>
+                     </div>
                  </div>
                  <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 sm:p-8 border-t border-slate-100 dark:border-slate-800 shrink-0 bg-slate-50/50 dark:bg-slate-950/50">
                    <Button

@@ -25,6 +25,7 @@ export async function createSale(data: {
   customerId?: string;
   amountPaid?: number;
   saleNote?: string;
+  splitPayments?: any[];
 }) {
   try {
     const session = await auth();
@@ -42,6 +43,7 @@ export async function createSale(data: {
           invoiceNumber: `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
           totalAmount: data.totalAmount,
           paymentMethod: data.paymentMethod,
+          splitPayments: data.splitPayments ? JSON.parse(JSON.stringify(data.splitPayments)) : null,
           paymentStatus: data.paymentStatus || "PAID",
           status: "PENDING", // Initial status
           customerId: data.customerId,
@@ -109,6 +111,18 @@ export async function createSale(data: {
 
         // Apply conversion ratio
         const deductionQuantity = item.quantity * (item.ratio || 1);
+
+        // Check stock availability
+        const currentProd = await tx.product.findUnique({ where: { id: item.productId } });
+        if (currentProd && currentProd.type === "PRODUCT") {
+          const availableStock = Number(currentProd.stockQuantity);
+          if (availableStock <= 0) {
+            throw new Error(`Sale stopped: "${currentProd.name}" is completely out of stock.`);
+          }
+          if (deductionQuantity > availableStock) {
+            throw new Error(`Sale stopped: "${currentProd.name}" only has ${availableStock} in stock (requested ${deductionQuantity}).`);
+          }
+        }
 
         const product = await tx.product.update({
           where: { id: item.productId },

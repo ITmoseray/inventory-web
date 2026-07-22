@@ -37,6 +37,7 @@ export interface PendingSale {
   totalAmount: number;
   paymentMethod: string;
   paymentStatus: string;
+  splitPayments?: any;
   createdAt: number;
   synced: boolean;
 }
@@ -47,8 +48,8 @@ export class OfflineDB extends Dexie {
   pendingSales!: Table<PendingSale>;
 
   constructor() {
-    super('UniversalBusinessPOS');
-    this.version(3).stores({
+    super('UniversalBusinessPOS_v2');
+    this.version(1).stores({
       products: 'id, name, sku, barcode, categoryId',
       categories: 'id, name',
       pendingSales: '++id, createdAt, synced'
@@ -57,3 +58,15 @@ export class OfflineDB extends Dexie {
 }
 
 export const db = new OfflineDB();
+
+// Auto-recover corrupted or incompatible offline databases
+if (typeof window !== "undefined") {
+  db.open().catch(async (err) => {
+    console.warn("Dexie DB Open Failed (falling back to live API mode):", err);
+    try {
+      await Dexie.delete('UniversalBusinessPOS_v2');
+    } catch (e) {
+      // Ignore
+    }
+  });
+}

@@ -469,6 +469,63 @@ export default function ProtechCloudHomepage() {
            </div>
         </section>
 
+        {/* 4.5 Comprehensive Features */}
+        <section className="py-24 bg-white dark:bg-slate-950">
+           <div className="container px-6 mx-auto">
+              <div className="text-center max-w-3xl mx-auto mb-16">
+                 <div className="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-3">Enterprise Grade</div>
+                 <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">Everything You Need to Run Your Business.</h2>
+                 <p className="text-lg text-slate-600 dark:text-slate-400">A comprehensive suite of powerful features designed to help you manage and scale effortlessly.</p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                 {[
+                    {
+                      category: "Inventory Management",
+                      features: ["Reorder Levels", "Overstock Notifications", "Favorite Products", "Inventory Forecasting", "Fast-Moving Products", "Slow-Moving Products"]
+                    },
+                    {
+                      category: "Sales & POS",
+                      features: ["Customer Selection", "Discount Management", "Split Payments", "Cash Drawer Support", "Smart Sales Analysis", "Profit Recommendations"]
+                    },
+                    {
+                      category: "Analytics & Reporting",
+                      features: ["Sales by Employee", "Sales by Category", "Sales by Product", "Sales by Customer", "Business Health Dashboard", "Top Customers"]
+                    },
+                    {
+                      category: "Purchasing & Suppliers",
+                      features: ["Supplier Management", "Supplier Profiles", "Supplier Contacts", "Purchase History", "Supplier Payments", "Outstanding Supplier Payments", "Supplier Statements", "Supplier Performance Reports", "Purchase Analytics"]
+                    },
+                    {
+                      category: "System & Architecture",
+                      features: ["Cloud-Based System", "Access Anywhere", "Multi-Device Support", "Offline Mode (Sync When Online)", "Fast Synchronization", "Automatic Logout", "Daily Backups", "Data Recovery", "Business Data Isolation", "Automatic Backup"]
+                    },
+                    {
+                      category: "Notifications",
+                      features: ["New Sales Notifications", "Purchase Notifications", "Payment Reminders", "Dashboard Alerts"]
+                    },
+                    {
+                      category: "Administration",
+                      features: ["Trial Management", "License Management"]
+                    }
+                 ].map((group, i) => (
+                    <div key={i} className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-3xl p-8">
+                       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">{group.category}</h3>
+                       <ul className="space-y-3">
+                          {group.features.map((feat, j) => (
+                             <li key={j} className="flex items-start gap-3">
+                                <div className="mt-1 h-4 w-4 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                   <Check className="h-2.5 w-2.5" />
+                                </div>
+                                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{feat}</span>
+                             </li>
+                          ))}
+                       </ul>
+                    </div>
+                 ))}
+              </div>
+           </div>
+        </section>
+
         {/* 5. Industries */}
         <section id="solutions" className="py-24 bg-white dark:bg-slate-950">
            <div className="container px-6 mx-auto">
