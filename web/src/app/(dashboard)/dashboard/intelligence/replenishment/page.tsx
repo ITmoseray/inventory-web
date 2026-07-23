@@ -50,6 +50,7 @@ export default function AIReplenishmentPage() {
   }
 
   function openOrderModal(pred: any) {
+    toast.info(`Attempting to open order modal for ${pred.name}`);
     setSelectedPred(pred);
     setOrderQty(String(pred.recommendedOrderQty > 0 ? pred.recommendedOrderQty : 1));
     setUnitCost(String(pred.costPrice || ""));

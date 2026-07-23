@@ -43,7 +43,7 @@ export async function getNeuralAnalysis() {
     const businessType = session.user.businessType || "Retail";
 
     const prompt = `
-      System Context: African Trade Intelligence Node (Protech Inventory OS)
+      System Context: Enterprise Business Intelligence System (Protech Inventory OS)
       Industry: ${businessType}
       
       Operational Stats:
@@ -56,12 +56,12 @@ export async function getNeuralAnalysis() {
       Critical Stock Issues:
       ${lowStockItems.slice(0, 5).map(p => `- ${p.name}: ${p.stockQuantity} remaining (Threshold: ${p.minStockLevel})`).join("\n")}
       
-      Task: Perform a Neural Diagnostics Audit.
+      Task: Perform a Business Diagnostics Audit.
       Instructions:
       1. Analyze the current stock-to-revenue velocity.
       2. Identify high-risk zones (e.g. out of stock high-value items).
-      3. Provide 3 tactical growth simulations for the next 7 days.
-      4. Maintain a futuristic, professional, and slightly "cybernetic" tone.
+      3. Provide 3 tactical growth recommendations for the next 7 days.
+      4. Maintain a highly professional, analytical, and corporate tone.
       5. Keep the response concise (max 250 words).
       
       Format the output with clear headers and bullet points.
@@ -128,7 +128,7 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
     const businessType = session.user.businessType || "Retail";
 
     const systemContextPrompt = `
-      You are the Protech Assist Neural Chat Node, Africa's smartest Business Intelligence Chatbot.
+      You are the Protech Assist Business Intelligence AI, an advanced AI Assistant.
       You help the business owner analyze their business, inventory, sales, and operations.
       
       Here is the current live data from the business database:
@@ -149,8 +149,8 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
       
       Guidelines:
       1. Answer the user's questions using the live business data provided above.
-      2. If asked about recommendations, suggest tactical moves based on their stats (e.g. restock critical items, promote sales if revenue is low, etc.).
-      3. Maintain a helpful, professional, futuristic, and slightly "cybernetic" tone.
+      2. If asked about recommendations, suggest tactical business moves based on their stats (e.g. restock critical items, promote sales if revenue is low, etc.).
+      3. Maintain a highly professional, analytical, and corporate tone.
       4. Keep answers concise, clear, and direct. Use bullet points for structured data.
     `;
 
@@ -224,9 +224,9 @@ export async function getWelcomeUpdate() {
     const businessType = session.user.businessType || "Retail";
 
     const prompt = `
-      System Context: African Trade Intelligence Node (Protech Inventory OS)
+      System Context: Enterprise Business Intelligence System (Protech Inventory OS)
       Industry: ${businessType}
-      User Name: ${session.user.name || "Commander"}
+      User Name: ${session.user.name || "Manager"}
       
       Operational Stats:
       - Total Revenue: Le ${stats.revenue.toLocaleString()}
@@ -241,7 +241,7 @@ export async function getWelcomeUpdate() {
       Instructions:
       1. Greet them by name.
       2. Provide a quick, high-level update or insight about their business based on the stats above.
-      3. Maintain a professional, futuristic, and slightly "cybernetic" tone.
+      3. Maintain a highly professional, analytical, and corporate tone.
       4. Keep it very concise.
     `;
 
@@ -462,11 +462,11 @@ export async function getPredictiveReplenishment() {
       try {
         const prompt = `
           Perform a Stock Replenishment Diagnostic:
-          We have ${criticalItems.length} critical inventory nodes that will run out of stock in less than 7 days.
+          We have ${criticalItems.length} critical inventory items that will run out of stock in less than 7 days.
           Critical Items List:
           ${criticalItems.slice(0, 5).map(i => `- ${i.name} (SKU: ${i.sku}): Stock=${i.stockQuantity}, Sold/day=${i.dailyVelocity}, Runs out in ${i.daysRemaining} days. Suggested Replenish=${i.recommendedOrderQty}`).join("\n")}
           
-          Provide a 3-sentence executive alert summarizing the most urgent stockouts and the expected capital investment required. Maintain a highly cybernetic, mission-critical tone.
+          Provide a 3-sentence executive summary highlighting the most urgent stockouts and the expected capital investment required. Maintain a highly professional, analytical, and corporate tone.
         `;
 
         const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
