@@ -218,35 +218,33 @@ export default function RegisterPage() {
 
   if (registrationOpen === null) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-6">
-         <div className="relative h-16 w-16 border-4 border-slate-900 border-t-indigo-500 rounded-full animate-spin" />
-         <p className="text-[10px] font-black text-indigo-500 uppercase tracking-[0.3em] animate-pulse">Syncing core registry state...</p>
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-6">
+         <div className="relative h-16 w-16 border-4 border-slate-200 dark:border-slate-900 border-t-indigo-600 rounded-full animate-spin" />
+         <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em] animate-pulse">Syncing core registry state...</p>
       </div>
     );
   }
 
   if (registrationOpen === false) {
     return (
-      <div className="flex min-h-screen bg-slate-950 items-center justify-center font-sans p-6 py-12 text-slate-200 relative overflow-y-auto">
-         <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
-         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 items-center justify-center font-sans p-6 py-12 text-slate-900 dark:text-slate-200 relative overflow-y-auto">
+         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-30 dark:opacity-20 pointer-events-none" />
          
-         <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
-            <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
+         <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
+            <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
                <Zap className="h-10 w-10 animate-pulse" />
             </div>
             
             <div className="space-y-3">
-               <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Registration <span className="text-amber-500">Closed</span></h2>
+               <h2 className="text-3xl font-[1000] text-slate-900 dark:text-white uppercase italic tracking-tighter">Registration <span className="text-amber-500">Closed</span></h2>
                <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Invite-Only Mode Active</p>
             </div>
             
-            <p className="text-slate-400 font-normal text-sm leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-400 font-normal text-sm leading-relaxed">
                New store registrations are currently closed. Please contact the system administrator to get access.
             </p>
             
-            <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
+            <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex flex-col gap-4">
                <a 
                  href="mailto:protechassist36@gmail.com?subject=Enterprise%20Inventory%20OS%20Access%20Request"
                  className="h-12 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center font-bold"
@@ -255,7 +253,7 @@ export default function RegisterPage() {
                </a>
                <Link 
                  href="/login" 
-                 className="h-12 w-full border border-slate-800 hover:bg-white/5 text-slate-300 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center justify-center font-bold"
+                 className="h-12 w-full border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-700 dark:text-slate-300 font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center justify-center font-bold"
                >
                  Back to Sign In
                </Link>
@@ -306,17 +304,17 @@ export default function RegisterPage() {
   const SelectedIcon = selectedTypeObj.icon;
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="flex min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-600 selection:text-white transition-colors duration-300">
       
-      {/* Left Column: Social Proof & Live Metrics */}
-      <div className="hidden lg:flex w-[42%] bg-slate-900/60 backdrop-blur-2xl border-r border-slate-800/60 relative flex-col justify-between p-12 xl:p-16 overflow-y-auto h-screen sticky top-0">
+      {/* Left Column: Social Proof & Live Metrics (Dark Hero Sidebar) */}
+      <div className="hidden lg:flex w-[42%] bg-slate-900 dark:bg-slate-900/80 text-white border-r border-slate-800 relative flex-col justify-between p-12 xl:p-16 overflow-y-auto h-screen sticky top-0">
         {/* Glowing background spotlights */}
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/15 rounded-full blur-[140px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[140px] -translate-y-1/3 translate-x-1/3 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-indigo-500/10 rounded-full blur-[120px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
 
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-4 mb-12 group">
-             <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-600/30 group-hover:scale-105 transition-transform duration-300">
+             <div className="h-14 w-14 bg-indigo-600 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-600/40 group-hover:scale-105 transition-transform duration-300">
                 <Package className="h-7 w-7 text-white" />
              </div>
              <div className="flex flex-col">
@@ -341,8 +339,8 @@ export default function RegisterPage() {
                 </h2>
               </div>
               
-              <div className="flex items-center gap-5 p-6 rounded-2xl bg-slate-800/40 border border-slate-700/50 backdrop-blur-md">
-                 <div className="h-10 w-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 font-black">
+              <div className="flex items-center gap-5 p-6 rounded-2xl bg-slate-800/60 border border-slate-700/60 backdrop-blur-md">
+                 <div className="h-10 w-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300 font-black">
                    {SOCIAL_PROOF[currentProofIndex].author.charAt(0)}
                  </div>
                  <div>
@@ -358,10 +356,10 @@ export default function RegisterPage() {
 
         {/* Live Workspace Interactive Card Preview */}
         <div className="relative z-10 space-y-8 my-8">
-           <div className="p-6 rounded-3xl bg-slate-900/80 border border-slate-800 shadow-2xl relative overflow-hidden space-y-4">
+           <div className="p-6 rounded-3xl bg-slate-950/90 border border-slate-800 shadow-2xl relative overflow-hidden space-y-4">
               <div className="flex items-center justify-between">
                  <div className="flex items-center gap-3">
-                    <div className="h-8 w-8 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                    <div className="h-8 w-8 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-300">
                        <SelectedIcon className="h-4 w-4" />
                     </div>
                     <div>
@@ -374,16 +372,16 @@ export default function RegisterPage() {
                     Live Config
                  </span>
               </div>
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/60">
-                 <div className="p-2.5 rounded-xl bg-slate-800/40 border border-slate-800">
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
+                 <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                     <p className="text-[8px] font-black text-slate-400 uppercase">Selected Plan</p>
                     <p className="text-[10px] font-black text-indigo-400 uppercase mt-0.5">{formData.plan === 'FREE' ? '7-Day Trial' : 'Enterprise'}</p>
                  </div>
-                 <div className="p-2.5 rounded-xl bg-slate-800/40 border border-slate-800">
+                 <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                     <p className="text-[8px] font-black text-slate-400 uppercase">Region</p>
                     <p className="text-[10px] font-black text-white uppercase mt-0.5">{formData.timezone.split('/')[1] || 'Freetown'}</p>
                  </div>
-                 <div className="p-2.5 rounded-xl bg-slate-800/40 border border-slate-800">
+                 <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                     <p className="text-[8px] font-black text-slate-400 uppercase">Modules</p>
                     <p className="text-[10px] font-black text-emerald-400 uppercase mt-0.5">POS + AI</p>
                  </div>
@@ -391,10 +389,10 @@ export default function RegisterPage() {
            </div>
 
            {/* Metrics List */}
-           <div className="grid grid-cols-1 gap-4">
+           <div className="grid grid-cols-1 gap-3.5">
               {IMPACT_STATS.map((stat, i) => (
-                <div key={i} className="flex items-center gap-5 p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
-                   <div className="h-10 w-10 rounded-xl bg-indigo-600/20 text-indigo-400 border border-indigo-500/20 flex items-center justify-center font-black text-sm">
+                <div key={i} className="flex items-center gap-5 p-4 rounded-2xl bg-slate-800/40 border border-slate-800">
+                   <div className="h-10 w-10 rounded-xl bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 flex items-center justify-center font-black text-sm">
                       0{i + 1}
                    </div>
                    <div>
@@ -407,7 +405,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Footer Security Badges */}
-        <div className="relative z-10 pt-6 border-t border-slate-800/60 flex items-center justify-between text-slate-400">
+        <div className="relative z-10 pt-6 border-t border-slate-800/80 flex items-center justify-between text-slate-400">
            <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-indigo-400" />
               <span className="text-[9px] font-black uppercase tracking-wider">256-Bit Encrypted</span>
@@ -423,19 +421,19 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Right Column: Interactive Multi-Step Registration */}
-      <div className="flex-1 flex flex-col items-center justify-between p-6 sm:p-12 lg:p-16 min-h-screen relative overflow-y-auto">
+      {/* Right Column: Interactive Multi-Step Registration (Light & Dark Friendly) */}
+      <div className="flex-1 flex flex-col items-center justify-between p-6 sm:p-12 lg:p-16 min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative overflow-y-auto">
         
         {/* Top Header Navigation */}
         <div className="w-full max-w-xl flex items-center justify-between mb-8">
            <Link href="/">
-             <Button variant="ghost" className="gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white transition-colors">
+             <Button variant="ghost" className="gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
                <ArrowLeft className="h-4 w-4" />
                Home
              </Button>
            </Link>
-           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-             Already registered? <Link href="/login" className="text-indigo-400 hover:underline font-black">Sign In</Link>
+           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
+             Already registered? <Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline font-black">Sign In</Link>
            </p>
         </div>
 
@@ -443,17 +441,17 @@ export default function RegisterPage() {
           
           {/* Main Title Banner */}
           <div className="space-y-4">
-             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest">
+             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest">
                 <Sparkles className="h-3.5 w-3.5" />
                 Multi-Tenant Enterprise Node Registration
              </div>
-             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-white uppercase italic leading-[0.9]">
+             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic leading-[0.9]">
                 CREATE YOUR <br />
-                <span className="text-indigo-500">
+                <span className="text-indigo-600 dark:text-indigo-500">
                   {formData.businessType === 'SCHOOL' ? 'SCHOOL PORTAL.' : 'BUSINESS ACCOUNT.'}
                 </span>
              </h1>
-             <p className="text-sm font-bold text-slate-400">
+             <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
                Configure your organization workspace in seconds.
              </p>
           </div>
@@ -474,23 +472,23 @@ export default function RegisterPage() {
                    }}
                    className={cn(
                      "p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between",
-                     isActive ? "bg-indigo-600/10 border-indigo-500/60 shadow-lg shadow-indigo-500/10" :
-                     isCompleted ? "bg-slate-900/60 border-slate-700/60 text-slate-300" :
-                     "bg-slate-900/30 border-slate-800 text-slate-500 opacity-60"
+                     isActive ? "bg-white dark:bg-indigo-600/10 border-indigo-600 dark:border-indigo-500/60 shadow-lg shadow-indigo-600/10" :
+                     isCompleted ? "bg-slate-100 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300" :
+                     "bg-slate-100/60 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500"
                    )}
                  >
                    <div className="flex items-center justify-between">
                       <span className={cn(
                         "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
-                        isActive ? "bg-indigo-600 text-white" : isCompleted ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-400"
+                        isActive ? "bg-indigo-600 text-white" : isCompleted ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                       )}>
                         Step 0{step.id}
                       </span>
-                      {isCompleted && <CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+                      {isCompleted && <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
                    </div>
                    <div className="mt-3">
-                      <p className={cn("text-xs font-black uppercase tracking-wider", isActive ? "text-white" : "text-slate-300")}>{step.title}</p>
-                      <p className="text-[9px] font-bold text-slate-400">{step.desc}</p>
+                      <p className={cn("text-xs font-black uppercase tracking-wider", isActive ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300")}>{step.title}</p>
+                      <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{step.desc}</p>
                    </div>
                  </button>
                );
@@ -510,9 +508,9 @@ export default function RegisterPage() {
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                     <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl space-y-6">
+                     <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-none backdrop-blur-xl space-y-6">
                         <div className="space-y-2">
-                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                          <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
                             {formData.businessType === 'SCHOOL' ? 'School Crest / Logo' : 'Company Logo'}
                           </Label>
                           <ImageUploader 
@@ -524,8 +522,8 @@ export default function RegisterPage() {
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="businessName" className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                            {formData.businessType === 'SCHOOL' ? 'School / Institution Name' : 'Company Name *'}
+                          <Label htmlFor="businessName" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                            {formData.businessType === 'SCHOOL' ? 'School / Institution Name *' : 'Company Name *'}
                           </Label>
                           <div className="relative">
                              <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -535,14 +533,14 @@ export default function RegisterPage() {
                                value={formData.businessName} 
                                onChange={(e) => setFormData({...formData, businessName: e.target.value})} 
                                required 
-                               className="h-14 bg-slate-950/80 rounded-2xl border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold placeholder:text-slate-500" 
+                               className="h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500" 
                              />
                           </div>
                         </div>
 
                         {/* Industry / Business Type Grid Selector */}
                         <div className="space-y-3">
-                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Industry Type</Label>
+                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Select Industry Type</Label>
                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                               {BUSINESS_TYPES.map((bt) => {
                                 const Icon = bt.icon;
@@ -555,14 +553,14 @@ export default function RegisterPage() {
                                     className={cn(
                                       "p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group relative",
                                       isSelected 
-                                        ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30 scale-[1.02]" 
-                                        : "bg-slate-950/40 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60"
+                                        ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/30 scale-[1.02]" 
+                                        : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900/60"
                                     )}
                                   >
-                                     <Icon className={cn("h-5 w-5 mb-2", isSelected ? "text-white" : "text-indigo-400")} />
+                                     <Icon className={cn("h-5 w-5 mb-2", isSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400")} />
                                      <div>
                                         <p className="text-[11px] font-black uppercase tracking-wider leading-tight">{bt.label}</p>
-                                        <p className={cn("text-[9px] mt-0.5 line-clamp-1 font-medium", isSelected ? "text-indigo-100" : "text-slate-400")}>{bt.desc}</p>
+                                        <p className={cn("text-[9px] mt-0.5 line-clamp-1 font-medium", isSelected ? "text-indigo-100" : "text-slate-500 dark:text-slate-400")}>{bt.desc}</p>
                                      </div>
                                   </button>
                                 );
@@ -572,16 +570,16 @@ export default function RegisterPage() {
 
                         {/* School Sub-Level */}
                         {formData.businessType === 'SCHOOL' && (
-                          <div className="space-y-2 pt-2 border-t border-slate-800">
-                             <Label htmlFor="institutionType" className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Select School Level *</Label>
+                          <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+                             <Label htmlFor="institutionType" className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Select School Level *</Label>
                              <div className="relative">
-                                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-400" />
+                                <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
                                 <select 
                                   id="institutionType" 
                                   value={formData.institutionType} 
                                   onChange={(e) => setFormData({...formData, institutionType: e.target.value})} 
                                   required
-                                  className="h-14 w-full bg-slate-950/80 rounded-2xl border border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold appearance-none cursor-pointer" 
+                                  className="h-14 w-full bg-slate-50 dark:bg-slate-950/80 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold appearance-none cursor-pointer" 
                                 >
                                   <option value="">Select Level</option>
                                   <option value="PRIMARY_SECONDARY">Primary / Secondary School</option>
@@ -598,7 +596,7 @@ export default function RegisterPage() {
                      <Button 
                        type="button" 
                        onClick={nextStep}
-                       className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
+                       className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
                      >
                        Continue to Credentials
                        <ArrowRight className="h-4 w-4" />
@@ -615,9 +613,9 @@ export default function RegisterPage() {
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                     <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl space-y-6">
+                     <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-none backdrop-blur-xl space-y-6">
                         <div className="space-y-2">
-                          <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Work Email Address *</Label>
+                          <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Work Email Address *</Label>
                           <div className="relative">
                              <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                              <Input 
@@ -628,21 +626,21 @@ export default function RegisterPage() {
                                onChange={(e) => setFormData({...formData, email: e.target.value})} 
                                required 
                                className={cn(
-                                 "h-14 bg-slate-950/80 rounded-2xl border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold placeholder:text-slate-500",
+                                 "h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500",
                                  emailError && "border-rose-500 focus:ring-rose-500/20"
                                )} 
                              />
                           </div>
                           {emailError && (
-                            <div className="flex items-start gap-2 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                               <AlertCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
-                               <p className="text-[10px] font-bold text-rose-300 leading-snug">{emailError}</p>
+                            <div className="flex items-start gap-2 p-3 rounded-xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20">
+                               <AlertCircle className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                               <p className="text-[10px] font-bold text-rose-700 dark:text-rose-300 leading-snug">{emailError}</p>
                             </div>
                           )}
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Phone Number *</Label>
+                          <Label htmlFor="phone" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Phone Number *</Label>
                           <div className="relative">
                              <Smartphone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                              <Input 
@@ -652,16 +650,16 @@ export default function RegisterPage() {
                                value={formData.phone} 
                                onChange={(e) => setFormData({...formData, phone: e.target.value})} 
                                required 
-                               className="h-14 bg-slate-950/80 rounded-2xl border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold placeholder:text-slate-500" 
+                               className="h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500" 
                              />
                           </div>
                         </div>
 
                         <div className="space-y-2">
                           <div className="flex justify-between items-center">
-                             <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Password *</Label>
+                             <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Password *</Label>
                              {passwordStrength > 0 && (
-                                <span className="text-[9px] font-black uppercase tracking-widest text-indigo-400">
+                                <span className="text-[9px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">
                                   Strength: {getStrengthText(passwordStrength)}
                                 </span>
                              )}
@@ -675,12 +673,12 @@ export default function RegisterPage() {
                                value={formData.password} 
                                onChange={(e) => setFormData({...formData, password: e.target.value})} 
                                required 
-                               className="h-14 bg-slate-950/80 rounded-2xl border-slate-800 shadow-sm pl-12 pr-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold placeholder:text-slate-500" 
+                               className="h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 pr-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500" 
                              />
                              <button
                                type="button"
                                onClick={() => setShowPassword(!showPassword)}
-                               className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                               className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
                              >
                                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                              </button>
@@ -689,7 +687,7 @@ export default function RegisterPage() {
                           {/* Password Strength Meter Bar */}
                           {formData.password && (
                             <div className="space-y-1 pt-1">
-                               <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                               <div className="h-1.5 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
                                   <div 
                                     className={cn("h-full transition-all duration-300", getStrengthColor(passwordStrength))} 
                                     style={{ width: `${passwordStrength}%` }}
@@ -705,14 +703,14 @@ export default function RegisterPage() {
                           type="button" 
                           variant="outline"
                           onClick={prevStep}
-                          className="h-14 rounded-2xl border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-900 font-black text-xs uppercase tracking-widest px-6"
+                          className="h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 font-black text-xs uppercase tracking-widest px-6"
                         >
                           Back
                         </Button>
                         <Button 
                           type="button" 
                           onClick={nextStep}
-                          className="flex-1 h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
+                          className="flex-1 h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-600/20 transition-all flex items-center justify-center gap-2"
                         >
                           Continue to Configuration
                           <ArrowRight className="h-4 w-4" />
@@ -730,9 +728,9 @@ export default function RegisterPage() {
                     exit={{ opacity: 0, x: -20 }}
                     className="space-y-6"
                   >
-                     <div className="p-6 rounded-3xl bg-slate-900/60 border border-slate-800 backdrop-blur-xl space-y-6">
+                     <div className="p-6 rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-none backdrop-blur-xl space-y-6">
                         <div className="space-y-2">
-                          <Label htmlFor="address" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Business Physical Address *</Label>
+                          <Label htmlFor="address" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Business Physical Address *</Label>
                           <div className="relative">
                              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                              <Input 
@@ -742,21 +740,21 @@ export default function RegisterPage() {
                                value={formData.address} 
                                onChange={(e) => setFormData({...formData, address: e.target.value})} 
                                required 
-                               className="h-14 bg-slate-950/80 rounded-2xl border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold placeholder:text-slate-500" 
+                               className="h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500" 
                              />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="currency" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Base Currency</Label>
+                            <Label htmlFor="currency" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Base Currency</Label>
                             <div className="relative">
                                <Coins className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                <select 
                                  id="currency" 
                                  value={formData.currency} 
                                  onChange={(e) => setFormData({...formData, currency: e.target.value})} 
-                                 className="h-14 w-full bg-slate-950/80 rounded-2xl border border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold appearance-none cursor-pointer" 
+                                 className="h-14 w-full bg-slate-50 dark:bg-slate-950/80 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold appearance-none cursor-pointer" 
                                >
                                  <option value="SLL">SLL (Leone)</option>
                                  <option value="USD">USD ($)</option>
@@ -767,14 +765,14 @@ export default function RegisterPage() {
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor="timezone" className="text-[10px] font-black uppercase tracking-widest text-slate-400">Timezone</Label>
+                            <Label htmlFor="timezone" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Timezone</Label>
                             <div className="relative">
                                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                                <select 
                                  id="timezone" 
                                  value={formData.timezone} 
                                  onChange={(e) => setFormData({...formData, timezone: e.target.value})} 
-                                 className="h-14 w-full bg-slate-950/80 rounded-2xl border border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-white font-bold appearance-none cursor-pointer" 
+                                 className="h-14 w-full bg-slate-50 dark:bg-slate-950/80 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm pl-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold appearance-none cursor-pointer" 
                                >
                                  <option value="Africa/Freetown">Africa/Freetown (GMT)</option>
                                  <option value="Africa/Lagos">Africa/Lagos (WAT)</option>
@@ -787,8 +785,8 @@ export default function RegisterPage() {
                         </div>
 
                         {/* Plan Card Selector */}
-                        <div className="space-y-3 pt-2 border-t border-slate-800">
-                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Select Access Plan</Label>
+                        <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
+                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Select Access Plan</Label>
                            <div className="grid grid-cols-2 gap-3">
                               <button
                                 type="button"
@@ -796,16 +794,16 @@ export default function RegisterPage() {
                                 className={cn(
                                   "p-4 rounded-2xl border text-left transition-all flex flex-col justify-between relative",
                                   formData.plan === "FREE"
-                                    ? "bg-indigo-600/10 border-indigo-500 text-white shadow-lg shadow-indigo-600/20"
-                                    : "bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700"
+                                    ? "bg-indigo-50 dark:bg-indigo-600/10 border-indigo-600 dark:border-indigo-500 text-slate-900 dark:text-white shadow-md shadow-indigo-600/10"
+                                    : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700"
                                 )}
                               >
                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400">7-Day Free Trial</span>
-                                    {formData.plan === "FREE" && <Check className="h-4 w-4 text-indigo-400" />}
+                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400">7-Day Free Trial</span>
+                                    {formData.plan === "FREE" && <Check className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />}
                                  </div>
-                                 <p className="text-sm font-black text-white uppercase">Starter Node</p>
-                                 <p className="text-[10px] text-slate-400 font-medium mt-1">Full access to core POS, Inventory & AI stats.</p>
+                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase">Starter Node</p>
+                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Full access to core POS, Inventory & AI stats.</p>
                               </button>
 
                               <button
@@ -814,18 +812,18 @@ export default function RegisterPage() {
                                 className={cn(
                                   "p-4 rounded-2xl border text-left transition-all flex flex-col justify-between relative",
                                   formData.plan === "ENTERPRISE"
-                                    ? "bg-indigo-600/10 border-indigo-500 text-white shadow-lg shadow-indigo-600/20"
-                                    : "bg-slate-950/40 border-slate-800 text-slate-400 hover:border-slate-700"
+                                    ? "bg-indigo-50 dark:bg-indigo-600/10 border-indigo-600 dark:border-indigo-500 text-slate-900 dark:text-white shadow-md shadow-indigo-600/10"
+                                    : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700"
                                 )}
                               >
                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 flex items-center gap-1">
+                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center gap-1">
                                       <Crown className="h-3 w-3" /> Pro Enterprise
                                     </span>
-                                    {formData.plan === "ENTERPRISE" && <Check className="h-4 w-4 text-amber-400" />}
+                                    {formData.plan === "ENTERPRISE" && <Check className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
                                  </div>
-                                 <p className="text-sm font-black text-white uppercase">Multi-Branch Node</p>
-                                 <p className="text-[10px] text-slate-400 font-medium mt-1">Unlimited branches, priority sync & custom domains.</p>
+                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase">Multi-Branch Node</p>
+                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Unlimited branches, priority sync & custom domains.</p>
                               </button>
                            </div>
                         </div>
@@ -836,10 +834,10 @@ export default function RegisterPage() {
                              id="terms" 
                              checked={agreedToTerms} 
                              onCheckedChange={(checked: any) => setAgreedToTerms(checked as boolean)}
-                             className="mt-1 rounded-md border-slate-700 data-[state=checked]:bg-indigo-600" 
+                             className="mt-1 rounded-md border-slate-300 dark:border-slate-700 data-[state=checked]:bg-indigo-600" 
                            />
-                           <Label htmlFor="terms" className="text-[11px] font-bold text-slate-400 leading-relaxed uppercase tracking-tighter">
-                             I agree to the <Link href="/terms" target="_blank" className="text-indigo-400 underline underline-offset-4">Terms of Service</Link> and <Link href="/privacy" target="_blank" className="text-indigo-400 underline underline-offset-4">Privacy Policy</Link>.
+                           <Label htmlFor="terms" className="text-[11px] font-bold text-slate-600 dark:text-slate-400 leading-relaxed uppercase tracking-tighter">
+                             I agree to the <Link href="/terms" target="_blank" className="text-indigo-600 dark:text-indigo-400 underline underline-offset-4">Terms of Service</Link> and <Link href="/privacy" target="_blank" className="text-indigo-600 dark:text-indigo-400 underline underline-offset-4">Privacy Policy</Link>.
                            </Label>
                         </div>
                      </div>
@@ -849,14 +847,14 @@ export default function RegisterPage() {
                           type="button" 
                           variant="outline"
                           onClick={prevStep}
-                          className="h-16 rounded-2xl border-slate-800 bg-slate-900/60 text-slate-300 hover:bg-slate-900 font-black text-xs uppercase tracking-widest px-6"
+                          className="h-16 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-900 font-black text-xs uppercase tracking-widest px-6"
                         >
                           Back
                         </Button>
                         <Button 
                           type="submit" 
                           disabled={loading}
-                          className="flex-1 h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-indigo-600/30 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
+                          className="flex-1 h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.2em] text-xs shadow-2xl shadow-indigo-600/30 transition-all hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center gap-2"
                         >
                           {loading ? (
                              <div className="flex items-center gap-2">
@@ -878,13 +876,13 @@ export default function RegisterPage() {
           </form>
 
           {/* Social Auth Separator */}
-          <div className="space-y-6 pt-4 border-t border-slate-800/60">
+          <div className="space-y-6 pt-4 border-t border-slate-200 dark:border-slate-800/60">
              <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                   <div className="w-full border-t border-slate-800" />
+                   <div className="w-full border-t border-slate-200 dark:border-slate-800" />
                 </div>
                 <div className="relative flex justify-center text-[10px] font-black uppercase tracking-widest">
-                   <span className="bg-slate-950 px-4 text-slate-500">or sign up with single sign-on</span>
+                   <span className="bg-slate-50 dark:bg-slate-950 px-4 text-slate-400 dark:text-slate-500">or sign up with single sign-on</span>
                 </div>
              </div>
 
@@ -904,14 +902,14 @@ export default function RegisterPage() {
                     signIn("google", { callbackUrl: "/dashboard" });
                   }}
                   variant="outline" 
-                  className="h-13 rounded-2xl border-slate-800 bg-slate-900/40 font-bold text-xs flex gap-2.5 text-white hover:bg-slate-900 transition-all"
+                  className="h-13 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 font-bold text-xs flex gap-2.5 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
                 >
                    <Image src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width={18} height={18} /> Google Workspace
                 </Button>
                 <Button 
                   type="button"
                   variant="outline" 
-                  className="h-13 rounded-2xl border-slate-800 bg-slate-900/40 font-bold text-xs flex gap-2.5 text-white hover:bg-slate-900 transition-all"
+                  className="h-13 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 font-bold text-xs flex gap-2.5 text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-900 transition-all"
                   onClick={() => toast.info("LinkedIn SSO integration coming soon.")}
                 >
                    <Lock className="h-4 w-4 text-slate-400" /> LinkedIn SSO
@@ -922,7 +920,7 @@ export default function RegisterPage() {
         </div>
 
         <div className="w-full max-w-xl pt-8 text-center">
-           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-600">
+           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-600">
              PROTECH ASSIST OS • SECURE ENTERPRISE CLOUD • SIERRA LEONE & GLOBAL
            </p>
         </div>
@@ -931,19 +929,19 @@ export default function RegisterPage() {
 
       {/* Account Already Exists Modal */}
       <Dialog open={showLinkDialog} onOpenChange={setShowLinkDialog}>
-        <DialogContent className="sm:max-w-[480px] bg-slate-950 rounded-[2.5rem] border border-slate-800 p-0 overflow-hidden shadow-2xl text-slate-100">
+        <DialogContent className="sm:max-w-[480px] bg-white dark:bg-slate-950 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 p-0 overflow-hidden shadow-2xl text-slate-900 dark:text-slate-100">
           <div className="relative p-8 sm:p-10 space-y-6">
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
             
             <DialogHeader className="space-y-4">
-               <div className="h-14 w-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400">
+               <div className="h-14 w-14 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-400">
                   <ShieldCheck className="h-7 w-7" />
                </div>
-              <DialogTitle className="text-2xl font-[1000] tracking-tight text-white uppercase italic leading-tight">
-                Account Already <span className="text-rose-500">Exists</span>
+              <DialogTitle className="text-2xl font-[1000] tracking-tight text-slate-900 dark:text-white uppercase italic leading-tight">
+                Account Already <span className="text-rose-600 dark:text-rose-500">Exists</span>
               </DialogTitle>
-              <DialogDescription className="text-slate-400 font-medium text-sm leading-relaxed">
-                An account already exists for <span className="text-indigo-400 font-black">{formData.email}</span>.
+              <DialogDescription className="text-slate-600 dark:text-slate-400 font-medium text-sm leading-relaxed">
+                An account already exists for <span className="text-indigo-600 dark:text-indigo-400 font-black">{formData.email}</span>.
                 <br /><br />
                 Would you like to log in to your existing account now?
               </DialogDescription>
@@ -952,14 +950,14 @@ export default function RegisterPage() {
             <div className="flex flex-col gap-3 pt-2">
                <Button 
                  onClick={() => router.push(`/login?email=${encodeURIComponent(formData.email)}&link=true`)}
-                 className="h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase tracking-widest text-[10px] shadow-xl transition-all"
+                 className="h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-[10px] shadow-xl transition-all"
                >
                  Continue to Login
                </Button>
                <Button 
                  variant="outline"
                  onClick={() => setShowLinkDialog(false)}
-                 className="h-14 rounded-2xl border-slate-800 bg-slate-900 text-slate-400 font-black uppercase tracking-widest text-[10px] hover:text-white transition-all"
+                 className="h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 font-black uppercase tracking-widest text-[10px] hover:text-slate-900 dark:hover:text-white transition-all"
                >
                  Cancel
                </Button>
