@@ -104,9 +104,9 @@ export default function AIReplenishmentPage() {
             <div className="h-10 w-10 bg-indigo-500/20 rounded-xl border border-indigo-400/20 flex items-center justify-center text-indigo-400">
               <BrainCircuit className="h-5 w-5 animate-pulse" />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Neural Advisory Node</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400">Protech Business Intelligence</span>
           </div>
-          <h2 className="text-xl font-[1000] tracking-tight uppercase italic">Autonomous Replenishment Assessment</h2>
+          <h2 className="text-xl font-[1000] tracking-tight uppercase italic">Strategic Replenishment Assessment</h2>
           <p className="text-slate-300 text-sm leading-relaxed max-w-3xl">
             {loading ? "Analyzing historical trade ledger and SKU velocity..." : data?.aiAdvice}
           </p>
