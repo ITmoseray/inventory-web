@@ -1,6 +1,6 @@
 "use server";
 
-import { getTenantPrisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { logAudit } from "./audit";
@@ -17,10 +17,10 @@ function serializeSupplier(s: any) {
 export async function getSuppliers() {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   const suppliers = await prisma.supplier.findMany({
-    where: { businessId: session.user.businessId, deletedAt: null },
+    where: { businessId, deletedAt: null },
     include: {
       purchases: {
         where: { deletedAt: null },
@@ -51,10 +51,10 @@ export async function getSuppliers() {
 export async function getSupplierDetails(supplierId: string) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   const supplier = await prisma.supplier.findFirst({
-    where: { id: supplierId, businessId: session.user.businessId, deletedAt: null },
+    where: { id: supplierId, businessId, deletedAt: null },
     include: {
       purchases: {
         where: { deletedAt: null },
@@ -148,10 +148,10 @@ export async function createSupplier(data: {
 }) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   const supplier = await prisma.supplier.create({
-    data: { ...data, businessId: session.user.businessId },
+    data: { ...data, businessId },
   });
 
   await logAudit({ action: `Created Supplier: ${supplier.name}`, entity: "SUPPLIER", entityId: supplier.id, newData: supplier });
@@ -162,10 +162,10 @@ export async function createSupplier(data: {
 export async function updateSupplier(id: string, data: any) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   const supplier = await prisma.supplier.update({
-    where: { id, businessId: session.user.businessId },
+    where: { id, businessId },
     data,
   });
 
@@ -177,10 +177,10 @@ export async function updateSupplier(id: string, data: any) {
 export async function deleteSupplier(id: string) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   await prisma.supplier.update({
-    where: { id, businessId: session.user.businessId },
+    where: { id, businessId },
     data: { deletedAt: new Date() },
   });
 
@@ -191,10 +191,10 @@ export async function deleteSupplier(id: string) {
 export async function getPurchaseAnalytics() {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   const purchases = await prisma.purchase.findMany({
-    where: { businessId: session.user.businessId, deletedAt: null },
+    where: { businessId, deletedAt: null },
     include: {
       supplier: { select: { name: true } },
       items: { include: { product: { select: { name: true, categoryId: true, category: { select: { name: true } } } } } },

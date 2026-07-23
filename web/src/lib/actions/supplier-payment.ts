@@ -1,6 +1,6 @@
 "use server";
 
-import { getTenantPrisma } from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
@@ -14,11 +14,11 @@ export async function recordSupplierPayment(data: {
 }) {
   const session = await auth();
   if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   // Verify supplier exists
   const supplier = await prisma.supplier.findFirst({
-    where: { id: data.supplierId, businessId: session.user.businessId },
+    where: { id: data.supplierId, businessId },
   });
   if (!supplier) throw new Error("Supplier not found");
 
@@ -30,7 +30,7 @@ export async function recordSupplierPayment(data: {
       referenceNumber: data.referenceNumber || null,
       paymentDate: data.paymentDate ? new Date(data.paymentDate) : new Date(),
       notes: data.notes || null,
-      businessId: session.user.businessId,
+      businessId,
       userId: session.user.id,
     },
   });
@@ -40,7 +40,7 @@ export async function recordSupplierPayment(data: {
   const unpaidPurchases = await prisma.purchase.findMany({
     where: {
       supplierId: data.supplierId,
-      businessId: session.user.businessId,
+      businessId,
       paymentStatus: { in: ["UNPAID", "PARTIAL"] },
       deletedAt: null,
     },
@@ -77,11 +77,11 @@ export async function recordSupplierPayment(data: {
 export async function getSupplierPayments(filters?: { supplierId?: string; from?: string; to?: string }) {
   const session = await auth();
   if (!session?.user?.businessId) throw new Error("Unauthorized");
-  const prisma = getTenantPrisma(session.user.businessId);
+  const businessId = session.user.businessId;
 
   const payments = await prisma.supplierPayment.findMany({
     where: {
-      businessId: session.user.businessId,
+      businessId,
       ...(filters?.supplierId ? { supplierId: filters.supplierId } : {}),
       ...(filters?.from || filters?.to ? {
         paymentDate: {
