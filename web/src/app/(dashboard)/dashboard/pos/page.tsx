@@ -705,20 +705,26 @@ export default function POSPage() {
       {/* Product Selection Area */}
       <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 xl:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
         <header className="p-4 sm:p-6 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative bg-white dark:bg-slate-900">
-          <div className="flex items-center gap-4">
-             <div className="relative group">
-                <div className="h-12 w-12 rounded-[1.5rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
-                  <ShoppingCart className="h-6 w-6 text-white" />
-                </div>
-                <div className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-4 border-white dark:border-slate-900 animate-pulse" />
+          <div className="flex items-start sm:items-center justify-between w-full lg:w-auto gap-4">
+             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+               <div className="relative group shrink-0">
+                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-[1.5rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
+                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  </div>
+                  <div className="absolute -top-1 -right-1 h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-emerald-500 border-[3px] sm:border-4 border-white dark:border-slate-900 animate-pulse" />
+               </div>
+               <div className="min-w-0">
+                  <h1 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none truncate">Commerce <span className="text-primary underline decoration-indigo-50">Hub</span></h1>
+                  <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
+                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                     <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.4em] truncate">{isOnline ? "Neural Network Linked" : "Local Engine Mode"}</p>
+                  </div>
+               </div>
              </div>
-             <div>
-                <h1 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Commerce <span className="text-primary underline decoration-indigo-50">Hub</span></h1>
-                <div className="flex items-center gap-2 mt-1">
-                   <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">{isOnline ? "Neural Network Linked" : "Local Engine Mode"}</p>
-                </div>
-             </div>
+             {/* Mobile Back Button */}
+             <Button onClick={() => router.back()} variant="ghost" className="lg:hidden h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-xl sm:rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-all border border-transparent shrink-0">
+                <X size={20} />
+             </Button>
           </div>
           {/* Happy Hour Banner */}
           {isHappyHour && (
@@ -737,15 +743,16 @@ export default function POSPage() {
                  setTimeout(() => setIsReceiptModalOpen(true), 300);
                }} />
              )}
-             <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest gap-2">
-                <RefreshCw className={cn("h-4 w-4", isSyncing && "animate-spin text-primary")} />
-                African Trade Sync
+             <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2">
+                <RefreshCw className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0", isSyncing && "animate-spin text-primary")} />
+                <span className="truncate">{isSyncing ? "Syncing..." : "Trade Sync"}</span>
              </Button>
-             <Button variant="destructive" size="sm" onClick={() => setIsCloseRegisterModalOpen(true)} className="flex-1 lg:flex-none h-12 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2">
-                <Banknote className="h-4 w-4" />
-                Close Shift
+             <Button variant="destructive" size="sm" onClick={() => setIsCloseRegisterModalOpen(true)} className="flex-1 lg:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2">
+                <Banknote className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                <span className="truncate">Close Shift</span>
              </Button>
-             <Button onClick={() => router.back()} variant="ghost" className="h-12 w-12 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50">
+             {/* Desktop Back Button */}
+             <Button onClick={() => router.back()} variant="ghost" className="hidden lg:flex h-12 w-12 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50 shrink-0">
                 <X size={20} />
              </Button>
           </div>
