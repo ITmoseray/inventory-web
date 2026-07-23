@@ -8,7 +8,7 @@ import { getSystemSettings } from "@/lib/actions/system-settings";
 import { getDefaultPermissionsForRole } from "@/lib/actions/user";
 
 export async function registerBusiness(data: any) {
-  const { businessName, email, password, businessType, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail } = data;
+  const { businessName, email, password, businessType, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail, referralSource, customReferralSource } = data;
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -41,6 +41,8 @@ export async function registerBusiness(data: any) {
         email: businessEmail || email,
         currency: currency || "SLL",
         timezone: timezone || "UTC",
+        referralSource: referralSource || null,
+        customReferralSource: customReferralSource || null,
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: dbBusinessType,
         institutionType: institutionType || null,

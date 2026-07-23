@@ -26,6 +26,8 @@ model Business {
   address                 String?
   email                   String?
   phone                   String?
+  referralSource          String?
+  customReferralSource    String?
   flutterwaveRef          String?
   subscriptionStatus      String                   @default("INACTIVE")
   requestedBillingPeriod  String                   @default("monthly")
