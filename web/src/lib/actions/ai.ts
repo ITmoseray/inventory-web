@@ -7,6 +7,17 @@ import { getProducts } from "./product";
 import { getRecentSales } from "./sale";
 import { format } from "date-fns";
 
+// Helper for Gemini API rate limits (exponential backoff)
+async function fetchWithRetry(url: string, options: any, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    const res = await fetch(url, options);
+    if (res.status !== 429) return res;
+    // Wait before retrying (2s, 4s, 8s...)
+    await new Promise(resolve => setTimeout(resolve, Math.pow(2, i) * 2000));
+  }
+  return fetch(url, options); // Final attempt
+}
+
 export async function checkOllamaStatus() {
   try {
     // If GEMINI_API_KEY is set, treat the AI node as active via Gemini
@@ -47,11 +58,18 @@ export async function getNeuralAnalysis() {
       Industry: ${businessType}
       
       Operational Stats:
-      - Total Revenue: Le ${stats.revenue.toLocaleString()}
+      - Total Revenue: Le ${stats.revenue.toLocaleString()} (Change: ${stats.revenueChange.toFixed(1)}%)
       - Active Transactions: ${stats.activeTransactions}
-      - Today's Orders: ${stats.orders}
+      - Today's Orders: ${stats.orders} (Change: ${stats.ordersChange.toFixed(1)}%)
       - Managed Catalog: ${stats.skuCount} SKUs
-      - Stock Alerts: ${stats.lowStock} items below threshold
+      - Stock Alerts: ${stats.lowStock} items below threshold, ${stats.overStock} overstocked
+      - Expiring Batches: ${stats.expiringItems}
+      
+      Top Performing Products:
+      ${stats.topProducts.slice(0, 3).map((p: any) => `- ${p.name}: ${p.quantitySold} sold`).join("\n")}
+      
+      Top Performing Staff:
+      ${stats.topStaff.slice(0, 3).map((s: any) => `- ${s.name}: Le ${s.revenue.toLocaleString()}`).join("\n")}
       
       Critical Stock Issues:
       ${lowStockItems.slice(0, 5).map(p => `- ${p.name}: ${p.stockQuantity} remaining (Threshold: ${p.minStockLevel})`).join("\n")}
@@ -59,8 +77,8 @@ export async function getNeuralAnalysis() {
       Task: Perform a Business Diagnostics Audit.
       Instructions:
       1. Analyze the current stock-to-revenue velocity.
-      2. Identify high-risk zones (e.g. out of stock high-value items).
-      3. Provide 3 tactical growth recommendations for the next 7 days.
+      2. Identify high-risk zones (e.g. out of stock high-value items) or top-performing areas.
+      3. Provide 3 tactical growth recommendations for the next 7 days based on the new metrics.
       4. Maintain a highly professional, analytical, and corporate tone.
       5. Keep the response concise (max 250 words).
       
@@ -69,8 +87,10 @@ export async function getNeuralAnalysis() {
 
     // 1. If Gemini API Key is configured, use Gemini
     const apiKey = process.env.GEMINI_API_KEY;
+    let rateLimited = false;
+
     if (apiKey) {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -80,31 +100,43 @@ export async function getNeuralAnalysis() {
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini API connection failed: ${response.statusText}`);
+        if (response.status === 429) {
+          console.warn("Gemini rate limit hit. Falling back to local Ollama...");
+          rateLimited = true;
+        } else {
+          throw new Error(`Gemini API connection failed: ${response.statusText}`);
+        }
+      } else {
+        const result = await response.json();
+        return result.candidates?.[0]?.content?.parts?.[0]?.text || "No analysis output returned from Gemini.";
       }
-
-      const result = await response.json();
-      return result.candidates?.[0]?.content?.parts?.[0]?.text || "No analysis output returned from Gemini.";
     }
 
     // 2. Fallback to local Ollama
-    const response = await fetch("http://localhost:11434/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "llama3",
-        prompt: prompt,
-        stream: false
-      }),
-      cache: "no-store"
-    });
+    try {
+      const response = await fetch("http://localhost:11434/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "llama3",
+          prompt: prompt,
+          stream: false
+        }),
+        cache: "no-store"
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        throw new Error("Ollama connection failed.");
+      }
+
+      const result = await response.json();
+      return result.response;
+    } catch (ollamaError) {
+      if (rateLimited) {
+        return "Diagnostics paused due to high traffic (Cloud API rate limit) and Local AI is offline. Please wait a moment and try again.";
+      }
       throw new Error("Ollama connection failed. Ensure Ollama is running and 'llama3' model is pulled.");
     }
-
-    const result = await response.json();
-    return result.response;
   } catch (error: any) {
     console.error("Neural Analysis Error:", error);
     throw new Error(error.message || "Establishing neural link failed.");
@@ -133,13 +165,19 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
       
       Here is the current live data from the business database:
       - Business Type: ${businessType}
-      - Total Revenue: Le ${stats.revenue.toLocaleString()}
+      - Total Revenue: Le ${stats.revenue.toLocaleString()} (Change: ${stats.revenueChange.toFixed(1)}%)
       - Active Transactions: ${stats.activeTransactions}
-      - Today's Orders: ${stats.orders}
+      - Today's Orders: ${stats.orders} (Change: ${stats.ordersChange.toFixed(1)}%)
       - Managed Catalog: ${stats.skuCount} SKUs
-      - Stock Alerts: ${stats.lowStock} items below threshold
+      - Stock Alerts: ${stats.lowStock} items below threshold, ${stats.overStock} overstocked
       - Expiring Batches: ${stats.expiringItems}
       - Total Employees: ${stats.staffCount}
+      
+      Top Performing Products:
+      ${stats.topProducts.slice(0, 3).map((p: any) => `- ${p.name}: ${p.quantitySold} sold`).join("\n")}
+      
+      Top Performing Staff:
+      ${stats.topStaff.slice(0, 3).map((s: any) => `- ${s.name}: Le ${s.revenue.toLocaleString()}`).join("\n")}
       
       Recent Sales Ledger:
       ${recentSales.slice(0, 5).map(s => `- Invoice ${s.invoiceNumber}: Le ${s.totalAmount} (${s.paymentStatus}, ${format(new Date(s.createdAt), "MMM dd")})`).join("\n")}
@@ -155,6 +193,8 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
     `;
 
     const apiKey = process.env.GEMINI_API_KEY;
+    let rateLimited = false;
+
     if (apiKey) {
       const contents = messages.map(msg => ({
         role: msg.role === "assistant" ? "model" : "user",
@@ -168,7 +208,7 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
         }
       };
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
@@ -176,34 +216,46 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini Chat API connection failed: ${response.statusText}`);
+        if (response.status === 429) {
+          console.warn("Gemini rate limit hit. Falling back to local Ollama...");
+          rateLimited = true;
+        } else {
+          throw new Error(`Gemini Chat API connection failed: ${response.statusText}`);
+        }
+      } else {
+        const result = await response.json();
+        return result.candidates?.[0]?.content?.parts?.[0]?.text || "No response received from Gemini.";
       }
-
-      const result = await response.json();
-      return result.candidates?.[0]?.content?.parts?.[0]?.text || "No response received from Gemini.";
     }
 
     // Fallback to Ollama
-    const response = await fetch("http://localhost:11434/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "llama3",
-        messages: [
-          { role: "system", content: systemContextPrompt },
-          ...messages
-        ],
-        stream: false
-      }),
-      cache: "no-store"
-    });
+    try {
+      const response = await fetch("http://localhost:11434/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "llama3",
+          messages: [
+            { role: "system", content: systemContextPrompt },
+            ...messages
+          ],
+          stream: false
+        }),
+        cache: "no-store"
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        throw new Error("Ollama connection failed.");
+      }
+
+      const result = await response.json();
+      return result.message?.content || "No response received from Ollama.";
+    } catch (ollamaError) {
+      if (rateLimited) {
+        return "I'm currently experiencing high traffic (Cloud API rate limit) and Local AI is offline. Please wait a few seconds before trying again.";
+      }
       throw new Error("Ollama connection failed. Ensure Ollama is running and 'llama3' model is pulled.");
     }
-
-    const result = await response.json();
-    return result.message?.content || "No response received from Ollama.";
   } catch (error: any) {
     console.error("Neural Chat Error:", error);
     throw new Error(error.message || "Failed to route message through neural chat node.");
@@ -246,8 +298,10 @@ export async function getWelcomeUpdate() {
     `;
 
     const apiKey = process.env.GEMINI_API_KEY;
+    let rateLimited = false;
+
     if (apiKey) {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -257,31 +311,43 @@ export async function getWelcomeUpdate() {
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini API connection failed: ${response.statusText}`);
+        if (response.status === 429) {
+          console.warn("Gemini rate limit hit. Falling back to local Ollama...");
+          rateLimited = true;
+        } else {
+          throw new Error(`Gemini API connection failed: ${response.statusText}`);
+        }
+      } else {
+        const result = await response.json();
+        return result.candidates?.[0]?.content?.parts?.[0]?.text || "Welcome back to the neural link.";
       }
-
-      const result = await response.json();
-      return result.candidates?.[0]?.content?.parts?.[0]?.text || "Welcome back to the neural link.";
     }
 
     // Fallback to local Ollama
-    const response = await fetch("http://localhost:11434/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "llama3",
-        prompt: prompt,
-        stream: false
-      }),
-      cache: "no-store"
-    });
+    try {
+      const response = await fetch("http://localhost:11434/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "llama3",
+          prompt: prompt,
+          stream: false
+        }),
+        cache: "no-store"
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        throw new Error("Ollama connection failed.");
+      }
+
+      const result = await response.json();
+      return result.response;
+    } catch (ollamaError) {
+      if (rateLimited) {
+        return `Welcome back, ${session.user.name || "Manager"}. Neural link is currently experiencing high traffic.`;
+      }
       throw new Error("Ollama connection failed.");
     }
-
-    const result = await response.json();
-    return result.response;
   } catch (error: any) {
     console.error("Neural Welcome Error:", error);
     return "Welcome back. Neural link synchronization complete.";
@@ -306,7 +372,7 @@ export async function generateAIEmployeeProfile() {
         Do not include any markdown format (no \`\`\`json blocks), just the raw JSON object string.
       `;
 
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -469,7 +535,7 @@ export async function getPredictiveReplenishment() {
           Provide a 3-sentence executive summary highlighting the most urgent stockouts and the expected capital investment required. Maintain a highly professional, analytical, and corporate tone.
         `;
 
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
