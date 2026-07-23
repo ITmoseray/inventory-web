@@ -763,10 +763,10 @@ export default function NexusSuperControl() {
               </div>
 
               {/* HOW CLIENTS DISCOVER PROTECH ENTERPRISE OS & REGISTRATION ACCOUNTS WINDOW */}
-              <GlassCard className="p-6 md:p-8 bg-gradient-to-br from-indigo-900/20 via-slate-900/60 to-slate-950 border-indigo-500/30 space-y-6 relative z-10">
-                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+              <GlassCard className="p-6 md:p-8 bg-white dark:bg-gradient-to-br dark:from-indigo-900/20 dark:via-slate-900/60 dark:to-slate-950 border-slate-200 dark:border-indigo-500/30 space-y-6 relative z-10 shadow-lg dark:shadow-2xl">
+                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-4">
                     <div className="flex items-center gap-3">
-                       <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                       <div className="h-12 w-12 rounded-2xl bg-indigo-500/10 dark:bg-indigo-600/20 border border-indigo-500/20 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                           <Megaphone className="h-6 w-6 animate-pulse" />
                        </div>
                        <div>
@@ -792,11 +792,11 @@ export default function NexusSuperControl() {
                     ).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([channel, count]) => {
                        const percentage = businessesList.length > 0 ? Math.round((count / businessesList.length) * 100) : 0;
                        return (
-                          <div key={channel} className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-200">
-                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider truncate">{channel}</p>
-                             <p className="text-xl font-black text-white mt-1 leading-none">{count} <span className="text-xs font-normal text-indigo-400">({percentage}%)</span></p>
-                             <div className="w-full bg-slate-800 rounded-full h-1 mt-2 overflow-hidden">
-                                <div className="h-full bg-indigo-500" style={{ width: `${percentage}%` }} />
+                          <div key={channel} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-200 shadow-sm">
+                             <p className="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">{channel}</p>
+                             <p className="text-xl font-black text-slate-900 dark:text-white mt-1 leading-none">{count} <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">({percentage}%)</span></p>
+                             <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+                                <div className="h-full bg-indigo-600 dark:bg-indigo-500" style={{ width: `${percentage}%` }} />
                              </div>
                           </div>
                        );
@@ -806,47 +806,47 @@ export default function NexusSuperControl() {
                  {/* Recent Registered Accounts */}
                  <div className="pt-2">
                     <div className="flex items-center justify-between mb-3">
-                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Recent Account Registrations ({businessesList.length})</h4>
-                       <Link href="/super-admin/businesses" className="text-[10px] font-black text-indigo-400 hover:underline uppercase tracking-wider">
+                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Recent Account Registrations ({businessesList.length})</h4>
+                       <Link href="/super-admin/businesses" className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 hover:underline uppercase tracking-wider">
                           View All In Vault →
                        </Link>
                     </div>
 
-                    <div className="rounded-2xl border border-slate-800 overflow-hidden bg-slate-950/60">
+                    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-950/60 shadow-sm">
                        <Table>
-                          <TableHeader className="bg-slate-900/80">
-                             <TableRow className="border-slate-800">
-                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest">Client Organization</TableHead>
-                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest">How They Heard About Us</TableHead>
-                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest">Plan & Region</TableHead>
-                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest text-right">Account Form</TableHead>
+                          <TableHeader className="bg-slate-100 dark:bg-slate-900/80">
+                             <TableRow className="border-slate-200 dark:border-slate-800">
+                                <TableHead className="font-black text-slate-700 dark:text-slate-400 uppercase text-[9px] tracking-widest">Client Organization</TableHead>
+                                <TableHead className="font-black text-slate-700 dark:text-slate-400 uppercase text-[9px] tracking-widest">How They Heard About Us</TableHead>
+                                <TableHead className="font-black text-slate-700 dark:text-slate-400 uppercase text-[9px] tracking-widest">Plan & Region</TableHead>
+                                <TableHead className="font-black text-slate-700 dark:text-slate-400 uppercase text-[9px] tracking-widest text-right">Account Form</TableHead>
                              </TableRow>
                           </TableHeader>
                           <TableBody>
                              {businessesList.slice(0, 5).map((b: any) => (
-                                <TableRow key={b.id} className="border-slate-900 hover:bg-white/5 transition-colors">
-                                   <TableCell className="font-black text-white text-xs py-3.5">
+                                <TableRow key={b.id} className="border-slate-200 dark:border-slate-900 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors">
+                                   <TableCell className="font-black text-slate-900 dark:text-white text-xs py-3.5">
                                       <div>
-                                         <p className="font-black text-white leading-tight">{b.name}</p>
-                                         <p className="text-[9px] font-bold text-slate-500 uppercase">{b.email || b.slug}</p>
+                                         <p className="font-black text-slate-900 dark:text-white leading-tight">{b.name}</p>
+                                         <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase">{b.email || b.slug}</p>
                                       </div>
                                    </TableCell>
                                    <TableCell>
-                                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-[9px] uppercase">
+                                      <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-black text-[9px] uppercase">
                                          {b.referralSource || "Direct"}
                                       </span>
                                       {b.customReferralSource && (
-                                         <p className="text-[8.5px] text-slate-400 italic mt-0.5 line-clamp-1">"{b.customReferralSource}"</p>
+                                         <p className="text-[8.5px] text-slate-500 dark:text-slate-400 italic mt-0.5 line-clamp-1">"{b.customReferralSource}"</p>
                                       )}
                                    </TableCell>
-                                   <TableCell className="text-[10px] font-bold text-slate-300 uppercase">
+                                   <TableCell className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase">
                                       {b.plan} • {b.currency}
                                    </TableCell>
                                    <TableCell className="text-right">
                                       <Button 
                                          size="sm" 
                                          onClick={() => setSelectedStoreForForm(b)}
-                                         className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] uppercase tracking-wider gap-1"
+                                         className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] uppercase tracking-wider gap-1 shadow-sm"
                                       >
                                          <FileText className="h-3 w-3" /> View Form
                                       </Button>

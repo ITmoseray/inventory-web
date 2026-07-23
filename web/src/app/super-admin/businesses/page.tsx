@@ -174,18 +174,18 @@ export default function TenantVault() {
         </div>
 
         {/* SPECIAL WINDOW: How Did You Hear About Us Insights & Channel Analytics */}
-        <GlassCard className="p-6 md:p-8 bg-gradient-to-br from-indigo-900/10 via-slate-900/40 to-slate-950 border-indigo-500/20 space-y-6">
-           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+        <GlassCard className="p-6 md:p-8 bg-white dark:bg-gradient-to-br dark:from-indigo-900/20 dark:via-slate-900/60 dark:to-slate-950 border-slate-200 dark:border-indigo-500/30 space-y-6 shadow-lg dark:shadow-2xl">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-4">
               <div className="flex items-center gap-3">
-                 <div className="h-10 w-10 rounded-xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                 <div className="h-10 w-10 rounded-xl bg-indigo-500/10 dark:bg-indigo-600/20 border border-indigo-500/20 dark:border-indigo-500/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
                     <Megaphone className="h-5 w-5 animate-pulse" />
                  </div>
                  <div>
-                    <h3 className="text-lg font-[1000] uppercase tracking-tight text-white italic">How Clients Discover ProTech OS</h3>
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Client acquisition channel statistics</p>
+                    <h3 className="text-lg font-[1000] uppercase tracking-tight text-slate-900 dark:text-white italic">How Clients Discover ProTech OS</h3>
+                    <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Client acquisition channel statistics</p>
                  </div>
               </div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-black uppercase tracking-wider">
                  <TrendingUp className="h-3.5 w-3.5" />
                  Marketing Intelligence
               </div>
@@ -199,8 +199,8 @@ export default function TenantVault() {
                 className={cn(
                   "p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between",
                   selectedChannel === "ALL"
-                    ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30"
-                    : "bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700"
+                    ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30 font-bold"
+                    : "bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-slate-700"
                 )}
               >
                  <span className="text-[9px] font-black uppercase tracking-widest opacity-80">All Accounts</span>
@@ -219,14 +219,14 @@ export default function TenantVault() {
                     className={cn(
                       "p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between group",
                       isSelected
-                        ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30"
-                        : "bg-slate-900/40 border-slate-800 text-slate-300 hover:border-slate-700"
+                        ? "bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/30 font-bold"
+                        : "bg-slate-50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-slate-700"
                     )}
                   >
                      <span className="text-[9px] font-black uppercase tracking-wider line-clamp-1 opacity-80">{channel}</span>
-                     <p className="text-xl font-black mt-2 leading-none">{count} <span className="text-xs font-normal opacity-70">({percentage}%)</span></p>
-                     <div className="w-full bg-slate-800 rounded-full h-1 mt-2 overflow-hidden">
-                        <div className={cn("h-full", isSelected ? "bg-white" : "bg-indigo-500")} style={{ width: `${percentage}%` }} />
+                     <p className="text-xl font-black mt-2 leading-none">{count} <span className="text-xs font-bold opacity-80">({percentage}%)</span></p>
+                     <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-1.5 mt-2 overflow-hidden">
+                        <div className={cn("h-full", isSelected ? "bg-white" : "bg-indigo-600 dark:bg-indigo-500")} style={{ width: `${percentage}%` }} />
                      </div>
                   </button>
                 );
