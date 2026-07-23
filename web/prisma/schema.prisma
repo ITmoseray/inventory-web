@@ -55,6 +55,7 @@ model Business {
   stockMovements          StockMovement[]
   subscriptions           Subscription[]
   suppliers               Supplier[]
+  supplierPayments        SupplierPayment[]
   users                   User[]
   pushSubscriptions       PushSubscription[]
   patients                Patient[]
@@ -114,6 +115,7 @@ model User {
   orderStatusHistory      OrderStatusHistory[]
   payrolls                Payroll[]
   purchases               Purchase[]
+  supplierPayments        SupplierPayment[]
   sales                   Sale[]
   assignedSales           Sale[]                    @relation("StaffSale")
   stockMovements          StockMovement[]
@@ -476,42 +478,71 @@ model SaleItem {
 }
 
 model Supplier {
-  id         String     @id @default(cuid())
-  name       String
-  contact    String?
-  email      String?
-  phone      String?
-  businessId String
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  deletedAt  DateTime?
-  purchases  Purchase[]
-  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  id           String            @id @default(cuid())
+  name         String
+  contact      String?
+  email        String?
+  phone        String?
+  address      String?
+  taxId        String?
+  paymentTerms String?           @default("Net 30")
+  notes        String?
+  businessId   String
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime?
+  purchases    Purchase[]
+  payments     SupplierPayment[]
+  business     Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([businessId, deletedAt])
 }
 
 model Purchase {
-  id            String         @id @default(cuid())
+  id            String           @id @default(cuid())
   invoiceNumber String?
-  totalAmount   Decimal        @db.Decimal(10, 2)
-  status        String         @default("COMPLETED")
+  totalAmount   Decimal          @db.Decimal(10, 2)
+  paidAmount    Decimal          @default(0) @db.Decimal(10, 2)
+  paymentStatus String           @default("PAID") // PAID, PARTIAL, UNPAID
+  status        String           @default("COMPLETED")
+  dueDate       DateTime?
   supplierId    String?
   businessId    String
   userId        String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
-  business      Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  supplier      Supplier?      @relation(fields: [supplierId], references: [id])
-  user          User           @relation(fields: [userId], references: [id])
+  business      Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier      Supplier?        @relation(fields: [supplierId], references: [id])
+  user          User             @relation(fields: [userId], references: [id])
   items         PurchaseItem[]
-  attachments   String[]       @default([])
+  attachments   String[]         @default([])
   tags          TransactionTag[]
 
   @@index([businessId])
   @@index([businessId, deletedAt])
+}
+
+model SupplierPayment {
+  id              String   @id @default(cuid())
+  supplierId      String
+  amount          Decimal  @db.Decimal(10, 2)
+  paymentMethod   String   @default("CASH") // CASH, BANK_TRANSFER, MOBILE_MONEY, CHEQUE
+  referenceNumber String?
+  paymentDate     DateTime @default(now())
+  notes           String?
+  businessId      String
+  userId          String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@index([businessId])
+  @@index([supplierId])
 }
 
 model PurchaseItem {
