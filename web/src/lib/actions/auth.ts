@@ -15,7 +15,7 @@ export async function registerBusiness(data: any) {
   const verificationToken = generateVerificationToken();
 
   try {
-    // Use a transaction to create both
+    // Use a transaction with 30s timeout to allow Neon DB connection latency
     const result = await prisma.$transaction(async (tx) => {
       // 1. Check if user already exists (should be done before calling this, but for safety)
     const existingUser = await tx.user.findUnique({ where: { email } });
@@ -125,7 +125,7 @@ export async function registerBusiness(data: any) {
         updatedAt: user.updatedAt.toISOString(),
       } 
     };
-  });
+  }, { timeout: 30000, maxWait: 10000 });
 
   // Send verification email outside the transaction
   await sendVerificationEmail(email, verificationToken);
