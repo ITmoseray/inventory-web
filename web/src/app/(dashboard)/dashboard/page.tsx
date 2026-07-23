@@ -1160,6 +1160,22 @@ function OfficeDashboardView({ stats }: { stats: any }) {
 
   return (
     <div className="space-y-10">
+      {/* Under Active Development Banner */}
+      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start sm:items-center gap-4 text-amber-900 dark:text-amber-300">
+        <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-600 dark:text-amber-400">
+           <Briefcase className="h-5 w-5 animate-pulse" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400">Under Active Development</span>
+            <span className="text-xs font-bold opacity-70">• Early Access Preview</span>
+          </div>
+          <p className="text-xs font-medium mt-1 leading-snug">
+            The Corporate Office Attendance & Expenses module is currently undergoing system development updates. You can access and preview employee check-ins and logs while full features are being completed.
+          </p>
+        </div>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard 

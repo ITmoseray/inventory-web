@@ -88,13 +88,13 @@ const BUSINESS_TYPES = [
   { id: "SUPERMARKET", label: "Supermarket", icon: ShoppingCart, desc: "Bulk stock & fast cashier" },
   { id: "CLINIC", label: "Clinic", icon: Hospital, desc: "Patients, triage & billing" },
   { id: "HOSPITAL", label: "Hospital", icon: Hospital, desc: "Admissions, lab & pharmacy" },
-  { id: "SCHOOL", label: "School / College", icon: GraduationCap, desc: "Students, fees & reports" },
+  { id: "SCHOOL", label: "School / College", icon: GraduationCap, desc: "Students, fees & reports", underDevelopment: true },
   { id: "BOUTIQUE", label: "Boutique", icon: Tag, desc: "Variants, sizes & style" },
   { id: "ELECTRONICS", label: "Electronics", icon: Cpu, desc: "Serials & warranty tracking" },
   { id: "WAREHOUSE", label: "Warehouse", icon: Package, desc: "Multi-bin stock transfers" },
   { id: "RESTAURANT", label: "Restaurant", icon: Utensils, desc: "Tables, kitchen tickets" },
   { id: "BAR", label: "Bar / Lounge", icon: Wine, desc: "Tabs & bottle tracking" },
-  { id: "OFFICE", label: "Corporate Office", icon: Building2, desc: "Attendance & check-ins" },
+  { id: "OFFICE", label: "Corporate Office", icon: Building2, desc: "Attendance & check-ins", underDevelopment: true },
 ];
 
 const STEPS = [
@@ -542,22 +542,37 @@ export default function RegisterPage() {
                         <div className="space-y-3">
                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Select Industry Type</Label>
                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                              {BUSINESS_TYPES.map((bt) => {
+                              {BUSINESS_TYPES.map((bt: any) => {
                                 const Icon = bt.icon;
                                 const isSelected = formData.businessType === bt.id;
                                 return (
                                   <button
                                     key={bt.id}
                                     type="button"
-                                    onClick={() => setFormData({...formData, businessType: bt.id})}
+                                    onClick={() => {
+                                      setFormData({...formData, businessType: bt.id});
+                                      if (bt.underDevelopment) {
+                                        toast.info(`${bt.label} is under active development. Early Access Preview is enabled.`, { duration: 4000 });
+                                      }
+                                    }}
                                     className={cn(
-                                      "p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group relative",
+                                      "p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group relative overflow-hidden",
                                       isSelected 
                                         ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/30 scale-[1.02]" 
                                         : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900/60"
                                     )}
                                   >
-                                     <Icon className={cn("h-5 w-5 mb-2", isSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400")} />
+                                     <div className="flex justify-between items-start w-full">
+                                        <Icon className={cn("h-5 w-5 mb-2", isSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400")} />
+                                        {bt.underDevelopment && (
+                                           <span className={cn(
+                                              "text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md",
+                                              isSelected ? "bg-amber-400 text-slate-950" : "bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30"
+                                           )}>
+                                              Dev Preview
+                                           </span>
+                                        )}
+                                     </div>
                                      <div>
                                         <p className="text-[11px] font-black uppercase tracking-wider leading-tight">{bt.label}</p>
                                         <p className={cn("text-[9px] mt-0.5 line-clamp-1 font-medium", isSelected ? "text-indigo-100" : "text-slate-500 dark:text-slate-400")}>{bt.desc}</p>
@@ -566,6 +581,15 @@ export default function RegisterPage() {
                                 );
                               })}
                            </div>
+
+                           {(formData.businessType === 'SCHOOL' || formData.businessType === 'OFFICE') && (
+                              <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start gap-3 text-amber-900 dark:text-amber-300 mt-3">
+                                 <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5 animate-pulse" />
+                                 <p className="text-[11px] font-bold leading-tight">
+                                    <span className="font-black uppercase tracking-wider text-amber-700 dark:text-amber-400">Notice:</span> {selectedTypeObj.label} module is under active development. Access is enabled in Early Access Preview mode until development is fully completed.
+                                 </p>
+                              </div>
+                           )}
                         </div>
 
                         {/* School Sub-Level */}

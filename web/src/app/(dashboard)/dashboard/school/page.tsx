@@ -16,6 +16,22 @@ export default async function SchoolDashboardOverview() {
         <p className="text-slate-500 dark:text-slate-400 mt-2">Monitor your academic institution's performance.</p>
       </div>
 
+      {/* Under Active Development Banner */}
+      <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-start sm:items-center gap-4 text-amber-900 dark:text-amber-300">
+        <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center shrink-0 text-amber-600 dark:text-amber-400">
+           <GraduationCap className="h-5 w-5 animate-pulse" />
+        </div>
+        <div className="flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-400">Under Active Development</span>
+            <span className="text-xs font-bold opacity-70">• Early Access Preview</span>
+          </div>
+          <p className="text-xs font-medium mt-1 leading-snug">
+            The School & College Management module is currently undergoing system development updates. You can access and preview student, course, and fee stats while full features are being completed.
+          </p>
+        </div>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
