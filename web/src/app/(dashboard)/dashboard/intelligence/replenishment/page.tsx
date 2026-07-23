@@ -51,7 +51,7 @@ export default function AIReplenishmentPage() {
 
   function openOrderModal(pred: any) {
     setSelectedPred(pred);
-    setOrderQty(String(pred.recommendedOrderQty || 10));
+    setOrderQty(String(pred.recommendedOrderQty > 0 ? pred.recommendedOrderQty : 1));
     setUnitCost(String(pred.costPrice || ""));
     setSupplierId("");
     setIsModalOpen(true);
@@ -142,8 +142,8 @@ export default function AIReplenishmentPage() {
       </Card>
 
       {/* Predictions Table */}
-      <div className="rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
-        <Table>
+      <div className="rounded-[1.5rem] sm:rounded-[2.5rem] border-none bg-white dark:bg-slate-900 shadow-xl overflow-hidden overflow-x-auto">
+        <Table className="min-w-[700px]">
           <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
             <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
               <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-6">Product</TableHead>
@@ -177,7 +177,7 @@ export default function AIReplenishmentPage() {
                 <TableRow
                   key={pred.id}
                   className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 border-slate-100 dark:border-slate-800 transition-colors cursor-pointer"
-                  onClick={() => pred.status !== "OK" && openOrderModal(pred)}
+                  onClick={() => openOrderModal(pred)}
                 >
                   <TableCell className="pl-6 py-4">
                     <div className="flex flex-col">
@@ -228,15 +228,13 @@ export default function AIReplenishmentPage() {
                     </span>
                   </TableCell>
                   <TableCell className="pr-6">
-                    {pred.status !== "OK" && (
-                      <Button
-                        size="sm"
-                        onClick={e => { e.stopPropagation(); openOrderModal(pred); }}
-                        className="h-9 px-4 text-[10px] uppercase font-black tracking-widest gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl"
-                      >
-                        Order Now <ChevronRight className="h-3 w-3" />
-                      </Button>
-                    )}
+                    <Button
+                      size="sm"
+                      onClick={e => { e.stopPropagation(); openOrderModal(pred); }}
+                      className="h-9 px-4 text-[10px] uppercase font-black tracking-widest gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/20 rounded-xl whitespace-nowrap"
+                    >
+                      Order Now <ChevronRight className="h-3 w-3" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
