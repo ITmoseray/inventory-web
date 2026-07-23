@@ -683,7 +683,12 @@ export default function NexusSuperControl() {
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight">Nexus <span className="text-indigo-650 dark:text-indigo-500">Admin Panel</span></h1>
                   <div className="hidden sm:flex px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[7px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest h-fit">v4.2.0</div>
                </div>
-</motion.div>
+               <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-[0.25em]">Operational Level: Super Admin</p>
+               </div>
+            </div>
+         </motion.div>
           <div className="flex items-center justify-center gap-3 mt-4 md:mt-0 flex-wrap">
              <Link href="/super-admin/businesses">
                 <Button className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20">
