@@ -404,22 +404,31 @@ export async function getPredictiveReplenishment() {
       let daysRemaining = 999;
       if (dailyVelocity > 0) {
         daysRemaining = Math.round((stock / dailyVelocity) * 10) / 10;
+      } else if (stock <= 0) {
+        daysRemaining = 0; // Depleted with no sales = treat as critical
       }
 
       let recommendationStatus = "OK";
       let recommendedOrderQty = 0;
-      
-      if (daysRemaining <= 7) {
+      const minStock = p.minStockLevel ? Number(p.minStockLevel) : 5;
+
+      if (stock <= 0) {
+        // Depleted: must restock regardless of velocity
         recommendationStatus = "CRITICAL";
-        recommendedOrderQty = Math.ceil(dailyVelocity * 30 - stock + p.minStockLevel);
+        recommendedOrderQty = dailyVelocity > 0
+          ? Math.ceil(dailyVelocity * 30 + minStock)
+          : Math.max(minStock, 10); // Fallback: order at least minStockLevel or 10
+      } else if (daysRemaining <= 7) {
+        recommendationStatus = "CRITICAL";
+        recommendedOrderQty = Math.ceil(dailyVelocity * 30 - stock + minStock);
       } else if (daysRemaining <= 15) {
         recommendationStatus = "WARNING";
         recommendedOrderQty = Math.ceil(dailyVelocity * 15);
       }
 
       // Safeguard: order at least minStockLevel if predicted running low
-      if (recommendationStatus !== "OK" && recommendedOrderQty < p.minStockLevel) {
-        recommendedOrderQty = p.minStockLevel;
+      if (recommendationStatus !== "OK" && recommendedOrderQty < minStock) {
+        recommendedOrderQty = minStock;
       }
 
       return {

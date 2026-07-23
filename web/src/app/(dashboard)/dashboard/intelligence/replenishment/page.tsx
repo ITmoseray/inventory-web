@@ -149,26 +149,33 @@ export default function AIReplenishmentPage() {
                   <TableCell>
                     <span className={cn(
                       "font-black text-sm",
+                      pred.stockQuantity <= 0 ? "text-rose-600" :
                       pred.daysRemaining <= 7 ? "text-rose-500" :
                       pred.daysRemaining <= 15 ? "text-amber-500" : "text-slate-650 dark:text-slate-400"
                     )}>
-                      {pred.daysRemaining === 999 ? "∞ (No sales)" : `${pred.daysRemaining} days left`}
+                      {pred.stockQuantity <= 0
+                        ? "Depleted"
+                        : pred.daysRemaining === 999 ? "∞ (No sales)" : `${pred.daysRemaining} days left`}
                     </span>
                   </TableCell>
                   <TableCell>
                     <span className={cn(
                       "inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tighter",
+                      pred.stockQuantity <= 0 ? "bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400 animate-pulse" :
                       pred.status === "CRITICAL" ? "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400" :
                       pred.status === "WARNING" ? "bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400" :
                       "bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                     )}>
-                      {pred.status}
+                      {pred.stockQuantity <= 0 ? "DEPLETED" : pred.status}
                     </span>
                   </TableCell>
                   <TableCell>
                     {pred.status !== "OK" ? (
                       <span className="flex items-center gap-1.5 font-bold text-xs text-indigo-650 dark:text-indigo-400">
-                        <ShoppingCart className="h-3.5 w-3.5" /> Order +{pred.recommendedOrderQty} units
+                        <ShoppingCart className="h-3.5 w-3.5" />
+                        {pred.stockQuantity <= 0 && pred.dailyVelocity == 0
+                          ? `Suggest Order ${pred.recommendedOrderQty} (no sales data)`
+                          : `Order +${pred.recommendedOrderQty} units`}
                       </span>
                     ) : (
                       <span className="text-slate-450 text-xs italic">Stock level stable</span>
@@ -180,7 +187,7 @@ export default function AIReplenishmentPage() {
                     </span>
                   </TableCell>
                   <TableCell className="pr-6">
-                    {pred.status !== "OK" && pred.recommendedOrderQty > 0 && (
+                    {pred.status !== "OK" && (
                       <Button 
                         size="sm" 
                         variant="outline"
@@ -188,7 +195,7 @@ export default function AIReplenishmentPage() {
                            try {
                              toast.loading("Drafting PO...", { id: "draft-po" });
                              const res = await createDraftPurchase(pred.id, pred.recommendedOrderQty, pred.costPrice || 0);
-                             if (res.success) toast.success("Draft PO Created!", { id: "draft-po" });
+                             if (res.success) toast.success(`Draft PO for ${pred.recommendedOrderQty} units created!`, { id: "draft-po" });
                            } catch (e) {
                              toast.error("Failed to draft PO", { id: "draft-po" });
                            }
