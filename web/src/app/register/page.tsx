@@ -39,7 +39,8 @@ import {
   ShoppingCart,
   Tag,
   Cpu,
-  Wine
+  Wine,
+  Megaphone
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -103,6 +104,18 @@ const STEPS = [
   { id: 3, title: "Configuration", desc: "Region & Plan" },
 ];
 
+const REFERRAL_OPTIONS = [
+  { value: "Google Search", label: "Google / Search Engine" },
+  { value: "LinkedIn", label: "LinkedIn Post or Advertisement" },
+  { value: "Social Media", label: "Facebook / Instagram / TikTok" },
+  { value: "Colleague / Friend", label: "Colleague, Friend, or Partner Referral" },
+  { value: "Tech Event / Seminar", label: "Tech Event, Seminar, or Industry Expo" },
+  { value: "YouTube / Video Demo", label: "YouTube / Online Video Demo" },
+  { value: "News / Article / Blog", label: "News Article, Tech Blog, or Press" },
+  { value: "Billboard / Print", label: "Billboard, Flyer, or Print Media" },
+  { value: "Other", label: "Other (Type custom source below)" },
+];
+
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -113,12 +126,16 @@ export default function RegisterPage() {
   const [registrationOpen, setRegistrationOpen] = useState<boolean | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [formData, setFormData] = useState({
     businessName: "",
     email: "",
     phone: "",
     password: "",
+    confirmPassword: "",
+    referralSource: "",
+    customReferralSource: "",
     businessType: "SHOP",
     institutionType: "",
     plan: "FREE",
@@ -198,6 +215,10 @@ export default function RegisterPage() {
       }
       if (!formData.password || formData.password.length < 6) {
         toast.error("Password must be at least 6 characters long.");
+        return false;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        toast.error("Passwords do not match. Please re-enter your password correctly.");
         return false;
       }
       return true;
@@ -718,6 +739,82 @@ export default function RegisterPage() {
                                   />
                                </div>
                             </div>
+                          )}
+                        </div>
+
+                        {/* Re-enter Password (Confirm Password) */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center">
+                             <Label htmlFor="confirmPassword" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Re-enter Password *</Label>
+                             {formData.confirmPassword && (
+                                <span className={cn(
+                                  "text-[9px] font-black uppercase tracking-widest",
+                                  formData.password === formData.confirmPassword ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                                )}>
+                                  {formData.password === formData.confirmPassword ? "✓ Passwords Match" : "✕ Passwords Do Not Match"}
+                                </span>
+                             )}
+                          </div>
+                          <div className="relative">
+                             <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                             <Input 
+                               id="confirmPassword" 
+                               type={showConfirmPassword ? "text" : "password"} 
+                               placeholder="Re-type password to verify"
+                               value={formData.confirmPassword} 
+                               onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})} 
+                               required 
+                               className={cn(
+                                 "h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 pr-12 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500",
+                                 formData.confirmPassword && formData.password !== formData.confirmPassword && "border-rose-500 focus:ring-rose-500/20",
+                                 formData.confirmPassword && formData.password === formData.confirmPassword && "border-emerald-500 focus:ring-emerald-500/20"
+                               )} 
+                             />
+                             <button
+                               type="button"
+                               onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                               className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 dark:hover:text-white"
+                             >
+                               {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                             </button>
+                          </div>
+                        </div>
+
+                        {/* How Did You Hear About Us Dropdown & Custom Text Field */}
+                        <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                          <Label htmlFor="referralSource" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">How did you hear about us?</Label>
+                          <div className="relative">
+                             <Megaphone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                             <select 
+                               id="referralSource" 
+                               value={formData.referralSource} 
+                               onChange={(e) => setFormData({...formData, referralSource: e.target.value})} 
+                               className="h-14 w-full bg-slate-50 dark:bg-slate-950/80 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm pl-12 pr-4 focus:ring-2 focus:ring-indigo-500/20 text-slate-900 dark:text-white font-bold appearance-none cursor-pointer" 
+                             >
+                               <option value="">-- Select Option --</option>
+                               {REFERRAL_OPTIONS.map((opt) => (
+                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
+                               ))}
+                             </select>
+                          </div>
+
+                          {/* Custom Referral Source Text Input */}
+                          {(formData.referralSource === "Other" || formData.referralSource !== "") && (
+                             <div className="space-y-1.5 pt-1">
+                                <Label htmlFor="customReferralSource" className="text-[9px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                   {formData.referralSource === "Other" ? "Specify Referral Source *" : "Additional Details / Specific Name (Optional)"}
+                                </Label>
+                                <div className="relative">
+                                   <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                   <Input 
+                                     id="customReferralSource"
+                                     placeholder={formData.referralSource === "Other" ? "Type how you heard about us..." : "e.g. Recommended by Alpha Tech Solutions, specific event, etc."}
+                                     value={formData.customReferralSource}
+                                     onChange={(e) => setFormData({...formData, customReferralSource: e.target.value})}
+                                     className="h-13 bg-slate-50 dark:bg-slate-950/80 rounded-xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 text-slate-900 dark:text-white text-xs font-bold placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                                   />
+                                </div>
+                             </div>
                           )}
                         </div>
                      </div>
