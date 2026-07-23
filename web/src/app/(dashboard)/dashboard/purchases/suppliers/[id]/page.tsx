@@ -105,27 +105,31 @@ export default function SupplierProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" onClick={() => router.back()} className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{supplier.name}</h1>
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{supplier.paymentTerms || "No Payment Terms"}</p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <Button variant="ghost" onClick={() => router.back()} className="h-10 w-10 p-0 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 shrink-0">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{supplier.name}</h1>
+            <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest truncate">{supplier.paymentTerms || "No Payment Terms"}</p>
+          </div>
         </div>
-        <Button
-          onClick={() => setIsPaymentOpen(true)}
-          className="h-12 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
-        >
-          <Plus className="h-4 w-4" /> Record Payment
-        </Button>
-        <Button variant="outline" onClick={() => window.print()} className="h-12 px-4 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2 print:hidden">
-          <Printer className="h-4 w-4" /> Print Statement
-        </Button>
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <Button
+            onClick={() => setIsPaymentOpen(true)}
+            className="flex-1 sm:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg"
+          >
+            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" /> Record Payment
+          </Button>
+          <Button variant="outline" onClick={() => window.print()} className="hidden sm:flex h-12 px-4 rounded-2xl font-black text-[10px] uppercase tracking-widest gap-2 print:hidden shrink-0">
+            <Printer className="h-4 w-4" /> Print Statement
+          </Button>
+        </div>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "Total Purchased", value: `Le ${Math.round(supplier.totalPurchased).toLocaleString()}`, icon: TrendingUp, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-950/30" },
           { label: "Total Paid", value: `Le ${Math.round(supplier.totalPaid).toLocaleString()}`, icon: CheckCircle2, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
@@ -133,13 +137,13 @@ export default function SupplierProfilePage() {
           { label: "Transactions", value: (supplier.purchases?.length || 0) + (supplier.payments?.length || 0), icon: FileText, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/30" },
         ].map((kpi, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-            className="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 p-5 flex items-center gap-4 shadow-sm">
-            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shrink-0", kpi.bg)}>
-              <kpi.icon className={cn("h-6 w-6", kpi.color)} />
+            className="bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[1.5rem] border border-slate-100 dark:border-slate-800 p-4 sm:p-5 flex items-center gap-3 sm:gap-4 shadow-sm">
+            <div className={cn("h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0", kpi.bg)}>
+              <kpi.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", kpi.color)} />
             </div>
-            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{kpi.label}</p>
-              <p className="text-base font-black text-slate-900 dark:text-white tracking-tight">{kpi.value}</p>
+            <div className="min-w-0">
+              <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{kpi.label}</p>
+              <p className="text-sm sm:text-base font-black text-slate-900 dark:text-white tracking-tight truncate mt-0.5">{kpi.value}</p>
             </div>
           </motion.div>
         ))}
@@ -156,14 +160,14 @@ export default function SupplierProfilePage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div className="flex border-b border-slate-100 dark:border-slate-800">
+      <div className="bg-white dark:bg-slate-900 rounded-[1.5rem] sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div className="flex border-b border-slate-100 dark:border-slate-800 overflow-x-auto hide-scrollbar">
           {TABS.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "flex-1 py-4 text-[10px] font-black uppercase tracking-widest transition-all",
+                "flex-1 min-w-[120px] py-4 px-2 text-[9px] sm:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap",
                 activeTab === tab
                   ? "border-b-2 border-indigo-600 text-indigo-600"
                   : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
