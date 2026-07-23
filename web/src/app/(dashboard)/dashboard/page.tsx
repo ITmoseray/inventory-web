@@ -1147,8 +1147,15 @@ export default function DashboardPage() {
 }
 
 function OfficeDashboardView({ stats }: { stats: any }) {
-  const attendanceRate = stats.employeeCount > 0 
-    ? Math.round((stats.activeTodayCount / stats.employeeCount) * 100) 
+  const recentCheckins = stats?.recentCheckins || [];
+  const recentExpenses = stats?.recentExpenses || [];
+  const employeeCount = stats?.employeeCount || 0;
+  const activeTodayCount = stats?.activeTodayCount || 0;
+  const monthlyExpenses = stats?.monthlyExpenses || 0;
+  const departmentsCount = stats?.departmentsCount || 0;
+
+  const attendanceRate = employeeCount > 0 
+    ? Math.round((activeTodayCount / employeeCount) * 100) 
     : 0;
 
   return (
@@ -1157,7 +1164,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <StatCard 
           title="Total Employees" 
-          value={stats.employeeCount} 
+          value={employeeCount} 
           description="Registered personnel" 
           icon={Users}
           colorClass="text-blue-600 animate-pulse"
@@ -1167,7 +1174,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
         />
         <StatCard 
           title="Active Today" 
-          value={stats.activeTodayCount} 
+          value={activeTodayCount} 
           description={`${attendanceRate}% attendance rate`} 
           icon={UserCheck}
           colorClass="text-emerald-600"
@@ -1177,7 +1184,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
         />
         <StatCard 
           title="Monthly Expenses" 
-          value={stats.monthlyExpenses} 
+          value={monthlyExpenses} 
           prefix="Le "
           description="Current month operations" 
           icon={Wallet}
@@ -1188,7 +1195,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
         />
         <StatCard 
           title="Departments" 
-          value={stats.departmentsCount} 
+          value={departmentsCount} 
           description="Active team units" 
           icon={Briefcase}
           colorClass="text-purple-600"
@@ -1218,17 +1225,17 @@ function OfficeDashboardView({ stats }: { stats: any }) {
                           </TableRow>
                        </TableHeader>
                        <TableBody>
-                          {stats.recentCheckins.length === 0 ? (
+                          {recentCheckins.length === 0 ? (
                              <TableRow>
                                 <TableCell colSpan={4} className="h-32 text-center text-slate-400 font-bold uppercase text-[10px]">No check-ins logged today</TableCell>
                              </TableRow>
                           ) : (
-                             stats.recentCheckins.map((c: any) => (
+                             recentCheckins.map((c: any) => (
                                 <TableRow key={c.id}>
                                    <TableCell className="font-bold flex items-center gap-3 py-4">
                                       <Avatar className="h-9 w-9 border border-slate-200 dark:border-slate-800">
                                          <AvatarImage src={c.employeeImage} alt={c.employeeName} />
-                                         <AvatarFallback className="bg-slate-100 dark:bg-slate-800 font-black text-xs">{c.employeeName.charAt(0)}</AvatarFallback>
+                                         <AvatarFallback className="bg-slate-100 dark:bg-slate-800 font-black text-xs">{(c.employeeName || "E").charAt(0)}</AvatarFallback>
                                       </Avatar>
                                       <div>
                                          <p className="text-sm text-slate-900 dark:text-white leading-tight">{c.employeeName}</p>
@@ -1237,7 +1244,7 @@ function OfficeDashboardView({ stats }: { stats: any }) {
                                    </TableCell>
                                    <TableCell className="font-bold text-slate-500 text-sm">{c.department}</TableCell>
                                    <TableCell className="font-bold text-slate-500 text-sm">
-                                     {format(new Date(c.clockIn), "hh:mm a")}
+                                     {c.clockIn ? format(new Date(c.clockIn), "hh:mm a") : "-"}
                                    </TableCell>
                                    <TableCell>
                                       <span className={cn(
@@ -1266,18 +1273,18 @@ function OfficeDashboardView({ stats }: { stats: any }) {
               </CardHeader>
               <CardContent className="p-8 pt-4 flex-1">
                  <div className="space-y-4">
-                    {stats.recentExpenses.length === 0 ? (
+                    {recentExpenses.length === 0 ? (
                        <p className="text-center text-slate-400 font-bold uppercase text-[10px] py-12">No expenses logged yet</p>
                     ) : (
-                       stats.recentExpenses.map((e: any) => (
+                       recentExpenses.map((e: any) => (
                           <div key={e.id} className="flex justify-between items-center p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-900/30 border border-slate-100/50 dark:border-slate-800/30">
                              <div>
                                 <p className="font-bold text-sm text-slate-900 dark:text-white leading-tight">{e.description}</p>
                                 <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1">{e.categoryName}</p>
                              </div>
                              <div className="text-right">
-                                <p className="font-black text-sm text-slate-950 dark:text-white">Le {e.amount.toLocaleString()}</p>
-                                <p className="text-[9px] text-slate-400 font-bold mt-1">{format(new Date(e.date), "MMM dd")}</p>
+                                <p className="font-black text-sm text-slate-950 dark:text-white">Le {e.amount?.toLocaleString() || 0}</p>
+                                <p className="text-[9px] text-slate-400 font-bold mt-1">{e.date ? format(new Date(e.date), "MMM dd") : "-"}</p>
                              </div>
                           </div>
                        ))
