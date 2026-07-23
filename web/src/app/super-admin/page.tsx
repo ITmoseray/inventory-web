@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,8 @@ export default function NexusSuperControl() {
   const [settings, setSettings] = useState<any>(null);
   const [backups, setBackups] = useState<any[]>([]);
   const [inactiveBusinesses, setInactiveBusinesses] = useState<any[]>([]);
+  const [businessesList, setBusinessesList] = useState<any[]>([]);
+  const [selectedStoreForForm, setSelectedStoreForForm] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [broadcastMsg, setBroadcastMsg] = useState("");
   const [isMaintenance, setIsMaintenance] = useState(false);
@@ -168,13 +170,14 @@ export default function NexusSuperControl() {
   async function refreshData() {
     try {
       setLoading(true);
-      const [statsData, healthData, settingsData, backupsData, usersData, inactiveData] = await Promise.all([
+      const [statsData, healthData, settingsData, backupsData, usersData, inactiveData, bData] = await Promise.all([
         getSystemStats(),
         getEcosystemHealth(),
         getSystemSettings(),
         getBackupsList(),
         getAllSystemUsers(),
-        getInactiveBusinesses()
+        getInactiveBusinesses(),
+        getAllBusinesses()
       ]);
       setStats(statsData);
       setHealth(healthData);
@@ -182,6 +185,7 @@ export default function NexusSuperControl() {
       setBackups(backupsData);
       setSystemUsers(usersData);
       setInactiveBusinesses(inactiveData);
+      setBusinessesList(bData || []);
       setIsMaintenance((statsData as any).maintenanceMode || false);
     } catch (error) {
       console.error(error);
@@ -679,26 +683,25 @@ export default function NexusSuperControl() {
                   <h1 className="text-xl sm:text-2xl md:text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight">Nexus <span className="text-indigo-650 dark:text-indigo-500">Admin Panel</span></h1>
                   <div className="hidden sm:flex px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-[7px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest h-fit">v4.2.0</div>
                </div>
-               <div className="flex items-center justify-center sm:justify-start gap-2">
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <p className="text-slate-500 font-black text-[9px] uppercase tracking-[0.25em]">Operational Level: Super Admin</p>
-               </div>
-            </div>
-         </motion.div>
-         
-         <div className="flex items-center justify-center gap-4 mt-4 md:mt-0">
-            <div className="flex flex-col items-center sm:items-end">
-               <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Admin User</span>
-               <span className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
-            </div>
-            <Button variant="outline" onClick={async () => {
-               const { logoutUserCompletely } = await import("@/lib/utils/logout");
-               await logoutUserCompletely(signOut);
-            }} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
-               <LogOut className="mr-2 h-3.5 w-3.5" /> Log Out
-            </Button>
-         </div>
-      </div>
+</motion.div>
+          <div className="flex items-center justify-center gap-3 mt-4 md:mt-0 flex-wrap">
+             <Link href="/super-admin/businesses">
+                <Button className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20">
+                   <Megaphone className="h-4 w-4" /> Client Discovery & Registration Vault
+                </Button>
+             </Link>
+             <div className="flex flex-col items-center sm:items-end">
+                <span className="text-[9px] font-black text-slate-500 dark:text-slate-550 tracking-widest leading-none uppercase">Admin User</span>
+                <span className="text-xs font-black text-slate-900 dark:text-white mt-1 uppercase tracking-tighter">Dr. Strange</span>
+             </div>
+             <Button variant="outline" onClick={async () => {
+                const { logoutUserCompletely } = await import("@/lib/utils/logout");
+                await logoutUserCompletely(signOut);
+             }} className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
+                <LogOut className="mr-2 h-3.5 w-3.5" /> Log Out
+             </Button>
+          </div>
+       </div>
 
       {/* Navigation Tabs */}
       <div className="bg-slate-100/80 dark:bg-slate-900/60 p-1.5 rounded-2xl flex md:flex-wrap gap-2 mb-10 relative z-10 w-fit max-w-full overflow-x-auto scrollbar-none whitespace-nowrap">
@@ -746,6 +749,103 @@ export default function NexusSuperControl() {
                 <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
                 <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={stats.pendingApprovals > 0 ? "warning" : "default"} />
               </div>
+
+              {/* HOW CLIENTS DISCOVER PROTECH ENTERPRISE OS & REGISTRATION ACCOUNTS WINDOW */}
+              <GlassCard className="p-6 md:p-8 bg-gradient-to-br from-indigo-900/20 via-slate-900/60 to-slate-950 border-indigo-500/30 space-y-6 relative z-10">
+                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
+                    <div className="flex items-center gap-3">
+                       <div className="h-12 w-12 rounded-2xl bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                          <Megaphone className="h-6 w-6 animate-pulse" />
+                       </div>
+                       <div>
+                          <h3 className="text-xl font-[1000] uppercase tracking-tight text-slate-900 dark:text-white italic">How Clients Discover ProTech Enterprise OS</h3>
+                          <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Client acquisition channels & registration form records</p>
+                       </div>
+                    </div>
+                    <Link href="/super-admin/businesses">
+                       <Button size="sm" className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-md">
+                          <Eye className="h-3.5 w-3.5" /> Full Registration Vault ({businessesList.length})
+                       </Button>
+                    </Link>
+                 </div>
+
+                 {/* Channel Summary Badges */}
+                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                    {Object.entries(
+                       businessesList.reduce((acc: Record<string, number>, b: any) => {
+                          const src = b.referralSource || "Direct / Unspecified";
+                          acc[src] = (acc[src] || 0) + 1;
+                          return acc;
+                       }, {})
+                    ).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([channel, count]) => {
+                       const percentage = businessesList.length > 0 ? Math.round((count / businessesList.length) * 100) : 0;
+                       return (
+                          <div key={channel} className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 text-slate-200">
+                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider truncate">{channel}</p>
+                             <p className="text-xl font-black text-white mt-1 leading-none">{count} <span className="text-xs font-normal text-indigo-400">({percentage}%)</span></p>
+                             <div className="w-full bg-slate-800 rounded-full h-1 mt-2 overflow-hidden">
+                                <div className="h-full bg-indigo-500" style={{ width: `${percentage}%` }} />
+                             </div>
+                          </div>
+                       );
+                    })}
+                 </div>
+
+                 {/* Recent Registered Accounts */}
+                 <div className="pt-2">
+                    <div className="flex items-center justify-between mb-3">
+                       <h4 className="text-xs font-black uppercase tracking-widest text-slate-400">Recent Account Registrations ({businessesList.length})</h4>
+                       <Link href="/super-admin/businesses" className="text-[10px] font-black text-indigo-400 hover:underline uppercase tracking-wider">
+                          View All In Vault →
+                       </Link>
+                    </div>
+
+                    <div className="rounded-2xl border border-slate-800 overflow-hidden bg-slate-950/60">
+                       <Table>
+                          <TableHeader className="bg-slate-900/80">
+                             <TableRow className="border-slate-800">
+                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest">Client Organization</TableHead>
+                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest">How They Heard About Us</TableHead>
+                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest">Plan & Region</TableHead>
+                                <TableHead className="font-black text-slate-400 uppercase text-[9px] tracking-widest text-right">Account Form</TableHead>
+                             </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                             {businessesList.slice(0, 5).map((b: any) => (
+                                <TableRow key={b.id} className="border-slate-900 hover:bg-white/5 transition-colors">
+                                   <TableCell className="font-black text-white text-xs py-3.5">
+                                      <div>
+                                         <p className="font-black text-white leading-tight">{b.name}</p>
+                                         <p className="text-[9px] font-bold text-slate-500 uppercase">{b.email || b.slug}</p>
+                                      </div>
+                                   </TableCell>
+                                   <TableCell>
+                                      <span className="px-2 py-0.5 rounded-md bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 font-bold text-[9px] uppercase">
+                                         {b.referralSource || "Direct"}
+                                      </span>
+                                      {b.customReferralSource && (
+                                         <p className="text-[8.5px] text-slate-400 italic mt-0.5 line-clamp-1">"{b.customReferralSource}"</p>
+                                      )}
+                                   </TableCell>
+                                   <TableCell className="text-[10px] font-bold text-slate-300 uppercase">
+                                      {b.plan} • {b.currency}
+                                   </TableCell>
+                                   <TableCell className="text-right">
+                                      <Button 
+                                         size="sm" 
+                                         onClick={() => setSelectedStoreForForm(b)}
+                                         className="h-8 px-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[9px] uppercase tracking-wider gap-1"
+                                      >
+                                         <FileText className="h-3 w-3" /> View Form
+                                      </Button>
+                                   </TableCell>
+                                </TableRow>
+                             ))}
+                          </TableBody>
+                       </Table>
+                    </div>
+                 </div>
+              </GlassCard>
 
               {inactiveBusinesses.length > 0 && (
                 <motion.div
@@ -1707,6 +1807,115 @@ export default function NexusSuperControl() {
         </motion.div>
       </AnimatePresence>
        </div>
-    </div>
-  );
-}
+
+       {/* CLIENT REGISTRATION ACCOUNT FORM VIEW MODAL */}
+       <Dialog open={selectedStoreForForm !== null} onOpenChange={(open) => !open && setSelectedStoreForForm(null)}>
+         <DialogContent className="w-[94vw] sm:max-w-2xl rounded-[2.5rem] p-6 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-2xl bg-white dark:bg-slate-950 text-slate-900 dark:text-white max-h-[92vh] overflow-y-auto custom-scrollbar">
+           <DialogHeader className="mb-6 pb-4 border-b border-slate-200 dark:border-slate-800">
+             <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                   <div className="h-14 w-14 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-black text-2xl shadow-xl shadow-indigo-600/30 shrink-0">
+                      {selectedStoreForForm?.name?.charAt(0).toUpperCase()}
+                   </div>
+                   <div>
+                      <DialogTitle className="text-xl sm:text-2xl font-[1000] tracking-tight uppercase italic leading-tight text-slate-900 dark:text-white">
+                         {selectedStoreForForm?.name}
+                      </DialogTitle>
+                      <DialogDescription className="text-indigo-600 dark:text-indigo-400 font-black text-[10px] uppercase tracking-[0.2em] mt-1">
+                         Client Registration Form Submission Record
+                      </DialogDescription>
+                   </div>
+                </div>
+                <span className={cn(
+                   "px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shrink-0",
+                   selectedStoreForForm?.status === 'ACTIVE' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20" : "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                )}>
+                   {selectedStoreForForm?.status}
+                </span>
+             </div>
+           </DialogHeader>
+
+           {selectedStoreForForm && (
+             <div className="space-y-6">
+                {/* DISCOVERY CHANNEL */}
+                <div className="p-5 rounded-3xl bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-500/30 space-y-3">
+                   <div className="flex items-center gap-2 text-indigo-700 dark:text-indigo-300">
+                      <Megaphone className="h-4 w-4" />
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.25em]">How Client Discovered ProTech OS</h4>
+                   </div>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Selected Discovery Channel</span>
+                         <span className="text-sm font-black text-indigo-600 dark:text-indigo-300 block mt-0.5">
+                            {selectedStoreForForm.referralSource || "Unspecified / Direct"}
+                         </span>
+                      </div>
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Custom Typed Details</span>
+                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block mt-0.5 italic">
+                            {selectedStoreForForm.customReferralSource ? `"${selectedStoreForForm.customReferralSource}"` : "None provided"}
+                         </span>
+                      </div>
+                   </div>
+                </div>
+
+                {/* ORGANIZATION FORM DATA */}
+                <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4">
+                   <h4 className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-indigo-500" /> Organization Profile Form Data
+                   </h4>
+                   <div className="grid grid-cols-2 gap-4 pt-1">
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Company / School Name</span>
+                         <span className="text-xs font-black text-slate-900 dark:text-white mt-0.5 block">{selectedStoreForForm.name}</span>
+                      </div>
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Industry Type</span>
+                         <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 mt-0.5 block uppercase">
+                            {selectedStoreForForm.type} {selectedStoreForForm.institutionType ? `(${selectedStoreForForm.institutionType})` : ""}
+                         </span>
+                      </div>
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Base Currency</span>
+                         <span className="text-xs font-black text-slate-900 dark:text-white mt-0.5 block">{selectedStoreForForm.currency}</span>
+                      </div>
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Timezone</span>
+                         <span className="text-xs font-black text-slate-900 dark:text-white mt-0.5 block">{selectedStoreForForm.timezone}</span>
+                      </div>
+                      <div className="col-span-2">
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Physical Address</span>
+                         <span className="text-xs font-bold text-slate-800 dark:text-slate-200 mt-0.5 block">{selectedStoreForForm.address || "No physical address provided"}</span>
+                      </div>
+                   </div>
+                </div>
+
+                {/* OWNER CREDENTIALS */}
+                <div className="p-6 rounded-3xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4">
+                   <h4 className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                      <Mail className="h-4 w-4 text-indigo-500" /> Account Owner Credentials
+                   </h4>
+                   <div className="grid grid-cols-2 gap-4 pt-1">
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Owner Email</span>
+                         <span className="text-xs font-black text-slate-900 dark:text-white mt-0.5 block select-all">{selectedStoreForForm.email || "No email"}</span>
+                      </div>
+                      <div>
+                         <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest block">Contact Phone</span>
+                         <span className="text-xs font-black text-slate-900 dark:text-white mt-0.5 block">{selectedStoreForForm.phone || "No phone"}</span>
+                      </div>
+                   </div>
+                </div>
+
+                <div className="flex justify-end pt-4 border-t border-slate-200 dark:border-slate-800">
+                   <Button onClick={() => setSelectedStoreForForm(null)} className="h-11 px-6 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-black text-[10px] uppercase tracking-widest">
+                      Close Form Window
+                   </Button>
+                </div>
+             </div>
+           )}
+         </DialogContent>
+       </Dialog>
+     </div>
+   );
+ }
