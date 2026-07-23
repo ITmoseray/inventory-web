@@ -49,30 +49,30 @@ export default function PurchaseAnalyticsPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-4 sm:p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link href="/dashboard/purchases/suppliers">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto">
+          <Link href="/dashboard/purchases/suppliers" className="shrink-0">
             <Button variant="ghost" className="h-10 w-10 p-0 rounded-xl">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-[1.5rem] bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-xl shadow-violet-500/30">
-              <BarChart3 className="h-7 w-7 text-white" />
+          <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+            <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-2xl sm:rounded-[1.5rem] bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
+              <BarChart3 className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
             </div>
-            <div>
-              <h1 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Purchase Analytics</h1>
-              <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{data.purchaseCount} total purchase orders</p>
+            <div className="min-w-0">
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight truncate leading-none">Purchase Analytics</h1>
+              <p className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-widest truncate mt-1">{data.purchaseCount} total purchase orders</p>
             </div>
           </div>
         </div>
-        <Button onClick={fetchData} variant="outline" className="h-11 px-5 rounded-2xl gap-2 font-black text-[10px] uppercase tracking-widest">
-          <RefreshCw className="h-4 w-4" /> Refresh
+        <Button onClick={fetchData} variant="outline" className="w-full sm:w-auto h-10 sm:h-11 px-4 sm:px-5 rounded-xl sm:rounded-2xl gap-1.5 sm:gap-2 font-black text-[9px] sm:text-[10px] uppercase tracking-widest shrink-0">
+          <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Refresh Data
         </Button>
       </div>
 
       {/* KPI Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
         {[
           { label: "Total Spend", value: `Le ${Math.round(data.totalSpend).toLocaleString()}`, color: "text-violet-600", bg: "bg-violet-50 dark:bg-violet-950/30", icon: TrendingUp },
           { label: "Total Paid", value: `Le ${Math.round(data.totalPaid).toLocaleString()}`, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30", icon: TrendingUp },
@@ -80,13 +80,13 @@ export default function PurchaseAnalyticsPage() {
           { label: "Orders", value: data.purchaseCount, color: "text-amber-600", bg: "bg-amber-50 dark:bg-amber-950/30", icon: BarChart3 },
         ].map((k, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-            className="bg-white dark:bg-slate-900 rounded-[1.5rem] border border-slate-100 dark:border-slate-800 p-5 flex items-center gap-4 shadow-sm">
-            <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shrink-0", k.bg)}>
-              <k.icon className={cn("h-6 w-6", k.color)} />
+            className="bg-white dark:bg-slate-900 rounded-[1.25rem] sm:rounded-[1.5rem] border border-slate-100 dark:border-slate-800 p-4 sm:p-5 flex items-center gap-3 sm:gap-4 shadow-sm">
+            <div className={cn("h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0", k.bg)}>
+              <k.icon className={cn("h-5 w-5 sm:h-6 sm:w-6", k.color)} />
             </div>
-            <div>
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{k.label}</p>
-              <p className={cn("text-base font-black tracking-tight", k.color)}>{k.value}</p>
+            <div className="min-w-0">
+              <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">{k.label}</p>
+              <p className={cn("text-sm sm:text-base font-black tracking-tight truncate mt-0.5", k.color)}>{k.value}</p>
             </div>
           </motion.div>
         ))}
