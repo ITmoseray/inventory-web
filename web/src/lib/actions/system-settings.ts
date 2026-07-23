@@ -14,7 +14,7 @@ export interface SystemSettings {
 
 const defaultSettings: SystemSettings = {
   registrationOpen: true,
-  defaultTrialDays: 7,
+  defaultTrialDays: 14,
   announcementBanner: "",
   announcementBannerUpdatedAt: "",
   emailAlertsEnabled: true,

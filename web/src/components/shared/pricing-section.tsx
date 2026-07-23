@@ -170,8 +170,8 @@ const collegePlans = [
 
 const faqs = [
   {
-    q: 'How does the 7-day free trial work?',
-    a: 'You can sign up and use all features of the selected plan free for 7 days. We do not require a card upfront. You can upgrade, downgrade, or cancel at any time during the trial.',
+    q: 'How does the 14-day free trial work?',
+    a: 'You can sign up and use all features of the selected plan free for 14 days. We do not require a card upfront. You can upgrade, downgrade, or cancel at any time during the trial.',
   },
   {
     q: 'Can I change plans later?',

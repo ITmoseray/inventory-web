@@ -375,7 +375,7 @@ export default function RegisterPage() {
               <div className="grid grid-cols-3 gap-2 pt-2 border-t border-slate-800/80">
                  <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                     <p className="text-[8px] font-black text-slate-400 uppercase">Selected Plan</p>
-                    <p className="text-[10px] font-black text-indigo-400 uppercase mt-0.5">{formData.plan === 'FREE' ? '7-Day Trial' : 'Enterprise'}</p>
+                    <p className="text-[10px] font-black text-indigo-400 uppercase mt-0.5">{formData.plan === 'FREE' ? '14-Day Trial' : 'Enterprise'}</p>
                  </div>
                  <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
                     <p className="text-[8px] font-black text-slate-400 uppercase">Region</p>
@@ -823,7 +823,7 @@ export default function RegisterPage() {
                                 )}
                               >
                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400">7-Day Free Trial</span>
+                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400">14-Day Free Trial</span>
                                     {formData.plan === "FREE" && <Check className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />}
                                  </div>
                                  <p className="text-sm font-black text-slate-900 dark:text-white uppercase">Starter Node</p>

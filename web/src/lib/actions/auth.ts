@@ -22,12 +22,12 @@ export async function registerBusiness(data: any) {
     if (existingUser) throw new Error("An account already exists for this email address.");
 
     // 2. Create Business
-    // The current logic sets a 7-day trial for FREE plans.
+    // The current logic sets a 14-day trial for FREE plans.
     // To satisfy "prevent users from starting another free trial", 
     // maybe we only set trial if they are truly new?
     // For now, let's keep it as is, as registration is the start of the journey.
     
-    const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7 }));
+    const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 14 }));
     const trialEndDate = plan === 'FREE' ? new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000) : null;
 
     const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL", "OFFICE", "SCHOOL"];
