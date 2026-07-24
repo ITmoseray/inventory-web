@@ -269,94 +269,7 @@ const SidebarContentRenderer = ({
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-white/10 space-y-3">
-        {/* Trial Plan Card */}
-        {session?.user?.trialEndDate && (() => {
-          const end = new Date(session.user.trialEndDate as string);
-          const now = new Date();
-          const totalDays = 7;
-          const daysLeft = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
-          const progress = Math.max(5, Math.round(((totalDays - daysLeft) / totalDays) * 100));
-          const isExpired = daysLeft <= 0;
-          const isCritical = daysLeft <= 2;
-
-          return (
-            <Link
-              href="/pricing"
-              className={cn(
-                "block group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl",
-                isCollapsed && "hidden",
-                isExpired
-                  ? "bg-gradient-to-br from-rose-500 via-rose-600 to-red-700"
-                  : isCritical
-                  ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-700"
-                  : "bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-800"
-              )}
-            >
-              {/* Shine overlay */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_60%)] pointer-events-none" />
-              <div className="absolute -top-4 -right-4 h-20 w-20 bg-white/10 rounded-full blur-2xl" />
-
-              {/* Header */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="h-7 w-7 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-inner">
-                    <Crown className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <span className="text-[9px] font-black text-white/80 uppercase tracking-[0.25em]">Premium Trial</span>
-                </div>
-                <span className={cn(
-                  "text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full border",
-                  isExpired
-                    ? "bg-white/20 border-white/20 text-white"
-                    : isCritical
-                    ? "bg-white/20 border-white/20 text-white animate-pulse"
-                    : "bg-white/15 border-white/20 text-white/90"
-                )}>
-                  {isExpired ? "Expired" : isCritical ? "Expiring Soon" : "Active"}
-                </span>
-              </div>
-
-              {/* Days remaining */}
-              <div className="mb-3">
-                <p className="text-white font-black text-sm leading-tight">
-                  {isExpired
-                    ? "Your trial has expired"
-                    : `Ends in ${daysLeft} ${daysLeft === 1 ? "day" : "days"}`
-                  }
-                </p>
-                <p className="text-white/60 text-[10px] font-medium mt-0.5">
-                  {isExpired ? "Subscribe to restore access" : "Subscribe to keep all features"}
-                </p>
-              </div>
-
-              {/* Progress bar */}
-              <div className="mb-4">
-                <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-white/80 rounded-full transition-all"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-                <div className="flex justify-between mt-1.5">
-                  <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">Trial Start</span>
-                  <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">Trial End</span>
-                </div>
-              </div>
-
-              {/* CTA */}
-              <div className="flex items-center justify-between h-9 px-3 rounded-xl bg-white/90 group-hover:bg-white transition-colors shadow-lg">
-                <div className="flex items-center gap-1.5">
-                  <Zap className="h-3.5 w-3.5 fill-current text-indigo-700" />
-                  <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">
-                    Subscribe Now
-                  </span>
-                </div>
-                <ArrowRight className="h-3.5 w-3.5 text-indigo-700 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </Link>
-          );
-        })()}
+      <SidebarFooter className="p-3 border-t border-white/10 space-y-1.5">
         <SidebarMenu>
           <SidebarMenuItem>
             <Dialog>
@@ -412,7 +325,7 @@ const SidebarContentRenderer = ({
                 </div>
                 <DropdownMenuItem render={<Link href="/dashboard/system/profile" className="flex items-center w-full" />}>
                     <UserCircle className="mr-3 size-4 text-slate-400" />
-                    Security & Profile
+                    Security &amp; Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem render={<Link href="/dashboard/system/settings" className="flex items-center w-full" />}>
                     <Settings className="mr-3 size-4 text-slate-400" />
@@ -438,7 +351,68 @@ const SidebarContentRenderer = ({
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        {/* Plan Card — always visible at very bottom */}
+        {!isCollapsed && (() => {
+          const hasTrial = !!session?.user?.trialEndDate;
+          const end = hasTrial ? new Date(session!.user!.trialEndDate as string) : null;
+          const now = new Date();
+          const totalDays = 7;
+          const daysLeft = end ? Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
+          const progress = hasTrial ? Math.max(4, Math.round(((totalDays - daysLeft) / totalDays) * 100)) : 100;
+          const isExpired = hasTrial && daysLeft <= 0;
+          const isCritical = hasTrial && daysLeft <= 2 && !isExpired;
+
+          const gradientClass = isExpired
+            ? "bg-gradient-to-r from-rose-500 to-red-600"
+            : isCritical
+            ? "bg-gradient-to-r from-amber-500 to-orange-500"
+            : hasTrial
+            ? "bg-gradient-to-r from-indigo-500 to-purple-600"
+            : "bg-gradient-to-r from-slate-700 to-slate-800 dark:from-slate-800 dark:to-slate-900";
+
+          const label = isExpired
+            ? "Trial expired"
+            : hasTrial
+            ? `Trial ends in ${daysLeft}d`
+            : `${session?.user?.role === "SUPERADMIN" ? "Super Admin" : "Premium Plan"}`;
+
+          const ctaLabel = isExpired || hasTrial ? "Subscribe" : "Upgrade";
+
+          return (
+            <Link
+              href="/pricing"
+              className={cn(
+                "group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 transition-all duration-300 hover:opacity-90 hover:shadow-lg border border-white/10",
+                gradientClass
+              )}
+            >
+              {/* Shimmer */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.10),_transparent_70%)] pointer-events-none" />
+
+              {/* Crown icon */}
+              <div className="h-7 w-7 shrink-0 rounded-lg bg-white/20 flex items-center justify-center border border-white/20">
+                <Crown className="h-3.5 w-3.5 text-white" />
+              </div>
+
+              {/* Text + progress */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-black text-white leading-none truncate">{label}</p>
+                <div className="mt-1.5 h-1 w-full bg-white/25 rounded-full overflow-hidden">
+                  <div className="h-full bg-white/75 rounded-full transition-all" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="shrink-0 flex items-center gap-1 bg-white/20 hover:bg-white/30 border border-white/20 rounded-lg px-2 py-1 transition-colors">
+                <Zap className="h-3 w-3 text-white fill-current" />
+                <span className="text-[9px] font-black text-white uppercase tracking-wider whitespace-nowrap">{ctaLabel}</span>
+              </div>
+            </Link>
+          );
+        })()}
       </SidebarFooter>
+
     </>
   );
 };
