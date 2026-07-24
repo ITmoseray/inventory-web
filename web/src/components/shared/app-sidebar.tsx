@@ -352,61 +352,113 @@ const SidebarContentRenderer = ({
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* Plan Card — always visible at very bottom */}
+        {/* Plan / Trial Card — large, at very bottom */}
         {!isCollapsed && (() => {
+          const plan = (session?.user as any)?.plan as string | null;
           const hasTrial = !!session?.user?.trialEndDate;
-          const end = hasTrial ? new Date(session!.user!.trialEndDate as string) : null;
+          const subEnd = (session?.user as any)?.subscriptionEndDate ? new Date((session.user as any).subscriptionEndDate) : null;
+          const trialEnd = hasTrial ? new Date(session!.user!.trialEndDate as string) : null;
           const now = new Date();
-          const totalDays = 7;
-          const daysLeft = end ? Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
-          const progress = hasTrial ? Math.max(4, Math.round(((totalDays - daysLeft) / totalDays) * 100)) : 100;
-          const isExpired = hasTrial && daysLeft <= 0;
-          const isCritical = hasTrial && daysLeft <= 2 && !isExpired;
 
-          const gradientClass = isExpired
-            ? "bg-gradient-to-r from-rose-500 to-red-600"
-            : isCritical
-            ? "bg-gradient-to-r from-amber-500 to-orange-500"
-            : hasTrial
-            ? "bg-gradient-to-r from-indigo-500 to-purple-600"
-            : "bg-gradient-to-r from-slate-700 to-slate-800 dark:from-slate-800 dark:to-slate-900";
+          // Determine end date and days left
+          const relevantEnd = hasTrial ? trialEnd : subEnd;
+          const daysLeft = relevantEnd
+            ? Math.max(0, Math.ceil((relevantEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
+            : null;
 
-          const label = isExpired
-            ? "Trial expired"
-            : hasTrial
-            ? `Trial ends in ${daysLeft}d`
-            : `${session?.user?.role === "SUPERADMIN" ? "Super Admin" : "Premium Plan"}`;
+          const totalDays = hasTrial ? 7 : 30;
+          const progress = daysLeft !== null
+            ? Math.max(4, Math.round(((totalDays - daysLeft) / totalDays) * 100))
+            : 100;
 
-          const ctaLabel = isExpired || hasTrial ? "Subscribe" : "Upgrade";
+          const isExpired = hasTrial && daysLeft !== null && daysLeft <= 0;
+          const isCritical = daysLeft !== null && daysLeft <= 2 && !isExpired;
+
+          // Plan label display
+          const planLabel =
+            isExpired ? "Trial Expired" :
+            hasTrial ? "Free Trial" :
+            plan === "FREE" ? "Free Plan" :
+            plan === "BASIC" ? "Basic Plan" :
+            plan === "STANDARD" ? "Standard Plan" :
+            plan === "PREMIUM" ? "Premium Plan" :
+            plan === "ENTERPRISE" ? "Enterprise Plan" :
+            "Active Plan";
+
+          const daysLabel =
+            isExpired ? "Expired — action needed" :
+            daysLeft !== null ? `${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining` :
+            "Unlimited access";
+
+          const ctaText = isExpired || hasTrial ? "Subscribe Now" : "Manage Plan";
+
+          const gradientClass =
+            isExpired ? "from-rose-500 to-red-700" :
+            isCritical ? "from-amber-500 to-orange-600" :
+            hasTrial ? "from-indigo-500 to-purple-700" :
+            plan === "PREMIUM" || plan === "ENTERPRISE" ? "from-violet-600 to-indigo-700" :
+            "from-slate-600 to-slate-800";
 
           return (
             <Link
               href="/pricing"
               className={cn(
-                "group relative flex items-center gap-3 overflow-hidden rounded-xl px-3 py-2.5 transition-all duration-300 hover:opacity-90 hover:shadow-lg border border-white/10",
+                "group relative flex flex-col gap-3 overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:shadow-2xl hover:brightness-110 border border-white/10 bg-gradient-to-br",
                 gradientClass
               )}
             >
               {/* Shimmer */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.10),_transparent_70%)] pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12),_transparent_65%)] pointer-events-none" />
+              <div className="absolute -top-6 -right-6 h-24 w-24 bg-white/10 rounded-full blur-2xl pointer-events-none" />
 
-              {/* Crown icon */}
-              <div className="h-7 w-7 shrink-0 rounded-lg bg-white/20 flex items-center justify-center border border-white/20">
-                <Crown className="h-3.5 w-3.5 text-white" />
-              </div>
-
-              {/* Text + progress */}
-              <div className="flex-1 min-w-0">
-                <p className="text-[10px] font-black text-white leading-none truncate">{label}</p>
-                <div className="mt-1.5 h-1 w-full bg-white/25 rounded-full overflow-hidden">
-                  <div className="h-full bg-white/75 rounded-full transition-all" style={{ width: `${progress}%` }} />
+              {/* Top row: icon + plan badge */}
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-white/20 border border-white/25 flex items-center justify-center shadow-inner">
+                    <Crown className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-[9px] font-black text-white/60 uppercase tracking-[0.25em] leading-none">Your Plan</p>
+                    <p className="text-xs font-black text-white leading-tight mt-0.5">{planLabel}</p>
+                  </div>
                 </div>
+                <span className={cn(
+                  "text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full border border-white/20 bg-white/15",
+                  isCritical && "animate-pulse",
+                  "text-white"
+                )}>
+                  {isExpired ? "Expired" : isCritical ? "Expiring!" : hasTrial ? "Trial" : "Active"}
+                </span>
               </div>
 
-              {/* CTA */}
-              <div className="shrink-0 flex items-center gap-1 bg-white/20 hover:bg-white/30 border border-white/20 rounded-lg px-2 py-1 transition-colors">
-                <Zap className="h-3 w-3 text-white fill-current" />
-                <span className="text-[9px] font-black text-white uppercase tracking-wider whitespace-nowrap">{ctaLabel}</span>
+              {/* Days remaining label */}
+              <div className="relative z-10">
+                <p className="text-[11px] font-bold text-white/80 leading-none">{daysLabel}</p>
+              </div>
+
+              {/* Progress bar */}
+              {daysLeft !== null && (
+                <div className="relative z-10 space-y-1">
+                  <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-white/75 rounded-full transition-all duration-700"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-[8px] text-white/40 font-bold uppercase tracking-wider">Start</span>
+                    <span className="text-[8px] text-white/40 font-bold uppercase tracking-wider">End</span>
+                  </div>
+                </div>
+              )}
+
+              {/* CTA button */}
+              <div className="relative z-10 flex items-center justify-between h-9 px-3.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 transition-colors group-hover:border-white/40">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-3.5 w-3.5 text-white fill-current" />
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">{ctaText}</span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-white/70 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
               </div>
             </Link>
           );

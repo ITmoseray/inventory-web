@@ -26,6 +26,8 @@ declare module "next-auth" {
       businessType: string;
       institutionType: string | null;
       trialEndDate: Date | null;
+      plan: string | null;
+      subscriptionEndDate: Date | null;
       role: string;
       permissions: string[];
       originalRole?: string;
@@ -38,6 +40,8 @@ declare module "next-auth" {
     businessType: string;
     institutionType: string | null;
     trialEndDate: Date | null;
+    plan: string | null;
+    subscriptionEndDate: Date | null;
     role: string;
     permissions: string[];
     originalRole?: string;
@@ -108,6 +112,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               businessName: user.business.name,
               businessType: user.business.type,
               trialEndDate: user.business.trialEndDate,
+              plan: user.business.plan,
+              subscriptionEndDate: (user.business as any).subscriptionEndDate || null,
               role: user.role.name,
               permissions: user.role.permissions.map(p => p.key),
               emailVerified: user.emailVerified,
@@ -291,6 +297,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.businessType && session.user) session.user.businessType = token.businessType as string;
       if (token.institutionType && session.user) session.user.institutionType = token.institutionType as string;
       if (token.trialEndDate && session.user) session.user.trialEndDate = token.trialEndDate as Date;
+      if (token.plan && session.user) session.user.plan = token.plan as string;
+      if (session.user) session.user.subscriptionEndDate = (token.subscriptionEndDate as Date) || null;
       if (token.originalRole && session.user) {
         (session.user as any).originalRole = token.originalRole as string;
       }
@@ -314,6 +322,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.businessType = (user as any).businessType;
         token.institutionType = (user as any).institutionType;
         token.trialEndDate = (user as any).trialEndDate;
+        token.plan = (user as any).plan;
+        token.subscriptionEndDate = (user as any).subscriptionEndDate;
         token.permissions = (user as any).permissions;
         token.picture = (user as any).imageUrl || user.image;
         console.log(`SERVER AUTH: Initial Login - Role: ${token.role}, Perms: ${(token.permissions as string[] || []).length || 0}`);
@@ -337,7 +347,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
             
             if (dbUser) {
-              token.sub = dbUser.id; // Ensure sub is synced
+              token.sub = dbUser.id;
               token.role = dbUser.role.name;
               token.permissions = dbUser.role.permissions.map(p => p.key);
               token.businessType = dbUser.business.type;
@@ -345,6 +355,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               token.businessName = dbUser.business.name;
               token.businessId = dbUser.businessId;
               token.trialEndDate = dbUser.business.trialEndDate;
+              token.plan = dbUser.business.plan;
+              token.subscriptionEndDate = (dbUser.business as any).subscriptionEndDate || null;
               token.picture = dbUser.imageUrl;
               console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);
             } else {
