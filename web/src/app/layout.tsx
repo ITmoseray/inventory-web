@@ -1,5 +1,6 @@
 import { SplashScreenWrapper } from "@/components/shared/splash-screen-wrapper";
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -36,6 +37,8 @@ export const viewport: import("next").Viewport = {
   themeColor: "#4f46e5",
 };
 
+const inter = Inter({ subsets: ["latin"], display: "swap" });
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -50,7 +53,7 @@ export default function RootLayout({
       <head>
         <link rel="apple-touch-icon" href="/images/PA.png" />
       </head>
-      <body className="min-h-full flex flex-col font-sans">
+      <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
         <ThemeProvider
             attribute="class"
             defaultTheme="light"

@@ -4,7 +4,8 @@ import * as React from "react";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
-  CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator
+  CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
+  Crown, Zap, ArrowRight
 } from "lucide-react";
 
 import {
@@ -137,9 +138,9 @@ const SidebarContentRenderer = ({
                     unoptimized 
                   />
                 </div>
-                <div className={cn("flex flex-col gap-0.5 leading-none transition-all duration-300", isCollapsed ? "opacity-0 w-0" : "opacity-100")}>
+                <div className="relative flex flex-col gap-0.5 leading-none transition-all duration-300">
                   <span className="font-black text-lg text-slate-900 dark:text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
-                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
                 </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -147,10 +148,10 @@ const SidebarContentRenderer = ({
         
         <div className={cn("mt-8 mb-6 px-2 transition-all duration-300", isCollapsed ? "opacity-0 hidden" : "opacity-100")}>
            <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">Context</div>
+              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Context</div>
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
            </div>
-           <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/50 shadow-inner group cursor-pointer transition-all hover:border-primary/20 dark:hover:border-primary/30 flex items-center gap-3">
+           <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/10 shadow-inner group cursor-pointer transition-all hover:border-primary/30 flex items-center gap-3">
               {businessContext.logoUrl && (
                 <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 flex-shrink-0">
                   <Image 
@@ -164,7 +165,7 @@ const SidebarContentRenderer = ({
               )}
               <div className="flex-1 min-w-0">
                 <span className="text-xs font-black text-slate-900 dark:text-white truncate block group-hover:text-primary transition-colors">{businessContext.name}</span>
-                <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
+                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
               </div>
            </div>
         </div>
@@ -188,7 +189,7 @@ const SidebarContentRenderer = ({
           )}
           {filteredNavGroups.map((group: NavGroup) => (
             <div key={group.label} className="space-y-2">
-              <div className={cn("px-4 text-[9px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
+              <div className={cn("px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
               <div className="space-y-1">
                 {group.items.map((item: NavItem) => {
                   const hasChildren = item.items && item.items.length > 0;
@@ -206,20 +207,20 @@ const SidebarContentRenderer = ({
                           className={cn(
                             "h-11 rounded-xl transition-all duration-300 font-bold px-4 group/btn",
                             isActive && !hasChildren
-                              ? "bg-slate-900 text-white shadow-xl dark:bg-indigo-600 dark:shadow-indigo-500/20" 
-                              : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:scale-[1.02] active:scale-[0.98]",
-                            hasChildren && isExpanded && "bg-slate-50 dark:bg-slate-900/50"
+                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]",
+                            hasChildren && isExpanded && "bg-slate-50 dark:bg-white/5"
                           )}
                           render={!hasChildren ? <Link href={item.url} /> : undefined}
                         >
                           <div className="flex items-center gap-4 flex-1">
-                            {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", (isActive && !hasChildren) ? "text-white" : "text-slate-400 dark:text-slate-50 group-hover/btn:text-primary")} />}
+                            {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", (isActive && !hasChildren) ? "text-primary-foreground" : "text-slate-400 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white")} />}
                             <span className="truncate">{item.title}</span>
                           </div>
                           {hasChildren && (
                             <ChevronRight className={cn(
-                              "size-4 text-slate-300 transition-transform duration-300",
-                              isExpanded && "rotate-90"
+                              "size-4 text-slate-500 transition-transform duration-300",
+                              isExpanded && "rotate-90 text-slate-900 dark:text-white"
                             )} />
                           )}
                         </SidebarMenuButton>
@@ -235,7 +236,7 @@ const SidebarContentRenderer = ({
                               transition={{ duration: 0.3, ease: "easeInOut" }}
                               className="overflow-hidden"
                             >
-                              <div className="pl-9 pr-2 py-1 space-y-1 border-l border-slate-100 dark:border-slate-700/50 ml-6">
+                              <div className="pl-9 pr-2 py-1 space-y-1 border-l border-white/10 ml-6">
                                 {item.items?.map((subItem) => {
                                   const isSubActive = pathname === subItem.url || pathname.startsWith(subItem.url + "/");
                                   return (
@@ -246,8 +247,8 @@ const SidebarContentRenderer = ({
                                       className={cn(
                                         "block px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
                                         isSubActive 
-                                          ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-500/15 dark:text-indigo-400" 
-                                          : "text-slate-400 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800/60"
+                                          ? "text-slate-900 dark:text-white bg-slate-100 dark:bg-white/10" 
+                                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
                                       )}
                                     >
                                       {subItem.title}
@@ -268,13 +269,100 @@ const SidebarContentRenderer = ({
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-slate-100 dark:border-slate-700/50 space-y-2">
+      <SidebarFooter className="p-4 border-t border-white/10 space-y-3">
+        {/* Trial Plan Card */}
+        {session?.user?.trialEndDate && (() => {
+          const end = new Date(session.user.trialEndDate as string);
+          const now = new Date();
+          const totalDays = 7;
+          const daysLeft = Math.max(0, Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
+          const progress = Math.max(5, Math.round(((totalDays - daysLeft) / totalDays) * 100));
+          const isExpired = daysLeft <= 0;
+          const isCritical = daysLeft <= 2;
+
+          return (
+            <Link
+              href="/pricing"
+              className={cn(
+                "block group relative overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl",
+                isCollapsed && "hidden",
+                isExpired
+                  ? "bg-gradient-to-br from-rose-500 via-rose-600 to-red-700"
+                  : isCritical
+                  ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-700"
+                  : "bg-gradient-to-br from-indigo-500 via-purple-600 to-indigo-800"
+              )}
+            >
+              {/* Shine overlay */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_60%)] pointer-events-none" />
+              <div className="absolute -top-4 -right-4 h-20 w-20 bg-white/10 rounded-full blur-2xl" />
+
+              {/* Header */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/20 shadow-inner">
+                    <Crown className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  <span className="text-[9px] font-black text-white/80 uppercase tracking-[0.25em]">Premium Trial</span>
+                </div>
+                <span className={cn(
+                  "text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full border",
+                  isExpired
+                    ? "bg-white/20 border-white/20 text-white"
+                    : isCritical
+                    ? "bg-white/20 border-white/20 text-white animate-pulse"
+                    : "bg-white/15 border-white/20 text-white/90"
+                )}>
+                  {isExpired ? "Expired" : isCritical ? "Expiring Soon" : "Active"}
+                </span>
+              </div>
+
+              {/* Days remaining */}
+              <div className="mb-3">
+                <p className="text-white font-black text-sm leading-tight">
+                  {isExpired
+                    ? "Your trial has expired"
+                    : `Ends in ${daysLeft} ${daysLeft === 1 ? "day" : "days"}`
+                  }
+                </p>
+                <p className="text-white/60 text-[10px] font-medium mt-0.5">
+                  {isExpired ? "Subscribe to restore access" : "Subscribe to keep all features"}
+                </p>
+              </div>
+
+              {/* Progress bar */}
+              <div className="mb-4">
+                <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-white/80 rounded-full transition-all"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+                <div className="flex justify-between mt-1.5">
+                  <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">Trial Start</span>
+                  <span className="text-[8px] text-white/50 font-bold uppercase tracking-wider">Trial End</span>
+                </div>
+              </div>
+
+              {/* CTA */}
+              <div className="flex items-center justify-between h-9 px-3 rounded-xl bg-white/90 group-hover:bg-white transition-colors shadow-lg">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="h-3.5 w-3.5 fill-current text-indigo-700" />
+                  <span className="text-[10px] font-black text-indigo-700 uppercase tracking-widest">
+                    Subscribe Now
+                  </span>
+                </div>
+                <ArrowRight className="h-3.5 w-3.5 text-indigo-700 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+            </Link>
+          );
+        })()}
         <SidebarMenu>
           <SidebarMenuItem>
             <Dialog>
               <SidebarMenuButton 
                 tooltip="Calculator"
-                className="w-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
+                className="w-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white rounded-xl"
                 render={<DialogTrigger />}
               >
                 <Calculator className="h-5 w-5 mr-2" />
@@ -296,21 +384,21 @@ const SidebarContentRenderer = ({
                 render={
                   <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-slate-50 dark:data-[state=open]:bg-slate-900 rounded-2xl transition-all"
+                    className="data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-white/10 rounded-2xl transition-all hover:bg-slate-50 dark:hover:bg-white/5"
                   />
                 }
               >
-                  <Avatar className="h-9 w-9 rounded-xl border-2 border-white dark:border-slate-800 shadow-md">
+                  <Avatar className="h-9 w-9 rounded-xl border-2 border-transparent shadow-md">
                     <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
-                    <AvatarFallback className="rounded-xl bg-primary text-white dark:text-primary-foreground font-black text-xs">
+                    <AvatarFallback className="rounded-xl bg-primary text-white font-black text-xs">
                       {session?.user?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight ml-2">
                     <span className="truncate font-black text-slate-900 dark:text-white tracking-tight">{session?.user?.name}</span>
-                    <span className="truncate text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">{session?.user?.role}</span>
+                    <span className="truncate text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-0.5">{session?.user?.role}</span>
                   </div>
-                  <ChevronRight className="ml-auto size-4 text-slate-300" />
+                  <ChevronRight className="ml-auto size-4 text-slate-500" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800"
@@ -454,7 +542,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [session?.user?.businessId, mounted, status]);
 
   if (!mounted || status === "loading") {
-    return <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-800 shadow-sm" {...props}>
+    return <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm" {...props}>
       <div className="p-8 flex items-center justify-center h-full">
          <div className="h-6 w-6 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
@@ -465,7 +553,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-white dark:bg-[hsl(0,0%,4%)] border-r-0 dark:border-r dark:border-slate-700/50 shadow-2xl">
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-sidebar text-sidebar-foreground border-r-0 shadow-2xl">
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
@@ -477,7 +565,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </Sheet>
 
       {/* Desktop/Tablet Sidebar */}
-      <Sidebar collapsible="icon" className="border-r border-slate-100 dark:border-slate-700/50 shadow-sm hidden md:flex bg-white dark:bg-[hsl(0,0%,4%)]" {...props}>
+      <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm hidden md:flex bg-sidebar" {...props}>
           <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
           <SidebarRail />
       </Sidebar>

@@ -76,6 +76,7 @@ import { ThermalReceipt } from "@/components/pos/ThermalReceipt";
 import { CameraScanner } from "@/components/shared/camera-scanner";
 import { MedicalBillsModal } from "@/components/pos/MedicalBillsModal";
 import { CloseRegisterModal } from "@/components/pos/CloseRegisterModal";
+import { CategorySidebar } from "@/components/pos/CategorySidebar";
 
 // Elite Product Card
 const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) => void }) => {
@@ -700,9 +701,16 @@ export default function POSPage() {
         )}
       </div>
 
-      {/* Main App (Hidden from print) */}
-      <div className="flex flex-col xl:flex-row h-[100dvh] bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans print:hidden">
-      {/* Product Selection Area */}
+    <div className="flex flex-col xl:flex-row h-[calc(100vh-64px)] -mx-4 -my-6 md:-mx-8 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30">
+      
+      {/* Category Sidebar */}
+      <CategorySidebar 
+        categories={categories || serverCategories} 
+        selectedCategory={selectedCategory} 
+        onSelectCategory={setSelectedCategory} 
+      />
+
+      {/* Central Asset Index (Left/Center Side) */}
       <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 xl:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
         <header className="p-4 sm:p-6 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative bg-white dark:bg-slate-900">
           <div className="flex items-start sm:items-center justify-between w-full lg:w-auto gap-4">
@@ -790,7 +798,7 @@ export default function POSPage() {
           ) : null;
         })()}
 
-        <div className="p-4 sm:p-6 space-y-4 shrink-0 bg-white dark:bg-slate-900 z-20">
+        <div className="p-4 sm:p-6 space-y-4 shrink-0 bg-transparent z-20">
            <div className="relative group max-w-4xl mx-auto w-full">
               <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
                  <Search className="h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
@@ -812,31 +820,19 @@ export default function POSPage() {
                  <span className="hidden sm:inline text-[8px] font-black text-slate-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors">Tap to Scan</span>
               </div>
            </div>
-           
-           <div className="flex items-center gap-3 overflow-x-auto pb-4 custom-scrollbar scroll-smooth">
-              <Button 
-                variant="ghost"
-                onClick={() => setSelectedCategory(null)}
-                className={cn(
-                  "h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest shrink-0 transition-all gap-2", 
-                   selectedCategory === null ? "bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-xl" : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                )}
-              >
-                <LayoutGrid size={16} /> All Channels
-              </Button>
-              {categories?.map((cat) => (
-                <Button 
-                  key={cat.id}
-                  variant="ghost"
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={cn(
-                    "h-12 px-8 rounded-2xl font-black text-[10px] uppercase tracking-widest shrink-0 transition-all", 
-                     selectedCategory === cat.id ? "bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-xl" : "text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
-                  )}
-                >
-                  {cat.name}
-                </Button>
-              ))}
+           {/* Mobile Category Select */}
+           <div className="lg:hidden pb-4">
+              <Select value={selectedCategory || "all"} onValueChange={(val) => setSelectedCategory(val === "all" ? null : val)}>
+                <SelectTrigger className="w-full h-12 rounded-xl bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700">
+                  <SelectValue placeholder="Select Category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {categories?.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
            </div>
         </div>
 
@@ -869,12 +865,12 @@ export default function POSPage() {
 
       {/* The Intelligence Ledger (Cart) */}
       <div className={cn(
-        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white dark:bg-slate-900 xl:w-[550px] shadow-[-20px_0_50px_rgba(0,0,0,0.1)] xl:shadow-none border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-slate-800 transition-all duration-300 xl:overflow-hidden flex flex-col",
+        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl xl:w-[480px] 2xl:w-[550px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
         isCartVisible ? "h-[90vh] xl:h-full translate-y-0" : "h-[90px] xl:h-full translate-y-0"
       )}>
         {/* Cart Header (Mobile Toggle) */}
         <div 
-          className="h-[90px] px-8 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between shrink-0 cursor-pointer xl:cursor-default bg-white dark:bg-slate-900 z-10"
+          className="h-[90px] px-6 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer xl:cursor-default bg-transparent z-10"
           onClick={() => !isCartVisible && setIsCartVisible(true)}
         >
            <div className="flex items-center gap-5">
@@ -954,7 +950,7 @@ export default function POSPage() {
         </div>
 
         {/* Ledger Items (Receipt Style) */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 bg-slate-50/50 dark:bg-slate-950/50 custom-scrollbar relative">
+        <div className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 bg-transparent custom-scrollbar relative">
            <div className="absolute top-0 left-10 right-10 h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent" />
            
            <AnimatePresence mode="popLayout" initial={false}>
@@ -974,7 +970,7 @@ export default function POSPage() {
                    animate={{ opacity: 1, x: 0, scale: 1 }}
                    exit={{ opacity: 0, x: -30, scale: 0.95 }}
                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                   className="flex items-center gap-6 bg-white dark:bg-slate-900 p-5 rounded-[2rem] shadow-xl shadow-black/[0.02] border border-slate-50 dark:border-slate-800 relative group"
+                   className="flex items-center gap-6 bg-white/50 dark:bg-slate-900/50 p-5 rounded-[2rem] shadow-xl shadow-black/[0.02] border border-slate-100/50 dark:border-white/10 relative group"
                  >
                     <div className="relative h-20 w-20 rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800 shadow-inner group-hover:scale-105 transition-transform duration-300">
                         {item.imageUrl ? <Image src={item.imageUrl} alt={item.name} fill className="object-cover" unoptimized /> : <Package size={28} className="text-slate-100 dark:text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
@@ -1027,7 +1023,7 @@ export default function POSPage() {
         </div>
 
         {/* Professional Settlement Summary */}
-        <div className="p-8 sm:p-12 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-800 space-y-10 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.05)] xl:rounded-bl-[4rem]">
+        <div className="p-8 sm:p-12 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-slate-100 dark:border-white/10 space-y-10 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.05)] xl:rounded-bl-[4rem]">
            <div className="space-y-4">
               <div className="flex justify-between items-center group">
                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] group-hover:text-primary transition-colors">Subtotal</span>

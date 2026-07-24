@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { LucideIcon, ArrowUpRight, ArrowDownRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { CountUp } from "@/components/shared/count-up";
@@ -15,60 +15,56 @@ interface StatCardProps {
   bgClass: string;
   delay?: number;
   href?: string;
-  change?: number; // Add dynamic growth change parameter
+  change?: number;
 }
 
 export function StatCard({ title, value, prefix = "", description, icon: Icon, colorClass, bgClass, delay = 0, href, change }: StatCardProps) {
-  // Defensive check for React Error #31
   let displayValue: any = value;
   if (typeof value === 'object' && value !== null) {
-    console.error(`DEBUG: StatCard '${title}' received unexpected object:`, value);
     displayValue = JSON.stringify(value);
   }
 
+  const isPositive = change !== undefined && change >= 0;
+
   const CardContentWrapper = (
     <Card className={cn(
-        "group relative overflow-hidden border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl p-4 sm:p-5 shadow-sm transition-all duration-200 hover:shadow-md hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer flex flex-col h-full",
+        "group relative overflow-hidden border-slate-100 dark:border-white/10 bg-white dark:bg-card rounded-2xl p-5 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-black/50 hover:-translate-y-1 cursor-pointer flex flex-col h-full",
         href && "cursor-pointer"
     )}>
-        <CardHeader className="p-0 pb-3 flex flex-row items-center justify-between space-y-0 border-b border-slate-100 dark:border-slate-800 mb-3">
-          <div className="flex items-center gap-2">
-             <div className={cn("p-2 rounded-md", bgClass)}>
-                 <Icon className={cn("h-4 w-4", colorClass)} />
+        <div className="flex items-start gap-4">
+          <div className={cn("flex items-center justify-center h-14 w-14 rounded-2xl shrink-0 shadow-inner", bgClass)}>
+              <Icon className={cn("h-6 w-6", colorClass)} />
+          </div>
+          <div className="flex flex-col gap-1 min-w-0 flex-1">
+             <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 tracking-tight">{title}</h3>
+             <div className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+               {prefix}<CountUp value={displayValue} />
              </div>
-             <CardTitle className="text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wide">{title}</CardTitle>
           </div>
-        </CardHeader>
+        </div>
         
-        <CardContent className="p-0 flex-1 flex flex-col justify-end">
-          <div className="flex items-baseline gap-1.5 mb-1">
-            <div className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight leading-none">
-              {prefix}<CountUp value={displayValue} />
-            </div>
-          </div>
-          
-          <div className="mt-2 flex items-center justify-between">
-             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">{description}</span>
-             {change !== undefined && (
-                <div className={cn(
-                  "px-1.5 py-0.5 rounded text-[10px] font-bold", 
-                  change >= 0 
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" 
-                    : "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
-                )}>
-                  {change >= 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`}
-                </div>
-             )}
-          </div>
-        </CardContent>
+        <div className="mt-4 flex items-center gap-2">
+           {change !== undefined && (
+              <div className={cn(
+                "flex items-center gap-1 font-bold text-sm", 
+                isPositive 
+                  ? "text-emerald-500" 
+                  : "text-rose-500"
+              )}>
+                {isPositive ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                <span>{Math.abs(change).toFixed(1)}%</span>
+              </div>
+           )}
+           <span className="text-sm font-medium text-slate-400">{description}</span>
+        </div>
       </Card>
   );
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay, ease: "easeOut" }}
+      transition={{ duration: 0.4, delay, ease: [0.23, 1, 0.32, 1] }}
       className="h-full"
     >
       {href ? <Link href={href} className="block h-full">{CardContentWrapper}</Link> : CardContentWrapper}

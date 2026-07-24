@@ -29,9 +29,9 @@ export function TrendChart({
   color = "#4f46e5" 
 }: TrendChartProps) {
   return (
-    <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
-      <CardHeader className="p-8 pb-4">
-        <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">{title}</CardTitle>
+    <Card className="border-slate-100 dark:border-white/10 bg-white dark:bg-card rounded-2xl shadow-sm overflow-hidden h-full">
+      <CardHeader className="p-6 pb-2">
+        <CardTitle className="text-base font-bold text-slate-800 dark:text-white tracking-tight">{title}</CardTitle>
         <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">{description}</CardDescription>
       </CardHeader>
       <CardContent className="p-4 pt-0">

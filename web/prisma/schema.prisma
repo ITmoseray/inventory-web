@@ -86,6 +86,11 @@ model Business {
   quotes                  Quote[]
   transactionTags         TransactionTag[]
   bankTransactions        BankTransaction[]
+  promotions              Promotion[]
+  wastages                Wastage[]
+  giftCards               GiftCard[]
+  supplierPriceLists      SupplierPriceList[]
+  productBundles          ProductBundle[]
 
   @@index([slug])
 }
@@ -248,6 +253,9 @@ model Product {
   transfers             StockTransfer[]
   invoiceItems          InvoiceItem[]
   quoteItems            QuoteItem[]
+  wastages              Wastage[]
+  supplierPriceLists    SupplierPriceList[]
+  bundleItems           BundleItem[]
 
   @@index([businessId, sku])
   @@index([businessId, deletedAt])
@@ -495,6 +503,7 @@ model Supplier {
   deletedAt    DateTime?
   purchases    Purchase[]
   payments     SupplierPayment[]
+  priceLists   SupplierPriceList[]
   business     Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
@@ -1492,4 +1501,146 @@ model CashRegisterSession {
   
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+
+  @@index([businessId])
+  @@index([userId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PROMOTIONS & DISCOUNTS ENGINE
+// ─────────────────────────────────────────────────────────────────
+model Promotion {
+  id           String    @id @default(cuid())
+  name         String
+  description  String?
+  type         String    // PERCENTAGE | FIXED | BUY_X_GET_Y
+  value        Decimal   @db.Decimal(10, 2)
+  minQty       Int?      // Minimum qty to trigger (BUY_X_GET_Y)
+  freeQty      Int?      // Free qty awarded (BUY_X_GET_Y)
+  minAmount    Decimal?  @db.Decimal(10, 2) // Minimum cart value
+  startDate    DateTime
+  endDate      DateTime
+  status       String    @default("ACTIVE") // ACTIVE | INACTIVE | EXPIRED
+  appliesTo    String    @default("ALL")    // ALL | CATEGORY | PRODUCT
+  categoryId   String?
+  productId    String?
+  businessId   String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([businessId, status])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// WASTAGE / SPOILAGE TRACKING
+// ─────────────────────────────────────────────────────────────────
+model Wastage {
+  id          String    @id @default(cuid())
+  productId   String
+  productName String
+  quantity    Decimal   @db.Decimal(10, 2)
+  unit        String    @default("Unit")
+  reason      String    // EXPIRED | DAMAGED | THEFT | SPOILED | OTHER
+  costValue   Decimal   @db.Decimal(10, 2)
+  notes       String?
+  businessId  String
+  recordedBy  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([businessId, reason])
+  @@index([productId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// GIFT CARDS & VOUCHERS
+// ─────────────────────────────────────────────────────────────────
+model GiftCard {
+  id             String              @id @default(cuid())
+  code           String              @unique
+  originalAmount Decimal             @db.Decimal(10, 2)
+  balance        Decimal             @db.Decimal(10, 2)
+  expiryDate     DateTime?
+  status         String              @default("ACTIVE") // ACTIVE | USED | EXPIRED | VOIDED
+  issuedTo       String?             // Customer name or email
+  businessId     String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+  business       Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  transactions   GiftCardTransaction[]
+
+  @@index([businessId])
+  @@index([code])
+}
+
+model GiftCardTransaction {
+  id          String    @id @default(cuid())
+  giftCardId  String
+  amount      Decimal   @db.Decimal(10, 2)
+  type        String    // ISSUE | REDEEM | REFUND | VOID
+  saleRef     String?   // Reference to sale/invoice
+  notes       String?
+  createdAt   DateTime  @default(now())
+  giftCard    GiftCard  @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+
+  @@index([giftCardId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SUPPLIER PRICE LIST
+// ─────────────────────────────────────────────────────────────────
+model SupplierPriceList {
+  id            String    @id @default(cuid())
+  supplierId    String
+  productId     String
+  unitCost      Decimal   @db.Decimal(10, 2)
+  minOrderQty   Int       @default(1)
+  leadTimeDays  Int?      @default(1)
+  notes         String?
+  businessId    String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier      Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([supplierId, productId])
+  @@index([businessId])
+  @@index([supplierId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// PRODUCT BUNDLES / COMBO PACKS
+// ─────────────────────────────────────────────────────────────────
+model ProductBundle {
+  id          String       @id @default(cuid())
+  name        String
+  description String?
+  bundlePrice Decimal      @db.Decimal(10, 2)
+  imageUrl    String?
+  status      String       @default("ACTIVE") // ACTIVE | INACTIVE
+  businessId  String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  business    Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  items       BundleItem[]
+
+  @@index([businessId])
+}
+
+model BundleItem {
+  id        String        @id @default(cuid())
+  bundleId  String
+  productId String
+  quantity  Int           @default(1)
+  bundle    ProductBundle @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product   Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([bundleId, productId])
+  @@index([bundleId])
 }

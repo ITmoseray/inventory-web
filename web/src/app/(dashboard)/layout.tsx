@@ -15,6 +15,7 @@ import { DynamicBreadcrumb } from "@/components/shared/dynamic-breadcrumb";
 import { GlobalSearch } from "@/components/shared/global-search";
 import { AnnouncementBanner } from "@/components/shared/announcement-banner";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
@@ -185,41 +186,34 @@ export default async function DashboardLayout({
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <AnnouncementBanner />
-          <header className="flex h-14 shrink-0 items-center justify-between gap-2 md:gap-4 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-40 px-4 md:px-6 transition-all shadow-sm">
-            <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0 overflow-hidden">
-              <SidebarTrigger className="-ml-1 flex-shrink-0" />
-              <div className="flex-shrink-0">
-                <RealTimeClock />
-              </div>
-              {/* Search is hidden below lg to avoid collision */}
-              <div className="hidden lg:block flex-1 min-w-0 max-w-xs xl:max-w-sm">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-100 dark:border-white/5 bg-white/80 dark:bg-[hsl(222.2,47.4%,11.2%)]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 transition-all shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] dark:shadow-none">
+            <div className="flex items-center gap-4 flex-1 min-w-0">
+              <SidebarTrigger className="-ml-2 flex-shrink-0" />
+              <div className="hidden md:block flex-1 max-w-md">
                 <GlobalSearch />
               </div>
             </div>
 
-            {/* RIGHT: badges + user — flex-shrink-0 keeps it from wrapping */}
-            <div className="flex items-center gap-2 xl:gap-4 flex-shrink-0">
-               {/* Context Active: only xl+ */}
-               <div className="hidden xl:flex items-center gap-2 px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
-                  <Zap className="h-3 w-3 text-emerald-600 dark:text-emerald-500 animate-pulse" />
-                  <span className="text-[10px] font-semibold tracking-wide text-slate-700 dark:text-slate-300">System Online</span>
-               </div>
+            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+               <Link href="/dashboard/intelligence/chat" className="hidden sm:flex items-center gap-2 h-9 px-4 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-primary dark:text-indigo-400 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
+                  <Zap className="h-3.5 w-3.5 fill-current" />
+                  AI Assistant
+               </Link>
                <NotificationBell />
-               <div className="flex items-center gap-2 xl:gap-3 pl-3 border-l border-slate-200 dark:border-slate-700">
-                  {/* User name: only xl+ */}
+               <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1" />
+               <div className="flex items-center gap-3">
                   <div className="text-right hidden xl:block">
-                     <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-none">
+                     <p className="text-sm font-black text-slate-900 dark:text-white leading-none tracking-tight">
                         {session?.user?.name || "User Account"}
                      </p>
-                     <p className="text-[10px] font-medium text-slate-500 mt-1">{session?.user?.role || "Member"} Account</p>
+                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{session?.user?.role || "Member"}</p>
                   </div>
-                  <Avatar className="h-8 w-8 rounded-md after:rounded-md border border-indigo-100 dark:border-indigo-800 shadow-sm flex-shrink-0">
-                     <AvatarImage className="rounded-md" src={session?.user?.image || undefined} alt={session?.user?.name || "User"} />
-                     <AvatarFallback className="rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 font-bold text-xs">
+                  <Avatar className="h-9 w-9 rounded-xl border-2 border-white dark:border-slate-800 shadow-sm cursor-pointer hover:scale-105 transition-transform">
+                     <AvatarImage src={session?.user?.image || undefined} alt={session?.user?.name || "User"} />
+                     <AvatarFallback className="rounded-xl bg-primary text-white font-black text-xs">
                         {(session?.user?.name || "S").charAt(0).toUpperCase()}
                      </AvatarFallback>
                   </Avatar>
-                  <LogoutButton />
                </div>
             </div>
           </header>

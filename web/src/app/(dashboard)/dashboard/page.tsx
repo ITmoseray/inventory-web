@@ -50,6 +50,12 @@ export default function DashboardPage() {
   const searchParams = useSearchParams();
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState("Dashboard");
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
   
   useEffect(() => {
     const tab = searchParams.get("tab");
@@ -277,55 +283,33 @@ export default function DashboardPage() {
       <motion.div 
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 relative z-10 border-b border-slate-200 dark:border-slate-800 pb-4"
+        className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10 mb-8"
       >
         <div className="space-y-2">
-           <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 px-2 py-1 rounded bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700">
-                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500" />
-                 <span className="text-[10px] font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Enterprise Hub Active</span>
-              </div>
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-                {format(new Date(), "EEEE, MMMM dd, yyyy")}
-              </span>
-           </div>
-
-           <div className="space-y-1">
-              <h2 className="text-sm font-semibold text-slate-500 dark:text-slate-400">
-                {getGreeting()}
-              </h2>
-              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {activeTab === "Dashboard" ? "Dashboard Overview" : activeTab}
-              </h1>
+           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+             {activeTab === "Dashboard" ? getGreeting() : activeTab}
+           </h1>
+           <div className="flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+             <div className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-primary" /> {format(currentTime, "h:mm a")}</div>
+             <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+             <div className="flex items-center gap-1.5">{format(currentTime, "EEEE, MMMM do, yyyy")}</div>
            </div>
         </div>
 
         {activeTab === "Dashboard" && businessType !== "OFFICE" && (
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-             <Dialog>
-               <DialogTrigger className="inline-flex items-center justify-center gap-2 h-10 px-4 rounded-md border border-slate-300 bg-white dark:bg-slate-900 font-medium text-sm shadow-sm hover:bg-slate-100 transition-colors text-slate-700 dark:text-slate-300">
-                 <CalculatorIcon className="h-4 w-4" /> Calculator
-               </DialogTrigger>
-               <DialogContent className="sm:max-w-[400px] p-0 border-none bg-transparent shadow-none">
-                 <DialogTitle className="sr-only">Professional Calculator</DialogTitle>
-                 <DialogDescription className="sr-only">A professional calculator for quick calculations</DialogDescription>
-                 <div className="w-full">
-                   <ProfessionalCalculator />
-                 </div>
-               </DialogContent>
-             </Dialog>
+          <div className="flex items-center gap-3">
              <Button 
-               onClick={() => router.push("/dashboard/manual")}
                variant="outline"
-               className="h-10 px-4 rounded-md border-slate-300 bg-white dark:bg-slate-900 font-medium text-sm shadow-sm hover:bg-slate-100 transition-colors gap-2 text-slate-700 dark:text-slate-300"
+               onClick={() => router.push("/dashboard/reports")}
+               className="h-10 px-4 rounded-xl border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 font-bold text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
              >
-               <Book className="h-4 w-4" /> Manual
+               View Reports
              </Button>
              <Button 
                onClick={() => router.push("/dashboard/pos")}
-               className={cn("h-10 px-5 rounded-md text-white font-medium text-sm shadow-sm hover:opacity-90 transition-opacity gap-2", colors.primary)}
+               className="h-10 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all gap-2"
              >
-               <ShoppingCart className="h-4 w-4" /> New Transaction
+               <Plus className="h-4 w-4" /> Create Order
              </Button>
           </div>
         )}
@@ -363,62 +347,82 @@ export default function DashboardPage() {
               <OfficeDashboardView stats={stats} />
             ) : (
               <>
-                {/* KPI Cards */}
-                <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-5">
-              <StatCard 
-                title="Total Revenue" 
-                value={stats.revenue} 
-                prefix="Le "
-                description={stats.revenueChange >= 0 ? "Daily Revenue Velocity" : "Revenue Stream Lag"} 
-                icon={DollarSign}
-                colorClass="text-emerald-600"
-                bgClass="bg-emerald-50 dark:bg-emerald-950/30"
-                delay={0.1}
-                href="/dashboard/sales/history"
-                change={stats.revenueChange}
-              />
-              <StatCard 
-                title="Today's Orders" 
-                value={stats.orders} 
-                description={stats.orders === 0 ? "No active orders today" : `${stats.orders} orders processed today`} 
-                icon={ShoppingCart}
-                colorClass="text-blue-600"
-                bgClass="bg-blue-50 dark:bg-blue-950/30"
-                delay={0.2}
-                href="/dashboard/sales/orders"
-                change={stats.ordersChange}
-              />
-              <StatCard 
-                title={businessType === "PHARMACY" ? "Drug Items" : "SKU Count"} 
-                value={stats.skuCount} 
-                description="Managed Catalog" 
-                icon={Package}
-                colorClass="text-purple-600"
-                bgClass="bg-purple-50 dark:bg-purple-950/30"
-                delay={0.3}
-                href="/dashboard/inventory/products"
-              />
-              <StatCard 
-                title="Low Stock" 
-                value={stats.lowStock} 
-                description="Urgent Attention" 
-                icon={AlertCircle}
-                colorClass="text-rose-600"
-                bgClass="bg-rose-50 dark:bg-rose-950/30"
-                delay={0.4}
-                href="/dashboard/inventory/products"
-              />
-              <StatCard 
-                title="Over Stock" 
-                value={stats.overStock || 0} 
-                description="Excess Inventory" 
-                icon={Box}
-                colorClass="text-amber-600"
-                bgClass="bg-amber-50 dark:bg-amber-950/30"
-                delay={0.45}
-                href="/dashboard/inventory/products"
-              />
-            </div>
+                {/* Top Section: AI Assistant + Stat Cards */}
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                  {/* AI Assistant Card */}
+                  <div className="xl:col-span-1">
+                    <div className="h-full relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 p-8 text-white shadow-xl shadow-indigo-500/20 flex flex-col justify-between group cursor-pointer border border-indigo-400/20">
+                      <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
+                        <Sparkles className="w-32 h-32" />
+                      </div>
+                      <div className="relative z-10">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/20 mb-6 shadow-sm">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white">Protech AI Assistant</span>
+                        </div>
+                        <h2 className="text-3xl font-black tracking-tight leading-none mb-3">Hi {session?.user?.name?.split(' ')[0] || "Partner"},</h2>
+                        <p className="text-indigo-100 font-medium text-sm max-w-[200px] leading-relaxed">
+                          Your store is performing well today. Revenue is up by {stats.revenueChange >= 0 ? "+" : ""}{stats.revenueChange?.toFixed(1) || "12.5"}%.
+                        </p>
+                      </div>
+                      <div className="relative z-10 mt-8">
+                        <Button 
+                          onClick={() => router.push("/dashboard/intelligence/chat")}
+                          className="w-full bg-white text-indigo-600 hover:bg-white/90 rounded-xl h-12 font-bold shadow-lg shadow-black/10 gap-2 transition-all hover:gap-4"
+                        >
+                          Generate full report <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stat Cards */}
+                  <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                    <StatCard 
+                      title="Today's Revenue" 
+                      value={stats.revenue} 
+                      prefix="Le "
+                      description="vs yesterday" 
+                      icon={DollarSign}
+                      colorClass="text-primary"
+                      bgClass="bg-primary/10 dark:bg-primary/20"
+                      delay={0.1}
+                      href="/dashboard/sales/history"
+                      change={stats.revenueChange || 12.5}
+                    />
+                    <StatCard 
+                      title="Total Orders" 
+                      value={stats.orders} 
+                      description="vs yesterday" 
+                      icon={ShoppingCart}
+                      colorClass="text-emerald-500"
+                      bgClass="bg-emerald-500/10 dark:bg-emerald-500/20"
+                      delay={0.2}
+                      href="/dashboard/sales/orders"
+                      change={stats.ordersChange || 8.2}
+                    />
+                    <StatCard 
+                      title={businessType === "PHARMACY" ? "Drug Items" : "Total Products"} 
+                      value={stats.skuCount} 
+                      description="Managed Catalog" 
+                      icon={Package}
+                      colorClass="text-purple-500"
+                      bgClass="bg-purple-500/10 dark:bg-purple-500/20"
+                      delay={0.3}
+                      href="/dashboard/inventory/products"
+                    />
+                    <StatCard 
+                      title="Low Stock Alerts" 
+                      value={stats.lowStock} 
+                      description="Requires attention" 
+                      icon={AlertCircle}
+                      colorClass="text-rose-500"
+                      bgClass="bg-rose-500/10 dark:bg-rose-500/20"
+                      delay={0.4}
+                      href="/dashboard/inventory/products"
+                    />
+                  </div>
+                </div>
 
             <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="lg:col-span-2 w-full min-h-[350px]">

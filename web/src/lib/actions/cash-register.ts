@@ -124,3 +124,72 @@ export async function closeSession(sessionId: string, actualEndingCash: number, 
     expectedEndingCash: updatedSession.expectedEndingCash ? Number(updatedSession.expectedEndingCash) : null,
   };
 }
+
+export async function getTillHistory(limit = 30) {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const tenantPrisma = getTenantPrisma(session.user.businessId);
+
+  const sessions = await tenantPrisma.cashRegisterSession.findMany({
+    where: { businessId: session.user.businessId },
+    orderBy: { openedAt: "desc" },
+    take: limit,
+  });
+
+  return sessions.map((s) => ({
+    ...s,
+    startingCash: Number(s.startingCash),
+    actualEndingCash: s.actualEndingCash ? Number(s.actualEndingCash) : null,
+    expectedEndingCash: s.expectedEndingCash ? Number(s.expectedEndingCash) : null,
+    variance:
+      s.actualEndingCash && s.expectedEndingCash
+        ? Number(s.actualEndingCash) - Number(s.expectedEndingCash)
+        : null,
+    openedAt: s.openedAt.toISOString(),
+    closedAt: s.closedAt?.toISOString() || null,
+    createdAt: s.createdAt.toISOString(),
+  }));
+}
+
+export async function getTillStats() {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const tenantPrisma = getTenantPrisma(session.user.businessId);
+
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+  const [totalSessions, thisMonthSessions, openSession] = await Promise.all([
+    tenantPrisma.cashRegisterSession.count({ where: { businessId: session.user.businessId } }),
+    tenantPrisma.cashRegisterSession.findMany({
+      where: { businessId: session.user.businessId, openedAt: { gte: startOfMonth }, status: "CLOSED" },
+      select: { actualEndingCash: true, expectedEndingCash: true, startingCash: true },
+    }),
+    tenantPrisma.cashRegisterSession.findFirst({
+      where: { businessId: session.user.businessId, status: "OPEN" },
+      orderBy: { openedAt: "desc" },
+    }),
+  ]);
+
+  const totalVariance = thisMonthSessions.reduce((sum, s) => {
+    if (s.actualEndingCash && s.expectedEndingCash) {
+      return sum + (Number(s.actualEndingCash) - Number(s.expectedEndingCash));
+    }
+    return sum;
+  }, 0);
+
+  return {
+    totalSessions,
+    thisMonthCount: thisMonthSessions.length,
+    thisMonthVariance: totalVariance,
+    hasOpenSession: !!openSession,
+    openSession: openSession
+      ? {
+          ...openSession,
+          startingCash: Number(openSession.startingCash),
+          openedAt: openSession.openedAt.toISOString(),
+        }
+      : null,
+  };
+}
+
