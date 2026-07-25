@@ -139,8 +139,8 @@ const SidebarContentRenderer = ({
                   />
                 </div>
                 <div className="relative flex flex-col gap-0.5 leading-none transition-all duration-300">
-                  <span className="font-black text-lg text-slate-900 dark:text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
+                  <span className="font-black text-lg text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
+                  <span className="text-[10px] text-slate-400 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
                 </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -151,9 +151,9 @@ const SidebarContentRenderer = ({
               <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Context</div>
               <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
            </div>
-           <div className="p-3 rounded-xl bg-slate-50/50 dark:bg-white/5 border border-slate-100 dark:border-white/10 shadow-inner group cursor-pointer transition-all hover:border-primary/30 flex items-center gap-3">
+           <div className="p-3 rounded-xl bg-white/5 border border-white/10 shadow-inner group cursor-pointer transition-all hover:border-primary/30 flex items-center gap-3">
               {businessContext.logoUrl && (
-                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 flex-shrink-0">
+                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
                   <Image 
                     src={businessContext.logoUrl} 
                     alt="Logo" 
@@ -164,8 +164,8 @@ const SidebarContentRenderer = ({
                 </div>
               )}
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-black text-slate-900 dark:text-white truncate block group-hover:text-primary transition-colors">{businessContext.name}</span>
-                <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
+                <span className="text-xs font-black text-white truncate block group-hover:text-primary transition-colors">{businessContext.name}</span>
+                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
               </div>
            </div>
         </div>
@@ -180,7 +180,7 @@ const SidebarContentRenderer = ({
                     ? "Neural Interface Initializing..." 
                     : "No Intelligence Nodes Found"}
                 </p>
-                <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-2 italic">
+                <p className="text-[9px] text-slate-400 mt-2 italic">
                   {session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN"
                     ? "Establishing connection to Africa trade vault..."
                     : "Check permissions or business type configuration."}
@@ -189,7 +189,7 @@ const SidebarContentRenderer = ({
           )}
           {filteredNavGroups.map((group: NavGroup) => (
             <div key={group.label} className="space-y-2">
-              <div className={cn("px-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
+              <div className={cn("px-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
               <div className="space-y-1">
                 {group.items.map((item: NavItem) => {
                   const hasChildren = item.items && item.items.length > 0;
@@ -208,19 +208,19 @@ const SidebarContentRenderer = ({
                             "h-11 rounded-xl transition-all duration-300 font-bold px-4 group/btn",
                             isActive && !hasChildren
                               ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]",
-                            hasChildren && isExpanded && "bg-slate-50 dark:bg-white/5"
+                              : "text-slate-400 hover:text-white hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]",
+                            hasChildren && isExpanded && "bg-white/5"
                           )}
                           render={!hasChildren ? <Link href={item.url} /> : undefined}
                         >
                           <div className="flex items-center gap-4 flex-1">
-                            {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", (isActive && !hasChildren) ? "text-primary-foreground" : "text-slate-400 group-hover/btn:text-slate-900 dark:group-hover/btn:text-white")} />}
+                            {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", (isActive && !hasChildren) ? "text-primary-foreground" : "text-slate-400 group-hover/btn:text-white")} />}
                             <span className="truncate">{item.title}</span>
                           </div>
                           {hasChildren && (
                             <ChevronRight className={cn(
-                              "size-4 text-slate-500 dark:text-slate-400 transition-transform duration-300",
-                              isExpanded && "rotate-90 text-slate-900 dark:text-white"
+                              "size-4 text-slate-400 transition-transform duration-300",
+                              isExpanded && "rotate-90 text-white"
                             )} />
                           )}
                         </SidebarMenuButton>
@@ -247,8 +247,8 @@ const SidebarContentRenderer = ({
                                       className={cn(
                                         "block px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
                                         isSubActive 
-                                          ? "text-slate-900 dark:text-white bg-slate-100 dark:bg-white/10" 
-                                          : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5"
+                                          ? "text-white bg-white/10" 
+                                          : "text-slate-400 hover:text-white hover:bg-white/5"
                                       )}
                                     >
                                       {subItem.title}
@@ -275,7 +275,7 @@ const SidebarContentRenderer = ({
             <Dialog>
               <SidebarMenuButton 
                 tooltip="Calculator"
-                className="w-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white rounded-xl"
+                className="w-full text-slate-400 hover:bg-white/10 hover:text-white rounded-xl"
                 render={<DialogTrigger />}
               >
                 <Calculator className="h-5 w-5 mr-2" />
@@ -297,7 +297,7 @@ const SidebarContentRenderer = ({
                 render={
                   <SidebarMenuButton
                     size="lg"
-                    className="data-[state=open]:bg-slate-100 dark:data-[state=open]:bg-white/10 rounded-2xl transition-all hover:bg-slate-50 dark:hover:bg-white/5"
+                    className="data-[state=open]:bg-white/10 rounded-2xl transition-all hover:bg-white/5"
                   />
                 }
               >
@@ -308,10 +308,10 @@ const SidebarContentRenderer = ({
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight ml-2">
-                    <span className="truncate font-black text-slate-900 dark:text-white tracking-tight">{session?.user?.name}</span>
-                    <span className="truncate text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-0.5">{session?.user?.role}</span>
+                    <span className="truncate font-black text-white tracking-tight">{session?.user?.name}</span>
+                    <span className="truncate text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">{session?.user?.role}</span>
                   </div>
-                  <ChevronRight className="ml-auto size-4 text-slate-500 dark:text-slate-400" />
+                  <ChevronRight className="ml-auto size-4 text-slate-400" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800"
