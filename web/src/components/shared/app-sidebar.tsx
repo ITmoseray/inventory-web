@@ -180,7 +180,7 @@ const SidebarContentRenderer = ({
                     ? "Neural Interface Initializing..." 
                     : "No Intelligence Nodes Found"}
                 </p>
-                <p className="text-[9px] text-slate-500 mt-2 italic">
+                <p className="text-[9px] text-slate-500 dark:text-slate-400 mt-2 italic">
                   {session?.user?.role === "ADMIN" || session?.user?.role === "SUPERADMIN"
                     ? "Establishing connection to Africa trade vault..."
                     : "Check permissions or business type configuration."}
@@ -189,7 +189,7 @@ const SidebarContentRenderer = ({
           )}
           {filteredNavGroups.map((group: NavGroup) => (
             <div key={group.label} className="space-y-2">
-              <div className={cn("px-4 text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
+              <div className={cn("px-4 text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
               <div className="space-y-1">
                 {group.items.map((item: NavItem) => {
                   const hasChildren = item.items && item.items.length > 0;
@@ -219,7 +219,7 @@ const SidebarContentRenderer = ({
                           </div>
                           {hasChildren && (
                             <ChevronRight className={cn(
-                              "size-4 text-slate-500 transition-transform duration-300",
+                              "size-4 text-slate-500 dark:text-slate-400 transition-transform duration-300",
                               isExpanded && "rotate-90 text-slate-900 dark:text-white"
                             )} />
                           )}
@@ -311,7 +311,7 @@ const SidebarContentRenderer = ({
                     <span className="truncate font-black text-slate-900 dark:text-white tracking-tight">{session?.user?.name}</span>
                     <span className="truncate text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none mt-0.5">{session?.user?.role}</span>
                   </div>
-                  <ChevronRight className="ml-auto size-4 text-slate-500" />
+                  <ChevronRight className="ml-auto size-4 text-slate-500 dark:text-slate-400" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 className="w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800"
