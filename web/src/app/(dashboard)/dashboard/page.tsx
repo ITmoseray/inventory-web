@@ -617,169 +617,156 @@ export default function DashboardPage() {
             </>
           )}
           </motion.div>
-        )}
-
-        {activeTab === "Getting Started" && (
+        )}        {activeTab === "Getting Started" && (
           <motion.div 
             key="getting-started-view"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="space-y-12"
+            className="space-y-10 sm:space-y-12"
           >
             {/* Welcome Banner */}
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
-               <div className="flex-1 min-w-0 space-y-8">
-                  <div className="w-full break-words">
-                    <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight sm:leading-none break-words">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
-                    <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest sm:tracking-[0.4em] text-indigo-600 mt-3 sm:mt-4 break-words">Overview of Protech Inventory</p>
-                    <p className="text-slate-500 font-medium text-base sm:text-lg mt-3 sm:mt-4 max-w-2xl leading-relaxed">
-                      The easy-to-use inventory software that you can set up in no time! Let's get you up and running effectively.
-                    </p>
-                  </div>
+            <div className="w-full break-words">
+              <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight break-words">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
+              <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest text-indigo-600 mt-3 sm:mt-4 break-words">Overview of Protech Inventory</p>
+              <p className="text-slate-500 font-medium text-base sm:text-lg mt-3 sm:mt-4 max-w-2xl leading-relaxed">
+                The easy-to-use inventory software that you can set up in no time! Let's get you up and running effectively.
+              </p>
+            </div>
 
-                  {/* Setup Checklist */}
-                  <Card className="border-none bg-white dark:bg-slate-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] rounded-[2.5rem] overflow-hidden">
-                     <div className="p-5 md:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50/30 dark:bg-slate-900/30">
-                        <div className="flex items-center gap-4 w-full sm:w-auto">
-                           <div className="h-10 w-10 shrink-0 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
-                              <Zap className="h-5 w-5 fill-current" />
-                           </div>
-                           <div className="min-w-0">
-                              <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic truncate">Let's get you up and running</h3>
-                              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic truncate">Phase 01 Configuration</p>
-                           </div>
+            {/* Setup Checklist Card */}
+            <Card className="border-none bg-white dark:bg-slate-900 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.1)] rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden w-full">
+               <div className="p-4 sm:p-8 md:p-10 border-b border-slate-50 dark:border-slate-800 flex flex-col gap-4 bg-slate-50/30 dark:bg-slate-900/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                     <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="h-10 w-10 shrink-0 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg">
+                           <Zap className="h-5 w-5 fill-current" />
                         </div>
-                        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto mt-4 sm:mt-0">
-                           <Button variant="outline" className="hidden md:flex h-12 rounded-xl border-indigo-100 text-indigo-600 font-black uppercase tracking-widest text-[9px] hover:bg-indigo-50 gap-2 shrink-0" onClick={() => router.push("/dashboard/inventory/products")}>
-                              <Plus className="h-3 w-3" /> Quick Create
+                        <div className="min-w-0">
+                           <h3 className="text-base sm:text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight italic break-words">Let's get you up and running</h3>
+                           <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1 italic">Phase 01 Configuration</p>
+                        </div>
+                     </div>
+                     <div className="flex flex-row sm:flex-col items-center sm:items-end gap-3 sm:gap-2">
+                        <span className="text-xl sm:text-2xl font-[1000] text-indigo-600 italic tracking-tighter shrink-0">{setupProgress}%</span>
+                        <div className="flex-1 sm:w-40 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                           <motion.div initial={{ width: 0 }} animate={{ width: `${setupProgress}%` }} className="h-full bg-indigo-600 rounded-full" />
+                        </div>
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest shrink-0 hidden sm:block">Completed</span>
+                     </div>
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-50 dark:border-slate-800">
+                  {SETUP_STEPS.map((step, i) => (
+                     <button 
+                       key={i}
+                       onClick={() => setActiveSetupStep(i)}
+                       className={cn(
+                         "p-3 sm:p-5 flex flex-col items-center text-center gap-2 sm:gap-3 transition-all relative group cursor-pointer",
+                         activeSetupStep === i ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800"
+                       )}
+                     >
+                        <div className={cn(
+                          "h-8 w-8 sm:h-10 sm:w-10 shrink-0 rounded-xl flex items-center justify-center transition-all duration-500 text-sm sm:text-base",
+                          activeSetupStep === i ? "bg-indigo-600 text-white shadow-xl" : "bg-slate-200 dark:bg-slate-800 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+                        )}>
+                           {i + 1}
+                        </div>
+                        <span className={cn(
+                          "text-[8px] sm:text-[9px] font-black uppercase tracking-wider leading-tight w-full break-words",
+                          activeSetupStep === i ? "text-slate-900 dark:text-white" : "text-slate-400"
+                        )}>{step.title}</span>
+                        {activeSetupStep === i && <motion.div layoutId="step-dot" className="absolute -bottom-px left-0 right-0 h-1 bg-indigo-600" />}
+                     </button>
+                  ))}
+               </div>
+
+               <div className="p-4 sm:p-8 md:p-12 space-y-6 sm:space-y-8">
+                  <div className="flex flex-col gap-6 items-start">
+                     <div className="w-full space-y-4 sm:space-y-6">
+                        <h4 className="text-lg sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic break-words">{SETUP_STEPS[activeSetupStep].title}</h4>
+                        <p className="text-slate-500 dark:text-slate-400 font-medium text-sm sm:text-base leading-relaxed">{SETUP_STEPS[activeSetupStep].desc}</p>
+                        
+                        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
+                           {SETUP_STEPS[activeSetupStep].actions.map((action, i) => (
+                             <Button key={i} onClick={() => router.push(action.href)} className="w-full sm:w-auto h-auto min-h-12 py-3 sm:py-4 px-5 sm:px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest text-[10px] shadow-2xl shadow-indigo-600/20 group whitespace-normal text-left sm:text-center justify-start sm:justify-center">
+                                <action.icon className="mr-3 h-4 w-4 shrink-0 group-hover:scale-125 transition-transform" />
+                                {action.label}
+                             </Button>
+                           ))}
+                           <Button variant="outline" className="w-full sm:w-auto h-auto min-h-12 py-3 sm:py-4 px-5 sm:px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 whitespace-normal text-left sm:text-center justify-start sm:justify-center" onClick={() => {
+                             const newProgress = Math.min(100, setupProgress + 25);
+                             setSetupProgress(newProgress);
+                             toast.success(`Step "${SETUP_STEPS[activeSetupStep].title}" marked as completed!`);
+                             if (activeSetupStep < SETUP_STEPS.length - 1) {
+                               setActiveSetupStep(activeSetupStep + 1);
+                             }
+                           }}>
+                              Mark as completed
                            </Button>
-                           <div className="text-left sm:text-right w-full sm:w-auto">
-                              <div className="flex items-center gap-3 mb-2">
-                                 <span className="text-xl sm:text-3xl font-[1000] text-indigo-600 italic tracking-tighter">{setupProgress}% Completed</span>
-                              </div>
-                              <div className="w-full sm:w-48 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                                 <motion.div initial={{ width: 0 }} animate={{ width: `${setupProgress}%` }} className="h-full bg-indigo-600 rounded-full" />
-                              </div>
-                           </div>
                         </div>
                      </div>
-
-                     <div className="grid grid-cols-2 md:grid-cols-4 border-b border-slate-50 dark:border-slate-800">
-                        {SETUP_STEPS.map((step, i) => (
-                           <button 
-                             key={i}
-                             onClick={() => setActiveSetupStep(i)}
-                             className={cn(
-                               "p-4 sm:p-6 flex flex-col items-center text-center gap-3 transition-all relative group cursor-pointer break-words whitespace-normal",
-                               activeSetupStep === i ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800"
-                             )}
-                           >
-                              <div className={cn(
-                                "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center transition-all duration-500",
-                                activeSetupStep === i ? "bg-indigo-600 text-white shadow-xl" : "bg-slate-200 dark:bg-slate-800 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600"
-                              )}>
-                                 {i + 1}
-                              </div>
-                              <span className={cn(
-                                "text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-tight break-words whitespace-normal w-full",
-                                activeSetupStep === i ? "text-slate-900 dark:text-white" : "text-slate-400"
-                              )}>{step.title}</span>
-                              {activeSetupStep === i && <motion.div layoutId="step-dot" className="absolute -bottom-px left-0 right-0 h-1 bg-indigo-600" />}
-                           </button>
-                        ))}
-                     </div>
-
-                     <div className="p-5 md:p-12 space-y-8 md:space-y-10">
-                        <div className="flex flex-col md:flex-row gap-12 items-start">
-                           <div className="flex-1 min-w-0 space-y-6">
-                              <h4 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic break-words">{SETUP_STEPS[activeSetupStep].title}</h4>
-                              <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg leading-relaxed">{SETUP_STEPS[activeSetupStep].desc}</p>
-                              
-                              <div className="flex flex-col sm:flex-row flex-wrap gap-4 pt-4">
-                                 {SETUP_STEPS[activeSetupStep].actions.map((action, i) => (
-                                   <Button key={i} onClick={() => router.push(action.href)} className="w-full sm:w-auto h-auto min-h-14 py-4 px-4 sm:px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest sm:tracking-[0.2em] text-[10px] shadow-2xl shadow-indigo-600/20 group whitespace-normal text-left sm:text-center justify-start sm:justify-center">
-                                      <action.icon className="mr-3 h-4 w-4 shrink-0 group-hover:scale-125 transition-transform" />
-                                      {action.label}
-                                   </Button>
-                                 ))}
-                                 <Button variant="outline" className="w-full sm:w-auto h-auto min-h-14 py-4 px-4 sm:px-8 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 whitespace-normal text-left sm:text-center justify-start sm:justify-center" onClick={() => {
-                                   const newProgress = Math.min(100, setupProgress + 25);
-                                   setSetupProgress(newProgress);
-                                   toast.success(`Step "${SETUP_STEPS[activeSetupStep].title}" marked as completed!`);
-                                   if (activeSetupStep < SETUP_STEPS.length - 1) {
-                                     setActiveSetupStep(activeSetupStep + 1);
-                                   }
-                                 }}>
-                                    Mark as completed
-                                 </Button>
-                              </div>
-                           </div>
-                           <div onClick={() => setVideoModalOpen(true)} className="w-full md:w-[280px] h-[160px] md:h-[180px] bg-slate-50 dark:bg-slate-800 rounded-3xl flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group cursor-pointer relative overflow-hidden shrink-0">
-                              <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://img.youtube.com/vi/QDjNOzNO42s/hqdefault.jpg')" }} />
-                              <div className="absolute inset-0 bg-slate-900/30 group-hover:bg-slate-900/10 transition-colors z-0" />
-                              <div className="h-16 w-16 bg-white dark:bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-indigo-600 relative z-10 group-hover:scale-110 transition-transform shrink-0">
-                                 <Play className="h-6 w-6 fill-current ml-1" />
-                              </div>
-                              <p className="absolute bottom-6 text-[9px] font-black uppercase tracking-[0.3em] text-white z-10 drop-shadow-lg">Watch Video Guide</p>
-                           </div>
+                     <div onClick={() => setVideoModalOpen(true)} className="w-full sm:w-auto sm:min-w-[240px] h-[150px] sm:h-[180px] bg-slate-50 dark:bg-slate-800 rounded-2xl sm:rounded-3xl flex items-center justify-center border border-slate-100 dark:border-slate-700/50 group cursor-pointer relative overflow-hidden shrink-0">
+                        <div className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105" style={{ backgroundImage: "url('https://img.youtube.com/vi/QDjNOzNO42s/hqdefault.jpg')" }} />
+                        <div className="absolute inset-0 bg-slate-900/30 group-hover:bg-slate-900/10 transition-colors z-0" />
+                        <div className="h-14 w-14 sm:h-16 sm:w-16 bg-white dark:bg-slate-900 rounded-full shadow-2xl flex items-center justify-center text-indigo-600 relative z-10 group-hover:scale-110 transition-transform shrink-0">
+                           <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current ml-1" />
                         </div>
+                        <p className="absolute bottom-4 sm:bottom-6 text-[9px] font-black uppercase tracking-[0.3em] text-white z-10 drop-shadow-lg">Watch Video Guide</p>
                      </div>
-                  </Card>
-               </div>
-
-               {/* Features Grid & Resource Links */}
-               <div className="w-full lg:w-[420px] xl:w-[450px] shrink-0 space-y-10 lg:space-y-12">
-                  <div className="p-8 rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                     <h3 className="text-xl font-black uppercase tracking-tight italic mb-8 relative z-10">Have a question?</h3>
-                     <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-8 relative z-10">Write to us at <span className="text-indigo-400">support.africa@protechassist.com</span> and we'll answer you.</p>
-                     <Button onClick={() => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Inquiry")} className="w-full h-14 rounded-2xl bg-white text-slate-900 dark:bg-slate-900 dark:text-white font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 dark:hover:bg-slate-800 relative z-10">
-                        <MessageCircle className="mr-3 h-4 w-4" /> Mail us
-                     </Button>
-                  </div>
-
-                  <div className="space-y-6">
-                     <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-600 italic ml-1">Expert Assistance</h4>
-                     {[
-                       { title: "Want to understand all we offer?", desc: "Request a demo with one of our product experts.", action: "Request a Demo", icon: Users, onClick: () => setDemoModalOpen(true) },
-                       { title: "Learn more from our webinars", desc: "Gain in-depth understanding from our collection.", action: "Watch our Webinar", icon: Play, onClick: () => setWebinarModalOpen(true) },
-                     ].map((item, i) => (
-                       <Card key={i} className="border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-6 rounded-[2rem] hover:shadow-xl transition-all duration-500 group">
-                          <div className="flex gap-6 items-center">
-                             <div className="h-14 w-14 shrink-0 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
-                                <item.icon className="h-6 w-6" />
-                             </div>
-                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{item.title}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4 break-words whitespace-normal">{item.desc}</p>
-                                <button onClick={item.onClick} className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-3 transition-all cursor-pointer">
-                                   {item.action} <ArrowRight className="h-3 w-3" />
-                                </button>
-                             </div>
-                          </div>
-                       </Card>
-                     ))}
                   </div>
                </div>
+            </Card>
+
+            {/* Have a Question + Expert Assistance */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6 lg:gap-8">
+               <div className="p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] bg-slate-900 text-white shadow-2xl relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                  <h3 className="text-lg sm:text-xl font-black uppercase tracking-tight italic mb-4 sm:mb-6 relative z-10">Have a question?</h3>
+                  <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px] mb-6 sm:mb-8 relative z-10 break-words">Write to us at <span className="text-indigo-400 break-all">support.africa@protechassist.com</span> and we'll answer you.</p>
+                  <Button onClick={() => window.open("mailto:support.africa@protechassist.com?subject=Protech Inventory OS Support Inquiry")} className="w-full h-12 sm:h-14 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[10px] hover:bg-slate-50 relative z-10">
+                     <MessageCircle className="mr-3 h-4 w-4" /> Mail us
+                  </Button>
+               </div>
+
+               {[
+                 { title: "Want to understand all we offer?", desc: "Request a demo with one of our product experts.", action: "Request a Demo", icon: Users, onClick: () => setDemoModalOpen(true) },
+                 { title: "Learn more from our webinars", desc: "Gain in-depth understanding from our collection.", action: "Watch our Webinar", icon: Play, onClick: () => setWebinarModalOpen(true) },
+               ].map((item, i) => (
+                 <Card key={i} className="border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900/50 p-5 sm:p-6 rounded-[2rem] hover:shadow-xl transition-all duration-500 group">
+                    <div className="flex gap-4 sm:gap-6 items-start">
+                       <div className="h-12 w-12 sm:h-14 sm:w-14 shrink-0 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all">
+                          <item.icon className="h-5 w-5 sm:h-6 sm:w-6" />
+                       </div>
+                       <div className="flex-1 min-w-0">
+                          <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight break-words">{item.title}</p>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4 break-words">{item.desc}</p>
+                          <button onClick={item.onClick} className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-3 transition-all cursor-pointer">
+                             {item.action} <ArrowRight className="h-3 w-3" />
+                          </button>
+                       </div>
+                    </div>
+                 </Card>
+               ))}
             </div>
 
             {/* Useful Features Grid */}
-            <div className="space-y-10">
+            <div className="space-y-6 sm:space-y-10">
                <div>
-                  <h3 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic">Explore useful features</h3>
-                  <div className="h-1 w-12 bg-indigo-600 rounded-full mt-4" />
+                  <h3 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic">Explore useful features</h3>
+                  <div className="h-1 w-12 bg-indigo-600 rounded-full mt-3 sm:mt-4" />
                </div>
 
-               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                   {USEFUL_FEATURES.map((feature, i) => (
-                    <Card key={i} className="border-none bg-white dark:bg-slate-900 shadow-sm rounded-[2.5rem] hover:shadow-2xl transition-all duration-500 group">
-                       <CardContent className="p-10 space-y-8">
-                          <div className="h-16 w-16 rounded-[1.5rem] bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner">
-                             <feature.icon className="h-8 w-8" />
+                    <Card key={i} className="border-none bg-white dark:bg-slate-900 shadow-sm rounded-[2rem] sm:rounded-[2.5rem] hover:shadow-2xl transition-all duration-500 group">
+                       <CardContent className="p-6 sm:p-10 space-y-5 sm:space-y-8">
+                          <div className="h-12 w-12 sm:h-16 sm:w-16 rounded-[1.2rem] sm:rounded-[1.5rem] bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-inner">
+                             <feature.icon className="h-6 w-6 sm:h-8 sm:w-8" />
                           </div>
-                          <div className="space-y-4">
-                             <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic">{feature.title}</h4>
+                          <div className="space-y-2 sm:space-y-4">
+                             <h4 className="text-base sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight italic break-words">{feature.title}</h4>
                              <p className="text-sm text-slate-500 dark:text-slate-400 font-medium leading-relaxed">{feature.desc}</p>
                           </div>
                           <button onClick={feature.onClick} className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.3em] flex items-center gap-2 group-hover:gap-3 transition-all cursor-pointer">
@@ -793,35 +780,35 @@ export default function DashboardPage() {
 
             {/* Mobile Promo & QR */}
             <section className="bg-slate-900 rounded-[2rem] lg:rounded-[3rem] p-6 sm:p-10 lg:p-16 text-white overflow-hidden relative group">
-               <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-[2s]" />
-               <div className="grid lg:grid-cols-2 gap-10 lg:gap-20 items-center relative z-10">
+               <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-indigo-600/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-[2s]" />
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 lg:gap-20 items-center relative z-10">
                    <div>
-                     <h2 className="text-3xl sm:text-5xl font-black tracking-tight uppercase italic mb-6 sm:mb-8 leading-[1.1] sm:leading-[0.9]">Manage inventory <br className="hidden sm:block" /><span className="text-indigo-400">on the go!</span></h2>
-                     <p className="text-slate-400 font-medium text-base sm:text-lg leading-relaxed mb-8 sm:mb-12 max-w-md">Experience the ease of managing your inventory with the Protech mobile app for Android & iOS.</p>
-                     <div className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-6">
-                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 whitespace-normal">
+                     <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black tracking-tight uppercase italic mb-5 sm:mb-8 leading-tight">Manage inventory <span className="text-indigo-400">on the go!</span></h2>
+                     <p className="text-slate-400 font-medium text-sm sm:text-base leading-relaxed mb-6 sm:mb-12 max-w-md">Experience the ease of managing your inventory with the Protech mobile app for Android & iOS.</p>
+                     <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4">
+                        <Button onClick={() => toast.success("Mobile app package build starting... (Android APK)")} className="w-full sm:w-auto h-auto py-3 px-6 sm:px-8 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-3">
                            <Smartphone className="h-5 w-5 shrink-0" /> Google Play
                         </Button>
-                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="w-full sm:w-auto h-auto min-h-14 py-4 px-6 sm:px-10 rounded-2xl bg-white text-slate-900 dark:text-white dark:bg-slate-950 font-black uppercase tracking-widest text-[11px] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-4 whitespace-normal">
+                        <Button onClick={() => toast.success("Mobile app package build starting... (iOS IPA)")} className="w-full sm:w-auto h-auto py-3 px-6 sm:px-8 rounded-2xl bg-white text-slate-900 font-black uppercase tracking-widest text-[10px] hover:scale-105 transition-all shadow-2xl flex items-center justify-center gap-3">
                            <SmartphoneIcon className="h-5 w-5 shrink-0" /> App Store
                         </Button>
                      </div>
                   </div>
-                  <div className="flex flex-col items-center justify-center p-6 sm:p-12 bg-white/5 rounded-[2rem] sm:rounded-[3rem] border border-white/10 backdrop-blur-xl group-hover:border-indigo-500/50 transition-colors">
-                     <div className="h-40 w-40 sm:h-48 sm:w-48 bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] mb-6 sm:mb-8 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]">
-                        <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1 sm:gap-1.5 p-2 sm:p-3">
+                  <div className="flex flex-col items-center justify-center p-6 sm:p-10 bg-white/5 rounded-[2rem] border border-white/10 backdrop-blur-xl group-hover:border-indigo-500/50 transition-colors">
+                     <div className="h-36 w-36 sm:h-48 sm:w-48 bg-white p-4 sm:p-5 rounded-[1.5rem] sm:rounded-[2.5rem] mb-5 sm:mb-6 shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]">
+                        <div className="h-full w-full bg-slate-100 rounded-2xl grid grid-cols-5 grid-rows-5 gap-1 p-2 sm:p-3">
                            {Array.from({ length: 25 }).map((_, i) => (
                              <div key={i} className={cn("rounded-sm", Math.random() > 0.4 ? "bg-slate-900" : "bg-transparent")} />
                            ))}
                         </div>
                      </div>
-                     <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest sm:tracking-[0.4em] text-indigo-400 italic text-center">Scan to download</p>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 italic text-center">Scan to download</p>
                   </div>
                </div>
             </section>
 
-            {/* Other Apps & Footer Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 pt-12 border-t border-slate-100 dark:border-slate-800">
+            {/* Footer Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-10 pt-10 sm:pt-12 border-t border-slate-100 dark:border-slate-800">
                {[
                  { 
                    title: "Other Protech Apps", 
@@ -860,14 +847,14 @@ export default function DashboardPage() {
                    italic: true 
                  },
                ].map((section, i) => (
-                 <div key={i} className="space-y-6">
-                    <h5 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">{section.title}</h5>
-                    <ul className="space-y-4">
+                 <div key={i} className="space-y-4 sm:space-y-6">
+                    <h5 className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest break-words">{section.title}</h5>
+                    <ul className="space-y-3 sm:space-y-4">
                        {section.items.map((item, j) => (
                          <li key={j}>
                             <button 
                               onClick={item.onClick}
-                              className={cn("text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors text-left cursor-pointer", section.italic && "italic")}
+                              className={cn("text-[10px] sm:text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-tight hover:text-indigo-600 transition-colors text-left cursor-pointer break-words w-full", section.italic && "italic")}
                             >
                                {item.label}
                             </button>
@@ -878,8 +865,8 @@ export default function DashboardPage() {
                ))}
             </div>
 
-            <footer className="pt-20 pb-12 text-center px-4">
-               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest sm:tracking-[0.5em] italic leading-relaxed break-words">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
+            <footer className="pt-12 pb-6 text-center px-2">
+               <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic leading-relaxed break-words">© 2026, Protech Assist (SL) Limited. All Rights Reserved.</p>
             </footer>
           </motion.div>
         )}
