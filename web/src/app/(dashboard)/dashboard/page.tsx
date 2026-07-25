@@ -377,7 +377,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Stat Cards */}
-                  <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
                     <StatCard 
                       title="Today's Revenue" 
                       value={stats.revenue} 
@@ -419,6 +419,16 @@ export default function DashboardPage() {
                       colorClass="text-rose-500"
                       bgClass="bg-rose-500/10 dark:bg-rose-500/20"
                       delay={0.4}
+                      href="/dashboard/inventory/products"
+                    />
+                    <StatCard 
+                      title="Over Stock Alerts" 
+                      value={stats.overStock} 
+                      description="Excess inventory" 
+                      icon={AlertCircle}
+                      colorClass="text-amber-500"
+                      bgClass="bg-amber-500/10 dark:bg-amber-500/20"
+                      delay={0.5}
                       href="/dashboard/inventory/products"
                     />
                   </div>
@@ -661,18 +671,18 @@ export default function DashboardPage() {
                              key={i}
                              onClick={() => setActiveSetupStep(i)}
                              className={cn(
-                               "p-6 flex flex-col items-center text-center gap-3 transition-all relative group cursor-pointer",
+                               "p-4 sm:p-6 flex flex-col items-center text-center gap-3 transition-all relative group cursor-pointer break-words whitespace-normal",
                                activeSetupStep === i ? "bg-white dark:bg-slate-800" : "bg-slate-50/50 dark:bg-slate-900/50 hover:bg-white dark:hover:bg-slate-800"
                              )}
                            >
                               <div className={cn(
-                                "h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-500",
+                                "h-10 w-10 shrink-0 rounded-xl flex items-center justify-center transition-all duration-500",
                                 activeSetupStep === i ? "bg-indigo-600 text-white shadow-xl" : "bg-slate-200 dark:bg-slate-800 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600"
                               )}>
                                  {i + 1}
                               </div>
                               <span className={cn(
-                                "text-[10px] font-black uppercase tracking-widest leading-tight",
+                                "text-[9px] sm:text-[10px] font-black uppercase tracking-widest leading-tight break-words whitespace-normal w-full",
                                 activeSetupStep === i ? "text-slate-900 dark:text-white" : "text-slate-400"
                               )}>{step.title}</span>
                               {activeSetupStep === i && <motion.div layoutId="step-dot" className="absolute -bottom-px left-0 right-0 h-1 bg-indigo-600" />}
@@ -742,7 +752,7 @@ export default function DashboardPage() {
                              </div>
                              <div className="flex-1 min-w-0">
                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">{item.title}</p>
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">{item.desc}</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4 break-words whitespace-normal">{item.desc}</p>
                                 <button onClick={item.onClick} className="text-[9px] font-black text-indigo-600 uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-3 transition-all cursor-pointer">
                                    {item.action} <ArrowRight className="h-3 w-3" />
                                 </button>

@@ -89,7 +89,43 @@ export async function syncLowStockNotifications() {
 
     await createNotification({ title: alertTitle, message, type: "ERROR" });
 
-    return { success: true, count: 1 };
+    // 7. Check for Over Stock
+    const overStockProducts = allProducts.filter(
+      (p) => Number(p.stockQuantity) >= Number(p.minStockLevel) * 3
+    );
+
+    if (overStockProducts.length > 0) {
+      const overStockNotified = await prisma.notification.findMany({
+        where: {
+          businessId,
+          createdAt: { gte: subHours(new Date(), 24) },
+          title: { startsWith: "Over Stock Alert:" },
+        },
+        select: { title: true },
+      });
+
+      const overNotifiedTitles = new Set(overStockNotified.map((n) => n.title));
+      const overProductsToNotify = overStockProducts.filter(
+        (p) => !overNotifiedTitles.has(`Over Stock Alert: ${p.name}`)
+      );
+
+      if (overProductsToNotify.length > 0) {
+        const overSorted = [...overProductsToNotify].sort(
+          (a, b) => Number(b.stockQuantity) - Number(a.stockQuantity)
+        );
+        const overProduct = overSorted[0];
+        const overOtherCount = overSorted.length - 1;
+        const overTitle = `Over Stock Alert: ${overProduct.name}`;
+        
+        let overMessage = `Product "${overProduct.name}" is at ${overProduct.stockQuantity} units (excess inventory).`;
+        if (overOtherCount > 0) {
+          overMessage += ` (${overOtherCount} other product${overOtherCount > 1 ? "s" : ""} also overstocked)`;
+        }
+        await createNotification({ title: overTitle, message: overMessage, type: "WARNING" });
+      }
+    }
+
+    return { success: true, count: 1 + (overStockProducts.length > 0 ? 1 : 0) };
   } catch (error) {
     console.error("Failed to sync stock alerts:", error);
     return { success: false };
