@@ -620,10 +620,10 @@ export default function DashboardPage() {
             {/* Welcome Banner */}
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
                <div className="flex-1 min-w-0 space-y-8">
-                  <div>
-                    <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-none break-words">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
-                    <p className="text-[11px] font-black uppercase tracking-[0.4em] text-indigo-600 mt-4">Overview of Protech Inventory</p>
-                    <p className="text-slate-500 font-medium text-lg mt-4 max-w-2xl leading-relaxed">
+                  <div className="w-full break-words">
+                    <h2 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter uppercase italic leading-tight sm:leading-none break-words">Welcome to <span className="text-indigo-600">Protech Inventory</span></h2>
+                    <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-widest sm:tracking-[0.4em] text-indigo-600 mt-3 sm:mt-4 break-words">Overview of Protech Inventory</p>
+                    <p className="text-slate-500 font-medium text-base sm:text-lg mt-3 sm:mt-4 max-w-2xl leading-relaxed">
                       The easy-to-use inventory software that you can set up in no time! Let's get you up and running effectively.
                     </p>
                   </div>
