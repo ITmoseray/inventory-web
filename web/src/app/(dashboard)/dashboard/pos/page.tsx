@@ -701,7 +701,7 @@ export default function POSPage() {
         )}
       </div>
 
-    <div className="flex flex-col xl:flex-row h-[calc(100vh-64px)] -mx-4 -my-6 md:-mx-8 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30">
+    <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] -mx-4 -my-6 md:-mx-8 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30">
       
       {/* Category Sidebar */}
       <CategorySidebar 
@@ -711,7 +711,7 @@ export default function POSPage() {
       />
 
       {/* Central Asset Index (Left/Center Side) */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 xl:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
+      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 lg:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
         <header className="p-4 sm:p-6 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative bg-white dark:bg-slate-900">
           <div className="flex items-start sm:items-center justify-between w-full lg:w-auto gap-4">
              <div className="flex items-center gap-3 sm:gap-4 min-w-0">
