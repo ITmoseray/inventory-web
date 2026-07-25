@@ -579,7 +579,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-sidebar text-sidebar-foreground border-r-0 shadow-2xl">
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-sidebar text-sidebar-foreground border-r-0 shadow-2xl dark">
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
@@ -591,7 +591,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </Sheet>
 
       {/* Desktop/Tablet Sidebar */}
-      <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm hidden md:flex bg-sidebar" {...props}>
+      <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm hidden md:flex bg-sidebar dark" {...props}>
           <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
           <SidebarRail />
       </Sidebar>
