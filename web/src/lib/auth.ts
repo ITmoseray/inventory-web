@@ -51,7 +51,7 @@ declare module "next-auth" {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   debug: true,
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.AUTH_SECRET || "fallback_secret_32_characters_minimum_for_nextauth",
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
