@@ -26,6 +26,7 @@ export default function ProfilePage() {
   });
   
   const [avatarLoading, setAvatarLoading] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   const AVATAR_SEEDS = ["Sarah", "Jessica", "Maria", "Sophia", "Chloe", "Felix", "Aneka", "Jocelyn", "Robert", "Bandit", "Tinkerbell", "Bella", "Snickers", "Garfield", "Peanut", "Socks", "Midnight"];
 
   const handleCustomUpload = async (formData: FormData) => {
@@ -33,7 +34,8 @@ export default function ProfilePage() {
       setAvatarLoading(true);
       const url = await uploadAvatar(formData);
       await updateProfileImage(url);
-      await update();
+      setPreviewImage(url);
+      await update({ user: { image: url } });
       toast.success("Profile avatar updated!");
       return url;
     } catch (e: any) {
@@ -49,9 +51,9 @@ export default function ProfilePage() {
     const url = `https://api.dicebear.com/7.x/notionists/svg?seed=${seed}&backgroundColor=e2e8f0`;
     try {
       await updateProfileImage(url);
-      await update();
+      setPreviewImage(url);
+      await update({ user: { image: url } });
       toast.success("Profile avatar updated!");
-      // Note: session user image will update on next session refresh
     } catch (e: any) {
       toast.error("Failed to update avatar");
     } finally {
@@ -101,8 +103,8 @@ export default function ProfilePage() {
           <Card className="md:col-span-1 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] overflow-hidden">
              <div className="h-24 bg-indigo-600 relative">
                 <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-20 w-20 rounded-2xl bg-white dark:bg-slate-900 border-4 border-slate-50 dark:border-slate-950 flex items-center justify-center shadow-lg overflow-hidden">
-                   {session?.user?.image ? (
-                      <img src={session.user.image} alt="Avatar" className="w-full h-full object-cover bg-slate-100" />
+                   {(previewImage || session?.user?.image) ? (
+                      <img src={previewImage || session!.user.image!} alt="Avatar" className="w-full h-full object-cover bg-slate-100" />
                    ) : (
                       <UserCircle className="h-10 w-10 text-indigo-600" />
                    )}

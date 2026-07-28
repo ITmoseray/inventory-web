@@ -312,8 +312,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
-    async jwt({ token, user, trigger }) {
+    async jwt({ token, user, trigger, session: sessionData }) {
       console.log("SERVER AUTH: JWT Callback Start", { trigger, sub: token.sub });
+
+      // 0. Handle explicit update() calls with new data (e.g. avatar update)
+      if (trigger === "update" && sessionData?.user?.image) {
+        token.picture = sessionData.user.image;
+      }
 
       // 1. Basic population from login
       if (user) {
