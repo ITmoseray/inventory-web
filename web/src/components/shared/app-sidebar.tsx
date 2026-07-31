@@ -409,62 +409,49 @@ const SidebarContentRenderer = ({
             <Link
               href="/pricing"
               className={cn(
-                "group relative flex flex-col gap-3 overflow-hidden rounded-2xl p-4 transition-all duration-300 hover:shadow-2xl hover:brightness-110 border border-white/10 bg-gradient-to-br",
+                "group relative flex flex-col gap-2 overflow-hidden rounded-xl p-3 transition-all duration-300 hover:brightness-110 border border-white/10 bg-gradient-to-br",
                 gradientClass
               )}
             >
               {/* Shimmer */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.12),_transparent_65%)] pointer-events-none" />
-              <div className="absolute -top-6 -right-6 h-24 w-24 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.10),_transparent_65%)] pointer-events-none" />
 
-              {/* Top row: icon + plan badge */}
+              {/* Top row: icon + plan label + badge */}
               <div className="flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-xl bg-white/20 border border-white/25 flex items-center justify-center shadow-inner">
-                    <Crown className="h-4 w-4 text-white" />
+                <div className="flex items-center gap-2">
+                  <div className="h-6 w-6 rounded-lg bg-white/20 border border-white/20 flex items-center justify-center">
+                    <Crown className="h-3 w-3 text-white" />
                   </div>
                   <div>
-                    <p className="text-[9px] font-black text-white/60 uppercase tracking-[0.25em] leading-none">Your Plan</p>
-                    <p className="text-xs font-black text-white leading-tight mt-0.5">{planLabel}</p>
+                    <p className="text-[8px] font-black text-white/60 uppercase tracking-widest leading-none">Your Plan</p>
+                    <p className="text-[11px] font-black text-white leading-tight">{planLabel}</p>
                   </div>
                 </div>
                 <span className={cn(
-                  "text-[8px] font-black uppercase tracking-wider px-2 py-1 rounded-full border border-white/20 bg-white/15",
-                  isCritical && "animate-pulse",
-                  "text-white"
+                  "text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-white/20 bg-white/15 text-white",
+                  isCritical && "animate-pulse"
                 )}>
                   {isExpired ? "Expired" : isCritical ? "Expiring!" : hasTrial ? "Trial" : "Active"}
                 </span>
               </div>
 
-              {/* Days remaining label */}
-              <div className="relative z-10">
-                <p className="text-[11px] font-bold text-white/80 leading-none">{daysLabel}</p>
-              </div>
-
-              {/* Progress bar */}
+              {/* Progress bar + days */}
               {daysLeft !== null && (
                 <div className="relative z-10 space-y-1">
-                  <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-white/75 rounded-full transition-all duration-700"
-                      style={{ width: `${progress}%` }}
-                    />
+                  <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
+                    <div className="h-full bg-white/70 rounded-full transition-all duration-700" style={{ width: `${progress}%` }} />
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-[8px] text-white/40 font-bold uppercase tracking-wider">Start</span>
-                    <span className="text-[8px] text-white/40 font-bold uppercase tracking-wider">End</span>
-                  </div>
+                  <p className="text-[9px] font-bold text-white/70 leading-none">{daysLabel}</p>
                 </div>
               )}
 
-              {/* CTA button */}
-              <div className="relative z-10 flex items-center justify-between h-9 px-3.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 transition-colors group-hover:border-white/40">
-                <div className="flex items-center gap-2">
-                  <Zap className="h-3.5 w-3.5 text-white fill-current" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">{ctaText}</span>
+              {/* CTA */}
+              <div className="relative z-10 flex items-center justify-between h-7 px-2.5 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 transition-colors">
+                <div className="flex items-center gap-1.5">
+                  <Zap className="h-3 w-3 text-white fill-current" />
+                  <span className="text-[9px] font-black text-white uppercase tracking-widest">{ctaText}</span>
                 </div>
-                <ArrowRight className="h-3.5 w-3.5 text-white/70 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
+                <ArrowRight className="h-3 w-3 text-white/70 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
               </div>
             </Link>
           );
