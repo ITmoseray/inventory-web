@@ -10,6 +10,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuGroup,
 } from "@/components/ui/dropdown-menu";
 
 const COLORS = [
@@ -31,9 +32,11 @@ export function SidebarColorPicker() {
         Sidebar Theme
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="start" className="w-48 rounded-2xl border-slate-100 dark:border-slate-800 p-2 shadow-xl">
-        <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1.5">
-          Select Color
-        </DropdownMenuLabel>
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1.5">
+            Select Color
+          </DropdownMenuLabel>
+        </DropdownMenuGroup>
         <DropdownMenuSeparator className="bg-slate-50 dark:bg-slate-800 mb-2" />
         <div className="grid grid-cols-3 gap-2 p-1">
           {COLORS.map((color) => (

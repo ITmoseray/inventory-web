@@ -35,7 +35,7 @@ export async function getDashboardStats() {
       staffCount,
       topItems,
       topStaffSales
-    ] = await prisma.$transaction([
+    ] = await Promise.all([
       // Total Revenue (All-time Paid Sales)
       prisma.sale.aggregate({
         where: { 
@@ -268,7 +268,7 @@ export async function getOfficeDashboardStats() {
       departmentStats,
       recentCheckins,
       recentExpenses
-    ] = await prisma.$transaction([
+    ] = await Promise.all([
       // 1. Total Employees
       prisma.user.count({
         where: { businessId, deletedAt: null }
