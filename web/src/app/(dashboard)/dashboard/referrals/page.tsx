@@ -31,7 +31,7 @@ export default function ReferralsPage() {
       const statsRes = await getReferralStats(businessId!);
       if (statsRes.success) {
         setStats(statsRes.stats);
-        setHistory(statsRes.history);
+        setHistory(statsRes.history ?? []);
       }
     } catch (error) {
       console.error(error);
