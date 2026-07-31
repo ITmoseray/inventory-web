@@ -34,6 +34,8 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { SidebarColorPicker } from "@/components/shared/sidebar-color-picker";
+import { useSidebarStore } from "@/store/use-sidebar-store";
 import { getBusinessContext } from "@/lib/actions/auth";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePermissions } from "@/hooks/use-permissions";
@@ -331,6 +333,7 @@ const SidebarContentRenderer = ({
                     <Settings className="mr-3 size-4 text-slate-400" />
                     Settings
                 </DropdownMenuItem>
+                <SidebarColorPicker />
                 <DropdownMenuItem render={<ThemeToggle />}>
                 </DropdownMenuItem>
                 {session?.user?.role === "SUPERADMIN" && (
@@ -465,6 +468,8 @@ const SidebarContentRenderer = ({
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status, update } = useSession();
   const { canAccess, openMobile, setOpenMobile } = useSidebar();
+  
+  const { colorClass } = useSidebarStore();
   const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
   const [mounted, setMounted] = React.useState(false);
   const hasRefreshedRef = React.useRef(false);
@@ -586,7 +591,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-sidebar text-sidebar-foreground border-r-0 shadow-2xl dark">
+        <SheetContent side="left" className={cn("w-[85vw] max-w-sm p-0 text-sidebar-foreground border-r-0 shadow-2xl dark", colorClass)}>
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>

@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/tooltip"
 import { PanelLeftIcon } from "lucide-react"
 
+import { useSidebarStore } from "@/store/use-sidebar-store"
+
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
@@ -71,6 +73,7 @@ function SidebarProvider({
 }) {
   const isMobile = useIsMobile()
   const [openMobile, setOpenMobile] = React.useState(false)
+  const { colorClass } = useSidebarStore()
 
   // This is the internal state of the sidebar.
   // We use openProp and setOpenProp for control from outside the component.
@@ -167,6 +170,7 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile, setOpen } = useSidebar()
+  const { colorClass } = useSidebarStore()
 
   if (collapsible === "none") {
     return (
@@ -248,7 +252,10 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+          className={cn(
+            "flex size-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border",
+            colorClass
+          )}
         >
           {children}
         </div>
