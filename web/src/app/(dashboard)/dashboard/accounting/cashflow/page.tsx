@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
   TrendingUp, 
@@ -203,9 +204,11 @@ export default function CashFlowPage() {
                   <span className="px-3 py-1 rounded-full bg-indigo-400 text-[8px] font-black uppercase">Low</span>
                </div>
             </div>
-            <Button className="w-full mt-10 h-14 bg-white text-indigo-600 hover:bg-white/90 font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all">
-               Generate Full Report
-            </Button>
+            <Link href="/dashboard/reports" className="w-full mt-10 block">
+               <Button className="w-full h-14 bg-white text-indigo-600 hover:bg-white/90 font-black text-xs uppercase tracking-[0.2em] shadow-xl transition-all">
+                  Generate Full Report
+               </Button>
+            </Link>
          </Card>
       </div>
     </div>
