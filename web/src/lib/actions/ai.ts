@@ -153,21 +153,18 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-    const [stats, products, recentSales, extraData] = await Promise.all([
+    const [stats, products, recentSales, allSuppliers, allCustomers, allDebts, allExpenses, recentPurchases, allStaff] = await Promise.all([
       getDashboardStats(),
       getProducts(),
       getRecentSales(),
-      prisma.$transaction([
-        prisma.supplier.findMany({ where: { businessId, deletedAt: null }, select: { name: true, contact: true, email: true, phone: true } }),
-        prisma.customer.findMany({ where: { businessId, deletedAt: null }, select: { name: true, email: true, phone: true } }),
-        prisma.debt.findMany({ where: { businessId, status: "PENDING", deletedAt: null }, select: { customer: { select: { name: true } }, totalAmount: true, paidAmount: true, dueDate: true } }),
-        prisma.expense.findMany({ where: { businessId, date: { gte: thirtyDaysAgo }, deletedAt: null }, select: { description: true, amount: true, category: true, date: true } }),
-        prisma.purchase.findMany({ where: { businessId, createdAt: { gte: thirtyDaysAgo }, deletedAt: null }, select: { invoiceNumber: true, totalAmount: true, paymentStatus: true, supplier: { select: { name: true } } } }),
-        prisma.user.findMany({ where: { businessId, deletedAt: null }, select: { name: true, role: { select: { name: true } }, email: true, status: true } })
-      ])
+      prisma.supplier.findMany({ where: { businessId, deletedAt: null }, select: { name: true, contact: true, email: true, phone: true } }),
+      prisma.customer.findMany({ where: { businessId, deletedAt: null }, select: { name: true, email: true, phone: true } }),
+      prisma.debt.findMany({ where: { businessId, status: "PENDING", deletedAt: null }, select: { customer: { select: { name: true } }, totalAmount: true, paidAmount: true, dueDate: true } }),
+      prisma.expense.findMany({ where: { businessId, date: { gte: thirtyDaysAgo }, deletedAt: null }, select: { description: true, amount: true, category: true, date: true } }),
+      prisma.purchase.findMany({ where: { businessId, createdAt: { gte: thirtyDaysAgo }, deletedAt: null }, select: { invoiceNumber: true, totalAmount: true, paymentStatus: true, supplier: { select: { name: true } } } }),
+      prisma.user.findMany({ where: { businessId, deletedAt: null }, select: { name: true, role: { select: { name: true } }, email: true, status: true } })
     ]);
 
-    const [allSuppliers, allCustomers, allDebts, allExpenses, recentPurchases, allStaff] = extraData;
 
     const lowStockItems = products.filter(p => p.status === "LOW" || p.status === "CRITICAL");
     const businessType = session.user.businessType || "Retail";
