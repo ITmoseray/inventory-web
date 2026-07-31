@@ -712,28 +712,135 @@ export default function POSPage() {
 
       {/* Central Asset Index (Left/Center Side) */}
       <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 lg:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
-        <header className="p-4 sm:p-6 border-b border-slate-50 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative bg-white dark:bg-slate-900">
-          <div className="flex items-start sm:items-center justify-between w-full lg:w-auto gap-4">
-             <div className="flex items-center gap-3 sm:gap-4 min-w-0">
-               <div className="relative group shrink-0">
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-[1.5rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/20 rotate-3 group-hover:rotate-0 transition-transform duration-300">
-                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-emerald-500 border-[3px] sm:border-4 border-white dark:border-slate-900 animate-pulse" />
-               </div>
-               <div className="min-w-0">
-                  <h1 className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none truncate">Commerce <span className="text-primary underline decoration-indigo-50">Hub</span></h1>
-                  <div className="flex items-center gap-1.5 sm:gap-2 mt-1">
-                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-                     <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.4em] truncate">{isOnline ? "Neural Network Linked" : "Local Engine Mode"}</p>
-                  </div>
-               </div>
-             </div>
-             {/* Mobile Back Button */}
-             <Button onClick={() => router.back()} variant="ghost" className="lg:hidden h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-xl sm:rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-all border border-transparent shrink-0">
-                <X size={20} />
-             </Button>
+        <header className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative overflow-hidden bg-white dark:bg-slate-900">
+          
+          {/* Animated background layer */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            {/* Slow panning gradient shimmer */}
+            <motion.div
+              className="absolute -top-10 -left-10 w-72 h-32 rounded-full bg-primary/5 dark:bg-primary/10 blur-3xl"
+              animate={{ x: [0, 40, 0], opacity: [0.4, 0.8, 0.4] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            />
+            <motion.div
+              className="absolute -bottom-10 right-20 w-48 h-24 rounded-full bg-indigo-400/5 dark:bg-indigo-400/10 blur-2xl"
+              animate={{ x: [0, -30, 0], opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+            />
+            {/* Floating neural dots */}
+            {[
+              { top: "20%", left: "60%", delay: 0 },
+              { top: "70%", left: "75%", delay: 0.8 },
+              { top: "40%", left: "85%", delay: 1.6 },
+              { top: "15%", left: "92%", delay: 2.4 },
+            ].map((dot, i) => (
+              <motion.div
+                key={i}
+                className="absolute h-1 w-1 rounded-full bg-primary/30 dark:bg-primary/50"
+                style={{ top: dot.top, left: dot.left }}
+                animate={{ scale: [0, 1.5, 0], opacity: [0, 1, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: dot.delay }}
+              />
+            ))}
           </div>
+
+          <div className="flex items-start sm:items-center justify-between w-full lg:w-auto gap-4 relative z-10">
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              {/* Animated icon */}
+              <div className="relative group shrink-0">
+                {/* Outer pulsing ring */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl sm:rounded-[1.5rem] bg-primary/20 dark:bg-primary/30"
+                  animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }}
+                />
+                {/* Second pulsing ring */}
+                <motion.div
+                  className="absolute inset-0 rounded-xl sm:rounded-[1.5rem] bg-primary/10"
+                  animate={{ scale: [1, 1.25, 1], opacity: [0.8, 0, 0.8] }}
+                  transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut", delay: 0.5 }}
+                />
+                <motion.div
+                  className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-[1.5rem] bg-slate-900 dark:bg-primary flex items-center justify-center shadow-2xl shadow-primary/30"
+                  animate={{ rotate: [3, 0, 3] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <motion.div
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+                  </motion.div>
+                </motion.div>
+                {/* Live green dot */}
+                <motion.div
+                  className="absolute -top-1 -right-1 h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-emerald-500 border-[3px] sm:border-4 border-white dark:border-slate-900"
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+                />
+              </div>
+
+              {/* Title + status */}
+              <div className="min-w-0">
+                <motion.h1
+                  className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none truncate"
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  Commerce{" "}
+                  <motion.span
+                    className="text-primary underline decoration-indigo-50"
+                    animate={{ opacity: [1, 0.7, 1] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    Hub
+                  </motion.span>
+                </motion.h1>
+
+                {/* Neural Network status badge */}
+                <div className="flex items-center gap-1.5 sm:gap-2 mt-1.5">
+                  {/* Animated triple-dot indicator */}
+                  <div className="flex items-center gap-0.5">
+                    {[0, 0.2, 0.4].map((delay, i) => (
+                      <motion.div
+                        key={i}
+                        className="h-1.5 w-1.5 rounded-full bg-emerald-500"
+                        animate={{ scale: [1, 1.5, 1], opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut", delay }}
+                      />
+                    ))}
+                  </div>
+                  <motion.p
+                    className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] sm:tracking-[0.4em] truncate"
+                    animate={{ opacity: [0.7, 1, 0.7] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    {isOnline ? "Neural Network Linked" : "Local Engine Mode"}
+                  </motion.p>
+                  {/* Sync activity bar */}
+                  {isOnline && (
+                    <div className="hidden sm:flex items-end gap-px h-3 ml-1">
+                      {[2, 4, 3, 5, 2, 4, 3].map((h, i) => (
+                        <motion.div
+                          key={i}
+                          className="w-px bg-emerald-400 rounded-full"
+                          animate={{ height: [`${h}px`, `${h * 2}px`, `${h}px`] }}
+                          transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut", delay: i * 0.1 }}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Back Button */}
+            <Button onClick={() => router.back()} variant="ghost" className="lg:hidden h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-xl sm:rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-400 hover:text-rose-500 transition-all border border-transparent shrink-0">
+              <X size={20} />
+            </Button>
+          </div>
+
           {/* Happy Hour Banner */}
           {isHappyHour && (
             <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30 animate-pulse">
@@ -744,27 +851,29 @@ export default function POSPage() {
               </div>
             </div>
           )}
-          <div className="flex items-center gap-2 w-full lg:w-auto">
-             {(session?.user?.businessType === "CLINIC" || session?.user?.businessType === "HOSPITAL") && (
-               <MedicalBillsModal onPaymentSuccess={(data) => {
-                 setReceiptData(data);
-                 setTimeout(() => setIsReceiptModalOpen(true), 300);
-               }} />
-             )}
-             <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2">
-                <RefreshCw className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0", isSyncing && "animate-spin text-primary")} />
-                <span className="truncate">{isSyncing ? "Syncing..." : "Trade Sync"}</span>
-             </Button>
-             <Button variant="destructive" size="sm" onClick={() => setIsCloseRegisterModalOpen(true)} className="flex-1 lg:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2">
-                <Banknote className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-                <span className="truncate">Close Shift</span>
-             </Button>
-             {/* Desktop Back Button */}
-             <Button onClick={() => router.back()} variant="ghost" className="hidden lg:flex h-12 w-12 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50 shrink-0">
-                <X size={20} />
-             </Button>
+
+          <div className="flex items-center gap-2 w-full lg:w-auto relative z-10">
+            {(session?.user?.businessType === "CLINIC" || session?.user?.businessType === "HOSPITAL") && (
+              <MedicalBillsModal onPaymentSuccess={(data) => {
+                setReceiptData(data);
+                setTimeout(() => setIsReceiptModalOpen(true), 300);
+              }} />
+            )}
+            <Button variant="outline" size="sm" onClick={initialSync} disabled={isSyncing} className="flex-1 lg:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2">
+              <RefreshCw className={cn("h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0", isSyncing && "animate-spin text-primary")} />
+              <span className="truncate">{isSyncing ? "Syncing..." : "Trade Sync"}</span>
+            </Button>
+            <Button variant="destructive" size="sm" onClick={() => setIsCloseRegisterModalOpen(true)} className="flex-1 lg:flex-none h-10 sm:h-12 px-3 sm:px-6 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 sm:gap-2">
+              <Banknote className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+              <span className="truncate">Close Shift</span>
+            </Button>
+            {/* Desktop Back Button */}
+            <Button onClick={() => router.back()} variant="ghost" className="hidden lg:flex h-12 w-12 p-0 rounded-2xl hover:bg-rose-50 dark:hover:bg-rose-950/20 text-slate-300 hover:text-rose-500 transition-all border border-transparent hover:border-rose-200 dark:hover:border-rose-900/50 shrink-0">
+              <X size={20} />
+            </Button>
           </div>
         </header>
+
 
         {/* ACTIVE DRAFT BANNER */}
         {currentDraftId && (() => {
