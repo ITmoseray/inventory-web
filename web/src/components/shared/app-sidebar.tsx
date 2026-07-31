@@ -603,7 +603,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </Sheet>
 
       {/* Desktop/Tablet Sidebar */}
-      <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm hidden md:flex bg-sidebar dark" {...props}>
+      <Sidebar collapsible="icon" className={cn("border-r border-white/10 shadow-sm hidden md:flex dark", colorClass)} {...props}>
           <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
           <SidebarRail />
       </Sidebar>

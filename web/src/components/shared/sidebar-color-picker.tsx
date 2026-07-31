@@ -40,9 +40,9 @@ export function SidebarColorPicker() {
         <DropdownMenuSeparator className="bg-slate-50 dark:bg-slate-800 mb-2" />
         <div className="grid grid-cols-3 gap-2 p-1">
           {COLORS.map((color) => (
-            <div
+            <DropdownMenuItem
               key={color.name}
-              className="flex flex-col items-center gap-1 group cursor-pointer"
+              className="flex flex-col items-center gap-1 group cursor-pointer focus:bg-transparent"
               onClick={() => setColorClass(color.class)}
             >
               <div
@@ -54,7 +54,7 @@ export function SidebarColorPicker() {
                 style={{ backgroundColor: colorClass === color.class ? undefined : color.hex }}
                 title={color.name}
               />
-            </div>
+            </DropdownMenuItem>
           ))}
         </div>
       </DropdownMenuContent>
