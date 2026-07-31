@@ -74,6 +74,7 @@ export default function DashboardPage() {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [stats, setStats] = useState<any>({
     revenue: 0,
+    todayRevenue: 0,
     revenueChange: 0,
     orders: 0,
     ordersChange: 0,
@@ -379,16 +380,27 @@ export default function DashboardPage() {
                   {/* Stat Cards */}
                   <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
                     <StatCard 
-                      title="Today's Revenue" 
+                      title="Total Revenue" 
                       value={stats.revenue} 
                       prefix="Le "
-                      description="vs yesterday" 
+                      description="All-time revenue" 
                       icon={DollarSign}
                       colorClass="text-primary"
                       bgClass="bg-primary/10 dark:bg-primary/20"
                       delay={0.1}
                       href="/dashboard/sales/history"
-                      change={stats.revenueChange || 12.5}
+                    />
+                    <StatCard 
+                      title="Today's Revenue" 
+                      value={stats.todayRevenue || 0} 
+                      prefix="Le "
+                      description="vs yesterday" 
+                      icon={Activity}
+                      colorClass="text-indigo-500"
+                      bgClass="bg-indigo-500/10 dark:bg-indigo-500/20"
+                      delay={0.15}
+                      href="/dashboard/sales/history"
+                      change={stats.revenueChange || 0}
                     />
                     <StatCard 
                       title="Total Orders" 

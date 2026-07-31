@@ -231,6 +231,7 @@ export async function getDashboardStats() {
 
     return {
       revenue: totalAllTimeRevenue,
+      todayRevenue: todayRevenue,
       revenueChange,
       orders: todayOrdersCount, // "Today's Orders" now correctly reflects today's count!
       ordersChange,
