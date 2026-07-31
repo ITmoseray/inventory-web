@@ -19,27 +19,22 @@ export function SidebarColorPicker() {
   const { colorHex, setColor } = useSidebarStore();
 
   return (
-    <div className="px-4 py-3 border-t border-white/10 mt-2">
-      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2.5">
-        Sidebar Color
-      </p>
-      <div className="flex flex-wrap gap-2">
-        {COLORS.map((color) => (
-          <button
-            key={color.name}
-            type="button"
-            title={color.name}
-            onClick={() => setColor(color.hex, color.hsl)}
-            className={cn(
-              "h-6 w-6 rounded-full border-2 transition-all duration-200 hover:scale-125 focus:outline-none",
-              colorHex === color.hex
-                ? "border-primary scale-125 shadow-md shadow-primary/40"
-                : "border-white/20 hover:border-white/60"
-            )}
-            style={{ backgroundColor: color.hex }}
-          />
-        ))}
-      </div>
+    <div className="px-3 py-1 flex items-center gap-1">
+      {COLORS.map((color) => (
+        <button
+          key={color.name}
+          type="button"
+          title={color.name}
+          onClick={() => setColor(color.hex, color.hsl)}
+          className={cn(
+            "h-3 w-3 rounded-full border transition-all duration-150 hover:scale-125 focus:outline-none",
+            colorHex === color.hex
+              ? "border-primary scale-125 shadow shadow-primary/50"
+              : "border-transparent hover:border-white/40"
+          )}
+          style={{ backgroundColor: color.hex }}
+        />
+      ))}
     </div>
   );
 }
