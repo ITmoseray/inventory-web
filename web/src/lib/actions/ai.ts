@@ -150,18 +150,35 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
 
     const businessId = session.user.businessId;
 
-    const [stats, products, recentSales] = await Promise.all([
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const [stats, products, recentSales, extraData] = await Promise.all([
       getDashboardStats(),
       getProducts(),
-      getRecentSales()
+      getRecentSales(),
+      prisma.$transaction([
+        prisma.supplier.findMany({ where: { businessId, deletedAt: null }, select: { name: true, contact: true, email: true, phone: true } }),
+        prisma.customer.findMany({ where: { businessId, deletedAt: null }, select: { name: true, email: true, phone: true } }),
+        prisma.debt.findMany({ where: { businessId, status: "PENDING", deletedAt: null }, select: { customer: { select: { name: true } }, totalAmount: true, paidAmount: true, dueDate: true } }),
+        prisma.expense.findMany({ where: { businessId, date: { gte: thirtyDaysAgo }, deletedAt: null }, select: { description: true, amount: true, category: true, date: true } }),
+        prisma.purchase.findMany({ where: { businessId, createdAt: { gte: thirtyDaysAgo }, deletedAt: null }, select: { invoiceNumber: true, totalAmount: true, paymentStatus: true, supplier: { select: { name: true } } } }),
+        prisma.user.findMany({ where: { businessId, deletedAt: null }, select: { name: true, role: { select: { name: true } }, email: true, status: true } })
+      ])
     ]);
+
+    const [allSuppliers, allCustomers, allDebts, allExpenses, recentPurchases, allStaff] = extraData;
 
     const lowStockItems = products.filter(p => p.status === "LOW" || p.status === "CRITICAL");
     const businessType = session.user.businessType || "Retail";
+    
+    const apiKey = process.env.GEMINI_API_KEY;
+    const limit = apiKey ? 999999 : 50; // Truncate if using local AI to prevent memory overload
 
     const systemContextPrompt = `
       You are the Protech Assist Business Intelligence AI, an advanced AI Assistant.
       You help the business owner analyze their business, inventory, sales, and operations.
+      You have FULL OMNISCIENT ACCESS to the entire database. If the user asks about a specific product, customer, supplier, expense, debt, or staff member, use the data below to answer them accurately. Do NOT say you cannot access it.
       
       Here is the current live data from the business database:
       - Business Type: ${businessType}
@@ -182,17 +199,40 @@ export async function chatWithAI(messages: { role: string; content: string }[]) 
       Recent Sales Ledger:
       ${recentSales.slice(0, 5).map(s => `- Invoice ${s.invoiceNumber}: Le ${s.totalAmount} (${s.paymentStatus}, ${format(new Date(s.createdAt), "MMM dd")})`).join("\n")}
       
-      Low Stock / Critical Products:
-      ${lowStockItems.slice(0, 5).map(p => `- ${p.name}: ${p.stockQuantity} remaining (Threshold: ${p.minStockLevel})`).join("\n")}
+      =========================================
+      OMNISCIENT DATABASE DUMP (LIVE SNAPSHOT)
+      =========================================
+      
+      --- ALL PRODUCTS / INVENTORY (${products.length} items) ---
+      ${products.slice(0, limit).map(p => `- ${p.name} (SKU: ${p.sku || 'N/A'}): Qty ${p.stockQuantity}, Price Le ${p.unitPrice}, Cost Le ${p.costPrice || 0}, Status: ${p.status}`).join("\n")}
+      
+      --- ALL SUPPLIERS (${allSuppliers.length}) ---
+      ${allSuppliers.slice(0, limit).map(s => `- ${s.name} | Phone: ${s.phone || 'N/A'} | Email: ${s.email || 'N/A'}`).join("\n")}
+      
+      --- ALL CUSTOMERS (${allCustomers.length}) ---
+      ${allCustomers.slice(0, limit).map(c => `- ${c.name} | Phone: ${c.phone || 'N/A'} | Email: ${c.email || 'N/A'}`).join("\n")}
+      
+      --- ALL PENDING DEBTS (${allDebts.length}) ---
+      ${allDebts.slice(0, limit).map(d => `- ${d.customer?.name || 'Unknown'} owes Le ${(Number(d.totalAmount) - Number(d.paidAmount)).toLocaleString()} (Due: ${d.dueDate ? format(new Date(d.dueDate), 'MMM dd') : 'N/A'})`).join("\n")}
+      
+      --- RECENT EXPENSES (Last 30 Days) (${allExpenses.length}) ---
+      ${allExpenses.slice(0, limit).map(e => `- [${format(new Date(e.date), 'MMM dd')}] ${e.category}: ${e.description} - Le ${e.amount}`).join("\n")}
+      
+      --- RECENT PURCHASES (Last 30 Days) (${recentPurchases.length}) ---
+      ${recentPurchases.slice(0, limit).map(p => `- ${p.invoiceNumber} from ${p.supplier?.name || 'Unknown'}: Le ${p.totalAmount} (${p.paymentStatus})`).join("\n")}
+      
+      --- ALL STAFF MEMBERS (${allStaff.length}) ---
+      ${allStaff.slice(0, limit).map(s => `- ${s.name} (${s.role?.name || 'Staff'}) - ${s.status}`).join("\n")}
+      =========================================
       
       Guidelines:
-      1. Answer the user's questions using the live business data provided above.
-      2. If asked about recommendations, suggest tactical business moves based on their stats (e.g. restock critical items, promote sales if revenue is low, etc.).
+      1. Answer the user's questions using the live business data provided above. You have access to EVERYTHING.
+      2. If asked about recommendations, suggest tactical business moves based on their stats (e.g. restock critical items, promote sales if revenue is low, chase pending debts, etc.).
       3. Maintain a highly professional, analytical, and corporate tone.
       4. Keep answers concise, clear, and direct. Use bullet points for structured data.
+      5. Do not explicitly mention "OMNISCIENT DATABASE DUMP", just act like you inherently know the business data.
     `;
 
-    const apiKey = process.env.GEMINI_API_KEY;
     let rateLimited = false;
 
     if (apiKey) {
