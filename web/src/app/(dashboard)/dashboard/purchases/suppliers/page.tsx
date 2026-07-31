@@ -106,41 +106,41 @@ export default function SuppliersPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 space-y-5 p-4 sm:p-6">
 
       {/* ── Header ── */}
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Title row */}
-        <div className="flex items-center gap-3">
-          <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl sm:rounded-[1.5rem] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
-            <Building2 className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-xl sm:rounded-[1.5rem] bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg shadow-indigo-500/30 shrink-0">
+            <Building2 className="h-5 w-5 sm:h-7 sm:w-7 text-white" />
           </div>
-          <div className="min-w-0">
-            <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-lg sm:text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-tight truncate">
               Supplier Directory
             </h1>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+            <p className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">
               {loading ? "Loading..." : `${suppliers.length} registered suppliers`}
             </p>
           </div>
         </div>
 
-        {/* Action buttons — full-width on mobile, row on sm+ */}
-        <div className="flex flex-wrap gap-2">
-          <Link href="/dashboard/purchases/payments" className="flex-1 sm:flex-none">
-            <Button variant="outline" className="w-full sm:w-auto h-10 sm:h-11 px-3 sm:px-5 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5">
-              <Wallet className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+        {/* Action buttons */}
+        <div className="grid grid-cols-2 md:flex md:flex-wrap gap-2 w-full md:w-auto">
+          <Link href="/dashboard/purchases/payments" className="w-full">
+            <Button variant="outline" className="w-full h-10 sm:h-11 px-2 sm:px-5 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5">
+              <Wallet className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Payments</span>
             </Button>
           </Link>
-          <Link href="/dashboard/purchases/analytics" className="flex-1 sm:flex-none">
-            <Button variant="outline" className="w-full sm:w-auto h-10 sm:h-11 px-3 sm:px-5 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5">
-              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+          <Link href="/dashboard/purchases/analytics" className="w-full">
+            <Button variant="outline" className="w-full h-10 sm:h-11 px-2 sm:px-5 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5">
+              <TrendingUp className="h-3.5 w-3.5 shrink-0" />
               <span className="truncate">Analytics</span>
             </Button>
           </Link>
           <Button
             onClick={openCreate}
-            className="flex-1 sm:flex-none h-10 sm:h-11 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/30"
+            className="col-span-2 md:col-span-1 w-full h-10 sm:h-11 px-4 sm:px-6 rounded-xl sm:rounded-2xl font-black text-[9px] sm:text-[10px] uppercase tracking-widest gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white shadow-md shadow-indigo-500/30"
           >
-            <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+            <Plus className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">Add Supplier</span>
           </Button>
         </div>
