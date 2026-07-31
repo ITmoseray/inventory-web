@@ -517,12 +517,12 @@ export default function DashboardPage() {
                            <div className="divide-y divide-slate-100/50 dark:divide-slate-800/50">
                               {recentSales.slice(0, 6).map((sale: any) => (
                                 <div key={sale.id} className="p-3 sm:p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group border-b border-slate-100 dark:border-slate-800/50 last:border-0" onClick={() => { setSelectedSale(sale); setIsDetailsOpen(true); }}>
-                                   <div className="flex items-center gap-4">
-                                      <div className={cn("h-10 w-10 rounded-md flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors")}>
-                                         <Activity className="h-5 w-5" />
+                                   <div className="flex items-center gap-3 sm:gap-4 overflow-hidden min-w-0 mr-2 sm:mr-4">
+                                      <div className={cn("h-9 w-9 sm:h-10 sm:w-10 rounded-md flex items-center justify-center shrink-0 bg-slate-100 dark:bg-slate-800 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors")}>
+                                         <Activity className="h-4 w-4 sm:h-5 sm:w-5" />
                                       </div>
-                                      <div>
-                                         <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">{sale.invoiceNumber}</div>
+                                      <div className="min-w-0">
+                                         <div className="font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-200 truncate">{sale.invoiceNumber}</div>
                                          <div className="flex items-center gap-2 text-xs text-slate-500 mt-1">
                                             <div className="flex items-center gap-1"><Clock className="h-3 w-3" /> {format(new Date(sale.createdAt), "HH:mm")}</div>
                                             <span>•</span>
@@ -530,9 +530,9 @@ export default function DashboardPage() {
                                          </div>
                                       </div>
                                    </div>
-                                   <div className="text-right">
-                                      <div className="font-semibold text-sm text-slate-800 dark:text-slate-200">Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}</div>
-                                      <div className={cn("px-2 py-0.5 rounded text-[10px] font-medium mt-1 inline-block", sale.paymentStatus === "PAID" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>{sale.paymentStatus}</div>
+                                   <div className="text-right shrink-0">
+                                      <div className="font-semibold text-xs sm:text-sm text-slate-800 dark:text-slate-200">Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}</div>
+                                      <div className={cn("px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-medium mt-1 inline-block", sale.paymentStatus === "PAID" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>{sale.paymentStatus}</div>
                                    </div>
                                 </div>
                               ))}
@@ -557,18 +557,18 @@ export default function DashboardPage() {
                        <div className="space-y-0.5">
                           {stats.topProducts.map((product, i) => (
                              <div key={i} className="flex items-center justify-between p-3 sm:p-4 border-b border-slate-100 dark:border-slate-800/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group" onClick={() => router.push("/dashboard/analytics")}>
-                                <div className="flex items-center gap-4 overflow-hidden">
-                                   <div className="h-8 w-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
-                                      <span className="text-xs font-semibold text-slate-500">#{i + 1}</span>
+                                <div className="flex items-center gap-3 sm:gap-4 overflow-hidden min-w-0 mr-2 sm:mr-4">
+                                   <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0">
+                                      <span className="text-[10px] sm:text-xs font-semibold text-slate-500">#{i + 1}</span>
                                    </div>
                                    <div className="min-w-0">
                                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-200 truncate group-hover:text-indigo-600 transition-colors">{product.name}</p>
                                       <p className="text-xs text-slate-500 truncate mt-0.5 capitalize">{product.category}</p>
                                    </div>
                                 </div>
-                                <div className="text-right shrink-0 ml-4">
-                                   <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{product.quantitySold} units</p>
-                                   <p className="text-[10px] font-medium text-emerald-600 mt-0.5">Le {product.revenue.toLocaleString()}</p>
+                                <div className="text-right shrink-0">
+                                   <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200">{product.quantitySold} units</p>
+                                   <p className="text-[9px] sm:text-[10px] font-medium text-emerald-600 mt-0.5">Le {product.revenue.toLocaleString()}</p>
                                 </div>
                              </div>
                           ))}
@@ -581,11 +581,11 @@ export default function DashboardPage() {
             {/* Third Row: Staff Leaderboard */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm flex flex-col overflow-hidden h-full">
-                 <CardHeader className="p-8 pb-4">
-                    <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Staff Leaderboard</CardTitle>
+                 <CardHeader className="p-4 sm:p-6 lg:p-8 pb-4">
+                    <CardTitle className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Staff Leaderboard</CardTitle>
                     <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Top Revenue Generators</CardDescription>
                  </CardHeader>
-                 <CardContent className="p-8 pt-4 flex-1">
+                 <CardContent className="p-4 sm:p-6 lg:p-8 pt-2 sm:pt-4 flex-1">
                     {!stats.topStaff || stats.topStaff.length === 0 ? (
                        <div className="h-full flex flex-col items-center justify-center space-y-4 text-center opacity-50">
                           <Users className="h-10 w-10 text-slate-400" />
@@ -594,18 +594,18 @@ export default function DashboardPage() {
                     ) : (
                        <div className="space-y-4">
                           {stats.topStaff.map((staff: any, i: number) => (
-                             <div key={i} className="flex items-center justify-between p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all group">
-                                <div className="flex items-center gap-4 overflow-hidden">
-                                   <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm">
-                                      <span className="text-lg font-black">#{i + 1}</span>
+                             <div key={i} className="flex items-center justify-between p-3 sm:p-4 rounded-2xl bg-slate-50/50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 hover:bg-white dark:hover:bg-slate-800 transition-all group">
+                                <div className="flex items-center gap-3 sm:gap-4 overflow-hidden min-w-0 mr-2 sm:mr-4">
+                                   <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-xl flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm">
+                                      <span className="text-base sm:text-lg font-black">#{i + 1}</span>
                                    </div>
                                    <div className="min-w-0">
-                                      <p className="text-sm font-black text-slate-900 dark:text-white tracking-tight truncate group-hover:text-primary transition-colors">{staff.name}</p>
-                                      <p className="text-[9px] font-black uppercase tracking-widest text-slate-400 truncate mt-0.5">{staff.role}</p>
+                                      <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-tight truncate group-hover:text-primary transition-colors">{staff.name}</p>
+                                      <p className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-400 truncate mt-0.5">{staff.role}</p>
                                    </div>
                                 </div>
-                                <div className="text-right shrink-0 ml-4">
-                                   <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Le {staff.revenue.toLocaleString()}</p>
+                                <div className="text-right shrink-0">
+                                   <p className="text-[9px] sm:text-[10px] font-bold text-emerald-600 uppercase tracking-widest mt-0.5">Le {staff.revenue.toLocaleString()}</p>
                                 </div>
                              </div>
                           ))}
