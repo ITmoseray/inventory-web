@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
-  Crown, Zap, ArrowRight
+  Crown, Zap, ArrowRight, Trophy
 } from "lucide-react";
 
 import {
@@ -334,10 +334,16 @@ const SidebarContentRenderer = ({
                 <DropdownMenuItem render={<ThemeToggle />}>
                 </DropdownMenuItem>
                 {session?.user?.role === "SUPERADMIN" && (
-                   <DropdownMenuItem render={<Link href="/super-admin" className="flex items-center w-full" />}>
-                       <ShieldCheck className="mr-3 size-4 text-indigo-600" />
-                       Super Admin Panel
-                   </DropdownMenuItem>
+                   <>
+                     <DropdownMenuItem render={<Link href="/super-admin" className="flex items-center w-full" />}>
+                         <ShieldCheck className="mr-3 size-4 text-indigo-600" />
+                         Super Admin Panel
+                     </DropdownMenuItem>
+                     <DropdownMenuItem render={<Link href="/admin/referrals" className="flex items-center w-full" />}>
+                         <Trophy className="mr-3 size-4 text-indigo-600" />
+                         Referral Management
+                     </DropdownMenuItem>
+                   </>
                 )}
                 <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
                 <DropdownMenuItem onClick={async () => {
@@ -519,6 +525,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             }
         });
     });
+
+    // Add Referral Program to System or create a new group
+    let systemGroup = merged.find(g => g.label === "System");
+    if (!systemGroup) {
+      systemGroup = { label: "System", items: [] };
+      merged.push(systemGroup);
+    }
+    systemGroup.items.push({
+      title: "Referral Program",
+      url: "/dashboard/referrals",
+      icon: Crown,
+      permission: "view_dashboard" // or a specific permission if needed, anyone can refer
+    });
+
     return merged;
   }, [businessTypesString, session?.user?.institutionType]);
   

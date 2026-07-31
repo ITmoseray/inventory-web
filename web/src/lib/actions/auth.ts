@@ -6,6 +6,7 @@ import { BusinessType } from "@prisma/client";
 import { generateVerificationToken, sendVerificationEmail, sendPendingApprovalNotification } from "@/lib/mail";
 import { getSystemSettings } from "@/lib/actions/system-settings";
 import { getDefaultPermissionsForRole } from "@/lib/actions/user";
+import { processReferral, getOrCreateReferralCode } from "@/lib/actions/referral";
 
 export async function registerBusiness(data: any) {
   const { businessName, email, password, businessType, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail, referralSource, customReferralSource } = data;
@@ -140,6 +141,14 @@ export async function registerBusiness(data: any) {
       billingPeriod: 'monthly',
       reason: 'NEW_REGISTRATION',
     }).catch(console.error);
+
+    // Process Referral if code provided
+    if (data.referralCode) {
+      processReferral(data.referralCode, result.business.id).catch(console.error);
+    }
+
+    // Auto-generate referral code for the new business (fire-and-forget)
+    getOrCreateReferralCode(result.business.id).catch(console.error);
 
     return result;
   } catch (error: any) {

@@ -62,6 +62,9 @@ model Business {
   pushSubscriptions       PushSubscription[]
   patients                Patient[]
   prescriptions           Prescription[]
+  referralCode            ReferralCode?
+  referralsMade           Referral[]               @relation("Referrer")
+  referralReceived        Referral?                @relation("Referred")
   locations               Location[]
   appointments            Appointment[]
   consultations           Consultation[]
@@ -1643,4 +1646,35 @@ model BundleItem {
 
   @@unique([bundleId, productId])
   @@index([bundleId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// REFERRAL PROGRAM
+// ─────────────────────────────────────────────────────────────────
+model ReferralCode {
+  id         String   @id @default(cuid())
+  businessId String   @unique
+  code       String   @unique
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([code])
+}
+
+model Referral {
+  id                 String    @id @default(cuid())
+  referrerBusinessId String
+  referredBusinessId String    @unique
+  codeUsed           String
+  status             String    @default("PENDING") // PENDING | SUCCESSFUL | REJECTED
+  rewardGranted      Boolean   @default(false)
+  rewardDate         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  referrer Business @relation("Referrer", fields: [referrerBusinessId], references: [id], onDelete: Cascade)
+  referred Business @relation("Referred", fields: [referredBusinessId], references: [id], onDelete: Cascade)
+
+  @@index([referrerBusinessId])
+  @@index([status])
 }

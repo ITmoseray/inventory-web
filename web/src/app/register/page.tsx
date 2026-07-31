@@ -136,6 +136,7 @@ export default function RegisterPage() {
     confirmPassword: "",
     referralSource: "",
     customReferralSource: "",
+    referralCode: typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") || "" : "",
     businessType: "SHOP",
     institutionType: "",
     plan: "FREE",
@@ -816,6 +817,21 @@ export default function RegisterPage() {
                                 </div>
                              </div>
                           )}
+                        </div>
+
+                        {/* Referral Code */}
+                        <div className="space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                           <Label htmlFor="referralCode" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Referral Code (Optional)</Label>
+                           <div className="relative">
+                              <Tag className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                              <Input 
+                                id="referralCode"
+                                placeholder="e.g. PRO-8X4K92"
+                                value={formData.referralCode}
+                                onChange={(e) => setFormData({...formData, referralCode: e.target.value.toUpperCase()})}
+                                className="h-14 bg-slate-50 dark:bg-slate-950/80 rounded-2xl border-slate-200 dark:border-slate-800 shadow-sm pl-12 text-slate-900 dark:text-white text-sm font-bold uppercase placeholder:text-slate-400 dark:placeholder:text-slate-500 placeholder:normal-case focus:ring-2 focus:ring-indigo-500/20"
+                              />
+                           </div>
                         </div>
                      </div>
 

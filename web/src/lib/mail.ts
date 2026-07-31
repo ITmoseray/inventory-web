@@ -235,3 +235,73 @@ export const sendPendingApprovalNotification = async (options: {
     console.error("❌ Failed to send Super Admin approval notification:", error);
   }
 };
+
+/**
+ * Notify the referrer when a referral event occurs.
+ */
+export const sendReferralNotification = async (options: {
+  toEmail: string;
+  referrerName: string;
+  referredBusinessName: string;
+  event: "LINK_USED" | "SUCCESSFUL" | "REWARD_GRANTED";
+}) => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn("⚠️ Cannot send referral notification: SMTP not configured.");
+    return;
+  }
+
+  const { toEmail, referrerName, referredBusinessName, event } = options;
+  const domain = process.env.NEXTAUTH_URL || "https://app.protechassist.com";
+
+  const eventMessages: Record<typeof event, { subject: string; body: string; color: string }> = {
+    LINK_USED: {
+      subject: `🎉 Your referral link was used by ${referredBusinessName}!`,
+      body: `<strong>${referredBusinessName}</strong> has registered using your referral link. The referral is now <strong>Pending</strong> — it will become Successful once they activate a paid subscription.`,
+      color: "#f59e0b",
+    },
+    SUCCESSFUL: {
+      subject: `✅ Your referral to ${referredBusinessName} is now Successful!`,
+      body: `<strong>${referredBusinessName}</strong> has activated a paid subscription through your referral. Your reward is pending admin approval!`,
+      color: "#10b981",
+    },
+    REWARD_GRANTED: {
+      subject: `🏆 Your referral reward has been granted!`,
+      body: `Congratulations! Your reward for referring <strong>${referredBusinessName}</strong> has been officially granted. Thank you for spreading the word about Protech Assist!`,
+      color: "#6366f1",
+    },
+  };
+
+  const msg = eventMessages[event];
+
+  const html = `
+    <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:20px;border:1px solid #e2e8f0;border-radius:12px;">
+      <div style="background:${msg.color};padding:20px 24px;border-radius:8px 8px 0 0;text-align:center;">
+        <h2 style="color:#fff;margin:0;font-size:20px;">Protech Assist Referral Program</h2>
+      </div>
+      <div style="padding:24px;">
+        <p style="color:#334155;font-size:15px;line-height:1.7;">Hi <strong>${referrerName}</strong>,</p>
+        <p style="color:#475569;font-size:14px;line-height:1.7;">${msg.body}</p>
+        <div style="text-align:center;margin-top:24px;">
+          <a href="${domain}/dashboard/referrals" style="display:inline-block;background:${msg.color};color:#fff;padding:12px 28px;text-decoration:none;border-radius:8px;font-weight:bold;font-size:14px;">
+            View My Referrals →
+          </a>
+        </div>
+        <hr style="border:0;border-top:1px solid #f1f5f9;margin:28px 0;" />
+        <p style="color:#94a3b8;font-size:11px;text-align:center;">Protech Assist SL Limited • This is an automated notification</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Protech Assist" <no-reply@protechassist.com>',
+      to: toEmail,
+      subject: msg.subject,
+      html,
+    });
+    console.log(`✅ Referral notification (${event}) sent to ${toEmail}`);
+  } catch (error) {
+    console.error(`❌ Failed to send referral notification (${event}):`, error);
+  }
+};
