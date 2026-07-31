@@ -176,9 +176,9 @@ export default function RolesPage() {
           <Table>
             <TableHeader className="bg-slate-50 dark:bg-slate-900">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[300px] font-black uppercase text-xs tracking-wider">Designation</TableHead>
-                <TableHead className="font-black uppercase text-xs tracking-wider">Access Scope</TableHead>
-                <TableHead className="text-right font-black uppercase text-xs tracking-wider">Management</TableHead>
+                <TableHead className="font-black uppercase text-xs tracking-wider">Designation</TableHead>
+                <TableHead className="hidden md:table-cell font-black uppercase text-xs tracking-wider">Access Scope</TableHead>
+                <TableHead className="text-right font-black uppercase text-xs tracking-wider">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -200,7 +200,7 @@ export default function RolesPage() {
                        </div>
                     </div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     <div className="flex flex-wrap gap-1.5">
                        {r.permissions.slice(0, 4).map((p: any) => (
                          <Badge key={p.id} variant="secondary" className="text-[10px] font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
@@ -216,7 +216,7 @@ export default function RolesPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Button variant="outline" size="sm" className="rounded-lg h-8" onClick={() => { 
                          setEditingRole(r); 
                          setFormData({name: r.name, permissions: r.permissions.map((p:any) => p.id)}); 
