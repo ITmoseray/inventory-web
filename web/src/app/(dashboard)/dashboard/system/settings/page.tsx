@@ -302,38 +302,55 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 pb-20">
       
       {/* Settings Top Bar */}
-      <header className="h-20 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between px-8 sticky top-0 z-[50] backdrop-blur-md bg-white/80">
-         <div className="flex items-center gap-6 flex-1">
-            <div className="flex items-center gap-3">
-               <div className="h-10 w-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                  <Settings className="h-5 w-5 text-white" />
-               </div>
-               <div>
-                  <h1 className="text-sm font-black uppercase tracking-[0.4em] text-indigo-600">All Settings</h1>
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tech Enterprise Node</p>
-               </div>
+      <header className="min-h-16 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 sticky top-0 z-[50] backdrop-blur-md bg-white/80">
+        {/* Top row: logo + close button */}
+        <div className="flex items-center justify-between px-4 sm:px-8 h-16">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 sm:h-10 sm:w-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-600/20 shrink-0">
+              <Settings className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
             </div>
-
-            <div className="relative w-full max-w-xl group">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
-               <input 
-                 type="text" 
-                 placeholder="Search settings ( / )" 
-                 value={searchQuery}
-                 onChange={(e) => setSearchQuery(e.target.value)}
-                 className="w-full h-11 bg-slate-50 dark:bg-slate-800 border-none pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all text-slate-900 dark:text-white"
-               />
+            <div>
+              <h1 className="text-xs sm:text-sm font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-indigo-600">All Settings</h1>
+              <p className="text-[9px] sm:text-[10px] font-black text-slate-400 uppercase tracking-widest hidden sm:block">Tech Enterprise Node</p>
             </div>
-         </div>
+          </div>
 
-         <div className="flex items-center gap-6">
-            <Link href="/dashboard">
-               <Button variant="outline" className="h-11 px-6 rounded-xl border-slate-200 dark:border-slate-800 font-black uppercase tracking-widest text-[10px] gap-2 hover:bg-slate-50 transition-all dark:text-slate-350 dark:hover:bg-slate-800">
-                  <X className="h-4 w-4" /> Close Settings
-               </Button>
-            </Link>
-         </div>
+          {/* Search — hidden on mobile, shown md+ inline */}
+          <div className="relative hidden md:flex w-full max-w-xl group mx-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search settings ( / )"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-11 bg-slate-50 dark:bg-slate-800 border-none rounded-xl pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all text-slate-900 dark:text-white"
+            />
+          </div>
+
+          <Link href="/dashboard" className="shrink-0">
+            <Button variant="outline" className="h-9 sm:h-11 px-3 sm:px-6 rounded-xl border-slate-200 dark:border-slate-800 font-black uppercase tracking-widest text-[9px] sm:text-[10px] gap-1.5 hover:bg-slate-50 transition-all dark:text-slate-350 dark:hover:bg-slate-800">
+              <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              <span className="hidden sm:inline">Close Settings</span>
+              <span className="sm:hidden">Close</span>
+            </Button>
+          </Link>
+        </div>
+
+        {/* Search row — only on mobile/sm */}
+        <div className="md:hidden px-4 pb-3">
+          <div className="relative group">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+            <input
+              type="text"
+              placeholder="Search settings…"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full h-10 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl pl-11 pr-4 text-sm font-medium focus:ring-2 focus:ring-indigo-600/10 transition-all text-slate-900 dark:text-white"
+            />
+          </div>
+        </div>
       </header>
+
 
       {/* Main Grid Content */}
       <main className="max-w-[1400px] mx-auto p-4 sm:p-8 lg:p-12">
