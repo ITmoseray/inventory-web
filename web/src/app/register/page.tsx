@@ -463,17 +463,17 @@ export default function RegisterPage() {
           
           {/* Main Title Banner */}
           <div className="space-y-4">
-             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 text-[10px] font-black uppercase tracking-widest">
-                <Sparkles className="h-3.5 w-3.5" />
+             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-center sm:text-left leading-tight">
+                <Sparkles className="h-3.5 w-3.5 shrink-0" />
                 Multi-Tenant Enterprise Node Registration
              </div>
-             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic leading-[0.9]">
+             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tighter text-slate-900 dark:text-white uppercase italic leading-[1.1] sm:leading-[0.9]">
                 CREATE YOUR <br />
                 <span className="text-indigo-600 dark:text-indigo-500">
                   {formData.businessType === 'SCHOOL' ? 'SCHOOL PORTAL.' : 'BUSINESS ACCOUNT.'}
                 </span>
              </h1>
-             <p className="text-sm font-bold text-slate-500 dark:text-slate-400">
+             <p className="text-xs sm:text-sm font-bold text-slate-500 dark:text-slate-400">
                Configure your organization workspace in seconds.
              </p>
           </div>
