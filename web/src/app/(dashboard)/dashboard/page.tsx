@@ -389,6 +389,7 @@ export default function DashboardPage() {
                       bgClass="bg-primary/10 dark:bg-primary/20"
                       delay={0.1}
                       href="/dashboard/sales/history"
+                      iconAnimation="float"
                     />
                     <StatCard 
                       title="Today's Revenue" 
@@ -401,6 +402,7 @@ export default function DashboardPage() {
                       delay={0.15}
                       href="/dashboard/sales/history"
                       change={stats.revenueChange || 0}
+                      iconAnimation="pulse"
                     />
                     <StatCard 
                       title="Total Orders" 
@@ -412,6 +414,7 @@ export default function DashboardPage() {
                       delay={0.2}
                       href="/dashboard/sales/orders"
                       change={stats.ordersChange || 8.2}
+                      iconAnimation="bounce"
                     />
                     <StatCard 
                       title={businessType === "PHARMACY" ? "Drug Items" : "Total Products"} 
@@ -422,6 +425,7 @@ export default function DashboardPage() {
                       bgClass="bg-purple-500/10 dark:bg-purple-500/20"
                       delay={0.3}
                       href="/dashboard/inventory/products"
+                      iconAnimation="spin"
                     />
                     <StatCard 
                       title="Low Stock Alerts" 
@@ -432,6 +436,7 @@ export default function DashboardPage() {
                       bgClass="bg-rose-500/10 dark:bg-rose-500/20"
                       delay={0.4}
                       href="/dashboard/inventory/products"
+                      iconAnimation="shake"
                     />
                     <StatCard 
                       title="Over Stock Alerts" 
@@ -442,6 +447,7 @@ export default function DashboardPage() {
                       bgClass="bg-amber-500/10 dark:bg-amber-500/20"
                       delay={0.5}
                       href="/dashboard/inventory/products"
+                      iconAnimation="ping"
                     />
                   </div>
                 </div>
