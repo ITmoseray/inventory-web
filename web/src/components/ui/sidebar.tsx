@@ -170,8 +170,11 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile, setOpen } = useSidebar()
-  const { colorHsl } = useSidebarStore()
-  const sidebarStyle = { '--sidebar': `hsl(${colorHsl})` } as React.CSSProperties
+  const { colorHsl, colorHex } = useSidebarStore()
+  const sidebarStyle = {
+    '--sidebar': `hsl(${colorHsl})`,
+    backgroundColor: colorHex,
+  } as React.CSSProperties
 
   if (collapsible === "none") {
     return (

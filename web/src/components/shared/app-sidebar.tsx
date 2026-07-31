@@ -470,8 +470,11 @@ const SidebarContentRenderer = ({
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status, update } = useSession();
   const { canAccess, openMobile, setOpenMobile } = useSidebar();
-  const { colorHsl } = useSidebarStore();
-  const sidebarStyle = { '--sidebar': `hsl(${colorHsl})` } as React.CSSProperties;
+  const { colorHsl, colorHex } = useSidebarStore();
+  const sidebarStyle = {
+    '--sidebar': `hsl(${colorHsl})`,
+    backgroundColor: colorHex,
+  } as React.CSSProperties;
   const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
   const [mounted, setMounted] = React.useState(false);
   const hasRefreshedRef = React.useRef(false);
@@ -593,7 +596,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-sidebar text-sidebar-foreground border-r-0 shadow-2xl dark" style={sidebarStyle}>
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 text-sidebar-foreground border-r-0 shadow-2xl dark" style={sidebarStyle}>
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
