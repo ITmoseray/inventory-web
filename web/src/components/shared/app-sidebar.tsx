@@ -333,7 +333,6 @@ const SidebarContentRenderer = ({
                     <Settings className="mr-3 size-4 text-slate-400" />
                     Settings
                 </DropdownMenuItem>
-                <SidebarColorPicker />
                 <DropdownMenuItem render={<ThemeToggle />}>
                 </DropdownMenuItem>
                 {session?.user?.role === "SUPERADMIN" && (
@@ -360,6 +359,9 @@ const SidebarContentRenderer = ({
             </DropdownMenu>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        {/* Color Picker — directly in footer, no dropdown nesting */}
+        {!isCollapsed && <SidebarColorPicker />}
 
         {/* Plan / Trial Card — large, at very bottom */}
         {!isCollapsed && (() => {
@@ -468,7 +470,8 @@ const SidebarContentRenderer = ({
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status, update } = useSession();
   const { canAccess, openMobile, setOpenMobile } = useSidebar();
-  const { colorHex } = useSidebarStore();
+  const { colorHsl } = useSidebarStore();
+  const sidebarStyle = { '--sidebar': `hsl(${colorHsl})` } as React.CSSProperties;
   const [businessContext, setBusinessContext] = React.useState({ name: "Loading...", logoUrl: null as string | null });
   const [mounted, setMounted] = React.useState(false);
   const hasRefreshedRef = React.useRef(false);
@@ -590,7 +593,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <>
       {/* Mobile Drawer */}
       <Sheet open={openMobile} onOpenChange={setOpenMobile}>
-        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 text-sidebar-foreground border-r-0 shadow-2xl dark" style={{ backgroundColor: colorHex }}>
+        <SheetContent side="left" className="w-[85vw] max-w-sm p-0 bg-sidebar text-sidebar-foreground border-r-0 shadow-2xl dark" style={sidebarStyle}>
           <SheetHeader className="sr-only">
              <SheetTitle>Mobile Navigation</SheetTitle>
              <SheetDescription>Main navigation menu for mobile devices.</SheetDescription>
@@ -602,7 +605,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </Sheet>
 
       {/* Desktop/Tablet Sidebar */}
-      <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm hidden md:flex dark" style={{ backgroundColor: colorHex }} {...props}>
+      <Sidebar collapsible="icon" className="border-r border-white/10 shadow-sm hidden md:flex dark" style={sidebarStyle} {...props}>
           <SidebarContentRenderer {...{ filteredNavGroups, businessContext, businessType, session, pathname }} />
           <SidebarRail />
       </Sidebar>

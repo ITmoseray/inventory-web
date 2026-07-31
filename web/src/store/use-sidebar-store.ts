@@ -2,20 +2,20 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
 interface SidebarState {
-  colorClass: string; // Keeping for backwards compatibility if needed, but not used.
-  colorHex: string;
-  setColorHex: (colorHex: string, colorClass?: string) => void;
+  colorHex: string; // Keeping for backwards compatibility
+  colorHsl: string;
+  setColor: (colorHex: string, colorHsl: string) => void;
 }
 
 export const useSidebarStore = create<SidebarState>()(
   persist(
     (set) => ({
-      colorClass: 'bg-slate-900', 
-      colorHex: '#0f172a', // Default Navy
-      setColorHex: (colorHex, colorClass = '') => set({ colorHex, colorClass }),
+      colorHex: '#0f172a',
+      colorHsl: '222.2 47.4% 11.2%', // Default Navy (shadcn default)
+      setColor: (colorHex, colorHsl) => set({ colorHex, colorHsl }),
     }),
     {
-      name: 'sidebar-color-storage',
+      name: 'sidebar-color-v2',
     }
   )
 );

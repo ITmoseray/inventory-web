@@ -170,17 +170,18 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile, setOpen } = useSidebar()
-  const { colorHex } = useSidebarStore()
+  const { colorHsl } = useSidebarStore()
+  const sidebarStyle = { '--sidebar': `hsl(${colorHsl})` } as React.CSSProperties
 
   if (collapsible === "none") {
     return (
       <div
         data-slot="sidebar"
         className={cn(
-          "flex h-full w-(--sidebar-width) flex-col text-sidebar-foreground",
+          "flex h-full w-(--sidebar-width) flex-col bg-sidebar text-sidebar-foreground",
           className
         )}
-        style={{ backgroundColor: colorHex }}
+        style={{ ...sidebarStyle }}
         {...props}
       >
         {children}
@@ -253,8 +254,8 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
-          style={{ backgroundColor: colorHex }}
+          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+          style={{ ...sidebarStyle }}
         >
           {children}
         </div>

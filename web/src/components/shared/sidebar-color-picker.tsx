@@ -2,61 +2,44 @@
 
 import { useSidebarStore } from "@/store/use-sidebar-store";
 import { cn } from "@/lib/utils";
-import { Paintbrush } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuGroup,
-} from "@/components/ui/dropdown-menu";
 
 const COLORS = [
-  { name: "Obsidian", class: "bg-slate-950", hex: "#020617" },
-  { name: "Navy", class: "bg-slate-900", hex: "#0f172a" },
-  { name: "Midnight", class: "bg-indigo-950", hex: "#1e1b4b" },
-  { name: "Forest", class: "bg-emerald-950", hex: "#022c22" },
-  { name: "Crimson", class: "bg-rose-950", hex: "#4c0519" },
-  { name: "Plum", class: "bg-purple-950", hex: "#3b0764" },
+  { name: "Navy",     hex: "#0f172a", hsl: "222.2 47.4% 11.2%" },
+  { name: "Obsidian", hex: "#020617", hsl: "222.2 84% 2%" },
+  { name: "Midnight", hex: "#1e1b4b", hsl: "243.7 75.4% 19.8%" },
+  { name: "Forest",   hex: "#022c22", hsl: "161.4 89.5% 8.6%" },
+  { name: "Crimson",  hex: "#4c0519", hsl: "343.1 86.5% 15.9%" },
+  { name: "Plum",     hex: "#3b0764", hsl: "270.7 90.8% 21.2%" },
+  { name: "Graphite", hex: "#18181b", hsl: "240 5.9% 10%" },
+  { name: "Ocean",    hex: "#0c1a2e", hsl: "213.8 57.9% 11.8%" },
+  { name: "Cocoa",    hex: "#2c1a0e", hsl: "28 60% 11.8%" },
 ];
 
 export function SidebarColorPicker() {
-  const { colorHex, setColorHex } = useSidebarStore();
+  const { colorHex, setColor } = useSidebarStore();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center w-full px-2 py-1.5 text-sm outline-none transition-colors focus:bg-slate-100 hover:bg-slate-100 dark:focus:bg-slate-800 dark:hover:bg-slate-800 rounded-sm cursor-pointer">
-        <Paintbrush className="mr-3 size-4 text-slate-400" />
-        Sidebar Theme
-      </DropdownMenuTrigger>
-      <DropdownMenuContent side="right" align="start" className="w-48 rounded-2xl border-slate-100 dark:border-slate-800 p-2 shadow-xl">
-        <DropdownMenuGroup>
-          <DropdownMenuLabel className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-2 py-1.5">
-            Select Color
-          </DropdownMenuLabel>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator className="bg-slate-50 dark:bg-slate-800 mb-2" />
-        <div className="grid grid-cols-3 gap-2 p-1">
-          {COLORS.map((color) => (
-            <DropdownMenuItem
-              key={color.name}
-              className="flex flex-col items-center gap-1 group cursor-pointer focus:bg-transparent"
-              onSelect={() => setColorHex(color.hex, color.class)}
-            >
-              <div
-                className={cn(
-                  "h-8 w-8 rounded-full border-2 transition-all group-hover:scale-110",
-                  colorHex === color.hex ? "border-primary shadow-sm shadow-primary/30" : "border-transparent"
-                )}
-                style={{ backgroundColor: color.hex }}
-                title={color.name}
-              />
-            </DropdownMenuItem>
-          ))}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div className="px-4 py-3 border-t border-white/10 mt-2">
+      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-2.5">
+        Sidebar Color
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {COLORS.map((color) => (
+          <button
+            key={color.name}
+            type="button"
+            title={color.name}
+            onClick={() => setColor(color.hex, color.hsl)}
+            className={cn(
+              "h-6 w-6 rounded-full border-2 transition-all duration-200 hover:scale-125 focus:outline-none",
+              colorHex === color.hex
+                ? "border-primary scale-125 shadow-md shadow-primary/40"
+                : "border-white/20 hover:border-white/60"
+            )}
+            style={{ backgroundColor: color.hex }}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
