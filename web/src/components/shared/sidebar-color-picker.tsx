@@ -23,7 +23,7 @@ const COLORS = [
 ];
 
 export function SidebarColorPicker() {
-  const { colorClass, setColorClass } = useSidebarStore();
+  const { colorHex, setColorHex } = useSidebarStore();
 
   return (
     <DropdownMenu>
@@ -43,15 +43,14 @@ export function SidebarColorPicker() {
             <DropdownMenuItem
               key={color.name}
               className="flex flex-col items-center gap-1 group cursor-pointer focus:bg-transparent"
-              onClick={() => setColorClass(color.class)}
+              onSelect={() => setColorHex(color.hex, color.class)}
             >
               <div
                 className={cn(
                   "h-8 w-8 rounded-full border-2 transition-all group-hover:scale-110",
-                  colorClass === color.class ? "border-primary shadow-sm shadow-primary/30" : "border-transparent",
-                  color.class
+                  colorHex === color.hex ? "border-primary shadow-sm shadow-primary/30" : "border-transparent"
                 )}
-                style={{ backgroundColor: colorClass === color.class ? undefined : color.hex }}
+                style={{ backgroundColor: color.hex }}
                 title={color.name}
               />
             </DropdownMenuItem>
