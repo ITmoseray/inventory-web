@@ -4,15 +4,21 @@ import { useState, useEffect } from "react";
 import { CreditCard, FileText, CheckCircle2, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { getCurrentSubscription, getInvoices } from "@/lib/actions/billing";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 export default function BillingPage() {
   const [subscription, setSubscription] = useState<any>(null);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [voucherCode, setVoucherCode] = useState("");
+  const [isRedeeming, setIsRedeeming] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     async function loadData() {
@@ -29,6 +35,39 @@ export default function BillingPage() {
     }
     loadData();
   }, []);
+
+  const handleRedeemVoucher = async () => {
+    if (!voucherCode.trim()) {
+      toast.error("Please enter a voucher code");
+      return;
+    }
+    
+    setIsRedeeming(true);
+    try {
+      const res = await fetch("/api/business/redeem-voucher", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: voucherCode.trim() })
+      });
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to redeem voucher");
+      }
+
+      toast.success("Voucher redeemed successfully!");
+      setVoucherCode("");
+      
+      // Reload subscription data
+      const sub = await getCurrentSubscription();
+      setSubscription(sub);
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message || "Error redeeming voucher");
+    } finally {
+      setIsRedeeming(false);
+    }
+  };
 
   if (loading) return <div className="p-8">Loading billing details...</div>;
 
@@ -63,6 +102,32 @@ export default function BillingPage() {
             ) : (
                 <div className="text-slate-500 font-medium">No active subscription found.</div>
             )}
+          </CardContent>
+        </Card>
+
+        <Card className="border-none shadow-xl bg-white dark:bg-slate-900/80 rounded-3xl p-6 backdrop-blur-xl">
+          <CardHeader className="p-0 pb-4">
+            <CardTitle className="text-lg font-black text-slate-900 dark:text-white">Redeem Voucher</CardTitle>
+            <CardDescription className="text-slate-500 font-medium text-sm">Have a promotion or activation key? Enter it here to upgrade your plan.</CardDescription>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="space-y-4 pt-2">
+               <div className="flex gap-2">
+                 <Input 
+                   placeholder="e.g. PRO-ABCD-1234"
+                   value={voucherCode}
+                   onChange={(e) => setVoucherCode(e.target.value)}
+                   className="font-mono uppercase bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-800 rounded-xl"
+                 />
+                 <Button 
+                   onClick={handleRedeemVoucher}
+                   disabled={isRedeeming || !voucherCode.trim()}
+                   className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold px-6"
+                 >
+                   {isRedeeming ? "Redeeming..." : "Redeem"}
+                 </Button>
+               </div>
+            </div>
           </CardContent>
         </Card>
       </div>

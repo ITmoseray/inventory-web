@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSidebarStore } from "@/store/use-sidebar-store";
 import { cn } from "@/lib/utils";
 
@@ -19,7 +20,7 @@ export function SidebarColorPicker() {
   const { colorHex, colorHsl, setColor } = useSidebarStore();
 
   // Apply color globally to document root so ALL sidebar instances pick it up
-  React.useEffect(() => {
+  useEffect(() => {
     document.documentElement.style.setProperty('--sidebar', `hsl(${colorHsl})`);
     document.documentElement.style.setProperty('--sidebar-theme-bg', colorHex);
   }, [colorHex, colorHsl]);

@@ -108,16 +108,38 @@ export default function NexusSuperControl() {
   const [voucherTier, setVoucherTier] = useState("PRO");
   const [voucherDays, setVoucherDays] = useState(30);
   const [generatedVoucher, setGeneratedVoucher] = useState<{ code: string; tier: string; days: number } | null>(null);
+  const [isGeneratingVoucher, setIsGeneratingVoucher] = useState(false);
 
-  const handleGenerateVoucher = () => {
-     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-     let code = 'PT-';
-     for (let i = 0; i < 12; i++) {
-        if (i > 0 && i % 4 === 0) code += '-';
-        code += characters.charAt(Math.floor(Math.random() * characters.length));
-     }
-     setGeneratedVoucher({ code, tier: voucherTier, days: voucherDays });
-     toast.success("Billing voucher activation key generated successfully!");
+  const handleGenerateVoucher = async () => {
+    setIsGeneratingVoucher(true);
+    try {
+      const res = await fetch("/api/super-admin/vouchers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tierId: voucherTier,
+          type: "TRIAL",
+          durationDays: voucherDays,
+          count: 1
+        })
+      });
+
+      if (!res.ok) throw new Error("Failed to generate voucher");
+      const data = await res.json();
+      const newVoucher = data[0];
+
+      setGeneratedVoucher({ 
+        code: newVoucher.code, 
+        tier: newVoucher.tierName, 
+        days: newVoucher.durationDays 
+      });
+      toast.success("Billing voucher activation key generated successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Error generating voucher.");
+    } finally {
+      setIsGeneratingVoucher(false);
+    }
   };
 
   // Terminal State
@@ -1736,9 +1758,10 @@ export default function NexusSuperControl() {
                      <div className="space-y-2 flex items-end">
                         <Button 
                            onClick={handleGenerateVoucher}
+                           disabled={isGeneratingVoucher}
                            className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/10"
                         >
-                           Generate Code
+                           {isGeneratingVoucher ? "Generating..." : "Generate Code"}
                         </Button>
                      </div>
                   </div>

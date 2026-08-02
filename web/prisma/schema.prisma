@@ -94,6 +94,9 @@ model Business {
   giftCards               GiftCard[]
   supplierPriceLists      SupplierPriceList[]
   productBundles          ProductBundle[]
+  activationTierId        String?
+  activationTier          ActivationTier?          @relation(fields: [activationTierId], references: [id])
+  redeemedVouchers        LicenseVoucher[]         @relation("RedeemedByBusiness")
 
   @@index([slug])
 }
@@ -1646,6 +1649,40 @@ model BundleItem {
 
   @@unique([bundleId, productId])
   @@index([bundleId])
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ACTIVATION TIERS & VOUCHERS
+// ─────────────────────────────────────────────────────────────────
+model ActivationTier {
+  id          String           @id @default(cuid())
+  name        String
+  maxUsers    Int              @default(5)
+  maxProducts Int              @default(100)
+  price       Decimal          @db.Decimal(10, 2)
+  features    String[]         @default([])
+  businesses  Business[]
+  vouchers    LicenseVoucher[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model LicenseVoucher {
+  id             String          @id @default(cuid())
+  code           String          @unique
+  type           String          // TRIAL | SUBSCRIPTION
+  tierId         String
+  durationDays   Int             // e.g., 30
+  status         String          @default("ACTIVE") // ACTIVE | REDEEMED | EXPIRED | REVOKED
+  redeemedById   String?
+  redeemedAt     DateTime?
+  tier           ActivationTier  @relation(fields: [tierId], references: [id])
+  redeemedBy     Business?       @relation("RedeemedByBusiness", fields: [redeemedById], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([tierId])
+  @@index([code])
 }
 
 // ─────────────────────────────────────────────────────────────────
