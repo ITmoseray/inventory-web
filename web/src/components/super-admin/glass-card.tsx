@@ -18,11 +18,11 @@ export function GlassCard({ children, className, delay = 0, hoverEffect = true }
       transition={{ duration: 0.5, delay }}
       className={cn(
         "relative overflow-hidden",
-        "bg-white dark:bg-slate-900/40 backdrop-blur-xl",
-        "border border-slate-200/80 dark:border-slate-800/50",
+        "bg-white dark:bg-slate-900/70 backdrop-blur-xl",
+        "border border-slate-200 dark:border-slate-800",
         "rounded-[2rem] md:rounded-[2.5rem]",
-        "shadow-[0_10px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)]",
-        hoverEffect && "hover:border-indigo-500/30 transition-colors duration-500",
+        "shadow-sm dark:shadow-[0_20px_50px_rgba(0,0,0,0.4)]",
+        hoverEffect && "hover:border-indigo-400/40 dark:hover:border-indigo-500/30 transition-colors duration-500",
         className
       )}
     >

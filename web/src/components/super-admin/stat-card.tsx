@@ -34,12 +34,14 @@ export function StatCard({ title, value, description, icon: Icon, delay = 0, var
         )} />
         
         <CardHeader className="p-0 pb-4 md:pb-6 flex flex-row items-center justify-between">
-          <CardTitle className="text-[10px] font-black text-slate-500 uppercase tracking-[0.25em]">{title}</CardTitle>
+          <CardTitle className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-[0.25em]">{title}</CardTitle>
           <div className={cn(
-            "p-2.5 md:p-3 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border group-hover:scale-110 group-hover:rotate-6 transition-all duration-500",
-            isWarning ? "border-amber-500/20" : "border-slate-100 dark:border-slate-800"
+            "p-2.5 md:p-3 rounded-2xl border group-hover:scale-110 group-hover:rotate-6 transition-all duration-500",
+            isWarning 
+              ? "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" 
+              : "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20"
           )}>
-             <Icon className={cn("h-4 w-4 md:h-5 md:w-5", isWarning ? "text-amber-500" : "text-indigo-400")} />
+             <Icon className={cn("h-4 w-4 md:h-5 md:w-5", isWarning ? "text-amber-500" : "text-indigo-600 dark:text-indigo-400")} />
           </div>
         </CardHeader>
         
