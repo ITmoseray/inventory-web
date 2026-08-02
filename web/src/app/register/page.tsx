@@ -444,18 +444,18 @@ export default function RegisterPage() {
       </div>
 
       {/* Right Column: Interactive Multi-Step Registration (Light & Dark Friendly) */}
-      <div className="flex-1 flex flex-col items-center justify-between p-6 sm:p-12 lg:p-16 min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative overflow-y-auto">
+      <div className="flex-1 w-full max-w-[100vw] flex flex-col items-center justify-between p-4 sm:p-8 lg:p-16 min-h-screen bg-slate-50/50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 relative overflow-y-auto overflow-x-hidden">
         
         {/* Top Header Navigation */}
-        <div className="w-full max-w-xl flex items-center justify-between mb-8">
+        <div className="w-full max-w-xl flex flex-wrap items-center justify-between mb-6 sm:mb-8 gap-3">
            <Link href="/">
-             <Button variant="ghost" className="gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+             <Button variant="ghost" className="gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors px-2 sm:px-4">
                <ArrowLeft className="h-4 w-4" />
-               Home
+               <span className="hidden sm:inline">Home</span>
              </Button>
            </Link>
-           <p className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">
-             Already registered? <Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline font-black">Sign In</Link>
+           <p className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-right">
+             Already registered? <br className="sm:hidden" /><Link href="/login" className="text-indigo-600 dark:text-indigo-400 hover:underline font-black">Sign In</Link>
            </p>
         </div>
 
@@ -479,7 +479,7 @@ export default function RegisterPage() {
           </div>
 
           {/* Wizard Step Navigation Indicator */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
              {STEPS.map((step) => {
                const isActive = currentStep === step.id;
                const isCompleted = currentStep > step.id;
@@ -493,7 +493,7 @@ export default function RegisterPage() {
                      }
                    }}
                    className={cn(
-                     "p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between",
+                     "p-2 sm:p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden flex flex-col justify-between",
                      isActive ? "bg-white dark:bg-indigo-600/10 border-indigo-600 dark:border-indigo-500/60 shadow-lg shadow-indigo-600/10" :
                      isCompleted ? "bg-slate-100 dark:bg-slate-900/60 border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-300" :
                      "bg-slate-100/60 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500"
@@ -501,16 +501,16 @@ export default function RegisterPage() {
                  >
                    <div className="flex items-center justify-between">
                       <span className={cn(
-                        "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full",
+                        "text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-1.5 sm:px-2 py-0.5 rounded-full whitespace-nowrap",
                         isActive ? "bg-indigo-600 text-white" : isCompleted ? "bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400" : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                       )}>
                         Step 0{step.id}
                       </span>
-                      {isCompleted && <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                      {isCompleted && <CheckCircle2 className="hidden sm:block h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 ml-1" />}
                    </div>
-                   <div className="mt-3">
-                      <p className={cn("text-xs font-black uppercase tracking-wider", isActive ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300")}>{step.title}</p>
-                      <p className="text-[9px] font-bold text-slate-500 dark:text-slate-400">{step.desc}</p>
+                   <div className="mt-2 sm:mt-3">
+                      <p className={cn("text-[9px] sm:text-xs font-black uppercase tracking-wider leading-tight", isActive ? "text-slate-900 dark:text-white" : "text-slate-700 dark:text-slate-300")}>{step.title}</p>
+                      <p className="hidden sm:block text-[9px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">{step.desc}</p>
                    </div>
                  </button>
                );
@@ -563,7 +563,7 @@ export default function RegisterPage() {
                         {/* Industry / Business Type Grid Selector */}
                         <div className="space-y-3">
                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Select Industry Type</Label>
-                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5">
                               {BUSINESS_TYPES.map((bt: any) => {
                                 const Icon = bt.icon;
                                 const isSelected = formData.businessType === bt.id;
@@ -578,17 +578,17 @@ export default function RegisterPage() {
                                       }
                                     }}
                                     className={cn(
-                                      "p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group relative overflow-hidden",
+                                      "p-2.5 sm:p-3 rounded-2xl border text-left transition-all flex flex-col justify-between group relative overflow-hidden",
                                       isSelected 
                                         ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-600/30 scale-[1.02]" 
                                         : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900/60"
                                     )}
                                   >
-                                     <div className="flex justify-between items-start w-full">
-                                        <Icon className={cn("h-5 w-5 mb-2", isSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400")} />
+                                     <div className="flex justify-between items-start w-full gap-1">
+                                        <Icon className={cn("h-4 w-4 sm:h-5 sm:w-5 mb-1.5 sm:mb-2 shrink-0", isSelected ? "text-white" : "text-indigo-600 dark:text-indigo-400")} />
                                         {bt.underDevelopment && (
                                            <span className={cn(
-                                              "text-[7.5px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md",
+                                              "text-[7px] sm:text-[7.5px] font-black uppercase tracking-wider px-1 sm:px-1.5 py-0.5 rounded-md text-right",
                                               isSelected ? "bg-amber-400 text-slate-950" : "bg-amber-500/20 text-amber-700 dark:text-amber-400 border border-amber-500/30"
                                            )}>
                                               Dev Preview
@@ -596,8 +596,8 @@ export default function RegisterPage() {
                                         )}
                                      </div>
                                      <div>
-                                        <p className="text-[11px] font-black uppercase tracking-wider leading-tight">{bt.label}</p>
-                                        <p className={cn("text-[9px] mt-0.5 line-clamp-1 font-medium", isSelected ? "text-indigo-100" : "text-slate-500 dark:text-slate-400")}>{bt.desc}</p>
+                                        <p className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider leading-tight">{bt.label}</p>
+                                        <p className={cn("hidden sm:block text-[9px] mt-0.5 line-clamp-1 font-medium", isSelected ? "text-indigo-100" : "text-slate-500 dark:text-slate-400")}>{bt.desc}</p>
                                      </div>
                                   </button>
                                 );
@@ -924,43 +924,43 @@ export default function RegisterPage() {
                         {/* Plan Card Selector */}
                         <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-slate-800">
                            <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Select Access Plan</Label>
-                           <div className="grid grid-cols-2 gap-3">
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               <button
                                 type="button"
                                 onClick={() => setFormData({...formData, plan: "FREE"})}
                                 className={cn(
-                                  "p-4 rounded-2xl border text-left transition-all flex flex-col justify-between relative",
+                                  "p-3 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between relative",
                                   formData.plan === "FREE"
                                     ? "bg-indigo-50 dark:bg-indigo-600/10 border-indigo-600 dark:border-indigo-500 text-slate-900 dark:text-white shadow-md shadow-indigo-600/10"
                                     : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700"
                                 )}
                               >
                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400">14-Day Free Trial</span>
+                                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400">14-Day Free Trial</span>
                                     {formData.plan === "FREE" && <Check className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />}
                                  </div>
-                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase">Starter Node</p>
-                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Full access to core POS, Inventory & AI stats.</p>
+                                 <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase">Starter Node</p>
+                                 <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Full access to core POS, Inventory & AI stats.</p>
                               </button>
 
                               <button
                                 type="button"
                                 onClick={() => setFormData({...formData, plan: "ENTERPRISE"})}
                                 className={cn(
-                                  "p-4 rounded-2xl border text-left transition-all flex flex-col justify-between relative",
+                                  "p-3 sm:p-4 rounded-2xl border text-left transition-all flex flex-col justify-between relative",
                                   formData.plan === "ENTERPRISE"
                                     ? "bg-indigo-50 dark:bg-indigo-600/10 border-indigo-600 dark:border-indigo-500 text-slate-900 dark:text-white shadow-md shadow-indigo-600/10"
                                     : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-slate-300 dark:hover:border-slate-700"
                                 )}
                               >
                                  <div className="flex justify-between items-center mb-2">
-                                    <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                                    <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center gap-1">
                                       <Crown className="h-3 w-3" /> Pro Enterprise
                                     </span>
                                     {formData.plan === "ENTERPRISE" && <Check className="h-4 w-4 text-amber-600 dark:text-amber-400" />}
                                  </div>
-                                 <p className="text-sm font-black text-slate-900 dark:text-white uppercase">Multi-Branch Node</p>
-                                 <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Unlimited branches, priority sync & custom domains.</p>
+                                 <p className="text-xs sm:text-sm font-black text-slate-900 dark:text-white uppercase">Multi-Branch Node</p>
+                                 <p className="text-[9px] sm:text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Unlimited branches, priority sync & custom domains.</p>
                               </button>
                            </div>
                         </div>
@@ -1023,7 +1023,7 @@ export default function RegisterPage() {
                 </div>
              </div>
 
-             <div className="grid grid-cols-2 gap-3">
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Button 
                   type="button"
                   onClick={() => {

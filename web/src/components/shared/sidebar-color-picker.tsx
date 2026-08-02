@@ -16,7 +16,13 @@ const COLORS = [
 ];
 
 export function SidebarColorPicker() {
-  const { colorHex, setColor } = useSidebarStore();
+  const { colorHex, colorHsl, setColor } = useSidebarStore();
+
+  // Apply color globally to document root so ALL sidebar instances pick it up
+  React.useEffect(() => {
+    document.documentElement.style.setProperty('--sidebar', `hsl(${colorHsl})`);
+    document.documentElement.style.setProperty('--sidebar-theme-bg', colorHex);
+  }, [colorHex, colorHsl]);
 
   return (
     <div className="px-3 py-1 flex items-center gap-1">
