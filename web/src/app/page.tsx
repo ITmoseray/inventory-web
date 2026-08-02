@@ -98,10 +98,10 @@ export default function ProtechCloudHomepage() {
   const ctaHref = isTrialExpired || hasUsedTrial ? "/pricing" : "/register";
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans">
+    <div className="flex flex-col min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans [background-image:radial-gradient(#e2e8f0_1px,transparent_1px)] dark:[background-image:radial-gradient(rgba(255,255,255,0.04)_1px,transparent_1px)] [background-size:32px_32px]">
       <AnnouncementBanner />
       {/* 1. Global Navigation */}
-      <header className="sticky top-0 w-full z-[100] bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 transition-all">
+      <header className="sticky top-0 w-full z-[100] bg-white/60 dark:bg-slate-950/60 backdrop-blur-xl supports-[backdrop-filter]:bg-white/40 border-b border-slate-200/50 dark:border-slate-800/50 transition-all duration-300">
         <nav className="container mx-auto px-4 sm:px-6 h-20 lg:h-24 flex items-center justify-between">
           <Link className="flex items-center gap-2 sm:gap-3 shrink-0" href="/">
             <div className="relative h-10 w-10 lg:h-14 lg:w-14 overflow-hidden rounded-lg shadow-sm border border-slate-200 dark:border-slate-800 bg-white shrink-0">
@@ -119,8 +119,9 @@ export default function ProtechCloudHomepage() {
 
           <div className="hidden xl:flex items-center gap-8">
             {["Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
-              <Link key={item} href={`#${item.toLowerCase()}`} className="text-base font-semibold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+              <Link key={item} href={`#${item.toLowerCase()}`} className="relative text-sm lg:text-base font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group">
                 {item}
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full rounded-full"></span>
               </Link>
             ))}
           </div>
@@ -171,12 +172,12 @@ export default function ProtechCloudHomepage() {
               </div>
             </div>
 
-            <Link href="/login" className="hidden xl:flex h-9 sm:h-10 lg:h-12 px-4 lg:px-6 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 text-sm lg:text-lg font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all whitespace-nowrap">
+            <Link href="/login" className="hidden xl:flex h-9 sm:h-10 lg:h-11 px-4 lg:px-6 items-center justify-center rounded-lg border border-slate-200/50 dark:border-slate-700/50 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm text-sm lg:text-base font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 hover:border-slate-300 dark:hover:border-slate-600 hover:-translate-y-0.5 transition-all duration-300 shadow-sm whitespace-nowrap">
               Login
             </Link>
             <Link 
               href={ctaHref} 
-              className="hidden xl:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-12 lg:px-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm lg:text-lg font-semibold shadow-sm transition-all items-center justify-center whitespace-nowrap shrink-0 min-w-max"
+              className="hidden xl:flex h-9 px-3 sm:h-10 sm:px-6 lg:h-11 lg:px-8 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs sm:text-sm lg:text-base font-bold shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_25px_rgba(79,70,229,0.5)] hover:-translate-y-0.5 transition-all duration-300 items-center justify-center whitespace-nowrap shrink-0 min-w-max"
             >
               {ctaText}
             </Link>
@@ -230,33 +231,45 @@ export default function ProtechCloudHomepage() {
       <main className="flex-1 pt-28">
         
         {/* 2. Hero Section */}
-        <section className="relative pt-12 pb-24 lg:pt-20 lg:pb-32 overflow-hidden">
-          <div className="container px-6 mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 text-sm font-medium mb-8 shadow-sm">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        <section className="relative pt-20 pb-24 lg:pt-32 lg:pb-32 overflow-hidden">
+          {/* Animated Background Effects */}
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-500/20 dark:bg-indigo-600/20 blur-[100px] animate-pulse"></div>
+            <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-purple-500/10 dark:bg-purple-600/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/10 dark:bg-blue-600/10 blur-[100px] animate-pulse" style={{ animationDelay: '4s' }}></div>
+            {/* Subtle Grid Noise */}
+            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05] mix-blend-overlay"></div>
+          </div>
+
+          <div className="container px-6 mx-auto text-center relative z-10">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-200/60 dark:border-indigo-800/40 bg-indigo-50/80 dark:bg-indigo-950/40 backdrop-blur-sm text-indigo-700 dark:text-indigo-300 text-sm font-semibold mb-8 shadow-sm hover:shadow-md transition-all duration-300">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
               Trusted by Businesses Across Sierra Leone
             </div>
             
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.1] mb-8 max-w-5xl mx-auto">
+            <h1 className="text-5xl md:text-6xl lg:text-8xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-[1.05] mb-8 max-w-5xl mx-auto">
                Africa's Most Advanced <br className="hidden md:block" />
-               <span className="text-indigo-600 dark:text-indigo-400">Enterprise OS</span>
+               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-violet-600 to-purple-600 dark:from-indigo-400 dark:via-violet-400 dark:to-purple-400">Enterprise OS</span>
             </h1>
             
             <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10">
               Designed by Protech Assist (SL) Limited to provide mission-critical intelligence for retail, wholesale, and distribution enterprises across the continent.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-20">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-24">
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
-                className="h-14 px-8 text-base font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center justify-center shrink-0 min-w-max"
+                className="h-14 px-8 text-base font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center shrink-0 min-w-max"
               >
                 Try It Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
               <button 
                 onClick={() => setIsDemoModalOpen(true)}
-                className="h-14 px-8 text-base font-semibold border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-lg shadow-sm transition-all flex items-center justify-center"
+                className="h-14 px-8 text-base font-semibold border-2 border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center"
               >
                 Book a Live Demo
               </button>
@@ -264,19 +277,20 @@ export default function ProtechCloudHomepage() {
 
             {/* Dashboard Preview */}
             <motion.div 
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="relative max-w-5xl mx-auto rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden aspect-[16/10] bg-slate-100 dark:bg-slate-900"
+              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.8, type: "spring", stiffness: 100, damping: 20 }}
+              className="relative max-w-5xl mx-auto rounded-3xl border border-white/20 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden aspect-[16/10] bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-xl ring-1 ring-slate-900/5 dark:ring-white/5"
             >
-              <Image src="/images/dashboard-preview-2.png" alt="Protech Dashboard" fill className="object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent dark:from-black/20 z-10 pointer-events-none"></div>
+              <Image src="/images/dashboard-preview-2.png" alt="Protech Dashboard" fill className="object-cover relative z-0 transition-transform duration-1000 hover:scale-[1.02]" unoptimized />
             </motion.div>
           </div>
         </section>
 
         {/* Infinite Scrolling Marquee */}
         <section className="py-12 border-y border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/50 overflow-hidden">
-          <p className="text-sm font-semibold uppercase tracking-wider text-slate-500 text-center mb-8">Trusted by industry leaders in</p>
+          <p className="text-sm font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-600 text-center mb-8">Trusted by industry leaders in</p>
           <div className="relative w-full">
             <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
             <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-white dark:from-slate-950 to-transparent z-10 pointer-events-none" />
@@ -288,7 +302,7 @@ export default function ProtechCloudHomepage() {
               {[...Array(2)].map((_, idx) => (
                 <div key={idx} className="flex gap-16 pr-16 items-center">
                   {["Retail", "Supermarkets", "Pharmacies", "Bars & Restaurants", "Wholesale", "Hardware", "Distribution", "Schools", "NGOs", "Manufacturing"].map((brand, i) => (
-                    <span key={i} className="text-xl md:text-2xl font-bold text-slate-400 dark:text-slate-600">
+                    <span key={i} className="text-xl md:text-2xl font-black text-slate-300 dark:text-slate-700 tracking-tight hover:text-indigo-500 dark:hover:text-indigo-500 transition-colors duration-300 cursor-default">
                       {brand}
                     </span>
                   ))}
@@ -308,9 +322,9 @@ export default function ProtechCloudHomepage() {
             
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 max-w-6xl mx-auto items-stretch">
               {/* Before */}
-              <div className="flex flex-col rounded-2xl overflow-hidden bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 transition-shadow duration-300 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50">
-                <div className="relative h-[300px] sm:h-[400px] w-full border-b border-slate-200 dark:border-slate-800 bg-slate-200 dark:bg-slate-800">
-                  <Image src="/images/black_1.png" alt="Having trouble with work" fill className="object-cover object-center grayscale-[40%] transition-all duration-700 hover:grayscale-0 hover:scale-105" unoptimized />
+              <div className="flex flex-col rounded-3xl overflow-hidden bg-white dark:bg-slate-900/40 border border-slate-200/60 dark:border-slate-800/60 transition-all duration-500 hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50 group">
+                <div className="relative h-[300px] sm:h-[400px] w-full border-b border-slate-200/60 dark:border-slate-800/60 bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                  <Image src="/images/black_1.png" alt="Having trouble with work" fill className="object-cover object-center grayscale-[40%] transition-transform duration-700 group-hover:scale-105" unoptimized />
                 </div>
                 <div className="p-8 sm:p-10 flex flex-col grow justify-center">
                   <div className="flex items-center gap-3 mb-6">
@@ -323,9 +337,9 @@ export default function ProtechCloudHomepage() {
               </div>
 
               {/* After */}
-              <div className="flex flex-col rounded-2xl overflow-hidden bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-500/20 shadow-lg shadow-indigo-100 dark:shadow-indigo-900/20 transition-all duration-300 hover:shadow-2xl hover:shadow-indigo-200 dark:hover:shadow-indigo-900/40">
-                <div className="relative h-[300px] sm:h-[400px] w-full border-b border-indigo-100 dark:border-indigo-500/20 bg-indigo-100 dark:bg-indigo-900">
-                  <Image src="/images/black_2.png" alt="Everything is simple with Protech" fill className="object-cover object-center transition-transform duration-700 hover:scale-105" unoptimized />
+              <div className="flex flex-col rounded-3xl overflow-hidden bg-gradient-to-br from-indigo-50/50 to-white dark:from-indigo-900/20 dark:to-slate-900/40 border border-indigo-100 dark:border-indigo-500/20 shadow-[0_8px_30px_rgba(79,70,229,0.06)] dark:shadow-[0_8px_30px_rgba(79,70,229,0.1)] transition-all duration-500 hover:shadow-[0_20px_40px_rgba(79,70,229,0.12)] hover:-translate-y-1 group">
+                <div className="relative h-[300px] sm:h-[400px] w-full border-b border-indigo-100 dark:border-indigo-500/20 bg-indigo-50 dark:bg-indigo-950/50 overflow-hidden">
+                  <Image src="/images/black_2.png" alt="Everything is simple with Protech" fill className="object-cover object-center transition-transform duration-700 group-hover:scale-105" unoptimized />
                 </div>
                 <div className="p-8 sm:p-10 flex flex-col grow justify-center relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
@@ -370,9 +384,9 @@ export default function ProtechCloudHomepage() {
                    { title: "Cloud Hosting & DevOps", icon: Cloud, desc: "Scalable hosting solutions with 99.9% uptime and automated backups." },
                    { title: "IT Consultancy", icon: Headphones, desc: "Strategic technical support and advisory for digital transformation." },
                  ].map((service, i) => (
-                   <div key={i} className="p-8 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 hover:shadow-lg transition-all duration-300">
-                      <div className="h-12 w-12 rounded-xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6">
-                         <service.icon className="h-6 w-6" />
+                   <div key={i} className="group p-8 rounded-3xl bg-white/50 dark:bg-slate-900/30 backdrop-blur-sm border border-slate-200/60 dark:border-slate-800/60 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.2)] hover:border-indigo-200 dark:hover:border-indigo-800/50 transition-all duration-500 hover:-translate-y-1">
+                      <div className="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                         <service.icon className="h-7 w-7" />
                       </div>
                       <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">{service.title}</h3>
                       <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{service.desc}</p>
@@ -431,10 +445,10 @@ export default function ProtechCloudHomepage() {
                       return (
                        <motion.div 
                           variants={cardVariants}
-                          whileHover={{ y: -5 }}
+                          whileHover={{ y: -8 }}
                           key={i} 
                           onClick={() => setPreviewFeature(mod)} 
-                          className="group block p-8 rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_-4px_rgba(79,70,229,0.15)] transition-all cursor-pointer overflow-hidden relative"
+                          className="group block p-8 rounded-3xl bg-white/80 dark:bg-slate-900/50 backdrop-blur-lg border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_40px_-4px_rgba(79,70,229,0.15)] hover:border-indigo-200/60 dark:hover:border-indigo-800/60 transition-all duration-500 cursor-pointer overflow-hidden relative"
                        >
                           <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-4 group-hover:translate-x-0">
                             <ArrowRight className="h-5 w-5 text-indigo-500" />
@@ -451,8 +465,8 @@ export default function ProtechCloudHomepage() {
                       )
                     }
                     return (
-                      <motion.div variants={cardVariants} whileHover={{ y: -5 }} key={i}>
-                        <Link href={mod.href} className="group block p-8 rounded-3xl bg-gradient-to-br from-white to-slate-50 dark:from-slate-900 dark:to-slate-950 border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_30px_-4px_rgba(79,70,229,0.15)] transition-all cursor-pointer relative h-full">
+                      <motion.div variants={cardVariants} whileHover={{ y: -8 }} key={i}>
+                        <Link href={mod.href} className="group block p-8 rounded-3xl bg-white/80 dark:bg-slate-900/50 backdrop-blur-lg border border-slate-200/60 dark:border-slate-800/60 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.03)] dark:shadow-[0_4px_20px_-4px_rgba(0,0,0,0.2)] hover:shadow-[0_20px_40px_-4px_rgba(79,70,229,0.15)] hover:border-indigo-200/60 dark:hover:border-indigo-800/60 transition-all duration-500 cursor-pointer relative h-full">
                            <div className="absolute top-0 right-0 p-8 opacity-0 group-hover:opacity-100 transition-opacity duration-300 transform translate-x-4 group-hover:translate-x-0">
                              <ArrowRight className="h-5 w-5 text-indigo-500" />
                            </div>
@@ -508,15 +522,15 @@ export default function ProtechCloudHomepage() {
                       features: ["Trial Management", "License Management"]
                     }
                  ].map((group, i) => (
-                    <div key={i} className="bg-slate-50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-3xl p-8">
-                       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">{group.category}</h3>
+                    <div key={i} className="group bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 rounded-3xl p-8 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.2)] hover:border-indigo-200 dark:hover:border-indigo-800/50 transition-all duration-500 hover:-translate-y-1">
+                       <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6 border-b border-slate-200/50 dark:border-slate-800/50 pb-4 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{group.category}</h3>
                        <ul className="space-y-3">
                           {group.features.map((feat, j) => (
                              <li key={j} className="flex items-start gap-3">
-                                <div className="mt-1 h-4 w-4 shrink-0 rounded-full bg-indigo-100 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-                                   <Check className="h-2.5 w-2.5" />
+                                <div className="mt-1 h-5 w-5 shrink-0 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-500/20 transition-colors">
+                                   <Check className="h-3 w-3" />
                                 </div>
-                                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium">{feat}</span>
+                                <span className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed">{feat}</span>
                              </li>
                           ))}
                        </ul>
@@ -547,9 +561,9 @@ export default function ProtechCloudHomepage() {
                    { name: "NGOs", icon: Heart },
                    { name: "Manufacturing", icon: Building2 },
                  ].map((ind, i) => (
-                   <div key={i} className="p-6 rounded-xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 flex flex-col items-center text-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-                      <ind.icon className="h-8 w-8 text-indigo-500 mb-3" />
-                      <span className="font-semibold text-sm text-slate-700 dark:text-slate-300">{ind.name}</span>
+                   <div key={i} className="group p-6 rounded-2xl bg-white/50 dark:bg-slate-900/30 backdrop-blur-sm border border-slate-200/60 dark:border-slate-800/60 flex flex-col items-center text-center hover:bg-white dark:hover:bg-slate-800 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-200 dark:hover:border-indigo-800/50 transition-all duration-300">
+                      <ind.icon className="h-8 w-8 text-indigo-500 mb-3 group-hover:scale-110 transition-transform duration-300" />
+                      <span className="font-semibold text-sm text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{ind.name}</span>
                    </div>
                  ))}
               </div>
@@ -586,13 +600,15 @@ export default function ProtechCloudHomepage() {
                     </div>
                  </div>
                  
-                 <div className="flex justify-center">
-                    <div className="relative w-full max-w-md bg-slate-800 rounded-2xl p-10 border border-slate-700 shadow-2xl flex flex-col items-center text-center">
-                       <div className="h-24 w-24 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 mb-6">
+                 <div className="flex justify-center relative">
+                    {/* Glowing effect behind shield */}
+                    <div className="absolute inset-0 bg-indigo-500/20 blur-[80px] rounded-full max-w-sm mx-auto animate-pulse"></div>
+                    <div className="relative w-full max-w-md bg-slate-800/80 backdrop-blur-xl rounded-3xl p-10 border border-slate-700 shadow-2xl flex flex-col items-center text-center hover:border-indigo-500/50 transition-colors duration-500">
+                       <div className="h-24 w-24 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-indigo-400 mb-6 border border-indigo-500/20 shadow-inner">
                           <Shield className="h-12 w-12" />
                        </div>
-                       <h3 className="text-2xl font-bold mb-2">Enterprise Security</h3>
-                       <p className="text-slate-400 text-sm">Your data is safe, secure, and always accessible when you need it.</p>
+                       <h3 className="text-2xl font-bold mb-2 text-white">Enterprise Security</h3>
+                       <p className="text-slate-400 text-sm leading-relaxed">Your data is safe, secure, and always accessible when you need it.</p>
                     </div>
                  </div>
               </div>
@@ -624,24 +640,30 @@ export default function ProtechCloudHomepage() {
                          { value: "1-3 hrs", label: "Saved in order processing daily", icon: Clock },
                          { value: "20-30%", label: "Reduction in inventory wastage", icon: TrendingUp },
                        ].map((stat, i) => (
-                         <div key={i} className="p-6 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-                            <stat.icon className="h-6 w-6 text-indigo-600 dark:text-indigo-400 mb-4" />
-                            <div className="text-3xl font-extrabold text-slate-900 dark:text-white mb-2">{stat.value}</div>
+                         <div key={i} className="group p-6 rounded-3xl bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1">
+                            <stat.icon className="h-8 w-8 text-indigo-600 dark:text-indigo-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                            <div className="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">{stat.value}</div>
                             <div className="text-sm font-medium text-slate-600 dark:text-slate-400">{stat.label}</div>
                          </div>
                        ))}
                     </div>
                  </div>
 
-                 <div className="bg-slate-900 rounded-3xl p-10 relative shadow-2xl overflow-hidden">
-                    <Quote className="absolute top-6 right-6 h-32 w-32 text-white/5 pointer-events-none" />
+                 <div className="bg-gradient-to-br from-slate-900 to-black rounded-[2rem] p-10 lg:p-12 relative shadow-2xl overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] group-hover:bg-indigo-500/20 transition-colors duration-700"></div>
+                    <Quote className="absolute top-6 right-6 h-32 w-32 text-white/5 pointer-events-none group-hover:text-indigo-500/10 transition-colors duration-700" />
                     <div className="relative z-10">
-                       <h3 className="text-2xl font-medium text-white leading-relaxed italic mb-8">
+                       <h3 className="text-2xl sm:text-3xl font-medium text-white leading-relaxed italic mb-8">
                           "The multi-branch control changed how we operate. Real-time tracking is a lifesaver for our distribution network."
                        </h3>
-                       <div>
-                          <p className="text-lg font-bold text-white">Aminata Bangura</p>
-                          <p className="text-sm font-medium text-indigo-400">CEO, Eastside Pharmacy</p>
+                       <div className="flex items-center gap-4">
+                          <div className="h-12 w-12 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
+                            <span className="font-bold text-indigo-300 text-lg">AB</span>
+                          </div>
+                          <div>
+                             <p className="text-lg font-bold text-white">Aminata Bangura</p>
+                             <p className="text-sm font-medium text-indigo-400">CEO, Eastside Pharmacy</p>
+                          </div>
                        </div>
                     </div>
                  </div>
@@ -650,21 +672,25 @@ export default function ProtechCloudHomepage() {
         </section>
 
         {/* 8. Final CTA */}
-        <section className="py-24 bg-indigo-600 text-white text-center">
-           <div className="container px-6 mx-auto">
-              <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-6">
+        <section className="py-24 relative overflow-hidden text-center">
+           <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-900 z-0"></div>
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-overlay z-0"></div>
+           <div className="absolute top-[-50%] left-[-10%] w-[50%] h-[100%] rounded-full bg-white/10 blur-[100px] animate-pulse pointer-events-none z-0"></div>
+           
+           <div className="container px-6 mx-auto relative z-10">
+              <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 text-white">
                  READY TO TRANSFORM?
               </h2>
-              <p className="text-lg text-indigo-100 font-medium mb-10 max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl text-indigo-100 font-medium mb-10 max-w-2xl mx-auto leading-relaxed">
                  Join the growing number of businesses using Protech Assist to increase profits and reduce operational losses.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                 <Link href={ctaHref} className="h-14 px-8 rounded-xl bg-white text-slate-900 font-bold text-lg hover:bg-indigo-50 shadow-lg transition-all flex items-center justify-center gap-2 shrink-0 min-w-max w-fit mx-auto sm:mx-0">
+                 <Link href={ctaHref} className="h-14 px-8 rounded-xl bg-white text-indigo-900 font-bold text-lg hover:bg-slate-50 shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2 shrink-0 min-w-max w-fit mx-auto sm:mx-0">
                   {ctaText} Today <ArrowRight className="h-5 w-5" />
-                </Link>
+                 </Link>
                  <button 
                    onClick={() => setIsDemoModalOpen(true)}
-                   className="h-14 px-8 rounded-lg border-2 border-indigo-400 hover:bg-indigo-700 text-white text-base font-bold transition-colors flex items-center justify-center shrink-0 min-w-max"
+                   className="h-14 px-8 rounded-xl border border-white/30 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white text-base font-bold shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center shrink-0 min-w-max"
                  >
                    Schedule Live Demo
                  </button>
@@ -673,7 +699,7 @@ export default function ProtechCloudHomepage() {
         </section>
 
         {/* 9. Footer */}
-        <footer className="bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 pt-20 pb-10">
+        <footer className="bg-slate-50 dark:bg-slate-950 border-t border-slate-200/50 dark:border-slate-800/50 pt-20 pb-10">
           <div className="container px-6 mx-auto">
             <div className="grid lg:grid-cols-12 gap-12 mb-16">
               <div className="lg:col-span-4">

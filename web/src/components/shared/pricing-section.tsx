@@ -404,14 +404,16 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
               return (
                 <div 
                   key={idx}
-                  className="bg-white dark:bg-slate-900/30 border border-slate-200/60 dark:border-white/5 rounded-2xl overflow-hidden transition-all duration-300"
+                  className="group bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-white/5 rounded-2xl overflow-hidden transition-all duration-300 hover:border-indigo-200 dark:hover:border-indigo-800/50 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.2)]"
                 >
                   <button
                     onClick={() => setExpandedFaq(isExpanded ? null : idx)}
-                    className="w-full p-6 text-left flex justify-between items-center focus:outline-none"
+                    className="w-full p-6 text-left flex justify-between items-center focus:outline-none gap-4"
                   >
-                    <span className="font-black text-xs uppercase tracking-wider text-slate-900 dark:text-white">{faq.q}</span>
-                    {isExpanded ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
+                    <span className="font-black text-xs uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{faq.q}</span>
+                    <div className={`shrink-0 h-7 w-7 rounded-full flex items-center justify-center border transition-all duration-300 ${isExpanded ? 'bg-indigo-600 border-indigo-600 text-white rotate-180' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-400'}`}>
+                      <ChevronDown className="h-4 w-4" />
+                    </div>
                   </button>
                   <AnimatePresence>
                     {isExpanded && (
