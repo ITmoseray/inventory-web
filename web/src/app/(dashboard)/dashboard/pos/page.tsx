@@ -209,6 +209,76 @@ export default function POSPage() {
       setSearchQuery(result);
     }
   };
+
+  // Hardware Barcode Scanner Listener
+  // Hardware scanners act as keyboards that type fast and press Enter.
+  useEffect(() => {
+    let barcodeBuffer = "";
+    let timeout: NodeJS.Timeout | null = null;
+
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input field (unless it's the main search bar itself)
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        // Only ignore if the active element is NOT our main search input.
+        // If it is our main search input, let the normal input handle it or 
+        // we can intercept Enter to auto-add.
+        if (document.activeElement?.id !== "pos-search-input") {
+           return;
+        }
+      }
+
+      if (e.key === "Enter") {
+        if (barcodeBuffer.length > 2) {
+          // Scanner finished typing, process the barcode
+          const result = barcodeBuffer;
+          barcodeBuffer = ""; // Reset
+          
+          const matched = products?.find(p => p.barcode === result || p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result));
+          
+          if (matched) {
+            if (matched.stockQuantity <= 0) {
+              toast.error(`Scanned item "${matched.name}" is OUT OF STOCK.`);
+            } else {
+              handleAddItem({
+                id: matched.id,
+                name: matched.name,
+                price: matched.unitPrice,
+                stockQuantity: matched.stockQuantity,
+                ratio: 1,
+                isExternal: false,
+              });
+              toast.success(`Scanned: ${matched.name} added!`);
+              setSearchQuery(""); // clear search if it was typed
+            }
+          } else {
+             // If not found directly by barcode, just set search query
+             setSearchQuery(result);
+             toast.info(`Scanned: ${result} not found. Applying filter.`);
+          }
+        }
+      } else {
+        // Collect characters
+        if (e.key.length === 1) { // Ignore shift, ctrl, etc.
+          barcodeBuffer += e.key;
+          if (timeout) clearTimeout(timeout);
+          // If no new character comes in within 100ms, assume it was manual typing and clear buffer
+          timeout = setTimeout(() => {
+            barcodeBuffer = "";
+          }, 100);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [products]);
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -446,6 +516,81 @@ export default function POSPage() {
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
   ), [products, searchQuery]);
+
+  const handlePrintReceipt = () => {
+    const printContent = document.getElementById('receipt-thermal-container');
+    if (!printContent) {
+      toast.error("Receipt content not found.");
+      return;
+    }
+    
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    
+    if (!iframe.contentWindow) return;
+    
+    iframe.contentWindow.document.write(`
+      <html>
+        <head>
+          <title>Print Receipt</title>
+          <style>
+            @page { margin: 0; }
+            body { 
+              margin: 0; 
+              padding: 0; 
+              background: white; 
+              font-family: monospace; 
+              color: black;
+            }
+            .text-center { text-align: center; }
+            .font-bold { font-weight: bold; }
+            .uppercase { text-transform: uppercase; }
+            .text-lg { font-size: 1.125rem; }
+            .text-\\[10px\\] { font-size: 10px; }
+            .text-\\[12px\\] { font-size: 12px; }
+            .text-sm { font-size: 0.875rem; }
+            .text-right { text-align: right; }
+            .border-b { border-bottom: 1px dashed black; }
+            .pb-2 { padding-bottom: 0.5rem; }
+            .mb-2 { margin-bottom: 0.5rem; }
+            .mb-4 { margin-bottom: 1rem; }
+            .mt-4 { margin-top: 1rem; }
+            .flex { display: flex; }
+            .justify-between { justify-content: space-between; }
+            .w-full { width: 100%; }
+            .w-1\\/2 { width: 50%; }
+            .w-1\\/4 { width: 25%; }
+            .align-top { vertical-align: top; }
+            table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+            th { border-bottom: 1px solid black; padding-bottom: 4px; }
+            td { padding-top: 4px; }
+            
+            /* Remove all Tailwind specific display hacks that might break plain HTML rendering */
+            .print\\:hidden { display: none !important; }
+            .mx-auto { margin-left: auto; margin-right: auto; }
+            .flex-col { flex-direction: column; }
+            .items-center { align-items: center; }
+          </style>
+        </head>
+        <body>
+          <div style="width: 80mm; margin: 0 auto; padding: 4mm;">
+            ${printContent.innerHTML}
+          </div>
+        </body>
+      </html>
+    `);
+    
+    iframe.contentWindow.document.close();
+    
+    iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    };
+  };
 
   const handleSaveReceipt = async () => {
     if (!receiptRef.current) return;
@@ -914,6 +1059,7 @@ export default function POSPage() {
                  <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
               </div>
               <Input 
+                id="pos-search-input"
                 placeholder="Scan identification or search assets by name/SKU..." 
                 className="h-16 pl-16 pr-8 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-800 font-black text-sm uppercase tracking-widest shadow-sm focus:shadow-md transition-all"
                 value={searchQuery}
@@ -1760,19 +1906,21 @@ export default function POSPage() {
           <div className="w-full max-h-[40vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-950 text-black dark:text-slate-100 p-4 rounded-xl shadow-inner border border-slate-200 dark:border-slate-800">
              {/* Render a visual preview of the receipt component without refs */}
              {receiptData && (
-               <ThermalReceipt 
-                 id={receiptData.id}
-                 items={receiptData.items}
-                 total={receiptData.total}
-                 paid={receiptData.paid}
-                 paymentMethod={receiptData.paymentMethod}
-                 cashierName={receiptData.cashierName}
-                 customerName={receiptData.customerName}
-                 transactionId={receiptData.transactionId}
-                 businessName={receiptData.businessName}
-                 businessAddress={receiptData.businessAddress}
-                 businessPhone={receiptData.businessPhone}
-               />
+               <div id="receipt-thermal-container">
+                 <ThermalReceipt 
+                   id={receiptData.id}
+                   items={receiptData.items}
+                   total={receiptData.total}
+                   paid={receiptData.paid}
+                   paymentMethod={receiptData.paymentMethod}
+                   cashierName={receiptData.cashierName}
+                   customerName={receiptData.customerName}
+                   transactionId={receiptData.transactionId}
+                   businessName={receiptData.businessName}
+                   businessAddress={receiptData.businessAddress}
+                   businessPhone={receiptData.businessPhone}
+                 />
+               </div>
              )}
           </div>
 
@@ -1799,7 +1947,7 @@ export default function POSPage() {
                <Share2 className="mr-2 h-4 w-4" /> Share
              </Button>
              <Button 
-               onClick={() => window.print()}
+               onClick={handlePrintReceipt}
                className="flex-[1.2] h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase bg-slate-900 text-white dark:bg-indigo-600 dark:text-white shadow-xl hover:scale-105 transition-transform"
              >
                <Printer className="mr-2 h-4 w-4" /> Print

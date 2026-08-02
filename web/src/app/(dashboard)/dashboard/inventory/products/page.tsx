@@ -343,6 +343,7 @@ export default function ProductsPage() {
   const businessType = session?.user?.businessType || "SHOP";
   const isPharmacy = businessType === "PHARMACY";
   const isBar = businessType === "BAR";
+  const hasExpiryAndBatch = isPharmacy || businessType === "SUPERMARKET";
 
   useEffect(() => {
     fetchData();
@@ -467,8 +468,8 @@ export default function ProductsPage() {
         genericAlternative: isPharmacy ? formData.genericAlternative : null,
         isControlledSubstance: isPharmacy ? formData.isControlledSubstance : false,
         metadata: {
-          expiryDate: isPharmacy ? formData.expiryDate : undefined,
-          batchNumber: isPharmacy ? formData.batchNumber : undefined,
+          expiryDate: hasExpiryAndBatch ? formData.expiryDate : undefined,
+          batchNumber: hasExpiryAndBatch ? formData.batchNumber : undefined,
           isAlcoholic: isBar ? true : undefined,
           packagingUnits: formData.packagingUnits,
         },
@@ -1048,8 +1049,8 @@ export default function ProductsPage() {
                        </div>
                      )}
 
-                     {/* Pharmacy-specific fields */}
-                     {isPharmacy && (
+                     {/* Expiry and Batch Tracking (Pharmacy & Supermarket) */}
+                     {hasExpiryAndBatch && (
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                          <div className="space-y-2">
                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Expiry Date</Label>
@@ -1069,7 +1070,12 @@ export default function ProductsPage() {
                              className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-mono text-xs text-slate-900 dark:text-slate-100"
                            />
                          </div>
-                         
+                       </div>
+                     )}
+
+                     {/* Pharmacy-specific medical fields */}
+                     {isPharmacy && (
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                          <div className="space-y-2 col-span-1 sm:col-span-2">
                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Generic Alternative</Label>
                            <Input
