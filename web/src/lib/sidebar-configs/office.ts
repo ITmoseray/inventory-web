@@ -101,6 +101,7 @@ export const officeSidebarConfig = [
           { title: "Audit Trails", url: "/dashboard/system/logs" },
           { title: "System Broadcasts", url: "/dashboard/system/notifications" },
           { title: "Preferences", url: "/dashboard/system/settings" },
+          { title: "Users & Permissions", url: "/dashboard/staff/roles" },
         ],
       },
     ]
@@ -109,6 +110,7 @@ export const officeSidebarConfig = [
     label: "Help & Resources",
     items: [
       { title: "Operations Manual", url: "/dashboard/manual", icon: Book, permission: "menu:support:manual" },
+      { title: "Pricing Plans", url: "/pricing", icon: DollarSign, permission: "menu:support:pricing" },
     ]
   }
 ];

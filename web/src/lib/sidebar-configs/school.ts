@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, BookOpen, CreditCard, Wallet, Settings, Activity, GraduationCap, Building2, Calendar, Mail } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, CreditCard, Wallet, Settings, Activity, GraduationCap, Building2, Calendar, Mail, Book, DollarSign, UserCheck } from "lucide-react";
 
 export const getSchoolSidebarConfig = (institutionType?: string | null) => {
   const isNursing = institutionType === 'NURSING_MEDICAL';
@@ -54,14 +54,25 @@ export const getSchoolSidebarConfig = (institutionType?: string | null) => {
       items: [
         { title: "Staff Directory", url: "/dashboard/school/staff", icon: Users, permission: "menu:overview" },
         { title: "Payments & Fees", url: "/dashboard/school/payments", icon: CreditCard, permission: "menu:overview" },
-        { title: "Staff Payroll", url: "/dashboard/school/payroll", icon: Wallet, permission: "menu:overview" }
+        { title: "Staff Payroll", url: "/dashboard/school/payroll", icon: Wallet, permission: "menu:overview" },
+        { title: "Billing", url: "/dashboard/billing", icon: CreditCard, permission: "menu:accounting:billing" }
       ] 
     },
     { 
       label: "Settings", 
       items: [
-        { title: "Business Settings", url: "/dashboard/system/settings", icon: Settings, permission: "menu:system:settings" }
+        { title: "Audit Logs", url: "/dashboard/system/logs", icon: Activity, permission: "menu:system:logs" },
+        { title: "Notifications", url: "/dashboard/system/notifications", icon: Mail, permission: "menu:system:notifications" },
+        { title: "Business Settings", url: "/dashboard/system/settings", icon: Settings, permission: "menu:system:settings" },
+        { title: "Users & Permissions", url: "/dashboard/staff/roles", icon: UserCheck, permission: "menu:staff:roles" }
       ] 
+    },
+    {
+      label: "Support",
+      items: [
+        { title: "System Manual", url: "/dashboard/manual", icon: Book, permission: "menu:support:manual" },
+        { title: "Pricing Plans", url: "/pricing", icon: DollarSign, permission: "menu:support:pricing" },
+      ]
     }
   ];
 };
