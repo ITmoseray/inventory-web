@@ -33,21 +33,53 @@ export async function POST(req: Request) {
 
     // Update business and voucher in a transaction
     await prisma.$transaction(async (tx) => {
-      // 1. Update the business
       const endDate = new Date();
       endDate.setDate(endDate.getDate() + voucher.durationDays);
 
+      // Map tier to valid SubscriptionPlan enum
+      let mappedPlan = "FREE";
+      if (voucher.tier.name === "SHOP") mappedPlan = "STANDARD";
+      else if (voucher.tier.name === "PRO") mappedPlan = "BUSINESS";
+      else if (voucher.tier.name === "ENTERPRISE") mappedPlan = "ENTERPRISE";
+
+      // 1. Update the business
       await tx.business.update({
         where: { id: businessId },
         data: {
           activationTierId: voucher.tierId,
           subscriptionStatus: "ACTIVE",
           trialEndDate: endDate,
-          plan: voucher.tier.name as any // mapping to existing enums where possible
+          plan: mappedPlan as any
         }
       });
 
-      // 2. Mark voucher as redeemed
+      // 2. Create a Subscription record so it shows in the UI
+      await tx.subscription.create({
+        data: {
+          businessId,
+          plan: mappedPlan as any,
+          status: "active",
+          startDate: new Date(),
+          endDate: endDate,
+          amount: 0,
+          paymentRef: voucher.code,
+        }
+      });
+
+      // 3. Create an Invoice record so it shows in history
+      await tx.invoice.create({
+        data: {
+          businessId,
+          invoiceNumber: `INV-VCH-${Date.now()}`,
+          issueDate: new Date(),
+          dueDate: endDate,
+          totalAmount: 0,
+          status: "PAID",
+          notes: "Redeemed via Activation Voucher: " + voucher.code,
+        }
+      });
+
+      // 4. Mark voucher as redeemed
       await tx.licenseVoucher.update({
         where: { id: voucher.id },
         data: {
