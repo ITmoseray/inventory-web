@@ -210,74 +210,6 @@ export default function POSPage() {
     }
   };
 
-  // Hardware Barcode Scanner Listener
-  // Hardware scanners act as keyboards that type fast and press Enter.
-  useEffect(() => {
-    let barcodeBuffer = "";
-    let timeout: NodeJS.Timeout | null = null;
-
-    const handleGlobalKeyDown = (e: KeyboardEvent) => {
-      // Ignore if typing in an input field (unless it's the main search bar itself)
-      if (
-        document.activeElement?.tagName === "INPUT" ||
-        document.activeElement?.tagName === "TEXTAREA"
-      ) {
-        // Only ignore if the active element is NOT our main search input.
-        // If it is our main search input, let the normal input handle it or 
-        // we can intercept Enter to auto-add.
-        if (document.activeElement?.id !== "pos-search-input") {
-           return;
-        }
-      }
-
-      if (e.key === "Enter") {
-        if (barcodeBuffer.length > 2) {
-          // Scanner finished typing, process the barcode
-          const result = barcodeBuffer;
-          barcodeBuffer = ""; // Reset
-          
-          const matched = products?.find(p => p.barcode === result || p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result));
-          
-          if (matched) {
-            if (matched.stockQuantity <= 0) {
-              toast.error(`Scanned item "${matched.name}" is OUT OF STOCK.`);
-            } else {
-              handleAddItem({
-                id: matched.id,
-                name: matched.name,
-                price: matched.unitPrice,
-                stockQuantity: matched.stockQuantity,
-                ratio: 1,
-                isExternal: false,
-              });
-              toast.success(`Scanned: ${matched.name} added!`);
-              setSearchQuery(""); // clear search if it was typed
-            }
-          } else {
-             // If not found directly by barcode, just set search query
-             setSearchQuery(result);
-             toast.info(`Scanned: ${result} not found. Applying filter.`);
-          }
-        }
-      } else {
-        // Collect characters
-        if (e.key.length === 1) { // Ignore shift, ctrl, etc.
-          barcodeBuffer += e.key;
-          if (timeout) clearTimeout(timeout);
-          // If no new character comes in within 100ms, assume it was manual typing and clear buffer
-          timeout = setTimeout(() => {
-            barcodeBuffer = "";
-          }, 100);
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleGlobalKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleGlobalKeyDown);
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [products]);
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
@@ -516,6 +448,75 @@ export default function POSPage() {
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
     (p.sku && p.sku.toLowerCase().includes(searchQuery.toLowerCase()))
   ), [products, searchQuery]);
+
+  // Hardware Barcode Scanner Listener
+  // Hardware scanners act as keyboards that type fast and press Enter.
+  useEffect(() => {
+    let barcodeBuffer = "";
+    let timeout: NodeJS.Timeout | null = null;
+
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      // Ignore if typing in an input field (unless it's the main search bar itself)
+      if (
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA"
+      ) {
+        // Only ignore if the active element is NOT our main search input.
+        // If it is our main search input, let the normal input handle it or 
+        // we can intercept Enter to auto-add.
+        if (document.activeElement?.id !== "pos-search-input") {
+           return;
+        }
+      }
+
+      if (e.key === "Enter") {
+        if (barcodeBuffer.length > 2) {
+          // Scanner finished typing, process the barcode
+          const result = barcodeBuffer;
+          barcodeBuffer = ""; // Reset
+          
+          const matched = products?.find(p => p.barcode === result || p.sku === result || p.id === result || (p.metadata && p.metadata.barcode === result));
+          
+          if (matched) {
+            if (matched.stockQuantity <= 0) {
+              toast.error(`Scanned item "${matched.name}" is OUT OF STOCK.`);
+            } else {
+              handleAddItem({
+                id: matched.id,
+                name: matched.name,
+                price: matched.unitPrice,
+                stockQuantity: matched.stockQuantity,
+                ratio: 1,
+                isExternal: false,
+              });
+              toast.success(`Scanned: ${matched.name} added!`);
+              setSearchQuery(""); // clear search if it was typed
+            }
+          } else {
+             // If not found directly by barcode, just set search query
+             setSearchQuery(result);
+             toast.info(`Scanned: ${result} not found. Applying filter.`);
+          }
+        }
+      } else {
+        // Collect characters
+        if (e.key.length === 1) { // Ignore shift, ctrl, etc.
+          barcodeBuffer += e.key;
+          if (timeout) clearTimeout(timeout);
+          // If no new character comes in within 100ms, assume it was manual typing and clear buffer
+          timeout = setTimeout(() => {
+            barcodeBuffer = "";
+          }, 100);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleGlobalKeyDown);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [products]);
 
   const handlePrintReceipt = () => {
     const printContent = document.getElementById('receipt-thermal-container');
