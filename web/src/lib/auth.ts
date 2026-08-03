@@ -7,7 +7,6 @@ import crypto from "crypto";
 import { z } from "zod";
 import { cookies } from "next/headers";
 import { authConfig } from "../auth.config";
-import { getSystemSettings } from "@/lib/actions/system-settings";
 import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
 
 class CustomAuthError extends CredentialsSignin {
@@ -152,7 +151,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             console.log(`Google Auth: User ${user.email} not found in DB. Creating new business and user account.`);
             
             const passwordHash = await bcrypt.hash(crypto.randomUUID(), 10);
-            const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 7, registrationOpen: true }));
+            let settings = { defaultTrialDays: 14, registrationOpen: true };
+            try {
+              const dbSettings = await prisma.systemSetting.findUnique({ where: { id: "singleton" } });
+              if (dbSettings) {
+                settings.defaultTrialDays = dbSettings.defaultTrialDays;
+                settings.registrationOpen = dbSettings.registrationOpen;
+              }
+            } catch (e) {
+              console.error("Auth: Failed to fetch system settings", e);
+            }
             
             if (settings.registrationOpen === false) {
               console.warn(`Google Auth: Registration is closed, rejecting new user ${user.email}`);
