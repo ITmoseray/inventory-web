@@ -89,7 +89,11 @@ export default function BillingPage() {
                 <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                     <div>
                         <div className="text-sm font-black text-slate-900 dark:text-white uppercase">{subscription.plan}</div>
-                        <div className="text-xs font-bold text-slate-400">Expires {format(new Date(subscription.endDate), "PPP")}</div>
+                        <div className="text-xs font-bold text-slate-400">
+                          {subscription.status === 'active'
+                            ? `Active until ${format(new Date(subscription.endDate), "PPP")}`
+                            : `Expires ${format(new Date(subscription.endDate), "PPP")}`}
+                        </div>
                     </div>
                     <span className={cn(
                         "px-3 py-1 rounded-full text-[10px] font-black uppercase",
@@ -100,7 +104,9 @@ export default function BillingPage() {
                 </div>
               </div>
             ) : (
-                <div className="text-slate-500 font-medium">No active subscription found.</div>
+                <div className="text-slate-500 font-medium text-sm">
+                  No active subscription found. <a href="/pricing" className="text-indigo-500 font-bold hover:underline">Browse plans →</a>
+                </div>
             )}
           </CardContent>
         </Card>

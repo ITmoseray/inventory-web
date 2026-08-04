@@ -147,7 +147,7 @@ export default async function DashboardLayout({
                 </div>
                 
                 <p className="text-slate-400 font-normal text-sm leading-relaxed">
-                   Your 7-day free trial for <strong>{business.name}</strong> has ended. Please choose and subscribe to a plan to keep using your inventory system.
+                   Your 30-day free trial for <strong>{business.name}</strong> has ended. Please choose and subscribe to a plan to keep using your inventory system.
                 </p>
                 
                 <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">

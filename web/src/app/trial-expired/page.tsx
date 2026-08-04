@@ -54,7 +54,7 @@ export default function TrialExpiredPage() {
                   <span className="text-[10px] font-black uppercase tracking-[0.5em]">Trial Period Ended</span>
                </div>
                <h1 className="text-4xl md:text-5xl font-[1000] tracking-tighter text-white uppercase italic leading-none">Trial <span className="text-rose-500">Expired</span></h1>
-               <p className="text-slate-500 font-black text-xs uppercase tracking-widest mt-4">Your 7-day free trial has ended.</p>
+               <p className="text-slate-500 font-black text-xs uppercase tracking-widest mt-4">Your 30-day free trial has ended.</p>
             </div>
           </div>
 

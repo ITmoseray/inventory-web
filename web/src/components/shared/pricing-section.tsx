@@ -170,8 +170,8 @@ const collegePlans = [
 
 const faqs = [
   {
-    q: 'How does the 14-day free trial work?',
-    a: 'You can sign up and use all features of the selected plan free for 14 days. We do not require a card upfront. You can upgrade, downgrade, or cancel at any time during the trial.',
+    q: 'How does the 30-day free trial work?',
+    a: 'You can sign up and use all features of the selected plan free for 30 days. We do not require a card upfront. You can upgrade, downgrade, or cancel at any time during the trial.',
   },
   {
     q: 'Can I change plans later?',
@@ -330,7 +330,7 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100/80 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-bold text-xs uppercase tracking-widest shadow-md"
           >
             <Sparkles className="h-3.5 w-3.5 fill-current animate-pulse text-indigo-500" />
-            <span>7-Day Free Trial available on all plans</span>
+            <span>30-Day Free Trial available on all plans</span>
           </motion.div>
           
           <h2 className="text-3xl sm:text-5xl lg:text-7xl font-[1000] tracking-tight text-slate-900 dark:text-white leading-tight sm:leading-none">

@@ -43,15 +43,24 @@ export async function getInvoices() {
 
   return invoices.map(invoice => ({
     ...invoice,
-    amount: invoice.amount.toNumber(),
+    subTotal: invoice.subTotal.toNumber(),
+    taxRate: invoice.taxRate.toNumber(),
+    taxAmount: invoice.taxAmount.toNumber(),
+    discountAmount: invoice.discountAmount.toNumber(),
+    totalAmount: invoice.totalAmount.toNumber(),
+    balanceDue: invoice.balanceDue.toNumber(),
+    amount: invoice.totalAmount.toNumber(), // Keep amount for frontend compatibility
     dueDate: invoice.dueDate.toISOString(),
+    issueDate: invoice.issueDate.toISOString(),
     createdAt: invoice.createdAt.toISOString(),
     updatedAt: invoice.updatedAt.toISOString(),
+    deletedAt: invoice.deletedAt?.toISOString() || null,
     payments: invoice.payments.map(payment => ({
       ...payment,
       amount: payment.amount.toNumber(),
       createdAt: payment.createdAt.toISOString(),
       updatedAt: payment.updatedAt.toISOString(),
+      deletedAt: payment.deletedAt?.toISOString() || null,
     }))
   }));
 }
@@ -63,7 +72,9 @@ export async function createInvoice(data: { amount: number; dueDate: Date }) {
   const invoice = await prisma.invoice.create({
     data: {
       businessId,
-      amount: data.amount,
+      invoiceNumber: `INV-${Date.now()}`,
+      totalAmount: data.amount,
+      balanceDue: data.amount,
       dueDate: data.dueDate,
       status: "UNPAID",
     },
@@ -73,10 +84,18 @@ export async function createInvoice(data: { amount: number; dueDate: Date }) {
   
   return {
     ...invoice,
-    amount: invoice.amount.toNumber(),
+    subTotal: invoice.subTotal.toNumber(),
+    taxRate: invoice.taxRate.toNumber(),
+    taxAmount: invoice.taxAmount.toNumber(),
+    discountAmount: invoice.discountAmount.toNumber(),
+    totalAmount: invoice.totalAmount.toNumber(),
+    balanceDue: invoice.balanceDue.toNumber(),
+    amount: invoice.totalAmount.toNumber(),
     dueDate: invoice.dueDate.toISOString(),
+    issueDate: invoice.issueDate.toISOString(),
     createdAt: invoice.createdAt.toISOString(),
     updatedAt: invoice.updatedAt.toISOString(),
+    deletedAt: invoice.deletedAt?.toISOString() || null,
   };
 }
 
@@ -99,10 +118,15 @@ export async function recordPayment(invoiceId: string, data: { amount: number; p
   const totalPaid = payments.reduce((sum, p) => sum + Number(p.amount?.toString() || 0), 0);
   const invoice = await prisma.invoice.findUnique({ where: { id: invoiceId } });
 
-  if (invoice && totalPaid >= Number(invoice.amount?.toString() || 0)) {
+  if (invoice && totalPaid >= Number(invoice.totalAmount?.toString() || 0)) {
     await prisma.invoice.update({
       where: { id: invoiceId },
-      data: { status: "PAID" },
+      data: { status: "PAID", balanceDue: 0 },
+    });
+  } else if (invoice) {
+    await prisma.invoice.update({
+      where: { id: invoiceId },
+      data: { status: "PARTIAL", balanceDue: Number(invoice.totalAmount?.toString() || 0) - totalPaid },
     });
   }
 
@@ -113,5 +137,6 @@ export async function recordPayment(invoiceId: string, data: { amount: number; p
     amount: payment.amount.toNumber(),
     createdAt: payment.createdAt.toISOString(),
     updatedAt: payment.updatedAt.toISOString(),
+    deletedAt: payment.deletedAt?.toISOString() || null,
   };
 }

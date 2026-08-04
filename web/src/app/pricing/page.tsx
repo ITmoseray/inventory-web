@@ -166,8 +166,12 @@ export default function PricingPage() {
   const [activePaymentPlan, setActivePaymentPlan] = useState<string | null>(null);
   const [showCompare, setShowCompare] = useState(false);
 
-  const hasUsedTrial = !!session?.user?.trialEndDate;
-  const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
+  const now = new Date();
+  const currentPlan = (session?.user as any)?.plan as string | null;
+  const subEnd = (session?.user as any)?.subscriptionEndDate ? new Date((session?.user as any)?.subscriptionEndDate) : null;
+  const hasActivePaidSub = currentPlan && currentPlan !== 'FREE' && subEnd && subEnd > now;
+  const hasUsedTrial = !hasActivePaidSub && !!session?.user?.trialEndDate;
+  const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < now;
 
   const selectedCalculatorBasePrice = billingPeriod === 'monthly' ? selectedPlanForCalculator.monthlyPrice : selectedPlanForCalculator.annualPrice;
 
@@ -187,91 +191,126 @@ export default function PricingPage() {
             whileHover={{ y: -4 }}
             className="flex flex-col h-full"
           >
-            <Card 
-              className={cn(
-                "relative flex flex-col h-full overflow-hidden transition-all duration-300 rounded-[2rem]",
-                plan.popular 
-                  ? "border-2 border-indigo-500 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)] bg-white dark:bg-slate-900" 
-                  : "border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm"
-              )}
-            >
-              {plan.popular && (
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
-              )}
-              {plan.popular && (
-                <div className="absolute top-4 right-4 bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
-                  <Star className="h-3 w-3 fill-current" />
-                  Popular
-                </div>
-              )}
+            {(() => {
+                const isCurrentPlan = hasActivePaidSub && currentPlan === plan.id;
+                return (
+                  <Card
+                    className={cn(
+                      "relative flex flex-col h-full overflow-hidden transition-all duration-300 rounded-[2rem]",
+                      isCurrentPlan
+                        ? "border-2 border-emerald-500 shadow-[0_0_40px_-10px_rgba(16,185,129,0.25)] bg-white dark:bg-slate-900"
+                        : plan.popular
+                          ? "border-2 border-indigo-500 shadow-[0_0_40px_-10px_rgba(99,102,241,0.2)] bg-white dark:bg-slate-900"
+                          : "border border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm"
+                    )}
+                  >
+                    {isCurrentPlan && (
+                      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-400 via-teal-500 to-emerald-400" />
+                    )}
+                    {!isCurrentPlan && plan.popular && (
+                      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500" />
+                    )}
 
-              <CardHeader className="p-8 pb-4">
-                <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 block">{plan.tag}</span>
-                <CardTitle className="text-2xl font-[1000] text-slate-900 dark:text-white">{plan.name}</CardTitle>
-                <CardDescription className="text-slate-500 font-medium text-xs mt-2">{plan.description}</CardDescription>
-              </CardHeader>
-
-              <CardContent className="px-6 sm:px-8 pb-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-baseline gap-1 mb-6 mt-2">
-                    <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
-                    <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
-                      {price.toLocaleString()}
-                    </span>
-                    <span className="text-xs font-bold text-slate-400">/mo</span>
-                  </div>
-
-                  {billingPeriod === 'annual' && savings > 0 && (
-                    <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
-                      Billed annually (Save {currency.symbol}{savings.toLocaleString()}/yr)
-                    </div>
-                  )}
-
-                  <div className="h-px bg-slate-100 dark:bg-white/5 mb-6" />
-
-                  <ul className="space-y-4 flex-1">
-                    {plan.features.map((feature) => (
-                      <li key={feature} className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-300">
-                        <div className="h-4.5 w-4.5 rounded-full bg-emerald-500/10 dark:bg-emerald-500/5 flex items-center justify-center shrink-0 mt-0.5">
-                          <Check className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    {/* Badge: Your Plan or Popular */}
+                    <div className="absolute top-4 right-4">
+                      {isCurrentPlan ? (
+                        <div className="bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                          <Check className="h-3 w-3" />
+                          Your Plan
                         </div>
-                        <span className="font-semibold leading-normal">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </CardContent>
+                      ) : plan.popular ? (
+                        <div className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1">
+                          <Star className="h-3 w-3 fill-current" />
+                          Popular
+                        </div>
+                      ) : null}
+                    </div>
 
-              <CardFooter className="flex flex-col gap-2 bg-transparent border-t-0 p-6 sm:p-8 pt-0">
-                <Button 
-                  onClick={async () => {
-                    try {
-                      await requestSubscription(plan.id, billingPeriod);
-                      setActivePaymentPlan(plan.name);
-                    } catch (err) {
-                      console.error("Subscription error:", err);
-                      setActivePaymentPlan(plan.name);
-                    }
-                  }}
-                  className={cn(
-                    "w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300",
-                    plan.popular 
-                      ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35" 
-                      : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
-                  )}
-                >
-                  {isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Subscribe Now"}
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="w-full h-10 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600" 
-                  onClick={() => setSelectedPlanForCalculator(plan)}
-                >
-                  Customize Limits
-                </Button>
-              </CardFooter>
-            </Card>
+                    <CardHeader className="p-8 pb-4">
+                      <span className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2 block">{plan.tag}</span>
+                      <CardTitle className="text-2xl font-[1000] text-slate-900 dark:text-white">{plan.name}</CardTitle>
+                      <CardDescription className="text-slate-500 font-medium text-xs mt-2">{plan.description}</CardDescription>
+                    </CardHeader>
+
+                    <CardContent className="px-6 sm:px-8 pb-6 flex-1 flex flex-col justify-between">
+                      <div>
+                        <div className="flex items-baseline gap-1 mb-6 mt-2">
+                          <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
+                          <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
+                            {price.toLocaleString()}
+                          </span>
+                          <span className="text-xs font-bold text-slate-400">/mo</span>
+                        </div>
+
+                        {billingPeriod === 'annual' && savings > 0 && (
+                          <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
+                            Billed annually (Save {currency.symbol}{savings.toLocaleString()}/yr)
+                          </div>
+                        )}
+
+                        <div className="h-px bg-slate-100 dark:bg-white/5 mb-6" />
+
+                        <ul className="space-y-4 flex-1">
+                          {plan.features.map((feature) => (
+                            <li key={feature} className="flex items-start gap-3 text-xs text-slate-700 dark:text-slate-300">
+                              <div className={cn(
+                                "h-4.5 w-4.5 rounded-full flex items-center justify-center shrink-0 mt-0.5",
+                                isCurrentPlan ? "bg-emerald-500/15 dark:bg-emerald-500/10" : "bg-emerald-500/10 dark:bg-emerald-500/5"
+                              )}>
+                                <Check className={cn(
+                                  "h-3.5 w-3.5 shrink-0",
+                                  isCurrentPlan ? "text-emerald-500" : "text-emerald-600 dark:text-emerald-400"
+                                )} />
+                              </div>
+                              <span className="font-semibold leading-normal">{feature}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </CardContent>
+
+                    <CardFooter className="flex flex-col gap-2 bg-transparent border-t-0 p-6 sm:p-8 pt-0">
+                      {isCurrentPlan ? (
+                        <Button
+                          disabled
+                          className="w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] bg-emerald-600 text-white opacity-80 cursor-not-allowed"
+                        >
+                          <Check className="h-3.5 w-3.5 mr-2" />
+                          Current Plan
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={async () => {
+                            try {
+                              await requestSubscription(plan.id, billingPeriod);
+                              setActivePaymentPlan(plan.name);
+                            } catch (err) {
+                              console.error("Subscription error:", err);
+                              setActivePaymentPlan(plan.name);
+                            }
+                          }}
+                          className={cn(
+                            "w-full h-12 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all duration-300",
+                            plan.popular
+                              ? "bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-600/20 hover:shadow-indigo-600/35"
+                              : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
+                          )}
+                        >
+                          {hasActivePaidSub ? "Switch Plan" : isTrialExpired ? "Upgrade Now" : hasUsedTrial ? "Upgrade Now" : "Subscribe Now"}
+                        </Button>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full h-10 rounded-xl text-[9px] font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600"
+                        onClick={() => setSelectedPlanForCalculator(plan)}
+                      >
+                        Customize Limits
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                );
+              })()}
           </motion.div>
         );
       })}

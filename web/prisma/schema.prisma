@@ -1028,7 +1028,7 @@ model SalesDraft {
 model SystemSetting {
   id                          String   @id @default("singleton")
   registrationOpen            Boolean  @default(true)
-  defaultTrialDays            Int      @default(7)
+  defaultTrialDays            Int      @default(30)
   announcementBanner          String   @default("")
   announcementBannerUpdatedAt String   @default("")
   emailAlertsEnabled          Boolean  @default(true)

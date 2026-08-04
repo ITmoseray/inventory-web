@@ -366,34 +366,42 @@ const SidebarContentRenderer = ({
         {/* Plan / Trial Card — large, at very bottom */}
         {!isCollapsed && (() => {
           const plan = (session?.user as any)?.plan as string | null;
-          const hasTrial = !!session?.user?.trialEndDate;
           const subEnd = (session?.user as any)?.subscriptionEndDate ? new Date((session.user as any).subscriptionEndDate) : null;
-          const trialEnd = hasTrial ? new Date(session!.user!.trialEndDate as string) : null;
+          const trialEnd = session?.user?.trialEndDate ? new Date(session.user.trialEndDate as string) : null;
           const now = new Date();
 
+          // Determine if user has an active paid subscription
+          const hasActivePaidSub = plan && plan !== 'FREE' && subEnd && subEnd > now;
+
+          // Trial is only "active" if they are on FREE plan with no active paid subscription
+          const hasTrial = !hasActivePaidSub && !!trialEnd;
+          const isTrialExpired = hasTrial && trialEnd! <= now;
+          const isActiveTrialUser = hasTrial && trialEnd! > now;
+
           // Determine end date and days left
-          const relevantEnd = hasTrial ? trialEnd : subEnd;
+          const relevantEnd = hasActivePaidSub ? subEnd : (isActiveTrialUser ? trialEnd : null);
           const daysLeft = relevantEnd
             ? Math.max(0, Math.ceil((relevantEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
             : null;
 
-          const totalDays = hasTrial ? 7 : 30;
+          const totalDays = isActiveTrialUser ? 30 : 30;
           const progress = daysLeft !== null
             ? Math.max(4, Math.round(((totalDays - daysLeft) / totalDays) * 100))
             : 100;
 
-          const isExpired = hasTrial && daysLeft !== null && daysLeft <= 0;
+          const isExpired = isTrialExpired;
           const isCritical = daysLeft !== null && daysLeft <= 2 && !isExpired;
 
           // Plan label display
           const planLabel =
             isExpired ? "Trial Expired" :
-            hasTrial ? "Free Trial" :
+            isActiveTrialUser ? "Free Trial" :
             plan === "FREE" ? "Free Plan" :
             plan === "BASIC" ? "Basic Plan" :
             plan === "STANDARD" ? "Standard Plan" :
             plan === "PREMIUM" ? "Premium Plan" :
             plan === "ENTERPRISE" ? "Enterprise Plan" :
+            hasActivePaidSub ? `${plan} Plan` :
             "Active Plan";
 
           const daysLabel =
@@ -401,13 +409,15 @@ const SidebarContentRenderer = ({
             daysLeft !== null ? `${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining` :
             "Unlimited access";
 
-          const ctaText = isExpired || hasTrial ? "Subscribe Now" : "Manage Plan";
+          const ctaText = isExpired ? "Subscribe Now" : isActiveTrialUser ? "Upgrade Now" : "Manage Plan";
 
           const gradientClass =
             isExpired ? "from-rose-500 to-red-700" :
             isCritical ? "from-amber-500 to-orange-600" :
-            hasTrial ? "from-indigo-500 to-purple-700" :
+            isActiveTrialUser ? "from-indigo-500 to-purple-700" :
             plan === "PREMIUM" || plan === "ENTERPRISE" ? "from-violet-600 to-indigo-700" :
+            plan === "STANDARD" ? "from-emerald-600 to-teal-700" :
+            plan === "BASIC" ? "from-sky-600 to-blue-700" :
             "from-slate-600 to-slate-800";
 
           return (
@@ -436,7 +446,7 @@ const SidebarContentRenderer = ({
                   "text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-white/20 bg-white/15 text-white",
                   isCritical && "animate-pulse"
                 )}>
-                  {isExpired ? "Expired" : isCritical ? "Expiring!" : hasTrial ? "Trial" : "Active"}
+                  {isExpired ? "Expired" : isCritical ? "Expiring!" : isActiveTrialUser ? "Trial" : hasActivePaidSub ? "Active" : "Free"}
                 </span>
               </div>
 
