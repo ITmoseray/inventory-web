@@ -8,8 +8,13 @@ import { useState, useEffect } from "react";
 
 export function TrialBanner() {
   const { data: session } = useSession();
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
   const [daysLeft, setDaysLeft] = useState<number | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (session?.user?.trialEndDate) {
@@ -21,7 +26,41 @@ export function TrialBanner() {
     }
   }, [session]);
 
-  if (!isVisible || !session?.user?.trialEndDate) return null;
+  const checkVisibility = () => {
+    const closedAt = localStorage.getItem("trialBannerClosedAt");
+    if (!closedAt) {
+      setIsVisible(true);
+      return;
+    }
+    
+    const ONE_HOUR = 60 * 60 * 1000;
+    const timeSinceClosed = Date.now() - parseInt(closedAt, 10);
+    
+    if (timeSinceClosed >= ONE_HOUR) {
+      setIsVisible(true);
+    } else {
+      setIsVisible(false);
+    }
+  };
+
+  useEffect(() => {
+    // Initial check
+    checkVisibility();
+
+    // Check every 5 minutes (300,000 ms)
+    const interval = setInterval(() => {
+      checkVisibility();
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleClose = () => {
+    localStorage.setItem("trialBannerClosedAt", Date.now().toString());
+    setIsVisible(false);
+  };
+
+  if (!mounted || !isVisible || !session?.user?.trialEndDate) return null;
 
   const isExpired = daysLeft !== null && daysLeft <= 0;
 
@@ -55,7 +94,7 @@ export function TrialBanner() {
 
       <div className="flex items-center gap-4">
         <button 
-          onClick={() => setIsVisible(false)}
+          onClick={handleClose}
           className={cn(
             "p-1.5 rounded-full transition-colors text-slate-400 hover:text-slate-900 dark:hover:text-white",
             isExpired ? "hover:bg-rose-200/50 dark:hover:bg-rose-900/20" : "hover:bg-amber-200/50 dark:hover:bg-amber-950/20"
