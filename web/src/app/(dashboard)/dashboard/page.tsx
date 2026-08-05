@@ -368,7 +368,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="relative z-10 mt-8">
                         <Button 
-                          onClick={() => router.push("/dashboard/intelligence/chat")}
+                          onClick={() => router.push("/dashboard/intelligence/chat?q=generate_report")}
                           className="w-full bg-white text-indigo-600 hover:bg-white/90 rounded-xl h-12 font-bold shadow-lg shadow-black/10 gap-2 transition-all hover:gap-4"
                         >
                           Generate full report <ArrowRight className="h-4 w-4" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { 
   MessageSquare, Send, Bot, User, Cpu, Sparkles, RefreshCw, 
   Terminal, ArrowLeft, Lightbulb, Zap, HelpCircle, CheckCircle2 
@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { useSearchParams } from "next/navigation";
 
 interface Message {
   role: "user" | "assistant";
@@ -30,7 +31,7 @@ const SUGGESTIONS = [
   { label: "What is my total revenue today?", desc: "Analyze daily sales performance" }
 ];
 
-export default function NeuralChatPage() {
+function NeuralChatContent() {
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [status, setStatus] = useState<"IDLE" | "CHECKING" | "ACTIVE" | "OFFLINE">("CHECKING");
@@ -39,6 +40,9 @@ export default function NeuralChatPage() {
   const [inputMessage, setInputMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const query = searchParams.get('q');
+  const [initialQuerySent, setInitialQuerySent] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -70,6 +74,18 @@ export default function NeuralChatPage() {
       setStatus("OFFLINE");
     }
   }
+
+  useEffect(() => {
+    if (status === "ACTIVE" && query && !initialQuerySent) {
+      if (query === 'generate_report') {
+        handleSendMessage("Please generate a full business report detailing revenue, transactions, and performance metrics, and suggest 3 strategic growth recommendations.");
+      } else {
+        handleSendMessage(query);
+      }
+      setInitialQuerySent(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, query, initialQuerySent]);
 
   function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -347,11 +363,23 @@ export default function NeuralChatPage() {
                </div>
              )}
              
-          </div>
+           </div>
 
         </div>
 
       </div>
     </div>
+  );
+}
+
+export default function NeuralChatPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-50/30 dark:bg-slate-950/30">
+        <RefreshCw className="h-8 w-8 animate-spin text-indigo-500" />
+      </div>
+    }>
+      <NeuralChatContent />
+    </Suspense>
   );
 }
