@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, Suspense } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { 
   MessageSquare, Send, Bot, User, Cpu, Sparkles, RefreshCw, 
   Terminal, ArrowLeft, Lightbulb, Zap, HelpCircle, CheckCircle2 
@@ -44,6 +44,47 @@ function NeuralChatContent() {
   const query = searchParams.get('q');
   const [initialQuerySent, setInitialQuerySent] = useState(false);
 
+  const handleSendMessage = useCallback(async (textToSend: string) => {
+    if (!textToSend.trim()) return;
+    if (status === "OFFLINE") {
+      toast.error("AI Assistant Offline", {
+        description: "Ensure your GEMINI_API_KEY is set or Ollama is running."
+      });
+      return;
+    }
+
+    const userMessage: Message = {
+      role: "user",
+      content: textToSend,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage("");
+    setIsTyping(true);
+
+    try {
+      const history = [...messages, userMessage].map(msg => ({
+        role: msg.role,
+        content: msg.content
+      }));
+      const reply = await chatWithAI(history);
+      const assistantMessage: Message = {
+        role: "assistant",
+        content: reply,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error: any) {
+      toast.error("Failed to transmit query", {
+        description: error.message || "Establishing neural link failed."
+      });
+    } finally {
+      setIsTyping(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, messages]);
+
   useEffect(() => {
     setMounted(true);
     checkConnection();
@@ -64,8 +105,7 @@ function NeuralChatContent() {
       handleSendMessage(prompt);
       setInitialQuerySent(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, query, initialQuerySent]);
+  }, [status, query, initialQuerySent, handleSendMessage]);
 
   if (!mounted) {
     return (
@@ -90,48 +130,6 @@ function NeuralChatContent() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
-  const handleSendMessage = async (textToSend: string) => {
-    if (!textToSend.trim()) return;
-    if (status === "OFFLINE") {
-      toast.error("AI Assistant Offline", {
-        description: "Ensure your GEMINI_API_KEY is set or Ollama is running."
-      });
-      return;
-    }
-
-    const userMessage: Message = {
-      role: "user",
-      content: textToSend,
-      timestamp: new Date()
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage("");
-    setIsTyping(true);
-
-    try {
-      // Build conversation history format expected by chatWithAI server action
-      const history = [...messages, userMessage].map(msg => ({
-        role: msg.role,
-        content: msg.content
-      }));
-
-      const reply = await chatWithAI(history);
-
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: reply,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, assistantMessage]);
-    } catch (error: any) {
-      toast.error("Failed to transmit query", {
-        description: error.message || "Establishing neural link failed."
-      });
-    } finally {
-      setIsTyping(false);
-    }
-  };
 
   return (
     <div className="relative min-h-[calc(100vh-4rem)] flex flex-col p-4 md:p-8 bg-slate-50/30 dark:bg-slate-950/30 font-sans selection:bg-indigo-600/10 selection:text-indigo-600 overflow-hidden">
