@@ -271,17 +271,17 @@ const SidebarContentRenderer = ({
         </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="p-3 border-t border-white/10 space-y-1.5">
+      <SidebarFooter className="p-2 border-t border-sidebar-border space-y-1">
         <SidebarMenu>
           <SidebarMenuItem>
             <Dialog>
               <SidebarMenuButton 
                 tooltip="Calculator"
-                className="w-full text-slate-400 hover:bg-white/10 hover:text-white rounded-xl"
+                className="w-full text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-foreground rounded-lg h-8"
                 render={<DialogTrigger />}
               >
-                <Calculator className="h-5 w-5 mr-2" />
-                <span className="font-semibold">Calculator</span>
+                <Calculator className="h-4 w-4 mr-2 text-sidebar-foreground/70" />
+                <span className="font-semibold text-xs text-sidebar-foreground">Calculator</span>
               </SidebarMenuButton>
               <DialogContent className="sm:max-w-[400px] p-0 border-none bg-transparent shadow-none">
                 <DialogTitle className="sr-only">Professional Calculator</DialogTitle>
@@ -298,61 +298,60 @@ const SidebarContentRenderer = ({
               <DropdownMenuTrigger 
                 render={
                   <SidebarMenuButton
-                    size="lg"
-                    className="data-[state=open]:bg-white/10 rounded-2xl transition-all hover:bg-white/5"
+                    className="data-[state=open]:bg-sidebar-accent rounded-lg transition-all hover:bg-sidebar-accent h-9"
                   />
                 }
               >
-                  <Avatar className="h-9 w-9 rounded-xl border-2 border-transparent shadow-md">
+                  <Avatar className="h-6 w-6 rounded-md border border-sidebar-border shadow-sm">
                     <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || ""} />
-                    <AvatarFallback className="rounded-xl bg-primary text-white font-black text-xs">
+                    <AvatarFallback className="rounded-md bg-primary text-primary-foreground font-black text-[10px]">
                       {session?.user?.name?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="grid flex-1 text-left text-sm leading-tight ml-2">
-                    <span className="truncate font-black text-white tracking-tight">{session?.user?.name}</span>
-                    <span className="truncate text-[10px] font-bold text-slate-400 uppercase tracking-widest leading-none mt-0.5">{session?.user?.role}</span>
+                  <div className="grid flex-1 text-left text-xs leading-tight ml-2">
+                    <span className="truncate font-bold text-sidebar-foreground tracking-tight">{session?.user?.name}</span>
+                    <span className="truncate text-[9px] font-semibold text-sidebar-foreground/60 uppercase tracking-wider leading-none">{session?.user?.role}</span>
                   </div>
-                  <ChevronRight className="ml-auto size-4 text-slate-400" />
+                  <ChevronRight className="ml-auto size-3.5 text-sidebar-foreground/50" />
               </DropdownMenuTrigger>
               <DropdownMenuContent
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-64 rounded-2xl p-2 shadow-2xl border-slate-100 dark:border-slate-800"
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-xl p-1.5 shadow-xl border-sidebar-border"
                 side="top"
                 align="end"
-                sideOffset={12}
+                sideOffset={8}
               >
-                <div className="px-4 py-3 border-b border-slate-50 dark:border-slate-800 mb-2">
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Account</p>
-                   <p className="text-xs font-bold text-slate-600 dark:text-slate-400 truncate mt-0.5">{session?.user?.email}</p>
+                <div className="px-2 py-1.5 border-b border-sidebar-border mb-1.5">
+                   <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Account</p>
+                   <p className="text-xs font-bold text-foreground truncate mt-0.5">{session?.user?.email}</p>
                 </div>
-                <DropdownMenuItem render={<Link href="/dashboard/system/profile" className="flex items-center w-full" />}>
-                    <UserCircle className="mr-3 size-4 text-slate-400" />
+                <DropdownMenuItem render={<Link href="/dashboard/system/profile" className="flex items-center w-full text-xs" />}>
+                    <UserCircle className="mr-2 size-3.5 text-muted-foreground" />
                     Security &amp; Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem render={<Link href="/dashboard/system/settings" className="flex items-center w-full" />}>
-                    <Settings className="mr-3 size-4 text-slate-400" />
+                <DropdownMenuItem render={<Link href="/dashboard/system/settings" className="flex items-center w-full text-xs" />}>
+                    <Settings className="mr-2 size-3.5 text-muted-foreground" />
                     Settings
                 </DropdownMenuItem>
                 <DropdownMenuItem render={<ThemeToggle />}>
                 </DropdownMenuItem>
                 {session?.user?.role === "SUPERADMIN" && (
                    <>
-                     <DropdownMenuItem render={<Link href="/super-admin" className="flex items-center w-full" />}>
-                         <ShieldCheck className="mr-3 size-4 text-indigo-600" />
+                     <DropdownMenuItem render={<Link href="/super-admin" className="flex items-center w-full text-xs" />}>
+                         <ShieldCheck className="mr-2 size-3.5 text-indigo-600" />
                          Super Admin Panel
                      </DropdownMenuItem>
-                     <DropdownMenuItem render={<Link href="/admin/referrals" className="flex items-center w-full" />}>
-                         <Trophy className="mr-3 size-4 text-indigo-600" />
+                     <DropdownMenuItem render={<Link href="/admin/referrals" className="flex items-center w-full text-xs" />}>
+                         <Trophy className="mr-2 size-3.5 text-indigo-600" />
                          Referral Management
                      </DropdownMenuItem>
                    </>
                 )}
-                <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
+                <div className="h-px bg-sidebar-border my-1.5" />
                 <DropdownMenuItem onClick={async () => {
                   const { logoutUserCompletely } = await import("@/lib/utils/logout");
                   await logoutUserCompletely(signOut);
-                }} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30">
-                  <LogOut className="mr-3 size-4" />
+                }} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 text-xs">
+                  <LogOut className="mr-2 size-3.5" />
                   Log Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -360,10 +359,14 @@ const SidebarContentRenderer = ({
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* Color Picker — directly in footer, no dropdown nesting */}
-        {!isCollapsed && <SidebarColorPicker />}
+        {/* Color Picker */}
+        {!isCollapsed && (
+          <div className="px-1 py-0.5">
+            <SidebarColorPicker />
+          </div>
+        )}
 
-        {/* Plan / Trial Card — large, at very bottom */}
+        {/* Plan / Trial Card — Compact */}
         {!isCollapsed && (() => {
           const plan = (session?.user as any)?.plan as string | null;
           const subEnd = (session?.user as any)?.subscriptionEndDate ? new Date((session.user as any).subscriptionEndDate) : null;
@@ -384,32 +387,25 @@ const SidebarContentRenderer = ({
             ? Math.max(0, Math.ceil((relevantEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)))
             : null;
 
-          const totalDays = isActiveTrialUser ? 30 : 30;
-          const progress = daysLeft !== null
-            ? Math.max(4, Math.round(((totalDays - daysLeft) / totalDays) * 100))
-            : 100;
-
           const isExpired = isTrialExpired;
           const isCritical = daysLeft !== null && daysLeft <= 2 && !isExpired;
 
           // Plan label display
           const planLabel =
-            isExpired ? "Trial Expired" :
-            isActiveTrialUser ? "Free Trial" :
-            plan === "FREE" ? "Free Plan" :
-            plan === "BASIC" ? "Basic Plan" :
-            plan === "STANDARD" ? "Standard Plan" :
-            plan === "PREMIUM" ? "Premium Plan" :
-            plan === "ENTERPRISE" ? "Enterprise Plan" :
-            hasActivePaidSub ? `${plan} Plan` :
-            "Active Plan";
+            isExpired ? "Expired" :
+            isActiveTrialUser ? "Trial" :
+            plan === "FREE" ? "Free" :
+            plan === "BASIC" ? "Basic" :
+            plan === "STANDARD" ? "Standard" :
+            plan === "PREMIUM" ? "Premium" :
+            plan === "ENTERPRISE" ? "Enterprise" :
+            hasActivePaidSub ? plan :
+            "Active";
 
           const daysLabel =
-            isExpired ? "Expired — action needed" :
-            daysLeft !== null ? `${daysLeft} day${daysLeft === 1 ? "" : "s"} remaining` :
-            "Unlimited access";
-
-          const ctaText = isExpired ? "Subscribe Now" : isActiveTrialUser ? "Upgrade Now" : "Manage Plan";
+            isExpired ? "Action needed" :
+            daysLeft !== null ? `${daysLeft}d left` :
+            "Unlimited";
 
           const gradientClass =
             isExpired ? "from-rose-500 to-red-700" :
@@ -424,49 +420,28 @@ const SidebarContentRenderer = ({
             <Link
               href="/pricing"
               className={cn(
-                "group relative flex flex-col gap-2 overflow-hidden rounded-xl p-3 transition-all duration-300 hover:brightness-110 border border-white/10 bg-gradient-to-br",
+                "group relative flex items-center justify-between overflow-hidden rounded-lg p-2 transition-all duration-300 hover:brightness-110 border border-white/10 bg-gradient-to-br mx-1 mb-1",
                 gradientClass
               )}
             >
               {/* Shimmer */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.10),_transparent_65%)] pointer-events-none" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_50%)] pointer-events-none" />
 
-              {/* Top row: icon + plan label + badge */}
-              <div className="flex items-center justify-between relative z-10">
-                <div className="flex items-center gap-2">
-                  <div className="h-6 w-6 rounded-lg bg-white/20 border border-white/20 flex items-center justify-center">
-                    <Crown className="h-3 w-3 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-[8px] font-black text-white/60 uppercase tracking-widest leading-none">Your Plan</p>
-                    <p className="text-[11px] font-black text-white leading-tight">{planLabel}</p>
-                  </div>
+              <div className="flex items-center gap-2 relative z-10">
+                <Crown className="h-3.5 w-3.5 text-white/90" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold text-white leading-none">{planLabel}</span>
+                  {daysLeft !== null && <span className="text-[8px] text-white/70 leading-none mt-0.5">{daysLabel}</span>}
                 </div>
-                <span className={cn(
-                  "text-[7px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-full border border-white/20 bg-white/15 text-white",
-                  isCritical && "animate-pulse"
-                )}>
-                  {isExpired ? "Expired" : isCritical ? "Expiring!" : isActiveTrialUser ? "Trial" : hasActivePaidSub ? "Active" : "Free"}
-                </span>
               </div>
 
-              {/* Progress bar + days */}
-              {daysLeft !== null && (
-                <div className="relative z-10 space-y-1">
-                  <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
-                    <div className="h-full bg-white/70 rounded-full transition-all duration-700" style={{ width: `${progress}%` }} />
-                  </div>
-                  <p className="text-[9px] font-bold text-white/70 leading-none">{daysLabel}</p>
-                </div>
-              )}
-
-              {/* CTA */}
-              <div className="relative z-10 flex items-center justify-between h-7 px-2.5 rounded-lg bg-white/15 hover:bg-white/25 border border-white/20 transition-colors">
-                <div className="flex items-center gap-1.5">
-                  <Zap className="h-3 w-3 text-white fill-current" />
-                  <span className="text-[9px] font-black text-white uppercase tracking-widest">{ctaText}</span>
-                </div>
-                <ArrowRight className="h-3 w-3 text-white/70 group-hover:translate-x-0.5 group-hover:text-white transition-all" />
+              <div className="relative z-10">
+                <span className={cn(
+                  "text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded text-white bg-white/20 border border-white/20",
+                  isCritical && "animate-pulse"
+                )}>
+                  Upgrade
+                </span>
               </div>
             </Link>
           );
