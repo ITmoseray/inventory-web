@@ -110,7 +110,10 @@ export function SidebarColorPicker() {
   };
 
   return (
-    <div className="px-3 py-2 space-y-1.5">
+    <div className="px-3 py-2 space-y-1">
+      <p className="text-[10px] font-black uppercase tracking-wider text-sidebar-foreground/50 px-1">
+        Color Theme
+      </p>
       <Select value={colorHex} onValueChange={handleValueChange}>
         <SelectTrigger className="h-8 w-full bg-sidebar border-sidebar-border text-sidebar-foreground hover:bg-sidebar-accent transition-colors shadow-none text-xs focus:ring-1 focus:ring-sidebar-ring">
           <div className="flex items-center gap-2">
