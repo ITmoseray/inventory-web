@@ -56,6 +56,17 @@ function NeuralChatContent() {
     scrollToBottom();
   }, [messages, isTyping]);
 
+  useEffect(() => {
+    if (status === "ACTIVE" && query && !initialQuerySent) {
+      const prompt = query === 'generate_report'
+        ? "Please generate a full business report detailing revenue, transactions, and performance metrics, and suggest 3 strategic growth recommendations."
+        : query;
+      handleSendMessage(prompt);
+      setInitialQuerySent(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, query, initialQuerySent]);
+
   if (!mounted) {
     return (
       <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center bg-slate-50/30 dark:bg-slate-950/30">
@@ -74,18 +85,6 @@ function NeuralChatContent() {
       setStatus("OFFLINE");
     }
   }
-
-  useEffect(() => {
-    if (status === "ACTIVE" && query && !initialQuerySent) {
-      if (query === 'generate_report') {
-        handleSendMessage("Please generate a full business report detailing revenue, transactions, and performance metrics, and suggest 3 strategic growth recommendations.");
-      } else {
-        handleSendMessage(query);
-      }
-      setInitialQuerySent(true);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, query, initialQuerySent]);
 
   function scrollToBottom() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
