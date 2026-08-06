@@ -25,9 +25,9 @@ export function ClickSoundProvider() {
         osc.frequency.setValueAtTime(800, ctx.currentTime);
         osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.03);
 
-        // Quick fade out with low volume
-        gain.gain.setValueAtTime(0.05, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+        // Quick fade out with higher volume for a louder click
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.03);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
