@@ -64,6 +64,15 @@ export default function ClinicOverviewPage() {
      (a.doctor?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const getUserInitials = (name: string) => {
+    if (!name) return 'Dr';
+    const parts = name.trim().split(' ').filter(Boolean);
+    if (parts.length === 0) return 'Dr';
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+  const userInitials = getUserInitials(session?.user?.name || "");
+
   return (
     <div className="min-h-[80vh] p-6 sm:p-8 -m-4 bg-background text-foreground relative rounded-3xl font-sans transition-colors duration-300">
       <div className="absolute top-[-10%] left-[-5%] w-[500px] h-[500px] bg-teal-500/10 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[120px] pointer-events-none"></div>
@@ -125,12 +134,12 @@ export default function ClinicOverviewPage() {
           <div className="flex items-center gap-4 mb-2">
             <div className="h-14 w-14 rounded-full border-2 border-teal-500 p-0.5 relative overflow-hidden">
               <div className="absolute inset-0 rounded-full bg-teal-500/20 blur-sm"></div>
-              <img src={`https://ui-avatars.com/api/?name=${session?.user?.name || 'Dr'}&background=0f766e&color=fff&size=128`} className="relative rounded-full w-full h-full object-cover" />
+              <img src={`https://ui-avatars.com/api/?name=${userInitials}&background=0f766e&color=fff&size=128`} className="relative rounded-full w-full h-full object-cover" />
               <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white dark:border-[#1e2025] rounded-full z-10"></div>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Welcome,</p>
-              <h2 className="text-2xl font-black text-foreground">Dr. {session?.user?.name || "Sarah Okonkwo"}</h2>
+              <h2 className="text-2xl font-black text-foreground">Dr. {session?.user?.name || "Partner"}</h2>
             </div>
           </div>
 
