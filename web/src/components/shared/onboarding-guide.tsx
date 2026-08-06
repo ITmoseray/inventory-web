@@ -61,54 +61,54 @@ export function OnboardingGuide() {
     if (current.position === 'center') return {};
 
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-    const cardWidth = Math.min(typeof window !== 'undefined' ? window.innerWidth - 32 : 400, 400);
     
+    if (isMobile) {
+       return {
+         position: 'fixed',
+         bottom: '24px',
+         left: '24px',
+         width: 'calc(100vw - 48px)',
+         top: 'auto',
+         transform: 'none',
+         margin: 0
+       } as any;
+    }
+
+    const cardWidth = 400;
     let top = coords.top;
     let left = coords.left;
 
-    if (isMobile) {
-       // On mobile/tablet, center horizontally to avoid overflow and position above/below safely.
-       left = (window.innerWidth - cardWidth) / 2;
-       
-       // Ensure card is placed vertically where there's room
-       if (coords.top > window.innerHeight / 2) {
-          top = Math.max(16, coords.top - 380);
-       } else {
-          top = Math.min(window.innerHeight - 380, coords.top + coords.height + 20);
-       }
-    } else {
-       if (current.position === 'bottom') {
-         top = coords.top + coords.height + 30;
-       } else if (current.position === 'top') {
-         top = coords.top - 340;
-       }
-       
-       if (current.position === 'right') {
-         left = coords.left + coords.width + 30;
-       } else if (current.position === 'left') {
-         left = coords.left - 430;
-       }
-       
-       // Desktop bounds check
-       top = Math.max(16, Math.min(window.innerHeight - 360, top));
-       left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, left));
+    if (current.position === 'bottom') {
+      top = coords.top + coords.height + 24;
+    } else if (current.position === 'top') {
+      top = coords.top - 280;
     }
+    
+    if (current.position === 'right') {
+      left = coords.left + coords.width + 24;
+    } else if (current.position === 'left') {
+      left = coords.left - 424;
+    }
+    
+    // Desktop bounds check
+    top = Math.max(16, Math.min(window.innerHeight - 320, top));
+    left = Math.max(16, Math.min(window.innerWidth - cardWidth - 16, left));
 
-    return { top, left };
+    return { top, left, width: cardWidth };
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden font-sans selection:bg-indigo-600/10 selection:text-indigo-600">
+    <div className="fixed inset-0 z-[9999] pointer-events-none overflow-hidden font-sans">
       {/* Dimmed Overlay with Spotlight Hole */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="absolute inset-0 bg-slate-950/80 pointer-events-auto backdrop-blur-[2px]"
+        className="absolute inset-0 bg-slate-900/60 pointer-events-auto backdrop-blur-sm"
         style={{
           clipPath: current.position === 'center' 
             ? 'none' 
-            : `polygon(0% 0%, 0% 100%, ${coords.left - 10}px 100%, ${coords.left - 10}px ${coords.top - 10}px, ${coords.left + coords.width + 10}px ${coords.top - 10}px, ${coords.left + coords.width + 10}px ${coords.top + coords.height + 10}px, ${coords.left - 10}px ${coords.top + coords.height + 10}px, ${coords.left - 10}px 100%, 100% 100%, 100% 0%)`
+            : `polygon(0% 0%, 0% 100%, ${coords.left - 12}px 100%, ${coords.left - 12}px ${coords.top - 12}px, ${coords.left + coords.width + 12}px ${coords.top - 12}px, ${coords.left + coords.width + 12}px ${coords.top + coords.height + 12}px, ${coords.left - 12}px ${coords.top + coords.height + 12}px, ${coords.left - 12}px 100%, 100% 100%, 100% 0%)`
         }}
       />
 
@@ -116,79 +116,78 @@ export function OnboardingGuide() {
       <AnimatePresence mode="wait">
         <motion.div
           key={currentStep}
-          initial={{ opacity: 0, scale: 0.95, y: 30 }}
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: -30 }}
-          transition={{ type: "spring", damping: 25, stiffness: 200 }}
+          exit={{ opacity: 0, scale: 0.95, y: -20 }}
+          transition={{ type: "spring", damping: 30, stiffness: 300 }}
           className={cn(
-            "absolute pointer-events-auto w-[calc(100vw-2rem)] sm:w-[400px] bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_40px_80px_-15px_rgba(0,0,0,0.6)] border border-indigo-100 dark:border-indigo-900/50 overflow-hidden",
-            current.position === 'center' && "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+            "absolute pointer-events-auto bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden",
+            current.position === 'center' ? "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] sm:w-[400px]" : ""
           )}
           style={getCardStyle()}
         >
           {/* Header */}
-          <div className="bg-slate-950 p-8 text-white relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-             <div className="flex items-center justify-between mb-4 relative z-10">
+          <div className="bg-slate-50 dark:bg-slate-950 border-b border-slate-100 dark:border-slate-800 p-5 relative overflow-hidden">
+             <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
-                   <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/20">
-                      <Cpu className="h-5 w-5 text-white animate-pulse" />
+                   <div className="h-8 w-8 rounded-lg bg-teal-600 flex items-center justify-center shadow-sm">
+                      <Sparkles className="h-4 w-4 text-white" />
                    </div>
                    <div className="flex flex-col">
-                      <h4 className="text-lg font-[1000] uppercase tracking-tighter italic leading-none">System <span className="text-indigo-400">Intelligence</span></h4>
-                      <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] mt-1">Onboarding Stream</p>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-none">System Intelligence</h4>
+                      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mt-1">Onboarding Stream</p>
                    </div>
                 </div>
-                <button onClick={skipTour} className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors">
-                   <X className="h-4 w-4 text-slate-400" />
+                <button onClick={skipTour} className="h-7 w-7 rounded-full bg-slate-200/50 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-colors">
+                   <X className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
                 </button>
              </div>
 
              {/* Dynamic Progress Bar */}
-             <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-6">
+             <div className="h-1 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden mt-5">
                 <motion.div 
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
-                  className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                  className="h-full bg-teal-500"
                 />
              </div>
           </div>
 
           {/* Content */}
-          <div className="p-10 space-y-8 bg-white dark:bg-slate-900">
-             <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                   <Badge className="bg-indigo-50 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400 border-none font-black text-[9px] uppercase tracking-widest px-3 h-6 italic">
-                     Node {currentStep + 1} of {steps.length}
+          <div className="p-6 space-y-6">
+             <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                   <Badge className="bg-teal-50 text-teal-700 dark:bg-teal-950/30 dark:text-teal-400 border-none font-semibold text-[10px] uppercase tracking-wider px-2 h-5">
+                     Step {currentStep + 1} of {steps.length}
                    </Badge>
-                   <div className="h-px flex-1 bg-slate-50 dark:bg-slate-800" />
                 </div>
-                <h5 className="text-2xl font-[1000] text-slate-950 dark:text-white uppercase italic tracking-tighter leading-tight">
+                <h5 className="text-lg font-bold text-slate-900 dark:text-white leading-tight">
                   {current.title.replace('Welcome', `Welcome, ${userName}`)}
                 </h5>
-                <p className="text-slate-500 dark:text-slate-400 font-medium text-sm leading-relaxed italic">
+                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
                   {current.content}
                 </p>
              </div>
 
              {/* Footer Controls */}
-             <div className="flex items-center justify-between pt-8 border-t border-slate-50 dark:border-slate-800">
+             <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
                 <Button 
                    variant="ghost" 
                    size="sm" 
                    onClick={prevStep} 
                    disabled={currentStep === 0}
-                   className="h-12 px-6 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-0"
+                   className="h-9 px-4 rounded-lg font-medium text-xs text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50"
                 >
-                   <ChevronLeft className="mr-2 h-4 w-4" /> Previous
+                   <ChevronLeft className="mr-1 h-3.5 w-3.5" /> Back
                 </Button>
                 
                 <Button 
+                   size="sm"
                    onClick={nextStep} 
-                   className="h-14 px-10 rounded-2xl bg-slate-950 dark:bg-indigo-600 hover:scale-105 active:scale-95 text-white font-black text-[10px] uppercase tracking-[0.3em] gap-4 shadow-2xl transition-all"
+                   className="h-9 px-5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-sm transition-colors"
                 >
-                   {currentStep === steps.length - 1 ? 'Execute Start' : 'Next Node'}
-                   <ChevronRight className="h-4 w-4" />
+                   {currentStep === steps.length - 1 ? 'Get Started' : 'Next'}
+                   <ChevronRight className="ml-1 h-3.5 w-3.5" />
                 </Button>
              </div>
           </div>
@@ -200,7 +199,7 @@ export function OnboardingGuide() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="absolute border-2 border-indigo-500 rounded-2xl shadow-[0_0_0_9999px_rgba(15,23,42,0.4)] z-[9998] transition-all duration-700"
+          className="absolute border-2 border-teal-500 rounded-2xl shadow-[0_0_0_9999px_rgba(15,23,42,0.4)] z-[9998] transition-all duration-700"
           style={{
             top: coords.top - 15,
             left: coords.left - 15,
@@ -208,9 +207,9 @@ export function OnboardingGuide() {
             height: coords.height + 30,
           }}
         >
-          <div className="absolute inset-0 border-2 border-indigo-500/50 rounded-2xl animate-ping" />
+          <div className="absolute inset-0 border-2 border-teal-500/50 rounded-2xl animate-ping" />
           <div className="absolute -top-3 -left-3 h-10 w-10 flex items-center justify-center">
-             <div className="h-3 w-3 bg-indigo-500 rounded-full shadow-[0_0_15px_rgba(99,102,241,1)]" />
+             <div className="h-3 w-3 bg-teal-500 rounded-full shadow-[0_0_15px_rgba(20,184,166,1)]" />
           </div>
         </motion.div>
       )}
