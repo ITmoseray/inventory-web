@@ -134,7 +134,7 @@ export default function ClinicOverviewPage() {
           <div className="flex items-center gap-4 mb-2">
             <div className="h-14 w-14 rounded-full border-2 border-teal-500 p-0.5 relative overflow-hidden">
               <div className="absolute inset-0 rounded-full bg-teal-500/20 blur-sm"></div>
-              <img src={`https://ui-avatars.com/api/?name=${userInitials}&background=0f766e&color=fff&size=128`} className="relative rounded-full w-full h-full object-cover" />
+              <img src={session?.user?.image || `https://ui-avatars.com/api/?name=${userInitials}&background=0f766e&color=fff&size=128`} className="relative rounded-full w-full h-full object-cover" />
               <div className="absolute bottom-0 right-0 h-3 w-3 bg-green-500 border-2 border-white dark:border-[#1e2025] rounded-full z-10"></div>
             </div>
             <div>
