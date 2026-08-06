@@ -1,7 +1,7 @@
 import { 
   LayoutDashboard, Calendar, ClipboardList, Stethoscope, Users, Settings, 
   Wallet, BarChart3, Pill, FileText, FlaskConical, MessageSquare, Package,
-  Truck, UserCheck, CreditCard, Book, DollarSign
+  Truck, UserCheck, CreditCard, Book, DollarSign, Activity
 } from "lucide-react";
 
 export const clinicSidebarConfig = [
@@ -9,6 +9,7 @@ export const clinicSidebarConfig = [
     label: "Intelligence", 
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
+      { title: "Clinic Overview", url: "/dashboard/clinic/overview", icon: Activity, permission: "menu:clinic:overview" }, 
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Analytics", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:intelligence:analytics" },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },
