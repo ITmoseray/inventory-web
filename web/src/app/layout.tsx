@@ -11,6 +11,7 @@ import { Suspense } from "react";
 import { GlobalThemeToggle } from "@/components/shared/global-theme-toggle";
 import { InstallPWA } from "@/components/shared/install-pwa";
 import { Toaster } from "@/components/ui/sonner";
+import { ClickSoundProvider } from "@/components/shared/click-sound-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -77,6 +78,7 @@ export default function RootLayout({
             </CurrencyProvider>
           </AuthProvider>
         </ThemeProvider>
+        <ClickSoundProvider />
       </body>
     </html>
   );
