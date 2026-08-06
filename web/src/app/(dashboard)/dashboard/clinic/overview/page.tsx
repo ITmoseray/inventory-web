@@ -7,6 +7,8 @@ import { Bell, Search, MoreHorizontal, ChevronRight, Activity, Users, Calendar, 
 import { getClinicOverviewStats } from "@/app/actions/clinic";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import { AnimatedNumber } from "@/components/ui/animated-number";
 
 export default function ClinicOverviewPage() {
   const { data: session } = useSession();
@@ -143,56 +145,83 @@ export default function ClinicOverviewPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg">
-              <CardContent className="p-4 space-y-3">
-                <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
-                <div className="flex items-end justify-between">
-                  <h3 className="text-3xl font-black text-foreground">{stats?.totalPatients?.toLocaleString() || "0"}</h3>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1 ${stats?.patientGrowth >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'}`}>
-                    <TrendingUp className={`h-3 w-3 ${stats?.patientGrowth < 0 ? 'rotate-180' : ''}`} /> {Math.abs(stats?.patientGrowth || 0)}%
-                  </span>
-                </div>
-                <div className="flex items-end gap-1 h-8 pt-2">
-                  {(stats?.sparklineHeights || [10, 10, 10, 10, 10, 10, 10, 10]).map((h: number, i: number) => (
-                    <div key={i} className="flex-1 bg-teal-500 rounded-sm hover:bg-teal-400 transition-colors" style={{ height: `${h}%` }}></div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+          <motion.div 
+            className="grid grid-cols-2 lg:grid-cols-4 gap-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, staggerChildren: 0.1 }}
+          >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
+              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full">
+                <CardContent className="p-4 space-y-3">
+                  <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
+                  <div className="flex items-end justify-between">
+                    <h3 className="text-3xl font-black text-foreground">
+                      <AnimatedNumber value={stats?.totalPatients || 0} />
+                    </h3>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1 ${stats?.patientGrowth >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'}`}>
+                      <TrendingUp className={`h-3 w-3 ${stats?.patientGrowth < 0 ? 'rotate-180' : ''}`} /> {Math.abs(stats?.patientGrowth || 0)}%
+                    </span>
+                  </div>
+                  <div className="flex items-end gap-1 h-8 pt-2">
+                    {(stats?.sparklineHeights || [10, 10, 10, 10, 10, 10, 10, 10]).map((h: number, i: number) => (
+                      <motion.div 
+                        initial={{ height: 0 }}
+                        animate={{ height: `${h}%` }}
+                        transition={{ duration: 1, delay: 0.2 + (i * 0.05) }}
+                        key={i} 
+                        className="flex-1 bg-teal-500 rounded-sm hover:bg-teal-400 transition-colors" 
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg">
-              <CardContent className="p-4 space-y-3">
-                <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
-                <div className="flex items-end justify-between">
-                  <h3 className="text-3xl font-black text-foreground">{stats?.todaysAppointments || "0"}</h3>
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1 ${stats?.appointmentGrowth >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'}`}>
-                    <TrendingUp className={`h-3 w-3 ${stats?.appointmentGrowth < 0 ? 'rotate-180' : ''}`} /> {Math.abs(stats?.appointmentGrowth || 0)}%
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
+              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full">
+                <CardContent className="p-4 space-y-3">
+                  <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
+                  <div className="flex items-end justify-between">
+                    <h3 className="text-3xl font-black text-foreground">
+                      <AnimatedNumber value={stats?.todaysAppointments || 0} />
+                    </h3>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold mb-1 flex items-center gap-1 ${stats?.appointmentGrowth >= 0 ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/20 text-rose-700 dark:text-rose-400'}`}>
+                      <TrendingUp className={`h-3 w-3 ${stats?.appointmentGrowth < 0 ? 'rotate-180' : ''}`} /> {Math.abs(stats?.appointmentGrowth || 0)}%
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg flex flex-col justify-center relative overflow-hidden group">
-               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                 <ChevronRight className="h-5 w-5" />
-               </div>
-               <CardContent className="p-4">
-                 <p className="text-xs text-muted-foreground font-medium mb-1">New Registrations</p>
-                 <h3 className="text-2xl font-black text-foreground">{stats?.newRegistrations || "0"}</h3>
-               </CardContent>
-            </Card>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
+              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full flex flex-col justify-center relative overflow-hidden group">
+                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                   <ChevronRight className="h-5 w-5" />
+                 </div>
+                 <CardContent className="p-4">
+                   <p className="text-xs text-muted-foreground font-medium mb-1">New Registrations</p>
+                   <h3 className="text-2xl font-black text-foreground">
+                     <AnimatedNumber value={stats?.newRegistrations || 0} />
+                   </h3>
+                 </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg flex flex-col justify-center relative overflow-hidden group">
-               <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
-                 <ChevronRight className="h-5 w-5" />
-               </div>
-               <CardContent className="p-4">
-                 <p className="text-xs text-muted-foreground font-medium mb-1">Active Cases</p>
-                 <h3 className="text-2xl font-black text-foreground">{stats?.activeCases || "0"}</h3>
-               </CardContent>
-            </Card>
-          </div>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }}>
+              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full flex flex-col justify-center relative overflow-hidden group">
+                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                   <ChevronRight className="h-5 w-5" />
+                 </div>
+                 <CardContent className="p-4">
+                   <p className="text-xs text-muted-foreground font-medium mb-1">Active Cases</p>
+                   <h3 className="text-2xl font-black text-foreground">
+                     <AnimatedNumber value={stats?.activeCases || 0} />
+                   </h3>
+                 </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
 
           <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-3xl shadow-sm dark:shadow-lg overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 px-6 border-b border-slate-200 dark:border-white/5">
