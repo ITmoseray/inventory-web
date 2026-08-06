@@ -35,18 +35,23 @@ function speakWelcome() {
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
 
+    let hasSpoken = false; // Guard — ensures TTS fires only once
+
     const sayIt = () => {
+      if (hasSpoken) return;
+      hasSpoken = true;
+
       const utterance = new SpeechSynthesisUtterance(
         "Access granted. Welcome back to ProTech Enterprise OS — your intelligent command center is online."
       );
-      utterance.rate = 0.80;   // Slower = more gravitas
-      utterance.pitch = 0.70;  // Lower = deeper, authoritative
+      utterance.rate = 0.80;
+      utterance.pitch = 0.70;
       utterance.volume = 1;
 
       const voices = window.speechSynthesis.getVoices();
 
       // Priority list: best professional male voices across Chrome, Edge, Firefox
-      const preferred = 
+      const preferred =
         voices.find(v => /google uk english male/i.test(v.name)) ||
         voices.find(v => /microsoft ryan/i.test(v.name)) ||
         voices.find(v => /microsoft mark/i.test(v.name)) ||
@@ -59,14 +64,17 @@ function speakWelcome() {
         voices[0];
 
       if (preferred) utterance.voice = preferred;
-
       window.speechSynthesis.speak(utterance);
     };
 
     if (window.speechSynthesis.getVoices().length > 0) {
       setTimeout(sayIt, 900);
     } else {
-      window.speechSynthesis.onvoiceschanged = () => setTimeout(sayIt, 900);
+      window.speechSynthesis.onvoiceschanged = () => {
+        setTimeout(sayIt, 900);
+        // Remove listener immediately so it can't fire again
+        window.speechSynthesis.onvoiceschanged = null;
+      };
     }
   } catch (e) {}
 }
