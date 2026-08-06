@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Search, MoreHorizontal, ChevronRight, Activity, Users, Calendar, TrendingUp } from "lucide-react";
+import { Bell, Search, MoreHorizontal, ChevronRight, Activity, Users, Calendar, TrendingUp, UserPlus, FileText } from "lucide-react";
 import { getClinicOverviewStats } from "@/app/actions/clinic";
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { format } from "date-fns";
@@ -151,10 +151,17 @@ export default function ClinicOverviewPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, staggerChildren: 0.1 }}
           >
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }}>
-              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.1 }} whileHover={{ y: -5, scale: 1.02 }} className="cursor-pointer">
+              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full group">
                 <CardContent className="p-4 space-y-3">
-                  <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-teal-50 dark:bg-teal-500/10 text-teal-600 dark:text-teal-400 rounded-lg group-hover:bg-teal-100 dark:group-hover:bg-teal-500/20 transition-all duration-300">
+                      <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}>
+                        <Users className="w-4 h-4" />
+                      </motion.div>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium">Total Patients</p>
+                  </div>
                   <div className="flex items-end justify-between">
                     <h3 className="text-3xl font-black text-foreground">
                       <AnimatedNumber value={stats?.totalPatients || 0} />
@@ -178,10 +185,17 @@ export default function ClinicOverviewPage() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }}>
-              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.2 }} whileHover={{ y: -5, scale: 1.02 }} className="cursor-pointer">
+              <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full group">
                 <CardContent className="p-4 space-y-3">
-                  <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
+                  <div className="flex items-center gap-2">
+                    <div className="p-1.5 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-lg group-hover:bg-blue-100 dark:group-hover:bg-blue-500/20 transition-all duration-300">
+                      <motion.div animate={{ rotate: [0, -10, 10, 0] }} transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}>
+                        <Calendar className="w-4 h-4" />
+                      </motion.div>
+                    </div>
+                    <p className="text-xs text-muted-foreground font-medium">Today's Appointments</p>
+                  </div>
                   <div className="flex items-end justify-between">
                     <h3 className="text-3xl font-black text-foreground">
                       <AnimatedNumber value={stats?.todaysAppointments || 0} />
@@ -194,13 +208,20 @@ export default function ClinicOverviewPage() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.3 }} whileHover={{ y: -5, scale: 1.02 }} className="cursor-pointer">
               <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full flex flex-col justify-center relative overflow-hidden group">
-                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white group-hover:translate-x-1 transition-all duration-300">
                    <ChevronRight className="h-5 w-5" />
                  </div>
                  <CardContent className="p-4">
-                   <p className="text-xs text-muted-foreground font-medium mb-1">New Registrations</p>
+                   <div className="flex items-center gap-2 mb-2">
+                     <div className="p-1.5 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-purple-500/20 transition-all duration-300">
+                       <motion.div animate={{ scale: [1, 1.15, 1] }} transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
+                         <UserPlus className="w-4 h-4" />
+                       </motion.div>
+                     </div>
+                     <p className="text-xs text-muted-foreground font-medium">New Registrations</p>
+                   </div>
                    <h3 className="text-2xl font-black text-foreground">
                      <AnimatedNumber value={stats?.newRegistrations || 0} />
                    </h3>
@@ -208,13 +229,20 @@ export default function ClinicOverviewPage() {
               </Card>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }}>
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 }} whileHover={{ y: -5, scale: 1.02 }} className="cursor-pointer">
               <Card className="bg-white dark:bg-[#26282e] border-slate-200 dark:border-white/5 rounded-2xl shadow-sm dark:shadow-lg h-full flex flex-col justify-center relative overflow-hidden group">
-                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                 <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-600 group-hover:text-slate-900 dark:group-hover:text-white group-hover:translate-x-1 transition-all duration-300">
                    <ChevronRight className="h-5 w-5" />
                  </div>
                  <CardContent className="p-4">
-                   <p className="text-xs text-muted-foreground font-medium mb-1">Active Cases</p>
+                   <div className="flex items-center gap-2 mb-2">
+                     <div className="p-1.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-lg group-hover:bg-amber-100 dark:group-hover:bg-amber-500/20 transition-all duration-300">
+                       <motion.div animate={{ y: [0, -3, 0] }} transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}>
+                         <FileText className="w-4 h-4" />
+                       </motion.div>
+                     </div>
+                     <p className="text-xs text-muted-foreground font-medium">Active Cases</p>
+                   </div>
                    <h3 className="text-2xl font-black text-foreground">
                      <AnimatedNumber value={stats?.activeCases || 0} />
                    </h3>
