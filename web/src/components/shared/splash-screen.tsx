@@ -37,16 +37,27 @@ function speakWelcome() {
 
     const sayIt = () => {
       const utterance = new SpeechSynthesisUtterance(
-        "Welcome to ProTech Enterprise OS. Initializing your intelligent workspace."
+        "Access granted. Welcome back to ProTech Enterprise OS — your intelligent command center is online."
       );
-      utterance.rate = 0.88;
-      utterance.pitch = 0.85;
+      utterance.rate = 0.80;   // Slower = more gravitas
+      utterance.pitch = 0.70;  // Lower = deeper, authoritative
       utterance.volume = 1;
 
       const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(v =>
-        /google uk english male|david|mark|daniel|aaron|fred/i.test(v.name)
-      ) || voices.find(v => v.lang.startsWith("en")) || voices[0];
+
+      // Priority list: best professional male voices across Chrome, Edge, Firefox
+      const preferred = 
+        voices.find(v => /google uk english male/i.test(v.name)) ||
+        voices.find(v => /microsoft ryan/i.test(v.name)) ||
+        voices.find(v => /microsoft mark/i.test(v.name)) ||
+        voices.find(v => /microsoft david/i.test(v.name)) ||
+        voices.find(v => /microsoft george/i.test(v.name)) ||
+        voices.find(v => /daniel/i.test(v.name) && v.lang === "en-GB") ||
+        voices.find(v => /aaron/i.test(v.name)) ||
+        voices.find(v => v.lang === "en-GB") ||
+        voices.find(v => v.lang === "en-US") ||
+        voices[0];
+
       if (preferred) utterance.voice = preferred;
 
       window.speechSynthesis.speak(utterance);
