@@ -20,7 +20,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
 import { ImpersonationBanner } from "@/components/shared/impersonation-banner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserProfileDropdown } from "@/components/shared/user-profile-dropdown";
 
 export const dynamic = "force-dynamic";
 
@@ -201,20 +201,7 @@ export default async function DashboardLayout({
                </Link>
                <NotificationBell />
                <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1" />
-               <div className="flex items-center gap-3">
-                  <div className="text-right hidden xl:block">
-                     <p className="text-sm font-black text-slate-900 dark:text-white leading-none tracking-tight">
-                        {session?.user?.name || "User Account"}
-                     </p>
-                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1.5">{session?.user?.role || "Member"}</p>
-                  </div>
-                  <Avatar className="h-9 w-9 rounded-xl border-2 border-white dark:border-slate-800 shadow-sm cursor-pointer hover:scale-105 transition-transform">
-                     <AvatarImage src={session?.user?.image || undefined} alt={session?.user?.name || "User"} />
-                     <AvatarFallback className="rounded-xl bg-primary text-white font-black text-xs">
-                        {(session?.user?.name || "S").charAt(0).toUpperCase()}
-                     </AvatarFallback>
-                  </Avatar>
-               </div>
+               <UserProfileDropdown user={session?.user as any} />
             </div>
           </header>
           <main className="flex-1 px-4 md:px-8 py-6 relative z-10">
