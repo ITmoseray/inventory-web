@@ -29,7 +29,7 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center gap-3 cursor-pointer group">
+        <button type="button" className="flex items-center gap-3 cursor-pointer group bg-transparent border-none p-0 text-left">
           <div className="text-right hidden xl:block">
             <p className="text-sm font-black text-slate-900 dark:text-white leading-none tracking-tight group-hover:text-primary transition-colors">
               {user?.name || "User Account"}
@@ -44,7 +44,7 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
               {(user?.name || "S").charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
-        </div>
+        </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56 font-sans">
         <DropdownMenuLabel className="font-bold">My Account</DropdownMenuLabel>
