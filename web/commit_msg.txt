@@ -1,4 +1,0 @@
-security: automatically clear login attempts when unblocking user
-
-- Update toggleUserStatus (Super Admin) to clear failedLoginAttempts if status is set to active
-- Update updateUser (Business Admin) to clear failedLoginAttempts if status is set to active
