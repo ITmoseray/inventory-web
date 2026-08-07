@@ -67,15 +67,15 @@ export async function getDashboardStats() {
         where: { businessId }
       }),
       // Low Stock Count
-      prisma.$queryRawUnsafe<{ count: number }[]>(`
+      prisma.$queryRaw<{ count: number }[]>`
         SELECT COUNT(*)::int as count FROM "Product" 
-        WHERE "businessId" = $1 AND "stockQuantity" <= "minStockLevel" AND "type" != 'SERVICE'
-      `, businessId),
+        WHERE "businessId" = ${businessId} AND "stockQuantity" <= "minStockLevel" AND "type" != 'SERVICE'
+      `,
       // Over Stock Count
-      prisma.$queryRawUnsafe<{ count: number }[]>(`
+      prisma.$queryRaw<{ count: number }[]>`
         SELECT COUNT(*)::int as count FROM "Product" 
-        WHERE "businessId" = $1 AND "stockQuantity" >= "minStockLevel" * 3 AND "type" != 'SERVICE'
-      `, businessId),
+        WHERE "businessId" = ${businessId} AND "stockQuantity" >= "minStockLevel" * 3 AND "type" != 'SERVICE'
+      `,
       // Expiring Items (within 30 days)
       prisma.batch.count({
         where: {

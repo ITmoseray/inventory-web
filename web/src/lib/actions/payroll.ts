@@ -3,7 +3,6 @@
 import { prisma as globalPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { startOfMonth, endOfMonth } from "date-fns";
 
 export async function getPayrolls() {
   try {
@@ -11,8 +10,7 @@ export async function getPayrolls() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
     const businessId = session.user.businessId;
 
-    // Use raw SQL or dynamic access for newly added model resilience
-    const payrolls: any = await globalPrisma.$queryRawUnsafe(`
+    const payrolls: any = await globalPrisma.$queryRaw`
       SELECT 
         p.id,
         u.name as "userName",
@@ -25,16 +23,16 @@ export async function getPayrolls() {
         p."paymentMethod"
       FROM "Payroll" p
       LEFT JOIN "User" u ON p."userId" = u.id
-      WHERE p."businessId" = $1 AND p."deletedAt" IS NULL
+      WHERE p."businessId" = ${businessId} AND p."deletedAt" IS NULL
       ORDER BY p."createdAt" DESC
-    `, businessId);
+    `;
 
     return payrolls.map((p: any) => ({
       ...p,
       amount: parseFloat(p.amount),
       periodStart: new Date(p.periodStart).toISOString(),
       periodEnd: new Date(p.periodEnd).toISOString(),
-      paymentDate: p.paymentDate ? new Date(p.paymentDate).toISOString() : null
+      paymentDate: p.paymentDate ? new Date(p.paymentDate).toISOString() : null,
     }));
   } catch (error: any) {
     console.error("PAYROLL ERROR (getPayrolls):", error);
@@ -42,18 +40,24 @@ export async function getPayrolls() {
   }
 }
 
-export async function processPayroll(userId: string, amount: number, periodStart: Date, periodEnd: Date) {
+export async function processPayroll(
+  userId: string,
+  amount: number,
+  periodStart: Date,
+  periodEnd: Date
+) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
     const businessId = session.user.businessId;
 
-    const id = `pay_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    
-    await globalPrisma.$executeRawUnsafe(`
+    // Use crypto.randomUUID() instead of Math.random() for security
+    const id = `pay_${crypto.randomUUID()}`;
+
+    await globalPrisma.$executeRaw`
       INSERT INTO "Payroll" (id, "userId", "businessId", amount, status, "periodStart", "periodEnd", "updatedAt", "createdAt")
-      VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW())
-    `, id, userId, businessId, amount, "PENDING", periodStart, periodEnd);
+      VALUES (${id}, ${userId}, ${businessId}, ${amount}, ${"PENDING"}, ${periodStart}, ${periodEnd}, NOW(), NOW())
+    `;
 
     revalidatePath("/dashboard/staff/payroll");
     return { success: true, id };
@@ -69,11 +73,11 @@ export async function markAsPaid(payrollId: string, method: string) {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
     const businessId = session.user.businessId;
 
-    await globalPrisma.$executeRawUnsafe(`
+    await globalPrisma.$executeRaw`
       UPDATE "Payroll" 
-      SET status = 'PAID', "paymentDate" = NOW(), "paymentMethod" = $1, "updatedAt" = NOW()
-      WHERE id = $2 AND "businessId" = $3
-    `, method, payrollId, businessId);
+      SET status = 'PAID', "paymentDate" = NOW(), "paymentMethod" = ${method}, "updatedAt" = NOW()
+      WHERE id = ${payrollId} AND "businessId" = ${businessId}
+    `;
 
     revalidatePath("/dashboard/staff/payroll");
     return { success: true };

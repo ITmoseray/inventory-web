@@ -3,12 +3,11 @@
 import { prisma as globalPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import { startOfDay, endOfDay } from "date-fns";
 import { logAudit } from "./audit";
 
 /**
- * DIRECT NEURAL BRIDGE (Raw SQL)
- * This bypasses the Prisma Client property cache which is currently lagging behind the database schema.
+ * Uses Prisma safe tagged-template $queryRaw / $executeRaw instead of
+ * $queryRawUnsafe / $executeRawUnsafe to eliminate any future SQL-injection risk.
  */
 
 export async function getAttendanceLogs() {
@@ -17,8 +16,7 @@ export async function getAttendanceLogs() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
     const businessId = session.user.businessId;
 
-    // Bypassing Prisma Model Cache via Raw SQL Join
-    const logs: any = await globalPrisma.$queryRawUnsafe(`
+    const logs: any = await globalPrisma.$queryRaw`
       SELECT 
         a.id, 
         u.name as "userName", 
@@ -30,10 +28,10 @@ export async function getAttendanceLogs() {
         a.note
       FROM "Attendance" a
       LEFT JOIN "User" u ON a."userId" = u.id
-      WHERE a."businessId" = $1 AND a."deletedAt" IS NULL
+      WHERE a."businessId" = ${businessId} AND a."deletedAt" IS NULL
       ORDER BY a."clockIn" DESC
       LIMIT 100
-    `, businessId);
+    `;
 
     return logs.map((l: any) => ({
       id: l.id,
@@ -43,11 +41,11 @@ export async function getAttendanceLogs() {
       clockIn: new Date(l.clockIn).toISOString(),
       clockOut: l.clockOut ? new Date(l.clockOut).toISOString() : null,
       status: l.status,
-      note: l.note
+      note: l.note,
     }));
   } catch (error: any) {
-    console.error("ATTENDANCE BRIDGE ERROR (Logs):", error);
-    throw new Error(`Attendance bridge failed: ${error.message}`);
+    console.error("ATTENDANCE ERROR (Logs):", error);
+    throw new Error(`Attendance fetch failed: ${error.message}`);
   }
 }
 
@@ -57,35 +55,37 @@ export async function clockIn(userId: string, note?: string) {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
     const businessId = session.user.businessId;
 
-    // 1. Check for active session using raw SQL
-    const existing: any = await globalPrisma.$queryRawUnsafe(`
+    // Check for active session
+    const existing: any = await globalPrisma.$queryRaw`
       SELECT id FROM "Attendance" 
-      WHERE "userId" = $1 AND "businessId" = $2 AND "clockOut" IS NULL AND "deletedAt" IS NULL
+      WHERE "userId" = ${userId} AND "businessId" = ${businessId} AND "clockOut" IS NULL AND "deletedAt" IS NULL
       LIMIT 1
-    `, userId, businessId);
+    `;
 
     if (existing && existing.length > 0) {
-      throw new Error("Personnel node already active in current cycle.");
+      throw new Error("User is already clocked in.");
     }
 
-    // 2. Initialize new node
-    const id = `att_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    await globalPrisma.$executeRawUnsafe(`
+    // Use crypto.randomUUID() instead of Math.random() for security
+    const id = `att_${crypto.randomUUID()}`;
+    const noteValue = note || "General Duty";
+
+    await globalPrisma.$executeRaw`
       INSERT INTO "Attendance" (id, "userId", "businessId", "clockIn", status, note, "updatedAt", "createdAt")
-      VALUES ($1, $2, $3, NOW(), $4, $5, NOW(), NOW())
-    `, id, userId, businessId, "ON_TIME", note || "General Duty");
+      VALUES (${id}, ${userId}, ${businessId}, NOW(), ${"ON_TIME"}, ${noteValue}, NOW(), NOW())
+    `;
 
     await logAudit({
-      action: `CLOCKED IN (${note || "General Duty"})`,
+      action: `CLOCKED IN (${noteValue})`,
       entity: "ATTENDANCE",
       entityId: id,
-      newData: { userId, note }
+      newData: { userId, note },
     });
 
     revalidatePath("/dashboard/staff/attendance");
     return { success: true, id };
   } catch (error: any) {
-    console.error("ATTENDANCE BRIDGE ERROR (Clock-In):", error);
+    console.error("ATTENDANCE ERROR (Clock-In):", error);
     throw error;
   }
 }
@@ -96,12 +96,11 @@ export async function clockOut(logId: string) {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
     const businessId = session.user.businessId;
 
-    // 3. Terminate cycle using raw SQL
-    await globalPrisma.$executeRawUnsafe(`
+    await globalPrisma.$executeRaw`
       UPDATE "Attendance" 
       SET "clockOut" = NOW(), "updatedAt" = NOW()
-      WHERE id = $1 AND "businessId" = $2
-    `, logId, businessId);
+      WHERE id = ${logId} AND "businessId" = ${businessId}
+    `;
 
     await logAudit({
       action: `CLOCKED OUT`,
@@ -112,7 +111,7 @@ export async function clockOut(logId: string) {
     revalidatePath("/dashboard/staff/attendance");
     return { success: true };
   } catch (error: any) {
-    console.error("ATTENDANCE BRIDGE ERROR (Clock-Out):", error);
+    console.error("ATTENDANCE ERROR (Clock-Out):", error);
     throw error;
   }
 }

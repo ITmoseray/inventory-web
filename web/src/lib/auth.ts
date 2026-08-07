@@ -49,8 +49,8 @@ declare module "next-auth" {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  debug: true,
-  secret: process.env.AUTH_SECRET || "fallback_secret_32_characters_minimum_for_nextauth",
+  debug: process.env.NODE_ENV === "development",
+  secret: process.env.AUTH_SECRET,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -61,8 +61,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" }
       },
-      async authorize(credentials) {
-        console.log("SERVER AUTH: Authorize Attempt", { email: credentials?.email });
+        async authorize(credentials) {
         const parsedCredentials = z
           .object({ email: z.string(), password: z.string().min(6) })
           .safeParse(credentials);
@@ -85,24 +84,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
             
             if (!user) {
-              console.warn("SERVER AUTH: User not found in database matching:", { searchInput: email });
               throw new CustomAuthError("Invalid email, username or password.");
             }
 
-            console.log("SERVER AUTH: User found, checking password match...", { email: user.email, role: user.role?.name });
             const passwordMatch = await bcrypt.compare(password.trim(), user.passwordHash);
             if (!passwordMatch) {
-              console.warn("SERVER AUTH: Password check failed for user:", { email: user.email });
               throw new CustomAuthError("Invalid email, username or password.");
             }
 
             if (user.status !== 'active') {
-              console.warn("SERVER AUTH: Account inactive", { email });
               throw new CustomAuthError("Your account is not active. Please contact the administrator.");
             }
 
-
-            console.log("SERVER AUTH: Authorization Success", { email, role: user.role.name });
             return {
               id: user.id,
               name: user.name,
@@ -296,7 +289,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async session({ session, token }) {
-      console.log("SERVER AUTH: Session Callback Start", { sub: token.sub, role: token.role });
       
       if (token.sub && session.user) session.user.id = token.sub as string;
       if (token.picture && session.user) session.user.image = token.picture as string;
@@ -313,7 +305,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       if (token.permissions && session.user) {
         session.user.permissions = token.permissions as string[];
-        console.log(`SERVER AUTH: Assigned ${session.user.permissions.length} permissions to session`);
       } else if (session.user) {
         session.user.permissions = [];
         console.warn("SERVER AUTH: No permissions found in token, defaulting to empty array");
@@ -321,7 +312,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
     async jwt({ token, user, trigger, session: sessionData }) {
-      console.log("SERVER AUTH: JWT Callback Start", { trigger, sub: token.sub });
 
       // 0. Handle explicit update() calls with new data (e.g. avatar update)
       if (trigger === "update" && sessionData?.user?.image) {
@@ -340,7 +330,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.subscriptionEndDate = (user as any).subscriptionEndDate;
         token.permissions = (user as any).permissions;
         token.picture = (user as any).imageUrl || user.image;
-        console.log(`SERVER AUTH: Initial Login - Role: ${token.role}, Perms: ${(token.permissions as string[] || []).length || 0}`);
       }
 
       // 2. Auto-refresh permissions if missing or empty
@@ -348,7 +337,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       if (trigger === "update" || (lookupKey && (!token.permissions || (token.permissions as string[]).length === 0 || !token.businessId))) {
         try {
-          console.log(`SERVER AUTH: Refreshing permissions (sub: ${token.sub}, email: ${token.email})`);
           const orConditions = [
             ...(token.sub ? [{ id: token.sub as string }] : []),
             ...(token.email ? [{ email: token.email as string }] : [])
@@ -372,7 +360,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               token.plan = dbUser.business.plan;
               token.subscriptionEndDate = (dbUser.business as any).subscriptionEndDate || null;
               token.picture = dbUser.imageUrl;
-              console.log(`SERVER AUTH: DB Refresh Success - User: ${dbUser.email}, Role: ${token.role}, Perms: ${(token.permissions as string[]).length}`);
             } else {
               console.error(`SERVER AUTH: DB User not found for sub: ${token.sub}, email: ${token.email}`);
             }
@@ -392,7 +379,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (impersonationTargetId) {
             // Check if we need to set up or update the impersonation
             if (!token.originalRole || token.sub !== impersonationTargetId) {
-              console.log(`SERVER AUTH: Initializing or updating impersonation to targetId: ${impersonationTargetId}`);
               const targetUser = await prisma.user.findUnique({
                 where: { id: impersonationTargetId },
                 include: { business: true, role: { include: { permissions: true } } },
@@ -417,12 +403,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.businessName = targetUser.business.name;
                 token.businessType = targetUser.business.type;
                 token.permissions = targetUser.role.permissions.map(p => p.key);
-                console.log(`SERVER AUTH: Impersonation active - Target: ${targetUser.email}, Business: ${targetUser.business.name}`);
               }
             }
           } else if (token.originalRole) {
             // Restore original details because impersonation has stopped (cookie was deleted)
-            console.log(`SERVER AUTH: Restoring original Super Admin session`);
             token.sub = token.originalSub as string | undefined;
             token.role = token.originalRole as string;
             token.businessId = token.originalBusinessId as string;

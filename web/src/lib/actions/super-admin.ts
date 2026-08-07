@@ -592,10 +592,10 @@ export async function sendEcosystemPushNotification(title: string, message: stri
     entity: "SYSTEM"
   });
 
-  // 2. Fetch ALL subscriptions in the system
-  const subscriptions: any[] = await prisma.$queryRawUnsafe(`
-    SELECT * FROM "PushSubscription"
-  `);
+  // 2. Fetch ALL subscriptions in the system (only needed columns)
+  const subscriptions: any[] = await prisma.$queryRaw`
+    SELECT id, endpoint, "keysAuth", "keysP256dh" FROM "PushSubscription"
+  `;
 
   const payload = JSON.stringify({
     title: trimmedTitle,
@@ -620,9 +620,9 @@ export async function sendEcosystemPushNotification(title: string, message: stri
     } catch (err: any) {
       if (err.statusCode === 410 || err.statusCode === 404) {
         // Purge expired subscriptions
-        await prisma.$executeRawUnsafe(`
-          DELETE FROM "PushSubscription" WHERE id = $1
-        `, sub.id);
+        await prisma.$executeRaw`
+          DELETE FROM "PushSubscription" WHERE id = ${sub.id}
+        `;
         failCount++;
       } else {
         console.error("Failed to send ecosystem push to subscription:", sub.id, err);
@@ -630,15 +630,15 @@ export async function sendEcosystemPushNotification(title: string, message: stri
     }
   }
 
-  // 3. Create a system notification record in each business database so they see it in their alerts center inbox
+  // 3. Create a system notification record in each business database
   const businesses = await prisma.business.findMany({ select: { id: true } });
   for (const b of businesses) {
     try {
-      const notifId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      await prisma.$executeRawUnsafe(`
+      const notifId = `notif_${crypto.randomUUID()}`;
+      await prisma.$executeRaw`
         INSERT INTO "Notification" (id, title, message, type, "isRead", "businessId", "updatedAt", "createdAt")
-        VALUES ($1, $2, $3, 'INFO', false, $4, NOW(), NOW())
-      `, notifId, trimmedTitle, trimmedMsg, b.id);
+        VALUES (${notifId}, ${trimmedTitle}, ${trimmedMsg}, 'INFO', false, ${b.id}, NOW(), NOW())
+      `;
     } catch (e) {
       console.error("Failed to insert broadcast notification for business:", b.id, e);
     }
@@ -665,10 +665,10 @@ export async function broadcastSystemUpdate(version: string, title: string, chan
     entity: "SYSTEM"
   });
 
-  // 2. Fetch all push subscriptions in the system
-  const subscriptions: any[] = await prisma.$queryRawUnsafe(`
-    SELECT * FROM "PushSubscription"
-  `);
+  // 2. Fetch all push subscriptions in the system (only needed columns)
+  const subscriptions: any[] = await prisma.$queryRaw`
+    SELECT id, endpoint, "keysAuth", "keysP256dh" FROM "PushSubscription"
+  `;
 
   const payload = JSON.stringify({
     title: alertTitle,
@@ -692,9 +692,9 @@ export async function broadcastSystemUpdate(version: string, title: string, chan
       successCount++;
     } catch (err: any) {
       if (err.statusCode === 410 || err.statusCode === 404) {
-        await prisma.$executeRawUnsafe(`
-          DELETE FROM "PushSubscription" WHERE id = $1
-        `, sub.id);
+        await prisma.$executeRaw`
+          DELETE FROM "PushSubscription" WHERE id = ${sub.id}
+        `;
         failCount++;
       } else {
         console.error("Failed to send system update push to subscription:", sub.id, err);
@@ -706,11 +706,11 @@ export async function broadcastSystemUpdate(version: string, title: string, chan
   const businesses = await prisma.business.findMany({ select: { id: true } });
   for (const b of businesses) {
     try {
-      const notifId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-      await prisma.$executeRawUnsafe(`
+      const notifId = `notif_${crypto.randomUUID()}`;
+      await prisma.$executeRaw`
         INSERT INTO "Notification" (id, title, message, type, "isRead", "businessId", "updatedAt", "createdAt")
-        VALUES ($1, $2, $3, 'SYSTEM_UPDATE', false, $4, NOW(), NOW())
-      `, notifId, alertTitle, alertMessage, b.id);
+        VALUES (${notifId}, ${alertTitle}, ${alertMessage}, 'SYSTEM_UPDATE', false, ${b.id}, NOW(), NOW())
+      `;
     } catch (e) {
       console.error("Failed to insert system update notification for business:", b.id, e);
     }
