@@ -108,15 +108,31 @@ export default function LoginPage() {
 
       if (result?.error) {
         setLoading(false);
-        if (result.error.includes("verify your email")) {
-          toast.error(result.error, {
+
+        const err = result.error;
+
+        if (err.includes("verify your email")) {
+          toast.error(err, {
             action: { label: "Resend Email", onClick: () => handleResendEmail() },
             duration: 10000,
           });
-        } else if (result.error === "CredentialsSignin" || result.error.includes("CredentialsSignin")) {
+        } else if (err.includes("ACCOUNT_BLOCKED")) {
+          toast.error("🔒 Account blocked. Please contact the app office to restore access.", {
+            duration: 10000,
+          });
+        } else if (err.includes("ACCOUNT_INACTIVE")) {
+          toast.error("Your account is not active. Please contact the administrator.");
+        } else if (err.includes("INVALID_ATTEMPT:")) {
+          const attempt = parseInt(err.split("INVALID_ATTEMPT:")[1], 10);
+          const remaining = 3 - attempt;
+          toast.error(
+            `Wrong attempt ${attempt} of 3. ${remaining > 0 ? `${remaining} attempt${remaining > 1 ? "s" : ""} left before your account is blocked.` : ""}`,
+            { duration: 6000 }
+          );
+        } else if (err.includes("INVALID_CREDENTIALS") || err === "CredentialsSignin" || err.includes("CredentialsSignin")) {
           toast.error("Invalid email or password.");
         } else {
-          toast.error(result?.error || "Invalid credentials.");
+          toast.error(err || "Invalid credentials.");
         }
       } else {
         if (isLinkIntent) {

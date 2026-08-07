@@ -84,11 +84,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             });
             
             if (!user) {
-              throw new CustomAuthError("Invalid email, username or password.");
+              throw new CustomAuthError("INVALID_CREDENTIALS");
             }
 
             if (user.status === 'blocked') {
-              throw new CustomAuthError("Your account has been blocked due to multiple failed login attempts. Please contact the app office.");
+              throw new CustomAuthError("ACCOUNT_BLOCKED");
             }
 
             const passwordMatch = await bcrypt.compare(password.trim(), user.passwordHash);
@@ -105,13 +105,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               });
 
               if (isNowBlocked) {
-                throw new CustomAuthError("Your account has been blocked due to multiple failed login attempts. Please contact the app office.");
+                throw new CustomAuthError("ACCOUNT_BLOCKED");
               }
-              throw new CustomAuthError("Invalid email, username or password.");
+              // e.g. "INVALID_ATTEMPT:1" or "INVALID_ATTEMPT:2"
+              throw new CustomAuthError(`INVALID_ATTEMPT:${newAttempts}`);
             }
 
             if (user.status !== 'active') {
-              throw new CustomAuthError("Your account is not active. Please contact the administrator.");
+              throw new CustomAuthError("ACCOUNT_INACTIVE");
             }
 
             // Reset failed login attempts on successful login
