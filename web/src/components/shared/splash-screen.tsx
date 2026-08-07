@@ -30,54 +30,6 @@ function playStartupChime() {
   } catch (e) {}
 }
 
-function speakWelcome() {
-  try {
-    if (!window.speechSynthesis) return;
-    window.speechSynthesis.cancel();
-
-    let hasSpoken = false; // Guard — ensures TTS fires only once
-
-    const sayIt = () => {
-      if (hasSpoken) return;
-      hasSpoken = true;
-
-      const utterance = new SpeechSynthesisUtterance(
-        "Access granted. Welcome back to ProTech Enterprise OS — your intelligent command center is online."
-      );
-      utterance.rate = 0.80;
-      utterance.pitch = 0.70;
-      utterance.volume = 1;
-
-      const voices = window.speechSynthesis.getVoices();
-
-      // Priority list: best professional male voices across Chrome, Edge, Firefox
-      const preferred =
-        voices.find(v => /google uk english male/i.test(v.name)) ||
-        voices.find(v => /microsoft ryan/i.test(v.name)) ||
-        voices.find(v => /microsoft mark/i.test(v.name)) ||
-        voices.find(v => /microsoft david/i.test(v.name)) ||
-        voices.find(v => /microsoft george/i.test(v.name)) ||
-        voices.find(v => /daniel/i.test(v.name) && v.lang === "en-GB") ||
-        voices.find(v => /aaron/i.test(v.name)) ||
-        voices.find(v => v.lang === "en-GB") ||
-        voices.find(v => v.lang === "en-US") ||
-        voices[0];
-
-      if (preferred) utterance.voice = preferred;
-      window.speechSynthesis.speak(utterance);
-    };
-
-    if (window.speechSynthesis.getVoices().length > 0) {
-      setTimeout(sayIt, 900);
-    } else {
-      window.speechSynthesis.onvoiceschanged = () => {
-        setTimeout(sayIt, 900);
-        // Remove listener immediately so it can't fire again
-        window.speechSynthesis.onvoiceschanged = null;
-      };
-    }
-  } catch (e) {}
-}
 
 interface SplashScreenProps {
   onDismiss: () => void;
@@ -97,8 +49,7 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
     if (activated) return;
     setActivated(true);
     playStartupChime();
-    speakWelcome();
-    // Dismiss after the chime + TTS has played (about 3.5s)
+    // Dismiss after the chime has played (about 3.5s)
     setTimeout(() => {
       onDismiss();
     }, 3500);
