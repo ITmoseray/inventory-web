@@ -15,6 +15,7 @@ import {
   Sparkles, Fingerprint, Command
 } from "lucide-react";
 import { resendVerificationEmail } from "@/lib/actions/verification";
+import { preLoginCheck } from "@/lib/actions/auth-actions";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -100,17 +101,12 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
-
-      if (result?.error) {
+      const preCheckError = await preLoginCheck(email, password);
+      
+      if (preCheckError) {
         setLoading(false);
-
-        const err = result.error;
-
+        const err = preCheckError;
+        
         if (err.includes("verify your email")) {
           toast.error(err, {
             action: { label: "Resend Email", onClick: () => handleResendEmail() },
@@ -129,11 +125,21 @@ export default function LoginPage() {
             `Wrong attempt ${attempt} of 3. ${remaining > 0 ? `${remaining} attempt${remaining > 1 ? "s" : ""} left before your account is blocked.` : ""}`,
             { duration: 6000 }
           );
-        } else if (err.includes("INVALID_CREDENTIALS") || err === "CredentialsSignin" || err.includes("CredentialsSignin")) {
-          toast.error("Invalid email or password.");
         } else {
-          toast.error(err || "Invalid credentials.");
+          toast.error("Invalid email or password.");
         }
+        return;
+      }
+
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setLoading(false);
+        toast.error("Invalid email or password.");
       } else {
         if (isLinkIntent) {
           setCurrentStep("LINKING");
