@@ -33,7 +33,6 @@ export default auth((req) => {
 
   if (!session && isProtectedRoute) {
     const loginUrl = new URL('/login', req.url);
-    // Preserving CORS headers during redirect
     return injectCORS(NextResponse.redirect(loginUrl));
   }
 
@@ -48,8 +47,6 @@ export default auth((req) => {
       const trialEndDate = session.user.trialEndDate;
       const isTrialExpired = trialEndDate && new Date(trialEndDate) < new Date();
       
-      // If trial is expired and they are trying to access dashboard
-      // Allow pricing, login, and static assets
       if (isTrialExpired && path.startsWith('/dashboard') && !path.startsWith('/dashboard/pricing')) {
          return injectCORS(NextResponse.redirect(new URL('/trial-expired', req.url)));
       }
