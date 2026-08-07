@@ -10,9 +10,12 @@ import { authConfig } from "../auth.config";
 import { generateVerificationToken, sendVerificationEmail } from "@/lib/mail";
 
 class CustomAuthError extends CredentialsSignin {
+  type: string;
   constructor(code: string) {
     super();
     this.code = code;
+    this.type = code;
+    this.message = code;
   }
 }
 
