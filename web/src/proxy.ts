@@ -10,7 +10,6 @@ export default auth((req) => {
   const session = (req as any).auth;
   const role = session?.user?.role;
   const businessId = session?.user?.businessId;
-  console.log("PROXY SESSION:", JSON.stringify(session, null, 2));
 
   // 1. Define CORS injection utility
   const injectCORS = (res: NextResponse) => {
