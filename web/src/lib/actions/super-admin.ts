@@ -560,7 +560,7 @@ export async function changeOwnPassword(currentPasswordStr: string, newPasswordS
   return { success: true };
 }
 
-export async function toggleUserStatus(userId: string, status: "active" | "inactive") {
+export async function toggleUserStatus(userId: string, status: "active" | "inactive" | "blocked") {
   await checkSuperAdmin();
   const session = await auth();
   if (session?.user?.id === userId) {
@@ -568,7 +568,10 @@ export async function toggleUserStatus(userId: string, status: "active" | "inact
   }
   const updatedUser = await prisma.user.update({
     where: { id: userId },
-    data: { status }
+    data: { 
+      status,
+      ...(status === "active" ? { failedLoginAttempts: 0 } : {})
+    }
   });
 
   await logAudit({

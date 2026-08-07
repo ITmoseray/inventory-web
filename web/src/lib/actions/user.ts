@@ -308,6 +308,10 @@ export async function updateUser(id: string, data: any) {
 
     const prisma = getTenantPrisma(session.user.businessId);
 
+    if (data.status === "active") {
+      data.failedLoginAttempts = 0;
+    }
+
     const user = await prisma.user.update({
       where: { id, businessId: session.user.businessId },
       data,

@@ -1,7 +1,4 @@
-security: implement 3-strike account lockout policy
+security: automatically clear login attempts when unblocking user
 
-- Add failedLoginAttempts counter to User schema
-- Increment counter on invalid password attempts
-- Automatically change user status to 'blocked' after 3 failed attempts
-- Prevent blocked users from authenticating even with correct password
-- Reset counter on successful login for non-blocked users
+- Update toggleUserStatus (Super Admin) to clear failedLoginAttempts if status is set to active
+- Update updateUser (Business Admin) to clear failedLoginAttempts if status is set to active
