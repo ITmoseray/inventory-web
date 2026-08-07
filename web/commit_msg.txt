@@ -1,13 +1,7 @@
-security: fix all audit vulnerabilities
+security: implement 3-strike account lockout policy
 
-- Add auth guard to /api/business/stats (was fully public, exposed revenue/orders for any businessId)
-- Delete /api/test-receipt debug endpoint (leaked real sale IDs with no auth)
-- Make CRON_SECRET mandatory in /api/cron/sync-alerts (was skipped if env var missing)
-- Migrate all $queryRawUnsafe/$executeRawUnsafe to safe tagged-template $queryRaw/$executeRaw in:
-  attendance.ts, payroll.ts, push.ts, notification.ts, dashboard.ts, purchase.ts, super-admin.ts
-- Replace Math.random() ID generation with crypto.randomUUID() in attendance, payroll, push, notification, super-admin
-- Change SELECT * to column-specific queries in broadcast push subscription fetches
-- Remove all PII-leaking console.log statements from auth.ts (emails, roles, sub IDs, permissions)
-- Turn off NextAuth debug:true in production (now only active in NODE_ENV=development)
-- Remove hardcoded fallback AUTH_SECRET (was allowing auth even without env var set)
-- Remove debug console.log statements from purchase.ts (leaked product names and stock levels)
+- Add failedLoginAttempts counter to User schema
+- Increment counter on invalid password attempts
+- Automatically change user status to 'blocked' after 3 failed attempts
+- Prevent blocked users from authenticating even with correct password
+- Reset counter on successful login for non-blocked users

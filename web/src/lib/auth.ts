@@ -87,13 +87,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               throw new CustomAuthError("Invalid email, username or password.");
             }
 
+            if (user.status === 'blocked') {
+              throw new CustomAuthError("Your account has been blocked due to multiple failed login attempts. Please contact the app office.");
+            }
+
             const passwordMatch = await bcrypt.compare(password.trim(), user.passwordHash);
             if (!passwordMatch) {
+              const newAttempts = user.failedLoginAttempts + 1;
+              const isNowBlocked = newAttempts >= 3;
+              
+              await prisma.user.update({
+                where: { id: user.id },
+                data: {
+                  failedLoginAttempts: newAttempts,
+                  status: isNowBlocked ? 'blocked' : user.status
+                }
+              });
+
+              if (isNowBlocked) {
+                throw new CustomAuthError("Your account has been blocked due to multiple failed login attempts. Please contact the app office.");
+              }
               throw new CustomAuthError("Invalid email, username or password.");
             }
 
             if (user.status !== 'active') {
               throw new CustomAuthError("Your account is not active. Please contact the administrator.");
+            }
+
+            // Reset failed login attempts on successful login
+            if (user.failedLoginAttempts > 0) {
+              await prisma.user.update({
+                where: { id: user.id },
+                data: { failedLoginAttempts: 0 }
+              });
             }
 
             return {
