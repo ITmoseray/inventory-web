@@ -369,58 +369,91 @@ export async function toggleMaintenanceMode(enabled: boolean) {
 
 const BACKUPS_DIR = path.join(process.cwd(), "../backups");
 
+import { exec } from "child_process";
+import util from "util";
+const execAsync = util.promisify(exec);
+
 export async function generateBackup() {
   await checkSuperAdmin();
 
   try {
-    const businesses = await prisma.business.findMany({
-      include: {
-        users: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            email: true,
-            status: true,
-            roleId: true,
-            createdAt: true,
-          }
-        }
-      }
-    });
-
-    const auditLogs = await prisma.auditLog.findMany({
-      take: 100,
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: { select: { name: true, email: true } },
-        business: { select: { name: true } }
-      }
-    });
-
-    const backupPayload = {
-      timestamp: new Date().toISOString(),
-      version: "Nexus-v4.2.0",
-      exporter: "Super Admin Control",
-      businesses,
-      auditLogs
-    };
-
     if (!fs.existsSync(BACKUPS_DIR)) {
       fs.mkdirSync(BACKUPS_DIR, { recursive: true });
     }
 
     const timestampStr = new Date().toISOString().replace(/[:.]/g, "-");
-    const filename = `nexus-backup-${timestampStr}.json`;
+    const filename = `nexus-backup-${timestampStr}.sql`;
     const filePath = path.join(BACKUPS_DIR, filename);
 
-    fs.writeFileSync(filePath, JSON.stringify(backupPayload, null, 2));
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error("DATABASE_URL is not defined in environment variables");
 
+    // We use --clean to drop existing objects before creating them,
+    // --if-exists to avoid errors if dropping non-existent objects,
+    // --no-owner and --no-privileges to avoid permission issues when restoring to cloud DBs like Neon.
+    const command = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${filePath}"`;
+    
+    console.log(`[DATABASE SNAPSHOT]: Starting pg_dump to ${filename}...`);
+    
+    await execAsync(command);
+    
     console.log(`[DATABASE SNAPSHOT]: Generated ${filename}`);
+    
+    await logAudit({
+      action: `GENERATED DATABASE BACKUP: ${filename}`,
+      entity: "SYSTEM"
+    });
+
     return { success: true, filename };
   } catch (error: any) {
     console.error("Database backup generation failed:", error);
     throw new Error(`Backup failed: ${error.message}`);
+  }
+}
+
+export async function restoreBackup(filename: string) {
+  await checkSuperAdmin();
+
+  try {
+    const safeFilename = path.basename(filename);
+    const filePath = path.join(BACKUPS_DIR, safeFilename);
+
+    if (!fs.existsSync(filePath)) {
+      throw new Error(`Backup file not found: ${safeFilename}`);
+    }
+
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error("DATABASE_URL is not defined in environment variables");
+
+    // Safety First: Take an automatic backup right before overwriting the database
+    console.log(`[SYSTEM RESTORE]: Taking safety backup before restoring ${safeFilename}...`);
+    const safetyTimestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    const safetyFilename = `safety-pre-restore-${safetyTimestamp}.sql`;
+    const safetyFilePath = path.join(BACKUPS_DIR, safetyFilename);
+    const safetyCommand = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${safetyFilePath}"`;
+    await execAsync(safetyCommand);
+
+    console.log(`[SYSTEM RESTORE]: Restoring database from ${safeFilename}...`);
+    
+    // Execute the SQL file against the database
+    // Note: psql connects, drops tables (due to --clean from pg_dump), and recreates them
+    const restoreCommand = `psql -d "${dbUrl}" -f "${filePath}"`;
+    
+    await execAsync(restoreCommand);
+    
+    console.log(`[SYSTEM RESTORE]: Successfully restored from ${safeFilename}`);
+
+    // Since we just completely wiped and replaced the database, we need to log the audit 
+    // to the NEWLY restored database.
+    await logAudit({
+      action: `RESTORED DATABASE FROM BACKUP: ${safeFilename} (Safety backup created: ${safetyFilename})`,
+      entity: "SYSTEM"
+    });
+
+    return { success: true, message: `Database restored successfully. A safety backup was created at ${safetyFilename}` };
+  } catch (error: any) {
+    console.error("Database restore failed:", error);
+    throw new Error(`Restore failed: ${error.message}`);
   }
 }
 
@@ -434,7 +467,7 @@ export async function getBackupsList() {
 
     const files = fs.readdirSync(BACKUPS_DIR);
     const backupFiles = files
-      .filter(f => f.startsWith("nexus-backup-") && f.endsWith(".json"))
+      .filter(f => (f.startsWith("nexus-backup-") || f.startsWith("safety-pre-restore-") || f.startsWith("auto-backup-")) && f.endsWith(".sql"))
       .map(filename => {
         const filePath = path.join(BACKUPS_DIR, filename);
         const stats = fs.statSync(filePath);

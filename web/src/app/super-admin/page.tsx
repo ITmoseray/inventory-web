@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,6 +33,7 @@ import {
   globalBroadcast, 
   toggleMaintenanceMode,
   generateBackup,
+  restoreBackup,
   getBackupsList,
   deleteBackupFile,
   getAuditLogs,
@@ -1320,6 +1321,33 @@ export default function NexusSuperControl() {
                                        >
                                           <Download className="h-4 w-4" />
                                        </a>
+                                       <Button 
+                                           onClick={async () => {
+                                              const confirmMsg = `CRITICAL WARNING: This will WIPE the current database and OVERWRITE it entirely with the data from ${b.filename}.\n\nA safety backup of the current state will be created automatically before the restore.\n\nType "RESTORE" to proceed:`;
+                                              const input = window.prompt(confirmMsg);
+                                              if (input === "RESTORE") {
+                                                 try {
+                                                    toast.loading(`Restoring database from ${b.filename}... This may take a minute.`);
+                                                    const res = await restoreBackup(b.filename);
+                                                    if (res.success) {
+                                                      toast.dismiss();
+                                                      toast.success(res.message, { duration: 8000 });
+                                                      refreshData();
+                                                    }
+                                                 } catch (err: any) {
+                                                    toast.dismiss();
+                                                    toast.error(err.message || "Failed to restore snapshot.", { duration: 8000 });
+                                                 }
+                                              } else if (input !== null) {
+                                                 toast.error("Restore cancelled. You must type exactly 'RESTORE'.");
+                                              }
+                                           }}
+                                           variant="ghost"
+                                           className="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 flex items-center justify-center hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white p-0 transition-all"
+                                           title="Restore snapshot"
+                                        >
+                                           <RotateCcw className="h-4 w-4" />
+                                        </Button>
                                        <Button 
                                           onClick={async () => {
                                              if (window.confirm("CRITICAL: Permanently delete this snapshot file?")) {
