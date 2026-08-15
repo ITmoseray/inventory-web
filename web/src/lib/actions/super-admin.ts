@@ -10,6 +10,10 @@ import path from "path";
 import { logAudit } from "./audit";
 import { updateSystemSettings } from "./system-settings";
 import webpush from "web-push";
+import { exec } from "child_process";
+import util from "util";
+
+const execAsync = util.promisify(exec);
 
 // Configure Web Push VAPID credentials
 try {
@@ -368,10 +372,6 @@ export async function toggleMaintenanceMode(enabled: boolean) {
 }
 
 const BACKUPS_DIR = path.join(process.cwd(), "../backups");
-
-import { exec } from "child_process";
-import util from "util";
-const execAsync = util.promisify(exec);
 
 export async function generateBackup() {
   await checkSuperAdmin();
