@@ -21,9 +21,13 @@ async function runAutoBackup() {
     const filename = `auto-backup-${timestampStr}.sql`;
     const filePath = path.join(BACKUPS_DIR, filename);
 
-    const dbUrl = process.env.DATABASE_URL;
+    let dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) {
       throw new Error("DATABASE_URL is not defined in environment variables");
+    }
+    
+    if (dbUrl.includes("sslmode=verify-full")) {
+      dbUrl = dbUrl.replace("sslmode=verify-full", "sslmode=require");
     }
 
     const command = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${filePath}"`;

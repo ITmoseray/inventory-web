@@ -385,8 +385,13 @@ export async function generateBackup() {
     const filename = `nexus-backup-${timestampStr}.sql`;
     const filePath = path.join(BACKUPS_DIR, filename);
 
-    const dbUrl = process.env.DATABASE_URL;
+    let dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) throw new Error("DATABASE_URL is not defined in environment variables");
+    
+    // Fix Windows SSL certificate verification error for pg_dump
+    if (dbUrl.includes("sslmode=verify-full")) {
+      dbUrl = dbUrl.replace("sslmode=verify-full", "sslmode=require");
+    }
 
     // We use --clean to drop existing objects before creating them,
     // --if-exists to avoid errors if dropping non-existent objects,
@@ -422,8 +427,12 @@ export async function restoreBackup(filename: string) {
       throw new Error(`Backup file not found: ${safeFilename}`);
     }
 
-    const dbUrl = process.env.DATABASE_URL;
+    let dbUrl = process.env.DATABASE_URL;
     if (!dbUrl) throw new Error("DATABASE_URL is not defined in environment variables");
+    
+    if (dbUrl.includes("sslmode=verify-full")) {
+      dbUrl = dbUrl.replace("sslmode=verify-full", "sslmode=require");
+    }
 
     // Safety First: Take an automatic backup right before overwriting the database
     console.log(`[SYSTEM RESTORE]: Taking safety backup before restoring ${safeFilename}...`);
