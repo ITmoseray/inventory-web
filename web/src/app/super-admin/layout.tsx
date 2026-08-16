@@ -6,9 +6,15 @@ export default async function SuperAdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth();
+  let session;
+  try {
+    session = await auth();
+  } catch (e) {
+    redirect("/login");
+  }
 
-  if (!session || session.user.role !== "SUPERADMIN") {
+  const role = (session?.user as any)?.originalRole || session?.user?.role;
+  if (!session || role !== "SUPERADMIN") {
     redirect("/login");
   }
 
