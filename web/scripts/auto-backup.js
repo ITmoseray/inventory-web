@@ -26,9 +26,10 @@ async function runAutoBackup() {
       throw new Error("DATABASE_URL is not defined in environment variables");
     }
     
-    if (dbUrl.includes("sslmode=verify-full")) {
-      dbUrl = dbUrl.replace("sslmode=verify-full", "sslmode=require");
-    }
+    // Fix SSL and strip Neon-only params unsupported by libpq tools
+    dbUrl = dbUrl
+      .replace("sslmode=verify-full", "sslmode=require")
+      .replace("&channel_binding=require", "");
 
     const command = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${filePath}"`;
     
