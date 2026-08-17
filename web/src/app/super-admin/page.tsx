@@ -1280,11 +1280,18 @@ export default function NexusSuperControl() {
                                     try {
                                        toast.loading(`Restoring from uploaded file ${file.name}...`);
                                        const content = await file.text();
-                                       const res = await restoreBackupFromUpload(content, file.name);
-                                       if (res.success) {
+                                       const response = await fetch("/api/super-admin/backups", {
+                                          method: "POST",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ action: "restore-upload", rawJson: content, filename: file.name }),
+                                       });
+                                       const res = await response.json();
+                                       if (response.ok && res.success) {
                                           toast.dismiss();
-                                          toast.success(res.message, { duration: 8000 });
+                                          toast.success(res.message || "Database restored successfully!", { duration: 8000 });
                                           refreshData();
+                                       } else {
+                                          throw new Error(res.error || "Restore failed");
                                        }
                                     } catch (err: any) {
                                        toast.dismiss();
@@ -1293,7 +1300,6 @@ export default function NexusSuperControl() {
                                  } else if (input !== null) {
                                     toast.error("Restore cancelled. You must type 'RESTORE'.");
                                  }
-                                 // Reset input value
                                  e.target.value = "";
                               }}
                            />
@@ -1305,11 +1311,18 @@ export default function NexusSuperControl() {
                            onClick={async () => {
                               try {
                                  toast.loading("Generating database snapshot in Neon...");
-                                 const res = await generateBackup();
-                                 if (res.success) {
+                                 const response = await fetch("/api/super-admin/backups", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ action: "create" }),
+                                 });
+                                 const res = await response.json();
+                                 if (response.ok && res.success) {
                                     toast.dismiss();
                                     toast.success(`Snapshot ${res.filename} stored securely in Neon!`);
                                     refreshData();
+                                 } else {
+                                    throw new Error(res.error || "Failed to generate snapshot");
                                  }
                               } catch (err: any) {
                                  toast.dismiss();
@@ -1366,11 +1379,18 @@ export default function NexusSuperControl() {
                                               if (input === "RESTORE") {
                                                  try {
                                                     toast.loading(`Restoring database from ${b.filename}... This may take a minute.`);
-                                                    const res = await restoreBackup(b.filename);
-                                                    if (res.success) {
+                                                    const response = await fetch("/api/super-admin/backups", {
+                                                       method: "POST",
+                                                       headers: { "Content-Type": "application/json" },
+                                                       body: JSON.stringify({ action: "restore", filename: b.filename }),
+                                                    });
+                                                    const res = await response.json();
+                                                    if (response.ok && res.success) {
                                                       toast.dismiss();
-                                                      toast.success(res.message, { duration: 8000 });
+                                                      toast.success(res.message || "Database restored successfully!", { duration: 8000 });
                                                       refreshData();
+                                                    } else {
+                                                      throw new Error(res.error || "Failed to restore snapshot");
                                                     }
                                                  } catch (err: any) {
                                                     toast.dismiss();
@@ -1390,11 +1410,20 @@ export default function NexusSuperControl() {
                                           onClick={async () => {
                                              if (window.confirm("CRITICAL: Permanently delete this snapshot file?")) {
                                                 try {
-                                                   await deleteBackupFile(b.filename);
-                                                   toast.success("Snapshot deleted.");
-                                                   refreshData();
+                                                   const response = await fetch("/api/super-admin/backups", {
+                                                      method: "POST",
+                                                      headers: { "Content-Type": "application/json" },
+                                                      body: JSON.stringify({ action: "delete", filename: b.filename }),
+                                                   });
+                                                   const res = await response.json();
+                                                   if (response.ok && res.success) {
+                                                      toast.success("Snapshot deleted.");
+                                                      refreshData();
+                                                   } else {
+                                                      throw new Error(res.error || "Failed to delete snapshot");
+                                                   }
                                                 } catch (err: any) {
-                                                   toast.error("Failed to delete snapshot.");
+                                                   toast.error(err.message || "Failed to delete snapshot.");
                                                 }
                                              }
                                           }}
