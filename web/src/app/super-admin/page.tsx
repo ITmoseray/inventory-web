@@ -108,6 +108,21 @@ export default function NexusSuperControl() {
 
   // SaaS Voucher Activation Key Generator State
   const [voucherTier, setVoucherTier] = useState("PRO");
+
+  // Professional Restore Confirmation Modal State
+  const [restoreModalData, setRestoreModalData] = useState<{
+    isOpen: boolean;
+    type: "SYSTEM_SNAPSHOT" | "SYSTEM_UPLOAD" | "TENANT_UPLOAD";
+    filename: string;
+    businessName?: string;
+    rawJson?: string;
+  }>({
+    isOpen: false,
+    type: "SYSTEM_SNAPSHOT",
+    filename: "",
+  });
+  const [restoreConfirmInput, setRestoreConfirmInput] = useState("");
+  const [isRestoringData, setIsRestoringData] = useState(false);
   const [voucherDays, setVoucherDays] = useState(30);
   const [generatedVoucher, setGeneratedVoucher] = useState<{ code: string; tier: string; days: number } | null>(null);
   const [isGeneratingVoucher, setIsGeneratingVoucher] = useState(false);
@@ -1274,32 +1289,14 @@ export default function NexusSuperControl() {
                               onChange={async (e) => {
                                  const file = e.target.files?.[0];
                                  if (!file) return;
-                                 const confirmMsg = `CRITICAL WARNING: This will WIPE the current database and RESTORE data from "${file.name}".\n\nA safety backup will be created automatically before restore.\n\nType "RESTORE" to proceed:`;
-                                 const input = window.prompt(confirmMsg);
-                                 if (input === "RESTORE") {
-                                    try {
-                                       toast.loading(`Restoring from uploaded file ${file.name}...`);
-                                       const content = await file.text();
-                                       const response = await fetch("/api/super-admin/backups", {
-                                          method: "POST",
-                                          headers: { "Content-Type": "application/json" },
-                                          body: JSON.stringify({ action: "restore-upload", rawJson: content, filename: file.name }),
-                                       });
-                                       const res = await response.json();
-                                       if (response.ok && res.success) {
-                                          toast.dismiss();
-                                          toast.success(res.message || "Database restored successfully!", { duration: 8000 });
-                                          refreshData();
-                                       } else {
-                                          throw new Error(res.error || "Restore failed");
-                                       }
-                                    } catch (err: any) {
-                                       toast.dismiss();
-                                       toast.error(err.message || "Failed to restore from upload.", { duration: 8000 });
-                                    }
-                                 } else if (input !== null) {
-                                    toast.error("Restore cancelled. You must type 'RESTORE'.");
-                                 }
+                                 const content = await file.text();
+                                 setRestoreModalData({
+                                    isOpen: true,
+                                    type: "SYSTEM_UPLOAD",
+                                    filename: file.name,
+                                    rawJson: content,
+                                 });
+                                 setRestoreConfirmInput("");
                                  e.target.value = "";
                               }}
                            />
@@ -1374,39 +1371,20 @@ export default function NexusSuperControl() {
                                           <Download className="h-4 w-4" />
                                        </a>
                                        <Button 
-                                           onClick={async () => {
-                                              const confirmMsg = `CRITICAL WARNING: This will WIPE the current database and OVERWRITE it entirely with the data from ${b.filename}.\n\nA safety backup of the current state will be created automatically before the restore.\n\nType "RESTORE" to proceed:`;
-                                              const input = window.prompt(confirmMsg);
-                                              if (input === "RESTORE") {
-                                                 try {
-                                                    toast.loading(`Restoring database from ${b.filename}... This may take a minute.`);
-                                                    const response = await fetch("/api/super-admin/backups", {
-                                                       method: "POST",
-                                                       headers: { "Content-Type": "application/json" },
-                                                       body: JSON.stringify({ action: "restore", filename: b.filename }),
-                                                    });
-                                                    const res = await response.json();
-                                                    if (response.ok && res.success) {
-                                                      toast.dismiss();
-                                                      toast.success(res.message || "Database restored successfully!", { duration: 8000 });
-                                                      refreshData();
-                                                    } else {
-                                                      throw new Error(res.error || "Failed to restore snapshot");
-                                                    }
-                                                 } catch (err: any) {
-                                                    toast.dismiss();
-                                                    toast.error(err.message || "Failed to restore snapshot.", { duration: 8000 });
-                                                 }
-                                              } else if (input !== null) {
-                                                 toast.error("Restore cancelled. You must type exactly 'RESTORE'.");
-                                              }
-                                           }}
-                                           variant="ghost"
-                                           className="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 flex items-center justify-center hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white p-0 transition-all"
-                                           title="Restore snapshot"
-                                        >
-                                           <RotateCcw className="h-4 w-4" />
-                                        </Button>
+                                          onClick={() => {
+                                             setRestoreModalData({
+                                                isOpen: true,
+                                                type: "SYSTEM_SNAPSHOT",
+                                                filename: b.filename,
+                                             });
+                                             setRestoreConfirmInput("");
+                                          }}
+                                          variant="ghost"
+                                          className="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 flex items-center justify-center hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white p-0 transition-all cursor-pointer"
+                                          title="Restore snapshot"
+                                       >
+                                          <RotateCcw className="h-4 w-4" />
+                                       </Button>
                                        <Button 
                                           onClick={async () => {
                                              if (window.confirm("CRITICAL: Permanently delete this snapshot file?")) {
@@ -1465,32 +1443,14 @@ export default function NexusSuperControl() {
                               onChange={async (e) => {
                                  const file = e.target.files?.[0];
                                  if (!file) return;
-                                 const confirmMsg = `CRITICAL: This will restore data for the specific business in "${file.name}".\n\nNo other businesses will be affected.\n\nType "RESTORE" to proceed:`;
-                                 const input = window.prompt(confirmMsg);
-                                 if (input === "RESTORE") {
-                                    try {
-                                       toast.loading(`Restoring individual business data from ${file.name}...`);
-                                       const content = await file.text();
-                                       const response = await fetch("/api/super-admin/backups", {
-                                          method: "POST",
-                                          headers: { "Content-Type": "application/json" },
-                                          body: JSON.stringify({ action: "restore-business", rawJson: content }),
-                                       });
-                                       const res = await response.json();
-                                       if (response.ok && res.success) {
-                                          toast.dismiss();
-                                          toast.success(res.message || "Business restored successfully!", { duration: 8000 });
-                                          refreshData();
-                                       } else {
-                                          throw new Error(res.error || "Failed to restore business");
-                                       }
-                                    } catch (err: any) {
-                                       toast.dismiss();
-                                       toast.error(err.message || "Failed to restore individual business.", { duration: 8000 });
-                                    }
-                                 } else if (input !== null) {
-                                    toast.error("Restore cancelled.");
-                                 }
+                                 const content = await file.text();
+                                 setRestoreModalData({
+                                    isOpen: true,
+                                    type: "TENANT_UPLOAD",
+                                    filename: file.name,
+                                    rawJson: content,
+                                 });
+                                 setRestoreConfirmInput("");
                                  e.target.value = "";
                               }}
                            />
@@ -2161,6 +2121,122 @@ export default function NexusSuperControl() {
                 </div>
              </div>
            )}
+         </DialogContent>
+       </Dialog>
+
+       {/* PROFESSIONAL DATABASE RESTORE CONFIRMATION MODAL */}
+       <Dialog open={restoreModalData.isOpen} onOpenChange={(open) => !isRestoringData && setRestoreModalData(prev => ({ ...prev, isOpen: open }))}>
+         <DialogContent className="max-w-md bg-white dark:bg-slate-950 border-rose-500/30 rounded-3xl p-6 shadow-2xl shadow-rose-950/20">
+            <DialogHeader className="space-y-3">
+               <div className="h-12 w-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-500 mx-auto sm:mx-0">
+                  <AlertTriangle className="h-6 w-6 animate-pulse" />
+               </div>
+               <div>
+                  <DialogTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                     {restoreModalData.type === "TENANT_UPLOAD" ? "Restore Single Business" : "Critical Database Restore"}
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
+                     {restoreModalData.type === "TENANT_UPLOAD" ? (
+                        <>
+                           You are about to restore data for a <strong>specific business</strong> from <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">{restoreModalData.filename}</code>.
+                        </>
+                     ) : (
+                        <>
+                           This operation will <strong className="text-rose-600 dark:text-rose-400">OVERWRITE</strong> your live database with snapshot <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">{restoreModalData.filename}</code>.
+                        </>
+                     )}
+                  </DialogDescription>
+               </div>
+            </DialogHeader>
+
+            <div className="mt-4 space-y-4">
+               <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 space-y-2">
+                  <p className="text-[11px] font-bold text-rose-800 dark:text-rose-300 flex items-center gap-1.5 uppercase tracking-wide">
+                     <Shield className="h-3.5 w-3.5" /> Automated Safety Protection
+                  </p>
+                  <p className="text-[11px] text-rose-700/80 dark:text-rose-400/80 leading-relaxed">
+                     An automatic safety backup of your live database will be created right before the restore starts, so you can revert at any time.
+                  </p>
+               </div>
+
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">
+                     Type <span className="text-rose-600 dark:text-rose-400 font-mono font-black">RESTORE</span> to authorize
+                  </label>
+                  <Input 
+                     value={restoreConfirmInput}
+                     onChange={(e) => setRestoreConfirmInput(e.target.value)}
+                     placeholder='Type "RESTORE"'
+                     disabled={isRestoringData}
+                     className="h-11 rounded-xl uppercase font-mono tracking-widest text-center text-sm border-slate-300 dark:border-slate-800 font-bold"
+                  />
+               </div>
+
+               <div className="flex items-center gap-3 pt-2">
+                  <Button
+                     variant="ghost"
+                     onClick={() => setRestoreModalData(prev => ({ ...prev, isOpen: false }))}
+                     disabled={isRestoringData}
+                     className="flex-1 h-11 rounded-xl text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400"
+                  >
+                     Cancel
+                  </Button>
+                  <Button
+                     onClick={async () => {
+                        if (restoreConfirmInput.trim() !== "RESTORE") {
+                           toast.error('You must type exactly "RESTORE" to proceed.');
+                           return;
+                        }
+
+                        try {
+                           setIsRestoringData(true);
+                           toast.loading("Restoring database state... Please wait.");
+                           
+                           let res;
+                           if (restoreModalData.type === "SYSTEM_SNAPSHOT") {
+                              const response = await fetch("/api/super-admin/backups", {
+                                 method: "POST",
+                                 headers: { "Content-Type": "application/json" },
+                                 body: JSON.stringify({ action: "restore", filename: restoreModalData.filename }),
+                              });
+                              res = await response.json();
+                              if (!response.ok || !res.success) throw new Error(res.error || "Restore failed");
+                           } else if (restoreModalData.type === "SYSTEM_UPLOAD") {
+                              const response = await fetch("/api/super-admin/backups", {
+                                 method: "POST",
+                                 headers: { "Content-Type": "application/json" },
+                                 body: JSON.stringify({ action: "restore-upload", rawJson: restoreModalData.rawJson, filename: restoreModalData.filename }),
+                              });
+                              res = await response.json();
+                              if (!response.ok || !res.success) throw new Error(res.error || "Restore failed");
+                           } else if (restoreModalData.type === "TENANT_UPLOAD") {
+                              const response = await fetch("/api/super-admin/backups", {
+                                 method: "POST",
+                                 headers: { "Content-Type": "application/json" },
+                                 body: JSON.stringify({ action: "restore-business", rawJson: restoreModalData.rawJson }),
+                              });
+                              res = await response.json();
+                              if (!response.ok || !res.success) throw new Error(res.error || "Restore failed");
+                           }
+
+                           toast.dismiss();
+                           toast.success(res?.message || "Database restored successfully!", { duration: 8000 });
+                           setRestoreModalData(prev => ({ ...prev, isOpen: false }));
+                           refreshData();
+                        } catch (err: any) {
+                           toast.dismiss();
+                           toast.error(err.message || "Failed to execute restore.");
+                        } finally {
+                           setIsRestoringData(false);
+                        }
+                     }}
+                     disabled={restoreConfirmInput.trim() !== "RESTORE" || isRestoringData}
+                     className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-600/20 disabled:opacity-40 cursor-pointer"
+                  >
+                     {isRestoringData ? "Restoring..." : "Execute Restore"}
+                  </Button>
+               </div>
+            </div>
          </DialogContent>
        </Dialog>
      </div>
