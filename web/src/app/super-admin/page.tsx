@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ import {
   toggleMaintenanceMode,
   generateBackup,
   restoreBackup,
+  restoreBackupFromUpload,
   getBackupsList,
   deleteBackupFile,
   getAuditLogs,
@@ -1264,25 +1265,62 @@ export default function NexusSuperControl() {
                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">System Database Backups</p>
                   </div>
                   <div>
-                     <Button 
-                        onClick={async () => {
-                           try {
-                              toast.loading("Generating database snapshot...");
-                              const res = await generateBackup();
-                              if (res.success) {
+                     <div className="flex items-center gap-3">
+                        <label className="cursor-pointer">
+                           <input 
+                              type="file" 
+                              accept=".json" 
+                              className="hidden" 
+                              onChange={async (e) => {
+                                 const file = e.target.files?.[0];
+                                 if (!file) return;
+                                 const confirmMsg = `CRITICAL WARNING: This will WIPE the current database and RESTORE data from "${file.name}".\n\nA safety backup will be created automatically before restore.\n\nType "RESTORE" to proceed:`;
+                                 const input = window.prompt(confirmMsg);
+                                 if (input === "RESTORE") {
+                                    try {
+                                       toast.loading(`Restoring from uploaded file ${file.name}...`);
+                                       const content = await file.text();
+                                       const res = await restoreBackupFromUpload(content, file.name);
+                                       if (res.success) {
+                                          toast.dismiss();
+                                          toast.success(res.message, { duration: 8000 });
+                                          refreshData();
+                                       }
+                                    } catch (err: any) {
+                                       toast.dismiss();
+                                       toast.error(err.message || "Failed to restore from upload.", { duration: 8000 });
+                                    }
+                                 } else if (input !== null) {
+                                    toast.error("Restore cancelled. You must type 'RESTORE'.");
+                                 }
+                                 // Reset input value
+                                 e.target.value = "";
+                              }}
+                           />
+                           <div className="h-12 px-5 bg-slate-200/60 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-800 dark:text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 cursor-pointer border border-slate-300 dark:border-white/10">
+                              <Upload className="h-4 w-4 text-indigo-500" /> Upload & Restore
+                           </div>
+                        </label>
+                        <Button 
+                           onClick={async () => {
+                              try {
+                                 toast.loading("Generating database snapshot in Neon...");
+                                 const res = await generateBackup();
+                                 if (res.success) {
+                                    toast.dismiss();
+                                    toast.success(`Snapshot ${res.filename} stored securely in Neon!`);
+                                    refreshData();
+                                 }
+                              } catch (err: any) {
                                  toast.dismiss();
-                                 toast.success(`Snapshot ${res.filename} generated successfully.`);
-                                 refreshData();
+                                 toast.error(err.message || "Failed to generate snapshot.");
                               }
-                           } catch (err: any) {
-                              toast.dismiss();
-                              toast.error(err.message || "Failed to generate snapshot.");
-                           }
-                        }}
-                        className="h-12 px-6 bg-indigo-650 hover:bg-indigo-755 dark:hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
-                     >
-                        <Database className="mr-2 h-4 w-4" /> Create Snapshot
-                     </Button>
+                           }}
+                           className="h-12 px-6 bg-indigo-650 hover:bg-indigo-755 dark:hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                        >
+                           <Database className="mr-2 h-4 w-4" /> Create Snapshot
+                        </Button>
+                     </div>
                   </div>
                </div>
 

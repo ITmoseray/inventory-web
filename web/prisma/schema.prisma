@@ -1716,3 +1716,15 @@ model Referral {
   @@index([referrerBusinessId])
   @@index([status])
 }
+
+model SystemBackup {
+  id          String   @id @default(cuid())
+  filename    String   @unique
+  sizeBytes   Int
+  type        String   @default("MANUAL") // MANUAL | AUTO | SAFETY
+  data        String   @db.Text
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+}
+

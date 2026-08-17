@@ -12,6 +12,7 @@ import { updateSystemSettings } from "./system-settings";
 import webpush from "web-push";
 import { exec } from "child_process";
 import util from "util";
+import { createCloudBackup, restoreCloudBackup, restoreFromRawPayload } from "@/lib/backup-engine";
 
 const execAsync = util.promisify(exec);
 
@@ -377,39 +378,14 @@ export async function generateBackup() {
   await checkSuperAdmin();
 
   try {
-    if (!fs.existsSync(BACKUPS_DIR)) {
-      fs.mkdirSync(BACKUPS_DIR, { recursive: true });
-    }
-
-    const timestampStr = new Date().toISOString().replace(/[:.]/g, "-");
-    const filename = `nexus-backup-${timestampStr}.sql`;
-    const filePath = path.join(BACKUPS_DIR, filename);
-
-    let dbUrl = process.env.DATABASE_URL;
-    if (!dbUrl) throw new Error("DATABASE_URL is not defined in environment variables");
-    
-    // Fix SSL and strip Neon-only params unsupported by libpq (pg_dump/psql)
-    dbUrl = dbUrl
-      .replace("sslmode=verify-full", "sslmode=require")
-      .replace("&channel_binding=require", "");
-
-    // We use --clean to drop existing objects before creating them,
-    // --if-exists to avoid errors if dropping non-existent objects,
-    // --no-owner and --no-privileges to avoid permission issues when restoring to cloud DBs like Neon.
-    const command = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${filePath}"`;
-    
-    console.log(`[DATABASE SNAPSHOT]: Starting pg_dump to ${filename}...`);
-    
-    await execAsync(command);
-    
-    console.log(`[DATABASE SNAPSHOT]: Generated ${filename}`);
+    const result = await createCloudBackup("MANUAL");
     
     await logAudit({
-      action: `GENERATED DATABASE BACKUP: ${filename}`,
+      action: `GENERATED DATABASE BACKUP: ${result.filename}`,
       entity: "SYSTEM"
     });
 
-    return { success: true, filename };
+    return { success: true, filename: result.filename };
   } catch (error: any) {
     console.error("Database backup generation failed:", error);
     throw new Error(`Backup failed: ${error.message}`);
@@ -420,49 +396,35 @@ export async function restoreBackup(filename: string) {
   await checkSuperAdmin();
 
   try {
-    const safeFilename = path.basename(filename);
-    const filePath = path.join(BACKUPS_DIR, safeFilename);
+    const res = await restoreCloudBackup(filename);
 
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`Backup file not found: ${safeFilename}`);
-    }
-
-    let dbUrl = process.env.DATABASE_URL;
-    if (!dbUrl) throw new Error("DATABASE_URL is not defined in environment variables");
-    
-    dbUrl = dbUrl
-      .replace("sslmode=verify-full", "sslmode=require")
-      .replace("&channel_binding=require", "");
-
-    // Safety First: Take an automatic backup right before overwriting the database
-    console.log(`[SYSTEM RESTORE]: Taking safety backup before restoring ${safeFilename}...`);
-    const safetyTimestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    const safetyFilename = `safety-pre-restore-${safetyTimestamp}.sql`;
-    const safetyFilePath = path.join(BACKUPS_DIR, safetyFilename);
-    const safetyCommand = `pg_dump --clean --if-exists --no-owner --no-privileges -d "${dbUrl}" -f "${safetyFilePath}"`;
-    await execAsync(safetyCommand);
-
-    console.log(`[SYSTEM RESTORE]: Restoring database from ${safeFilename}...`);
-    
-    // Execute the SQL file against the database
-    // Note: psql connects, drops tables (due to --clean from pg_dump), and recreates them
-    const restoreCommand = `psql -d "${dbUrl}" -f "${filePath}"`;
-    
-    await execAsync(restoreCommand);
-    
-    console.log(`[SYSTEM RESTORE]: Successfully restored from ${safeFilename}`);
-
-    // Since we just completely wiped and replaced the database, we need to log the audit 
-    // to the NEWLY restored database.
     await logAudit({
-      action: `RESTORED DATABASE FROM BACKUP: ${safeFilename} (Safety backup created: ${safetyFilename})`,
+      action: `RESTORED DATABASE FROM BACKUP: ${filename}`,
       entity: "SYSTEM"
     });
 
-    return { success: true, message: `Database restored successfully. A safety backup was created at ${safetyFilename}` };
+    return res;
   } catch (error: any) {
     console.error("Database restore failed:", error);
     throw new Error(`Restore failed: ${error.message}`);
+  }
+}
+
+export async function restoreBackupFromUpload(rawJson: string, filename: string) {
+  await checkSuperAdmin();
+
+  try {
+    const res = await restoreFromRawPayload(rawJson, filename);
+
+    await logAudit({
+      action: `RESTORED DATABASE FROM UPLOADED BACKUP: ${filename}`,
+      entity: "SYSTEM"
+    });
+
+    return res;
+  } catch (error: any) {
+    console.error("Database restore from upload failed:", error);
+    throw new Error(`Upload restore failed: ${error.message}`);
   }
 }
 
@@ -470,26 +432,48 @@ export async function getBackupsList() {
   await checkSuperAdmin();
 
   try {
-    if (!fs.existsSync(BACKUPS_DIR)) {
-      return [];
+    // 1. Fetch persistent cloud backups from Neon database
+    const cloudBackups = await (prisma as any).systemBackup.findMany({
+      select: {
+        id: true,
+        filename: true,
+        sizeBytes: true,
+        type: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (cloudBackups && cloudBackups.length > 0) {
+      return cloudBackups.map((b: any) => ({
+        id: b.id,
+        filename: b.filename,
+        sizeBytes: b.sizeBytes,
+        createdAt: b.createdAt.toISOString(),
+      }));
     }
 
-    const files = fs.readdirSync(BACKUPS_DIR);
-    const backupFiles = files
-      .filter(f => (f.startsWith("nexus-backup-") || f.startsWith("safety-pre-restore-") || f.startsWith("auto-backup-")) && f.endsWith(".sql"))
-      .map(filename => {
-        const filePath = path.join(BACKUPS_DIR, filename);
-        const stats = fs.statSync(filePath);
-        return {
-          filename,
-          sizeBytes: stats.size,
-          createdAt: stats.birthtime.toISOString(),
-        };
-      });
+    // 2. Fallback check for local development backups folder
+    if (fs.existsSync(BACKUPS_DIR)) {
+      const files = fs.readdirSync(BACKUPS_DIR);
+      const backupFiles = files
+        .filter(f => (f.startsWith("nexus-backup-") || f.startsWith("safety-pre-restore-") || f.startsWith("auto-backup-")))
+        .map(filename => {
+          const filePath = path.join(BACKUPS_DIR, filename);
+          const stats = fs.statSync(filePath);
+          return {
+            filename,
+            sizeBytes: stats.size,
+            createdAt: stats.birthtime.toISOString(),
+          };
+        });
 
-    return backupFiles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+      return backupFiles.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    }
+
+    return [];
   } catch (error) {
-    console.error("Failed to read backups directory:", error);
+    console.error("Failed to read backups:", error);
     return [];
   }
 }
@@ -498,15 +482,22 @@ export async function deleteBackupFile(filename: string) {
   await checkSuperAdmin();
 
   try {
+    // 1. Delete from Neon database if exists
+    try {
+      await (prisma as any).systemBackup.deleteMany({
+        where: { filename },
+      });
+    } catch {}
+
+    // 2. Also delete from local folder if exists
     const safeFilename = path.basename(filename);
     const filePath = path.join(BACKUPS_DIR, safeFilename);
 
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      return { success: true };
-    } else {
-      throw new Error("File not found");
     }
+
+    return { success: true };
   } catch (error: any) {
     console.error("Backup deletion failed:", error);
     throw new Error(`Deletion failed: ${error.message}`);
