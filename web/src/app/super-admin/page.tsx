@@ -1047,7 +1047,7 @@ export default function NexusSuperControl() {
                           <Button 
                              onClick={handleUpdateBroadcast}
                              disabled={!updateVersion.trim() || !updateTitle.trim() || !updateChangelog.trim() || sendingUpdate}
-                             className="w-full h-12 rounded-xl bg-indigo-650 hover:bg-indigo-755 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
+                             className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
                           >
                              {sendingUpdate ? "Broadcasting Update..." : "Broadcast System Update Notification"}
                           </Button>
@@ -1316,9 +1316,9 @@ export default function NexusSuperControl() {
                                  toast.error(err.message || "Failed to generate snapshot.");
                               }
                            }}
-                           className="h-12 px-6 bg-indigo-650 hover:bg-indigo-755 dark:hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                           className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer"
                         >
-                           <Database className="mr-2 h-4 w-4" /> Create Snapshot
+                           <Database className="h-4 w-4 text-white" /> Create Snapshot
                         </Button>
                      </div>
                   </div>
@@ -1909,7 +1909,7 @@ export default function NexusSuperControl() {
                    <Button 
                       type="submit" 
                       disabled={updatingOwnPassword}
-                      className="h-12 px-6 bg-indigo-650 hover:bg-indigo-755 dark:hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
+                      className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20"
                    >
                       {updatingOwnPassword ? "Updating Key..." : "Update Admin Key"}
                    </Button>
