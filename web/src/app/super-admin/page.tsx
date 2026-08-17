@@ -1442,6 +1442,104 @@ export default function NexusSuperControl() {
                      </TableBody>
                   </Table>
                </div>
+
+               {/* SINGLE BUSINESS / TENANT BACKUP & RESTORE */}
+               <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+                     <div>
+                        <h3 className="text-lg font-[1000] text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                           <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                           Individual Business Backup & Restore
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                           Export or restore data for a <strong>specific business</strong> without touching or resetting other businesses.
+                        </p>
+                     </div>
+                     
+                     <div className="flex flex-wrap items-center gap-3">
+                        <label className="cursor-pointer">
+                           <input 
+                              type="file" 
+                              accept=".json" 
+                              className="hidden" 
+                              onChange={async (e) => {
+                                 const file = e.target.files?.[0];
+                                 if (!file) return;
+                                 const confirmMsg = `CRITICAL: This will restore data for the specific business in "${file.name}".\n\nNo other businesses will be affected.\n\nType "RESTORE" to proceed:`;
+                                 const input = window.prompt(confirmMsg);
+                                 if (input === "RESTORE") {
+                                    try {
+                                       toast.loading(`Restoring individual business data from ${file.name}...`);
+                                       const content = await file.text();
+                                       const response = await fetch("/api/super-admin/backups", {
+                                          method: "POST",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ action: "restore-business", rawJson: content }),
+                                       });
+                                       const res = await response.json();
+                                       if (response.ok && res.success) {
+                                          toast.dismiss();
+                                          toast.success(res.message || "Business restored successfully!", { duration: 8000 });
+                                          refreshData();
+                                       } else {
+                                          throw new Error(res.error || "Failed to restore business");
+                                       }
+                                    } catch (err: any) {
+                                       toast.dismiss();
+                                       toast.error(err.message || "Failed to restore individual business.", { duration: 8000 });
+                                    }
+                                 } else if (input !== null) {
+                                    toast.error("Restore cancelled.");
+                                 }
+                                 e.target.value = "";
+                              }}
+                           />
+                           <div className="h-10 px-4 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 cursor-pointer border border-amber-500/20">
+                              <Upload className="h-3.5 w-3.5" /> Restore Individual Business
+                           </div>
+                        </label>
+                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                     {businessesList.slice(0, 12).map((b: any) => (
+                        <div key={b.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-3">
+                           <div className="min-w-0 flex-1">
+                              <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{b.name}</p>
+                              <p className="text-[10px] text-slate-500 font-mono truncate">/{b.slug || b.id}</p>
+                           </div>
+                           <Button
+                              onClick={async () => {
+                                 try {
+                                    toast.loading(`Creating snapshot for ${b.name}...`);
+                                    const response = await fetch("/api/super-admin/backups", {
+                                       method: "POST",
+                                       headers: { "Content-Type": "application/json" },
+                                       body: JSON.stringify({ action: "backup-business", businessId: b.id }),
+                                    });
+                                    const res = await response.json();
+                                    if (response.ok && res.success) {
+                                       toast.dismiss();
+                                       toast.success(`Backup for ${b.name} stored in Neon!`);
+                                       refreshData();
+                                    } else {
+                                       throw new Error(res.error || "Failed to backup business");
+                                    }
+                                 } catch (err: any) {
+                                    toast.dismiss();
+                                    toast.error(err.message || "Backup failed.");
+                                 }
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 shrink-0"
+                           >
+                              <Download className="h-3 w-3 mr-1" /> Backup
+                           </Button>
+                        </div>
+                     ))}
+                  </div>
+               </div>
             </GlassCard>
           )}
 

@@ -144,3 +144,160 @@ export async function restoreFromRawPayload(rawJson: string, sourceName: string 
     throw new Error(`Restore failed: ${restoreError.message}`);
   }
 }
+
+/**
+ * Creates a scoped backup snapshot for a SINGLE business/tenant.
+ * Exports only data belonging to businessId.
+ */
+export async function createBusinessBackup(businessId: string): Promise<{ filename: string; sizeBytes: number; data: string }> {
+  const business = await prisma.business.findUnique({
+    where: { id: businessId },
+    select: { id: true, name: true, slug: true },
+  });
+
+  if (!business) {
+    throw new Error("Business not found");
+  }
+
+  // 1. Get all tables in public schema with businessId column
+  const tablesWithBusinessId: Array<{ table_name: string }> = await prisma.$queryRaw`
+    SELECT table_name 
+    FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+      AND column_name = 'businessId'
+    ORDER BY table_name ASC;
+  `;
+
+  const tables = tablesWithBusinessId.map(t => t.table_name);
+  const businessDump: {
+    metadata: {
+      version: "2.0-tenant-backup";
+      businessId: string;
+      businessName: string;
+      businessSlug: string;
+      createdAt: string;
+      totalTables: number;
+    };
+    businessRecord: any;
+    tables: Record<string, any[]>;
+  } = {
+    metadata: {
+      version: "2.0-tenant-backup",
+      businessId: business.id,
+      businessName: business.name,
+      businessSlug: business.slug,
+      createdAt: new Date().toISOString(),
+      totalTables: tables.length,
+    },
+    businessRecord: await prisma.business.findUnique({ where: { id: businessId } }),
+    tables: {},
+  };
+
+  // 2. Fetch data filtered by businessId
+  for (const table of tables) {
+    try {
+      const rows: any[] = await prisma.$queryRawUnsafe(`SELECT * FROM "${table}" WHERE "businessId" = $1`, businessId);
+      if (rows && rows.length > 0) {
+        businessDump.tables[table] = rows;
+      }
+    } catch (err: any) {
+      console.warn(`[BUSINESS BACKUP] Note on table "${table}":`, err.message);
+    }
+  }
+
+  const jsonData = JSON.stringify(businessDump, null, 2);
+  const cleanSlug = (business.slug || "tenant").replace(/[^a-zA-Z0-9_-]/g, "_");
+  const timestampStr = new Date().toISOString().replace(/[:.]/g, "-");
+  const filename = `business-${cleanSlug}-${timestampStr}.json`;
+  const sizeBytes = Buffer.byteLength(jsonData, "utf8");
+
+  // Save to SystemBackup table with metadata tag
+  await (prisma as any).systemBackup.create({
+    data: {
+      filename,
+      sizeBytes,
+      type: `TENANT:${business.id}`,
+      data: jsonData,
+    },
+  });
+
+  return { filename, sizeBytes, data: jsonData };
+}
+
+/**
+ * Restores a single business's data from a backup JSON payload without touching any other businesses.
+ */
+export async function restoreBusinessBackup(rawJson: string): Promise<{ success: boolean; message: string; businessName: string }> {
+  let payload: any;
+  try {
+    payload = JSON.parse(rawJson);
+  } catch {
+    throw new Error("Invalid backup file: Not valid JSON format.");
+  }
+
+  if (payload.metadata?.version !== "2.0-tenant-backup" || !payload.metadata?.businessId) {
+    throw new Error("This file is not an individual business backup snapshot.");
+  }
+
+  const targetBusinessId = payload.metadata.businessId;
+  const businessName = payload.metadata.businessName || "Business";
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // 1. Temporarily disable replication constraints
+      await tx.$executeRawUnsafe("SET session_replication_role = 'replica';");
+
+      // 2. Clean out old data for ONLY this specific business
+      const tableNames = Object.keys(payload.tables || {});
+      for (const table of tableNames) {
+        try {
+          await (tx as any).$executeRawUnsafe(`DELETE FROM "${table}" WHERE "businessId" = $1;`, targetBusinessId);
+        } catch (err: any) {
+          console.warn(`[RESTORE BUSINESS] Note on cleaning "${table}":`, err.message);
+        }
+      }
+
+      // 3. Upsert the Business record itself
+      if (payload.businessRecord) {
+        const bCols = Object.keys(payload.businessRecord).map(c => `"${c}"`).join(", ");
+        const bVals = Object.values(payload.businessRecord);
+        const bPlaceholders = bVals.map((_, idx) => `$${idx + 1}`).join(", ");
+        await (tx as any).$executeRawUnsafe(
+          `INSERT INTO "Business" (${bCols}) VALUES (${bPlaceholders}) ON CONFLICT ("id") DO UPDATE SET "updatedAt" = NOW();`,
+          ...bVals
+        );
+      }
+
+      // 4. Insert all rows belonging to this business
+      for (const [table, rows] of Object.entries(payload.tables)) {
+        if (!Array.isArray(rows) || rows.length === 0) continue;
+
+        for (const row of rows) {
+          const columns = Object.keys(row as object).map(c => `"${c}"`).join(", ");
+          const values = Object.values(row as object);
+          const placeholders = values.map((_, idx) => `$${idx + 1}`).join(", ");
+
+          const query = `INSERT INTO "${table}" (${columns}) VALUES (${placeholders}) ON CONFLICT DO NOTHING;`;
+          await (tx as any).$executeRawUnsafe(query, ...values);
+        }
+      }
+
+      // Re-enable constraints
+      await tx.$executeRawUnsafe("SET session_replication_role = 'origin';");
+    }, {
+      timeout: 120000,
+    });
+
+    return {
+      success: true,
+      businessName,
+      message: `Successfully restored inventory and all data for "${businessName}" without affecting any other businesses!`,
+    };
+  } catch (error: any) {
+    try {
+      await prisma.$executeRawUnsafe("SET session_replication_role = 'origin';");
+    } catch {}
+    console.error("[RESTORE BUSINESS FAILED]:", error);
+    throw new Error(`Failed to restore business: ${error.message}`);
+  }
+}
