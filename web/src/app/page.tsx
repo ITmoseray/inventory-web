@@ -283,7 +283,7 @@ export default function ProtechCloudHomepage() {
               className="relative max-w-5xl mx-auto rounded-3xl border border-white/20 dark:border-white/10 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)] overflow-hidden aspect-[16/10] bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-xl ring-1 ring-slate-900/5 dark:ring-white/5"
             >
               <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent dark:from-black/20 z-10 pointer-events-none"></div>
-              <Image src="/images/dashboard-preview-2.png" alt="Protech Dashboard" fill className="object-cover relative z-0 transition-transform duration-1000 hover:scale-[1.02]" unoptimized />
+              <Image src="/images/dashboard.png" alt="Protech Dashboard" fill className="object-cover relative z-0 transition-transform duration-1000 hover:scale-[1.02]" unoptimized />
             </motion.div>
           </div>
         </section>
