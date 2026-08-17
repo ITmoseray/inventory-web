@@ -57,6 +57,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { TouchWrapper } from "@/components/layout/TouchWrapper";
 import { ResponsiveTable } from "@/components/shared/responsive-table";
 import { BackButton } from "@/components/layout/ModuleHeader";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 // ─── Preset Unit Options ────────────────────────────────────────────────────
 const PURCHASE_UNITS = [
@@ -316,6 +317,11 @@ export default function ProductsPage() {
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("name_asc");
   const [packagingOpen, setPackagingOpen] = useState(true);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
 
   const [formData, setFormData] = useState({
     name: "",
@@ -522,14 +528,12 @@ export default function ProductsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (confirm("Permanently delete this product? This action cannot be undone.")) {
-      try {
-        await deleteProduct(id);
-        toast.success("Product removed from inventory.");
-        fetchData();
-      } catch (error) {
-        toast.error("Unauthorized operation.");
-      }
+    try {
+      await deleteProduct(id);
+      toast.success("Product removed from inventory.");
+      fetchData();
+    } catch (error) {
+      toast.error("Unauthorized operation.");
     }
   }
 
@@ -1289,10 +1293,10 @@ export default function ProductsPage() {
               </DropdownMenuItem>
               <div className="h-px bg-slate-50 dark:bg-slate-800 my-2" />
               <DropdownMenuItem
-                className="text-rose-600 font-black text-[10px] uppercase tracking-widest gap-3 focus:bg-rose-50 focus:text-rose-700 rounded-xl"
+                className="text-rose-600 font-black text-[10px] uppercase tracking-widest gap-3 focus:bg-rose-50 focus:text-rose-700 rounded-xl cursor-pointer"
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  handleDelete(product.id);
+                  setDeleteModal({ open: true, id: product.id, name: product.name });
                 }}
               >
                 <Trash2 className="h-4 w-4" /> Delete Product
@@ -1300,6 +1304,26 @@ export default function ProductsPage() {
             </DropdownMenuContent>
           </DropdownMenu>
         )) : undefined}
+      />
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Inventory Product"
+        description={
+          <>
+            Are you sure you want to permanently delete{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Delete Product"
+        loadingLabel="Deleting…"
+        warningNote="All stock records, variants, pricing history, and batch data for this product will be permanently removed."
+        onConfirm={() => handleDelete(deleteModal.id)}
       />
     </div>
   );

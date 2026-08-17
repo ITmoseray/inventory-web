@@ -5,6 +5,7 @@ import { Home, Plus, Users, UserMinus, Building } from 'lucide-react';
 import { addHostelRoom, allocateBed, vacateBed } from '@/actions/hostelActions';
 import { toast } from 'sonner';
 import { Modal } from '@/components/ui/modal';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export default function HostelClient({ initialHostels, students }: any) {
   const [isPending, startTransition] = useTransition();
@@ -16,6 +17,11 @@ export default function HostelClient({ initialHostels, students }: any) {
   // Allocation Modal State
   const [showAllocate, setShowAllocate] = useState(false);
   const [allocateForm, setAllocateForm] = useState({ hostelId: '', studentId: '' });
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: '',
+    name: '',
+  });
 
   const handleAddRoom = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +52,6 @@ export default function HostelClient({ initialHostels, students }: any) {
   };
 
   const handleVacate = async (allocationId: string) => {
-    if (!confirm("Are you sure you want to remove this student from the room?")) return;
     startTransition(async () => {
       const res = await vacateBed(allocationId);
       if (res.success) {
@@ -91,7 +96,7 @@ export default function HostelClient({ initialHostels, students }: any) {
                         <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                           {alloc.student.firstName} {alloc.student.lastName}
                         </span>
-                        <button onClick={() => handleVacate(alloc.id)} disabled={isPending} className="text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1.5 rounded-md transition-colors">
+                        <button onClick={() => setDeleteModal({ open: true, id: alloc.id, name: `${alloc.student.firstName} ${alloc.student.lastName}` })} disabled={isPending} className="text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/30 p-1.5 rounded-md transition-colors cursor-pointer" title="Remove student from room">
                           <UserMinus className="w-4 h-4" />
                         </button>
                       </li>
@@ -163,6 +168,25 @@ export default function HostelClient({ initialHostels, students }: any) {
           </form>
         </Modal>
       )}
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Remove Student from Room"
+        description={
+          <>
+            Are you sure you want to remove student{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>{" "}
+            from this room?
+          </>
+        }
+        confirmLabel="Remove Student"
+        loadingLabel="Removing…"
+        warningNote="This student's hostel bed allocation will be freed up immediately."
+        onConfirm={() => handleVacate(deleteModal.id)}
+      />
     </div>
   );
 }

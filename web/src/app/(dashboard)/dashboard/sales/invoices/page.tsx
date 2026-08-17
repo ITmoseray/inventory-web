@@ -26,11 +26,17 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 export default function InvoicesPage() {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; invoiceNumber: string }>({
+    open: false,
+    id: "",
+    invoiceNumber: "",
+  });
 
   useEffect(() => {
     loadInvoices();
@@ -49,7 +55,6 @@ export default function InvoicesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this invoice?")) return;
     try {
       const res = await deleteInvoice(id);
       if (res.success) {
@@ -178,7 +183,7 @@ export default function InvoicesPage() {
                              <Eye className="mr-2 h-4 w-4" /> View Invoice
                            </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-rose-600 focus:text-rose-700 focus:bg-rose-50 cursor-pointer" onClick={() => handleDelete(invoice.id)}>
+                         <DropdownMenuItem className="text-rose-600 focus:text-rose-700 focus:bg-rose-50 cursor-pointer" onClick={() => setDeleteModal({ open: true, id: invoice.id, invoiceNumber: invoice.invoiceNumber })}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -190,6 +195,25 @@ export default function InvoicesPage() {
           </TableBody>
         </Table>
       </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Sales Invoice"
+        description={
+          <>
+            Are you sure you want to delete invoice{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.invoiceNumber}
+            </code>
+            ?
+          </>
+        }
+        confirmLabel="Delete Invoice"
+        loadingLabel="Deleting…"
+        warningNote="This invoice and all its itemized billing records will be permanently removed from the ledger."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

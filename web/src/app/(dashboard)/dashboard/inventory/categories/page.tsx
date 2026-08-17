@@ -42,6 +42,7 @@ import {
 import { ResponsiveTable } from "@/components/shared/responsive-table";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Package } from "lucide-react";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 export default function CategoriesPage() {
   const { data: session } = useSession();
@@ -247,29 +248,28 @@ export default function CategoriesPage() {
       />
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog(d => ({ ...d, open }))}>
-        <DialogContent className="sm:max-w-sm rounded-3xl dark:bg-slate-900 border-0 shadow-2xl bg-white">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-rose-500" /> Confirm Deletion
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-2">
-            <p className="text-slate-600 dark:text-slate-400 font-medium">
-              Are you sure you want to delete category{" "}
-              <span className="font-black text-slate-900 dark:text-white">{deleteDialog.category?.name}</span>?
-              This action cannot be undone.
-            </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button variant="ghost" onClick={() => setDeleteDialog({ open: false, category: null })} className="rounded-xl">Cancel</Button>
-            <Button onClick={() => deleteDialog.category && handleDelete(deleteDialog.category.id)}
-              className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold px-6">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete Category
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmModal
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog(d => ({ ...d, open, category: open ? d.category : null }))}
+        title="Delete Product Category"
+        description={
+          <>
+            Are you sure you want to delete category{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteDialog.category?.name}
+            </code>
+            ?
+          </>
+        }
+        confirmLabel="Delete Category"
+        loadingLabel="Deleting…"
+        warningNote="All products in this category will become uncategorized. This action cannot be undone."
+        onConfirm={async () => {
+          if (deleteDialog.category) {
+            await handleDelete(deleteDialog.category.id);
+          }
+        }}
+      />
     </div>
   );
 }

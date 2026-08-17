@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { getSuppliers, createSupplier, updateSupplier, deleteSupplier } from "@/lib/actions/supplier";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -27,6 +28,11 @@ export default function SuppliersPage() {
   const [editingSupplier, setEditingSupplier] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
 
   const defaultForm = { name: "", email: "", phone: "", contact: "", address: "", taxId: "", paymentTerms: "Net 30", notes: "" };
   const [formData, setFormData] = useState(defaultForm);
@@ -82,8 +88,7 @@ export default function SuppliersPage() {
     }
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete supplier "${name}"? This cannot be undone.`)) return;
+  async function handleDelete(id: string) {
     try {
       await deleteSupplier(id);
       toast.success("Supplier deleted");
@@ -247,7 +252,7 @@ export default function SuppliersPage() {
                       <DropdownMenuItem onClick={() => openEdit(s)} className="gap-2 font-semibold">
                         <Pencil className="h-4 w-4" /> Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDelete(s.id, s.name)} className="gap-2 font-semibold text-rose-500 focus:text-rose-500">
+                      <DropdownMenuItem onClick={() => setDeleteModal({ open: true, id: s.id, name: s.name })} className="gap-2 font-semibold text-rose-500 focus:text-rose-500 cursor-pointer">
                         <Trash2 className="h-4 w-4" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -382,6 +387,26 @@ export default function SuppliersPage() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Supplier Profile"
+        description={
+          <>
+            Are you sure you want to permanently delete supplier{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Delete Supplier"
+        loadingLabel="Deleting…"
+        warningNote="All purchase orders and transaction history linked to this supplier will be permanently removed."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

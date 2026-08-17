@@ -34,6 +34,42 @@ import {
   Select,
   SelectContent,
   SelectItem,
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import { 
+  Plus, Pencil, Trash2, MoreVertical, Users, Search, Phone, Mail, MapPin,
+  ChevronDown, UserPlus, FileDown, Globe, Database, CreditCard, Clock,
+  ArrowRight, CheckCircle2, MessageSquare, Briefcase, Zap, Info, ShieldCheck
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -47,6 +83,7 @@ import {
   deleteCustomer,
   importCustomers,
 } from "@/lib/actions/customer";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -54,6 +91,11 @@ import Image from "next/image";
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -171,14 +213,12 @@ export default function CustomersPage() {
   }
 
   async function handleDelete(id: string) {
-    if (confirm("Delete this customer record permanently?")) {
-      try {
-        await deleteCustomer(id);
-        toast.success("Customer record removed.");
-        fetchCustomers();
-      } catch (error) {
-        toast.error("Operation failed.");
-      }
+    try {
+      await deleteCustomer(id);
+      toast.success("Customer record removed.");
+      fetchCustomers();
+    } catch (error) {
+      toast.error("Operation failed.");
     }
   }
 
@@ -520,8 +560,8 @@ export default function CustomersPage() {
                           <DropdownMenuItem onClick={() => handleEdit(customer)} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] gap-3">
                             <Pencil className="h-4 w-4 text-indigo-600" /> Edit Node
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDelete(customer.id)} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:focus:bg-rose-950 gap-3">
-                            <Trash2 className="h-4 w-4" /> Terminate Node
+                          <DropdownMenuItem onClick={() => setDeleteModal({ open: true, id: customer.id, name: customer.name })} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:focus:bg-rose-950 gap-3 cursor-pointer">
+                            <Trash2 className="h-4 w-4" /> Delete Customer
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -533,6 +573,26 @@ export default function CustomersPage() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Customer Account"
+        description={
+          <>
+            Are you sure you want to delete customer record for{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Delete Customer"
+        loadingLabel="Deleting…"
+        warningNote="All purchase history, credit records, and loyalty data for this customer will be permanently removed."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

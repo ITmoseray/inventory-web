@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { getPrescriptions, createPrescription, dispensePrescription, updatePrescription, deletePrescription } from "@/lib/actions/prescription";
 import { getPatients } from "@/lib/actions/patient";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
@@ -38,6 +39,11 @@ export default function PrescriptionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPrescription, setEditingPrescription] = useState<any | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
 
   // Form State
   const [patientId, setPatientId] = useState("");
@@ -146,7 +152,6 @@ export default function PrescriptionsPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to delete this prescription?")) return;
     try {
       const res = await deletePrescription(id);
       if (res.success) {
@@ -334,8 +339,8 @@ export default function PrescriptionsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => handleDelete(rx.id)}
-                            className="h-8 w-8 p-0 rounded-lg border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/20 bg-transparent"
+                            onClick={() => setDeleteModal({ open: true, id: rx.id, name: `${rx.prescriptionNumber} (${rx.patient?.name})` })}
+                            className="h-8 w-8 p-0 rounded-lg border-rose-200 text-rose-600 hover:bg-rose-50 dark:border-rose-950/30 dark:text-rose-400 dark:hover:bg-rose-950/20 bg-transparent cursor-pointer"
                             title="Delete Prescription"
                           >
                             <Trash2 className="h-4 w-4" />
@@ -351,6 +356,25 @@ export default function PrescriptionsPage() {
         </Table>
         </div>
       </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Patient Prescription"
+        description={
+          <>
+            Are you sure you want to delete prescription{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmLabel="Delete Prescription"
+        loadingLabel="Deleting…"
+        warningNote="This medical prescription record and any linked dosage instructions will be permanently removed."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

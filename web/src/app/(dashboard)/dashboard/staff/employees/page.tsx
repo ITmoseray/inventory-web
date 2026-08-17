@@ -56,6 +56,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { uploadAvatar } from "@/lib/actions/upload";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 export default function EmployeesPage() {
   const { data: session } = useSession();
@@ -66,6 +67,11 @@ export default function EmployeesPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
   
   const [editFormData, setEditFormData] = useState({
     name: "",
@@ -244,14 +250,11 @@ export default function EmployeesPage() {
     }
   }
 
-  // ... rest of the component (rest of the UI, excluding the permission checkbox logic) ...
-
-
   async function handleDelete(id: string) {
-    if (!confirm("Are you sure you want to terminate this employee session?")) return;
     try {
       await deleteUser(id);
       toast.success("Employee node terminated.");
+      setDeleteModal({ open: false, id: "", name: "" });
       fetchData();
     } catch (error: any) {
       toast.error(error.message || "Failed to terminate node.");
@@ -264,8 +267,6 @@ export default function EmployeesPage() {
             (u.email?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
             (u.roleName?.toLowerCase() || '').includes(searchQuery.toLowerCase());
   });
-
-  console.log("DEBUG: filteredUsers before render:", filteredUsers);
 
   return (
     <div className="space-y-8 p-6 md:p-10 max-w-7xl mx-auto">
@@ -656,7 +657,7 @@ export default function EmployeesPage() {
                           <Button variant="outline" size="sm" onClick={() => handleEditClick(u)} className="h-8 rounded-lg">
                              <Edit2 size={14} className="mr-1" /> Edit
                           </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleDelete(u.id)} className="h-8 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-100">
+                          <Button variant="outline" size="sm" onClick={() => setDeleteModal({ open: true, id: u.id, name: u.name || u.email })} className="h-8 rounded-lg text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-100 cursor-pointer">
                              <Trash2 size={14} />
                           </Button>
                        </div>
@@ -687,6 +688,26 @@ export default function EmployeesPage() {
             </div>
          </div>
       </Card>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Terminate Employee Account"
+        description={
+          <>
+            Are you sure you want to terminate employee account for{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Terminate Employee"
+        loadingLabel="Terminating…"
+        warningNote="This employee account and all active access tokens will be permanently revoked."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

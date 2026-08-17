@@ -30,6 +30,7 @@ import {
   getBatches, getProductsForBatch,
   createBatch, deleteBatch,
 } from "@/lib/actions/batch";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 
 type Batch = {
   id: string;
@@ -166,22 +167,16 @@ export default function BatchesPage() {
     setDeleteDialog({ open: true, batch });
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     const batch = deleteDialog.batch;
     if (!batch) return;
-    setDeleteDialog({ open: false, batch: null });
-    setDeletingId(batch.id);
-    startTransition(async () => {
-      try {
-        await deleteBatch(batch.id);
-        toast.success(`Batch ${batch.batchNumber} deleted`);
-        setBatches((prev) => prev.filter((b) => b.id !== batch.id));
-      } catch {
-        toast.error("Failed to delete batch");
-      } finally {
-        setDeletingId(null);
-      }
-    });
+    try {
+      await deleteBatch(batch.id);
+      toast.success(`Batch ${batch.batchNumber} deleted`);
+      setBatches((prev) => prev.filter((b) => b.id !== batch.id));
+    } catch {
+      toast.error("Failed to delete batch");
+    }
   }
 
   const expiredCount = batches.filter((b) => b.expiryDate && isPast(new Date(b.expiryDate))).length;
@@ -393,29 +388,24 @@ export default function BatchesPage() {
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog(d => ({ ...d, open }))}>
-        <DialogContent className="sm:max-w-sm rounded-3xl dark:bg-slate-900 border-0 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-rose-500" /> Confirm Deletion
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-2">
-            <p className="text-slate-600 dark:text-slate-400 font-medium">
-              Are you sure you want to delete batch{" "}
-              <span className="font-black text-slate-900 dark:text-white">{deleteDialog.batch?.batchNumber}</span>?
-              This action cannot be undone.
-            </p>
-          </div>
-          <DialogFooter className="gap-2">
-            <Button variant="ghost" onClick={() => setDeleteDialog({ open: false, batch: null })} className="rounded-xl">Cancel</Button>
-            <Button onClick={handleDelete}
-              className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold px-6">
-              <Trash2 className="mr-2 h-4 w-4" /> Delete Batch
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <ConfirmModal
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog(d => ({ ...d, open, batch: open ? d.batch : null }))}
+        title="Delete Inventory Batch"
+        description={
+          <>
+            Are you sure you want to delete batch{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteDialog.batch?.batchNumber}
+            </code>
+            ?
+          </>
+        }
+        confirmLabel="Delete Batch"
+        loadingLabel="Deleting…"
+        warningNote="All stock items and expiry tracking records tied to this batch will be permanently removed."
+        onConfirm={handleDelete}
+      />
     </div>
   );
 }

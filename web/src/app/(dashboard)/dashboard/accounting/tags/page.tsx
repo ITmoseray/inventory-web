@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getTags, createTag, deleteTag } from "@/lib/actions/tags";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { toast } from "sonner";
 
 const PRESET_COLORS = [
@@ -26,6 +27,11 @@ export default function TransactionTagsPage() {
   const [tags, setTags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
 
   // New tag form
   const [newName, setNewName] = useState("");
@@ -61,8 +67,7 @@ export default function TransactionTagsPage() {
     setCreating(false);
   }
 
-  async function handleDelete(id: string, name: string) {
-    if (!confirm(`Delete the tag "${name}"? It will be removed from all linked transactions.`)) return;
+  async function handleDelete(id: string) {
     const res = await deleteTag(id);
     if (res.success) {
       toast.success("Tag deleted");
@@ -190,7 +195,7 @@ export default function TransactionTagsPage() {
                     <span className="text-xs text-slate-400 font-mono">{tag.color}</span>
                   </div>
                   <button
-                    onClick={() => handleDelete(tag.id, tag.name)}
+                    onClick={() => setDeleteModal({ open: true, id: tag.id, name: tag.name })}
                     className="opacity-0 group-hover:opacity-100 transition-opacity text-rose-500 hover:text-rose-700 p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30"
                     title="Delete tag"
                   >
@@ -210,6 +215,25 @@ export default function TransactionTagsPage() {
           You can then filter your expense reports and cashflow statements by tag.
         </p>
       </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Transaction Tag"
+        description={
+          <>
+            Are you sure you want to delete the tag{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ? It will be unlinked from all transactions.
+          </>
+        }
+        confirmLabel="Delete Tag"
+        loadingLabel="Deleting…"
+        warningNote="This tag will be removed from all linked transactions and cannot be recovered."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

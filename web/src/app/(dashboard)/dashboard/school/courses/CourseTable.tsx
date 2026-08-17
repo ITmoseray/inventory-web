@@ -3,6 +3,7 @@
 import React, { useState, useTransition } from 'react';
 import { createCourse, deleteCourse } from '@/actions/schoolAdminActions';
 import { Plus, Trash2, Search, BookOpen, X } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 import { toast } from 'sonner';
 
 export default function CourseTable({ initialCourses }: { initialCourses: any[] }) {
@@ -10,10 +11,13 @@ export default function CourseTable({ initialCourses }: { initialCourses: any[] 
   const [searchTerm, setSearchTerm] = useState('');
   const [isPending, startTransition] = useTransition();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: '',
+    name: '',
+  });
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this course?')) return;
-    
     startTransition(async () => {
       const res = await deleteCourse(id);
       if (res.success) {
@@ -98,9 +102,9 @@ export default function CourseTable({ initialCourses }: { initialCourses: any[] 
                 <td className="p-4 text-sm font-medium text-slate-900 dark:text-white">Le {Number(course.fee).toLocaleString()}</td>
                 <td className="p-4 text-right">
                   <button 
-                    onClick={() => handleDelete(course.id)}
+                    onClick={() => setDeleteModal({ open: true, id: course.id, name: `${course.courseCode} - ${course.courseName}` })}
                     disabled={isPending}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                     title="Delete Course"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -163,6 +167,25 @@ export default function CourseTable({ initialCourses }: { initialCourses: any[] 
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Academic Course"
+        description={
+          <>
+            Are you sure you want to delete course{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmLabel="Delete Course"
+        loadingLabel="Deleting…"
+        warningNote="All enrolled student records, assignments, and curriculum data for this course will be permanently removed."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

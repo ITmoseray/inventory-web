@@ -25,6 +25,7 @@ import {
   updateTable,
   deleteTable,
 } from "@/lib/actions/restaurant";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -33,6 +34,11 @@ export default function TablesPage() {
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTable, setEditingTable] = useState<any>(null);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
   
   const [formData, setFormData] = useState({
     name: "",
@@ -80,14 +86,12 @@ export default function TablesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (confirm("Remove this table permanently?")) {
-      try {
-        await deleteTable(id);
-        toast.success("Table removed.");
-        fetchTables();
-      } catch (error) {
-        toast.error("Access denied.");
-      }
+    try {
+      await deleteTable(id);
+      toast.success("Table removed.");
+      fetchTables();
+    } catch (error) {
+      toast.error("Access denied.");
     }
   }
 
@@ -207,7 +211,7 @@ export default function TablesPage() {
                         <DropdownMenuItem onClick={() => handleEdit(table)} className="font-bold gap-2">
                           <Pencil className="h-3.5 w-3.5" /> Reconfigure
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-rose-600 font-bold gap-2" onClick={() => handleDelete(table.id)}>
+                        <DropdownMenuItem className="text-rose-600 font-bold gap-2 cursor-pointer" onClick={() => setDeleteModal({ open: true, id: table.id, name: table.name })}>
                           <Trash2 className="h-3.5 w-3.5" /> Remove
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -241,6 +245,25 @@ export default function TablesPage() {
           ))
         )}
       </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Remove Restaurant Table"
+        description={
+          <>
+            Are you sure you want to remove table{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>{" "}
+            from the floor plan?
+          </>
+        }
+        confirmLabel="Remove Table"
+        loadingLabel="Removing…"
+        warningNote="This table configuration will be permanently deleted from the active floor layout."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

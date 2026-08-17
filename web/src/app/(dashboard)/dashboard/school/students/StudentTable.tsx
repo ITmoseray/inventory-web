@@ -8,6 +8,7 @@ import AddStudentModal from './AddStudentModal';
 import StudentDetailsModal from './StudentDetailsModal';
 import Image from 'next/image';
 import { User } from 'lucide-react';
+import { ConfirmModal } from '@/components/ui/confirm-modal';
 
 export default function StudentTable({ initialStudents }: { initialStudents: any[] }) {
   const [students, setStudents] = useState(initialStudents);
@@ -15,6 +16,11 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
   const [isPending, startTransition] = useTransition();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: '',
+    name: '',
+  });
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     startTransition(async () => {
@@ -29,8 +35,6 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this student?')) return;
-    
     startTransition(async () => {
       const res = await deleteStudent(id);
       if (res.success) {
@@ -149,9 +153,12 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
                       </button>
                     )}
                     <button 
-                      onClick={() => handleDelete(student.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteModal({ open: true, id: student.id, name: `${student.firstName} ${student.lastName} (${student.studentId})` });
+                      }}
                       disabled={isPending}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                       title="Delete Record"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -169,6 +176,26 @@ export default function StudentTable({ initialStudents }: { initialStudents: any
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Student Record"
+        description={
+          <>
+            Are you sure you want to delete student{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Delete Student"
+        loadingLabel="Deleting…"
+        warningNote="All academic records, grades, fee transactions, and enrollment history for this student will be permanently deleted."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
     </div>
   );
 }

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { createPatientBill, payPatientBill, deletePatientBill } from "@/app/actions/patient-billing";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -36,6 +37,11 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
   const [billDesc, setBillDesc] = useState("");
   const [billAmount, setBillAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false,
+    id: "",
+    name: "",
+  });
 
   const mrn = `EHR-${patient.id.substring(0, 6).toUpperCase()}-SK`;
 
@@ -91,8 +97,6 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
   }
 
   async function handleDeleteBill(saleId: string) {
-    if (!confirm("Are you sure you want to delete this billing record? This action cannot be undone.")) return;
-
     try {
       const res = await deletePatientBill(saleId, patient.id);
       if (res.success) {
@@ -444,9 +448,9 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
                                  <Download className="h-4 w-4" />
                                </button>
                                <button 
-                                 onClick={() => handleDeleteBill(sale.id)}
+                                 onClick={() => setDeleteModal({ open: true, id: sale.id, name: sale.invoiceNumber || `Bill #${sale.id.substring(0, 6)}` })}
                                  title="Delete invoice" 
-                                 className="text-muted-foreground/50 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10"
+                                 className="text-muted-foreground/50 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 cursor-pointer"
                                >
                                  <Trash2 className="h-4 w-4" />
                                </button>
@@ -570,6 +574,25 @@ export default function PatientProfileClient({ patient }: PatientProfileClientPr
           </form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Patient Billing Record"
+        description={
+          <>
+            Are you sure you want to delete billing record{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            ?
+          </>
+        }
+        confirmLabel="Delete Record"
+        loadingLabel="Deleting…"
+        warningNote="This billing transaction and payment history record will be permanently deleted."
+        onConfirm={() => handleDeleteBill(deleteModal.id)}
+      />
     </div>
   );
 }
