@@ -123,6 +123,14 @@ export default function NexusSuperControl() {
   });
   const [restoreConfirmInput, setRestoreConfirmInput] = useState("");
   const [isRestoringData, setIsRestoringData] = useState(false);
+
+  // Professional Delete Confirmation Modal State
+  const [deleteModalData, setDeleteModalData] = useState<{
+    isOpen: boolean;
+    filename: string;
+  }>({ isOpen: false, filename: "" });
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
+  const [isDeletingSnapshot, setIsDeletingSnapshot] = useState(false);
   const [voucherDays, setVoucherDays] = useState(30);
   const [generatedVoucher, setGeneratedVoucher] = useState<{ code: string; tier: string; days: number } | null>(null);
   const [isGeneratingVoucher, setIsGeneratingVoucher] = useState(false);
@@ -1388,25 +1396,9 @@ export default function NexusSuperControl() {
                                           <RotateCcw className="h-3.5 w-3.5" />
                                        </Button>
                                        <Button 
-                                          onClick={async () => {
-                                             if (window.confirm("CRITICAL: Permanently delete this snapshot file?")) {
-                                                try {
-                                                   const response = await fetch("/api/super-admin/backups", {
-                                                      method: "POST",
-                                                      headers: { "Content-Type": "application/json" },
-                                                      body: JSON.stringify({ action: "delete", filename: b.filename }),
-                                                   });
-                                                   const res = await response.json();
-                                                   if (response.ok && res.success) {
-                                                      toast.success("Snapshot deleted.");
-                                                      refreshData();
-                                                   } else {
-                                                      throw new Error(res.error || "Failed to delete snapshot");
-                                                   }
-                                                } catch (err: any) {
-                                                   toast.error(err.message || "Failed to delete snapshot.");
-                                                }
-                                             }
+                                          onClick={() => {
+                                             setDeleteModalData({ isOpen: true, filename: b.filename });
+                                             setDeleteConfirmInput("");
                                           }}
                                           variant="ghost"
                                           className="h-8 w-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 flex items-center justify-center hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white p-0 transition-all shrink-0"
@@ -2236,6 +2228,100 @@ export default function NexusSuperControl() {
                      className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-600/20 disabled:opacity-40 cursor-pointer"
                   >
                      {isRestoringData ? "Restoring..." : "Execute Restore"}
+                  </Button>
+               </div>
+            </div>
+         </DialogContent>
+       </Dialog>
+
+       {/* PROFESSIONAL SNAPSHOT DELETE CONFIRMATION MODAL */}
+       <Dialog open={deleteModalData.isOpen} onOpenChange={(open) => !isDeletingSnapshot && setDeleteModalData(prev => ({ ...prev, isOpen: open }))}>
+         <DialogContent className="max-w-md bg-white dark:bg-slate-950 border-rose-500/20 rounded-3xl p-6 shadow-2xl shadow-rose-950/20">
+            <DialogHeader className="space-y-3">
+               <div className="h-12 w-12 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-600 dark:text-rose-500 mx-auto sm:mx-0">
+                  <Trash2 className="h-6 w-6" />
+               </div>
+               <div>
+                  <DialogTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                     Delete Snapshot
+                  </DialogTitle>
+                  <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-medium leading-relaxed">
+                     You are permanently deleting{" "}
+                     <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+                        {deleteModalData.filename}
+                     </code>
+                     . This action <strong className="text-rose-600 dark:text-rose-400">cannot be undone</strong>.
+                  </DialogDescription>
+               </div>
+            </DialogHeader>
+
+            <div className="mt-4 space-y-4">
+               {/* Warning callout */}
+               <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 space-y-1">
+                  <p className="text-[11px] font-bold text-rose-800 dark:text-rose-300 flex items-center gap-1.5 uppercase tracking-wide">
+                     <AlertTriangle className="h-3.5 w-3.5" /> Irreversible Action
+                  </p>
+                  <p className="text-[11px] text-rose-700/80 dark:text-rose-400/80 leading-relaxed">
+                     Once deleted, this snapshot cannot be recovered. Ensure you have an alternative backup before proceeding.
+                  </p>
+               </div>
+
+               {/* Confirmation input */}
+               <div className="space-y-2">
+                  <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest block">
+                     Type <span className="text-rose-600 dark:text-rose-400 font-mono font-black">DELETE</span> to confirm
+                  </label>
+                  <Input
+                     value={deleteConfirmInput}
+                     onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                     placeholder='Type "DELETE"'
+                     disabled={isDeletingSnapshot}
+                     className="h-11 rounded-xl uppercase font-mono tracking-widest text-center text-sm border-slate-300 dark:border-slate-800 font-bold"
+                  />
+               </div>
+
+               {/* Action buttons */}
+               <div className="flex items-center gap-3 pt-2">
+                  <Button
+                     variant="ghost"
+                     onClick={() => setDeleteModalData(prev => ({ ...prev, isOpen: false }))}
+                     disabled={isDeletingSnapshot}
+                     className="flex-1 h-11 rounded-xl text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400"
+                  >
+                     Cancel
+                  </Button>
+                  <Button
+                     onClick={async () => {
+                        if (deleteConfirmInput.trim() !== "DELETE") {
+                           toast.error('You must type exactly "DELETE" to confirm.');
+                           return;
+                        }
+                        try {
+                           setIsDeletingSnapshot(true);
+                           const response = await fetch("/api/super-admin/backups", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ action: "delete", filename: deleteModalData.filename }),
+                           });
+                           const res = await response.json();
+                           if (response.ok && res.success) {
+                              toast.success("Snapshot permanently deleted.");
+                              setDeleteModalData({ isOpen: false, filename: "" });
+                              setDeleteConfirmInput("");
+                              refreshData();
+                           } else {
+                              throw new Error(res.error || "Failed to delete snapshot");
+                           }
+                        } catch (err: any) {
+                           toast.error(err.message || "Failed to delete snapshot.");
+                        } finally {
+                           setIsDeletingSnapshot(false);
+                        }
+                     }}
+                     disabled={deleteConfirmInput.trim() !== "DELETE" || isDeletingSnapshot}
+                     className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-600/20 disabled:opacity-40 cursor-pointer"
+                  >
+                     {isDeletingSnapshot ? "Deleting..." : "Delete Permanently"}
                   </Button>
                </div>
             </div>
