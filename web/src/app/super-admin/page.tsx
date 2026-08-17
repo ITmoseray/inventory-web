@@ -1279,8 +1279,8 @@ export default function NexusSuperControl() {
                      <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Database Backups</h2>
                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">System Database Backups</p>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3">
-                     <label className="cursor-pointer flex-1 sm:flex-none">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                     <label className="cursor-pointer">
                         <input 
                            type="file" 
                            accept=".json" 
@@ -1326,7 +1326,7 @@ export default function NexusSuperControl() {
                               toast.error(err.message || "Failed to generate snapshot.");
                            }
                         }}
-                        className="!bg-indigo-600 hover:!bg-indigo-700 !text-white h-11 px-5 font-black text-[11px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer flex-1 sm:flex-none justify-center"
+                        className="!bg-indigo-600 hover:!bg-indigo-700 !text-white h-11 px-5 font-black text-[11px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto"
                      >
                         <Database className="h-4 w-4 !text-white shrink-0" />
                         <span className="!text-white font-black">Create Snapshot</span>
