@@ -5,7 +5,7 @@ import {
   Globe, Search, MoreVertical, KeyRound, UserCheck, 
   CheckCircle, Trash2, ArrowLeft, Filter, Zap, Shield, Copy,
   Megaphone, PieChart, TrendingUp, Eye, FileText, Sparkles,
-  Building2, Mail, Phone, MapPin, Coins, Clock, Compass, Users
+  Building2, Mail, Phone, MapPin, Coins, Clock, Compass, Users, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/super-admin/glass-card";
@@ -30,6 +30,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { 
@@ -52,6 +53,9 @@ export default function TenantVault() {
   const [selectedChannel, setSelectedChannel] = useState<string>("ALL");
   const [selectedStore, setSelectedStore] = useState<any>(null);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false, id: "", name: "",
+  });
 
   useEffect(() => {
     fetchBusinesses();
@@ -90,14 +94,12 @@ export default function TenantVault() {
   }
 
   async function handleDelete(businessId: string, name: string) {
-    if (window.confirm(`CRITICAL: Delete all data for "${name}"? This action is irreversible.`)) {
-      try {
-        await deleteBusiness(businessId);
-        toast.success(`Store "${name}" has been deleted.`);
-        fetchBusinesses();
-      } catch (error: any) {
-        toast.error(error.message || "Deletion failed.");
-      }
+    try {
+      await deleteBusiness(businessId);
+      toast.success(`Store "${name}" has been permanently deleted.`);
+      fetchBusinesses();
+    } catch (error: any) {
+      toast.error(error.message || "Deletion failed.");
     }
   }
 
@@ -490,13 +492,13 @@ export default function TenantVault() {
                      </Button>
                   </div>
                   <div className="flex justify-between items-center pt-2">
-                     <Button 
-                       variant="ghost" 
-                       className="text-rose-600 dark:text-rose-400 text-xs font-black uppercase tracking-widest"
-                       onClick={() => handleDelete(selectedStore.id, selectedStore.name)}
-                     >
-                        <Trash2 className="h-4 w-4 mr-2" /> Delete Account
-                     </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="text-rose-600 dark:text-rose-400 text-xs font-black uppercase tracking-widest"
+                        onClick={() => setDeleteModal({ open: true, id: selectedStore.id, name: selectedStore.name })}
+                      >
+                         <Trash2 className="h-4 w-4 mr-2" /> Delete Account
+                      </Button>
                      <Button 
                        onClick={() => setShowFormModal(false)}
                        className="h-11 px-6 rounded-xl bg-slate-900 text-white dark:bg-slate-800 font-black text-[10px] uppercase tracking-widest"
@@ -511,5 +513,25 @@ export default function TenantVault() {
         </DialogContent>
       </Dialog>
     </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Business Account"
+        description={
+          <>
+            You are about to permanently erase{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>{" "}
+            and <strong className="text-rose-600 dark:text-rose-400">all associated data</strong> including users, products, sales, and inventory records.
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Delete Account Permanently"
+        loadingLabel="Deleting…"
+        warningNote="All users, inventory, sales history, and settings for this business will be wiped from the database. This cannot be undone."
+        onConfirm={() => handleDelete(deleteModal.id, deleteModal.name)}
+      />
   );
 }

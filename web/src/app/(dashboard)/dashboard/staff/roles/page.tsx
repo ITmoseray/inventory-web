@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { toast } from "sonner";
 import { getRoles, deleteRole, createRole, updateRole, getPermissions } from "@/lib/actions/role";
 
@@ -28,6 +29,9 @@ export default function RolesPage() {
   const [editingRole, setEditingRole] = useState<any>(null);
   const [formData, setFormData] = useState({ name: "", permissions: [] as string[] });
   const [isLoading, setIsLoading] = useState(true);
+  const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
+    open: false, id: "", name: "",
+  });
 
   useEffect(() => {
     fetchData();
@@ -47,7 +51,6 @@ export default function RolesPage() {
   }
 
   async function handleDelete(id: string) {
-    if (!window.confirm("Are you sure you want to delete this role?")) return;
     try {
       await deleteRole(id);
       toast.success("Role deleted successfully.");
@@ -224,7 +227,7 @@ export default function RolesPage() {
                       }}>
                         <Pencil className="h-3.5 w-3.5 mr-1" /> Edit
                       </Button>
-                      <Button variant="outline" size="sm" className="rounded-lg h-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-100" onClick={() => handleDelete(r.id)}>
+                      <Button variant="outline" size="sm" className="rounded-lg h-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50 border-rose-100" onClick={() => setDeleteModal({ open: true, id: r.id, name: r.name })}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
@@ -236,5 +239,25 @@ export default function RolesPage() {
         </CardContent>
       </Card>
     </div>
+
+      <ConfirmModal
+        open={deleteModal.open}
+        onOpenChange={(open) => setDeleteModal(prev => ({ ...prev, open }))}
+        title="Delete Role"
+        description={
+          <>
+            You are about to permanently delete the role{" "}
+            <code className="text-rose-600 dark:text-rose-400 font-mono text-[11px] bg-rose-50 dark:bg-rose-950/40 px-1.5 py-0.5 rounded">
+              {deleteModal.name}
+            </code>
+            . All staff assigned to this role will lose their associated permissions.
+          </>
+        }
+        confirmWord="DELETE"
+        confirmLabel="Delete Role"
+        loadingLabel="Deleting…"
+        warningNote="All staff members assigned to this role will immediately lose the associated access permissions."
+        onConfirm={() => handleDelete(deleteModal.id)}
+      />
   );
 }
