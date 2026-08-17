@@ -34,42 +34,6 @@ import {
   Select,
   SelectContent,
   SelectItem,
-"use client";
-
-import { useState, useEffect, useRef } from "react";
-import { 
-  Plus, Pencil, Trash2, MoreVertical, Users, Search, Phone, Mail, MapPin,
-  ChevronDown, UserPlus, FileDown, Globe, Database, CreditCard, Clock,
-  ArrowRight, CheckCircle2, MessageSquare, Briefcase, Zap, Info, ShieldCheck
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -87,6 +51,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+
 
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<any[]>([]);

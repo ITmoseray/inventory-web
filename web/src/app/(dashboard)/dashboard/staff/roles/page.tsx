@@ -91,6 +91,7 @@ export default function RolesPage() {
   }, {} as Record<string, typeof permissions>);
 
   return (
+    <>
     <div className="p-6 md:p-10 space-y-8 max-w-6xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -259,5 +260,6 @@ export default function RolesPage() {
         warningNote="All staff members assigned to this role will immediately lose the associated access permissions."
         onConfirm={() => handleDelete(deleteModal.id)}
       />
+    </>
   );
 }

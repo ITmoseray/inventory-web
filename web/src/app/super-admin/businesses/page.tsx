@@ -147,6 +147,7 @@ export default function TenantVault() {
   });
 
   return (
+    <>
     <div className="p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
       <div className="max-w-7xl mx-auto space-y-10">
         
@@ -533,5 +534,6 @@ export default function TenantVault() {
         warningNote="All users, inventory, sales history, and settings for this business will be wiped from the database. This cannot be undone."
         onConfirm={() => handleDelete(deleteModal.id, deleteModal.name)}
       />
+    </>
   );
 }
