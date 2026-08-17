@@ -1501,44 +1501,50 @@ export default function NexusSuperControl() {
                      </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                     {businessesList.slice(0, 12).map((b: any) => (
-                        <div key={b.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-3">
-                           <div className="min-w-0 flex-1">
-                              <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{b.name}</p>
-                              <p className="text-[10px] text-slate-500 font-mono truncate">/{b.slug || b.id}</p>
-                           </div>
-                           <Button
-                              onClick={async () => {
-                                 try {
-                                    toast.loading(`Creating snapshot for ${b.name}...`);
-                                    const response = await fetch("/api/super-admin/backups", {
-                                       method: "POST",
-                                       headers: { "Content-Type": "application/json" },
-                                       body: JSON.stringify({ action: "backup-business", businessId: b.id }),
-                                    });
-                                    const res = await response.json();
-                                    if (response.ok && res.success) {
+                  {(!businessesList || businessesList.length === 0) ? (
+                     <div className="p-6 text-center border border-dashed border-slate-300 dark:border-slate-800 rounded-xl">
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">No registered businesses found to backup individually.</p>
+                     </div>
+                  ) : (
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {businessesList.map((b: any) => (
+                           <div key={b.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-3">
+                              <div className="min-w-0 flex-1">
+                                 <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{b.name}</p>
+                                 <p className="text-[10px] text-slate-500 font-mono truncate">/{b.slug || b.id}</p>
+                              </div>
+                              <Button
+                                 onClick={async () => {
+                                    try {
+                                       toast.loading(`Creating snapshot for ${b.name}...`);
+                                       const response = await fetch("/api/super-admin/backups", {
+                                          method: "POST",
+                                          headers: { "Content-Type": "application/json" },
+                                          body: JSON.stringify({ action: "backup-business", businessId: b.id }),
+                                       });
+                                       const res = await response.json();
+                                       if (response.ok && res.success) {
+                                          toast.dismiss();
+                                          toast.success(`Backup for ${b.name} stored in Neon!`);
+                                          refreshData();
+                                       } else {
+                                          throw new Error(res.error || "Failed to backup business");
+                                       }
+                                    } catch (err: any) {
                                        toast.dismiss();
-                                       toast.success(`Backup for ${b.name} stored in Neon!`);
-                                       refreshData();
-                                    } else {
-                                       throw new Error(res.error || "Failed to backup business");
+                                       toast.error(err.message || "Backup failed.");
                                     }
-                                 } catch (err: any) {
-                                    toast.dismiss();
-                                    toast.error(err.message || "Backup failed.");
-                                 }
-                              }}
-                              variant="outline"
-                              size="sm"
-                              className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 shrink-0"
-                           >
-                              <Download className="h-3 w-3 mr-1" /> Backup
-                           </Button>
-                        </div>
-                     ))}
-                  </div>
+                                 }}
+                                 variant="outline"
+                                 size="sm"
+                                 className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 shrink-0"
+                              >
+                                 <Download className="h-3 w-3 mr-1" /> Backup
+                              </Button>
+                           </div>
+                        ))}
+                     </div>
+                  )}
                </div>
             </GlassCard>
           )}
