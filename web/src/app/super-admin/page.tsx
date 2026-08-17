@@ -1329,9 +1329,10 @@ export default function NexusSuperControl() {
                                  toast.error(err.message || "Failed to generate snapshot.");
                               }
                            }}
-                           className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer"
+                           className="!bg-indigo-600 hover:!bg-indigo-700 !text-white h-12 px-6 font-black text-[11px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer"
                         >
-                           <Database className="h-4 w-4 text-white" /> Create Snapshot
+                           <Database className="h-4 w-4 !text-white" />
+                           <span className="!text-white font-black">Create Snapshot</span>
                         </Button>
                      </div>
                   </div>
