@@ -1273,76 +1273,75 @@ export default function NexusSuperControl() {
 
           {/* DATABASE BACKUPS TAB */}
           {activeTab === "backups" && (
-            <GlassCard className="p-8">
-               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-8">
+            <GlassCard className="p-6 md:p-8">
+               <div className="flex flex-col gap-4 mb-8">
                   <div>
                      <h2 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic">Database Backups</h2>
                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">System Database Backups</p>
                   </div>
-                  <div>
-                     <div className="flex items-center gap-3">
-                        <label className="cursor-pointer">
-                           <input 
-                              type="file" 
-                              accept=".json" 
-                              className="hidden" 
-                              onChange={async (e) => {
-                                 const file = e.target.files?.[0];
-                                 if (!file) return;
-                                 const content = await file.text();
-                                 setRestoreModalData({
-                                    isOpen: true,
-                                    type: "SYSTEM_UPLOAD",
-                                    filename: file.name,
-                                    rawJson: content,
-                                 });
-                                 setRestoreConfirmInput("");
-                                 e.target.value = "";
-                              }}
-                           />
-                           <div className="h-12 px-5 bg-slate-200/60 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-800 dark:text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 cursor-pointer border border-slate-300 dark:border-white/10">
-                              <Upload className="h-4 w-4 text-indigo-500" /> Upload & Restore
-                           </div>
-                        </label>
-                        <Button 
-                           onClick={async () => {
-                              try {
-                                 toast.loading("Generating database snapshot in Neon...");
-                                 const response = await fetch("/api/super-admin/backups", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ action: "create" }),
-                                 });
-                                 const res = await response.json();
-                                 if (response.ok && res.success) {
-                                    toast.dismiss();
-                                    toast.success(`Snapshot ${res.filename} stored securely in Neon!`);
-                                    refreshData();
-                                 } else {
-                                    throw new Error(res.error || "Failed to generate snapshot");
-                                 }
-                              } catch (err: any) {
-                                 toast.dismiss();
-                                 toast.error(err.message || "Failed to generate snapshot.");
-                              }
+                  <div className="flex flex-wrap items-center gap-3">
+                     <label className="cursor-pointer flex-1 sm:flex-none">
+                        <input 
+                           type="file" 
+                           accept=".json" 
+                           className="hidden" 
+                           onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const content = await file.text();
+                              setRestoreModalData({
+                                 isOpen: true,
+                                 type: "SYSTEM_UPLOAD",
+                                 filename: file.name,
+                                 rawJson: content,
+                              });
+                              setRestoreConfirmInput("");
+                              e.target.value = "";
                            }}
-                           className="!bg-indigo-600 hover:!bg-indigo-700 !text-white h-12 px-6 font-black text-[11px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer"
-                        >
-                           <Database className="h-4 w-4 !text-white" />
-                           <span className="!text-white font-black">Create Snapshot</span>
-                        </Button>
-                     </div>
+                        />
+                        <div className="h-11 px-4 bg-slate-200/60 dark:bg-white/10 hover:bg-slate-300 dark:hover:bg-white/20 text-slate-800 dark:text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-slate-300 dark:border-white/10 w-full">
+                           <Upload className="h-4 w-4 text-indigo-500 shrink-0" />
+                           <span>Upload &amp; Restore</span>
+                        </div>
+                     </label>
+                     <Button 
+                        onClick={async () => {
+                           try {
+                              toast.loading("Generating database snapshot in Neon...");
+                              const response = await fetch("/api/super-admin/backups", {
+                                 method: "POST",
+                                 headers: { "Content-Type": "application/json" },
+                                 body: JSON.stringify({ action: "create" }),
+                              });
+                              const res = await response.json();
+                              if (response.ok && res.success) {
+                                 toast.dismiss();
+                                 toast.success(`Snapshot ${res.filename} stored securely in Neon!`);
+                                 refreshData();
+                              } else {
+                                 throw new Error(res.error || "Failed to generate snapshot");
+                              }
+                           } catch (err: any) {
+                              toast.dismiss();
+                              toast.error(err.message || "Failed to generate snapshot.");
+                           }
+                        }}
+                        className="!bg-indigo-600 hover:!bg-indigo-700 !text-white h-11 px-5 font-black text-[11px] uppercase tracking-widest rounded-xl transition-all shadow-md shadow-indigo-600/30 flex items-center gap-2 cursor-pointer flex-1 sm:flex-none justify-center"
+                     >
+                        <Database className="h-4 w-4 !text-white shrink-0" />
+                        <span className="!text-white font-black">Create Snapshot</span>
+                     </Button>
                   </div>
                </div>
 
-               <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-100/10 dark:bg-slate-950/20">
-                  <Table className="min-w-[600px]">
+               <div className="w-full overflow-x-auto -mx-0 border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-100/10 dark:bg-slate-950/20">
+                  <Table className="min-w-[500px] w-full">
                      <TableHeader className="bg-slate-100/50 dark:bg-slate-900/30">
                         <TableRow className="border-slate-200 dark:border-slate-800 hover:bg-transparent">
-                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-6">Backup Filename</TableHead>
-                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Timestamp</TableHead>
-                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">File Size</TableHead>
-                           <TableHead className="w-[120px] text-right pr-6 h-14"></TableHead>
+                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-12 pl-4">Filename</TableHead>
+                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-12 hidden sm:table-cell">Timestamp</TableHead>
+                           <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-12 hidden sm:table-cell">Size</TableHead>
+                           <TableHead className="w-[100px] text-right pr-4 h-12"></TableHead>
                         </TableRow>
                      </TableHeader>
                      <TableBody>
@@ -1358,17 +1357,20 @@ export default function NexusSuperControl() {
                         ) : (
                            backups.map((b) => (
                               <TableRow key={b.filename} className="hover:bg-slate-100/50 dark:hover:bg-white/5 border-slate-200 dark:border-slate-900 transition-all">
-                                 <TableCell className="font-bold text-slate-900 dark:text-white text-sm pl-6 py-4">{b.filename}</TableCell>
-                                 <TableCell className="text-slate-500 dark:text-slate-400 text-xs">{format(new Date(b.createdAt), "dd MMM yyyy HH:mm:ss")}</TableCell>
-                                 <TableCell className="text-slate-500 dark:text-slate-400 text-xs">{(b.sizeBytes / 1024).toFixed(2)} KB</TableCell>
-                                 <TableCell className="pr-6 text-right">
-                                    <div className="flex justify-end gap-2">
+                                 <TableCell className="pl-4 py-3">
+                                    <p className="font-bold text-slate-900 dark:text-white text-xs truncate max-w-[150px] sm:max-w-none">{b.filename}</p>
+                                    <p className="text-[10px] text-slate-400 sm:hidden mt-0.5">{format(new Date(b.createdAt), "dd MMM yy HH:mm")}</p>
+                                 </TableCell>
+                                 <TableCell className="text-slate-500 dark:text-slate-400 text-xs hidden sm:table-cell">{format(new Date(b.createdAt), "dd MMM yyyy HH:mm:ss")}</TableCell>
+                                 <TableCell className="text-slate-500 dark:text-slate-400 text-xs hidden sm:table-cell">{(b.sizeBytes / 1024).toFixed(2)} KB</TableCell>
+                                 <TableCell className="pr-4 text-right">
+                                    <div className="flex justify-end gap-1.5">
                                        <a 
                                           href={`/api/super-admin/backups/${b.filename}`}
-                                          className="h-9 w-9 rounded-lg bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-200 dark:border-indigo-600/20 text-indigo-600 dark:text-indigo-500 flex items-center justify-center hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 transition-colors"
+                                          className="h-8 w-8 rounded-lg bg-indigo-50 dark:bg-indigo-600/10 border border-indigo-200 dark:border-indigo-600/20 text-indigo-600 dark:text-indigo-500 flex items-center justify-center hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 transition-colors shrink-0"
                                           title="Download snapshot"
                                        >
-                                          <Download className="h-4 w-4" />
+                                          <Download className="h-3.5 w-3.5" />
                                        </a>
                                        <Button 
                                           onClick={() => {
@@ -1380,10 +1382,10 @@ export default function NexusSuperControl() {
                                              setRestoreConfirmInput("");
                                           }}
                                           variant="ghost"
-                                          className="h-9 w-9 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 flex items-center justify-center hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white p-0 transition-all cursor-pointer"
+                                          className="h-8 w-8 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 flex items-center justify-center hover:bg-amber-600 dark:hover:bg-amber-500 hover:text-white p-0 transition-all cursor-pointer shrink-0"
                                           title="Restore snapshot"
                                        >
-                                          <RotateCcw className="h-4 w-4" />
+                                          <RotateCcw className="h-3.5 w-3.5" />
                                        </Button>
                                        <Button 
                                           onClick={async () => {
@@ -1407,10 +1409,10 @@ export default function NexusSuperControl() {
                                              }
                                           }}
                                           variant="ghost"
-                                          className="h-9 w-9 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 flex items-center justify-center hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white p-0 transition-all"
+                                          className="h-8 w-8 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-500 flex items-center justify-center hover:bg-rose-600 dark:hover:bg-rose-500 hover:text-white p-0 transition-all shrink-0"
                                           title="Delete snapshot"
                                        >
-                                          <Trash2 className="h-4 w-4" />
+                                          <Trash2 className="h-3.5 w-3.5" />
                                        </Button>
                                     </div>
                                  </TableCell>
@@ -1422,15 +1424,15 @@ export default function NexusSuperControl() {
                </div>
 
                {/* SINGLE BUSINESS / TENANT BACKUP & RESTORE */}
-               <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800">
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-6">
+               <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+                  <div className="flex flex-col gap-4 mb-6">
                      <div>
-                        <h3 className="text-lg font-[1000] text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-                           <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                           Individual Business Backup & Restore
+                        <h3 className="text-base md:text-lg font-[1000] text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                           <Building2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                           Individual Business Backup &amp; Restore
                         </h3>
                         <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                           Export or restore data for a <strong>specific business</strong> without touching or resetting other businesses.
+                           Export or restore data for a <strong>specific business</strong> without touching other businesses.
                         </p>
                      </div>
                      
@@ -1466,9 +1468,9 @@ export default function NexusSuperControl() {
                         <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">No registered businesses found to backup individually.</p>
                      </div>
                   ) : (
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                         {businessesList.map((b: any) => (
-                           <div key={b.id} className="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-3">
+                           <div key={b.id} className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-white/[0.02] flex items-center justify-between gap-2">
                               <div className="min-w-0 flex-1">
                                  <p className="font-bold text-sm text-slate-900 dark:text-white truncate">{b.name}</p>
                                  <p className="text-[10px] text-slate-500 font-mono truncate">/{b.slug || b.id}</p>
@@ -1499,7 +1501,7 @@ export default function NexusSuperControl() {
                                  size="sm"
                                  className="h-8 px-3 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 border-indigo-200 dark:border-indigo-800/40 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 shrink-0"
                               >
-                                 <Download className="h-3 w-3 mr-1" /> Backup
+                                 <Download className="h-3 w-3 mr-1 shrink-0" /> Backup
                               </Button>
                            </div>
                         ))}
