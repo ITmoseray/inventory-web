@@ -26,6 +26,9 @@ model Business {
   address                 String?
   email                   String?
   phone                   String?
+  secondaryPhone          String?
+  whatsappPhone           String?
+  receiptSettings         Json?
   referralSource          String?
   customReferralSource    String?
   flutterwaveRef          String?

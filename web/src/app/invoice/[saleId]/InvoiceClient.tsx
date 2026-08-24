@@ -117,6 +117,8 @@ export default function InvoiceClient({ sale }: { sale: any }) {
                 </div>
               </div>
               {sale.business?.phone && <p className="text-indigo-200 text-xs">📞 {sale.business.phone}</p>}
+              {(sale.business as any)?.secondaryPhone && <p className="text-indigo-200 text-xs">📱 Alt: {(sale.business as any).secondaryPhone}</p>}
+              {(sale.business as any)?.whatsappPhone && <p className="text-indigo-200 text-xs">💬 WhatsApp: {(sale.business as any).whatsappPhone}</p>}
               {sale.business?.email && <p className="text-indigo-200 text-xs">✉️ {sale.business.email}</p>}
             </div>
             <div className="text-right">

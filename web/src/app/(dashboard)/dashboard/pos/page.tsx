@@ -793,9 +793,14 @@ export default function POSPage() {
           cashierName: session?.user?.name,
           customerName: customerObj?.name || "WALKIN",
           transactionId: result.saleId || undefined,
-          businessName: businessInfo?.name || session?.user?.businessName || "Protech Assist SL Limited",
+          businessName: businessInfo?.name || session?.user?.businessName || "Enterprise OS",
           businessAddress: businessInfo?.address || undefined,
-          businessPhone: businessInfo?.phone || undefined
+          businessPhone: businessInfo?.phone || undefined,
+          businessSecondaryPhone: businessInfo?.secondaryPhone || undefined,
+          businessWhatsappPhone: businessInfo?.whatsappPhone || undefined,
+          businessEmail: businessInfo?.email || undefined,
+          logoUrl: businessInfo?.logoUrl || undefined,
+          receiptSettings: businessInfo?.receiptSettings || null,
         });
 
         if (currentDraftId) {
@@ -843,6 +848,11 @@ export default function POSPage() {
             businessName={receiptData.businessName}
             businessAddress={receiptData.businessAddress}
             businessPhone={receiptData.businessPhone}
+            businessSecondaryPhone={receiptData.businessSecondaryPhone}
+            businessWhatsappPhone={receiptData.businessWhatsappPhone}
+            businessEmail={receiptData.businessEmail}
+            logoUrl={receiptData.logoUrl}
+            receiptSettings={receiptData.receiptSettings}
           />
         )}
       </div>
@@ -1920,6 +1930,11 @@ export default function POSPage() {
                    businessName={receiptData.businessName}
                    businessAddress={receiptData.businessAddress}
                    businessPhone={receiptData.businessPhone}
+                   businessSecondaryPhone={receiptData.businessSecondaryPhone}
+                   businessWhatsappPhone={receiptData.businessWhatsappPhone}
+                   businessEmail={receiptData.businessEmail}
+                   logoUrl={receiptData.logoUrl}
+                   receiptSettings={receiptData.receiptSettings}
                  />
                </div>
              )}

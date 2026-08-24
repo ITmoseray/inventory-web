@@ -13,8 +13,11 @@ export async function getPublicInvoice(saleId: string) {
             logoUrl: true,
             address: true,
             phone: true,
+            secondaryPhone: true,
+            whatsappPhone: true,
             email: true,
             currency: true,
+            receiptSettings: true,
           }
         },
         customer: {

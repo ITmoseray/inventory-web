@@ -9,7 +9,7 @@ import {
   ArrowRight, Landmark, Briefcase, Plus, Menu, Sparkles,
   MapPin, Coins, Hash, Mail, Tag, Play, History, Box, 
   Wallet, Activity, Edit, Undo, Layers, Terminal, Calendar,
-  CheckCircle2, AlertCircle, Copy, FileSpreadsheet
+  CheckCircle2, AlertCircle, Copy, FileSpreadsheet, Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -70,6 +70,7 @@ const SETTINGS_GROUPS = [
     title: "Customization",
     icon: Edit,
     items: [
+      { name: "Receipt & Thermal Layout", icon: Receipt, url: "/dashboard/system/settings/business?tab=receipt" },
       { name: "Transaction Number Series", icon: Hash },
       { name: "PDF Templates", icon: FileText },
       { name: "Email Notifications", icon: Mail },

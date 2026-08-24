@@ -35,15 +35,24 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
            <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
            <div className="relative z-10 flex flex-col items-center">
               {receipt.business.logoUrl ? (
-                <img src={receipt.business.logoUrl} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white/20 mb-4 bg-white object-cover" />
+                <img src={receipt.business.logoUrl} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white/20 mb-4 bg-white object-cover shadow-md" />
               ) : (
                 <div className="h-16 w-16 rounded-full border-4 border-white/20 mb-4 bg-white/10 flex items-center justify-center">
                   <ReceiptIcon className="h-8 w-8 text-white" />
                 </div>
               )}
               <h1 className="text-2xl font-black text-white tracking-tight">{receipt.business.name}</h1>
+              {(receipt.business as any)?.receiptSettings?.headerTagline && (
+                <p className="text-indigo-100 text-xs italic font-medium mt-0.5">{(receipt.business as any).receiptSettings.headerTagline}</p>
+              )}
               <p className="text-indigo-200 text-sm font-medium mt-1">{receipt.business.address || "Digital Receipt"}</p>
-              {receipt.business.phone && <p className="text-indigo-200 text-xs mt-1">{receipt.business.phone}</p>}
+              
+              {/* Phone Contacts */}
+              <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 text-indigo-200 text-xs mt-1.5 font-medium">
+                {receipt.business.phone && <span>Tel: {receipt.business.phone}</span>}
+                {(receipt.business as any)?.secondaryPhone && <span>Alt: {(receipt.business as any).secondaryPhone}</span>}
+                {(receipt.business as any)?.whatsappPhone && <span>WhatsApp: {(receipt.business as any).whatsappPhone}</span>}
+              </div>
            </div>
         </div>
 
@@ -102,19 +111,26 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
               </div>
            </div>
 
-           <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 text-sm gap-4 sm:gap-0">
-              <div className="flex flex-col gap-1">
-                 <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Payment Method</span>
-                 <span className="font-black text-slate-900">{receipt.paymentMethod}</span>
-              </div>
-              <div className="flex flex-col gap-1 sm:text-right">
-                 <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Status</span>
-                 <span className="font-black text-emerald-500 flex items-center sm:justify-end gap-1">
-                    <CheckCircle2 className="h-3 w-3" /> {receipt.paymentStatus}
-                 </span>
-              </div>
-           </div>
-        </div>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between px-2 text-sm gap-4 sm:gap-0">
+               <div className="flex flex-col gap-1">
+                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Payment Method</span>
+                  <span className="font-black text-slate-900">{receipt.paymentMethod}</span>
+               </div>
+               <div className="flex flex-col gap-1 sm:text-right">
+                  <span className="font-bold text-slate-400 uppercase tracking-widest text-[10px]">Status</span>
+                  <span className="font-black text-emerald-500 flex items-center sm:justify-end gap-1">
+                     <CheckCircle2 className="h-3 w-3" /> {receipt.paymentStatus}
+                  </span>
+               </div>
+            </div>
+
+            {/* Custom Notes & Return Policy */}
+            <div className="mt-8 pt-6 border-t border-dashed border-slate-200 text-center space-y-1 text-slate-500">
+               <p className="text-xs font-semibold text-slate-700">{(receipt.business as any)?.receiptSettings?.footerMessage || "Thank you for your business!"}</p>
+               <p className="text-[10px] text-slate-400 italic">{(receipt.business as any)?.receiptSettings?.returnPolicy || "* Returns accepted within 7 days with original receipt *"}</p>
+               <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest pt-2">Powered by Enterprise OS</p>
+            </div>
+         </div>
 
         {/* Footer actions - Hidden on print */}
         <ReceiptActions receipt={receipt} />

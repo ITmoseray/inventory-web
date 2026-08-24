@@ -45,8 +45,11 @@ export async function getPublicReceipt(saleId: string) {
         name: sale.business.name,
         address: sale.business.address,
         phone: sale.business.phone,
+        secondaryPhone: sale.business.secondaryPhone,
+        whatsappPhone: sale.business.whatsappPhone,
         email: sale.business.email,
         logoUrl: sale.business.logoUrl,
+        receiptSettings: sale.business.receiptSettings,
       },
       customer: sale.customer ? {
         name: sale.customer.name,

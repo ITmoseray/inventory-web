@@ -3,32 +3,60 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { 
-  Building, Save, Globe, Smartphone, Store, ShieldCheck
+  Building, Save, Globe, Smartphone, Store, ShieldCheck,
+  Receipt, Sliders, Eye, Phone, MessageSquare, Mail, MapPin,
+  CheckCircle2, Sparkles, AlertCircle, RefreshCw
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { getCurrentBusiness, updateBusiness } from "@/lib/actions/business";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { uploadBusinessLogo } from "@/lib/actions/upload";
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ThermalReceipt } from "@/components/pos/ThermalReceipt";
+import { cn } from "@/lib/utils";
 
 export default function BusinessSettingsPage() {
   const { data: session, update } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") === "receipt" ? "receipt" : "profile";
+
+  const [activeTab, setActiveTab] = useState<"profile" | "receipt">(initialTab);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
-  
+
+  // Form State
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    secondaryPhone: "",
+    whatsappPhone: "",
+    email: "",
     address: "",
     logoUrl: "",
     type: "",
-    plan: ""
+    plan: "",
+    receiptSettings: {
+      headerTagline: "",
+      footerMessage: "Thank you for your business!",
+      returnPolicy: "* Returns accepted within 7 days with original receipt *",
+      showLogo: true,
+      showAddress: true,
+      showPhone: true,
+      showSecondaryPhone: true,
+      showWhatsapp: true,
+      showEmail: false,
+      showCashier: true,
+      showCustomer: true,
+      showQrCode: true,
+      showPoweredBy: true,
+      paperWidth: "80mm" as "58mm" | "80mm",
+    }
   });
 
   useEffect(() => {
@@ -36,13 +64,33 @@ export default function BusinessSettingsPage() {
       try {
         const business = await getCurrentBusiness();
         if (business) {
+          const rawSettings = (business.receiptSettings as any) || {};
           setFormData({
             name: business.name || "",
             phone: business.phone || "",
+            secondaryPhone: (business as any).secondaryPhone || "",
+            whatsappPhone: (business as any).whatsappPhone || "",
+            email: business.email || "",
             address: business.address || "",
             logoUrl: business.logoUrl || "",
             type: business.type || "",
-            plan: business.plan || ""
+            plan: business.plan || "",
+            receiptSettings: {
+              headerTagline: rawSettings.headerTagline ?? "",
+              footerMessage: rawSettings.footerMessage ?? "Thank you for your business!",
+              returnPolicy: rawSettings.returnPolicy ?? "* Returns accepted within 7 days with original receipt *",
+              showLogo: rawSettings.showLogo ?? true,
+              showAddress: rawSettings.showAddress ?? true,
+              showPhone: rawSettings.showPhone ?? true,
+              showSecondaryPhone: rawSettings.showSecondaryPhone ?? true,
+              showWhatsapp: rawSettings.showWhatsapp ?? true,
+              showEmail: rawSettings.showEmail ?? false,
+              showCashier: rawSettings.showCashier ?? true,
+              showCustomer: rawSettings.showCustomer ?? true,
+              showQrCode: rawSettings.showQrCode ?? true,
+              showPoweredBy: rawSettings.showPoweredBy ?? true,
+              paperWidth: rawSettings.paperWidth ?? "80mm",
+            }
           });
         }
       } catch (error) {
@@ -63,24 +111,32 @@ export default function BusinessSettingsPage() {
       const result = await updateBusiness({
         name: formData.name,
         phone: formData.phone,
+        secondaryPhone: formData.secondaryPhone,
+        whatsappPhone: formData.whatsappPhone,
+        email: formData.email,
         address: formData.address,
-        logoUrl: formData.logoUrl
+        logoUrl: formData.logoUrl,
+        receiptSettings: formData.receiptSettings
       });
       
       if (result.success) {
-        toast.success("Business profile updated successfully");
-        // Force session update so the sidebar/header reflects the new name/logo immediately if supported
+        toast.success("Business profile & receipt settings updated successfully!");
         await update();
         router.refresh();
       } else {
-        toast.error(result.error || "Failed to update business");
+        toast.error(result.error || "Failed to update business settings");
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to update business");
+      toast.error(error.message || "Failed to update business settings");
     } finally {
       setLoading(false);
     }
   };
+
+  const sampleReceiptItems = [
+    { name: "Sample Item Alpha", quantity: 2, price: 50 },
+    { name: "Sample Item Beta", quantity: 1, price: 120 },
+  ];
 
   if (initialLoading) {
     return (
@@ -92,138 +148,401 @@ export default function BusinessSettingsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Organization Profile</h1>
-            <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Manage your enterprise identity</p>
+            <h1 className="text-3xl font-[1000] tracking-tighter text-slate-900 dark:text-white uppercase italic">Business &amp; Receipt Settings</h1>
+            <p className="text-slate-500 font-bold text-[10px] uppercase tracking-[0.3em] mt-1">Manage contact numbers, identity &amp; receipt customization</p>
           </div>
           <Button variant="outline" onClick={() => router.push("/dashboard/system/settings")} className="h-10 rounded-xl">
              Back to Settings
           </Button>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {/* Business Info Display */}
-          <Card className="md:col-span-1 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] overflow-hidden h-fit">
-             <div className="h-24 bg-indigo-600 relative">
-                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-20 w-20 rounded-2xl bg-white dark:bg-slate-900 border-4 border-slate-50 dark:border-slate-950 flex items-center justify-center shadow-lg overflow-hidden">
-                   {formData.logoUrl ? (
-                     <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
-                   ) : (
-                     <Building className="h-10 w-10 text-indigo-600" />
-                   )}
-                </div>
-             </div>
-             <CardContent className="pt-14 pb-8 text-center space-y-4">
-                <div>
-                   <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{formData.name || "N/A"}</h3>
-                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 text-[10px] font-black uppercase tracking-widest mt-2 border border-indigo-100 dark:border-indigo-900/50">
-                      <Store className="h-3 w-3" />
-                      {formData.type || "BUSINESS"}
-                   </div>
-                </div>
-                
-                <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
-                   <div className="flex items-center gap-3 text-left p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <Smartphone className="h-4 w-4 text-slate-400" />
-                      <div className="flex flex-col">
-                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Contact Phone</span>
-                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{formData.phone || "Not set"}</span>
-                      </div>
-                   </div>
-                   <div className="flex items-center gap-3 text-left p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <Store className="h-4 w-4 text-slate-400" />
-                      <div className="flex flex-col">
-                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Business Address</span>
-                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300 truncate">{formData.address || "Not set"}</span>
-                      </div>
-                   </div>
-                   <div className="flex items-center gap-3 text-left p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                      <ShieldCheck className="h-4 w-4 text-slate-400" />
-                      <div className="flex flex-col">
-                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Plan</span>
-                         <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{formData.plan || "N/A"}</span>
-                      </div>
-                   </div>
-                </div>
-             </CardContent>
-          </Card>
-
-          {/* Edit Form */}
-          <Card className="md:col-span-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem]">
-             <CardHeader className="p-8 pb-4">
-                <div className="flex items-center gap-3 mb-2">
-                   <Globe className="h-5 w-5 text-indigo-500" />
-                   <CardTitle className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Business Details</CardTitle>
-                </div>
-                <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 italic">Update your public facing business information</CardDescription>
-             </CardHeader>
-             <CardContent className="p-8 pt-4">
-                <form onSubmit={handleUpdate} className="space-y-6">
-                   <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Name</Label>
-                      <Input 
-                        type="text" 
-                        required
-                        value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
-                        className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold"
-                        placeholder="Company Name"
-                      />
-                   </div>
-
-                   <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Phone</Label>
-                      <Input 
-                        type="text" 
-                        value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                        className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold"
-                        placeholder="+1 234 567 890"
-                      />
-                   </div>
-
-                   <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Address</Label>
-                      <Input 
-                        type="text" 
-                        value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
-                        className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:ring-2 focus:ring-indigo-600/10 transition-all font-bold"
-                        placeholder="123 Enterprise Way, Freetown"
-                      />
-                   </div>
-
-                   <div className="space-y-2 pt-4">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Logo</Label>
-                      <ImageUploader 
-                        value={formData.logoUrl} 
-                        onChange={(url) => setFormData({...formData, logoUrl: url})} 
-                        uploadAction={uploadBusinessLogo} 
-                        label="Upload Organization Logo"
-                      />
-                   </div>
-
-                   <div className="pt-8 flex items-center justify-end">
-                      <Button 
-                        type="submit"
-                        disabled={loading}
-                        className="h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-[0.2em] shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 flex items-center gap-3"
-                      >
-                         {loading ? (
-                           <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                         ) : (
-                           <Save className="h-4 w-4" />
-                         )}
-                         Save Changes
-                      </Button>
-                   </div>
-                </form>
-             </CardContent>
-          </Card>
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+          <button
+            type="button"
+            onClick={() => setActiveTab("profile")}
+            className={cn(
+              "flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all",
+              activeTab === "profile"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+            )}
+          >
+            <Building className="h-4 w-4" /> Organization &amp; Contacts
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("receipt")}
+            className={cn(
+              "flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all",
+              activeTab === "receipt"
+                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30"
+                : "text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800"
+            )}
+          >
+            <Receipt className="h-4 w-4" /> Receipt Customization &amp; Layout
+          </button>
         </div>
+
+        <form onSubmit={handleUpdate}>
+          {/* TAB 1: PROFILE & CONTACT NUMBERS */}
+          {activeTab === "profile" && (
+            <div className="grid gap-8 md:grid-cols-3">
+              {/* Business Info Summary Card */}
+              <Card className="md:col-span-1 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] overflow-hidden h-fit">
+                 <div className="h-24 bg-indigo-600 relative">
+                    <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 h-20 w-20 rounded-2xl bg-white dark:bg-slate-900 border-4 border-slate-50 dark:border-slate-950 flex items-center justify-center shadow-lg overflow-hidden">
+                       {formData.logoUrl ? (
+                         <img src={formData.logoUrl} alt="Logo" className="w-full h-full object-cover" />
+                       ) : (
+                         <Building className="h-10 w-10 text-indigo-600" />
+                       )}
+                    </div>
+                 </div>
+                 <CardContent className="pt-14 pb-8 text-center space-y-4">
+                    <div>
+                       <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">{formData.name || "N/A"}</h3>
+                       <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 text-[10px] font-black uppercase tracking-widest mt-2 border border-indigo-100 dark:border-indigo-900/50">
+                          <Store className="h-3 w-3" />
+                          {formData.type || "BUSINESS"}
+                       </div>
+                    </div>
+                    
+                    <div className="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800 text-left">
+                       <div className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Primary Phone</span>
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{formData.phone || "Not set"}</span>
+                       </div>
+                       {formData.secondaryPhone && (
+                         <div className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Secondary Phone</span>
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{formData.secondaryPhone}</span>
+                         </div>
+                       )}
+                       {formData.whatsappPhone && (
+                         <div className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">WhatsApp Line</span>
+                            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{formData.whatsappPhone}</span>
+                         </div>
+                       )}
+                       <div className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block">Business Address</span>
+                          <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{formData.address || "Not set"}</span>
+                       </div>
+                    </div>
+                 </CardContent>
+              </Card>
+
+              {/* Edit Form */}
+              <Card className="md:col-span-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem]">
+                 <CardHeader className="p-8 pb-4">
+                    <div className="flex items-center gap-3 mb-1">
+                       <Globe className="h-5 w-5 text-indigo-500" />
+                       <CardTitle className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Business &amp; Contact Details</CardTitle>
+                    </div>
+                    <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Manage all phone numbers and public contact info</CardDescription>
+                 </CardHeader>
+                 <CardContent className="p-8 pt-4 space-y-6">
+                    <div className="space-y-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Name</Label>
+                       <Input 
+                         type="text" 
+                         required
+                         value={formData.name}
+                         onChange={(e) => setFormData({...formData, name: e.target.value})}
+                         className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold"
+                         placeholder="Top Notch Drinks Closet"
+                       />
+                    </div>
+
+                    {/* Multiple Phone Numbers Section */}
+                    <div className="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 space-y-4">
+                      <div className="flex items-center gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
+                        <Phone className="h-4 w-4 text-indigo-600" />
+                        <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">Phone Numbers (Printed on Receipts)</span>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Primary Phone</Label>
+                           <Input 
+                             type="text" 
+                             value={formData.phone}
+                             onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                             className="h-11 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold"
+                             placeholder="+232 79 373838"
+                           />
+                        </div>
+
+                        <div className="space-y-1.5">
+                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Secondary / Alternate Phone</Label>
+                           <Input 
+                             type="text" 
+                             value={formData.secondaryPhone}
+                             onChange={(e) => setFormData({...formData, secondaryPhone: e.target.value})}
+                             className="h-11 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold"
+                             placeholder="+232 77 000000"
+                           />
+                        </div>
+
+                        <div className="space-y-1.5 sm:col-span-2">
+                           <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">WhatsApp / Customer Support Line</Label>
+                           <Input 
+                             type="text" 
+                             value={formData.whatsappPhone}
+                             onChange={(e) => setFormData({...formData, whatsappPhone: e.target.value})}
+                             className="h-11 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold"
+                             placeholder="+232 79 373838 (WhatsApp)"
+                           />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Official Email</Label>
+                         <Input 
+                           type="email" 
+                           value={formData.email}
+                           onChange={(e) => setFormData({...formData, email: e.target.value})}
+                           className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold"
+                           placeholder="contact@business.com"
+                         />
+                      </div>
+
+                      <div className="space-y-2">
+                         <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Address</Label>
+                         <Input 
+                           type="text" 
+                           value={formData.address}
+                           onChange={(e) => setFormData({...formData, address: e.target.value})}
+                           className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold"
+                           placeholder="17 Wilkinson road, Freetown"
+                         />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-2">
+                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Business Logo</Label>
+                       <ImageUploader 
+                         value={formData.logoUrl} 
+                         onChange={(url) => setFormData({...formData, logoUrl: url})} 
+                         uploadAction={uploadBusinessLogo} 
+                         label="Upload Organization Logo"
+                       />
+                    </div>
+
+                    <div className="pt-6 flex justify-end">
+                       <Button 
+                         type="submit"
+                         disabled={loading}
+                         className="h-12 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-600/30 gap-2"
+                       >
+                          {loading ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save className="h-4 w-4" />}
+                          Save Organization Changes
+                       </Button>
+                    </div>
+                 </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* TAB 2: RECEIPT CUSTOMIZATION & LIVE PREVIEW */}
+          {activeTab === "receipt" && (
+            <div className="grid gap-8 lg:grid-cols-12">
+              {/* Controls Column */}
+              <div className="lg:col-span-7 space-y-6">
+                <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem]">
+                  <CardHeader className="p-6 pb-3">
+                    <div className="flex items-center gap-2">
+                      <Sliders className="h-5 w-5 text-indigo-500" />
+                      <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Receipt Content &amp; Header</CardTitle>
+                    </div>
+                    <CardDescription className="text-xs text-slate-500">Customize how your printed and digital receipts look</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-3 space-y-4">
+                    {/* Header Tagline */}
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Header Tagline / Slogan</Label>
+                      <Input
+                        type="text"
+                        value={formData.receiptSettings.headerTagline}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          receiptSettings: { ...formData.receiptSettings, headerTagline: e.target.value }
+                        })}
+                        placeholder="e.g. Best Quality Drinks &amp; Liquors in Town"
+                        className="h-11 rounded-xl border-slate-200 dark:border-slate-800 font-medium text-xs"
+                      />
+                    </div>
+
+                    {/* Thank You Note */}
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Footer Thank You Message</Label>
+                      <Input
+                        type="text"
+                        value={formData.receiptSettings.footerMessage}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          receiptSettings: { ...formData.receiptSettings, footerMessage: e.target.value }
+                        })}
+                        placeholder="e.g. Thank you for shopping with us! Please come again."
+                        className="h-11 rounded-xl border-slate-200 dark:border-slate-800 font-medium text-xs"
+                      />
+                    </div>
+
+                    {/* Return Policy */}
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Return Policy / Terms Note</Label>
+                      <Textarea
+                        rows={2}
+                        value={formData.receiptSettings.returnPolicy}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          receiptSettings: { ...formData.receiptSettings, returnPolicy: e.target.value }
+                        })}
+                        placeholder="e.g. * Returns accepted within 7 days with original receipt *"
+                        className="rounded-xl border-slate-200 dark:border-slate-800 font-medium text-xs resize-none"
+                      />
+                    </div>
+
+                    {/* Paper Width */}
+                    <div className="space-y-1.5 pt-2">
+                      <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Receipt Paper Width</Label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setFormData({
+                            ...formData,
+                            receiptSettings: { ...formData.receiptSettings, paperWidth: "80mm" }
+                          })}
+                          className={cn(
+                            "p-3 rounded-xl border text-center font-bold text-xs transition-all",
+                            formData.receiptSettings.paperWidth === "80mm"
+                              ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600"
+                              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+                          )}
+                        >
+                          Standard Thermal (80mm)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setFormData({
+                            ...formData,
+                            receiptSettings: { ...formData.receiptSettings, paperWidth: "58mm" }
+                          })}
+                          className={cn(
+                            "p-3 rounded-xl border text-center font-bold text-xs transition-all",
+                            formData.receiptSettings.paperWidth === "58mm"
+                              ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600"
+                              : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
+                          )}
+                        >
+                          Compact Thermal (58mm)
+                        </button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Display Toggles */}
+                <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem]">
+                  <CardHeader className="p-6 pb-3">
+                    <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Display Options</CardTitle>
+                    <CardDescription className="text-xs text-slate-500">Toggle elements on or off</CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-6 pt-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {[
+                        { key: "showLogo", label: "Show Logo on Receipt" },
+                        { key: "showAddress", label: "Show Business Address" },
+                        { key: "showPhone", label: "Show Primary Phone" },
+                        { key: "showSecondaryPhone", label: "Show Secondary Phone" },
+                        { key: "showWhatsapp", label: "Show WhatsApp Line" },
+                        { key: "showEmail", label: "Show Official Email" },
+                        { key: "showCashier", label: "Show Cashier Name" },
+                        { key: "showCustomer", label: "Show Customer Name" },
+                        { key: "showQrCode", label: "Show Digital QR Code" },
+                        { key: "showPoweredBy", label: "Show Powered By Tag" },
+                      ].map((item) => {
+                        const isChecked = (formData.receiptSettings as any)[item.key] ?? true;
+                        return (
+                          <label
+                            key={item.key}
+                            className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50 hover:bg-slate-100/60 dark:hover:bg-slate-800/40 cursor-pointer transition-all"
+                          >
+                            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{item.label}</span>
+                            <input
+                              type="checkbox"
+                              checked={isChecked}
+                              onChange={(e) => setFormData({
+                                ...formData,
+                                receiptSettings: {
+                                  ...formData.receiptSettings,
+                                  [item.key]: e.target.checked
+                                }
+                              })}
+                              className="h-5 w-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                            />
+                          </label>
+                        );
+                      })}
+                    </div>
+
+                    <div className="pt-6 flex justify-end">
+                       <Button 
+                         type="submit"
+                         disabled={loading}
+                         className="h-12 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest shadow-xl shadow-indigo-600/30 gap-2"
+                       >
+                          {loading ? <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save className="h-4 w-4" />}
+                          Save Receipt Settings
+                       </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Live Preview Column */}
+              <div className="lg:col-span-5 space-y-4">
+                <div className="flex items-center justify-between px-2">
+                  <div className="flex items-center gap-2">
+                    <Eye className="h-4 w-4 text-indigo-500" />
+                    <span className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-white">Live Thermal Receipt Preview</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Real-time preview</span>
+                </div>
+
+                <div className="bg-slate-200 dark:bg-slate-950 p-6 rounded-[2rem] shadow-inner flex items-center justify-center border border-slate-300 dark:border-slate-800">
+                  <div className="shadow-2xl rounded-lg overflow-hidden">
+                    <ThermalReceipt
+                      id="DEMO-12345"
+                      items={sampleReceiptItems}
+                      total={220}
+                      paid={250}
+                      paymentMethod="CASH"
+                      cashierName="John Tucker"
+                      customerName="Melina Tamba"
+                      transactionId="INV-2026-0089"
+                      businessName={formData.name || "Top Notch Drinks Closet"}
+                      businessAddress={formData.address || "17 Wilkinson road, Freetown"}
+                      businessPhone={formData.phone || "+232 79 373838"}
+                      businessSecondaryPhone={formData.secondaryPhone || undefined}
+                      businessWhatsappPhone={formData.whatsappPhone || undefined}
+                      businessEmail={formData.email || undefined}
+                      logoUrl={formData.logoUrl || undefined}
+                      receiptSettings={formData.receiptSettings}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </form>
       </div>
     </div>
   );

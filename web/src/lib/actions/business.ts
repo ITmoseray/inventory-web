@@ -109,7 +109,16 @@ export async function getCurrentBusiness() {
   }
 }
 
-export async function updateBusiness(data: { name?: string; phone?: string; logoUrl?: string; address?: string }) {
+export async function updateBusiness(data: { 
+  name?: string; 
+  phone?: string; 
+  secondaryPhone?: string;
+  whatsappPhone?: string;
+  email?: string;
+  logoUrl?: string; 
+  address?: string;
+  receiptSettings?: any;
+}) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
@@ -117,14 +126,19 @@ export async function updateBusiness(data: { name?: string; phone?: string; logo
     const updated = await prisma.business.update({
       where: { id: session.user.businessId },
       data: {
-        name: data.name,
-        phone: data.phone,
-        logoUrl: data.logoUrl,
-        address: data.address
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.phone !== undefined && { phone: data.phone }),
+        ...(data.secondaryPhone !== undefined && { secondaryPhone: data.secondaryPhone }),
+        ...(data.whatsappPhone !== undefined && { whatsappPhone: data.whatsappPhone }),
+        ...(data.email !== undefined && { email: data.email }),
+        ...(data.logoUrl !== undefined && { logoUrl: data.logoUrl }),
+        ...(data.address !== undefined && { address: data.address }),
+        ...(data.receiptSettings !== undefined && { receiptSettings: data.receiptSettings }),
       }
     });
 
     revalidatePath("/dashboard/system/settings/business");
+    revalidatePath("/dashboard/pos");
     revalidatePath("/dashboard");
     return { success: true, business: updated };
   } catch (error: any) {
