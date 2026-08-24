@@ -79,7 +79,9 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
     const headerTagline = receiptSettings?.headerTagline;
     const footerMessage = receiptSettings?.footerMessage || "Thank you for your business!";
     const returnPolicy = receiptSettings?.returnPolicy || "* Returns accepted within 7 days with receipt *";
-    const paperWidthClass = receiptSettings?.paperWidth === "58mm" ? "w-[58mm] print:w-[58mm]" : "w-[80mm] print:w-[80mm]";
+    const paperWidthClass = receiptSettings?.paperWidth === "58mm" 
+      ? "w-[58mm] max-w-full print:w-[58mm]" 
+      : "w-[80mm] max-w-full print:w-[80mm]";
 
     // Build phones list
     const phones: string[] = [];
