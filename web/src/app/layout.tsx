@@ -52,7 +52,17 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="apple-touch-icon" href="/images/PA.png" />
+        <link rel="apple-touch-icon" href="/images/logo-192.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-192.png" />
+        <link rel="apple-touch-icon" sizes="192x192" href="/images/logo-192.png" />
+        <link rel="apple-touch-icon" sizes="512x512" href="/images/logo-512.png" />
+        <link rel="icon" type="image/png" sizes="192x192" href="/images/logo-192.png" />
+        <link rel="icon" type="image/png" sizes="512x512" href="/images/logo-512.png" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Enterprise OS" />
+        <meta name="application-name" content="Enterprise OS" />
       </head>
       <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
         <ThemeProvider

@@ -88,9 +88,13 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
 
   const handleRemove = (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setPreview(null);
     setError(null);
     onChange("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (cameraInputRef.current) cameraInputRef.current.value = "";
+    toast.info("Image removed. Save to apply changes.");
   };
 
   const triggerUpload = () => {
@@ -108,29 +112,98 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
   return (
     <div className="space-y-3">
       {preview ? (
-        <div className="relative group w-full aspect-square max-w-[200px] mx-auto overflow-hidden rounded-2xl border-4 border-white dark:border-slate-800 shadow-xl bg-slate-100 dark:bg-slate-900">
-          <Image
-            src={preview}
-            alt="Product Preview"
-            fill
-            className="object-cover transition-transform group-hover:scale-105"
-            unoptimized
-            onError={() => {
-              setError("Failed to load image preview.");
-              setPreview(null);
-              onChange("");
-            }}
-          />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        <div className="space-y-3">
+          {/* Active Image Card */}
+          <div className="relative group w-full aspect-square max-w-[220px] mx-auto overflow-hidden rounded-2xl border-2 border-slate-200 dark:border-slate-800 shadow-md bg-slate-100 dark:bg-slate-900">
+            <Image
+              src={preview}
+              alt="Product Preview"
+              fill
+              className="object-cover transition-transform group-hover:scale-105"
+              unoptimized
+              onError={() => {
+                setError("Failed to load image preview.");
+                setPreview(null);
+                onChange("");
+              }}
+            />
+
+            {/* Quick remove on hover (desktop convenience) */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="h-9 px-3 rounded-xl shadow-lg font-bold text-xs gap-1.5"
+                onClick={handleRemove}
+              >
+                <X className="h-4 w-4" /> Remove
+              </Button>
+            </div>
+          </div>
+
+          {/* Action Buttons (Always visible on all screens, especially mobile) */}
+          <div className="flex flex-wrap items-center justify-center gap-2 max-w-[320px] mx-auto">
             <Button
-              variant="destructive"
-              size="icon"
-              className="h-10 w-10 rounded-full shadow-lg"
-              onClick={handleRemove}
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              onClick={triggerUpload}
+              className="h-9 px-3 rounded-xl font-bold text-[11px] uppercase tracking-wider gap-1.5 border-slate-200 dark:border-slate-800 hover:bg-primary/5 hover:text-primary hover:border-primary/40 transition-all flex-1"
             >
-              <X className="h-5 w-5" />
+              {loading && uploadSource === "file" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Upload className="h-3.5 w-3.5" />
+              )}
+              Replace
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              onClick={triggerCamera}
+              className="h-9 px-3 rounded-xl font-bold text-[11px] uppercase tracking-wider gap-1.5 border-slate-200 dark:border-slate-800 hover:bg-indigo-500/5 hover:text-indigo-500 hover:border-indigo-500/40 transition-all flex-1"
+            >
+              {loading && uploadSource === "camera" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Camera className="h-3.5 w-3.5" />
+              )}
+              Camera
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={loading}
+              onClick={handleRemove}
+              className="h-9 px-3 rounded-xl font-bold text-[11px] uppercase tracking-wider gap-1.5 border-rose-200 dark:border-rose-900/40 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:border-rose-300 transition-all"
+            >
+              <X className="h-3.5 w-3.5" /> Remove
             </Button>
           </div>
+
+          {/* Hidden inputs for replace/camera */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            accept={ACCEPTED_TYPES.join(",")}
+            onChange={(e) => handleUpload(e, "file")}
+          />
+          <input
+            ref={cameraInputRef}
+            type="file"
+            className="hidden"
+            accept={ACCEPTED_TYPES.join(",")}
+            capture="environment"
+            onChange={(e) => handleUpload(e, "camera")}
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -185,7 +258,6 @@ export function ImageUploader({ value, onChange, uploadAction, label = "Product 
               </span>
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">Take Photo</span>
             </div>
-            {/* environment = rear camera (default for product photos) */}
             <input
               ref={cameraInputRef}
               type="file"

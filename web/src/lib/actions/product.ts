@@ -256,7 +256,7 @@ export async function updateProduct(id: string, data: any) {
           status,
           categoryId: categoryId === "" || categoryId === "none" ? null : categoryId,
           metadata: metadata || {},
-          imageUrl,
+          imageUrl: imageUrl && typeof imageUrl === "string" && imageUrl.trim() !== "" ? imageUrl : null,
           baseUnit,
           requiresPrescription: requiresPrescription !== undefined ? requiresPrescription : false,
           genericAlternative: genericAlternative !== undefined ? genericAlternative : null,

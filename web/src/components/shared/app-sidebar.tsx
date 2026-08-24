@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
-  Crown, Zap, ArrowRight, Trophy
+  Crown, Zap, ArrowRight, Trophy, Download
 } from "lucide-react";
 
 import {
@@ -417,13 +417,32 @@ const SidebarContentRenderer = ({
             "from-slate-600 to-slate-800";
 
           return (
-            <Link
-              href="/pricing"
-              className={cn(
-                "group relative flex items-center justify-between overflow-hidden rounded-lg p-2 transition-all duration-300 hover:brightness-110 border border-white/10 bg-gradient-to-br mx-1 mb-1",
-                gradientClass
-              )}
-            >
+            <div className="space-y-1 mx-1 mb-1">
+              <button
+                type="button"
+                onClick={() => {
+                  if (typeof window !== "undefined") {
+                    window.dispatchEvent(new Event("open-pwa-install"));
+                  }
+                }}
+                className="w-full flex items-center justify-between rounded-lg p-2 transition-all duration-300 hover:bg-white/10 text-slate-300 hover:text-white border border-white/5 group"
+              >
+                <div className="flex items-center gap-2">
+                  <Download className="h-3.5 w-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
+                  <span className="text-[10px] font-bold">Install App</span>
+                </div>
+                <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded text-indigo-300 bg-indigo-500/20">
+                  PWA
+                </span>
+              </button>
+
+              <Link
+                href="/pricing"
+                className={cn(
+                  "group relative flex items-center justify-between overflow-hidden rounded-lg p-2 transition-all duration-300 hover:brightness-110 border border-white/10 bg-gradient-to-br",
+                  gradientClass
+                )}
+              >
               {/* Shimmer */}
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.15),_transparent_50%)] pointer-events-none" />
 
@@ -444,7 +463,8 @@ const SidebarContentRenderer = ({
                 </span>
               </div>
             </Link>
-          );
+          </div>
+        );
         })()}
       </SidebarFooter>
 
