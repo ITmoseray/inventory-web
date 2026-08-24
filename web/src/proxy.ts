@@ -42,7 +42,9 @@ export default auth((req) => {
       return injectCORS(NextResponse.redirect(new URL('/access-denied', req.url)));
     }
 
-    if (role !== 'SUPERADMIN') {
+    const isSuperAdminImpersonating = session.user?.originalRole === 'SUPERADMIN';
+
+    if (role !== 'SUPERADMIN' && !isSuperAdminImpersonating) {
       // Trial expiration check
       const trialEndDate = session.user.trialEndDate;
       const isTrialExpired = trialEndDate && new Date(trialEndDate) < new Date();

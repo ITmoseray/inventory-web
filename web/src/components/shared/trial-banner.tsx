@@ -60,7 +60,9 @@ export function TrialBanner() {
     setIsVisible(false);
   };
 
-  if (!mounted || !isVisible || !session?.user?.trialEndDate) return null;
+  const isPureSuperAdmin = session?.user?.role === "SUPERADMIN" && !(session?.user as any)?.originalRole;
+
+  if (!mounted || !isVisible || !session?.user?.trialEndDate || isPureSuperAdmin) return null;
 
   const isExpired = daysLeft !== null && daysLeft <= 0;
 

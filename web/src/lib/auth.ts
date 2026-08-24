@@ -422,7 +422,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   token.originalBusinessId = token.businessId;
                   token.originalBusinessName = token.businessName;
                   token.originalBusinessType = token.businessType;
+                  token.originalInstitutionType = token.institutionType;
                   token.originalTrialEndDate = token.trialEndDate;
+                  token.originalPlan = token.plan;
+                  token.originalSubscriptionEndDate = token.subscriptionEndDate;
                   token.originalPermissions = token.permissions;
                 }
 
@@ -432,6 +435,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.businessId = targetUser.businessId;
                 token.businessName = targetUser.business.name;
                 token.businessType = targetUser.business.type;
+                token.institutionType = targetUser.business.institutionType;
+                token.trialEndDate = targetUser.business.trialEndDate;
+                token.plan = targetUser.business.plan;
+                token.subscriptionEndDate = (targetUser.business as any).subscriptionEndDate || null;
                 token.permissions = targetUser.role.permissions.map(p => p.key);
               }
             }
@@ -444,6 +451,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.businessType = token.originalBusinessType as string;
             token.institutionType = token.originalInstitutionType as string | null;
             token.trialEndDate = token.originalTrialEndDate as any;
+            token.plan = token.originalPlan as string;
+            token.subscriptionEndDate = token.originalSubscriptionEndDate as any;
             token.permissions = token.originalPermissions as string[];
 
             // Delete original keys from token
@@ -452,7 +461,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             delete token.originalBusinessId;
             delete token.originalBusinessName;
             delete token.originalBusinessType;
+            delete token.originalInstitutionType;
             delete token.originalTrialEndDate;
+            delete token.originalPlan;
+            delete token.originalSubscriptionEndDate;
             delete token.originalPermissions;
           }
         }
