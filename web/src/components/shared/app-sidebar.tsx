@@ -629,40 +629,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       permission: "view_dashboard"
     });
 
-    if (session?.user?.role === "SUPERADMIN") {
-      merged.unshift({
-        label: "Master Control",
-        items: [
-          {
-            title: "Master Super Admin Monitor",
-            url: "/super-admin/master-monitor",
-            icon: Crown,
-            permission: "view_dashboard"
-          },
-          {
-            title: "Super Admin Panel",
-            url: "/super-admin",
-            icon: ShieldCheck,
-            permission: "view_dashboard"
-          },
-          {
-            title: "Client Implementation Audits",
-            url: "/super-admin/implementations",
-            icon: ClipboardCheck,
-            permission: "view_dashboard"
-          },
-          {
-            title: "Registration Vault",
-            url: "/super-admin/businesses",
-            icon: Megaphone,
-            permission: "view_dashboard"
-          }
-        ]
-      });
-    }
-
     return merged;
-  }, [businessTypesString, session?.user?.institutionType, session?.user?.role]);
+  }, [businessTypesString, session?.user?.institutionType]);
   
   const filteredNavGroups = React.useMemo(() => {
     if (status === "loading") return [];

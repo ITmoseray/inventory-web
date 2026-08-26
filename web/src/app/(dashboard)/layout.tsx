@@ -197,17 +197,7 @@ export default async function DashboardLayout({
               </div>
             </div>
 
-            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-               {session?.user?.role === "SUPERADMIN" && (
-                 <Link 
-                   href="/super-admin/master-monitor" 
-                   title="Supreme Master Super Admin Monitor"
-                   className="flex items-center gap-1.5 h-9 px-3 sm:px-3.5 rounded-full bg-gradient-to-r from-amber-500/15 via-amber-500/20 to-indigo-500/15 hover:from-amber-500/25 hover:to-indigo-500/25 text-amber-600 dark:text-amber-400 text-xs font-black transition-all border border-amber-500/30 shadow-sm"
-                 >
-                   <Crown className="h-3.5 w-3.5 text-amber-500 fill-current" />
-                   <span className="hidden sm:inline">Master Monitor</span>
-                 </Link>
-               )}
+            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                <Link href="/dashboard/intelligence/chat" className="hidden sm:flex items-center gap-2 h-9 px-4 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-primary dark:text-indigo-400 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
                   <Zap className="h-3.5 w-3.5 fill-current" />
                   AI Assistant
