@@ -12,13 +12,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export type ConfirmModalVariant = "delete" | "danger" | "warning";
+export type ConfirmModalVariant = "delete" | "danger" | "warning" | "destructive" | string;
 
-interface ConfirmModalProps {
+export interface ConfirmModalProps {
   /** Whether the modal is open */
-  open: boolean;
+  open?: boolean;
+  isOpen?: boolean;
   /** Called when the modal should close (cancel or after confirm) */
-  onOpenChange: (open: boolean) => void;
+  onOpenChange?: (open: boolean) => void;
+  onClose?: () => void;
   /** Modal heading */
   title: string;
   /** Descriptive body text — supports JSX */
@@ -30,8 +32,11 @@ interface ConfirmModalProps {
   confirmWord?: string;
   /** Label shown on the confirm button. Defaults to "Confirm". */
   confirmLabel?: string;
+  confirmText?: string;
   /** Label shown while loading. Defaults to "Processing…". */
   loadingLabel?: string;
+  /** Label shown on cancel button. Defaults to "Cancel". */
+  cancelText?: string;
   /** Called when the user clicks confirm (and confirmWord matches if required) */
   onConfirm: () => Promise<void> | void;
   /** Visual variant — changes icon and color tone. Defaults to "delete". */
@@ -41,22 +46,27 @@ interface ConfirmModalProps {
 }
 
 const VARIANT_CONFIG: Record<
-  ConfirmModalVariant,
+  string,
   { icon: React.ElementType; label: string }
 > = {
   delete: { icon: Trash2, label: "Irreversible Deletion" },
+  destructive: { icon: Trash2, label: "Irreversible Deletion" },
   danger: { icon: AlertTriangle, label: "Critical Action" },
   warning: { icon: ShieldAlert, label: "Warning" },
 };
 
 export function ConfirmModal({
   open,
+  isOpen,
   onOpenChange,
+  onClose,
   title,
   description,
   confirmWord,
-  confirmLabel = "Confirm",
+  confirmLabel,
+  confirmText = "Confirm",
   loadingLabel = "Processing…",
+  cancelText = "Cancel",
   onConfirm,
   variant = "delete",
   warningNote,
@@ -64,7 +74,13 @@ export function ConfirmModal({
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const { icon: Icon, label: variantLabel } = VARIANT_CONFIG[variant];
+  const isModalOpen = open ?? isOpen ?? false;
+  const activeConfirmLabel = confirmLabel ?? confirmText;
+
+  const currentVariantKey = variant?.toLowerCase() || "delete";
+  const variantObj = VARIANT_CONFIG[currentVariantKey] || VARIANT_CONFIG.delete;
+  const Icon = variantObj.icon || Trash2;
+  const variantLabel = variantObj.label || "Confirmation Required";
   const needsTypedConfirm = Boolean(confirmWord);
   const isReady = !needsTypedConfirm || input.trim() === confirmWord;
 
@@ -73,7 +89,8 @@ export function ConfirmModal({
     try {
       setLoading(true);
       await onConfirm();
-      onOpenChange(false);
+      if (onOpenChange) onOpenChange(false);
+      if (onClose) onClose();
       setInput("");
     } finally {
       setLoading(false);
@@ -82,12 +99,15 @@ export function ConfirmModal({
 
   function handleOpenChange(next: boolean) {
     if (loading) return;
-    if (!next) setInput("");
-    onOpenChange(next);
+    if (!next) {
+      setInput("");
+      if (onClose) onClose();
+    }
+    if (onOpenChange) onOpenChange(next);
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={isModalOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="max-w-md bg-white dark:bg-slate-950 border-rose-500/20 rounded-3xl p-6 shadow-2xl shadow-rose-950/20">
         <DialogHeader className="space-y-3">
           {/* Icon badge */}
@@ -146,14 +166,14 @@ export function ConfirmModal({
               disabled={loading}
               className="flex-1 h-11 rounded-xl text-xs font-black uppercase tracking-wider text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
-              Cancel
+              {cancelText}
             </Button>
             <Button
               onClick={handleConfirm}
               disabled={!isReady || loading}
               className="flex-1 h-11 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-rose-600/20 disabled:opacity-40 transition-all cursor-pointer"
             >
-              {loading ? loadingLabel : confirmLabel}
+              {loading ? loadingLabel : activeConfirmLabel}
             </Button>
           </div>
         </div>

@@ -22,9 +22,24 @@ self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) {
     return;
   }
+
+  const url = new URL(event.request.url);
+  // Do not intercept API requests or internal server actions
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/super-admin') || url.pathname.includes('/_next/data/')) {
+    return;
+  }
+
   event.respondWith(
-    fetch(event.request).catch(() => {
-      return caches.match(event.request);
+    fetch(event.request).catch(async () => {
+      const cached = await caches.match(event.request);
+      if (cached) {
+        return cached;
+      }
+      return new Response('Network request failed', {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 'Content-Type': 'text/plain' }
+      });
     })
   );
 });

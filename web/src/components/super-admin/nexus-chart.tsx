@@ -29,9 +29,13 @@ export function NexusChart({ data, dataKey, category, color = "#6366f1" }: Nexus
 
   const isDark = !mounted || resolvedTheme === "dark";
 
+  if (!mounted) {
+    return <div className="h-[200px] w-full min-w-0" />;
+  }
+
   return (
-    <div className="h-[200px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-[200px] w-full min-w-0">
+      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
         <AreaChart
           data={data}
           margin={{
