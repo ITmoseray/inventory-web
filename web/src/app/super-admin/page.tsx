@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
@@ -58,6 +58,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { runAutomatedSystemChecks } from "@/lib/actions/cron-checks";
+import { getEcosystemOnlinePresence } from "@/lib/actions/presence";
 
 export default function NexusSuperControl() {
   const { data: session, status } = useSession();
@@ -83,6 +84,25 @@ export default function NexusSuperControl() {
   
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState<"telemetry" | "terminal" | "backups" | "settings" | "operators">("telemetry");
+
+  // Real-time Ecosystem Online Presence State
+  const [onlinePresence, setOnlinePresence] = useState<{
+    onlineUsersCount: number;
+    onlineBusinessesCount: number;
+    onlineBusinesses: any[];
+    onlineUsers: any[];
+    recentLogins: any[];
+    totalBusinessesCount?: number;
+  }>({
+    onlineUsersCount: 0,
+    onlineBusinessesCount: 0,
+    onlineBusinesses: [],
+    onlineUsers: [],
+    recentLogins: []
+  });
+  const [operatorFilter, setOperatorFilter] = useState<"ALL" | "ONLINE" | "OFFLINE">("ALL");
+  const knownLoginsRef = useRef<Set<string>>(new Set());
+  const initialLoadRef = useRef(true);
 
   // User Management State
   const [systemUsers, setSystemUsers] = useState<any[]>([]);
@@ -205,21 +225,46 @@ export default function NexusSuperControl() {
     }
   }, [status, router]);
 
-  // Real-time operators active sync interval
+  // Real-time Presence and Login Activity Polling (every 4 seconds)
   useEffect(() => {
-    if (activeTab !== "operators") return;
+    if (status !== "authenticated") return;
 
-    const interval = setInterval(async () => {
+    async function syncPresenceAndUsers() {
       try {
-        const updatedUsers = await getAllSystemUsers();
-        setSystemUsers(updatedUsers);
+        const [presence, uList] = await Promise.all([
+          getEcosystemOnlinePresence(),
+          getAllSystemUsers()
+        ]);
+        setOnlinePresence(presence);
+        setSystemUsers(uList);
+
+        // Detect new business logins and notify Super Admin
+        if (presence.recentLogins && presence.recentLogins.length > 0) {
+          if (initialLoadRef.current) {
+            presence.recentLogins.forEach((l: any) => knownLoginsRef.current.add(l.id));
+            initialLoadRef.current = false;
+          } else {
+            for (const login of presence.recentLogins) {
+              if (!knownLoginsRef.current.has(login.id)) {
+                knownLoginsRef.current.add(login.id);
+                toast.success(`🟢 Business Online: ${login.businessName}`, {
+                  description: `${login.userName} (${login.businessType}) just logged into the web app!`,
+                  duration: 6000
+                });
+              }
+            }
+          }
+        }
       } catch (err) {
-        console.error("Failed to sync operators activity:", err);
+        console.error("Failed to sync ecosystem presence:", err);
       }
-    }, 5000); // Poll every 5 seconds
+    }
+
+    syncPresenceAndUsers();
+    const interval = setInterval(syncPresenceAndUsers, 4000);
 
     return () => clearInterval(interval);
-  }, [activeTab]);
+  }, [status]);
 
   async function refreshData() {
     try {
@@ -761,18 +806,53 @@ export default function NexusSuperControl() {
            </div>
          </div>
 
-         {/* Bottom row: CTA buttons */}
-         <div className="flex flex-wrap items-center gap-3">
-            <Link href="/super-admin/implementations">
-               <Button className="h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                  <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits
-               </Button>
-            </Link>
-            <Link href="/super-admin/businesses">
-               <Button variant="outline" className="h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
-                  <Megaphone className="h-4 w-4 text-indigo-500" /> Client Discovery &amp; Registration Vault
-               </Button>
-            </Link>
+         {/* Bottom row: CTA buttons & Live Presence Badges */}
+         <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link href="/super-admin/implementations">
+                 <Button className="h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits
+                 </Button>
+              </Link>
+              <Link href="/super-admin/businesses">
+                 <Button variant="outline" className="h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
+                    <Megaphone className="h-4 w-4 text-indigo-500" /> Client Discovery &amp; Registration Vault
+                 </Button>
+              </Link>
+            </div>
+
+            {/* Real-time Online Presence Indicators */}
+            <div className="flex items-center gap-2">
+              <div 
+                onClick={() => setActiveTab("operators")}
+                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 transition-all hover:bg-emerald-500/20 shadow-sm"
+              >
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-[1000] uppercase tracking-wider leading-none">
+                    {onlinePresence.onlineBusinessesCount} {onlinePresence.onlineBusinessesCount === 1 ? "Business" : "Businesses"} Online
+                  </span>
+                  <span className="text-[8px] font-bold text-emerald-600/80 dark:text-emerald-400/80 uppercase tracking-widest mt-0.5">
+                    Live Active Stores
+                  </span>
+                </div>
+              </div>
+
+              <div 
+                onClick={() => setActiveTab("operators")}
+                className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 transition-all hover:bg-indigo-500/20 shadow-sm"
+              >
+                <Users className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-[1000] uppercase tracking-wider leading-none">
+                    {onlinePresence.onlineUsersCount} {onlinePresence.onlineUsersCount === 1 ? "User" : "Users"} Online
+                  </span>
+                  <span className="text-[8px] font-bold text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-widest mt-0.5">
+                    Active System Operators
+                  </span>
+                </div>
+              </div>
+            </div>
          </div>
       </div>
 
@@ -820,11 +900,79 @@ export default function NexusSuperControl() {
             <div className="space-y-12">
               {/* Performance Metrics */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 relative z-10">
-                <StatCard title="Registered Stores" value={stats.businessCount} description="Active Stores" icon={Globe} delay={0.1} />
-                <StatCard title="Total Users" value={stats.userCount} description="Active System Users" icon={Users} delay={0.2} />
+                <StatCard title="Active Stores Online" value={onlinePresence.onlineBusinessesCount} description={`of ${stats.businessCount} registered stores`} icon={Globe} delay={0.1} variant={onlinePresence.onlineBusinessesCount > 0 ? "emerald" as any : "default"} />
+                <StatCard title="Online Operators" value={onlinePresence.onlineUsersCount} description={`of ${stats.userCount} total users online now`} icon={Users} delay={0.2} />
                 <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
                 <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={stats.pendingApprovals > 0 ? "warning" : "default"} />
               </div>
+
+              {/* LIVE BUSINESSES & USERS CURRENTLY ONLINE */}
+              <GlassCard className="p-6 md:p-8 bg-white dark:bg-gradient-to-br dark:from-emerald-950/20 dark:via-slate-900/60 dark:to-slate-950 border-slate-200 dark:border-emerald-500/30 space-y-6 relative z-10 shadow-lg dark:shadow-2xl">
+                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800/80 pb-4">
+                    <div className="flex items-center gap-3">
+                       <div className="h-12 w-12 rounded-2xl bg-emerald-500/10 dark:bg-emerald-600/20 border border-emerald-500/20 dark:border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                          <Activity className="h-6 w-6 animate-pulse" />
+                       </div>
+                       <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-xl font-[1000] uppercase tracking-tight text-slate-900 dark:text-white italic">Live Online Stores &amp; Connected Staff</h3>
+                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-500 text-white font-black text-[9px] uppercase tracking-widest animate-pulse">
+                              LIVE PRESENCE
+                            </span>
+                          </div>
+                          <p className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Real-time heartbeat monitor across all businesses and tenant nodes</p>
+                       </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                       <Button 
+                         onClick={() => setActiveTab("operators")}
+                         size="sm" 
+                         className="h-10 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-md"
+                       >
+                          <Users className="h-3.5 w-3.5" /> View {onlinePresence.onlineUsersCount} Online Operators
+                       </Button>
+                    </div>
+                 </div>
+
+                 {onlinePresence.onlineBusinesses.length === 0 ? (
+                    <div className="p-8 text-center rounded-2xl bg-slate-50 dark:bg-slate-900/40 border border-dashed border-slate-200 dark:border-slate-800">
+                       <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">No businesses currently logged in. System is waiting for active tenant heartbeats.</p>
+                    </div>
+                 ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                       {onlinePresence.onlineBusinesses.map((b: any) => (
+                          <div key={b.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-emerald-500/20 dark:border-emerald-500/20 space-y-3 shadow-sm hover:border-emerald-500/40 transition-all">
+                             <div className="flex items-start justify-between gap-2">
+                                <div>
+                                   <div className="flex items-center gap-2">
+                                      <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                                      <h4 className="font-black text-sm text-slate-900 dark:text-white truncate">{b.name}</h4>
+                                   </div>
+                                   <p className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider ml-4">
+                                      {b.type} • {b.plan || "ENTERPRISE"}
+                                   </p>
+                                </div>
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">
+                                   {b.activeUsersCount} Online
+                                </span>
+                             </div>
+
+                             {/* Active Staff List in Store */}
+                             <div className="space-y-1.5 pt-1 border-t border-slate-200 dark:border-slate-800/80">
+                                {b.activeUsers.map((u: any) => (
+                                   <div key={u.id} className="flex items-center justify-between text-xs">
+                                      <span className="font-bold text-slate-700 dark:text-slate-300 truncate max-w-[150px]">{u.name}</span>
+                                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono">
+                                         {u.role}
+                                      </span>
+                                   </div>
+                                ))}
+                             </div>
+                          </div>
+                       ))}
+                    </div>
+                 )}
+              </GlassCard>
 
               {/* HOW CLIENTS DISCOVER PROTECH ENTERPRISE OS & REGISTRATION ACCOUNTS WINDOW */}
               <GlassCard className="p-6 md:p-8 bg-white dark:bg-gradient-to-br dark:from-indigo-900/20 dark:via-slate-900/60 dark:to-slate-950 border-slate-200 dark:border-indigo-500/30 space-y-6 relative z-10 shadow-lg dark:shadow-2xl">
@@ -1559,15 +1707,53 @@ export default function NexusSuperControl() {
                       </div>
                    </div>
 
+                   {/* Status Filter Buttons */}
+                   <div className="flex items-center gap-2 mb-4">
+                      <button
+                         onClick={() => setOperatorFilter("ALL")}
+                         className={cn(
+                            "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all",
+                            operatorFilter === "ALL"
+                               ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm"
+                               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
+                         )}
+                      >
+                         All Operators ({systemUsers.length})
+                      </button>
+                      <button
+                         onClick={() => setOperatorFilter("ONLINE")}
+                         className={cn(
+                            "flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all",
+                            operatorFilter === "ONLINE"
+                               ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/20"
+                               : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20"
+                         )}
+                      >
+                         <div className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />
+                         🟢 Online Now ({systemUsers.filter(u => u.isOnline).length})
+                      </button>
+                      <button
+                         onClick={() => setOperatorFilter("OFFLINE")}
+                         className={cn(
+                            "px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all",
+                            operatorFilter === "OFFLINE"
+                               ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm"
+                               : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200"
+                         )}
+                      >
+                         ⚪ Offline ({systemUsers.filter(u => !u.isOnline).length})
+                      </button>
+                   </div>
+
                    <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-100/10 dark:bg-slate-950/20">
                       <Table className="min-w-[800px]">
                          <TableHeader className="bg-slate-100/50 dark:bg-slate-900/30">
                             <TableRow className="border-slate-200 dark:border-slate-800 hover:bg-transparent">
-                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-10">User</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14 pl-10">Operator & Presence</TableHead>
                                <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Store Name</TableHead>
                                <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Role</TableHead>
                                <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Last Active & Logged Action</TableHead>
-                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Status</TableHead>
+                               <TableHead className="font-black text-slate-500 uppercase text-[10px] tracking-widest h-14">Account Status</TableHead>
                                <TableHead className="w-[150px] text-right pr-10 h-14"></TableHead>
                             </TableRow>
                          </TableHeader>

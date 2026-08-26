@@ -507,9 +507,11 @@ export async function deleteBackupFile(filename: string) {
 export async function getAllSystemUsers() {
   await checkSuperAdmin();
   
+  const threshold = new Date(Date.now() - 3 * 60 * 1000);
+
   const users = await prisma.user.findMany({
     include: {
-      business: { select: { name: true } },
+      business: { select: { name: true, type: true, slug: true } },
       role: { select: { name: true } },
       auditLogs: {
         select: { createdAt: true, action: true },
@@ -517,11 +519,17 @@ export async function getAllSystemUsers() {
         take: 1
       }
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: [
+      { lastActiveAt: "desc" },
+      { createdAt: "desc" }
+    ]
   });
 
   return users.map(user => {
     const lastLog = user.auditLogs[0];
+    const effectiveLastActive = user.lastActiveAt || lastLog?.createdAt || user.updatedAt;
+    const isActuallyOnline = user.lastActiveAt ? user.lastActiveAt >= threshold : false;
+
     return {
       id: user.id,
       name: user.name,
@@ -531,8 +539,11 @@ export async function getAllSystemUsers() {
       createdAt: user.createdAt.toISOString(),
       role: user.role.name,
       business: user.business.name,
-      lastActiveAt: lastLog?.createdAt.toISOString() || null,
-      lastAction: lastLog?.action || null
+      businessType: user.business.type,
+      lastLoginAt: user.lastLoginAt ? user.lastLoginAt.toISOString() : null,
+      lastActiveAt: effectiveLastActive ? effectiveLastActive.toISOString() : null,
+      isOnline: isActuallyOnline,
+      lastAction: lastLog?.action || (isActuallyOnline ? "Active in Dashboard" : "Offline")
     };
   });
 }

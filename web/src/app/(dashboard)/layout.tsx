@@ -23,6 +23,7 @@ import { ImpersonationBanner } from "@/components/shared/impersonation-banner";
 import { UserProfileDropdown } from "@/components/shared/user-profile-dropdown";
 import { ReceiptFeatureCallout } from "@/components/shared/receipt-feature-callout";
 import { OfflineSyncIndicator } from "@/components/shared/offline-sync-indicator";
+import { PresenceHeartbeatProvider } from "@/components/providers/presence-heartbeat-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -208,7 +209,9 @@ export default async function DashboardLayout({
           </header>
           <main className="flex-1 px-4 md:px-8 py-6 relative z-10">
             <DynamicBreadcrumb />
-            {children}
+            <PresenceHeartbeatProvider>
+              {children}
+            </PresenceHeartbeatProvider>
           </main>
           <QuickActions />
           <ReceiptFeatureCallout />

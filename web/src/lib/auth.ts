@@ -299,20 +299,55 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
       }
 
-      // Log successful login activity
+      // Log successful login activity and update presence
       if (finalUserId && finalBusinessId) {
         try {
-          await prisma.auditLog.create({
-            data: {
-              action: `LOGGED IN (${account?.provider === "google" ? "Google" : "Credentials"})`,
-              entity: "USER",
-              entityId: finalUserId,
-              userId: finalUserId,
-              businessId: finalBusinessId,
-            }
-          });
+          const now = new Date();
+          
+          const [updatedUser, userBusiness] = await Promise.all([
+            prisma.user.update({
+              where: { id: finalUserId },
+              data: {
+                lastLoginAt: now,
+                lastActiveAt: now,
+                isOnline: true
+              },
+              select: { name: true, email: true, role: { select: { name: true } } }
+            }),
+            prisma.business.update({
+              where: { id: finalBusinessId },
+              data: { lastActiveAt: now },
+              select: { name: true, type: true }
+            }),
+            prisma.auditLog.create({
+              data: {
+                action: `LOGGED IN (${account?.provider === "google" ? "Google" : "Credentials"})`,
+                entity: "USER",
+                entityId: finalUserId,
+                userId: finalUserId,
+                businessId: finalBusinessId,
+              }
+            })
+          ]);
+
+          // Create notification for Super Admin
+          try {
+            await prisma.notification.create({
+              data: {
+                title: `🟢 Business Online: ${userBusiness.name}`,
+                message: `${updatedUser.name || updatedUser.email} (${updatedUser.role.name}) is now online in ${userBusiness.name}.`,
+                type: "SYSTEM",
+                link: "/super-admin",
+                businessId: finalBusinessId,
+                isRead: false
+              }
+            });
+          } catch (notifErr) {
+            console.error("Failed to create login notification:", notifErr);
+          }
+
         } catch (auditErr) {
-          console.error("Failed to log sign-in audit:", auditErr);
+          console.error("Failed to log sign-in presence:", auditErr);
         }
       }
 
