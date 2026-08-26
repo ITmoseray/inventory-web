@@ -132,17 +132,6 @@ export default function MasterSuperAdminMonitor() {
     }
   };
 
-  // Quick 1-click unlock if verified in session as master
-  const handleQuickUnlock = () => {
-    if (isMasterUser) {
-      setIsUnlocked(true);
-      sessionStorage.setItem("master_monitor_unlocked", "true");
-      toast.success("Master Super Admin clearance verified.");
-    } else {
-      toast.error(`Access Denied: Only ${MASTER_SUPER_ADMIN_EMAIL} can access this monitor.`);
-    }
-  };
-
   // Handle Status Toggle
   const handleConfirmStatusToggle = async () => {
     if (!statusModal.admin) return;
@@ -305,22 +294,6 @@ export default function MasterSuperAdminMonitor() {
                   )}
                 </Button>
               </form>
-
-              <div className="relative flex items-center justify-center">
-                <div className="border-t border-slate-800 w-full" />
-                <span className="bg-slate-900 px-3 text-[9px] font-black uppercase tracking-widest text-slate-500 absolute">
-                  OR
-                </span>
-              </div>
-
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleQuickUnlock}
-                className="w-full h-10 rounded-xl border-slate-800 text-amber-400 hover:bg-amber-500/10 font-black text-[10px] uppercase tracking-widest"
-              >
-                <Crown className="mr-2 h-3.5 w-3.5" /> Instant Verify Dr. Strange Session
-              </Button>
             </div>
           ) : (
             <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs text-left space-y-2">
