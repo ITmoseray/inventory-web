@@ -36,21 +36,27 @@ export function QuickActions() {
     case "HOSPITAL":
       actions = [
         { label: "New Consultation", icon: Stethoscope, url: "/dashboard/clinic/consultations", color: "bg-blue-500" },
-        { label: "Add Patient", icon: Users, url: "/dashboard/clinic/patients", color: "bg-indigo-500" },
+        { label: "Patients", icon: Users, url: "/dashboard/patients", color: "bg-indigo-500" },
         { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
       ];
       break;
     case "SCHOOL":
       actions = [
         { label: "Enroll Student", icon: Users, url: "/dashboard/school/students", color: "bg-blue-500" },
-        { label: "Fee Collection", icon: DollarSign, url: "/dashboard/school/fees", color: "bg-emerald-500" },
+        { label: "Fee Collection", icon: DollarSign, url: "/dashboard/school/payments", color: "bg-emerald-500" },
+        { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
+      ];
+      break;
+    case "BAR":
+      actions = [
+        { label: "New Sale / POS", icon: ShoppingCart, url: "/dashboard/pos", color: "bg-emerald-500" },
+        { label: "Table Orders", icon: ShoppingCart, url: "/dashboard/restaurant/tables", color: "bg-orange-500" },
         { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
       ];
       break;
     case "RESTAURANT":
-    case "BAR":
       actions = [
-        { label: "New Order", icon: ShoppingCart, url: "/dashboard/restaurant/pos", color: "bg-orange-500" },
+        { label: "New Sale / POS", icon: ShoppingCart, url: "/dashboard/pos", color: "bg-orange-500" },
         { label: "Kitchen Queue", icon: Clock, url: "/dashboard/restaurant/kitchen", color: "bg-red-500" },
         { label: "Record Expense", icon: DollarSign, url: "/dashboard/accounting/expenses", color: "bg-rose-500" },
       ];
@@ -58,7 +64,7 @@ export function QuickActions() {
     case "WAREHOUSE":
       actions = [
         { label: "Add Product", icon: Package, url: "/dashboard/inventory/products", color: "bg-indigo-500" },
-        { label: "Receive Stock", icon: ArrowDownCircle, url: "/dashboard/purchases/orders", color: "bg-emerald-500" },
+        { label: "Receive Stock", icon: ArrowDownCircle, url: "/dashboard/purchases", color: "bg-emerald-500" },
         { label: "Dispatch Order", icon: ArrowUpCircle, url: "/dashboard/sales/orders/new", color: "bg-blue-500" },
       ];
       break;

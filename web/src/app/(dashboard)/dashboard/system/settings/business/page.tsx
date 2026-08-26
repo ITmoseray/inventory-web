@@ -517,8 +517,8 @@ export default function BusinessSettingsPage() {
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Real-time</span>
                 </div>
 
-                <div className="bg-slate-200/90 dark:bg-slate-950 p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-[2rem] shadow-inner flex flex-col items-center justify-center border border-slate-300 dark:border-slate-800 w-full overflow-hidden">
-                  <div className="shadow-2xl rounded-2xl overflow-hidden w-full max-w-[320px] mx-auto bg-white flex justify-center p-0">
+                <div className="bg-slate-200/90 dark:bg-slate-950 p-2 sm:p-4 md:p-6 rounded-2xl sm:rounded-[2rem] shadow-inner flex flex-col items-center justify-center border border-slate-300 dark:border-slate-800 w-full overflow-x-auto">
+                  <div className="shadow-2xl rounded-2xl w-full max-w-[280px] sm:max-w-[320px] mx-auto bg-white flex justify-center p-0 overflow-hidden">
                     <ThermalReceipt
                       id="DEMO-12345"
                       items={sampleReceiptItems}
