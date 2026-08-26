@@ -123,54 +123,136 @@ const SidebarContentRenderer = ({
   
   return (
     <>
-      <SidebarHeader className="pt-8 px-4 pb-2">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton 
-              size="lg" 
-              className="hover:bg-transparent px-0"
-              render={<Link href="/dashboard" className="flex items-center gap-3" onClick={() => setOpenMobile(false)} />}
+      <SidebarHeader className={cn("transition-all duration-300", isCollapsed ? "pt-4 px-2 pb-3" : "pt-6 px-4 pb-2")}>
+        {/* DUAL LOGOS (PROTECH + BUSINESS) WHEN COLLAPSED */}
+        {isCollapsed ? (
+          <div className="flex flex-col items-center gap-3">
+            {/* 1. Protech Assist Logo Badge */}
+            <Link 
+              href="/dashboard" 
+              title="Protech Assist Enterprise OS"
+              className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg shadow-primary/20 ring-2 ring-white/10 hover:scale-105 transition-transform"
             >
-                <div className="relative flex aspect-square size-10 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-4 ring-primary/5">
+              <Image 
+                src="/images/PA.png" 
+                alt="Protech Logo" 
+                fill 
+                className="object-cover p-1" 
+                unoptimized 
+              />
+            </Link>
+
+            {/* 2. Business Logo Badge */}
+            <div 
+              title={`${businessContext?.name || "Store Node"} (${businessType} UNIT)`}
+              className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/10 border border-white/20 shadow-md group cursor-pointer hover:border-primary/50 transition-colors"
+            >
+              {businessContext?.logoUrl ? (
+                <Image 
+                  src={businessContext.logoUrl} 
+                  alt="Business Logo" 
+                  fill 
+                  className="object-cover" 
+                  unoptimized 
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-black text-xs uppercase">
+                  {businessContext?.name ? businessContext.name.charAt(0).toUpperCase() : <Building2 className="h-5 w-5 text-white/80" />}
+                </div>
+              )}
+              {/* Online Pulse Dot */}
+              <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-slate-900 animate-pulse" />
+            </div>
+
+            {/* 3. Pin Action Button */}
+            <button
+              onClick={togglePin}
+              title="Pin Sidebar Open"
+              className="h-7 w-7 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-110"
+            >
+              <Pin className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        ) : (
+          /* EXPANDED HEADER */
+          <>
+            <div className="flex items-center justify-between gap-2">
+              <Link 
+                href="/dashboard" 
+                className="flex items-center gap-3 min-w-0" 
+                onClick={() => setOpenMobile(false)}
+              >
+                <div className="relative flex aspect-square size-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-4 ring-primary/5">
                   <Image 
                     src="/images/PA.png" 
                     alt="Protech Logo" 
                     fill 
-                    className="object-cover"
+                    className="object-cover" 
                     unoptimized 
                   />
                 </div>
-                <div className="relative flex flex-col gap-0.5 leading-none transition-all duration-300">
-                  <span className="font-black text-lg text-white tracking-tighter">Protech <span className="text-primary italic">Assist</span></span>
-                  <span className="text-[10px] text-slate-400 uppercase font-black tracking-[0.25em]">Enterprise OS</span>
+                <div className="relative flex flex-col gap-0.5 leading-none transition-all duration-300 min-w-0">
+                  <span className="font-black text-lg text-white tracking-tighter truncate">
+                    Protech <span className="text-primary italic">Assist</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 uppercase font-black tracking-[0.25em] truncate">
+                    Enterprise OS
+                  </span>
                 </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        
-        <div className={cn("mt-8 mb-6 px-2 transition-all duration-300", isCollapsed ? "opacity-0 hidden" : "opacity-100")}>
-           <div className="flex items-center justify-between mb-2">
-              <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Context</div>
-              <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
-           </div>
-           <div className="p-3 rounded-xl bg-white/5 border border-white/10 shadow-inner group cursor-pointer transition-all hover:border-primary/30 flex items-center gap-3">
-              {businessContext.logoUrl && (
-                <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-slate-600 flex-shrink-0">
-                  <Image 
-                    src={businessContext.logoUrl} 
-                    alt="Logo" 
-                    fill 
-                    className="object-cover"
-                    unoptimized 
-                  />
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <span className="text-xs font-black text-white truncate block group-hover:text-primary transition-colors">{businessContext.name}</span>
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1 block">{businessType} UNIT</span>
-              </div>
-           </div>
-        </div>
+              </Link>
+
+              {/* Pin / Unpin Button */}
+              <button
+                onClick={togglePin}
+                title={isPinned ? "Unpin Sidebar (Hover to Expand)" : "Pin Sidebar (Keep Open)"}
+                className={cn(
+                  "h-8 w-8 rounded-xl flex items-center justify-center transition-all shrink-0 border",
+                  isPinned 
+                    ? "bg-primary/20 border-primary/30 text-primary hover:bg-primary/30" 
+                    : "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10"
+                )}
+              >
+                {isPinned ? <Pin className="h-4 w-4 fill-current" /> : <PinOff className="h-4 w-4" />}
+              </button>
+            </div>
+            
+            {/* Business Context Card */}
+            <div className="mt-6 mb-4 px-1">
+               <div className="flex items-center justify-between mb-2">
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Context</div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
+                    <span className="text-[8px] font-black uppercase tracking-wider text-emerald-400">Online</span>
+                  </div>
+               </div>
+               <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner group cursor-pointer transition-all hover:border-primary/30 flex items-center gap-3">
+                  <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 bg-slate-800 flex-shrink-0 flex items-center justify-center shadow-md">
+                    {businessContext?.logoUrl ? (
+                      <Image 
+                        src={businessContext.logoUrl} 
+                        alt="Logo" 
+                        fill 
+                        className="object-cover" 
+                        unoptimized 
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-black text-sm uppercase">
+                        {businessContext?.name ? businessContext.name.charAt(0).toUpperCase() : <Building2 className="h-4 w-4 text-white" />}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-black text-white truncate block group-hover:text-primary transition-colors">
+                      {businessContext?.name || "Default Business"}
+                    </span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 block">
+                      {businessType} UNIT
+                    </span>
+                  </div>
+               </div>
+            </div>
+          </>
+        )}
       </SidebarHeader>
       
       <SidebarContent className="px-3 overflow-y-auto custom-scrollbar">

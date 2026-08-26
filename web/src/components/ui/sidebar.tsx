@@ -39,7 +39,10 @@ type SidebarContextProps = {
   open: boolean
   setOpen: (open: boolean) => void
   isPinned: boolean
+  setIsPinned: (pinned: boolean) => void
   togglePin: () => void
+  isHovered: boolean
+  setIsHovered: (hovered: boolean) => void
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
@@ -77,9 +80,10 @@ function SidebarProvider({
   const [openMobile, setOpenMobile] = React.useState(false)
   const { colorClass } = useSidebarStore()
 
-  // Internal state of the sidebar & pin status
+  // Internal state of the sidebar, hover & pin status
   const [_open, _setOpen] = React.useState(defaultOpen)
   const [isPinned, setIsPinned] = React.useState(true)
+  const [isHovered, setIsHovered] = React.useState(false)
   const open = openProp ?? _open
 
   React.useEffect(() => {
@@ -146,20 +150,26 @@ function SidebarProvider({
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
 
+  const isExpanded = isPinned || isHovered
+  const effectiveState = isExpanded ? "expanded" : "collapsed"
+
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
-      state,
-      open,
+      state: effectiveState,
+      open: isExpanded,
       setOpen,
       isPinned,
+      setIsPinned,
       togglePin,
+      isHovered,
+      setIsHovered,
       isMobile,
       openMobile,
       setOpenMobile,
       toggleSidebar,
       canAccess,
     }),
-    [state, open, setOpen, isPinned, togglePin, isMobile, openMobile, setOpenMobile, toggleSidebar, canAccess]
+    [effectiveState, isExpanded, setOpen, isPinned, togglePin, isHovered, setIsHovered, isMobile, openMobile, setOpenMobile, toggleSidebar, canAccess]
   )
 
   return (
@@ -188,7 +198,7 @@ function SidebarProvider({
 function Sidebar({
   side = "left",
   variant = "sidebar",
-  collapsible = "offcanvas",
+  collapsible = "icon",
   className,
   children,
   dir,
@@ -198,12 +208,15 @@ function Sidebar({
   variant?: "sidebar" | "floating" | "inset"
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
-  const { isMobile, state, openMobile, setOpenMobile, setOpen } = useSidebar()
+  const { isMobile, isPinned, isHovered, setIsHovered, openMobile, setOpenMobile } = useSidebar()
   const { colorHsl, colorHex } = useSidebarStore()
   const sidebarStyle = {
     '--sidebar': `hsl(${colorHsl})`,
     backgroundColor: colorHex,
   } as React.CSSProperties
+
+  const isExpanded = isPinned || isHovered
+  const effectiveState = isExpanded ? "expanded" : "collapsed"
 
   if (collapsible === "none") {
     return (
@@ -250,34 +263,41 @@ function Sidebar({
   return (
     <div
       className="group peer hidden text-sidebar-foreground md:block"
-      data-state={state}
-      data-collapsible={state === "collapsed" ? collapsible : ""}
+      data-state={effectiveState}
+      data-pinned={isPinned ? "true" : "false"}
+      data-collapsible={!isPinned ? collapsible : ""}
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
-
+      onMouseEnter={() => {
+        if (!isPinned && collapsible === "icon") {
+          setIsHovered(true)
+        }
+      }}
+      onMouseLeave={() => {
+        if (!isPinned && collapsible === "icon") {
+          setIsHovered(false)
+        }
+      }}
     >
-      {/* This is what handles the sidebar gap on desktop */}
+      {/* Sidebar Gap handles layout spacing on desktop */}
       <div
         data-slot="sidebar-gap"
         className={cn(
-          "relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear",
-          "group-data-[collapsible=offcanvas]:w-0",
-          "group-data-[side=right]:rotate-180",
-          variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+          "relative bg-transparent transition-[width] duration-300 ease-in-out shrink-0",
+          isPinned ? "w-(--sidebar-width)" : "w-(--sidebar-width-icon)"
         )}
       />
+      
+      {/* Sidebar Container handles the visual expandable sidebar */}
       <div
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear data-[side=left]:left-0 data-[side=left]:group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] data-[side=right]:right-0 data-[side=right]:group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] md:flex",
-          // Adjust the padding for floating and inset variants.
-          variant === "floating" || variant === "inset"
-            ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l",
+          "fixed inset-y-0 z-40 hidden h-svh transition-[width,box-shadow] duration-300 ease-in-out data-[side=left]:left-0 data-[side=right]:right-0 md:flex border-r border-white/10",
+          isExpanded
+            ? "w-(--sidebar-width) shadow-2xl ring-1 ring-black/10"
+            : "w-(--sidebar-width-icon) shadow-sm",
           className
         )}
         {...props}
@@ -285,7 +305,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:shadow-sm group-data-[variant=floating]:ring-1 group-data-[variant=floating]:ring-sidebar-border"
+          className="flex size-full flex-col bg-sidebar overflow-hidden"
           style={{ ...sidebarStyle }}
         >
           {children}
