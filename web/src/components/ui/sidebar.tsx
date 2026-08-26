@@ -31,13 +31,15 @@ const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH_ICON = "4.75rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContextProps = {
   state: "expanded" | "collapsed"
   open: boolean
   setOpen: (open: boolean) => void
+  isPinned: boolean
+  togglePin: () => void
   openMobile: boolean
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
@@ -75,10 +77,22 @@ function SidebarProvider({
   const [openMobile, setOpenMobile] = React.useState(false)
   const { colorClass } = useSidebarStore()
 
-  // This is the internal state of the sidebar.
-  // We use openProp and setOpenProp for control from outside the component.
+  // Internal state of the sidebar & pin status
   const [_open, _setOpen] = React.useState(defaultOpen)
+  const [isPinned, setIsPinned] = React.useState(true)
   const open = openProp ?? _open
+
+  React.useEffect(() => {
+    try {
+      const savedPin = localStorage.getItem("sidebar_pinned");
+      if (savedPin !== null) {
+        const pinned = savedPin === "true";
+        setIsPinned(pinned);
+        _setOpen(pinned);
+      }
+    } catch (e) {}
+  }, []);
+
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = typeof value === "function" ? value(open) : value
@@ -87,17 +101,30 @@ function SidebarProvider({
       } else {
         _setOpen(openState)
       }
-
-      // This sets the cookie to keep the sidebar state.
       document.cookie = `${SIDEBAR_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`
     },
     [setOpenProp, open]
   )
 
+  const togglePin = React.useCallback(() => {
+    setIsPinned((prev) => {
+      const next = !prev;
+      setOpen(next);
+      try {
+        localStorage.setItem("sidebar_pinned", String(next));
+      } catch (e) {}
+      return next;
+    });
+  }, [setOpen]);
+
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)
-  }, [isMobile, setOpen, setOpenMobile])
+    if (isMobile) {
+      setOpenMobile((prev) => !prev);
+    } else {
+      togglePin();
+    }
+  }, [isMobile, togglePin, setOpenMobile])
 
   // Adds a keyboard shortcut to toggle the sidebar.
   React.useEffect(() => {
@@ -124,13 +151,15 @@ function SidebarProvider({
       state,
       open,
       setOpen,
+      isPinned,
+      togglePin,
       isMobile,
       openMobile,
       setOpenMobile,
       toggleSidebar,
       canAccess,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, canAccess]
+    [state, open, setOpen, isPinned, togglePin, isMobile, openMobile, setOpenMobile, toggleSidebar, canAccess]
   )
 
   return (
@@ -226,8 +255,7 @@ function Sidebar({
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
-      onMouseEnter={() => collapsible === "icon" && setOpen(true)}
-      onMouseLeave={() => collapsible === "icon" && setOpen(false)}
+
     >
       {/* This is what handles the sidebar gap on desktop */}
       <div

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import {
-  LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
+  LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pin, PinOff, Building2, Store, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
   Crown, Zap, ArrowRight, Trophy, Download
