@@ -133,21 +133,21 @@ export async function getMasterSuperAdminTelemetry() {
   // 3. Format super admin operators
   const formattedOperators = allSuperAdmins.map((admin) => {
     const isActuallyOnline = admin.lastActiveAt ? admin.lastActiveAt >= threshold : false;
-    const isThisMaster = admin.email.toLowerCase() === MASTER_SUPER_ADMIN_EMAIL.toLowerCase();
+    const isThisMaster = admin.email ? admin.email.toLowerCase() === MASTER_SUPER_ADMIN_EMAIL.toLowerCase() : false;
 
     return {
       id: admin.id,
-      name: admin.name,
-      email: admin.email,
-      username: admin.username,
-      status: admin.status,
+      name: admin.name || "Super Admin",
+      email: admin.email || "N/A",
+      username: admin.username || "admin",
+      status: admin.status || "ACTIVE",
       isMaster: isThisMaster,
       isOnline: isActuallyOnline,
       lastLoginAt: admin.lastLoginAt ? admin.lastLoginAt.toISOString() : null,
       lastActiveAt: admin.lastActiveAt ? admin.lastActiveAt.toISOString() : null,
       createdAt: admin.createdAt.toISOString(),
-      totalActionsCount: admin._count.auditLogs,
-      recentActions: admin.auditLogs.map((l) => ({
+      totalActionsCount: admin._count?.auditLogs || 0,
+      recentActions: (admin.auditLogs || []).map((l) => ({
         id: l.id,
         action: l.action,
         entity: l.entity,
@@ -159,19 +159,19 @@ export async function getMasterSuperAdminTelemetry() {
   // 4. Format activity stream
   const formattedLogs = superAdminLogs.map((log) => ({
     id: log.id,
-    action: log.action,
-    entity: log.entity,
-    entityId: log.entityId,
-    oldData: log.oldData,
-    newData: log.newData,
+    action: log.action || "SYSTEM_ACTION",
+    entity: log.entity || "SYSTEM",
+    entityId: log.entityId || null,
+    oldData: log.oldData || null,
+    newData: log.newData || null,
     createdAt: log.createdAt.toISOString(),
     operator: {
-      id: log.user.id,
-      name: log.user.name,
-      email: log.user.email,
-      username: log.user.username,
-      image: log.user.image,
-      isMaster: log.user.email.toLowerCase() === MASTER_SUPER_ADMIN_EMAIL.toLowerCase()
+      id: log.user?.id || "N/A",
+      name: log.user?.name || "Super Admin",
+      email: log.user?.email || "N/A",
+      username: log.user?.username || "admin",
+      image: log.user?.image || null,
+      isMaster: log.user?.email ? log.user.email.toLowerCase() === MASTER_SUPER_ADMIN_EMAIL.toLowerCase() : false
     },
     business: log.business ? {
       id: log.business.id,
