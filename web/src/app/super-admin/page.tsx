@@ -45,6 +45,7 @@ import {
   getAllBusinesses,
   sendEcosystemPushNotification,
   broadcastSystemUpdate,
+  clearSystemUpdateBroadcasts,
   getInactiveBusinesses
 } from "@/lib/actions/super-admin";
 import { getSystemSettings, updateSystemSettings } from "@/lib/actions/system-settings";
@@ -385,6 +386,25 @@ export default function NexusSuperControl() {
     } catch (error: any) {
       toast.dismiss();
       toast.error(error.message || "Failed to broadcast update notification.");
+    } finally {
+      setSendingUpdate(false);
+    }
+  }
+
+  async function handleClearUpdateBroadcasts() {
+    try {
+      setSendingUpdate(true);
+      toast.loading("Purging past update alert notifications...");
+      const res = await clearSystemUpdateBroadcasts();
+      toast.dismiss();
+      if (res.success) {
+        toast.success(`Cleared ${res.count} past software update notifications from all businesses!`);
+      } else {
+        toast.error(res.error || "Failed to clear update notifications.");
+      }
+    } catch (error: any) {
+      toast.dismiss();
+      toast.error(error.message || "Failed to clear update notifications.");
     } finally {
       setSendingUpdate(false);
     }
@@ -1232,13 +1252,23 @@ export default function NexusSuperControl() {
                              onChange={(e) => setUpdateChangelog(e.target.value)}
                              className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
                           />
-                          <Button 
-                             onClick={handleUpdateBroadcast}
-                             disabled={!updateVersion.trim() || !updateTitle.trim() || !updateChangelog.trim() || sendingUpdate}
-                             className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
-                          >
-                             {sendingUpdate ? "Broadcasting Update..." : "Broadcast System Update Notification"}
-                          </Button>
+                          <div className="flex flex-col sm:flex-row gap-2">
+                              <Button 
+                                 onClick={handleUpdateBroadcast}
+                                 disabled={!updateVersion.trim() || !updateTitle.trim() || !updateChangelog.trim() || sendingUpdate}
+                                 className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
+                              >
+                                 {sendingUpdate ? "Broadcasting Update..." : "Broadcast System Update Notification"}
+                              </Button>
+                              <Button 
+                                 onClick={handleClearUpdateBroadcasts}
+                                 disabled={sendingUpdate}
+                                 variant="outline"
+                                 className="h-12 px-4 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-black text-[10px] uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                              >
+                                 Clear Alerts
+                              </Button>
+                           </div>
                        </div>
                     </GlassCard>
 

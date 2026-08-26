@@ -766,6 +766,27 @@ export async function broadcastSystemUpdate(version: string, title: string, chan
   return { success: true, dispatchedCount: successCount, purgedCount: failCount };
 }
 
+export async function clearSystemUpdateBroadcasts() {
+  await checkSuperAdmin();
+  try {
+    const deleted = await prisma.notification.deleteMany({
+      where: {
+        type: "SYSTEM_UPDATE"
+      }
+    });
+
+    await logAudit({
+      action: `PURGED SYSTEM UPDATE BROADCAST NOTIFICATIONS (${deleted.count} notifications removed)`,
+      entity: "SYSTEM"
+    });
+
+    return { success: true, count: deleted.count };
+  } catch (error: any) {
+    console.error("Failed to clear system update broadcasts:", error);
+    return { success: false, error: error.message || "Failed to clear update broadcasts." };
+  }
+}
+
 
 
 export async function getInactiveBusinesses() {
