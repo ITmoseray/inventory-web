@@ -424,6 +424,10 @@ const SidebarContentRenderer = ({
                          <ShieldCheck className="mr-2 size-3.5 text-indigo-600" />
                          Super Admin Panel
                      </DropdownMenuItem>
+                     <DropdownMenuItem render={<Link href="/super-admin/master-monitor" className="flex items-center w-full text-xs text-amber-500 font-bold" />}>
+                         <Crown className="mr-2 size-3.5 text-amber-500" />
+                         Master Super Admin Monitor
+                     </DropdownMenuItem>
                      <DropdownMenuItem render={<Link href="/admin/referrals" className="flex items-center w-full text-xs" />}>
                          <Trophy className="mr-2 size-3.5 text-indigo-600" />
                          Referral Management

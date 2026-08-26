@@ -5,7 +5,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { 
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
-  LogOut, Activity, MessageSquare, AlertTriangle, Cpu,
+  LogOut, Activity, MessageSquare, AlertTriangle, Cpu, Crown,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
   Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck
 } from "lucide-react";
@@ -809,6 +809,11 @@ export default function NexusSuperControl() {
          {/* Bottom row: CTA buttons & Live Presence Badges */}
          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
+              <Link href="/super-admin/master-monitor" className="w-full sm:w-auto">
+                 <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] border border-amber-400/30">
+                    <Crown className="h-4 w-4 text-amber-200" /> Master Super Admin Monitor
+                 </Button>
+              </Link>
               <Link href="/super-admin/implementations" className="w-full sm:w-auto">
                  <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
                     <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits

@@ -12,15 +12,28 @@ export async function logAudit(data: {
 }) {
   try {
     const session = await auth();
-    if (!session?.user?.businessId || !session?.user?.id) return; // Don't throw, just ignore if not authenticated
+    if (!session?.user?.id) return;
 
-    const prisma = getTenantPrisma(session.user.businessId);
+    let businessId = session.user.businessId;
+    if (!businessId) {
+      const userRecord = await globalPrisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { businessId: true }
+      });
+      businessId = userRecord?.businessId;
+      if (!businessId) {
+        const defaultBiz = await globalPrisma.business.findFirst({ select: { id: true } });
+        businessId = defaultBiz?.id;
+      }
+    }
 
-    await prisma.auditLog.create({
+    if (!businessId) return;
+
+    await globalPrisma.auditLog.create({
       data: {
         ...data,
         userId: session.user.id,
-        businessId: session.user.businessId,
+        businessId: businessId,
       },
     });
   } catch (error) {
