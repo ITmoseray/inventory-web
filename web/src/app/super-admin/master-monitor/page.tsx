@@ -76,7 +76,11 @@ export default function MasterSuperAdminMonitor() {
     try {
       if (!silent) setLoading(true);
       const data = await getMasterSuperAdminTelemetry();
-      setTelemetry(data);
+      if (data?.error) {
+        if (!silent) toast.error(data.error);
+      } else {
+        setTelemetry(data);
+      }
     } catch (err: any) {
       if (!silent) toast.error(err.message || "Failed to load master telemetry.");
     } finally {
@@ -118,12 +122,14 @@ export default function MasterSuperAdminMonitor() {
     try {
       setVerifying(true);
       const res = await verifyMasterSuperAdminLogin(masterPassword);
-      if (res.success) {
+      if (res?.success) {
         setIsUnlocked(true);
         sessionStorage.setItem("master_monitor_unlocked", "true");
         toast.success("Master Super Admin Observatory Unlocked.", {
           description: `Authorized as ${res.verifiedEmail}`
         });
+      } else {
+        toast.error(res?.error || "Invalid Security Passcode.");
       }
     } catch (err: any) {
       toast.error(err.message || "Authentication failed.");
