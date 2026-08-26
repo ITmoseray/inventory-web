@@ -864,6 +864,13 @@ export default function NexusSuperControl() {
       {/* Navigation Tabs - Mobile Scrollable */}
       <div className="w-full mb-10 relative z-10">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-1.5 rounded-2xl flex flex-nowrap gap-1.5 overflow-x-auto scrollbar-none shadow-sm">
+          <Link
+            href="/super-admin/master-monitor"
+            className="flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-600 dark:text-amber-400 border border-amber-500/30"
+          >
+            <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+            <span>Master Monitor</span>
+          </Link>
           {[
             { id: "telemetry", label: "System Activity", icon: Activity },
             { id: "terminal", label: "Control Shell", icon: Terminal },

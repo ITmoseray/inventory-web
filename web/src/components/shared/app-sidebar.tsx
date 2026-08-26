@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pin, PinOff, Building2, Store, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
-  Crown, Zap, ArrowRight, Trophy, Download
+  Crown, Zap, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone
 } from "lucide-react";
 
 import {
@@ -626,11 +626,43 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Referral Program",
       url: "/dashboard/referrals",
       icon: Crown,
-      permission: "view_dashboard" // or a specific permission if needed, anyone can refer
+      permission: "view_dashboard"
     });
 
+    if (session?.user?.role === "SUPERADMIN") {
+      merged.unshift({
+        label: "Master Control",
+        items: [
+          {
+            title: "Master Super Admin Monitor",
+            url: "/super-admin/master-monitor",
+            icon: Crown,
+            permission: "view_dashboard"
+          },
+          {
+            title: "Super Admin Panel",
+            url: "/super-admin",
+            icon: ShieldCheck,
+            permission: "view_dashboard"
+          },
+          {
+            title: "Client Implementation Audits",
+            url: "/super-admin/implementations",
+            icon: ClipboardCheck,
+            permission: "view_dashboard"
+          },
+          {
+            title: "Registration Vault",
+            url: "/super-admin/businesses",
+            icon: Megaphone,
+            permission: "view_dashboard"
+          }
+        ]
+      });
+    }
+
     return merged;
-  }, [businessTypesString, session?.user?.institutionType]);
+  }, [businessTypesString, session?.user?.institutionType, session?.user?.role]);
   
   const filteredNavGroups = React.useMemo(() => {
     if (status === "loading") return [];
