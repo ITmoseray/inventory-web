@@ -30,17 +30,38 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(
-    fetch(event.request).catch(async () => {
-      const cached = await caches.match(event.request);
-      if (cached) {
-        return cached;
-      }
-      return new Response('Network request failed', {
-        status: 503,
-        statusText: 'Service Unavailable',
-        headers: { 'Content-Type': 'text/plain' }
-      });
-    })
+    fetch(event.request)
+      .then((response) => {
+        // Automatically cache static assets, icons, fonts, and scripts for offline usage
+        if (
+          response.status === 200 &&
+          (url.pathname.startsWith('/images/') ||
+           url.pathname.startsWith('/_next/static/') ||
+           url.pathname.endsWith('.png') ||
+           url.pathname.endsWith('.jpg') ||
+           url.pathname.endsWith('.svg') ||
+           url.pathname.endsWith('.woff2') ||
+           url.pathname.endsWith('.css') ||
+           url.pathname.endsWith('.js'))
+        ) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+        }
+        return response;
+      })
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) {
+          return cached;
+        }
+        return new Response('Network request failed', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/plain' }
+        });
+      })
   );
 });
 

@@ -22,6 +22,7 @@ import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
 import { ImpersonationBanner } from "@/components/shared/impersonation-banner";
 import { UserProfileDropdown } from "@/components/shared/user-profile-dropdown";
 import { ReceiptFeatureCallout } from "@/components/shared/receipt-feature-callout";
+import { OfflineSyncIndicator } from "@/components/shared/offline-sync-indicator";
 
 export const dynamic = "force-dynamic";
 
@@ -211,6 +212,7 @@ export default async function DashboardLayout({
           </main>
           <QuickActions />
           <ReceiptFeatureCallout />
+          <OfflineSyncIndicator />
           </AutoLogoutProvider>
         </AppShell>
       </div>
