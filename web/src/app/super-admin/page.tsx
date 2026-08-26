@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
@@ -1167,34 +1168,34 @@ export default function NexusSuperControl() {
                   </GlassCard>
 
                   {/* Commands */}
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <GlassCard className="p-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                    <GlassCard className="p-4 sm:p-6 md:p-8">
                        <div className="flex items-center gap-3 mb-6">
                           <MessageSquare className="h-5 w-5 text-indigo-600 dark:text-indigo-500" />
-                          <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Broadcasting</h3>
+                          <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">Broadcasting &amp; Announcements</h3>
                        </div>
                        
                        {/* Marquee Banner Section */}
                        <div className="space-y-3">
-                          <p className="text-[10px] font-black text-slate-555 dark:text-slate-400 uppercase tracking-widest leading-none">Global Marquee Banner (In-App)</p>
+                          <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Global Marquee Banner (In-App Top Notice)</p>
                           <Input 
-                             placeholder="Enter global banner announcement..." 
+                             placeholder="Enter global banner announcement text..." 
                              value={broadcastMsg}
                              onChange={(e) => setBroadcastMsg(e.target.value)}
-                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 sm:h-12 text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
                           />
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                              <Button 
                                 onClick={handleBroadcast}
                                 disabled={!broadcastMsg.trim()}
-                                className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40"
+                                className="flex-1 h-11 sm:h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-md shadow-indigo-600/20"
                              >
                                 <Send className="mr-2 h-4 w-4" /> Send Banner
                              </Button>
                              <Button 
                                 onClick={handleClearBroadcast}
                                 variant="outline"
-                                className="h-12 px-4 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-black text-[10px] uppercase tracking-widest"
+                                className="h-11 sm:h-12 px-5 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/50 font-black text-[10px] uppercase tracking-widest"
                              >
                                 Clear
                              </Button>
@@ -1205,25 +1206,26 @@ export default function NexusSuperControl() {
 
                        {/* Push Notification Section */}
                        <div className="space-y-3">
-                          <p className="text-[10px] font-black text-slate-555 dark:text-slate-400 uppercase tracking-widest leading-none">Device Push Alert (Log-out/Offline safe)</p>
+                          <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Device Push Alert (Log-out/Offline safe)</p>
                           <Input 
-                             placeholder="Notification Title (e.g., Critical Update)" 
+                             placeholder="Notification Title (e.g., Critical Update Notice)" 
                              value={pushTitle}
                              onChange={(e) => setPushTitle(e.target.value)}
-                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
                           />
-                          <Input 
+                          <Textarea 
                              placeholder="Notification Body Message..." 
                              value={pushBody}
                              onChange={(e) => setPushBody(e.target.value)}
-                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                             rows={2}
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 min-h-[64px] resize-y"
                           />
                           <Button 
                              onClick={handlePushBroadcast}
                              disabled={!pushTitle.trim() || !pushBody.trim() || sendingPush}
-                             className="w-full h-12 rounded-xl bg-emerald-650 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-emerald-600/10"
+                             className="w-full h-11 sm:h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-emerald-600/10"
                           >
-                             {sendingPush ? "Transmitting..." : "Broadcast Device Push"}
+                             {sendingPush ? "Transmitting..." : "Broadcast Device Push Alert"}
                           </Button>
                        </div>
 
@@ -1232,31 +1234,32 @@ export default function NexusSuperControl() {
                        {/* System Software Update Section */}
                        <div className="space-y-3">
                           <p className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none">Broadcast Software Update Alert</p>
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                              <Input 
                                 placeholder="Version (e.g., v4.3.0)" 
                                 value={updateVersion}
                                 onChange={(e) => setUpdateVersion(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 flex-[2]"
+                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 sm:w-1/3"
                              />
                              <Input 
-                                placeholder="Release Title" 
+                                placeholder="Release Title (e.g., Inventory Speed Boost)" 
                                 value={updateTitle}
                                 onChange={(e) => setUpdateTitle(e.target.value)}
-                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 flex-[3]"
+                                className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-xs sm:text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 flex-1"
                              />
                           </div>
-                          <Input 
-                             placeholder="Summary of changes & features deployed..." 
+                          <Textarea 
+                             placeholder="Summary of changes, bugfixes & features deployed..." 
                              value={updateChangelog}
                              onChange={(e) => setUpdateChangelog(e.target.value)}
-                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-11 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650"
+                             rows={3}
+                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-650 min-h-[80px] resize-y"
                           />
                           <div className="flex flex-col sm:flex-row gap-2">
                               <Button 
                                  onClick={handleUpdateBroadcast}
                                  disabled={!updateVersion.trim() || !updateTitle.trim() || !updateChangelog.trim() || sendingUpdate}
-                                 className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
+                                 className="flex-1 h-11 sm:h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest disabled:opacity-40 shadow-lg shadow-indigo-600/10"
                               >
                                  {sendingUpdate ? "Broadcasting Update..." : "Broadcast System Update Notification"}
                               </Button>
@@ -1264,7 +1267,7 @@ export default function NexusSuperControl() {
                                  onClick={handleClearUpdateBroadcasts}
                                  disabled={sendingUpdate}
                                  variant="outline"
-                                 className="h-12 px-4 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-black text-[10px] uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-950/40"
+                                 className="h-11 sm:h-12 px-5 rounded-xl border-rose-200 dark:border-rose-900 text-rose-600 dark:text-rose-400 font-black text-[10px] uppercase tracking-widest hover:bg-rose-50 dark:hover:bg-rose-950/40"
                               >
                                  Clear Alerts
                               </Button>
@@ -1272,13 +1275,13 @@ export default function NexusSuperControl() {
                        </div>
                     </GlassCard>
 
-                    <GlassCard className="p-8">
+                    <GlassCard className="p-4 sm:p-6 md:p-8">
                        <div className="flex items-center gap-3 mb-6">
                           <AlertTriangle className="h-5 w-5 text-amber-500" />
                           <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tighter">System Override</h3>
                        </div>
-                       <div className="space-y-6">
-                          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
+                       <div className="space-y-5">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
                              <div className="space-y-0.5">
                                 <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Maintenance Mode</p>
                                 <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Disable non-admin access</p>
@@ -1289,16 +1292,16 @@ export default function NexusSuperControl() {
                                 className="data-[state=checked]:bg-rose-500" 
                              />
                           </div>
-                          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
                               <div className="space-y-0.5">
                                  <p className="text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-widest">Diagnostic Level</p>
                                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-tighter">Verbose core telemetry</p>
                               </div>
-                              <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest px-2 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20">Alpha-7</div>
+                              <div className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest px-2 py-1 bg-indigo-500/10 rounded-md border border-indigo-500/20 w-fit">Alpha-7</div>
                            </div>
                            <div className="h-px bg-slate-200 dark:bg-slate-800 my-4" />
                            <div className="space-y-2">
-                              <p className="text-[10px] font-black text-slate-555 dark:text-slate-400 uppercase tracking-widest leading-none">Automated Scans</p>
+                              <p className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest leading-none">Automated Scans</p>
                               <Button 
                                  onClick={handleRunAutomatedChecks}
                                  disabled={syncingAlerts}
