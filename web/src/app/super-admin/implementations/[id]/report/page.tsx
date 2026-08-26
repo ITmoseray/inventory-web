@@ -82,9 +82,9 @@ export default function ImplementationReportPage({
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 py-8 px-4 sm:px-6 md:px-8 print:p-0 print:bg-white text-slate-900">
-      {/* Top Floating Control Bar (Hidden when printing) */}
-      <div className="max-w-4xl mx-auto mb-6 flex items-center justify-between gap-4 print:hidden">
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 px-3 sm:px-6 md:px-8 py-4 sm:py-8 text-slate-900 print:bg-white print:p-0 overflow-x-hidden">
+      {/* Action Bar (Hidden on Print) */}
+      <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
         <Link href={`/super-admin/implementations/${record.id}`}>
           <Button variant="outline" className="h-10 px-4 rounded-xl text-xs font-bold gap-2">
             <ArrowLeft className="h-4 w-4" />

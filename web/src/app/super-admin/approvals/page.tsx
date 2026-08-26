@@ -132,8 +132,8 @@ export default function PendingApprovals() {
   }
 
   return (
-    <div className="p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <div className="px-3 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-8 text-slate-900 dark:text-slate-200 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-12">
         
         {/* Navigation & Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -284,7 +284,7 @@ export default function PendingApprovals() {
 
       {/* Expiry & Plan Approval Modal */}
       <Dialog open={approvalModalOpen} onOpenChange={setApprovalModalOpen}>
-        <DialogContent className="sm:max-w-[480px] bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-8 shadow-2xl overflow-hidden relative">
+        <DialogContent className="w-[95vw] sm:max-w-[480px] bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-5 sm:p-8 shadow-2xl overflow-y-auto max-h-[90vh] relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
           
           <DialogHeader className="mb-6">

@@ -331,7 +331,7 @@ export default function ImplementationWorkspacePage({
   ];
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 md:p-8 lg:p-10 space-y-8 max-w-6xl mx-auto pb-32">
+    <div className="min-h-screen px-3 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-8 space-y-6 sm:space-y-8 max-w-6xl mx-auto pb-32 overflow-x-hidden">
       {/* Top Navigation & Status Banner */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

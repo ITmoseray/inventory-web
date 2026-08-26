@@ -10,11 +10,12 @@ interface StatCardProps {
   description: string;
   icon: LucideIcon;
   delay?: number;
-  variant?: "default" | "warning";
+  variant?: "default" | "warning" | "emerald";
 }
 
 export function StatCard({ title, value, description, icon: Icon, delay = 0, variant = "default" }: StatCardProps) {
   const isWarning = variant === "warning";
+  const isEmerald = variant === "emerald";
   
   return (
     <motion.div
@@ -26,11 +27,13 @@ export function StatCard({ title, value, description, icon: Icon, delay = 0, var
         "bg-white dark:bg-slate-900/40 rounded-[1.5rem] md:rounded-[2rem] p-5 md:p-7 shadow-md dark:shadow-2xl transition-all duration-500 group overflow-hidden relative border",
         isWarning 
           ? "border-amber-500/30 hover:border-amber-500/60" 
+          : isEmerald
+          ? "border-emerald-500/30 hover:border-emerald-500/60"
           : "border-slate-200/80 dark:border-slate-800/50 hover:border-indigo-500/50"
       )}>
         <div className={cn(
           "absolute -right-8 -top-8 h-32 w-32 rounded-full blur-3xl group-hover:scale-150 transition-transform duration-700",
-          isWarning ? "bg-amber-500/5" : "bg-indigo-500/5"
+          isWarning ? "bg-amber-500/5" : isEmerald ? "bg-emerald-500/5" : "bg-indigo-500/5"
         )} />
         
         <CardHeader className="p-0 pb-4 md:pb-6 flex flex-row items-center justify-between">
@@ -39,9 +42,11 @@ export function StatCard({ title, value, description, icon: Icon, delay = 0, var
             "p-2.5 md:p-3 rounded-2xl border group-hover:scale-110 group-hover:rotate-6 transition-all duration-500",
             isWarning 
               ? "bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20" 
+              : isEmerald
+              ? "bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20"
               : "bg-indigo-50 dark:bg-indigo-500/10 border-indigo-100 dark:border-indigo-500/20"
           )}>
-             <Icon className={cn("h-4 w-4 md:h-5 md:w-5", isWarning ? "text-amber-500" : "text-indigo-600 dark:text-indigo-400")} />
+             <Icon className={cn("h-4 w-4 md:h-5 md:w-5", isWarning ? "text-amber-500" : isEmerald ? "text-emerald-500" : "text-indigo-600 dark:text-indigo-400")} />
           </div>
         </CardHeader>
         

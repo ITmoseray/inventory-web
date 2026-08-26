@@ -218,7 +218,7 @@ export default function ClientImplementationsHub() {
   );
 
   return (
-    <div className="min-h-screen p-4 sm:p-6 md:p-8 lg:p-10 space-y-8 max-w-7xl mx-auto">
+    <div className="min-h-screen px-3 sm:px-6 md:px-8 lg:px-10 py-4 sm:py-8 space-y-6 sm:space-y-8 max-w-7xl mx-auto overflow-x-hidden">
       {/* Top Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
         <div className="space-y-1">
@@ -500,7 +500,7 @@ export default function ClientImplementationsHub() {
 
       {/* Start New Implementation Modal */}
       <Dialog open={isNewModalOpen} onOpenChange={setIsNewModalOpen}>
-        <DialogContent className="max-w-md rounded-3xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
+        <DialogContent className="w-[95vw] sm:max-w-md rounded-3xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 max-h-[90vh] overflow-y-auto p-4 sm:p-6">
           <DialogHeader>
             <DialogTitle className="text-lg font-black uppercase tracking-tight text-slate-900 dark:text-white">
               Initialize Client Implementation

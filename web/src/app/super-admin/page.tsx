@@ -769,7 +769,7 @@ export default function NexusSuperControl() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0f1e] p-4 md:p-8 lg:p-12 text-slate-900 dark:text-slate-200">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0a0f1e] px-3 sm:px-6 md:px-8 lg:px-12 py-4 sm:py-8 text-slate-900 dark:text-slate-200 overflow-x-hidden">
        <div className="max-w-7xl mx-auto space-y-12">
          {/* Global Header */}
       <div className="flex flex-col gap-4 mb-10 relative z-10">
@@ -807,33 +807,33 @@ export default function NexusSuperControl() {
          </div>
 
          {/* Bottom row: CTA buttons & Live Presence Badges */}
-         <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <Link href="/super-admin/implementations">
-                 <Button className="h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
+              <Link href="/super-admin/implementations" className="w-full sm:w-auto">
+                 <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
                     <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits
                  </Button>
               </Link>
-              <Link href="/super-admin/businesses">
-                 <Button variant="outline" className="h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
+              <Link href="/super-admin/businesses" className="w-full sm:w-auto">
+                 <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
                     <Megaphone className="h-4 w-4 text-indigo-500" /> Client Discovery &amp; Registration Vault
                  </Button>
               </Link>
             </div>
 
             {/* Real-time Online Presence Indicators */}
-            <div className="flex items-center gap-2">
+            <div className="grid grid-cols-2 sm:flex items-center gap-2">
               <div 
                 onClick={() => setActiveTab("operators")}
                 className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-700 dark:text-emerald-300 transition-all hover:bg-emerald-500/20 shadow-sm"
               >
-                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-[1000] uppercase tracking-wider leading-none">
-                    {onlinePresence.onlineBusinessesCount} {onlinePresence.onlineBusinessesCount === 1 ? "Business" : "Businesses"} Online
+                <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] font-[1000] uppercase tracking-wider leading-none truncate">
+                    {onlinePresence.onlineBusinessesCount} {onlinePresence.onlineBusinessesCount === 1 ? "Store" : "Stores"} Online
                   </span>
-                  <span className="text-[8px] font-bold text-emerald-600/80 dark:text-emerald-400/80 uppercase tracking-widest mt-0.5">
-                    Live Active Stores
+                  <span className="text-[8px] font-bold text-emerald-600/80 dark:text-emerald-400/80 uppercase tracking-widest mt-0.5 truncate">
+                    Live Active Nodes
                   </span>
                 </div>
               </div>
@@ -842,13 +842,13 @@ export default function NexusSuperControl() {
                 onClick={() => setActiveTab("operators")}
                 className="cursor-pointer flex items-center gap-2 px-3 py-2 rounded-xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-700 dark:text-indigo-300 transition-all hover:bg-indigo-500/20 shadow-sm"
               >
-                <Users className="h-3.5 w-3.5 text-indigo-500 animate-pulse" />
-                <div className="flex flex-col">
-                  <span className="text-[10px] font-[1000] uppercase tracking-wider leading-none">
+                <Users className="h-3.5 w-3.5 text-indigo-500 animate-pulse shrink-0" />
+                <div className="flex flex-col min-w-0">
+                  <span className="text-[10px] font-[1000] uppercase tracking-wider leading-none truncate">
                     {onlinePresence.onlineUsersCount} {onlinePresence.onlineUsersCount === 1 ? "User" : "Users"} Online
                   </span>
-                  <span className="text-[8px] font-bold text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-widest mt-0.5">
-                    Active System Operators
+                  <span className="text-[8px] font-bold text-indigo-600/80 dark:text-indigo-400/80 uppercase tracking-widest mt-0.5 truncate">
+                    Active Operators
                   </span>
                 </div>
               </div>
