@@ -98,8 +98,8 @@ const SidebarContentRenderer = ({
   session, 
   pathname 
 }: any) => {
-  const { setOpenMobile, state, isMobile } = useSidebar();
-  const isCollapsed = state === "collapsed" && !isMobile;
+  const { setOpenMobile, state, isMobile, isPinned, togglePin, isHovered } = useSidebar();
+  const isCollapsed = !isPinned && !isHovered && !isMobile;
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
   // Auto-expand the active section on mount or pathname change
