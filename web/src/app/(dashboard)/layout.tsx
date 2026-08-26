@@ -189,9 +189,9 @@ export default async function DashboardLayout({
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <AnnouncementBanner />
-          <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-100 dark:border-white/5 bg-white/80 dark:bg-[hsl(222.2,47.4%,11.2%)]/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-6 transition-all shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] dark:shadow-none">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-100 dark:border-white/5 bg-white/80 dark:bg-[hsl(222.2,47.4%,11.2%)]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 transition-all shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] dark:shadow-none">
             <div className="flex items-center gap-4 flex-1 min-w-0">
-              <SidebarTrigger className="-ml-2 flex-shrink-0" />
+              <SidebarTrigger className="flex-shrink-0" />
               <div className="hidden md:block flex-1 max-w-md">
                 <GlobalSearch />
               </div>

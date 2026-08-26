@@ -98,7 +98,7 @@ const SidebarContentRenderer = ({
   session, 
   pathname 
 }: any) => {
-  const { setOpenMobile, state, isMobile, isPinned, togglePin, isHovered } = useSidebar();
+  const { setOpenMobile, state, isMobile, isPinned = true, togglePin = () => {}, isHovered = false } = useSidebar();
   const isCollapsed = !isPinned && !isHovered && !isMobile;
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
@@ -123,15 +123,15 @@ const SidebarContentRenderer = ({
   
   return (
     <>
-      <SidebarHeader className={cn("transition-all duration-300", isCollapsed ? "pt-4 px-2 pb-3" : "pt-6 px-4 pb-2")}>
+      <SidebarHeader className={cn("transition-all duration-300", isCollapsed ? "pt-4 px-2 pb-3 space-y-3" : "pt-6 px-4 pb-2")}>
         {/* DUAL LOGOS (PROTECH + BUSINESS) WHEN COLLAPSED */}
         {isCollapsed ? (
-          <div className="flex flex-col items-center gap-3">
+          <div className="flex flex-col items-center gap-3 py-1">
             {/* 1. Protech Assist Logo Badge */}
             <Link 
               href="/dashboard" 
               title="Protech Assist Enterprise OS"
-              className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-lg shadow-primary/20 ring-2 ring-white/10 hover:scale-105 transition-transform"
+              className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-2 ring-white/10 hover:scale-105 transition-transform shrink-0"
             >
               <Image 
                 src="/images/PA.png" 
@@ -144,8 +144,8 @@ const SidebarContentRenderer = ({
 
             {/* 2. Business Logo Badge */}
             <div 
-              title={`${businessContext?.name || "Store Node"} (${businessType} UNIT)`}
-              className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/10 border border-white/20 shadow-md group cursor-pointer hover:border-primary/50 transition-colors"
+              title={`${businessContext?.name && businessContext.name !== "Loading..." ? businessContext.name : (session?.user?.businessName || "Business Node")} (${businessType || "ENTERPRISE"} UNIT)`}
+              className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/10 border border-white/20 shadow-md group cursor-pointer hover:border-primary/50 transition-all hover:scale-105 shrink-0"
             >
               {businessContext?.logoUrl ? (
                 <Image 
@@ -157,7 +157,9 @@ const SidebarContentRenderer = ({
                 />
               ) : (
                 <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-black text-xs uppercase">
-                  {businessContext?.name ? businessContext.name.charAt(0).toUpperCase() : <Building2 className="h-5 w-5 text-white/80" />}
+                  {(businessContext?.name && businessContext.name !== "Loading...")
+                    ? businessContext.name.charAt(0).toUpperCase() 
+                    : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-5 w-5 text-white/80" />)}
                 </div>
               )}
               {/* Online Pulse Dot */}
@@ -168,7 +170,7 @@ const SidebarContentRenderer = ({
             <button
               onClick={togglePin}
               title="Pin Sidebar Open"
-              className="h-7 w-7 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-110"
+              className="h-7 w-7 rounded-lg bg-white/5 hover:bg-white/15 border border-white/10 text-slate-400 hover:text-white flex items-center justify-center transition-all hover:scale-110 shrink-0"
             >
               <Pin className="h-3.5 w-3.5" />
             </button>
@@ -217,16 +219,9 @@ const SidebarContentRenderer = ({
             </div>
             
             {/* Business Context Card */}
-            <div className="mt-6 mb-4 px-1">
-               <div className="flex items-center justify-between mb-2">
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Context</div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] animate-pulse" />
-                    <span className="text-[8px] font-black uppercase tracking-wider text-emerald-400">Online</span>
-                  </div>
-               </div>
-               <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner group cursor-pointer transition-all hover:border-primary/30 flex items-center gap-3">
-                  <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 bg-slate-800 flex-shrink-0 flex items-center justify-center shadow-md">
+            <div className="mt-5 mb-3 px-0.5">
+               <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner group transition-all hover:border-primary/40 flex items-center gap-3">
+                  <div className="relative h-10 w-10 rounded-xl overflow-hidden border border-white/20 bg-slate-800 shrink-0 flex items-center justify-center shadow-md">
                     {businessContext?.logoUrl ? (
                       <Image 
                         src={businessContext.logoUrl} 
@@ -237,17 +232,24 @@ const SidebarContentRenderer = ({
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-black text-sm uppercase">
-                        {businessContext?.name ? businessContext.name.charAt(0).toUpperCase() : <Building2 className="h-4 w-4 text-white" />}
+                        {(businessContext?.name && businessContext.name !== "Loading...")
+                          ? businessContext.name.charAt(0).toUpperCase()
+                          : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-4 w-4 text-white" />)}
                       </div>
                     )}
+                    <div className="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-slate-900 animate-pulse" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-black text-white truncate block group-hover:text-primary transition-colors">
-                      {businessContext?.name || "Default Business"}
+                      {(businessContext?.name && businessContext.name !== "Loading...") 
+                        ? businessContext.name 
+                        : (session?.user?.businessName || "Protech Store Node")}
                     </span>
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 block">
-                      {businessType} UNIT
-                    </span>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/10 truncate">
+                        {businessType || "ENTERPRISE"} UNIT
+                      </span>
+                    </div>
                   </div>
                </div>
             </div>

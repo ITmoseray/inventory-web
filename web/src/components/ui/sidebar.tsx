@@ -285,7 +285,7 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           "relative bg-transparent transition-[width] duration-300 ease-in-out shrink-0",
-          isPinned ? "w-(--sidebar-width)" : "w-(--sidebar-width-icon)"
+          isPinned ? "w-[16rem]" : "w-[4.75rem]"
         )}
       />
       
@@ -294,10 +294,10 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-40 hidden h-svh transition-[width,box-shadow] duration-300 ease-in-out data-[side=left]:left-0 data-[side=right]:right-0 md:flex border-r border-white/10",
+          "fixed inset-y-0 z-50 hidden h-svh transition-[width,box-shadow] duration-300 ease-in-out data-[side=left]:left-0 data-[side=right]:right-0 md:flex border-r border-white/10",
           isExpanded
-            ? "w-(--sidebar-width) shadow-2xl ring-1 ring-black/10"
-            : "w-(--sidebar-width-icon) shadow-sm",
+            ? "w-[16rem] shadow-2xl ring-1 ring-black/20"
+            : "w-[4.75rem] shadow-sm",
           className
         )}
         {...props}
