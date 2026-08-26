@@ -84,8 +84,13 @@ export async function updateSystemSettings(settings: Partial<SystemSettings>): P
       update: {
         ...(settings.registrationOpen !== undefined && { registrationOpen: settings.registrationOpen }),
         ...(settings.defaultTrialDays !== undefined && { defaultTrialDays: settings.defaultTrialDays }),
-        ...(settings.announcementBanner !== undefined && { announcementBanner: settings.announcementBanner }),
-        ...(settings.announcementBannerUpdatedAt !== undefined && { announcementBannerUpdatedAt: settings.announcementBannerUpdatedAt }),
+        ...(settings.announcementBanner !== undefined && { 
+          announcementBanner: settings.announcementBanner,
+          announcementBannerUpdatedAt: settings.announcementBannerUpdatedAt ?? new Date().toISOString()
+        }),
+        ...(settings.announcementBannerUpdatedAt !== undefined && settings.announcementBanner === undefined && { 
+          announcementBannerUpdatedAt: settings.announcementBannerUpdatedAt 
+        }),
         ...(settings.emailAlertsEnabled !== undefined && { emailAlertsEnabled: settings.emailAlertsEnabled }),
       },
     });
