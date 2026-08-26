@@ -24,6 +24,8 @@ import { UserProfileDropdown } from "@/components/shared/user-profile-dropdown";
 import { ReceiptFeatureCallout } from "@/components/shared/receipt-feature-callout";
 import { OfflineSyncIndicator } from "@/components/shared/offline-sync-indicator";
 import { PresenceHeartbeatProvider } from "@/components/providers/presence-heartbeat-provider";
+import { TeamChatBell } from "@/components/shared/team-chat-bell";
+import { TeamChatWidget } from "@/components/chat/team-chat-widget";
 
 export const dynamic = "force-dynamic";
 
@@ -202,6 +204,7 @@ export default async function DashboardLayout({
                   <Zap className="h-3.5 w-3.5 fill-current" />
                   AI Assistant
                </Link>
+               <TeamChatBell />
                <NotificationBell />
                <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1" />
                <UserProfileDropdown user={session?.user as any} />
@@ -216,6 +219,7 @@ export default async function DashboardLayout({
           <QuickActions />
           <ReceiptFeatureCallout />
           <OfflineSyncIndicator />
+          <TeamChatWidget />
           </AutoLogoutProvider>
         </AppShell>
       </div>

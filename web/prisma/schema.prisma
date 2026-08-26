@@ -97,6 +97,7 @@ model Business {
   giftCards               GiftCard[]
   supplierPriceLists      SupplierPriceList[]
   productBundles          ProductBundle[]
+  teamConversations       TeamConversation[]
   activationTierId        String?
   activationTier          ActivationTier?          @relation(fields: [activationTierId], references: [id])
   redeemedVouchers        LicenseVoucher[]         @relation("RedeemedByBusiness")
@@ -152,6 +153,8 @@ model User {
   salesDrafts             SalesDraft[]
   assignedImplementations ClientImplementation[]   @relation("AssignedImplementations")
   createdImplementations  ClientImplementation[]   @relation("CreatedImplementations")
+  conversationMemberships ConversationMember[]
+  chatMessages            ChatMessage[]
 
   @@index([businessId])
   @@index([roleId])
@@ -1816,3 +1819,55 @@ model ClientImplementation {
 }
 
 
+
+model TeamConversation {
+  id                  String               @id @default(cuid())
+  businessId          String
+  type                String               @default("DIRECT") // "DIRECT" | "CHANNEL" | "ANNOUNCEMENT"
+  title               String?              // e.g. "#general", "#cashiers", or null for DMs
+  description         String?
+  lastMessageAt       DateTime?
+  lastMessagePreview  String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  deletedAt           DateTime?
+
+  business            Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  members             ConversationMember[]
+  messages            ChatMessage[]
+
+  @@index([businessId])
+  @@index([lastMessageAt])
+}
+
+model ConversationMember {
+  id             String           @id @default(cuid())
+  conversationId String
+  userId         String
+  lastReadAt     DateTime?
+  joinedAt       DateTime         @default(now())
+
+  conversation   TeamConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+}
+
+model ChatMessage {
+  id             String           @id @default(cuid())
+  conversationId String
+  senderId       String
+  content        String           @db.Text
+  attachmentUrl  String?
+  attachmentType String?          // "IMAGE" | "DOCUMENT" | "AUDIO" | null
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  deletedAt      DateTime?
+
+  conversation   TeamConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender         User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}

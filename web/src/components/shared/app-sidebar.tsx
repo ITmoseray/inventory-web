@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pin, PinOff, Building2, Store, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
-  Crown, Zap, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone
+  Crown, Zap, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare
 } from "lucide-react";
 
 import {
@@ -616,12 +616,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         });
     });
 
-    // Add Referral Program to System or create a new group
+    // Add Referral Program & Team Chat to System or create a new group
     let systemGroup = merged.find(g => g.label === "System");
     if (!systemGroup) {
       systemGroup = { label: "System", items: [] };
       merged.push(systemGroup);
     }
+    systemGroup.items.push({
+      title: "Team & Staff Chat",
+      url: "/dashboard/chat",
+      icon: MessageSquare,
+      permission: "view_dashboard"
+    });
     systemGroup.items.push({
       title: "Referral Program",
       url: "/dashboard/referrals",
