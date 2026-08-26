@@ -101,6 +101,7 @@ export const officeSidebarConfig = [
           { title: "Audit Trails", url: "/dashboard/system/logs" },
           { title: "System Broadcasts", url: "/dashboard/system/notifications" },
           { title: "Preferences", url: "/dashboard/system/settings" },
+          { title: "Receipt Layout", url: "/dashboard/system/settings/business?tab=receipt" },
           { title: "Users & Permissions", url: "/dashboard/staff/roles" },
         ],
       },

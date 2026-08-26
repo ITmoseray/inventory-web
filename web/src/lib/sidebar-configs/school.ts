@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, BookOpen, CreditCard, Wallet, Settings, Activity, GraduationCap, Building2, Calendar, Mail, Book, DollarSign, UserCheck } from "lucide-react";
+import { LayoutDashboard, Users, BookOpen, CreditCard, Wallet, Settings, Activity, GraduationCap, Building2, Calendar, Mail, Book, DollarSign, UserCheck, Receipt } from "lucide-react";
 
 export const getSchoolSidebarConfig = (institutionType?: string | null) => {
   const isNursing = institutionType === 'NURSING_MEDICAL';
@@ -64,6 +64,7 @@ export const getSchoolSidebarConfig = (institutionType?: string | null) => {
         { title: "Audit Logs", url: "/dashboard/system/logs", icon: Activity, permission: "menu:system:logs" },
         { title: "Notifications", url: "/dashboard/system/notifications", icon: Mail, permission: "menu:system:notifications" },
         { title: "Business Settings", url: "/dashboard/system/settings", icon: Settings, permission: "menu:system:settings" },
+        { title: "Receipt Layout", url: "/dashboard/system/settings/business?tab=receipt", icon: Receipt, permission: "menu:system:settings" },
         { title: "Users & Permissions", url: "/dashboard/staff/roles", icon: UserCheck, permission: "menu:staff:roles" }
       ] 
     },

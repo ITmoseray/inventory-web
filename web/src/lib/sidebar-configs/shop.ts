@@ -142,6 +142,7 @@ export const shopSidebarConfig = [
           { title: "Audit Logs", url: "/dashboard/system/logs" },
           { title: "Notifications", url: "/dashboard/system/notifications" },
           { title: "Settings", url: "/dashboard/system/settings" },
+          { title: "Receipt Layout", url: "/dashboard/system/settings/business?tab=receipt" },
         ],
       },
     ]
