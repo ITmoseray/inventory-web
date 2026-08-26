@@ -31,13 +31,14 @@ export async function verifyMasterSuperAdminLogin(password: string) {
     throw new Error(`Access Denied: Supreme Master Super Admin authority required (${MASTER_SUPER_ADMIN_EMAIL}).`);
   }
 
-  if (!session?.user?.id) {
-    throw new Error("User session invalid.");
-  }
-
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { passwordHash: true, email: true, name: true }
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { id: session?.user?.id || "" },
+        { email: { equals: MASTER_SUPER_ADMIN_EMAIL, mode: "insensitive" } }
+      ]
+    },
+    select: { id: true, passwordHash: true, email: true, name: true }
   });
 
   if (!user || !user.passwordHash) {
@@ -113,7 +114,7 @@ export async function getMasterSuperAdminTelemetry() {
           name: true,
           email: true,
           username: true,
-          image: true,
+          imageUrl: true,
           role: { select: { name: true } }
         }
       },
@@ -170,7 +171,7 @@ export async function getMasterSuperAdminTelemetry() {
       name: log.user?.name || "Super Admin",
       email: log.user?.email || "N/A",
       username: log.user?.username || "admin",
-      image: log.user?.image || null,
+      image: log.user?.imageUrl || null,
       isMaster: log.user?.email ? log.user.email.toLowerCase() === MASTER_SUPER_ADMIN_EMAIL.toLowerCase() : false
     },
     business: log.business ? {
