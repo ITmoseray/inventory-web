@@ -1,0 +1,393 @@
+"use client";
+
+import { useState, useEffect, use } from "react";
+import { 
+  Building2, 
+  UserCheck, 
+  ShieldCheck, 
+  CheckCircle2, 
+  Printer, 
+  ArrowLeft, 
+  Calendar, 
+  Phone, 
+  Mail, 
+  MapPin, 
+  Package, 
+  Check, 
+  Lock, 
+  FileText,
+  Sparkles,
+  QrCode
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { getClientImplementationById } from "@/lib/actions/client-implementation";
+import { format } from "date-fns";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { toast } from "sonner";
+
+export default function ImplementationReportPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const resolvedParams = use(params);
+  const id = resolvedParams.id;
+  const router = useRouter();
+
+  const [record, setRecord] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setLoading(true);
+        const data = await getClientImplementationById(id);
+        setRecord(data);
+      } catch (err: any) {
+        toast.error(err.message || "Failed to load report.");
+        router.push("/super-admin/implementations");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, [id]);
+
+  if (loading || !record) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 p-6">
+        <div className="h-8 w-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs font-black uppercase tracking-wider text-slate-500">Generating Official Completion Record...</p>
+      </div>
+    );
+  }
+
+  const invSummary = record.inventorySummary || {};
+  const checklist = record.verificationChecklist || {};
+
+  const checklistDisplay = [
+    { label: "All categories entered into system catalog", key: "allCategoriesEntered" },
+    { label: "All products & SKU records registered", key: "allProductsEntered" },
+    { label: "All suppliers & vendor contact lines recorded", key: "allSuppliersEntered" },
+    { label: "Opening stock quantities recorded", key: "openingStockEntered" },
+    { label: "Purchase cost prices verified against records", key: "purchasePricesVerified" },
+    { label: "Selling retail/wholesale prices verified", key: "sellingPricesVerified" },
+    { label: "Expiry dates logged where applicable", key: "expiryDatesEntered" },
+    { label: "Barcode scan mapping verified", key: "barcodeInfoEntered" },
+    { label: "Physical stock quantities verified on shelves", key: "stockQuantitiesVerified" },
+    { label: "Client reviewed digital database", key: "clientReviewed" },
+    { label: "Client approved final inventory audit", key: "clientApproved" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 py-8 px-4 sm:px-6 md:px-8 print:p-0 print:bg-white text-slate-900">
+      {/* Top Floating Control Bar (Hidden when printing) */}
+      <div className="max-w-4xl mx-auto mb-6 flex items-center justify-between gap-4 print:hidden">
+        <Link href={`/super-admin/implementations/${record.id}`}>
+          <Button variant="outline" className="h-10 px-4 rounded-xl text-xs font-bold gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            <span>Back to Workspace</span>
+          </Button>
+        </Link>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={() => window.print()}
+            className="h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/25 gap-2"
+          >
+            <Printer className="h-4 w-4" />
+            <span>Print / Save PDF Report</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Official Report Document Page */}
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-12 space-y-8 print:border-none print:shadow-none print:p-0 print:rounded-none print:max-w-full">
+        
+        {/* Document Header & Letterhead */}
+        <div className="border-b-2 border-slate-900 pb-6 space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3.5">
+              <div className="relative h-12 w-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md">
+                <Image 
+                  src="/images/PA.png" 
+                  alt="Protech Assist Logo" 
+                  width={36} 
+                  height={36} 
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+              <div>
+                <h2 className="text-base font-black tracking-widest uppercase text-indigo-600">Protech Assist Enterprise OS</h2>
+                <p className="text-[10px] font-black tracking-[0.25em] text-slate-500 uppercase">Enterprise Node Implementation &amp; Audit Division</p>
+              </div>
+            </div>
+
+            <div className="text-left sm:text-right space-y-0.5">
+              <span className="inline-block px-3 py-1 rounded-full bg-slate-900 text-white font-mono text-xs font-black uppercase tracking-wider">
+                {record.implementationNumber}
+              </span>
+              <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1">
+                Generated: {format(new Date(), "PPP")}
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2 text-center sm:text-left">
+            <h1 className="text-xl sm:text-2xl font-[1000] uppercase tracking-tight text-slate-950">
+              Client Registration &amp; Inventory Completion Record
+            </h1>
+            <p className="text-xs text-slate-600 font-medium">
+              Official implementation certification, inventory audit verification, and signed hand-over declaration.
+            </p>
+          </div>
+        </div>
+
+        {/* SECTION I: Client & Business Profile */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <Building2 className="h-4 w-4 text-indigo-600" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+              Section I — Business &amp; Client Profile
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs">
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Business Name</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.clientName || record.business?.name}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Owner / Manager</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.ownerName || "N/A"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Business Type</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.businessType || record.business?.type}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Primary Phone</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.contactPhone || "N/A"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">WhatsApp Line</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.contactWhatsapp || "N/A"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Email Address</p>
+              <p className="font-bold text-slate-900 mt-0.5 truncate">{record.contactEmail || "N/A"}</p>
+            </div>
+
+            <div className="sm:col-span-2">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Physical Address</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.businessAddress || "N/A"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Location</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.city || "Freetown"}, {record.district || "Western Area"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">License Tier Plan</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.subscriptionPlan || "FREE"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Assigned Lead</p>
+              <p className="font-bold text-slate-900 mt-0.5">{record.assignedStaffName || "Implementation Auditor"}</p>
+            </div>
+
+            <div>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Registration Date</p>
+              <p className="font-bold text-slate-900 mt-0.5">
+                {record.registrationCompletedAt ? format(new Date(record.registrationCompletedAt), "PPP") : format(new Date(record.createdAt), "PPP")}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION II: Verified Inventory & Stock Valuation Summary */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <Package className="h-4 w-4 text-indigo-600" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+              Section II — Verified Inventory &amp; Stock Valuation Summary
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Total Categories</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.totalCategories ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Total Products</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.totalProducts ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Total Suppliers</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.totalSuppliers ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Stocked Items</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.totalStockItems ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">With Barcodes</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.productsWithBarcodes ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">With Expiries</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.productsWithExpiryDates ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Cost Prices Set</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.productsWithPurchasePrices ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Selling Prices Set</p>
+              <p className="text-lg font-black text-slate-900 mt-0.5">{invSummary.productsWithSellingPrices ?? 0}</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 sm:col-span-2">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Total Inventory Quantity</p>
+              <p className="text-xl font-black text-slate-900 mt-0.5">{(invSummary.totalQuantity ?? 0).toLocaleString()} Units</p>
+            </div>
+
+            <div className="p-3 rounded-xl border border-slate-300 bg-indigo-50 sm:col-span-2">
+              <p className="text-[9px] font-black uppercase tracking-wider text-indigo-700">Total Verified Valuation</p>
+              <p className="text-xl font-black text-indigo-950 mt-0.5">
+                Le {(invSummary.totalValuation ?? 0).toLocaleString()}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION III: Verification Checklist Audit */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-2">
+            <CheckCircle2 className="h-4 w-4 text-indigo-600" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900">
+              Section III — Verification Checklist Audit
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+            {checklistDisplay.map((item, idx) => {
+              const isChecked = checklist[item.key] || false;
+              return (
+                <div key={item.key} className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border border-slate-200">
+                  <div className="h-4 w-4 rounded bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                    <Check className="h-3 w-3" />
+                  </div>
+                  <span className="text-slate-800 font-medium text-[11px] leading-tight">{item.label}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          {record.verificationNotes && (
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-500">Verification Notes</p>
+              <p className="font-medium text-slate-800 mt-0.5">{record.verificationNotes}</p>
+            </div>
+          )}
+        </div>
+
+        {/* SECTION IV & V: Dual Digital Signatures */}
+        <div className="space-y-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            
+            {/* Staff Declaration & Signature Card */}
+            <div className="p-5 rounded-2xl border border-slate-300 bg-slate-50 space-y-3">
+              <div className="border-b border-slate-200 pb-2">
+                <p className="text-[10px] font-black uppercase tracking-wider text-indigo-700">Implementation Lead Signature</p>
+                <p className="text-[10px] text-slate-600 italic mt-1 leading-snug">
+                  &quot;I confirm that the client registration and inventory information recorded in this implementation has been completed and verified to the best of my knowledge.&quot;
+                </p>
+              </div>
+
+              {/* Signature Graphic */}
+              <div className="h-20 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2">
+                {record.staffSignature ? (
+                  <img src={record.staffSignature} alt="Staff Signature" className="max-h-16 w-auto object-contain" />
+                ) : (
+                  <p className="text-xs text-slate-400 font-mono italic">No staff signature</p>
+                )}
+              </div>
+
+              <div className="text-[10px] space-y-0.5 border-t border-slate-200 pt-2">
+                <p><strong className="font-black">Name:</strong> {record.staffSignerName || record.assignedStaffName || "Super Admin Field Officer"}</p>
+                <p><strong className="font-black">Role:</strong> {record.staffSignerRole || "Lead Implementation Auditor"}</p>
+                <p><strong className="font-black">Date:</strong> {record.staffSignedAt ? format(new Date(record.staffSignedAt), "PPP 'at' pp") : "N/A"}</p>
+              </div>
+            </div>
+
+            {/* Client Confirmation & Signature Card */}
+            <div className="p-5 rounded-2xl border border-slate-300 bg-slate-50 space-y-3">
+              <div className="border-b border-slate-200 pb-2">
+                <p className="text-[10px] font-black uppercase tracking-wider text-indigo-700">Client Authorization Signature</p>
+                <p className="text-[10px] text-slate-600 italic mt-1 leading-snug">
+                  &quot;I confirm that I have reviewed the recorded business and inventory information and approve the information provided.&quot;
+                </p>
+              </div>
+
+              {/* Signature Graphic */}
+              <div className="h-20 bg-white rounded-xl border border-slate-200 flex items-center justify-center p-2">
+                {record.clientSignature ? (
+                  <img src={record.clientSignature} alt="Client Signature" className="max-h-16 w-auto object-contain" />
+                ) : (
+                  <p className="text-xs text-slate-400 font-mono italic">No client signature</p>
+                )}
+              </div>
+
+              <div className="text-[10px] space-y-0.5 border-t border-slate-200 pt-2">
+                <p><strong className="font-black">Name:</strong> {record.clientSignerName || record.ownerName || "Authorized Client Representative"}</p>
+                <p><strong className="font-black">Designation:</strong> {record.clientSignerRole || "Managing Director / Owner"}</p>
+                <p><strong className="font-black">Date:</strong> {record.clientSignedAt ? format(new Date(record.clientSignedAt), "PPP 'at' pp") : "N/A"}</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        {/* SECTION VI: Official Certification Seal & Footer */}
+        <div className="border-t-2 border-slate-900 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left text-xs">
+          <div className="space-y-1">
+            <div className="flex items-center justify-center sm:justify-start gap-2">
+              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+              <span className="font-black uppercase tracking-wider text-slate-900">Officially Certified &amp; Locked Record</span>
+            </div>
+            <p className="text-[10px] text-slate-500">
+              Protech Assist Enterprise OS • Implementation ID: <span className="font-mono font-bold text-slate-800">{record.implementationNumber}</span>
+            </p>
+          </div>
+
+          <div className="text-center sm:text-right space-y-0.5">
+            <span className="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-black uppercase tracking-wider border border-emerald-300">
+              Status: {record.status}
+            </span>
+            <p className="text-[9px] text-slate-400">Tamper-proof digital cryptographic audit record</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}

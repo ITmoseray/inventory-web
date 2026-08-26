@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -761,11 +761,16 @@ export default function NexusSuperControl() {
            </div>
          </div>
 
-         {/* Bottom row: CTA button */}
-         <div className="flex">
+         {/* Bottom row: CTA buttons */}
+         <div className="flex flex-wrap items-center gap-3">
+            <Link href="/super-admin/implementations">
+               <Button className="h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                  <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits
+               </Button>
+            </Link>
             <Link href="/super-admin/businesses">
-               <Button className="h-10 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20">
-                  <Megaphone className="h-4 w-4" /> Client Discovery & Registration Vault
+               <Button variant="outline" className="h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
+                  <Megaphone className="h-4 w-4 text-indigo-500" /> Client Discovery &amp; Registration Vault
                </Button>
             </Link>
          </div>

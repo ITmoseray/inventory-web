@@ -100,6 +100,7 @@ model Business {
   activationTierId        String?
   activationTier          ActivationTier?          @relation(fields: [activationTierId], references: [id])
   redeemedVouchers        LicenseVoucher[]         @relation("RedeemedByBusiness")
+  clientImplementations   ClientImplementation[]
 
   @@index([slug])
 }
@@ -145,6 +146,8 @@ model User {
   labTests                LabTest[]                 @relation("LabTechnician")
   requestedLabTests       LabTest[]                 @relation("DoctorLabTests")
   salesDrafts             SalesDraft[]
+  assignedImplementations ClientImplementation[]   @relation("AssignedImplementations")
+  createdImplementations  ClientImplementation[]   @relation("CreatedImplementations")
 
   @@index([businessId])
   @@index([roleId])
@@ -1730,4 +1733,82 @@ model SystemBackup {
 
   @@index([createdAt])
 }
+
+model ClientImplementation {
+  id                          String    @id @default(cuid())
+  implementationNumber        String    @unique
+  businessId                  String
+  assignedStaffId             String?
+  createdById                 String?
+  status                      String    @default("REGISTRATION_PENDING") // REGISTRATION_PENDING | REGISTRATION_COMPLETED | INVENTORY_PENDING | INVENTORY_IN_PROGRESS | INVENTORY_VERIFICATION | AWAITING_CLIENT_APPROVAL | COMPLETED | AMENDED
+  currentStep                 Int       @default(1)
+  isLocked                    Boolean   @default(false)
+  registrationCompleted       Boolean   @default(false)
+  registrationCompletedAt     DateTime?
+  inventoryCompleted          Boolean   @default(false)
+  inventoryCompletedAt        DateTime?
+  inventoryVerified           Boolean   @default(false)
+  inventoryVerifiedAt         DateTime?
+  clientApproved              Boolean   @default(false)
+  clientApprovedAt            DateTime?
+
+  // Client / Business Snapshot
+  clientName                  String?
+  ownerName                   String?
+  contactPhone                String?
+  contactWhatsapp             String?
+  contactEmail                String?
+  businessAddress             String?
+  city                        String?
+  district                    String?
+  businessType                String?
+  assignedStaffName           String?
+  assignedStaffRole           String?
+  subscriptionPlan            String?
+  trialStartDate              DateTime?
+  accountStatus               String?
+
+  // Calculated Inventory Snapshot (JSON)
+  inventorySummary            Json?
+
+  // Verification Checklist (JSON)
+  verificationChecklist       Json?
+
+  // Notes & Remarks
+  notes                       String?
+  verificationNotes           String?
+
+  // Staff Digital Signature
+  staffSignature              String?   @db.Text
+  staffSignerName             String?
+  staffSignerRole             String?
+  staffSignedAt               DateTime?
+
+  // Client Representative Digital Signature
+  clientSignature             String?   @db.Text
+  clientSignerName            String?
+  clientSignerRole            String?
+  clientSignerPhone           String?
+  clientSignedAt              DateTime?
+
+  // Completion
+  completedAt                 DateTime?
+  completedBy                 String?
+
+  // Revisions & Amendments Audit Trail (JSON array)
+  revisions                   Json?
+
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+  deletedAt                   DateTime?
+
+  business                    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  assignedStaff               User?     @relation("AssignedImplementations", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  createdBy                   User?     @relation("CreatedImplementations", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([status])
+  @@index([implementationNumber])
+}
+
 
