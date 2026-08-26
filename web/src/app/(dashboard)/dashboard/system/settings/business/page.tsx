@@ -147,7 +147,7 @@ export default function BusinessSettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 p-4 md:p-8 lg:p-12 animate-in fade-in duration-700">
+    <div className="min-h-screen bg-slate-50/50 dark:bg-slate-950/50 p-3 sm:p-6 md:p-8 lg:p-12 pb-32 animate-in fade-in duration-700">
       <div className="max-w-6xl mx-auto space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -517,8 +517,8 @@ export default function BusinessSettingsPage() {
                   <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Real-time</span>
                 </div>
 
-                <div className="bg-slate-200 dark:bg-slate-950 p-4 sm:p-6 rounded-[2rem] shadow-inner flex items-center justify-center border border-slate-300 dark:border-slate-800 overflow-x-auto">
-                  <div className="shadow-2xl rounded-lg overflow-hidden max-w-full">
+                <div className="bg-slate-200/90 dark:bg-slate-950 p-2.5 sm:p-5 md:p-6 rounded-2xl sm:rounded-[2rem] shadow-inner flex flex-col items-center justify-center border border-slate-300 dark:border-slate-800 w-full overflow-hidden">
+                  <div className="shadow-2xl rounded-2xl overflow-hidden w-full max-w-[320px] mx-auto bg-white flex justify-center p-0">
                     <ThermalReceipt
                       id="DEMO-12345"
                       items={sampleReceiptItems}
