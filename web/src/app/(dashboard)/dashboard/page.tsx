@@ -933,14 +933,16 @@ export default function DashboardPage() {
               </div>
 
               <div className="pt-8 border-t border-slate-50 dark:border-slate-800 space-y-4">
-                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    <span>Transaction Subtotal</span>
-                    <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount / 1.15).toLocaleString()}</span>
-                 </div>
-                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    <span>Tax Applied (15%)</span>
-                    <span className="text-slate-900 dark:text-white">Le {Math.round(selectedSale?.totalAmount - (selectedSale?.totalAmount / 1.15)).toLocaleString()}</span>
-                 </div>
+                  <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                     <span>Transaction Subtotal</span>
+                     <span className="text-slate-900 dark:text-white font-black">Le {Math.round(selectedSale?.totalAmount || 0).toLocaleString()}</span>
+                  </div>
+                  {Number(selectedSale?.tax) > 0 && (
+                    <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                       <span>Tax Amount</span>
+                       <span className="text-slate-900 dark:text-white">Le {Math.round(Number(selectedSale.tax)).toLocaleString()}</span>
+                    </div>
+                  )}
                  <div className="h-px bg-slate-50 dark:bg-slate-800 w-full my-4" />
                  <div className="flex justify-between items-end pt-2">
                     <div className="space-y-1">
