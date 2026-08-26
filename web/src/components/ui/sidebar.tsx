@@ -265,7 +265,7 @@ function Sidebar({
       className="group peer hidden text-sidebar-foreground md:block"
       data-state={effectiveState}
       data-pinned={isPinned ? "true" : "false"}
-      data-collapsible={!isPinned ? collapsible : ""}
+      data-collapsible={effectiveState === "collapsed" ? collapsible : ""}
       data-variant={variant}
       data-side={side}
       data-slot="sidebar"
@@ -435,7 +435,7 @@ function SidebarContent({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="sidebar-content"
       data-sidebar="content"
       className={cn(
-        "no-scrollbar flex min-h-0 flex-1 flex-col gap-0 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
+        "flex min-h-0 flex-1 flex-col gap-0 overflow-y-auto custom-scrollbar",
         className
       )}
       {...props}
