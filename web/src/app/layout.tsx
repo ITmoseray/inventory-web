@@ -63,6 +63,22 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Enterprise OS" />
         <meta name="application-name" content="Enterprise OS" />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              #protech-splash-screen {
+                position: fixed !important;
+                inset: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                height: 100dvh !important;
+                background-color: #000000 !important;
+                z-index: 2147483647 !important;
+                display: flex !important;
+              }
+            `,
+          }}
+        />
       </head>
       <body className={`${inter.className} min-h-full flex flex-col antialiased relative`}>
         <SplashScreenWrapper />

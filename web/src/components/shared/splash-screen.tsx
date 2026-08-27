@@ -48,10 +48,12 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
 
   return (
     <div
+      id="protech-splash-screen"
       onClick={handleFinish}
-      className={`fixed inset-0 z-[99999999] h-[100dvh] w-screen flex flex-col items-center justify-between bg-black text-white select-none overflow-hidden cursor-pointer transition-all duration-500 ease-out ${
-        isFadingOut ? "opacity-0 pointer-events-none scale-105" : "opacity-100"
+      className={`fixed inset-0 z-[2147483647] h-[100dvh] w-screen flex flex-col items-center justify-between bg-black text-white select-none overflow-hidden cursor-pointer transition-all duration-500 ease-out ${
+        isFadingOut ? "!opacity-0 pointer-events-none scale-105" : "!opacity-100"
       }`}
+      style={{ backgroundColor: "#000000" }}
     >
       {/* Top Header Bar */}
       <header className="w-full max-w-6xl px-4 sm:px-8 pt-4 sm:pt-6 flex items-center justify-between z-30 shrink-0">
