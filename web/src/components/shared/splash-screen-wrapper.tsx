@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { SplashScreen } from "./splash-screen";
 
-export function SplashScreenWrapper({ children }: { children: React.ReactNode }) {
+export function SplashScreenWrapper() {
     const [mounted, setMounted] = useState(false);
     const [showSplash, setShowSplash] = useState(true);
 
@@ -10,14 +10,7 @@ export function SplashScreenWrapper({ children }: { children: React.ReactNode })
         setMounted(true);
     }, []);
 
-    const handleDismiss = () => {
-        setShowSplash(false);
-    };
+    if (!mounted || !showSplash) return null;
 
-    return (
-        <>
-            {showSplash && <SplashScreen onDismiss={handleDismiss} />}
-            {children}
-        </>
-    );
+    return <SplashScreen onDismiss={() => setShowSplash(false)} />;
 }

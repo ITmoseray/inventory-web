@@ -64,7 +64,8 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Enterprise OS" />
         <meta name="application-name" content="Enterprise OS" />
       </head>
-      <body className={`${inter.className} min-h-full flex flex-col antialiased`}>
+      <body className={`${inter.className} min-h-full flex flex-col antialiased relative`}>
+        <SplashScreenWrapper />
         <ThemeProvider
             attribute="class"
             defaultTheme="light"
@@ -76,9 +77,7 @@ export default function RootLayout({
               <Suspense>
               <LoadingProvider>
                 <BusinessProvider>
-                  <SplashScreenWrapper>
-                    {children}
-                  </SplashScreenWrapper>
+                  {children}
                 </BusinessProvider>
               </LoadingProvider>
               <Toaster />
