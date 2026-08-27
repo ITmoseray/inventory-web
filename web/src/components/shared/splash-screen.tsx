@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { ArrowRight, ShieldCheck, Zap } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface SplashScreenProps {
   onDismiss: () => void;
@@ -74,9 +75,9 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
         </button>
       </div>
 
-      {/* Center Animated Logo Video Player */}
+      {/* Center Animated Logo Video & Animated Typography */}
       <div className="relative z-30 flex flex-col items-center justify-center flex-1 w-full max-w-4xl px-4 my-auto">
-        <div className="relative w-full max-w-[500px] aspect-square flex items-center justify-center bg-black">
+        <div className="relative w-full max-w-[420px] aspect-square flex items-center justify-center bg-black">
           {/* HTML5 Animation Video */}
           <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
             <video
@@ -95,8 +96,44 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
           </div>
         </div>
 
+        {/* Animated Brand Title & Tagline */}
+        <div className="flex flex-col items-center gap-2 mt-2 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 15, filter: "blur(6px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="flex items-center gap-2"
+          >
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight uppercase bg-gradient-to-r from-white via-slate-100 to-indigo-300 bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(99,102,241,0.5)] font-sans">
+              Protech <span className="text-indigo-400">Assist</span>
+            </h1>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+            className="flex items-center gap-3"
+          >
+            <div className="h-px w-8 sm:w-12 bg-gradient-to-r from-transparent via-cyan-400/50 to-indigo-500/80" />
+            <span className="text-[10px] sm:text-xs font-mono font-black tracking-[0.35em] sm:tracking-[0.45em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
+              Enterprise OS
+            </span>
+            <div className="h-px w-8 sm:w-12 bg-gradient-to-l from-transparent via-cyan-400/50 to-indigo-500/80" />
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.9 }}
+            className="text-[8px] sm:text-[9px] font-mono tracking-[0.25em] text-zinc-500 uppercase mt-0.5"
+          >
+            Autonomous Business &amp; Retail Intelligence
+          </motion.p>
+        </div>
+
         {/* System Loading Progress Bar */}
-        <div className="w-full max-w-xs space-y-2 mt-4">
+        <div className="w-full max-w-xs space-y-2 mt-5">
           <div className="relative h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
             <div
               className="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-indigo-500 rounded-full transition-all duration-200 shadow-[0_0_12px_rgba(99,102,241,0.8)]"
