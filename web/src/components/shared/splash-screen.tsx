@@ -48,18 +48,19 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
   return (
     <div
       onClick={handleFinish}
-      className={`fixed inset-0 z-[999999] flex flex-col items-center justify-between bg-[#030305] text-white select-none overflow-hidden cursor-pointer transition-all duration-700 ${
+      className={`fixed inset-0 z-[99999999] flex flex-col items-center justify-between bg-[#080B11] text-white select-none overflow-hidden cursor-pointer transition-all duration-700 ${
         isFadingOut ? "opacity-0 pointer-events-none scale-105" : "opacity-100"
       }`}
+      style={{ isolation: "isolate" }}
     >
       {/* Dynamic Background Glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-indigo-600/20 blur-[160px] rounded-full pointer-events-none" />
-        <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-cyan-600/15 blur-[160px] rounded-full pointer-events-none" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[650px] h-[650px] bg-indigo-600/20 blur-[180px] rounded-full pointer-events-none" />
+        <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-cyan-600/15 blur-[180px] rounded-full pointer-events-none" />
         
         {/* Subtle Cyber Grid */}
         <div 
-          className="absolute inset-0 opacity-[0.05]"
+          className="absolute inset-0 opacity-[0.04]"
           style={{
             backgroundImage: `
               linear-gradient(to right, #ffffff 1px, transparent 1px),
@@ -73,7 +74,7 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
       </div>
 
       {/* Top Header Bar */}
-      <div className="w-full max-w-7xl px-6 py-6 sm:py-8 flex items-center justify-between z-20">
+      <div className="w-full max-w-7xl px-6 py-6 sm:py-8 flex items-center justify-between z-30">
         <div className="flex items-center gap-2.5">
           <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
           <span className="text-[10px] sm:text-xs font-mono font-bold tracking-[0.25em] text-slate-300 uppercase">
@@ -95,13 +96,13 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
       </div>
 
       {/* Center Animated Logo Video Player */}
-      <div className="relative z-20 flex flex-col items-center justify-center flex-1 w-full max-w-3xl px-4 my-auto">
+      <div className="relative z-30 flex flex-col items-center justify-center flex-1 w-full max-w-3xl px-4 my-auto">
         <div className="relative w-full max-w-[480px] aspect-square flex items-center justify-center">
           {/* Ambient Video Halo */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/40 via-cyan-500/30 to-purple-600/30 blur-3xl rounded-full scale-100 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/40 via-cyan-500/30 to-purple-600/30 blur-3xl rounded-full scale-105 animate-pulse" />
 
-          {/* HTML5 Animation Video */}
-          <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl flex items-center justify-center">
+          {/* HTML5 Animation Video with Screen Blend Mode */}
+          <div className="relative w-full h-full rounded-3xl overflow-hidden flex items-center justify-center">
             <video
               ref={videoRef}
               autoPlay
@@ -110,7 +111,8 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
               preload="auto"
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleFinish}
-              className="w-full h-full object-contain rounded-2xl drop-shadow-[0_0_40px_rgba(79,70,229,0.5)]"
+              className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(79,70,229,0.7)]"
+              style={{ mixBlendMode: "screen" }}
             >
               <source src="/videos/protech_assist_1080p_60fps.webm" type="video/webm" />
               <source src="/protech_assist_1080p_60fps.webm" type="video/webm" />
