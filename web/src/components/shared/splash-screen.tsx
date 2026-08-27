@@ -48,36 +48,15 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
   return (
     <div
       onClick={handleFinish}
-      className={`fixed inset-0 z-[99999999] flex flex-col items-center justify-between bg-[#080B11] text-white select-none overflow-hidden cursor-pointer transition-all duration-700 ${
+      className={`fixed inset-0 z-[99999999] flex flex-col items-center justify-between bg-black text-white select-none overflow-hidden cursor-pointer transition-all duration-700 ${
         isFadingOut ? "opacity-0 pointer-events-none scale-105" : "opacity-100"
       }`}
-      style={{ isolation: "isolate" }}
     >
-      {/* Dynamic Background Glows */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[650px] h-[650px] bg-indigo-600/20 blur-[180px] rounded-full pointer-events-none" />
-        <div className="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[550px] h-[550px] bg-cyan-600/15 blur-[180px] rounded-full pointer-events-none" />
-        
-        {/* Subtle Cyber Grid */}
-        <div 
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, #ffffff 1px, transparent 1px),
-              linear-gradient(to bottom, #ffffff 1px, transparent 1px)
-            `,
-            backgroundSize: '48px 48px',
-            maskImage: 'radial-gradient(circle at center, black 40%, transparent 80%)',
-            WebkitMaskImage: 'radial-gradient(circle at center, black 40%, transparent 80%)'
-          }}
-        />
-      </div>
-
       {/* Top Header Bar */}
       <div className="w-full max-w-7xl px-6 py-6 sm:py-8 flex items-center justify-between z-30">
         <div className="flex items-center gap-2.5">
-          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-ping" />
-          <span className="text-[10px] sm:text-xs font-mono font-bold tracking-[0.25em] text-slate-300 uppercase">
+          <div className="h-2.5 w-2.5 rounded-full bg-indigo-500 animate-ping" />
+          <span className="text-[10px] sm:text-xs font-mono font-bold tracking-[0.25em] text-slate-400 uppercase">
             PROTECH ASSIST • ENTERPRISE OS
           </span>
         </div>
@@ -96,13 +75,10 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
       </div>
 
       {/* Center Animated Logo Video Player */}
-      <div className="relative z-30 flex flex-col items-center justify-center flex-1 w-full max-w-3xl px-4 my-auto">
-        <div className="relative w-full max-w-[480px] aspect-square flex items-center justify-center">
-          {/* Ambient Video Halo */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-indigo-600/40 via-cyan-500/30 to-purple-600/30 blur-3xl rounded-full scale-105 animate-pulse" />
-
-          {/* HTML5 Animation Video with Screen Blend Mode */}
-          <div className="relative w-full h-full rounded-3xl overflow-hidden flex items-center justify-center">
+      <div className="relative z-30 flex flex-col items-center justify-center flex-1 w-full max-w-4xl px-4 my-auto">
+        <div className="relative w-full max-w-[500px] aspect-square flex items-center justify-center bg-black">
+          {/* HTML5 Animation Video */}
+          <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
             <video
               ref={videoRef}
               autoPlay
@@ -111,8 +87,7 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
               preload="auto"
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleFinish}
-              className="w-full h-full object-contain drop-shadow-[0_0_50px_rgba(79,70,229,0.7)]"
-              style={{ mixBlendMode: "screen" }}
+              className="w-full h-full object-contain bg-black"
             >
               <source src="/videos/protech_assist_1080p_60fps.webm" type="video/webm" />
               <source src="/protech_assist_1080p_60fps.webm" type="video/webm" />
@@ -121,15 +96,15 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
         </div>
 
         {/* System Loading Progress Bar */}
-        <div className="w-full max-w-xs space-y-2 mt-2">
-          <div className="relative h-1.5 w-full bg-slate-800/80 rounded-full overflow-hidden border border-white/10">
+        <div className="w-full max-w-xs space-y-2 mt-4">
+          <div className="relative h-1.5 w-full bg-zinc-900 rounded-full overflow-hidden border border-zinc-800">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-indigo-500 rounded-full transition-all duration-200 shadow-[0_0_12px_rgba(34,211,238,0.8)]"
+              className="h-full bg-gradient-to-r from-indigo-500 via-cyan-400 to-indigo-500 rounded-full transition-all duration-200 shadow-[0_0_12px_rgba(99,102,241,0.8)]"
               style={{ width: `${Math.max(progress, 15)}%` }}
             />
           </div>
 
-          <div className="flex items-center justify-between text-[9px] font-mono tracking-widest text-slate-400 uppercase">
+          <div className="flex items-center justify-between text-[9px] font-mono tracking-widest text-zinc-500 uppercase">
             <span className="flex items-center gap-1.5">
               <Zap className="h-3 w-3 text-cyan-400 animate-pulse" />
               Initializing System Core...
