@@ -21,7 +21,6 @@ import { prisma } from "@/lib/prisma";
 import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
 import { ImpersonationBanner } from "@/components/shared/impersonation-banner";
 import { UserProfileDropdown } from "@/components/shared/user-profile-dropdown";
-import { ReceiptFeatureCallout } from "@/components/shared/receipt-feature-callout";
 import { OfflineSyncIndicator } from "@/components/shared/offline-sync-indicator";
 import { PresenceHeartbeatProvider } from "@/components/providers/presence-heartbeat-provider";
 import { TeamChatBell } from "@/components/shared/team-chat-bell";
@@ -58,123 +57,135 @@ export default async function DashboardLayout({
     try {
       business = await prisma.business.findUnique({
         where: { id: session.user.businessId },
-        select: { 
-          id: true, 
-          status: true, 
-          plan: true, 
-          trialEndDate: true,
-          subscriptionStatus: true,
-          name: true,
-          createdAt: true
+        select: {
+          id: true,
+          status: true,
+          subscriptionTier: true,
+          trialEndsAt: true,
+          subscriptionExpiresAt: true,
+          businessType: true,
+          createdAt: true,
         }
       });
-
-      if (!business) {
-        return (
-          <div className="flex min-h-screen items-center justify-center bg-slate-50">
-            <div className="text-center space-y-4 p-8 bg-white rounded-[2rem] shadow-xl border border-slate-100">
-               <div className="h-12 w-12 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Bell className="h-6 w-6" />
-               </div>
-               <h2 className="text-xl font-black text-slate-900 dark:text-white">Session Expired</h2>
-               <p className="text-slate-500 font-medium max-w-xs">Your business profile was not found. This usually happens after a system reset.</p>
-               <a href="/register" className="block w-full h-12 bg-slate-900 text-white font-bold rounded-xl flex items-center justify-center">
-                 Register New Business
-               </a>
-            </div>
-          </div>
-        );
-      }
-
-      const now = new Date();
-      const isTrialExpired = business.trialEndDate && new Date(business.trialEndDate) < now;
-
-      // Check Business Status (Awaiting Activation)
-      // A trial business (FREE plan) is automatically active and should only be blocked if the trial has expired.
-      if (business.status === "PENDING" && (business.plan !== "FREE" || isTrialExpired)) {
-        return (
-          <div className="flex min-h-screen items-center justify-center bg-slate-950 font-sans p-6 py-12 text-slate-200 relative overflow-y-auto">
-             {/* Background Grid Pattern */}
-             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
-             <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-500/10 rounded-full blur-[120px] pointer-events-none" />
-             
-             <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
-                <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
-                   <Clock className="h-10 w-10 animate-pulse text-amber-500" />
-                </div>
-                
-                <div className="space-y-3">
-                   <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Activation <span className="text-amber-500">Pending</span></h2>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Awaiting Admin Approval</p>
-                </div>
-                
-                <p className="text-slate-400 font-normal text-sm leading-relaxed">
-                   Your subscription for the <strong>{business.plan} Plan</strong> has been registered. An administrator is currently verifying the payment details. Once verified, your store will be activated immediately.
-                </p>
-
-                <div className="bg-slate-950/50 p-4 rounded-xl border border-slate-800 space-y-2 text-left">
-                  <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Store Name</p>
-                  <p className="text-xs font-black text-white">{business.name}</p>
-                </div>
-                
-                <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
-                   <a 
-                     href="https://wa.me/23273019699"
-                     target="_blank"
-                     className="h-12 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center font-bold"
-                   >
-                     Verify Faster on WhatsApp
-                   </a>
-                   <BlockScreenSignout />
-                </div>
-             </div>
-          </div>
-        );
-      }
-
-      // Check Trial Expiration
-      if (isTrialExpired && business.subscriptionStatus === "INACTIVE") {
-        return (
-          <div className="flex min-h-screen items-center justify-center bg-slate-950 font-sans p-6 py-12 text-slate-200 relative overflow-y-auto">
-             {/* Background Grid Pattern */}
-             <div className="absolute inset-0 bg-[linear-gradient(to_right,#1f2937_1px,transparent_1px),linear-gradient(to_bottom,#1f2937_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_40%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
-             <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-rose-500/10 rounded-full blur-[120px] pointer-events-none" />
-             
-             <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-slate-900/40 border border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/10 rounded-full blur-3xl -z-10 -translate-y-1/2 translate-x-1/2" />
-                <div className="h-20 w-20 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-rose-500/5 group-hover:scale-105 transition-transform duration-500">
-                   <AlertCircle className="h-10 w-10 text-rose-500" />
-                </div>
-                
-                <div className="space-y-3">
-                   <h2 className="text-3xl font-[1000] text-white uppercase italic tracking-tighter">Trial <span className="text-rose-500">Expired</span></h2>
-                   <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.25em]">Free Trial Period Finished</p>
-                </div>
-                
-                <p className="text-slate-400 font-normal text-sm leading-relaxed">
-                   Your 30-day free trial for <strong>{business.name}</strong> has ended. Please choose and subscribe to a plan to keep using your inventory system.
-                </p>
-                
-                <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
-                   <a 
-                     href="/pricing"
-                     className="h-12 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-indigo-600/20 transition-all flex items-center justify-center font-bold"
-                   >
-                     See Plans & Subscribe
-                   </a>
-                   <BlockScreenSignout />
-                </div>
-             </div>
-          </div>
-        );
-      }
-    } catch (dbError) {
-      console.error("Layout Database Error:", dbError);
+    } catch (e) {
+      console.error("Error fetching business for status check:", e);
     }
   }
 
+  const isMasterAdmin = session?.user?.email === "strangesteven001@gmail.com";
 
+  // Check if account is suspended or pending
+  if (!isMasterAdmin && business && (business.status === "SUSPENDED" || business.status === "PENDING" || business.status === "REJECTED")) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        {/* Background glow effects */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-rose-500/10 rounded-full blur-[120px] pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-indigo-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-md w-full text-center space-y-6">
+          {/* Status Icon */}
+          <div className="mx-auto w-20 h-20 rounded-3xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 shadow-2xl shadow-rose-500/20">
+            {business.status === "PENDING" ? (
+              <Clock className="w-10 h-10 animate-pulse" />
+            ) : (
+              <AlertCircle className="w-10 h-10" />
+            )}
+          </div>
+
+          {/* Heading */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-black text-white tracking-tight uppercase">
+              {business.status === "PENDING" && "Account Under Review"}
+              {business.status === "SUSPENDED" && "Organization Suspended"}
+              {business.status === "REJECTED" && "Registration Declined"}
+            </h1>
+            <p className="text-sm text-slate-400 leading-relaxed font-medium">
+              {business.status === "PENDING" &&
+                "Your organization account is currently being provisioned by our team. You'll receive full access as soon as verification is complete."}
+              {business.status === "SUSPENDED" &&
+                "Access to this organization has been temporarily suspended by system administrators. Please contact executive support to restore access."}
+              {business.status === "REJECTED" &&
+                "Your registration request could not be approved at this time. Contact support for more information."}
+            </p>
+          </div>
+
+          {/* Business Info Chip */}
+          <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-left space-y-1.5">
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-mono">ORGANIZATION ID</span>
+              <span className="text-slate-300 font-mono font-bold truncate max-w-[200px]">{business.id}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-slate-500 font-mono">CURRENT STATUS</span>
+              <span className={`font-mono font-black uppercase text-xs px-2 py-0.5 rounded-full ${
+                business.status === "PENDING" ? "bg-amber-500/10 text-amber-400 border border-amber-500/20" : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+              }`}>
+                {business.status}
+              </span>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex flex-col gap-3 pt-2">
+            <a
+              href="https://wa.me/23273019699?text=Hello%20Protech%20Support,%20I%20need%20assistance%20with%20my%20account%20status."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
+            >
+              Contact Support
+            </a>
+            <BlockScreenSignout />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Check for expired trial / subscription
+  if (!isMasterAdmin && business && business.subscriptionTier === "TRIAL") {
+    const isExpired = business.trialEndsAt && new Date(business.trialEndsAt) < new Date();
+    if (isExpired) {
+      return (
+        <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+          <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[120px] pointer-events-none" />
+          <div className="relative z-10 max-w-md w-full text-center space-y-6">
+            <div className="mx-auto w-20 h-20 rounded-3xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 shadow-2xl shadow-amber-500/20">
+              <Clock className="w-10 h-10" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-black text-white tracking-tight uppercase">Trial Period Expired</h1>
+              <p className="text-sm text-slate-400 leading-relaxed font-medium">
+                Your 14-day premium trial has ended. To continue accessing your inventory, POS, and financial records, please upgrade your subscription plan.
+              </p>
+            </div>
+            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-left space-y-1.5">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-mono">ORGANIZATION ID</span>
+                <span className="text-slate-300 font-mono font-bold truncate max-w-[200px]">{business.id}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-500 font-mono">EXPIRED ON</span>
+                <span className="text-amber-400 font-mono font-bold">
+                  {new Date(business.trialEndsAt).toLocaleDateString()}
+                </span>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 pt-2">
+              <Link
+                href="/pricing"
+                className="w-full py-3.5 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
+              >
+                <Crown className="w-4 h-4" />
+                Upgrade to Pro Plan
+              </Link>
+              <BlockScreenSignout />
+            </div>
+          </div>
+        </div>
+      );
+    }
+  }
 
   const isImpersonating = (session?.user as any)?.originalRole === "SUPERADMIN";
 
@@ -219,7 +230,6 @@ export default async function DashboardLayout({
             </PresenceHeartbeatProvider>
           </main>
           <QuickActions />
-          <ReceiptFeatureCallout />
           <OfflineSyncIndicator />
           <TeamChatWidget />
           </AutoLogoutProvider>
