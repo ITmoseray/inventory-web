@@ -6,7 +6,8 @@ import {
   Download, ArrowUpDown, ShoppingCart, Tag, Calculator, ChevronDown, 
   ChevronUp, Info, Boxes, Layers, LayoutGrid, List, Eye, BarChart3, 
   TrendingUp, Sparkles, AlertCircle, CheckCircle2, QrCode, ExternalLink, 
-  DollarSign, Activity, Star, ArrowUpRight, ShieldCheck, Box, RefreshCw
+  DollarSign, Activity, Star, ArrowUpRight, ShieldCheck, Box, RefreshCw,
+  Wand2, Percent, Check, ArrowRight, ShieldAlert, FileText, Image as ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,7 +24,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -115,24 +115,32 @@ function PackagingUnitCard({
 }) {
   const costPerUnit = calcCostPerUnit(unit.purchaseCost, unit.unitsPerPackage);
   const margin = calcMargin(unit.sellingPrice, costPerUnit);
-  const isGoodMargin = margin > 15;
-  const isBadMargin = margin < 5 && margin > 0;
+  const sell = parseFloat(unit.sellingPrice) || 0;
+  const unitProfit = sell > 0 && costPerUnit > 0 ? sell - costPerUnit : 0;
+  const isGoodMargin = margin >= 20;
+  const isFairMargin = margin >= 10 && margin < 20;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-4 relative"
+      className="p-4 sm:p-5 rounded-3xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 space-y-4 relative shadow-xs hover:border-indigo-500/40 transition-colors"
     >
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-          <Boxes className="h-3.5 w-3.5" /> Unit Configuration #{index + 1}
-        </span>
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-mono font-bold text-xs">
+            #{index + 1}
+          </div>
+          <span className="text-xs font-mono font-extrabold uppercase tracking-wider text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+            <Boxes className="h-4 w-4 text-indigo-500" /> Multi-Unit Hierarchy
+          </span>
+        </div>
         <button
           type="button"
           onClick={() => onRemove(index)}
-          className="text-slate-400 hover:text-rose-500 p-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+          className="text-slate-400 hover:text-rose-500 p-1.5 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors"
+          title="Remove packaging unit"
         >
           <Trash2 className="h-4 w-4" />
         </button>
@@ -140,57 +148,65 @@ function PackagingUnitCard({
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div>
-          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Buy As (Unit)</label>
+          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Buy Package (Unit)</label>
           <Input
             value={unit.purchaseUnitName}
             onChange={(e) => onUpdate(index, "purchaseUnitName", e.target.value)}
-            placeholder="e.g. Crate"
-            className="h-9 text-xs"
+            placeholder="e.g. Crate, Box"
+            className="h-10 text-xs font-bold rounded-xl"
           />
         </div>
         <div>
-          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Purchase Cost (Le)</label>
+          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Package Cost (Le)</label>
           <Input
             type="number"
             value={unit.purchaseCost}
             onChange={(e) => onUpdate(index, "purchaseCost", e.target.value)}
-            placeholder="0"
-            className="h-9 text-xs font-mono font-bold"
+            placeholder="e.g. 2500"
+            className="h-10 text-xs font-mono font-bold rounded-xl text-rose-600 dark:text-rose-400"
           />
         </div>
         <div>
-          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Contains ({baseUnit}s)</label>
+          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Items Per Package</label>
           <Input
             type="number"
             value={unit.unitsPerPackage}
             onChange={(e) => onUpdate(index, "unitsPerPackage", e.target.value)}
             placeholder="12"
-            className="h-9 text-xs font-mono font-bold"
+            className="h-10 text-xs font-mono font-bold rounded-xl text-indigo-600 dark:text-indigo-400"
           />
         </div>
         <div>
-          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Sell As (Unit)</label>
+          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Sell Retail (Unit)</label>
           <Input
             value={unit.sellingUnitName}
             onChange={(e) => onUpdate(index, "sellingUnitName", e.target.value)}
-            placeholder="e.g. Bottle"
-            className="h-9 text-xs"
+            placeholder="e.g. Bottle, Piece"
+            className="h-10 text-xs font-bold rounded-xl"
           />
         </div>
       </div>
 
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800 text-[10px]">
-        <span className="text-slate-500">
-          Cost per {unit.sellingUnitName || "unit"}: <strong className="text-slate-900 dark:text-white font-mono">Le {Math.round(costPerUnit).toLocaleString()}</strong>
-        </span>
+      {/* Real-time calculated Unit Economics Banner */}
+      <div className="p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
+        <div className="flex items-center gap-3">
+          <span className="text-slate-500">
+            Cost / {unit.sellingUnitName || "unit"}: <strong className="text-slate-900 dark:text-white">Le {Math.round(costPerUnit).toLocaleString()}</strong>
+          </span>
+          {unitProfit > 0 && (
+            <span className="text-emerald-600 dark:text-emerald-400 font-bold hidden sm:inline">
+              Profit: +Le {Math.round(unitProfit).toLocaleString()} / {unit.sellingUnitName || "unit"}
+            </span>
+          )}
+        </div>
         {margin > 0 && (
           <span className={cn(
-            "font-mono font-bold px-2 py-0.5 rounded-full",
-            isGoodMargin ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" :
-            isBadMargin ? "bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400" :
-            "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            "font-mono font-extrabold px-2.5 py-0.5 rounded-full text-[10px]",
+            isGoodMargin ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400" :
+            isFairMargin ? "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400" :
+            "bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400"
           )}>
-            Margin: {margin.toFixed(1)}%
+            +{margin.toFixed(1)}% Gross Yield
           </span>
         )}
       </div>
@@ -210,6 +226,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [activeStudioTab, setActiveStudioTab] = useState<"basic" | "pricing" | "packaging" | "stock">("basic");
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [inspectProduct, setInspectProduct] = useState<any>(null);
   
@@ -281,10 +298,27 @@ export default function ProductsPage() {
   const totalRetailValuation = products.reduce((acc, p) => acc + ((Number(p.stockQuantity) || 0) * (Number(p.unitPrice) || 0)), 0);
   const totalCostValuation = products.reduce((acc, p) => acc + ((Number(p.stockQuantity) || 0) * (Number(p.costPrice) || (Number(p.unitPrice) * 0.7))), 0);
   const lowStockCount = products.filter(p => (Number(p.stockQuantity) || 0) <= (Number(p.minStockLevel) || 10)).length;
-  const outOfStockCount = products.filter(p => (Number(p.stockQuantity) || 0) <= 0).length;
   const avgMargin = totalRetailValuation > 0 
     ? Math.max(0, ((totalRetailValuation - totalCostValuation) / totalRetailValuation) * 100) 
     : 30;
+
+  // Live Studio Form calculations
+  const formSellPrice = parseFloat(formData.unitPrice) || 0;
+  const formCostPrice = parseFloat(formData.costPrice) || 0;
+  const formUnitProfit = formSellPrice > 0 && formCostPrice > 0 ? formSellPrice - formCostPrice : 0;
+  const formMargin = formSellPrice > 0 && formCostPrice > 0 ? ((formSellPrice - formCostPrice) / formSellPrice) * 100 : 0;
+  const formMarkup = formCostPrice > 0 && formSellPrice > 0 ? ((formSellPrice - formCostPrice) / formCostPrice) * 100 : 0;
+
+  // Smart SKU Generator
+  const generateSmartSKU = () => {
+    const prefix = formData.name
+      ? formData.name.replace(/[^a-zA-Z0-9]/g, "").slice(0, 3).toUpperCase()
+      : "PRD";
+    const rand = Math.floor(100 + Math.random() * 900);
+    const skuCode = `${prefix}-${rand}`;
+    setFormData(prev => ({ ...prev, sku: skuCode }));
+    toast.success(`Generated Smart SKU: ${skuCode}`);
+  };
 
   const filteredProducts = products
     .filter(p => {
@@ -378,10 +412,10 @@ export default function ProductsPage() {
 
       const data = {
         ...formData,
-        unitPrice: primarySellingPrice || parseFloat(formData.unitPrice),
+        unitPrice: primarySellingPrice || parseFloat(formData.unitPrice) || 0,
         costPrice: primaryCostPrice || (formData.costPrice ? parseFloat(formData.costPrice) : 0),
-        stockQuantity: formData.type === "SERVICE" ? 0 : parseInt(formData.stockQuantity),
-        minStockLevel: formData.type === "SERVICE" ? 0 : parseInt(formData.minStockLevel),
+        stockQuantity: formData.type === "SERVICE" ? 0 : parseInt(formData.stockQuantity || "0"),
+        minStockLevel: formData.type === "SERVICE" ? 0 : parseInt(formData.minStockLevel || "10"),
         maxStockLevel: formData.type === "SERVICE" || !formData.maxStockLevel ? null : parseInt(formData.maxStockLevel),
         isFavorite: formData.isFavorite,
         categoryId: formData.categoryId === "none" ? null : formData.categoryId,
@@ -405,10 +439,10 @@ export default function ProductsPage() {
 
       if (editingProduct) {
         await updateProduct(editingProduct.id, data);
-        toast.success("Product updated successfully.");
+        toast.success("Product specs updated successfully.");
       } else {
         await createProduct(data);
-        toast.success("Product created successfully.");
+        toast.success("New product published to catalog.");
       }
       setIsDialogOpen(false);
       setEditingProduct(null);
@@ -442,6 +476,7 @@ export default function ProductsPage() {
       baseUnit: "Piece",
       packagingUnits: [],
     });
+    setActiveStudioTab("basic");
   }
 
   async function handleDelete(id: string) {
@@ -486,24 +521,57 @@ export default function ProductsPage() {
       baseUnit: product.baseUnit || "Piece",
       packagingUnits: storedPackaging,
     });
+    setActiveStudioTab("basic");
     setIsDialogOpen(true);
   }
 
-  const addPackagingUnit = () => {
-    setFormData({
-      ...formData,
-      packagingUnits: [
-        ...formData.packagingUnits,
-        {
-          purchaseUnitName: isBar ? "Crate" : "Box",
-          purchaseCost: "",
-          unitsPerPackage: isBar ? "24" : "12",
-          sellingUnitName: isBar ? "Bottle" : "Piece",
-          sellingPrice: "",
-          barcode: "",
-        }
-      ]
-    });
+  const addPackagingPreset = (preset: "drink" | "hardware" | "general") => {
+    if (preset === "drink") {
+      setFormData(prev => ({
+        ...prev,
+        packagingUnits: [
+          ...prev.packagingUnits,
+          {
+            purchaseUnitName: "Crate",
+            purchaseCost: "2500",
+            unitsPerPackage: "24",
+            sellingUnitName: "Bottle",
+            sellingPrice: "150",
+            barcode: "",
+          }
+        ]
+      }));
+    } else if (preset === "hardware") {
+      setFormData(prev => ({
+        ...prev,
+        packagingUnits: [
+          ...prev.packagingUnits,
+          {
+            purchaseUnitName: "Carton",
+            purchaseCost: "12000",
+            unitsPerPackage: "10",
+            sellingUnitName: "Piece",
+            sellingPrice: "1500",
+            barcode: "",
+          }
+        ]
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        packagingUnits: [
+          ...prev.packagingUnits,
+          {
+            purchaseUnitName: "Box",
+            purchaseCost: "5000",
+            unitsPerPackage: "12",
+            sellingUnitName: "Unit",
+            sellingPrice: "600",
+            barcode: "",
+          }
+        ]
+      }));
+    }
   };
 
   const removePackagingUnit = (index: number) => {
@@ -864,7 +932,7 @@ export default function ProductsPage() {
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between text-[10px] font-mono">
                       <span className="text-slate-400 font-bold uppercase truncate max-w-[120px]">
-                        {product.category?.name || "Electronics"}
+                        {product.category?.name || "General Catalog"}
                       </span>
                       <span className="text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md border border-indigo-500/20">
                         {skuTag}
@@ -1186,7 +1254,7 @@ export default function ProductsPage() {
         )}
       </AnimatePresence>
 
-      {/* 6. CREATE / EDIT PRODUCT DIALOG */}
+      {/* 6. UPGRADED SUPER ADVANCED PRODUCT STUDIO (ADD / EDIT MODAL) */}
       <Dialog open={isDialogOpen} onOpenChange={(open: boolean) => {
         setIsDialogOpen(open);
         if (!open) {
@@ -1194,171 +1262,386 @@ export default function ProductsPage() {
           resetForm();
         }
       }}>
-        <DialogContent className="sm:max-w-[750px] w-[95vw] sm:w-full rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-h-[90vh] flex flex-col bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-          <div className="bg-slate-900 dark:bg-slate-950 p-6 sm:p-8 text-white shrink-0">
-            <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
-              {editingProduct ? "Edit Product Specs" : "Add New Product"}
-            </h3>
-            <p className="text-slate-400 font-bold text-[9px] sm:text-[10px] uppercase tracking-[0.3em] mt-1">
-              Define pricing, packaging units, and selling units
-            </p>
+        <DialogContent className="sm:max-w-[880px] w-[96vw] sm:w-full rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden max-h-[92vh] flex flex-col bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
+          
+          {/* Studio Header */}
+          <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 p-6 sm:p-7 text-white shrink-0 border-b border-indigo-900/40 relative">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+                  <Wand2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
+                      {editingProduct ? "Product Specification Engine" : "Product Creation Studio"}
+                    </h3>
+                    <span className="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 text-[9px] font-mono font-bold uppercase border border-indigo-500/30">
+                      v2.5 Pro
+                    </span>
+                  </div>
+                  <p className="text-slate-400 font-bold text-[10px] uppercase tracking-[0.25em] mt-0.5">
+                    Define pricing economics, multi-unit ratios, and stock automation
+                  </p>
+                </div>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => setIsDialogOpen(false)}
+                className="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 flex items-center justify-center transition-colors text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Studio Navigation Tabs */}
+            <div className="flex items-center gap-2 mt-5 overflow-x-auto pb-1 custom-scrollbar">
+              <button
+                type="button"
+                onClick={() => setActiveStudioTab("basic")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 shrink-0",
+                  activeStudioTab === "basic"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 border border-indigo-500"
+                    : "bg-white/5 hover:bg-white/10 text-slate-300"
+                )}
+              >
+                <Package className="h-3.5 w-3.5" /> 1. Basic &amp; Imagery
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveStudioTab("pricing")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 shrink-0",
+                  activeStudioTab === "pricing"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 border border-indigo-500"
+                    : "bg-white/5 hover:bg-white/10 text-slate-300"
+                )}
+              >
+                <Tag className="h-3.5 w-3.5" /> 2. Pricing &amp; Margin
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveStudioTab("packaging")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 shrink-0",
+                  activeStudioTab === "packaging"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 border border-indigo-500"
+                    : "bg-white/5 hover:bg-white/10 text-slate-300"
+                )}
+              >
+                <Boxes className="h-3.5 w-3.5" /> 3. Packaging ({formData.packagingUnits.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveStudioTab("stock")}
+                className={cn(
+                  "px-4 py-2 rounded-xl text-xs font-bold font-mono uppercase tracking-wider transition-all flex items-center gap-2 shrink-0",
+                  activeStudioTab === "stock"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30 border border-indigo-500"
+                    : "bg-white/5 hover:bg-white/10 text-slate-300"
+                )}
+              >
+                <Layers className="h-3.5 w-3.5" /> 4. Stock Nodes
+              </button>
+            </div>
           </div>
           
-          <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-slate-900">
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col overflow-hidden bg-slate-50/50 dark:bg-slate-950">
             <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar space-y-6">
 
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-                  <Package className="h-4 w-4 text-slate-400" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Basic Information</span>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Type</Label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={(val: "PRODUCT" | "SERVICE") => setFormData({ ...formData, type: val })}
-                    >
-                      <SelectTrigger className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-bold text-slate-900 dark:text-slate-100">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                        <SelectItem value="PRODUCT">Physical Product</SelectItem>
-                        <SelectItem value="SERVICE">Professional Service</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2 flex items-center justify-between p-4 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
-                    <div className="space-y-0.5 pr-2">
-                      <Label className="text-[10px] font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Network Exchange</Label>
-                      <p className="text-[9px] text-indigo-500 font-bold leading-tight">Sourcing availability</p>
+              {/* ─── TAB 1: BASIC INFORMATION & IMAGERY ─── */}
+              {activeStudioTab === "basic" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="space-y-6"
+                >
+                  {/* Photo Uploader Card */}
+                  <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ImageIcon className="h-4 w-4 text-indigo-500" />
+                        <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                          Product Visual Assets
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-slate-400">JPG · PNG · WebP · Max 10MB</span>
                     </div>
-                    <input
-                      type="checkbox"
-                      checked={formData.isNetworkAvailable}
-                      onChange={(e) => setFormData({ ...formData, isNetworkAvailable: e.target.checked })}
-                      className="h-6 w-6 rounded-lg border-indigo-200 text-indigo-600 focus:ring-indigo-500"
-                    />
-                  </div>
 
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Image</Label>
                     <ImageUploader
                       value={formData.imageUrl}
-                      onChange={(url) => setFormData({...formData, imageUrl: url})}
+                      onChange={(url) => setFormData({ ...formData, imageUrl: url })}
                       uploadAction={uploadProductImage}
                     />
                   </div>
 
-                  <div className="space-y-2 sm:col-span-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Product Name</Label>
-                    <Input
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder={isBar ? "e.g. Star Beer 600ml" : "Enter product name"}
-                      className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-bold text-slate-900 dark:text-slate-100"
-                      required
-                    />
-                  </div>
+                  {/* Core Attributes */}
+                  <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      
+                      {/* Product Name */}
+                      <div className="space-y-1.5 sm:col-span-2">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Product Name *
+                        </Label>
+                        <Input
+                          value={formData.name}
+                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                          placeholder={isBar ? "e.g. Star Beer 600ml" : "e.g. Hikvision 2MP IP Camera"}
+                          className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm"
+                          required
+                        />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SKU / Signature Code</Label>
-                    <Input
-                      value={formData.sku}
-                      onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                      placeholder="e.g. HIK-2MP-001"
-                      className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-mono text-xs text-slate-900 dark:text-slate-100"
-                    />
-                  </div>
+                      {/* SKU Signature with Smart Generator */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                            SKU Signature / Barcode
+                          </Label>
+                          <button
+                            type="button"
+                            onClick={generateSmartSKU}
+                            className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline"
+                          >
+                            <Sparkles className="h-3 w-3" /> Auto-Gen SKU
+                          </button>
+                        </div>
+                        <Input
+                          value={formData.sku}
+                          onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                          placeholder="e.g. HIK-2MP-001"
+                          className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold text-xs"
+                        />
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Category</Label>
-                    <Select
-                      value={formData.categoryId || ""}
-                      onValueChange={(val: string) => setFormData({ ...formData, categoryId: val ?? "" })}
-                    >
-                      <SelectTrigger className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 text-slate-900 dark:text-slate-100">
-                        <SelectValue placeholder="Categorize item" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                        <SelectItem value="none">Uncategorized</SelectItem>
-                        {categories.map((c: any) => (
-                          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </div>
+                      {/* Category */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Category / Classification
+                        </Label>
+                        <Select
+                          value={formData.categoryId || "none"}
+                          onValueChange={(val: string) => setFormData({ ...formData, categoryId: val ?? "none" })}
+                        >
+                          <SelectTrigger className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-xs">
+                            <SelectValue placeholder="Categorize item" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                            <SelectItem value="none">Uncategorized</SelectItem>
+                            {categories.map((c: any) => (
+                              <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-              {/* Pricing */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-                  <Tag className="h-4 w-4 text-slate-400" />
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                    Pricing Matrix
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Buying / Cost Price (Le)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={formData.costPrice}
-                      onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
-                      placeholder="0"
-                      className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-rose-600 dark:text-rose-500 text-lg"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Selling Retail Price (Le)</Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={formData.unitPrice}
-                      onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                      placeholder="0"
-                      className="h-12 rounded-xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 font-black text-indigo-600 dark:text-indigo-400 text-lg"
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
+                      {/* Product Type */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Inventory Type
+                        </Label>
+                        <Select
+                          value={formData.type}
+                          onValueChange={(val: "PRODUCT" | "SERVICE") => setFormData({ ...formData, type: val })}
+                        >
+                          <SelectTrigger className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+                            <SelectItem value="PRODUCT">Physical Product (Track Stock)</SelectItem>
+                            <SelectItem value="SERVICE">Professional Service (No Stock)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-              {/* Packaging System */}
-              <div className="space-y-4">
-                <button
-                  type="button"
-                  onClick={() => setPackagingOpen(!packagingOpen)}
-                  className="w-full flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800"
+                      {/* Network Exchange */}
+                      <div className="space-y-1.5 flex items-center justify-between p-3.5 bg-indigo-50/50 dark:bg-indigo-950/20 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+                        <div className="space-y-0.5 pr-2">
+                          <Label className="text-[10px] font-mono font-bold text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">
+                            Network Sourcing
+                          </Label>
+                          <p className="text-[9px] text-indigo-500 font-bold leading-tight">Available in exchange network</p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={formData.isNetworkAvailable}
+                          onChange={(e) => setFormData({ ...formData, isNetworkAvailable: e.target.checked })}
+                          className="h-5 w-5 rounded-md border-indigo-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                      </div>
+
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ─── TAB 2: PRICING MATRIX & LIVE MARGIN CALCULATOR ─── */}
+              {activeStudioTab === "pricing" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="space-y-6"
                 >
-                  <div className="flex items-center gap-2">
-                    <Boxes className="h-4 w-4 text-indigo-600" />
-                    <span className="text-[10px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-widest">
-                      Packaging &amp; Multi-Unit System
-                    </span>
-                    {formData.packagingUnits.length > 0 && (
-                      <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-600 rounded-lg text-[8px] font-black uppercase tracking-widest">
-                        {formData.packagingUnits.length} defined
-                      </span>
-                    )}
-                  </div>
-                  {packagingOpen ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
-                </button>
+                  <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                      <div>
+                        <h4 className="text-sm font-black uppercase text-slate-900 dark:text-white">
+                          Pricing Economics Matrix
+                        </h4>
+                        <p className="text-[10px] font-mono text-slate-400">Configure purchase costs, retail selling prices, and live yield</p>
+                      </div>
+                      <div className="h-8 w-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center">
+                        <Calculator className="h-4 w-4" />
+                      </div>
+                    </div>
 
-                <AnimatePresence>
-                  {packagingOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="space-y-4 overflow-hidden"
-                    >
-                      <div className="space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Purchase / Buying Cost (Le)
+                        </Label>
+                        <Input
+                          type="number"
+                          step="1"
+                          value={formData.costPrice}
+                          onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                          placeholder="e.g. 2800"
+                          className="h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-black text-rose-600 dark:text-rose-400 text-xl"
+                        />
+                        <span className="text-[10px] font-mono text-slate-400">What you pay suppliers</span>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Selling / Retail Price (Le) *
+                        </Label>
+                        <Input
+                          type="number"
+                          step="1"
+                          value={formData.unitPrice}
+                          onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
+                          placeholder="e.g. 3500"
+                          className="h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-black text-indigo-600 dark:text-indigo-400 text-xl"
+                          required
+                        />
+                        <span className="text-[10px] font-mono text-slate-400">Price customers pay at POS</span>
+                      </div>
+                    </div>
+
+                    {/* Live Profit & Margin Simulator */}
+                    <div className="p-5 rounded-3xl bg-gradient-to-br from-indigo-50/70 via-white to-emerald-50/70 dark:from-indigo-950/30 dark:via-slate-900 dark:to-emerald-950/30 border border-indigo-100 dark:border-indigo-900/40 space-y-4">
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                          <TrendingUp className="h-4 w-4 text-emerald-500" /> Unit Economics Telemetry
+                        </span>
+                        <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-100/80 dark:bg-indigo-950/80 px-2 py-0.5 rounded-md">
+                          Live Auto-Calculated
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div className="p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 text-center">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase font-bold block">Gross Profit</span>
+                          <span className="text-base sm:text-lg font-black font-mono text-emerald-600 dark:text-emerald-400">
+                            +Le {Math.round(formUnitProfit).toLocaleString()}
+                          </span>
+                        </div>
+
+                        <div className="p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 text-center">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase font-bold block">Profit Margin</span>
+                          <span className={cn(
+                            "text-base sm:text-lg font-black font-mono",
+                            formMargin >= 20 ? "text-emerald-600 dark:text-emerald-400" : formMargin > 0 ? "text-amber-500" : "text-slate-400"
+                          )}>
+                            +{formMargin.toFixed(1)}%
+                          </span>
+                        </div>
+
+                        <div className="p-3 rounded-2xl bg-white dark:bg-slate-950 border border-slate-100 dark:border-slate-800/80 text-center">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase font-bold block">Cost Markup</span>
+                          <span className="text-base sm:text-lg font-black font-mono text-indigo-600 dark:text-indigo-400">
+                            +{formMarkup.toFixed(1)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ─── TAB 3: PACKAGING & MULTI-UNIT SYSTEM ─── */}
+              {activeStudioTab === "packaging" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+                      <div>
+                        <h4 className="text-sm font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
+                          <Boxes className="h-4 w-4 text-indigo-500" /> Multi-Tier Packaging System
+                        </h4>
+                        <p className="text-[10px] font-mono text-slate-400 mt-0.5">
+                          Buy by bulk container (Crate/Box) and sell by individual units (Bottle/Piece)
+                        </p>
+                      </div>
+
+                      {/* Preset Quick Actions */}
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addPackagingPreset("drink")}
+                          className="h-8 rounded-xl text-[10px] font-bold font-mono"
+                        >
+                          + Crate → Bottle
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addPackagingPreset("hardware")}
+                          className="h-8 rounded-xl text-[10px] font-bold font-mono"
+                        >
+                          + Carton → Piece
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addPackagingPreset("general")}
+                          className="h-8 rounded-xl text-[10px] font-bold font-mono"
+                        >
+                          + Box → Unit
+                        </Button>
+                      </div>
+                    </div>
+
+                    {formData.packagingUnits.length === 0 ? (
+                      <div className="p-8 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center space-y-3">
+                        <Boxes className="h-10 w-10 text-slate-400 mx-auto" />
+                        <div>
+                          <p className="text-xs font-black uppercase text-slate-700 dark:text-slate-300">No Multi-Unit Ratios Configured</p>
+                          <p className="text-[10px] text-slate-400 font-mono mt-1 max-w-sm mx-auto">
+                            Add a packaging ratio to automatically calculate per-item cost and split inventory across cartons, crates, or packs.
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          onClick={() => addPackagingPreset("general")}
+                          className="h-10 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase"
+                        >
+                          <Plus className="h-4 w-4 mr-1.5" /> Add Conversion Ratio
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
                         {formData.packagingUnits.map((unit, index) => (
                           <PackagingUnitCard
                             key={index}
@@ -1370,117 +1653,192 @@ export default function ProductsPage() {
                           />
                         ))}
                       </div>
-
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={addPackagingUnit}
-                        className="w-full h-11 rounded-2xl border-dashed border-2 border-indigo-500/30 text-indigo-600 font-bold text-xs uppercase"
-                      >
-                        <Plus className="h-4 w-4 mr-1.5" /> Add Packaging Unit Conversion
-                      </Button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Stock Levels */}
-              {formData.type === "PRODUCT" && (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-                    <Layers className="h-4 w-4 text-slate-400" />
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Stock Node Volume</span>
+                    )}
                   </div>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">In-Stock Count</Label>
-                      <div className="flex items-center gap-1.5">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-11 w-11 rounded-xl"
-                          onClick={() => setFormData({ ...formData, stockQuantity: Math.max(0, parseInt(formData.stockQuantity || "0") - 1).toString() })}
-                        >
-                          <Minus className="h-4 w-4" />
-                        </Button>
-                        <Input
-                          type="number"
-                          value={formData.stockQuantity}
-                          onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
-                          placeholder="0"
-                          className="h-11 font-mono font-black text-center text-sm"
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="h-11 w-11 rounded-xl"
-                          onClick={() => setFormData({ ...formData, stockQuantity: (parseInt(formData.stockQuantity || "0") + 1).toString() })}
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                </motion.div>
+              )}
+
+              {/* ─── TAB 4: STOCK NODES & THRESHOLD CONTROLS ─── */}
+              {activeStudioTab === "stock" && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
+                    <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+                      <div>
+                        <h4 className="text-sm font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
+                          <Layers className="h-4 w-4 text-indigo-500" /> Stock Node Automation
+                        </h4>
+                        <p className="text-[10px] font-mono text-slate-400">Configure initial stock count, low-stock reorder thresholds, and ceiling</p>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Min Stock Alert</Label>
-                      <Input
-                        type="number"
-                        value={formData.minStockLevel}
-                        onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value })}
-                        placeholder="10"
-                        className="h-11 font-mono font-bold text-sm"
-                      />
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      
+                      {/* Initial On-hand Stock */}
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          On-Hand Stock Volume
+                        </Label>
+                        <div className="flex items-center gap-1.5">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-12 w-12 rounded-2xl border-slate-200 dark:border-slate-800"
+                            onClick={() => setFormData({ ...formData, stockQuantity: Math.max(0, parseInt(formData.stockQuantity || "0") - 1).toString() })}
+                          >
+                            <Minus className="h-4 w-4" />
+                          </Button>
+                          <Input
+                            type="number"
+                            value={formData.stockQuantity}
+                            onChange={(e) => setFormData({ ...formData, stockQuantity: e.target.value })}
+                            placeholder="0"
+                            className="h-12 font-mono font-black text-center text-lg rounded-2xl"
+                            required
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="h-12 w-12 rounded-2xl border-slate-200 dark:border-slate-800"
+                            onClick={() => setFormData({ ...formData, stockQuantity: (parseInt(formData.stockQuantity || "0") + 1).toString() })}
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Min Stock Alert */}
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Low Stock Alert Threshold
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.minStockLevel}
+                          onChange={(e) => setFormData({ ...formData, minStockLevel: e.target.value })}
+                          placeholder="10"
+                          className="h-12 font-mono font-bold text-sm rounded-2xl"
+                        />
+                        <span className="text-[10px] font-mono text-slate-400">Triggers reorder warnings</span>
+                      </div>
+
+                      {/* Max Stock Level */}
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                          Max Ceiling (Overstock)
+                        </Label>
+                        <Input
+                          type="number"
+                          value={formData.maxStockLevel}
+                          onChange={(e) => setFormData({ ...formData, maxStockLevel: e.target.value })}
+                          placeholder="100"
+                          className="h-12 font-mono font-bold text-sm rounded-2xl"
+                        />
+                        <span className="text-[10px] font-mono text-slate-400">Optional capacity cap</span>
+                      </div>
+
                     </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Max Ceiling (Optional)</Label>
-                      <Input
-                        type="number"
-                        value={formData.maxStockLevel}
-                        onChange={(e) => setFormData({ ...formData, maxStockLevel: e.target.value })}
-                        placeholder="100"
-                        className="h-11 font-mono font-bold text-sm"
+                    {/* Expiry & Batch Details */}
+                    {hasExpiryAndBatch && (
+                      <div className="pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                            Product Expiry Date
+                          </Label>
+                          <Input
+                            type="date"
+                            value={formData.expiryDate}
+                            onChange={(e) => setFormData({ ...formData, expiryDate: e.target.value })}
+                            className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                            Batch / Lot Number
+                          </Label>
+                          <Input
+                            value={formData.batchNumber}
+                            onChange={(e) => setFormData({ ...formData, batchNumber: e.target.value })}
+                            placeholder="e.g. LOT-2026-09"
+                            className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono text-xs"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Favorite Toggle */}
+                    <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id="isFavorite"
+                        checked={formData.isFavorite || false}
+                        onChange={(e) => setFormData({ ...formData, isFavorite: e.target.checked })}
+                        className="h-5 w-5 rounded-md border-slate-300 text-amber-500 focus:ring-amber-500"
                       />
+                      <Label htmlFor="isFavorite" className="text-xs font-bold flex items-center gap-2 cursor-pointer">
+                        <Star className={cn("h-4 w-4", formData.isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400")} />
+                        Pin as Favorite Product (Quick POS Selection)
+                      </Label>
                     </div>
+
                   </div>
-                </div>
+                </motion.div>
               )}
-
-              {/* Favorite Product Toggle */}
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="isFavorite"
-                  checked={formData.isFavorite || false}
-                  onChange={(e) => setFormData({ ...formData, isFavorite: e.target.checked })}
-                  className="h-5 w-5 rounded border-slate-200 text-amber-500 focus:ring-amber-500"
-                />
-                <Label htmlFor="isFavorite" className="text-xs font-bold flex items-center gap-2 cursor-pointer">
-                  <Star className={cn("h-4 w-4", formData.isFavorite ? "fill-amber-400 text-amber-400" : "text-slate-400")} />
-                  Pin to Top as Favorite Product
-                </Label>
-              </div>
 
             </div>
 
-            {/* Modal Footer */}
-            <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 flex items-center justify-end gap-3">
+            {/* Modal Footer Controls */}
+            <div className="p-6 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex items-center justify-between gap-3">
               <Button
                 type="button"
                 variant="ghost"
-                className="h-11 px-6 rounded-xl font-bold text-xs"
+                className="h-12 px-6 rounded-2xl font-bold text-xs"
                 onClick={() => setIsDialogOpen(false)}
               >
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                className="h-11 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30"
-              >
-                {editingProduct ? "Save Specs" : "Add Product"}
-              </Button>
+
+              <div className="flex items-center gap-2">
+                {activeStudioTab !== "basic" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="h-12 px-5 rounded-2xl font-bold text-xs"
+                    onClick={() => {
+                      if (activeStudioTab === "stock") setActiveStudioTab("packaging");
+                      else if (activeStudioTab === "packaging") setActiveStudioTab("pricing");
+                      else if (activeStudioTab === "pricing") setActiveStudioTab("basic");
+                    }}
+                  >
+                    Back
+                  </Button>
+                )}
+
+                {activeStudioTab !== "stock" ? (
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      if (activeStudioTab === "basic") setActiveStudioTab("pricing");
+                      else if (activeStudioTab === "pricing") setActiveStudioTab("packaging");
+                      else if (activeStudioTab === "packaging") setActiveStudioTab("stock");
+                    }}
+                    className="h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider"
+                  >
+                    Next Step <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    className="h-12 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30"
+                  >
+                    {editingProduct ? "Save Changes" : "Publish to Catalog"}
+                  </Button>
+                )}
+              </div>
             </div>
           </form>
         </DialogContent>
