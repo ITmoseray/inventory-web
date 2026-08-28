@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { 
   Plus, Minus, Pencil, Trash2, MoreVertical, Package, Search, Filter, 
   Download, ArrowUpDown, ShoppingCart, Tag, Calculator, ChevronDown, 
   ChevronUp, Info, Boxes, Layers, LayoutGrid, List, Eye, BarChart3, 
   TrendingUp, Sparkles, AlertCircle, CheckCircle2, QrCode, ExternalLink, 
   DollarSign, Activity, Star, ArrowUpRight, ShieldCheck, Box, RefreshCw,
-  Wand2, Percent, Check, ArrowRight, ShieldAlert, FileText, Image as ImageIcon
+  Wand2, Percent, Check, ArrowRight, ShieldAlert, FileText, Image as ImageIcon,
+  Cpu, Pill, ShoppingBag, Wine, Hammer, Laptop, Radio, Smartphone
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,17 +64,110 @@ import { BackButton } from "@/components/layout/ModuleHeader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useRouter } from "next/navigation";
 
-// ─── Preset Unit Options ────────────────────────────────────────────────────
-const PURCHASE_UNITS = [
-  "Crate", "Box", "Carton", "Bag", "Sack", "Bundle", "Dozen", "Pack",
-  "Bale", "Barrel", "Drum", "Pallet", "Case", "Tray", "Bucket",
-];
+// ─── Industry Preset Definitions ─────────────────────────────────────────────
+type IndustryPresetType = "electronics" | "hardware" | "pharmacy" | "supermarket" | "bar" | "general";
 
-const SELLING_UNITS = [
-  "Bottle", "Piece", "Unit", "Sachet", "Cup", "Can", "Tin",
-  "Packet", "Roll", "Sheet", "Plate", "Serving", "Portion", "Gram", "Kg",
-  "Litre", "ml", "Meter", "Yard",
-];
+interface IndustryConfig {
+  id: IndustryPresetType;
+  label: string;
+  icon: any;
+  description: string;
+  purchaseUnits: string[];
+  sellingUnits: string[];
+  presets: Array<{
+    label: string;
+    buyUnit: string;
+    buyCost: string;
+    ratio: string;
+    sellUnit: string;
+    sellPrice: string;
+    example: string;
+  }>;
+}
+
+const INDUSTRY_CONFIGS: Record<IndustryPresetType, IndustryConfig> = {
+  electronics: {
+    id: "electronics",
+    label: "Electronics & IT",
+    icon: Laptop,
+    description: "Buy by master carton, box, or bulk pallet, and retail by individual unit, piece, or set.",
+    purchaseUnits: ["Carton", "Master Box", "Case", "Pallet", "Bundle", "Pack"],
+    sellingUnits: ["Piece", "Unit", "Set", "Item", "Pack", "Kit"],
+    presets: [
+      { label: "Carton → Piece", buyUnit: "Carton", buyCost: "28000", ratio: "10", sellUnit: "Piece", sellPrice: "3500", example: "1 Carton of 10 IP Cameras @ Le 28,000 → Sell @ Le 3,500/piece" },
+      { label: "Box → Unit", buyUnit: "Box", buyCost: "4200", ratio: "12", sellUnit: "Unit", sellPrice: "500", example: "1 Box of 12 Wireless Keyboards @ Le 4,200 → Sell @ Le 500/unit" },
+      { label: "Bundle → Set", buyUnit: "Bundle", buyCost: "75000", ratio: "5", sellUnit: "Set", sellPrice: "20000", example: "1 Bundle of 5 Desktop PCs @ Le 75,000 → Sell @ Le 20,000/set" },
+      { label: "Pallet → Unit", buyUnit: "Pallet", buyCost: "120000", ratio: "20", sellUnit: "Unit", sellPrice: "10000", example: "1 Pallet of 20 Smart TVs @ Le 120,000 → Sell @ Le 10,000/unit" },
+    ],
+  },
+  hardware: {
+    id: "hardware",
+    label: "Hardware & Tools",
+    icon: Hammer,
+    description: "Buy in cartons, bundles, or rolls, and sell by piece, meter, set, or kilogram.",
+    purchaseUnits: ["Carton", "Bundle", "Roll", "Bale", "Box", "Drum"],
+    sellingUnits: ["Piece", "Meter", "Yard", "Set", "Kg", "Unit"],
+    presets: [
+      { label: "Carton → Piece", buyUnit: "Carton", buyCost: "12000", ratio: "10", sellUnit: "Piece", sellPrice: "1500", example: "1 Carton of 10 Smart Locks @ Le 12,000 → Sell @ Le 1,500/piece" },
+      { label: "Roll → Meter", buyUnit: "Roll", buyCost: "5000", ratio: "100", sellUnit: "Meter", sellPrice: "80", example: "1 Roll of 100m Cable @ Le 5,000 → Sell @ Le 80/meter" },
+      { label: "Box → Piece", buyUnit: "Box", buyCost: "3000", ratio: "50", sellUnit: "Piece", sellPrice: "100", example: "1 Box of 50 Connectors @ Le 3,000 → Sell @ Le 100/piece" },
+    ],
+  },
+  pharmacy: {
+    id: "pharmacy",
+    label: "Pharmacy & Clinic",
+    icon: Pill,
+    description: "Buy medicines in master boxes or cartons, and dispense/retail by strip, tablet, or vial.",
+    purchaseUnits: ["Box", "Carton", "Tin", "Pack", "Container"],
+    sellingUnits: ["Strip", "Tablet", "Capsule", "Sachet", "Vial", "Bottle", "Piece"],
+    presets: [
+      { label: "Box → Strip", buyUnit: "Box", buyCost: "1000", ratio: "10", sellUnit: "Strip", sellPrice: "150", example: "1 Box of 10 Strips @ Le 1,000 → Sell @ Le 150/strip" },
+      { label: "Strip → Tablet", buyUnit: "Strip", buyCost: "150", ratio: "10", sellUnit: "Tablet", sellPrice: "25", example: "1 Strip of 10 Tablets @ Le 150 → Sell @ Le 25/tablet" },
+      { label: "Carton → Vial", buyUnit: "Carton", buyCost: "5000", ratio: "50", sellUnit: "Vial", sellPrice: "150", example: "1 Carton of 50 Vials @ Le 5,000 → Sell @ Le 150/vial" },
+      { label: "Tin → Sachet", buyUnit: "Tin", buyCost: "2000", ratio: "100", sellUnit: "Sachet", sellPrice: "30", example: "1 Tin of 100 Sachets @ Le 2,000 → Sell @ Le 30/sachet" },
+    ],
+  },
+  supermarket: {
+    id: "supermarket",
+    label: "Supermarket & Provisions",
+    icon: ShoppingBag,
+    description: "Buy provisions in sacks, bales, or cases, and retail by kg, cup, packet, or unit.",
+    purchaseUnits: ["Bag", "Sack", "Bale", "Carton", "Case", "Dozen"],
+    sellingUnits: ["Kg", "Cup", "Packet", "Piece", "Litre", "Tin", "Gram"],
+    presets: [
+      { label: "Bag → Kg", buyUnit: "Bag", buyCost: "1500", ratio: "50", sellUnit: "Kg", sellPrice: "40", example: "1 Bag of 50kg Rice @ Le 1,500 → Sell @ Le 40/kg" },
+      { label: "Bale → Packet", buyUnit: "Bale", buyCost: "1200", ratio: "20", sellUnit: "Packet", sellPrice: "80", example: "1 Bale of 20 Packets @ Le 1,200 → Sell @ Le 80/packet" },
+      { label: "Carton → Tin", buyUnit: "Carton", buyCost: "2400", ratio: "48", sellUnit: "Tin", sellPrice: "65", example: "1 Carton of 48 Milk Tins @ Le 2,400 → Sell @ Le 65/tin" },
+      { label: "Bag → Cup", buyUnit: "Bag", buyCost: "800", ratio: "100", sellUnit: "Cup", sellPrice: "12", example: "1 Bag of 100 Cups Sugar @ Le 800 → Sell @ Le 12/cup" },
+    ],
+  },
+  bar: {
+    id: "bar",
+    label: "Bar & Beverages",
+    icon: Wine,
+    description: "Buy drinks by crate or case, and sell by bottle, can, shot, or portion.",
+    purchaseUnits: ["Crate", "Case", "Carton", "Keg", "Barrel", "Pack"],
+    sellingUnits: ["Bottle", "Can", "Shot", "Glass", "Serving", "Portion"],
+    presets: [
+      { label: "Crate → Bottle", buyUnit: "Crate", buyCost: "2500", ratio: "24", sellUnit: "Bottle", sellPrice: "150", example: "1 Crate of 24 Star Beers @ Le 2,500 → Sell @ Le 150/bottle" },
+      { label: "Case → Can", buyUnit: "Case", buyCost: "1800", ratio: "24", sellUnit: "Can", sellPrice: "100", example: "1 Case of 24 Soft Drinks @ Le 1,800 → Sell @ Le 100/can" },
+      { label: "Bottle → Shot", buyUnit: "Bottle", buyCost: "500", ratio: "15", sellUnit: "Shot", sellPrice: "50", example: "1 Bottle of Spirits @ Le 500 → 15 Shots @ Le 50/shot" },
+    ],
+  },
+  general: {
+    id: "general",
+    label: "General Merchant & Retail",
+    icon: Package,
+    description: "Buy by carton, box, or bundle, and retail by piece, unit, or pack.",
+    purchaseUnits: ["Carton", "Box", "Bundle", "Bale", "Pack", "Dozen"],
+    sellingUnits: ["Piece", "Unit", "Item", "Pack", "Pair", "Set"],
+    presets: [
+      { label: "Carton → Piece", buyUnit: "Carton", buyCost: "2400", ratio: "24", sellUnit: "Piece", sellPrice: "150", example: "1 Carton of 24 Items @ Le 2,400 → Sell @ Le 150/piece" },
+      { label: "Box → Unit", buyUnit: "Box", buyCost: "1200", ratio: "12", sellUnit: "Unit", sellPrice: "150", example: "1 Box of 12 Units @ Le 1,200 → Sell @ Le 150/unit" },
+      { label: "Bale → Piece", buyUnit: "Bale", buyCost: "5000", ratio: "50", sellUnit: "Piece", sellPrice: "150", example: "1 Bale of 50 Clothes @ Le 5,000 → Sell @ Le 150/piece" },
+    ],
+  },
+};
 
 // ─── Packaging Unit Interface ─────────────────────────────────────────────────
 interface PackagingUnit {
@@ -106,12 +200,14 @@ function PackagingUnitCard({
   baseUnit,
   onUpdate,
   onRemove,
+  selectedIndustry,
 }: {
   unit: PackagingUnit;
   index: number;
   baseUnit: string;
   onUpdate: (index: number, field: keyof PackagingUnit, value: string) => void;
   onRemove: (index: number) => void;
+  selectedIndustry: IndustryPresetType;
 }) {
   const costPerUnit = calcCostPerUnit(unit.purchaseCost, unit.unitsPerPackage);
   const margin = calcMargin(unit.sellingPrice, costPerUnit);
@@ -119,6 +215,8 @@ function PackagingUnitCard({
   const unitProfit = sell > 0 && costPerUnit > 0 ? sell - costPerUnit : 0;
   const isGoodMargin = margin >= 20;
   const isFairMargin = margin >= 10 && margin < 20;
+
+  const currentConfig = INDUSTRY_CONFIGS[selectedIndustry] || INDUSTRY_CONFIGS.general;
 
   return (
     <motion.div
@@ -148,11 +246,11 @@ function PackagingUnitCard({
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
         <div>
-          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Buy Package (Unit)</label>
+          <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block mb-1">Buy As (Container)</label>
           <Input
             value={unit.purchaseUnitName}
             onChange={(e) => onUpdate(index, "purchaseUnitName", e.target.value)}
-            placeholder="e.g. Crate, Box"
+            placeholder={currentConfig.purchaseUnits[0] || "Carton"}
             className="h-10 text-xs font-bold rounded-xl"
           />
         </div>
@@ -162,7 +260,7 @@ function PackagingUnitCard({
             type="number"
             value={unit.purchaseCost}
             onChange={(e) => onUpdate(index, "purchaseCost", e.target.value)}
-            placeholder="e.g. 2500"
+            placeholder="e.g. 28000"
             className="h-10 text-xs font-mono font-bold rounded-xl text-rose-600 dark:text-rose-400"
           />
         </div>
@@ -172,7 +270,7 @@ function PackagingUnitCard({
             type="number"
             value={unit.unitsPerPackage}
             onChange={(e) => onUpdate(index, "unitsPerPackage", e.target.value)}
-            placeholder="12"
+            placeholder="10"
             className="h-10 text-xs font-mono font-bold rounded-xl text-indigo-600 dark:text-indigo-400"
           />
         </div>
@@ -181,7 +279,7 @@ function PackagingUnitCard({
           <Input
             value={unit.sellingUnitName}
             onChange={(e) => onUpdate(index, "sellingUnitName", e.target.value)}
-            placeholder="e.g. Bottle, Piece"
+            placeholder={currentConfig.sellingUnits[0] || "Piece"}
             className="h-10 text-xs font-bold rounded-xl"
           />
         </div>
@@ -237,6 +335,9 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("name_asc");
   const [packagingOpen, setPackagingOpen] = useState(true);
   
+  // Selected industry for packaging preset suggestions
+  const [selectedIndustry, setSelectedIndustry] = useState<IndustryPresetType>("electronics");
+
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
     open: false,
     id: "",
@@ -270,6 +371,19 @@ export default function ProductsPage() {
   const isPharmacy = businessType === "PHARMACY";
   const isBar = businessType === "BAR";
   const hasExpiryAndBatch = isPharmacy || businessType === "SUPERMARKET";
+
+  // Auto-detect default industry from businessType on load
+  useEffect(() => {
+    if (businessType === "BAR" || businessType === "RESTAURANT") {
+      setSelectedIndustry("bar");
+    } else if (businessType === "PHARMACY" || businessType === "CLINIC" || businessType === "HOSPITAL") {
+      setSelectedIndustry("pharmacy");
+    } else if (businessType === "SUPERMARKET") {
+      setSelectedIndustry("supermarket");
+    } else {
+      setSelectedIndustry("electronics");
+    }
+  }, [businessType]);
 
   useEffect(() => {
     fetchData();
@@ -387,10 +501,10 @@ export default function ProductsPage() {
       const costPrice = Number(u.costPrice) || 0;
       return {
         id: u.id,
-        purchaseUnitName: "Crate",
+        purchaseUnitName: "Carton",
         purchaseCost: Math.round(costPrice * ratio).toString(),
         unitsPerPackage: ratio.toString(),
-        sellingUnitName: u.name || "Bottle",
+        sellingUnitName: u.name || "Piece",
         sellingPrice: u.sellingPrice?.toString() || "",
         barcode: u.barcode || "",
       };
@@ -525,53 +639,23 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   }
 
-  const addPackagingPreset = (preset: "drink" | "hardware" | "general") => {
-    if (preset === "drink") {
-      setFormData(prev => ({
-        ...prev,
-        packagingUnits: [
-          ...prev.packagingUnits,
-          {
-            purchaseUnitName: "Crate",
-            purchaseCost: "2500",
-            unitsPerPackage: "24",
-            sellingUnitName: "Bottle",
-            sellingPrice: "150",
-            barcode: "",
-          }
-        ]
-      }));
-    } else if (preset === "hardware") {
-      setFormData(prev => ({
-        ...prev,
-        packagingUnits: [
-          ...prev.packagingUnits,
-          {
-            purchaseUnitName: "Carton",
-            purchaseCost: "12000",
-            unitsPerPackage: "10",
-            sellingUnitName: "Piece",
-            sellingPrice: "1500",
-            barcode: "",
-          }
-        ]
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        packagingUnits: [
-          ...prev.packagingUnits,
-          {
-            purchaseUnitName: "Box",
-            purchaseCost: "5000",
-            unitsPerPackage: "12",
-            sellingUnitName: "Unit",
-            sellingPrice: "600",
-            barcode: "",
-          }
-        ]
-      }));
-    }
+  const applyCustomPreset = (preset: { buyUnit: string; buyCost: string; ratio: string; sellUnit: string; sellPrice: string }) => {
+    setFormData(prev => ({
+      ...prev,
+      baseUnit: preset.sellUnit,
+      packagingUnits: [
+        ...prev.packagingUnits,
+        {
+          purchaseUnitName: preset.buyUnit,
+          purchaseCost: preset.buyCost,
+          unitsPerPackage: preset.ratio,
+          sellingUnitName: preset.sellUnit,
+          sellingPrice: preset.sellPrice,
+          barcode: "",
+        }
+      ]
+    }));
+    toast.success(`Added ${preset.buyUnit} ➔ ${preset.sellUnit} conversion ratio.`);
   };
 
   const removePackagingUnit = (index: number) => {
@@ -605,7 +689,9 @@ export default function ProductsPage() {
             <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-1.5">
               {isBar
                 ? "Manage drinks with crate/bottle pricing. Buy by crate, sell by bottle."
-                : "Manage product SKU, packaging units, and pricing."}
+                : isPharmacy
+                ? "Manage pharmaceuticals with box/strip/tablet dispensing and batch expiry."
+                : "Manage product SKUs, bulk-to-unit packaging ratios, and pricing."}
             </p>
           </div>
         </div>
@@ -1390,7 +1476,7 @@ export default function ProductsPage() {
                         <Input
                           value={formData.name}
                           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder={isBar ? "e.g. Star Beer 600ml" : "e.g. Hikvision 2MP IP Camera"}
+                          placeholder={isBar ? "e.g. Star Beer 600ml" : isPharmacy ? "e.g. Paracetamol 500mg" : "e.g. Hikvision 2MP IP Camera"}
                           className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-bold text-sm"
                           required
                         />
@@ -1573,71 +1659,103 @@ export default function ProductsPage() {
                 </motion.div>
               )}
 
-              {/* ─── TAB 3: PACKAGING & MULTI-UNIT SYSTEM ─── */}
+              {/* ─── TAB 3: PACKAGING & MULTI-UNIT SYSTEM (INDUSTRY-ADAPTIVE) ─── */}
               {activeStudioTab === "packaging" && (
                 <motion.div
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   className="space-y-6"
                 >
-                  <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-5">
+                  <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-6">
+                    
+                    {/* Header & Description */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
                       <div>
                         <h4 className="text-sm font-black uppercase text-slate-900 dark:text-white flex items-center gap-2">
-                          <Boxes className="h-4 w-4 text-indigo-500" /> Multi-Tier Packaging System
+                          <Boxes className="h-4 w-4 text-indigo-500" /> Industry-Adaptive Packaging Engine
                         </h4>
                         <p className="text-[10px] font-mono text-slate-400 mt-0.5">
-                          Buy by bulk container (Crate/Box) and sell by individual units (Bottle/Piece)
+                          {INDUSTRY_CONFIGS[selectedIndustry]?.description || "Convert bulk supplier containers into retail selling units with automatic margin calculation."}
                         </p>
-                      </div>
-
-                      {/* Preset Quick Actions */}
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addPackagingPreset("drink")}
-                          className="h-8 rounded-xl text-[10px] font-bold font-mono"
-                        >
-                          + Crate → Bottle
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addPackagingPreset("hardware")}
-                          className="h-8 rounded-xl text-[10px] font-bold font-mono"
-                        >
-                          + Carton → Piece
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addPackagingPreset("general")}
-                          className="h-8 rounded-xl text-[10px] font-bold font-mono"
-                        >
-                          + Box → Unit
-                        </Button>
                       </div>
                     </div>
 
+                    {/* Industry Sector Selector Ribbon */}
+                    <div className="space-y-2">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
+                        Select Business Sector / Industry Presets:
+                      </span>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+                        {(Object.keys(INDUSTRY_CONFIGS) as IndustryPresetType[]).map((key) => {
+                          const config = INDUSTRY_CONFIGS[key];
+                          const IconComp = config.icon;
+                          const isSelected = selectedIndustry === key;
+                          return (
+                            <button
+                              key={key}
+                              type="button"
+                              onClick={() => setSelectedIndustry(key)}
+                              className={cn(
+                                "p-2.5 rounded-2xl border text-left transition-all flex flex-col gap-1.5 group",
+                                isSelected
+                                  ? "bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20"
+                                  : "bg-slate-50 dark:bg-slate-950/60 border-slate-200 dark:border-slate-800 hover:border-indigo-300 text-slate-700 dark:text-slate-300"
+                              )}
+                            >
+                              <IconComp className={cn("h-4 w-4", isSelected ? "text-white" : "text-indigo-500")} />
+                              <span className="text-[11px] font-extrabold uppercase font-mono tracking-tight leading-tight block">
+                                {config.label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* 1-Click Conversion Presets for Selected Industry */}
+                    <div className="p-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5 text-indigo-500" /> 1-Click {INDUSTRY_CONFIGS[selectedIndustry]?.label} Presets:
+                        </span>
+                        <span className="text-[9px] font-mono text-indigo-500">Click to add instant ratio</span>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {INDUSTRY_CONFIGS[selectedIndustry]?.presets.map((preset, idx) => (
+                          <Button
+                            key={idx}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => applyCustomPreset(preset)}
+                            className="h-8 rounded-xl text-[11px] font-mono font-bold bg-white dark:bg-slate-900 border-indigo-200 dark:border-indigo-800 text-indigo-900 dark:text-indigo-200 hover:bg-indigo-600 hover:text-white transition-all shadow-2xs"
+                            title={preset.example}
+                          >
+                            + {preset.label} (1:{preset.ratio})
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Packaging Unit Cards */}
                     {formData.packagingUnits.length === 0 ? (
                       <div className="p-8 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 text-center space-y-3">
                         <Boxes className="h-10 w-10 text-slate-400 mx-auto" />
                         <div>
-                          <p className="text-xs font-black uppercase text-slate-700 dark:text-slate-300">No Multi-Unit Ratios Configured</p>
+                          <p className="text-xs font-black uppercase text-slate-700 dark:text-slate-300">
+                            No Multi-Unit Ratios Configured
+                          </p>
                           <p className="text-[10px] text-slate-400 font-mono mt-1 max-w-sm mx-auto">
-                            Add a packaging ratio to automatically calculate per-item cost and split inventory across cartons, crates, or packs.
+                            Pick an industry preset above or click below to configure bulk purchase container to retail selling units.
                           </p>
                         </div>
                         <Button
                           type="button"
-                          onClick={() => addPackagingPreset("general")}
+                          onClick={() => applyCustomPreset(INDUSTRY_CONFIGS[selectedIndustry].presets[0])}
                           className="h-10 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold uppercase"
                         >
-                          <Plus className="h-4 w-4 mr-1.5" /> Add Conversion Ratio
+                          <Plus className="h-4 w-4 mr-1.5" /> Add {INDUSTRY_CONFIGS[selectedIndustry]?.presets[0]?.label || "Conversion Ratio"}
                         </Button>
                       </div>
                     ) : (
@@ -1650,8 +1768,34 @@ export default function ProductsPage() {
                             baseUnit={formData.baseUnit}
                             onUpdate={updatePackagingUnit}
                             onRemove={removePackagingUnit}
+                            selectedIndustry={selectedIndustry}
                           />
                         ))}
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const firstPreset = INDUSTRY_CONFIGS[selectedIndustry].presets[0];
+                            setFormData(prev => ({
+                              ...prev,
+                              packagingUnits: [
+                                ...prev.packagingUnits,
+                                {
+                                  purchaseUnitName: firstPreset?.buyUnit || "Carton",
+                                  purchaseCost: "",
+                                  unitsPerPackage: firstPreset?.ratio || "10",
+                                  sellingUnitName: firstPreset?.sellUnit || "Piece",
+                                  sellingPrice: "",
+                                  barcode: "",
+                                }
+                              ]
+                            }));
+                          }}
+                          className="w-full h-11 rounded-2xl border-dashed border-2 border-indigo-500/30 text-indigo-600 font-bold text-xs uppercase"
+                        >
+                          <Plus className="h-4 w-4 mr-1.5" /> Add Another {INDUSTRY_CONFIGS[selectedIndustry]?.label} Unit Tier
+                        </Button>
                       </div>
                     )}
                   </div>
