@@ -223,7 +223,7 @@ export default async function DashboardLayout({
                <UserProfileDropdown user={session?.user as any} />
             </div>
           </header>
-          <main className="flex-1 px-4 md:px-8 py-6 relative z-10">
+          <main className="flex-1 px-3 sm:px-6 md:px-8 py-4 sm:py-6 relative z-10 w-full max-w-full min-w-0 overflow-x-hidden">
             <DynamicBreadcrumb />
             <PresenceHeartbeatProvider>
               {children}

@@ -319,7 +319,7 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="relative min-h-full p-4 sm:p-6 md:p-8 bg-slate-50 dark:bg-slate-950 space-y-6">
+    <div className="relative min-h-full space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       
       {/* Top Header Section */}
       <motion.div 
@@ -390,7 +390,7 @@ export default function DashboardPage() {
             ) : (
               <>
                 {/* Top Section: AI Assistant + Stat Cards */}
-                <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 w-full max-w-full min-w-0">
                   {/* AI Assistant Card */}
                   <div className="xl:col-span-1">
                     <div className="h-full relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 p-8 text-white shadow-xl shadow-indigo-500/20 flex flex-col justify-between group cursor-pointer border border-indigo-400/20">
@@ -502,7 +502,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-            <div className="grid gap-8 grid-cols-1 lg:grid-cols-3">
+            <div className="grid gap-4 sm:gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-3 w-full max-w-full min-w-0">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.55 }} className="lg:col-span-2 w-full min-h-[350px]">
                 <TrendChart 
                   data={chartData} 
@@ -547,7 +547,7 @@ export default function DashboardPage() {
               </motion.div>
             </div>
 
-            <div className="grid gap-8 grid-cols-1 lg:grid-cols-3 mt-8">
+            <div className="grid gap-4 sm:gap-6 lg:gap-8 grid-cols-1 lg:grid-cols-3 mt-6 sm:mt-8 w-full max-w-full min-w-0">
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.65 }} className={cn("min-h-[350px]", businessType === "PHARMACY" ? "lg:col-span-2" : "lg:col-span-3")}>
                 <SmartForecastingWidget />
               </motion.div>
