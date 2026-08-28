@@ -1,4 +1,5 @@
 import { SplashScreenWrapper } from "@/components/shared/splash-screen-wrapper";
+import { VersionRecoveryListener } from "@/components/shared/version-recovery-listener";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
@@ -81,6 +82,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.className} min-h-full flex flex-col antialiased relative`}>
+        <VersionRecoveryListener />
         <SplashScreenWrapper />
         <ThemeProvider
             attribute="class"
