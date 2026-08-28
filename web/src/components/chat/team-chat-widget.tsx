@@ -20,18 +20,19 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
+import { useChatStore } from "@/store/use-chat-store";
 
 export function TeamChatWidget() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const currentUserId = session?.user?.id;
+  const { isChatOpen, setChatOpen, toggleChat } = useChatStore();
 
   // Do not render on super-admin or public auth pages
   const isSuperAdmin = pathname?.startsWith("/super-admin");
   const isPublic = pathname === "/login" || pathname === "/register" || pathname === "/" || pathname?.startsWith("/receipt/");
   const isChatPage = pathname === "/dashboard/chat";
 
-  const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [conversations, setConversations] = useState<any[]>([]);
   const [activeConvId, setActiveConvId] = useState<string | null>(null);
@@ -79,32 +80,32 @@ export function TeamChatWidget() {
       checkUnreads();
       const interval = setInterval(() => {
         checkUnreads();
-        if (isOpen) {
+        if (isChatOpen) {
           loadConvList();
           if (activeConvId) loadMsgList(activeConvId, true);
         }
       }, 4000);
       return () => clearInterval(interval);
     }
-  }, [session, isOpen, activeConvId, isSuperAdmin, isPublic]);
+  }, [session, isChatOpen, activeConvId, isSuperAdmin, isPublic]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isChatOpen) {
       loadConvList();
     }
-  }, [isOpen]);
+  }, [isChatOpen]);
 
   useEffect(() => {
-    if (isOpen && activeConvId) {
+    if (isChatOpen && activeConvId) {
       loadMsgList(activeConvId);
     }
-  }, [isOpen, activeConvId]);
+  }, [isChatOpen, activeConvId]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isChatOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages, isOpen]);
+  }, [messages, isChatOpen]);
 
   const handleSend = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -158,32 +159,32 @@ export function TeamChatWidget() {
 
   return (
     <>
-      {/* Floating Trigger Button */}
-      <div className="fixed bottom-5 right-5 z-40 print:hidden">
+      {/* Floating Trigger Button on Bottom-Right */}
+      <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 print:hidden">
         <Button
-          onClick={() => setIsOpen(!isOpen)}
+          onClick={toggleChat}
           className={cn(
-            "h-14 px-5 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2.5 font-black uppercase text-xs tracking-wider",
-            isOpen
+            "h-12 px-4 sm:h-13 sm:px-5 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2.5 font-black uppercase text-xs tracking-wider",
+            isChatOpen
               ? "bg-slate-900 text-white hover:bg-slate-800"
               : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-indigo-600/30 hover:scale-105"
           )}
         >
-          {isOpen ? (
+          {isChatOpen ? (
             <>
-              <X className="h-5 w-5" /> Close Chat
+              <X className="h-4 w-4 sm:h-5 sm:w-5" /> Close
             </>
           ) : (
             <>
               <div className="relative">
-                <MessageSquare className="h-5 w-5" />
+                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
                 {unreadCount > 0 && (
                   <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center animate-pulse">
                     {unreadCount}
                   </span>
                 )}
               </div>
-              <span>Staff Chat</span>
+              <span className="hidden xs:inline sm:inline">Staff Chat</span>
             </>
           )}
         </Button>
@@ -191,13 +192,13 @@ export function TeamChatWidget() {
 
       {/* Slide-over Mini Chat Drawer */}
       <AnimatePresence>
-        {isOpen && (
+        {isChatOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-22 right-5 z-50 w-[95vw] sm:w-[400px] h-[520px] rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden print:hidden"
+            className="fixed bottom-18 sm:bottom-20 right-3 sm:right-5 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[calc(100vh-6rem)] rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden print:hidden"
           >
             {/* Drawer Header */}
             <div className="p-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex items-center justify-between shrink-0">
@@ -230,8 +231,9 @@ export function TeamChatWidget() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => setChatOpen(false)}
                   className="h-8 w-8 p-0 rounded-xl hover:bg-white/20 text-white"
+                  title="Close Chat"
                 >
                   <X className="h-4 w-4" />
                 </Button>

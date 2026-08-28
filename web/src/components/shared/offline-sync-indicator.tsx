@@ -23,9 +23,9 @@ export function OfflineSyncIndicator() {
   const { isOnline, isSyncing, pendingCount, lastSyncedAt, syncPendingMutations, initialSync } = useOfflineSync();
   const [expanded, setExpanded] = useState(false);
 
-  // If online and 0 pending, keep collapsed by default to stay out of the way
+  // Positioned on bottom-left to avoid colliding with Staff Chat and Quick Actions on bottom-right
   return (
-    <div className="fixed bottom-4 right-4 z-50 select-none print:hidden">
+    <div className="fixed bottom-4 left-4 sm:bottom-5 sm:left-5 z-40 select-none print:hidden">
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -33,7 +33,7 @@ export function OfflineSyncIndicator() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="mb-2 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 space-y-3"
+            className="mb-2 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 space-y-3 origin-bottom-left"
           >
             {/* Popover Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
@@ -48,7 +48,7 @@ export function OfflineSyncIndicator() {
               </div>
               <button 
                 onClick={() => setExpanded(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
               >
                 <ChevronDown className="h-4 w-4" />
               </button>
@@ -58,35 +58,38 @@ export function OfflineSyncIndicator() {
             <div className="space-y-2 text-xs">
               <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                 <span className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-                  <Database className="h-3.5 w-3.5 text-indigo-500" />
-                  Queued Offline Records
+                  <Database className="h-3.5 w-3.5 text-slate-400" />
+                  Local Sync Queue
                 </span>
                 <span className={cn(
-                  "px-2 py-0.5 rounded-full text-[10px] font-black font-mono",
+                  "font-mono font-bold px-2 py-0.5 rounded-full text-[10px]",
                   pendingCount > 0 
-                    ? "bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                    ? "bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400" 
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
                 )}>
-                  {pendingCount}
+                  {pendingCount} changes
                 </span>
               </div>
 
               <div className="flex items-center justify-between text-slate-600 dark:text-slate-300">
                 <span className="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
-                  <Cloud className="h-3.5 w-3.5 text-blue-500" />
-                  Last Cloud Sync
+                  <Cloud className="h-3.5 w-3.5 text-slate-400" />
+                  Last Synchronized
                 </span>
-                <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300">
-                  {lastSyncedAt ? format(lastSyncedAt, "p") : "Just now"}
+                <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
+                  {lastSyncedAt ? format(lastSyncedAt, "HH:mm:ss") : "Just now"}
                 </span>
               </div>
             </div>
 
-            {/* Explanatory Note */}
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 leading-tight pt-1">
-              {isOnline 
-                ? "All local IndexedDB catalogs, pricing & stock counters are synchronized with Neon PostgreSQL."
-                : "Transactions and sales are saved safely on this device. They will automatically upload when internet reconnects."}
+            {/* Offline Explanation / Warning */}
+            <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed border-t border-slate-100 dark:border-slate-800 pt-2">
+              {!isOnline 
+                ? "You can still create sales and invoices offline. Changes will auto-sync when internet reconnects."
+                : pendingCount > 0
+                ? "Pending offline transactions detected. Synchronizing with cloud database."
+                : "Real-time bidirectional sync active. Zero pending mutations."
+              }
             </p>
 
             {/* Action Buttons */}
