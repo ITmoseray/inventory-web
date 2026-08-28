@@ -131,6 +131,17 @@ export function DemoDashboard() {
   // Modals & Tool States
   const [selectedSale, setSelectedSale] = useState<any>(null);
   const [isPosOpen, setIsPosOpen] = useState(false);
+  const [isDemoDiagnosticsOpen, setIsDemoDiagnosticsOpen] = useState(false);
+  const [demoDiagnosticsRunning, setDemoDiagnosticsRunning] = useState(false);
+  
+  const runDemoDiagnostics = () => {
+    setIsDemoDiagnosticsOpen(true);
+    setDemoDiagnosticsRunning(true);
+    setTimeout(() => {
+      setDemoDiagnosticsRunning(false);
+      toast.success("Neural Diagnostics Complete: All trade clusters operating at peak latency (24ms).");
+    }, 1000);
+  };
   const [isCalculatorOpen, setIsCalculatorOpen] = useState(false);
   const [isAiReportOpen, setIsAiReportOpen] = useState(false);
   const [setupProgress, setSetupProgress] = useState(75);
@@ -729,10 +740,10 @@ export function DemoDashboard() {
                       </div>
 
                       <Button 
-                        onClick={() => toast.success("Diagnostics Complete: All regional database clusters operating at peak latency (28ms).")}
-                        className="w-full h-11 rounded-xl bg-slate-900 text-white dark:bg-indigo-600 font-bold text-xs uppercase tracking-wider"
+                        onClick={runDemoDiagnostics}
+                        className="w-full h-11 rounded-xl bg-slate-900 text-white dark:bg-indigo-600 hover:bg-slate-800 dark:hover:bg-indigo-500 font-black text-xs uppercase tracking-wider shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                       >
-                        Launch Neural Diagnostics
+                        <Cpu className="h-4 w-4" /> Launch Neural Diagnostics
                       </Button>
                     </div>
                   </div>
@@ -843,30 +854,46 @@ export function DemoDashboard() {
                       </div>
 
                       <div className="divide-y divide-slate-100 dark:divide-slate-800/60 flex-1">
-                        {DEMO_SALES.map((sale) => (
-                          <div 
-                            key={sale.id}
-                            onClick={() => setSelectedSale(sale)}
-                            className="p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition-colors"
-                          >
-                            <div className="flex items-center gap-3.5 min-w-0 mr-4">
-                              <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 shrink-0">
-                                <Activity className="h-4 w-4" />
+                        {DEMO_SALES.map((sale) => {
+                          const isOrange = sale.paymentMethod.toUpperCase().includes("ORANGE");
+                          const isCard = sale.paymentMethod.toUpperCase().includes("CARD");
+                          return (
+                            <div 
+                              key={sale.id}
+                              onClick={() => setSelectedSale(sale)}
+                              className="p-3.5 sm:p-4 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-800/40 cursor-pointer transition-colors"
+                            >
+                              <div className="flex items-center gap-3.5 min-w-0 mr-4">
+                                <div className="h-10 w-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-400 shrink-0">
+                                  {isOrange ? <Smartphone className="h-4 w-4 text-orange-500" /> : isCard ? <CreditCard className="h-4 w-4 text-purple-500" /> : <Wallet className="h-4 w-4 text-emerald-500" />}
+                                </div>
+                                <div className="min-w-0">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">{sale.invoiceNumber}</span>
+                                    <span className={cn(
+                                      "px-2 py-0.5 rounded-full text-[9px] font-bold font-mono uppercase flex items-center gap-1",
+                                      isOrange 
+                                        ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20" 
+                                        : isCard 
+                                        ? "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20" 
+                                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                    )}>
+                                      {isOrange ? "Orange Money" : isCard ? "Card / POS" : "Cash"}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-slate-500 mt-1 truncate">{sale.customer} • <span className="text-slate-400 font-mono text-[10px]">{sale.items}</span></p>
+                                </div>
                               </div>
-                              <div className="min-w-0">
-                                <p className="font-bold text-xs text-slate-900 dark:text-white truncate">{sale.invoiceNumber} • {sale.customer}</p>
-                                <p className="text-[10px] text-slate-400 mt-0.5">{sale.items}</p>
-                              </div>
-                            </div>
 
-                            <div className="text-right shrink-0">
-                              <p className="font-black font-mono text-xs text-slate-900 dark:text-white">Le {sale.totalAmount.toLocaleString()}</p>
-                              <span className="px-2 py-0.5 rounded text-[9px] font-bold mt-1 inline-block bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400">
-                                {sale.paymentMethod}
-                              </span>
+                              <div className="text-right shrink-0">
+                                <p className="font-black font-mono text-xs sm:text-sm text-slate-900 dark:text-white">Le {sale.totalAmount.toLocaleString()}</p>
+                                <span className="px-2 py-0.5 rounded-md text-[9px] font-bold mt-1 inline-block bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20">
+                                  PAID
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
 
@@ -1239,6 +1266,86 @@ export function DemoDashboard() {
                   </div>
                 </div>
 
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      
+      {/* 6. NEURAL DIAGNOSTICS MODAL */}
+      <AnimatePresence>
+        {isDemoDiagnosticsOpen && (
+          <div className="fixed inset-0 z-[120] bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white rounded-3xl max-w-lg w-full p-0 shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 relative"
+            >
+              <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 p-6 sm:p-8 text-white relative overflow-hidden">
+                <div className="relative z-10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-mono font-bold uppercase tracking-[0.3em] text-indigo-400">Protech Neural Engine</span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[9px] font-mono font-bold uppercase border border-emerald-500/30 animate-pulse">
+                      Live Operational
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-black tracking-tight text-white">Neural Cluster Diagnostics</h3>
+                  <p className="text-xs text-slate-400">Real-time health telemetry across all trade nodes & databases</p>
+                </div>
+              </div>
+
+              <div className="p-6 space-y-4">
+                {demoDiagnosticsRunning ? (
+                  <div className="py-10 flex flex-col items-center justify-center text-center space-y-3">
+                    <div className="h-10 w-10 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin" />
+                    <p className="text-xs font-bold text-slate-600 dark:text-slate-400">Scanning Trade Clusters...</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2.5">
+                    {[
+                      { title: "Neon Serverless DB", detail: "Primary Read/Write Cluster (AWS us-east-1)", latency: "24ms", status: "Nominal (100%)", icon: Database, color: "text-emerald-500" },
+                      { title: "AI Neural Engine", detail: "Predictive Depletion & Restock Models", latency: "18ms", status: "Active (99.9%)", icon: BrainCircuit, color: "text-indigo-500" },
+                      { title: "Offline Sync Engine", detail: "Bidirectional mutation queue & conflict resolver", latency: "0ms", status: "Synchronized", icon: RefreshCw, color: "text-emerald-500" },
+                      { title: "Compliance & Expiry Guard", detail: "Batch quality & FIFO enforcement", latency: "Audited", status: "0 Violations", icon: ShieldCheck, color: "text-purple-500" },
+                      { title: "Payment Webhook Nodes", detail: "Orange Money, AfriMoney & Card Gateways", latency: "Live", status: "Operational", icon: Smartphone, color: "text-emerald-500" }
+                    ].map((item, idx) => (
+                      <div key={idx} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="h-8 w-8 rounded-lg bg-white dark:bg-slate-800 flex items-center justify-center shrink-0">
+                            <item.icon className={cn("h-4 w-4", item.color)} />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{item.title}</p>
+                            <p className="text-[10px] text-slate-500 truncate">{item.detail}</p>
+                          </div>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <span className="text-[10px] font-mono font-bold text-emerald-600 dark:text-emerald-400 block">{item.status}</span>
+                          <span className="text-[9px] font-mono text-slate-400">{item.latency}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div className="p-5 pt-0 flex gap-2 border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-950">
+                <Button 
+                  onClick={runDemoDiagnostics}
+                  disabled={demoDiagnosticsRunning}
+                  variant="outline" 
+                  className="flex-1 h-10 rounded-xl text-xs font-bold border-slate-200 dark:border-slate-800"
+                >
+                  <RefreshCw className={cn("h-3.5 w-3.5 mr-1.5", demoDiagnosticsRunning && "animate-spin")} /> Re-run Scan
+                </Button>
+                <Button 
+                  onClick={() => setIsDemoDiagnosticsOpen(false)}
+                  className="flex-1 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold"
+                >
+                  Close Diagnostics
+                </Button>
               </div>
             </motion.div>
           </div>
