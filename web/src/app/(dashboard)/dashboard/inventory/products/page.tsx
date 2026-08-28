@@ -796,13 +796,13 @@ export default function ProductsPage() {
                   {/* Pricing Matrix & Margin */}
                   <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-end justify-between">
                     <div>
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Price</span>
+                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Sell Cost</span>
                       <span className="text-lg font-black font-mono text-slate-900 dark:text-white">
                         Le {Math.round(sellPrice).toLocaleString()}
                       </span>
                       {costPrice > 0 && (
                         <span className="text-[10px] font-mono text-slate-400 block">
-                          Cost: Le {Math.round(costPrice).toLocaleString()}
+                          Buy: Le {Math.round(costPrice).toLocaleString()}
                         </span>
                       )}
                     </div>
@@ -847,7 +847,7 @@ export default function ProductsPage() {
                 <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Product</TableHead>
                 <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Category</TableHead>
                 <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Stock Count</TableHead>
-                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Selling Price</TableHead>
+                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Sell Cost / Purchase Cost</TableHead>
                 <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500 text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -1028,13 +1028,13 @@ export default function ProductsPage() {
                     {/* Price Overview */}
                     <div className="grid grid-cols-2 gap-2 text-xs">
                       <div className="p-3 rounded-xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40">
-                        <span className="text-[9px] font-mono text-indigo-500 uppercase font-bold block">Selling Price</span>
+                        <span className="text-[9px] font-mono text-indigo-500 uppercase font-bold block">Sell Cost to Customer</span>
                         <span className="text-base font-black font-mono text-indigo-950 dark:text-indigo-200">
                           Le {Math.round(parseFloat(inspectProduct.unitPrice)).toLocaleString()}
                         </span>
                       </div>
                       <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
-                        <span className="text-[9px] font-mono text-slate-400 uppercase font-bold block">Cost Price</span>
+                        <span className="text-[9px] font-mono text-slate-400 uppercase font-bold block">Purchase Cost from Supplier</span>
                         <span className="text-base font-black font-mono text-slate-700 dark:text-slate-300">
                           Le {Math.round(parseFloat(inspectProduct.costPrice || 0)).toLocaleString()}
                         </span>
@@ -1225,7 +1225,7 @@ export default function ProductsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      Selling Price (Le) *
+                      Sell Cost to Customer (Le) *
                     </Label>
                     <Input
                       type="number"
@@ -1236,12 +1236,12 @@ export default function ProductsPage() {
                       className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-black text-indigo-600 dark:text-indigo-400 text-lg"
                       required
                     />
-                    <span className="text-[10px] text-slate-400">Price customers pay at POS</span>
+                    <span className="text-[10px] text-slate-400">Price customers pay at POS / checkout</span>
                   </div>
 
                   <div className="space-y-1.5">
                     <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      Buying / Cost Price (Le)
+                      Purchase Cost from Supplier (Le)
                     </Label>
                     <Input
                       type="number"
@@ -1251,7 +1251,7 @@ export default function ProductsPage() {
                       placeholder="e.g. 2800"
                       className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold text-rose-600 dark:text-rose-400 text-lg"
                     />
-                    <span className="text-[10px] text-slate-400">What you paid supplier (Optional)</span>
+                    <span className="text-[10px] text-slate-400">What you paid supplier to buy item (Optional)</span>
                   </div>
                 </div>
 
@@ -1270,7 +1270,7 @@ export default function ProductsPage() {
                         </span>
                       </div>
                       <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 font-medium">
-                        You make <strong>Le {Math.round(formUnitProfit).toLocaleString()}</strong> gross profit on every unit sold at POS.
+                        You make <strong>+Le {Math.round(formUnitProfit).toLocaleString()}</strong> profit per unit sold (Sell cost Le {Math.round(formSellPrice).toLocaleString()} minus Purchase cost Le {Math.round(formCostPrice).toLocaleString()}).
                       </p>
                     </div>
                   ) : formUnitProfit < 0 ? (
@@ -1286,7 +1286,7 @@ export default function ProductsPage() {
                         </span>
                       </div>
                       <p className="text-[11px] text-rose-700/90 dark:text-rose-300/90 font-medium">
-                        Your selling price (<strong>Le {Math.round(formSellPrice).toLocaleString()}</strong>) is lower than your buying cost (<strong>Le {Math.round(formCostPrice).toLocaleString()}</strong>). You will lose Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} on every unit sold.
+                        Your sell cost to customer (<strong>Le {Math.round(formSellPrice).toLocaleString()}</strong>) is lower than your purchase cost from supplier (<strong>Le {Math.round(formCostPrice).toLocaleString()}</strong>). You will lose Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} on every unit sold.
                       </p>
                     </div>
                   ) : (
@@ -1296,7 +1296,7 @@ export default function ProductsPage() {
                         <ShieldCheck className="h-4 w-4 text-slate-500" />
                         Break-Even: Le 0 Profit (0% Margin)
                       </span>
-                      <span className="text-[10px] text-slate-500 font-medium">Selling at exact buying cost</span>
+                      <span className="text-[10px] text-slate-500 font-medium">Sell cost equals purchase cost</span>
                     </div>
                   )
                 )}
