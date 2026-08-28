@@ -267,9 +267,15 @@ export default function ProtechCloudHomepage() {
                 Try It Now
                 <ArrowRight className="ml-2 h-5 w-5" />
               </button>
+              <Link 
+                href="/login"
+                className="h-14 px-8 text-base font-semibold border-2 border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center shrink-0 min-w-max"
+              >
+                Login
+              </Link>
               <button 
                 onClick={() => setIsDemoModalOpen(true)}
-                className="h-14 px-8 text-base font-semibold border-2 border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center"
+                className="h-14 px-8 text-base font-semibold border-2 border-slate-200/50 dark:border-slate-800/50 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-900 dark:text-white rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center shrink-0 min-w-max"
               >
                 Book a Live Demo
               </button>
