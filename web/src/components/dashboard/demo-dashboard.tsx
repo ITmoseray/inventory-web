@@ -18,6 +18,7 @@ import {
   LineChart, Line, PieChart as RePieChart, Pie, Cell 
 } from "recharts";
 import Image from "next/image";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const TABS = ["Dashboard", "Getting Started"];
