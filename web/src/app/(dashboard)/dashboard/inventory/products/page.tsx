@@ -108,7 +108,7 @@ export default function ProductsPage() {
   const [filterStock, setFilterStock] = useState("all");
   const [filterType, setFilterType] = useState("all");
   const [sortBy, setSortBy] = useState("name_asc");
-  const [sourcingMode, setSourcingMode] = useState<"single" | "bulk">("single");
+  const [sourcingMode, setSourcingMode] = useState<"single" | "bulk" | null>(null);
   const [showPackagingOptions, setShowPackagingOptions] = useState(false);
   
   const [deleteModal, setDeleteModal] = useState<{ open: boolean; id: string; name: string }>({
@@ -349,7 +349,7 @@ export default function ProductsPage() {
       baseUnit: "Piece",
       packagingUnits: [],
     });
-    setSourcingMode("single");
+    setSourcingMode(null);
     setShowPackagingOptions(false);
   }
 
@@ -400,25 +400,23 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   }
 
-  const addPackagingPreset = (buyUnit: string, ratio: string, sellUnit: string, defaultBulkCost = "28000", defaultPieceSell = "3500") => {
+  const addPackagingPreset = (buyUnit: string, ratio: string, sellUnit: string) => {
     setFormData(prev => ({
       ...prev,
       baseUnit: sellUnit,
-      unitPrice: prev.unitPrice || defaultPieceSell,
-      costPrice: prev.costPrice || (parseFloat(defaultBulkCost) / parseFloat(ratio)).toString(),
       packagingUnits: [
         ...prev.packagingUnits,
         {
           purchaseUnitName: buyUnit,
-          purchaseCost: prev.costPrice ? (parseFloat(prev.costPrice) * parseFloat(ratio)).toString() : defaultBulkCost,
+          purchaseCost: prev.costPrice && ratio ? (parseFloat(prev.costPrice) * parseFloat(ratio)).toString() : "",
           unitsPerPackage: ratio,
           sellingUnitName: sellUnit,
-          sellingPrice: prev.unitPrice || defaultPieceSell,
+          sellingPrice: prev.unitPrice || "",
           barcode: "",
         }
       ]
     }));
-    toast.success(`Configured ${buyUnit} ➔ ${sellUnit} ratio`);
+    toast.success(`Added ${buyUnit} ➔ ${sellUnit} ratio`);
   };
 
   const removePackagingUnit = (index: number) => {
@@ -1138,13 +1136,18 @@ export default function ProductsPage() {
             <div className="flex-1 overflow-y-auto p-6 sm:p-8 custom-scrollbar space-y-6">
 
               {/* 0. Upfront Choice: How do you buy this product? */}
-              <div className="p-5 rounded-3xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 space-y-3">
-                <span className="text-[10px] font-mono font-extrabold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
-                  <Boxes className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                  How do you purchase this product from your supplier?
-                </span>
+              <div className="p-5 sm:p-6 rounded-3xl bg-indigo-50/60 dark:bg-indigo-950/30 border border-indigo-100 dark:border-indigo-900/40 space-y-4">
+                <div className="text-center sm:text-left space-y-1">
+                  <span className="text-xs font-mono font-extrabold uppercase tracking-wider text-indigo-900 dark:text-indigo-300 flex items-center justify-center sm:justify-start gap-1.5">
+                    <Boxes className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                    How do you purchase this product from your supplier?
+                  </span>
+                  <p className="text-[11px] text-slate-500 font-medium">
+                    Please select an option below to configure pricing and packaging.
+                  </p>
+                </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {/* Option 1: Single Item */}
                   <button
                     type="button"
@@ -1153,33 +1156,38 @@ export default function ProductsPage() {
                       setFormData(prev => ({ ...prev, packagingUnits: [] }));
                     }}
                     className={cn(
-                      "p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between space-y-2 cursor-pointer",
+                      "p-5 rounded-2xl border text-left transition-all relative flex flex-col justify-between space-y-3 cursor-pointer group hover:scale-[1.01]",
                       sourcingMode === "single"
-                        ? "bg-white dark:bg-slate-900 border-indigo-600 shadow-md ring-2 ring-indigo-500/20"
-                        : "bg-white/60 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 text-slate-500"
+                        ? "bg-white dark:bg-slate-900 border-indigo-600 shadow-lg ring-2 ring-indigo-500/30"
+                        : "bg-white/80 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-indigo-300 text-slate-500"
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-3">
                         <div className={cn(
-                          "h-8 w-8 rounded-xl flex items-center justify-center font-bold",
-                          sourcingMode === "single" ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                          "h-10 w-10 rounded-2xl flex items-center justify-center font-bold transition-colors",
+                          sourcingMode === "single" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" : "bg-indigo-50 dark:bg-slate-800 text-indigo-600"
                         )}>
-                          <Package className="h-4 w-4" />
+                          <Package className="h-5 w-5" />
                         </div>
-                        <span className="font-extrabold text-xs uppercase tracking-tight text-slate-900 dark:text-white">
-                          Single / Individual Item
-                        </span>
+                        <div>
+                          <span className="font-black text-sm uppercase tracking-tight text-slate-900 dark:text-white block">
+                            Single Item
+                          </span>
+                          <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+                            Individual Units
+                          </span>
+                        </div>
                       </div>
                       <div className={cn(
-                        "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                        sourcingMode === "single" ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-300"
+                        "h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all",
+                        sourcingMode === "single" ? "border-indigo-600 bg-indigo-600 text-white shadow-sm" : "border-slate-300 dark:border-slate-700"
                       )}>
-                        {sourcingMode === "single" && <Check className="h-3 w-3 stroke-[3]" />}
+                        {sourcingMode === "single" && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                       </div>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                      I buy and sell each item individually (e.g. 1 Phone, 1 Camera, 1 Laptop, 1 Shirt).
+                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                      I buy and sell each item individually (e.g. 1 Phone, 1 Camera, 1 Laptop, 1 Shirt, 1 Watch).
                     </p>
                   </button>
 
@@ -1193,37 +1201,65 @@ export default function ProductsPage() {
                       }
                     }}
                     className={cn(
-                      "p-4 rounded-2xl border text-left transition-all relative flex flex-col justify-between space-y-2 cursor-pointer",
+                      "p-5 rounded-2xl border text-left transition-all relative flex flex-col justify-between space-y-3 cursor-pointer group hover:scale-[1.01]",
                       sourcingMode === "bulk"
-                        ? "bg-white dark:bg-slate-900 border-indigo-600 shadow-md ring-2 ring-indigo-500/20"
-                        : "bg-white/60 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 hover:border-slate-300 text-slate-500"
+                        ? "bg-white dark:bg-slate-900 border-indigo-600 shadow-lg ring-2 ring-indigo-500/30"
+                        : "bg-white/80 dark:bg-slate-900/60 border-slate-200 dark:border-slate-800 hover:border-indigo-300 text-slate-500"
                     )}
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-3">
                         <div className={cn(
-                          "h-8 w-8 rounded-xl flex items-center justify-center font-bold",
-                          sourcingMode === "bulk" ? "bg-indigo-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                          "h-10 w-10 rounded-2xl flex items-center justify-center font-bold transition-colors",
+                          sourcingMode === "bulk" ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30" : "bg-indigo-50 dark:bg-slate-800 text-indigo-600"
                         )}>
-                          <Boxes className="h-4 w-4" />
+                          <Boxes className="h-5 w-5" />
                         </div>
-                        <span className="font-extrabold text-xs uppercase tracking-tight text-slate-900 dark:text-white">
-                          Bulk Packaging (Carton / Box)
-                        </span>
+                        <div>
+                          <span className="font-black text-sm uppercase tracking-tight text-slate-900 dark:text-white block">
+                            Bulk Packaging
+                          </span>
+                          <span className="text-[10px] font-mono text-indigo-600 dark:text-indigo-400 font-bold">
+                            Carton / Box / Crate
+                          </span>
+                        </div>
                       </div>
                       <div className={cn(
-                        "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                        sourcingMode === "bulk" ? "border-indigo-600 bg-indigo-600 text-white" : "border-slate-300"
+                        "h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all",
+                        sourcingMode === "bulk" ? "border-indigo-600 bg-indigo-600 text-white shadow-sm" : "border-slate-300 dark:border-slate-700"
                       )}>
-                        {sourcingMode === "bulk" && <Check className="h-3 w-3 stroke-[3]" />}
+                        {sourcingMode === "bulk" && <Check className="h-3.5 w-3.5 stroke-[3]" />}
                       </div>
                     </div>
-                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
-                      I buy in bulk containers (Carton, Box, Crate, Sack) and retail by Pieces / Bottles / Kg.
+                    <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                      I buy in bulk containers (Carton, Box, Crate, Sack) and retail by Pieces, Bottles, or Kg.
                     </p>
                   </button>
                 </div>
               </div>
+
+              {/* Only show form sections once user selects an option */}
+              {sourcingMode === null ? (
+                <div className="p-8 sm:p-12 rounded-3xl border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 text-center space-y-3 bg-white/40 dark:bg-slate-900/30">
+                  <div className="h-12 w-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center mx-auto shadow-inner">
+                    <Sparkles className="h-6 w-6 animate-pulse" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-black uppercase text-slate-900 dark:text-white">
+                      Please Select Sourcing Option Above
+                    </h4>
+                    <p className="text-xs text-slate-500 max-w-sm mx-auto font-medium">
+                      Click <strong>Single Item</strong> or <strong>Bulk Packaging</strong> above to enter product specifications.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
 
               {/* Section 1: Basic Information & Photo */}
               <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
@@ -1325,7 +1361,7 @@ export default function ProductsPage() {
                         step="1"
                         value={formData.unitPrice}
                         onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                        placeholder="e.g. 3500"
+                        placeholder="0.00"
                         className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-black text-indigo-600 dark:text-indigo-400 text-lg"
                         required
                       />
@@ -1341,7 +1377,7 @@ export default function ProductsPage() {
                         step="1"
                         value={formData.costPrice}
                         onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
-                        placeholder="e.g. 2800"
+                        placeholder="0.00"
                         className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold text-rose-600 dark:text-rose-400 text-lg"
                       />
                       <span className="text-[10px] text-slate-400">What you paid supplier to buy item (Optional)</span>
@@ -1520,7 +1556,7 @@ export default function ProductsPage() {
                                     setFormData(prev => ({ ...prev, costPrice: (cCost / ratio).toString() }));
                                   }
                                 }}
-                                placeholder="e.g. 28000"
+                                placeholder="0.00"
                                 className="h-10 text-xs font-mono font-bold rounded-xl text-rose-600 dark:text-rose-400"
                                 required
                               />
@@ -1569,7 +1605,7 @@ export default function ProductsPage() {
                                     setFormData(prev => ({ ...prev, unitPrice: e.target.value }));
                                   }
                                 }}
-                                placeholder="e.g. 3500"
+                                placeholder="0.00"
                                 className="h-10 text-xs font-mono font-black text-indigo-600 dark:text-indigo-400 rounded-xl"
                                 required
                               />
@@ -1687,6 +1723,8 @@ export default function ProductsPage() {
                   </Label>
                 </div>
               </div>
+                </motion.div>
+              )}
 
             </div>
 
@@ -1702,7 +1740,13 @@ export default function ProductsPage() {
               </Button>
               <Button
                 type="submit"
-                className="h-12 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/30"
+                disabled={sourcingMode === null}
+                className={cn(
+                  "h-12 px-8 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg transition-all",
+                  sourcingMode === null
+                    ? "bg-slate-300 text-slate-500 cursor-not-allowed shadow-none"
+                    : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/30 hover:scale-105 active:scale-95"
+                )}
               >
                 {editingProduct ? "Save Changes" : "Save Product"}
               </Button>
