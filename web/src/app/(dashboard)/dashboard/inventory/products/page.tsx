@@ -400,24 +400,25 @@ export default function ProductsPage() {
     setIsDialogOpen(true);
   }
 
-  const addPackagingPreset = (buyUnit: string, ratio: string, sellUnit: string) => {
+  const addPackagingPreset = (buyUnit: string, ratio: string, sellUnit: string, defaultBulkCost = "28000", defaultPieceSell = "3500") => {
     setFormData(prev => ({
       ...prev,
       baseUnit: sellUnit,
+      unitPrice: prev.unitPrice || defaultPieceSell,
+      costPrice: prev.costPrice || (parseFloat(defaultBulkCost) / parseFloat(ratio)).toString(),
       packagingUnits: [
         ...prev.packagingUnits,
         {
           purchaseUnitName: buyUnit,
-          purchaseCost: prev.costPrice ? (parseFloat(prev.costPrice) * parseFloat(ratio)).toString() : "",
+          purchaseCost: prev.costPrice ? (parseFloat(prev.costPrice) * parseFloat(ratio)).toString() : defaultBulkCost,
           unitsPerPackage: ratio,
           sellingUnitName: sellUnit,
-          sellingPrice: prev.unitPrice || "",
+          sellingPrice: prev.unitPrice || defaultPieceSell,
           barcode: "",
         }
       ]
     }));
-    setShowPackagingOptions(true);
-    toast.success(`Added ${buyUnit} ➔ ${sellUnit} packaging`);
+    toast.success(`Configured ${buyUnit} ➔ ${sellUnit} ratio`);
   };
 
   const removePackagingUnit = (index: number) => {
@@ -1304,108 +1305,329 @@ export default function ProductsPage() {
                 </div>
               </div>
 
-              {/* Section 2: Pricing & Profits */}
-              <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
-                <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
-                  <Tag className="h-4 w-4 text-emerald-500" />
-                  <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                    2. Price &amp; Profit
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      Sell Cost to Customer (Le) *
-                    </Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={formData.unitPrice}
-                      onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
-                      placeholder="e.g. 3500"
-                      className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-black text-indigo-600 dark:text-indigo-400 text-lg"
-                      required
-                    />
-                    <span className="text-[10px] text-slate-400">Price customers pay at POS / checkout</span>
+              {/* ─── CASE A: SINGLE / INDIVIDUAL ITEM PRICING ─── */}
+              {sourcingMode === "single" && (
+                <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
+                  <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
+                    <Tag className="h-4 w-4 text-emerald-500" />
+                    <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+                      2. Price &amp; Profit (Single Item)
+                    </span>
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      Purchase Cost from Supplier (Le)
-                    </Label>
-                    <Input
-                      type="number"
-                      step="1"
-                      value={formData.costPrice}
-                      onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
-                      placeholder="e.g. 2800"
-                      className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold text-rose-600 dark:text-rose-400 text-lg"
-                    />
-                    <span className="text-[10px] text-slate-400">What you paid supplier to buy item (Optional)</span>
-                  </div>
-                </div>
-
-                {/* Intelligent Profit / Loss & Break-Even Telemetry Banner */}
-                {formSellPrice > 0 && formCostPrice > 0 && (
-                  formUnitProfit > 0 ? (
-                    /* 🟢 PROFIT SCENARIO */
-                    <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 space-y-1">
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-emerald-800 dark:text-emerald-300 font-extrabold flex items-center gap-1.5">
-                          <TrendingUp className="h-4 w-4 text-emerald-600" />
-                          Estimated Profit: +Le {Math.round(formUnitProfit).toLocaleString()} / item
-                        </span>
-                        <span className="bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
-                          +{formMargin.toFixed(0)}% Profit Margin
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 font-medium">
-                        You make <strong>+Le {Math.round(formUnitProfit).toLocaleString()}</strong> profit per unit sold (Sell cost Le {Math.round(formSellPrice).toLocaleString()} minus Purchase cost Le {Math.round(formCostPrice).toLocaleString()}).
-                      </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                        Sell Cost to Customer (Le) *
+                      </Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={formData.unitPrice}
+                        onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
+                        placeholder="e.g. 3500"
+                        className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-black text-indigo-600 dark:text-indigo-400 text-lg"
+                        required
+                      />
+                      <span className="text-[10px] text-slate-400">Price customers pay at POS / checkout</span>
                     </div>
-                  ) : formUnitProfit < 0 ? (
-                    /* 🔴 LOSS WARNING SCENARIO */
-                    <div className="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 space-y-1">
-                      <div className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-rose-700 dark:text-rose-300 font-extrabold flex items-center gap-1.5">
-                          <AlertCircle className="h-4 w-4 text-rose-600 animate-pulse" />
-                          Warning: Selling at a Loss (-Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} / item)
+
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
+                        Purchase Cost from Supplier (Le)
+                      </Label>
+                      <Input
+                        type="number"
+                        step="1"
+                        value={formData.costPrice}
+                        onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                        placeholder="e.g. 2800"
+                        className="h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 font-mono font-bold text-rose-600 dark:text-rose-400 text-lg"
+                      />
+                      <span className="text-[10px] text-slate-400">What you paid supplier to buy item (Optional)</span>
+                    </div>
+                  </div>
+
+                  {/* Intelligent Profit / Loss & Break-Even Telemetry Banner */}
+                  {formSellPrice > 0 && formCostPrice > 0 && (
+                    formUnitProfit > 0 ? (
+                      /* 🟢 PROFIT SCENARIO */
+                      <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 space-y-1">
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-emerald-800 dark:text-emerald-300 font-extrabold flex items-center gap-1.5">
+                            <TrendingUp className="h-4 w-4 text-emerald-600" />
+                            Estimated Profit: +Le {Math.round(formUnitProfit).toLocaleString()} / item
+                          </span>
+                          <span className="bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                            +{formMargin.toFixed(0)}% Profit Margin
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 font-medium">
+                          You make <strong>+Le {Math.round(formUnitProfit).toLocaleString()}</strong> profit per unit sold (Sell cost Le {Math.round(formSellPrice).toLocaleString()} minus Purchase cost Le {Math.round(formCostPrice).toLocaleString()}).
+                        </p>
+                      </div>
+                    ) : formUnitProfit < 0 ? (
+                      /* 🔴 LOSS WARNING SCENARIO */
+                      <div className="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 space-y-1">
+                        <div className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-rose-700 dark:text-rose-300 font-extrabold flex items-center gap-1.5">
+                            <AlertCircle className="h-4 w-4 text-rose-600 animate-pulse" />
+                            Warning: Selling at a Loss (-Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} / item)
+                          </span>
+                          <span className="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                            {formMargin.toFixed(0)}% Loss
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-rose-700/90 dark:text-rose-300/90 font-medium">
+                          Your sell cost to customer (<strong>Le {Math.round(formSellPrice).toLocaleString()}</strong>) is lower than your purchase cost from supplier (<strong>Le {Math.round(formCostPrice).toLocaleString()}</strong>). You will lose Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} on every unit sold.
+                        </p>
+                      </div>
+                    ) : (
+                      /* ⚪ BREAK-EVEN SCENARIO */
+                      <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs font-mono">
+                        <span className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                          <ShieldCheck className="h-4 w-4 text-slate-500" />
+                          Break-Even: Le 0 Profit (0% Margin)
                         </span>
-                        <span className="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
-                          {formMargin.toFixed(0)}% Loss
+                        <span className="text-[10px] text-slate-500 font-medium">Sell cost equals purchase cost</span>
+                      </div>
+                    )
+                  )}
+                </div>
+              )}
+
+              {/* ─── CASE B: BULK PACKAGING & CONVERSION ECONOMICS ─── */}
+              {sourcingMode === "bulk" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/60 shadow-md space-y-5"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-8 w-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold">
+                        <Boxes className="h-4 w-4" />
+                      </div>
+                      <div>
+                        <span className="text-xs font-mono font-extrabold uppercase tracking-wider text-slate-900 dark:text-white block">
+                          2. Bulk Packaging &amp; Pricing Conversion
+                        </span>
+                        <span className="text-[10px] text-slate-400">
+                          Set your bulk container cost and retail selling price per piece
                         </span>
                       </div>
-                      <p className="text-[11px] text-rose-700/90 dark:text-rose-300/90 font-medium">
-                        Your sell cost to customer (<strong>Le {Math.round(formSellPrice).toLocaleString()}</strong>) is lower than your purchase cost from supplier (<strong>Le {Math.round(formCostPrice).toLocaleString()}</strong>). You will lose Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} on every unit sold.
-                      </p>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => addPackagingPreset("Carton", "10", "Piece", "28000", "3500")}
+                      className="rounded-xl text-xs font-bold font-mono text-indigo-600 border-indigo-200 hover:bg-indigo-50"
+                    >
+                      + Add Another Tier
+                    </Button>
+                  </div>
+
+                  {/* 1-Click Simple Quick Add Presets */}
+                  <div className="flex items-center gap-2 flex-wrap bg-indigo-50/50 dark:bg-indigo-950/20 p-3 rounded-2xl border border-indigo-100 dark:border-indigo-900/30">
+                    <span className="text-[10px] font-mono font-bold text-indigo-900 dark:text-indigo-300 uppercase mr-1">1-Click Presets:</span>
+                    <button
+                      type="button"
+                      onClick={() => addPackagingPreset("Carton", "10", "Piece", "28000", "3500")}
+                      className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-2xs"
+                    >
+                      + 1 Carton = 10 Pieces
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => addPackagingPreset("Box", "12", "Unit", "12000", "1500")}
+                      className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-2xs"
+                    >
+                      + 1 Box = 12 Units
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => addPackagingPreset("Bundle", "5", "Set", "75000", "20000")}
+                      className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer shadow-2xs"
+                    >
+                      + 1 Bundle = 5 Sets
+                    </button>
+                  </div>
+
+                  {/* Bulk Packaging Ratio Cards */}
+                  {formData.packagingUnits.length === 0 ? (
+                    <div className="p-6 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 text-center space-y-2">
+                      <p className="text-xs font-bold text-slate-700 dark:text-slate-300">No bulk ratio added yet</p>
+                      <Button
+                        type="button"
+                        onClick={() => addPackagingPreset("Carton", "10", "Piece", "28000", "3500")}
+                        className="h-9 px-4 rounded-xl bg-indigo-600 text-white text-xs font-bold"
+                      >
+                        + Add 1 Carton = 10 Pieces
+                      </Button>
                     </div>
                   ) : (
-                    /* ⚪ BREAK-EVEN SCENARIO */
-                    <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs font-mono">
-                      <span className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
-                        <ShieldCheck className="h-4 w-4 text-slate-500" />
-                        Break-Even: Le 0 Profit (0% Margin)
-                      </span>
-                      <span className="text-[10px] text-slate-500 font-medium">Sell cost equals purchase cost</span>
-                    </div>
-                  )
-                )}
-              </div>
+                    formData.packagingUnits.map((unit, index) => {
+                      const bulkCost = parseFloat(unit.purchaseCost) || 0;
+                      const itemsInPkg = parseFloat(unit.unitsPerPackage) || 1;
+                      const costPerPiece = itemsInPkg > 0 && bulkCost > 0 ? bulkCost / itemsInPkg : 0;
+                      const pieceSell = parseFloat(unit.sellingPrice) || 0;
+                      const pieceProfit = pieceSell > 0 && costPerPiece > 0 ? pieceSell - costPerPiece : 0;
+                      const pieceMargin = pieceSell > 0 && costPerPiece > 0 ? ((pieceSell - costPerPiece) / pieceSell) * 100 : 0;
+                      const totalCartonProfit = pieceProfit * itemsInPkg;
+
+                      return (
+                        <div key={index} className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black uppercase text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                              <Package className="h-4 w-4 text-indigo-500" />
+                              Bulk Ratio #{index + 1}: 1 {unit.purchaseUnitName || "Carton"} = {unit.unitsPerPackage || "10"} {unit.sellingUnitName || "Pieces"}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removePackagingUnit(index)}
+                              className="text-slate-400 hover:text-rose-500 p-1 cursor-pointer"
+                              title="Remove this ratio"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+
+                          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-xs">
+                            {/* 1. Buy As Container */}
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block">Buy As (Container)</label>
+                              <Input
+                                value={unit.purchaseUnitName}
+                                onChange={(e) => updatePackagingUnit(index, "purchaseUnitName", e.target.value)}
+                                placeholder="Carton"
+                                className="h-10 text-xs font-bold rounded-xl"
+                              />
+                            </div>
+
+                            {/* 2. Bulk Cost from Supplier */}
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block">Purchase Cost / {unit.purchaseUnitName || "Carton"} (Le) *</label>
+                              <Input
+                                type="number"
+                                value={unit.purchaseCost}
+                                onChange={(e) => {
+                                  updatePackagingUnit(index, "purchaseCost", e.target.value);
+                                  const ratio = parseFloat(unit.unitsPerPackage) || 1;
+                                  const cCost = parseFloat(e.target.value) || 0;
+                                  if (index === 0) {
+                                    setFormData(prev => ({ ...prev, costPrice: (cCost / ratio).toString() }));
+                                  }
+                                }}
+                                placeholder="e.g. 28000"
+                                className="h-10 text-xs font-mono font-bold rounded-xl text-rose-600 dark:text-rose-400"
+                                required
+                              />
+                            </div>
+
+                            {/* 3. Items per Package */}
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block">Pieces inside 1 {unit.purchaseUnitName || "Carton"} *</label>
+                              <Input
+                                type="number"
+                                value={unit.unitsPerPackage}
+                                onChange={(e) => {
+                                  updatePackagingUnit(index, "unitsPerPackage", e.target.value);
+                                  const ratio = parseFloat(e.target.value) || 1;
+                                  const bCost = parseFloat(unit.purchaseCost) || 0;
+                                  if (index === 0 && bCost > 0) {
+                                    setFormData(prev => ({ ...prev, costPrice: (bCost / ratio).toString() }));
+                                  }
+                                }}
+                                placeholder="10"
+                                className="h-10 text-xs font-mono font-bold rounded-xl text-indigo-600 dark:text-indigo-400"
+                                required
+                              />
+                            </div>
+
+                            {/* 4. Sell Unit Name */}
+                            <div className="space-y-1">
+                              <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block">Sell Retail As</label>
+                              <Input
+                                value={unit.sellingUnitName}
+                                onChange={(e) => updatePackagingUnit(index, "sellingUnitName", e.target.value)}
+                                placeholder="Piece"
+                                className="h-10 text-xs font-bold rounded-xl"
+                              />
+                            </div>
+
+                            {/* 5. Sell Cost to Customer per Piece */}
+                            <div className="space-y-1 col-span-2 sm:col-span-1">
+                              <label className="text-[9px] font-mono font-bold text-slate-400 uppercase block">Sell Cost / {unit.sellingUnitName || "Piece"} (Le) *</label>
+                              <Input
+                                type="number"
+                                value={unit.sellingPrice}
+                                onChange={(e) => {
+                                  updatePackagingUnit(index, "sellingPrice", e.target.value);
+                                  if (index === 0) {
+                                    setFormData(prev => ({ ...prev, unitPrice: e.target.value }));
+                                  }
+                                }}
+                                placeholder="e.g. 3500"
+                                className="h-10 text-xs font-mono font-black text-indigo-600 dark:text-indigo-400 rounded-xl"
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          {/* Live Telemetry Card per Bulk Tier */}
+                          {costPerPiece > 0 && pieceSell > 0 && (
+                            <div className="p-3.5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                              <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-mono">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-slate-500">
+                                    Purchase Cost: <strong className="text-rose-600 dark:text-rose-400 font-bold">Le {Math.round(costPerPiece).toLocaleString()} / {unit.sellingUnitName || "piece"}</strong>
+                                  </span>
+                                  <span className="text-slate-300">•</span>
+                                  <span className="text-slate-500">
+                                    Sell Cost: <strong className="text-indigo-600 dark:text-indigo-400 font-bold">Le {Math.round(pieceSell).toLocaleString()} / {unit.sellingUnitName || "piece"}</strong>
+                                  </span>
+                                </div>
+
+                                {pieceProfit > 0 ? (
+                                  <span className="bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                                    +{pieceMargin.toFixed(0)}% Margin (+Le {Math.round(pieceProfit).toLocaleString()} / {unit.sellingUnitName || "piece"})
+                                  </span>
+                                ) : (
+                                  <span className="bg-rose-100 text-rose-700 dark:bg-rose-950/50 dark:text-rose-400 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                                    Selling at a Loss (-Le {Math.abs(Math.round(pieceProfit)).toLocaleString()})
+                                  </span>
+                                )}
+                              </div>
+
+                              {pieceProfit > 0 && (
+                                <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">
+                                  💡 1 Full {unit.purchaseUnitName || "Carton"} generates <strong>+Le {Math.round(totalCartonProfit).toLocaleString()}</strong> total gross profit when all {unit.unitsPerPackage || "10"} {unit.sellingUnitName || "pieces"} are sold.
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </motion.div>
+              )}
 
               {/* Section 3: Stock Quantity */}
               <div className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
                   <Layers className="h-4 w-4 text-indigo-500" />
                   <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white">
-                    3. Stock &amp; Inventory
+                    3. Stock &amp; Inventory Count
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-widest">
-                      How many in stock now?
+                      {sourcingMode === "bulk" ? "Total Retail Pieces in Stock *" : "How many in stock now? *"}
                     </Label>
                     <div className="flex items-center gap-1.5">
                       <Button
@@ -1465,148 +1687,6 @@ export default function ProductsPage() {
                   </Label>
                 </div>
               </div>
-
-              {/* Section 4: Bulk Packaging Configuration (Displayed when Bulk Mode is chosen) */}
-              {sourcingMode === "bulk" && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="p-5 rounded-3xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-900/60 shadow-md space-y-4"
-                >
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <Boxes className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
-                      <div>
-                        <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-900 dark:text-white block">
-                          4. Bulk Packaging Conversion
-                        </span>
-                        <span className="text-[10px] text-slate-400">
-                          Define how many individual pieces are inside 1 carton or box
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addPackagingPreset("Carton", "10", "Piece")}
-                      className="rounded-xl text-xs font-bold font-mono text-indigo-600 border-indigo-200 hover:bg-indigo-50"
-                    >
-                      + Add Another Tier
-                    </Button>
-                  </div>
-
-                  {/* 1-Click Simple Quick Add Presets */}
-                  <div className="flex items-center gap-2 flex-wrap pt-1">
-                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase mr-1">Quick 1-Click Presets:</span>
-                    <button
-                      type="button"
-                      onClick={() => addPackagingPreset("Carton", "10", "Piece")}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer"
-                    >
-                      + 1 Carton = 10 Pieces
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addPackagingPreset("Box", "12", "Unit")}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer"
-                    >
-                      + 1 Box = 12 Units
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addPackagingPreset("Bundle", "5", "Set")}
-                      className="px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 text-xs font-bold font-mono border border-indigo-200 hover:bg-indigo-600 hover:text-white transition-all cursor-pointer"
-                    >
-                      + 1 Bundle = 5 Sets
-                    </button>
-                  </div>
-
-                  {/* Packaging List */}
-                  {formData.packagingUnits.map((unit, index) => {
-                    const bulkCost = parseFloat(unit.purchaseCost) || 0;
-                    const itemsInPkg = parseFloat(unit.unitsPerPackage) || 1;
-                    const costPerPiece = itemsInPkg > 0 && bulkCost > 0 ? bulkCost / itemsInPkg : 0;
-                    const pieceSell = parseFloat(unit.sellingPrice) || parseFloat(formData.unitPrice) || 0;
-                    const pieceProfit = pieceSell > 0 && costPerPiece > 0 ? pieceSell - costPerPiece : 0;
-
-                    return (
-                      <div key={index} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                            <Package className="h-3.5 w-3.5 text-indigo-500" />
-                            Bulk Ratio #{index + 1}: 1 {unit.purchaseUnitName || "Carton"} = {unit.unitsPerPackage || "10"} {unit.sellingUnitName || "Pieces"}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removePackagingUnit(index)}
-                            className="text-rose-500 hover:text-rose-700 p-1 cursor-pointer"
-                            title="Remove this ratio"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                          <div>
-                            <label className="text-[9px] font-mono text-slate-400 block mb-1">Buy As (Container)</label>
-                            <Input
-                              value={unit.purchaseUnitName}
-                              onChange={(e) => updatePackagingUnit(index, "purchaseUnitName", e.target.value)}
-                              placeholder="Carton"
-                              className="h-10 text-xs font-bold rounded-xl"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-mono text-slate-400 block mb-1">Bulk Cost from Supplier (Le)</label>
-                            <Input
-                              type="number"
-                              value={unit.purchaseCost}
-                              onChange={(e) => updatePackagingUnit(index, "purchaseCost", e.target.value)}
-                              placeholder="e.g. 28000"
-                              className="h-10 text-xs font-mono font-bold rounded-xl text-rose-600 dark:text-rose-400"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-mono text-slate-400 block mb-1">Pieces per {unit.purchaseUnitName || "Carton"}</label>
-                            <Input
-                              type="number"
-                              value={unit.unitsPerPackage}
-                              onChange={(e) => updatePackagingUnit(index, "unitsPerPackage", e.target.value)}
-                              placeholder="10"
-                              className="h-10 text-xs font-mono font-bold rounded-xl text-indigo-600 dark:text-indigo-400"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-[9px] font-mono text-slate-400 block mb-1">Sell Retail As</label>
-                            <Input
-                              value={unit.sellingUnitName}
-                              onChange={(e) => updatePackagingUnit(index, "sellingUnitName", e.target.value)}
-                              placeholder="Piece"
-                              className="h-10 text-xs font-bold rounded-xl"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Live Calculated Unit Cost */}
-                        {costPerPiece > 0 && (
-                          <div className="p-2.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-[11px] font-mono flex items-center justify-between">
-                            <span className="text-slate-500">
-                              Cost to you: <strong className="text-slate-900 dark:text-white">Le {Math.round(costPerPiece).toLocaleString()} / {unit.sellingUnitName || "piece"}</strong>
-                            </span>
-                            {pieceProfit > 0 && (
-                              <span className="text-emerald-600 dark:text-emerald-400 font-bold">
-                                Gross Profit: +Le {Math.round(pieceProfit).toLocaleString()} / {unit.sellingUnitName || "piece"}
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </motion.div>
-              )}
 
             </div>
 
