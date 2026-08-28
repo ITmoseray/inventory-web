@@ -1255,17 +1255,50 @@ export default function ProductsPage() {
                   </div>
                 </div>
 
-                {/* Friendly Profit Banner */}
+                {/* Intelligent Profit / Loss & Break-Even Telemetry Banner */}
                 {formSellPrice > 0 && formCostPrice > 0 && (
-                  <div className="p-3.5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 flex items-center justify-between text-xs font-mono">
-                    <span className="text-emerald-800 dark:text-emerald-300 font-bold flex items-center gap-1.5">
-                      <TrendingUp className="h-4 w-4 text-emerald-600" />
-                      Estimated Profit: +Le {Math.round(formUnitProfit).toLocaleString()} / item
-                    </span>
-                    <span className="bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
-                      {formMargin.toFixed(0)}% Margin
-                    </span>
-                  </div>
+                  formUnitProfit > 0 ? (
+                    /* 🟢 PROFIT SCENARIO */
+                    <div className="p-4 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/40 space-y-1">
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-emerald-800 dark:text-emerald-300 font-extrabold flex items-center gap-1.5">
+                          <TrendingUp className="h-4 w-4 text-emerald-600" />
+                          Estimated Profit: +Le {Math.round(formUnitProfit).toLocaleString()} / item
+                        </span>
+                        <span className="bg-emerald-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                          +{formMargin.toFixed(0)}% Profit Margin
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 font-medium">
+                        You make <strong>Le {Math.round(formUnitProfit).toLocaleString()}</strong> gross profit on every unit sold at POS.
+                      </p>
+                    </div>
+                  ) : formUnitProfit < 0 ? (
+                    /* 🔴 LOSS WARNING SCENARIO */
+                    <div className="p-4 rounded-2xl bg-rose-50/90 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900/50 space-y-1">
+                      <div className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-rose-700 dark:text-rose-300 font-extrabold flex items-center gap-1.5">
+                          <AlertCircle className="h-4 w-4 text-rose-600 animate-pulse" />
+                          Warning: Selling at a Loss (-Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} / item)
+                        </span>
+                        <span className="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                          {formMargin.toFixed(0)}% Loss
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-rose-700/90 dark:text-rose-300/90 font-medium">
+                        Your selling price (<strong>Le {Math.round(formSellPrice).toLocaleString()}</strong>) is lower than your buying cost (<strong>Le {Math.round(formCostPrice).toLocaleString()}</strong>). You will lose Le {Math.abs(Math.round(formUnitProfit)).toLocaleString()} on every unit sold.
+                      </p>
+                    </div>
+                  ) : (
+                    /* ⚪ BREAK-EVEN SCENARIO */
+                    <div className="p-3.5 rounded-2xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 flex items-center justify-between text-xs font-mono">
+                      <span className="text-slate-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                        <ShieldCheck className="h-4 w-4 text-slate-500" />
+                        Break-Even: Le 0 Profit (0% Margin)
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-medium">Selling at exact buying cost</span>
+                    </div>
+                  )
                 )}
               </div>
 
