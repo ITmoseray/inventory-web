@@ -516,11 +516,11 @@ export default function DashboardPage() {
 
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
                  <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-xl shadow-sm h-full flex flex-col">
-                   <CardHeader className="p-8 pb-4">
-                      <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Nodes</CardTitle>
+                   <CardHeader className="p-4 sm:p-6 lg:p-8 pb-3 sm:pb-4">
+                      <CardTitle className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Nodes</CardTitle>
                       <CardDescription className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">System Operational Status</CardDescription>
                    </CardHeader>
-                   <CardContent className="p-8 pt-4 flex-1 flex flex-col justify-center space-y-6">
+                   <CardContent className="p-4 sm:p-6 lg:p-8 pt-2 sm:pt-4 flex-1 flex flex-col justify-center space-y-4 sm:space-y-6">
                       <div className="grid grid-cols-1 gap-4">
                           {[
                             { label: "Active Transactions", value: stats.activeTransactions.toString().padStart(2, '0'), icon: ShoppingCart, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/20" },
