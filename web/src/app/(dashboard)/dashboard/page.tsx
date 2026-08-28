@@ -858,7 +858,7 @@ export default function DashboardPage() {
                  { 
                    title: "Talk to us", 
                    items: [
-                     { label: "Sierra Leone: +232 34 955581", onClick: () => window.open("tel:+23234955581") },
+                     { label: "Sierra Leone: 073019699 / +232 73 019699", onClick: () => window.open("tel:+23273019699") },
                      { label: "United Kingdom: +44 800...", onClick: () => toast.info("UK line is active for Premium customers.") },
                      { label: "Australia: +61 1800...", onClick: () => toast.info("Australia line is active for Premium customers.") }
                    ], 
@@ -1057,7 +1057,7 @@ export default function DashboardPage() {
                   required 
                   value={demoForm.phone} 
                   onChange={(e) => setDemoForm({...demoForm, phone: e.target.value})}
-                  placeholder="+232 34 955581" 
+                  placeholder="073019699 / +232 73 019699" 
                   className="h-12 rounded-xl bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800 font-bold focus:ring-2 focus:ring-indigo-500/10 text-slate-900 dark:text-white"
                 />
               </div>

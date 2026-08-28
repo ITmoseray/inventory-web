@@ -47,7 +47,7 @@ export function ExpertPopup() {
     const text = encodeURIComponent(
       `Hello Protech Assist Executive Team, I am interested in an Executive Consultation for ${topic}. Please connect me with a specialist.`
     );
-    return `https://wa.me/23234955581?text=${text}`;
+    return `https://wa.me/23273019699?text=${text}`;
   };
 
   const handleCallbackSubmit = (e: React.FormEvent) => {
@@ -61,7 +61,7 @@ export function ExpertPopup() {
     
     setCallbackSent(true);
     setTimeout(() => {
-      window.open(`https://wa.me/23234955581?text=${text}`, "_blank");
+      window.open(`https://wa.me/23273019699?text=${text}`, "_blank");
       setCallbackSent(false);
       setCallbackName("");
       setCallbackPhone("");
@@ -235,11 +235,11 @@ export function ExpertPopup() {
                   </a>
 
                   <a
-                    href="tel:+23234955581"
+                    href="tel:+23273019699"
                     className="w-full h-11 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 bg-slate-50 dark:bg-slate-900/80 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/40 text-slate-800 dark:text-slate-200 text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all group active:scale-[0.98]"
                   >
                     <Phone className="h-3.5 w-3.5 text-indigo-500 group-hover:rotate-12 transition-transform" />
-                    <span>Direct Hotline (+232 34 955581)</span>
+                    <span>Direct Hotline (073019699 / +232 73 019699)</span>
                   </a>
 
                   <Link

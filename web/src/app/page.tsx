@@ -724,7 +724,7 @@ export default function ProtechCloudHomepage() {
                 <div className="space-y-2 text-sm text-slate-600 dark:text-slate-400">
                    <p>Email: protechassist36@gmail.com</p>
                    <p>Location: Freetown, Sierra Leone</p>
-                   <p>Phone: +232 34 955581</p>
+                   <p>Phone: 073019699 / +232 73 019699</p>
                 </div>
               </div>
               
@@ -773,7 +773,7 @@ export default function ProtechCloudHomepage() {
 
           <div className="space-y-3">
             <a 
-              href="https://wa.me/23234955581" 
+              href="https://wa.me/23273019699" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center gap-4 p-4 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"

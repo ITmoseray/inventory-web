@@ -119,7 +119,7 @@ export default async function DashboardLayout({
                 
                 <div className="pt-4 border-t border-slate-800 flex flex-col gap-4">
                    <a 
-                     href="https://wa.me/23234955581"
+                     href="https://wa.me/23273019699"
                      target="_blank"
                      className="h-12 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/20 transition-all flex items-center justify-center font-bold"
                    >

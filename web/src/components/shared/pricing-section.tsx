@@ -444,11 +444,11 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
           </div>
           <div className="flex flex-col sm:flex-row gap-4 sm:justify-end">
             <a 
-              href="tel:034955581" 
+              href="tel:073019699" 
               className="flex items-center gap-3 px-6 h-14 bg-white dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-2xl border border-slate-200 dark:border-white/5 font-black text-[10px] uppercase tracking-widest transition-colors shadow-sm text-slate-900 dark:text-white"
             >
               <Phone className="h-4 w-4 text-indigo-500" />
-              <span>Call: 034955581</span>
+              <span>Call: 073019699</span>
             </a>
             <a 
               href="mailto:protechassist36@gmail.com" 

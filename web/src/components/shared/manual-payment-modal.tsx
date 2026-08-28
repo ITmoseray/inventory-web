@@ -17,7 +17,7 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
   const { data: session } = useSession();
   const merchantNumber = "073019699";
   const merchantName = "ProTech Assist";
-  const supportWhatsapp = "23234955581";
+  const supportWhatsapp = "23273019699";
 
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
