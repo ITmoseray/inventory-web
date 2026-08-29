@@ -211,15 +211,16 @@ export default async function DashboardLayout({
               </div>
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-               <Link href="/dashboard/intelligence/chat" className="hidden sm:flex items-center gap-2 h-9 px-4 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-primary dark:text-indigo-400 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
+            <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+               <Link href="/dashboard/intelligence/chat" className="hidden md:flex items-center gap-2 h-9 px-4 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-primary dark:text-indigo-400 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
                   <Zap className="h-3.5 w-3.5 fill-current" />
                   AI Assistant
                </Link>
+               <OfflineSyncIndicator />
                <HeaderThemeToggle />
                <TeamChatBell />
                <NotificationBell />
-               <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-1" />
+               <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-0.5" />
                <UserProfileDropdown user={session?.user as any} />
             </div>
           </header>
@@ -230,7 +231,6 @@ export default async function DashboardLayout({
             </PresenceHeartbeatProvider>
           </main>
           <QuickActions />
-          <OfflineSyncIndicator />
           <TeamChatWidget />
           </AutoLogoutProvider>
         </AppShell>

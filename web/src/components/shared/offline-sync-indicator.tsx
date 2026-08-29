@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   Wifi, 
   WifiOff, 
@@ -8,7 +8,6 @@ import {
   Database, 
   CheckCircle2, 
   AlertCircle, 
-  ChevronUp, 
   ChevronDown, 
   HardDrive,
   Cloud
@@ -20,20 +19,80 @@ import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
 
 export function OfflineSyncIndicator() {
-  const { isOnline, isSyncing, pendingCount, lastSyncedAt, syncPendingMutations, initialSync } = useOfflineSync();
+  const { isOnline, isSyncing, pendingCount, lastSyncedAt, syncPendingMutations } = useOfflineSync();
   const [expanded, setExpanded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  // Positioned on bottom-left to avoid colliding with Staff Chat and Quick Actions on bottom-right
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setExpanded(false);
+      }
+    }
+    if (expanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [expanded]);
+
   return (
-    <div className="fixed bottom-4 left-4 sm:bottom-5 sm:left-5 z-40 select-none print:hidden">
+    <div ref={containerRef} className="relative inline-flex items-center select-none print:hidden">
+      {/* Header Status Button */}
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className={cn(
+          "flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 h-9 rounded-xl text-xs font-bold transition-all border cursor-pointer",
+          !isOnline
+            ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800 animate-pulse"
+            : isSyncing
+            ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800"
+            : pendingCount > 0
+            ? "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+            : "bg-slate-100/80 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 border-slate-200/80 dark:border-slate-700/60 hover:bg-slate-200/60 dark:hover:bg-slate-800"
+        )}
+        title={isOnline ? (pendingCount > 0 ? `${pendingCount} pending offline changes` : "Cloud Connected") : "Offline Mode Active"}
+      >
+        {!isOnline ? (
+          <>
+            <WifiOff className="h-3.5 w-3.5 text-rose-500" />
+            <span className="hidden sm:inline text-[11px] font-black uppercase tracking-wider">Offline</span>
+            {pendingCount > 0 && (
+              <span className="h-4 min-w-[16px] px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center">
+                {pendingCount}
+              </span>
+            )}
+          </>
+        ) : isSyncing ? (
+          <>
+            <RefreshCw className="h-3.5 w-3.5 text-blue-500 animate-spin" />
+            <span className="hidden sm:inline text-[11px] font-black uppercase tracking-wider">Syncing</span>
+          </>
+        ) : pendingCount > 0 ? (
+          <>
+            <HardDrive className="h-3.5 w-3.5 text-amber-500" />
+            <span className="hidden sm:inline text-[11px] font-black uppercase tracking-wider">{pendingCount} Queue</span>
+          </>
+        ) : (
+          <>
+            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500 animate-pulse" />
+            <Cloud className="h-3.5 w-3.5 text-slate-500 dark:text-slate-400" />
+            <span className="hidden sm:inline text-[11px] font-bold text-slate-600 dark:text-slate-300">Online</span>
+            <ChevronDown className="h-3 w-3 text-slate-400 opacity-60 hidden sm:inline" />
+          </>
+        )}
+      </button>
+
+      {/* Dropdown Popover */}
       <AnimatePresence>
         {expanded && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="mb-2 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 space-y-3 origin-bottom-left"
+            className="absolute right-0 top-11 z-50 w-72 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl p-4 space-y-3 origin-top-right text-slate-900 dark:text-white"
           >
             {/* Popover Header */}
             <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-2.5">
@@ -99,7 +158,7 @@ export function OfflineSyncIndicator() {
                   size="sm"
                   onClick={() => syncPendingMutations()}
                   disabled={isSyncing}
-                  className="w-full h-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-wider gap-1.5 shadow-md shadow-indigo-600/20"
+                  className="w-full h-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-wider gap-1.5 shadow-md shadow-indigo-600/20 cursor-pointer"
                 >
                   <RefreshCw className={cn("h-3 w-3", isSyncing && "animate-spin")} />
                   {isSyncing ? "Syncing..." : "Sync Cloud Now"}
@@ -109,44 +168,6 @@ export function OfflineSyncIndicator() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Floating Pill Trigger */}
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-full shadow-lg border transition-all hover:scale-105 active:scale-95 text-xs font-black uppercase tracking-wider backdrop-blur-md",
-          !isOnline
-            ? "bg-rose-500 text-white border-rose-600 shadow-rose-500/25 animate-pulse"
-            : pendingCount > 0
-            ? "bg-amber-500 text-white border-amber-600 shadow-amber-500/25"
-            : isSyncing
-            ? "bg-blue-600 text-white border-blue-700 shadow-blue-500/25"
-            : "bg-white/90 dark:bg-slate-900/90 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-800 shadow-slate-900/10 hover:border-slate-300"
-        )}
-      >
-        {!isOnline ? (
-          <>
-            <WifiOff className="h-3.5 w-3.5 animate-bounce" />
-            <span>Offline ({pendingCount})</span>
-          </>
-        ) : isSyncing ? (
-          <>
-            <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            <span>Syncing...</span>
-          </>
-        ) : pendingCount > 0 ? (
-          <>
-            <HardDrive className="h-3.5 w-3.5 text-amber-100" />
-            <span>{pendingCount} Pending Sync</span>
-          </>
-        ) : (
-          <>
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500" />
-            <span className="text-[10px] text-slate-600 dark:text-slate-300 font-bold">Online</span>
-            <ChevronUp className="h-3 w-3 text-slate-400 ml-0.5" />
-          </>
-        )}
-      </button>
     </div>
   );
 }
