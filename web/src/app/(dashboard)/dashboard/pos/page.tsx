@@ -1148,61 +1148,55 @@ export default function POSPage() {
 
       {/* The Intelligence Ledger (Cart) */}
       <div className={cn(
-        "absolute lg:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl lg:w-[360px] xl:w-[480px] 2xl:w-[550px] shadow-2xl lg:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-white/10 transition-all duration-300 lg:overflow-hidden flex flex-col shrink-0",
-        isCartVisible ? "h-[90dvh] lg:h-full translate-y-0" : "h-[90px] lg:h-full translate-y-0"
+        "absolute lg:relative bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-2xl lg:w-[400px] xl:w-[460px] 2xl:w-[520px] shadow-2xl lg:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-white/10 transition-all duration-300 flex flex-col shrink-0",
+        isCartVisible ? "h-[90dvh] lg:h-full translate-y-0" : "h-[84px] lg:h-full translate-y-0"
       )}>
         {/* Cart Header (Mobile Toggle & Actions) */}
         <div 
-          className="h-[76px] sm:h-[84px] px-3 sm:px-5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer lg:cursor-default bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md z-10 gap-2"
+          className="h-[76px] sm:h-[84px] px-2.5 sm:px-4 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer lg:cursor-default bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md z-10 gap-1.5 sm:gap-2 overflow-x-hidden"
           onClick={() => !isCartVisible && setIsCartVisible(true)}
         >
            {/* Left: Cart Icon & Item Count */}
-           <div className="flex items-center gap-2.5 min-w-0 shrink-0">
+           <div className="flex items-center gap-2 min-w-0 flex-1">
               <div className="relative shrink-0">
                  <div className={cn(
-                   "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-300", 
+                   "h-8 w-8 sm:h-9 sm:w-9 rounded-xl flex items-center justify-center shadow-md transition-all duration-300", 
                    cart.length > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
                  )}>
-                   <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
+                   <ShoppingBag className="h-4 w-4 text-current" />
                  </div>
                  {cart.length > 0 && (
-                   <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-slate-900 dark:bg-indigo-600 text-white text-[8px] sm:text-[9px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm">
+                   <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-0.5 rounded-full bg-slate-900 dark:bg-indigo-600 text-white text-[7px] font-[1000] flex items-center justify-center border border-white dark:border-slate-900 shadow-sm">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                    </span>
                  )}
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                  <h2 className="text-xs sm:text-sm font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-tight truncate">
                    Current <span className="text-indigo-600 dark:text-indigo-400">Sale</span>
                  </h2>
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider leading-none mt-0.5">
-                   {cart.length} {cart.length === 1 ? "Item" : "Items"}
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider leading-none mt-0.5 truncate">
+                   {cart.length} {cart.length === 1 ? "Item" : "Items"} • <span className="text-slate-700 dark:text-slate-300 font-bold">Le {Math.round(total).toLocaleString()}</span>
                  </p>
               </div>
            </div>
            
-           {/* Right: Total & Action Buttons */}
-           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-              {/* Total Display */}
-              <div className="text-right mr-1">
-                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Total</p>
-                 <p className="text-sm sm:text-base font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">Le {Math.round(total).toLocaleString()}</p>
-              </div>
-
+           {/* Right: Action Buttons Group */}
+           <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
               {/* Drafts Queue Button */}
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative cursor-pointer shrink-0"
+                className="h-8 w-8 rounded-xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative cursor-pointer shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsDraftsModalOpen(true);
                 }}
-                title="View Drafts Queue"
+                title="Drafts Queue"
               >
-                <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <History className="h-3.5 w-3.5" />
                 {drafts.length > 0 && (
-                  <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-0.5 rounded-full bg-indigo-500 text-white text-[7px] font-black flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-3 min-w-[12px] px-0.5 rounded-full bg-indigo-500 text-white text-[7px] font-black flex items-center justify-center">
                     {drafts.length}
                   </span>
                 )}
@@ -1212,7 +1206,7 @@ export default function POSPage() {
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all cursor-pointer shrink-0"
+                className="h-8 w-8 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all cursor-pointer shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (currentDraftId) {
@@ -1224,13 +1218,13 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 title="Hold Active Cart"
               >
-                <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <Save className="h-3.5 w-3.5" />
               </Button>
 
-              {/* Clear Active Cart Button */}
+              {/* Clear Active Cart Button (Always 100% visible) */}
               <Button 
                 variant="ghost" 
-                className="h-8 px-2 sm:h-9 sm:px-2.5 rounded-xl text-rose-500 hover:text-rose-600 bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 transition-all flex items-center gap-1 cursor-pointer font-bold text-xs shrink-0"
+                className="h-8 px-2 rounded-xl text-rose-500 hover:text-rose-600 bg-rose-50/90 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-950/60 transition-all flex items-center gap-1 cursor-pointer font-bold text-xs shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (currentDraftId) deleteDraft(currentDraftId).then(() => fetchDrafts());
@@ -1238,22 +1232,23 @@ export default function POSPage() {
                   toast.success("Cart cleared.");
                 }}
                 disabled={cart.length === 0}
-                title="Clear cart"
+                title="Clear Cart"
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                <span className="text-[10px] font-black uppercase hidden sm:inline">Clear</span>
+                <span className="text-[10px] font-black uppercase">Clear</span>
               </Button>
 
-              {/* Mobile Drawer Chevron Toggle */}
+              {/* Mobile Drawer Open/Close Toggle (Always 100% visible on mobile) */}
               <Button 
                 variant="outline" 
-                className="lg:hidden h-8 px-2 sm:h-9 sm:px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-all border-slate-200 dark:border-slate-700 cursor-pointer font-black text-xs gap-1 shrink-0"
+                className="lg:hidden h-8 px-2 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all border-indigo-200/60 dark:border-indigo-800/40 cursor-pointer font-black text-xs gap-1 shrink-0 shadow-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsCartVisible(!isCartVisible);
                 }}
+                title={isCartVisible ? "Close Cart" : "Open Cart"}
               >
-                <span className="text-[9px] uppercase sm:inline hidden">{isCartVisible ? "Close" : "Open"}</span>
+                <span className="text-[9px] uppercase font-bold">{isCartVisible ? "Close" : "Open"}</span>
                 <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-300", isCartVisible ? "" : "rotate-180")} />
               </Button>
            </div>
