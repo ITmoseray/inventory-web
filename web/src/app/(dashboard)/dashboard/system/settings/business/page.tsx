@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { 
   Building, Save, Globe, Smartphone, Store, ShieldCheck,
   Receipt, Sliders, Eye, Phone, MessageSquare, Mail, MapPin,
-  CheckCircle2, Sparkles, AlertCircle, RefreshCw
+  CheckCircle2, Sparkles, AlertCircle, RefreshCw, Palette, Hash
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,8 @@ export default function BusinessSettingsPage() {
       headerTagline: "",
       footerMessage: "Thank you for your business!",
       returnPolicy: "* Returns accepted within 7 days with original receipt *",
+      invoicePrefix: "TNSD",
+      shopNameColor: "#4F46E5",
       showLogo: true,
       showAddress: true,
       showPhone: true,
@@ -65,6 +67,7 @@ export default function BusinessSettingsPage() {
         const business = await getCurrentBusiness();
         if (business) {
           const rawSettings = (business.receiptSettings as any) || {};
+          const isTopNotch = (business.name || "").toLowerCase().includes("top notch");
           setFormData({
             name: business.name || "",
             phone: business.phone || "",
@@ -79,6 +82,8 @@ export default function BusinessSettingsPage() {
               headerTagline: rawSettings.headerTagline ?? "",
               footerMessage: rawSettings.footerMessage ?? "Thank you for your business!",
               returnPolicy: rawSettings.returnPolicy ?? "* Returns accepted within 7 days with original receipt *",
+              invoicePrefix: rawSettings.invoicePrefix ?? (isTopNotch ? "TNSD" : "INV"),
+              shopNameColor: rawSettings.shopNameColor ?? "#4F46E5",
               showLogo: rawSettings.showLogo ?? true,
               showAddress: rawSettings.showAddress ?? true,
               showPhone: rawSettings.showPhone ?? true,
@@ -380,8 +385,126 @@ export default function BusinessSettingsPage() {
                       />
                     </div>
 
+                    {/* Receipt / Invoice Prefix (Sequence Numbering) */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                          <Hash className="h-3.5 w-3.5 text-indigo-500" /> Receipt / Invoice Prefix
+                        </Label>
+                        <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md border border-indigo-100 dark:border-indigo-900/50">
+                          Format: {(formData.receiptSettings.invoicePrefix || (formData.name?.toLowerCase().includes("top notch") ? "TNSD" : "INV")).toUpperCase()}-2026-0001
+                        </span>
+                      </div>
+                      <Input
+                        type="text"
+                        value={formData.receiptSettings.invoicePrefix}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          receiptSettings: { 
+                            ...formData.receiptSettings, 
+                            invoicePrefix: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, "") 
+                          }
+                        })}
+                        placeholder="e.g. TNSD, INV, POS, SALES"
+                        maxLength={10}
+                        className="h-11 rounded-xl border-slate-200 dark:border-slate-800 font-bold uppercase tracking-wider text-xs"
+                      />
+                      <p className="text-[10px] text-slate-400 font-medium">
+                        Custom prefix for receipt &amp; invoice numbers. Increments sequentially: <strong className="text-slate-600 dark:text-slate-300">{(formData.receiptSettings.invoicePrefix || (formData.name?.toLowerCase().includes("top notch") ? "TNSD" : "INV")).toUpperCase()}-2026-0001</strong>, <strong className="text-slate-600 dark:text-slate-300">{(formData.receiptSettings.invoicePrefix || (formData.name?.toLowerCase().includes("top notch") ? "TNSD" : "INV")).toUpperCase()}-2026-0002</strong>...
+                      </p>
+                    </div>
+
+                    {/* Shop Name Brand Color on Receipt */}
+                    <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                          <Palette className="h-3.5 w-3.5 text-indigo-500" /> Shop Name Color on Receipt
+                        </Label>
+                        <div className="flex items-center gap-1.5">
+                          <div 
+                            className="h-4 w-4 rounded-full border border-black/10 shadow-sm"
+                            style={{ backgroundColor: formData.receiptSettings.shopNameColor || "#4F46E5" }}
+                          />
+                          <span className="text-[10px] font-mono font-bold text-slate-700 dark:text-slate-300 uppercase">
+                            {formData.receiptSettings.shopNameColor || "#4F46E5"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Color Swatches Grid */}
+                      <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
+                        {[
+                          { name: "Indigo", hex: "#4F46E5" },
+                          { name: "Emerald", hex: "#059669" },
+                          { name: "Rose", hex: "#E11D48" },
+                          { name: "Ocean", hex: "#0284C7" },
+                          { name: "Amber", hex: "#D97706" },
+                          { name: "Purple", hex: "#7C3AED" },
+                          { name: "Teal", hex: "#0D9488" },
+                          { name: "Dark Slate", hex: "#0F172A" },
+                        ].map((preset) => {
+                          const isSelected = (formData.receiptSettings.shopNameColor || "#4F46E5").toLowerCase() === preset.hex.toLowerCase();
+                          return (
+                            <button
+                              key={preset.hex}
+                              type="button"
+                              onClick={() => setFormData({
+                                ...formData,
+                                receiptSettings: { ...formData.receiptSettings, shopNameColor: preset.hex }
+                              })}
+                              className={cn(
+                                "h-10 rounded-xl border flex flex-col items-center justify-center p-1 transition-all relative group cursor-pointer",
+                                isSelected 
+                                  ? "border-slate-900 dark:border-white ring-2 ring-indigo-500 scale-105 shadow-md bg-slate-50 dark:bg-slate-800" 
+                                  : "border-slate-200 dark:border-slate-800 hover:scale-102 hover:border-slate-300"
+                              )}
+                              title={preset.name}
+                            >
+                              <div 
+                                className="h-4 w-4 rounded-full border border-black/10 shadow-inner"
+                                style={{ backgroundColor: preset.hex }}
+                              />
+                              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-tighter truncate w-full text-center mt-0.5">
+                                {preset.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      {/* Custom Color Input */}
+                      <div className="flex items-center gap-3 pt-1">
+                        <div className="flex items-center gap-2 flex-1">
+                          <input
+                            type="color"
+                            value={formData.receiptSettings.shopNameColor || "#4F46E5"}
+                            onChange={(e) => setFormData({
+                              ...formData,
+                              receiptSettings: { ...formData.receiptSettings, shopNameColor: e.target.value }
+                            })}
+                            className="h-10 w-12 rounded-xl border border-slate-200 dark:border-slate-800 cursor-pointer bg-white dark:bg-slate-900 p-1"
+                            title="Pick Custom Color"
+                          />
+                          <Input
+                            type="text"
+                            value={formData.receiptSettings.shopNameColor || "#4F46E5"}
+                            onChange={(e) => setFormData({
+                              ...formData,
+                              receiptSettings: { ...formData.receiptSettings, shopNameColor: e.target.value }
+                            })}
+                            placeholder="#4F46E5"
+                            maxLength={7}
+                            className="h-10 rounded-xl border-slate-200 dark:border-slate-800 font-mono text-xs font-bold uppercase"
+                          />
+                        </div>
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          Custom Hex Color
+                        </span>
+                      </div>
+                    </div>
+
                     {/* Thank You Note */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 pt-1">
                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">Footer Thank You Message</Label>
                       <Input
                         type="text"
@@ -421,7 +544,7 @@ export default function BusinessSettingsPage() {
                             receiptSettings: { ...formData.receiptSettings, paperWidth: "80mm" }
                           })}
                           className={cn(
-                            "p-3 rounded-xl border text-center font-bold text-xs transition-all",
+                            "p-3 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer",
                             formData.receiptSettings.paperWidth === "80mm"
                               ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600"
                               : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
@@ -436,7 +559,7 @@ export default function BusinessSettingsPage() {
                             receiptSettings: { ...formData.receiptSettings, paperWidth: "58mm" }
                           })}
                           className={cn(
-                            "p-3 rounded-xl border text-center font-bold text-xs transition-all",
+                            "p-3 rounded-xl border text-center font-bold text-xs transition-all cursor-pointer",
                             formData.receiptSettings.paperWidth === "58mm"
                               ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600"
                               : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
@@ -527,7 +650,7 @@ export default function BusinessSettingsPage() {
                       paymentMethod="CASH"
                       cashierName="John Tucker"
                       customerName="Melina Tamba"
-                      transactionId={formData.name?.toLowerCase().includes("top notch") ? "TNSD-2026-0001" : "INV-2026-0001"}
+                      transactionId={`${(formData.receiptSettings.invoicePrefix || (formData.name?.toLowerCase().includes("top notch") ? "TNSD" : "INV")).toUpperCase()}-2026-0001`}
                       businessName={formData.name || "Top Notch Sales & Distribution"}
                       businessAddress={formData.address || "17 Wilkinson road, Freetown"}
                       businessPhone={formData.phone || "+232 79 373838"}

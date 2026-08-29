@@ -22,6 +22,8 @@ export interface ReceiptSettingsConfig {
   showQrCode?: boolean;
   showPoweredBy?: boolean;
   paperWidth?: "58mm" | "80mm";
+  invoicePrefix?: string;
+  shopNameColor?: string;
 }
 
 interface ThermalReceiptProps {
@@ -101,8 +103,12 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
             </div>
           )}
           <h2 
-            className="text-sm sm:text-base font-[1000] uppercase break-words px-1 text-indigo-600 dark:text-indigo-600 shop-name-brand tracking-tight leading-snug"
-            style={{ color: "#4F46E5", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
+            className="text-sm sm:text-base font-[1000] uppercase break-words px-1 tracking-tight leading-snug shop-name-brand"
+            style={{ 
+              color: receiptSettings?.shopNameColor || "#4F46E5", 
+              WebkitPrintColorAdjust: "exact", 
+              printColorAdjust: "exact" 
+            }}
           >
             {businessName || "Enterprise OS"}
           </h2>
