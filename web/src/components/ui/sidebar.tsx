@@ -285,7 +285,7 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           "relative bg-transparent transition-[width] duration-300 ease-in-out shrink-0",
-          isPinned ? "w-[16rem]" : "w-[4.75rem]"
+          isExpanded ? "w-[16rem]" : "w-[4.75rem]"
         )}
       />
       

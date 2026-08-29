@@ -153,7 +153,7 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            <div className="flex-1 flex flex-col items-end gap-1.5">
               <div className="flex items-center gap-1.5">
                  <span className={cn("text-[10px] font-black tracking-tighter", isOutOfStock ? "text-rose-600 font-bold" : isLowStock ? "text-rose-500" : "text-slate-700 dark:text-slate-300")}>{p.stockQuantity}</span>
-                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">in stock</span>
+                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nodes</span>
               </div>
               <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
                  <motion.div 
@@ -343,7 +343,6 @@ export default function POSPage() {
   const [pendingPrescriptions, setPendingPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
-  const [isCategorySidebarCollapsed, setIsCategorySidebarCollapsed] = useState(true);
   const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
@@ -858,7 +857,7 @@ export default function POSPage() {
         )}
       </div>
 
-    <div className="flex flex-col lg:flex-row h-[calc(100dvh-64px)] -mx-3 sm:-mx-6 md:-mx-8 -my-4 sm:-my-6 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30 w-[calc(100%+1.5rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)]">
+    <div className="flex flex-col lg:flex-row h-[calc(100dvh-4rem)] -mx-3 sm:-mx-6 md:-mx-8 -my-4 sm:-my-6 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30 w-[calc(100%+1.5rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)]">
       
       {/* Category Sidebar */}
       <CategorySidebar 
@@ -868,7 +867,7 @@ export default function POSPage() {
       />
 
       {/* Central Asset Index (Left/Center Side) */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 relative z-10 overflow-hidden border-r border-slate-200 dark:border-slate-800">
+      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 lg:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
         <header className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative overflow-hidden bg-white dark:bg-slate-900">
           
           {/* Animated background layer */}
@@ -1118,7 +1117,7 @@ export default function POSPage() {
            ) : (
              <motion.div 
                initial={false}
-               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3.5 mt-2 pb-24"
+               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-3 2xl:grid-cols-5 gap-4 sm:gap-8 mt-4 pb-20"
              >
                 <AnimatePresence mode="popLayout">
                   {filteredProducts?.map((p) => (
@@ -1132,7 +1131,7 @@ export default function POSPage() {
 
       {/* The Intelligence Ledger (Cart) */}
       <div className={cn(
-        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl lg:w-[320px] xl:w-[360px] 2xl:w-[420px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
+        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl xl:w-[480px] 2xl:w-[550px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
         isCartVisible ? "h-[90vh] xl:h-full translate-y-0" : "h-[90px] xl:h-full translate-y-0"
       )}>
         {/* Cart Header (Mobile Toggle & Actions) */}
@@ -1357,32 +1356,41 @@ export default function POSPage() {
       
       {/* SECURE CHECKOUT MODAL */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-2xl sm:rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[92vh] flex flex-col">
-            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-black p-3.5 sm:p-5 text-white relative overflow-hidden shrink-0 border-b border-white/10">
-               <div className="relative z-10 flex items-center justify-between gap-3">
-                  <div>
-                     <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Final Checkout</span>
-                        <span className="text-slate-500">•</span>
-                        <span className="text-[10px] font-bold text-slate-300">{cart.length} {cart.length === 1 ? "Item" : "Items"}</span>
-                     </div>
-                     <h3 className="text-lg sm:text-2xl font-[1000] tracking-tight uppercase italic leading-tight text-white mt-0.5">
-                        Total Due: <span className="text-indigo-400">Le {Math.round(grandTotal).toLocaleString()}</span>
-                     </h3>
+        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem] sm:rounded-[4rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[95vh] flex flex-col">
+            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-6 sm:p-10 text-white relative overflow-hidden shrink-0 border-b border-white/5">
+               <div className="absolute -top-20 -right-20 h-64 w-64 bg-indigo-500/20 rounded-full blur-[80px]" />
+               <div className="absolute top-10 left-10 h-32 w-32 bg-blue-500/10 rounded-full blur-[50px]" />
+               <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
+               
+               <div className="relative z-10 space-y-3">
+                  <div className="flex items-center gap-3">
+                     <Badge variant="outline" className="bg-white/5 border-white/10 text-indigo-300 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em] backdrop-blur-md">Secure Checkout</Badge>
+                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
                   </div>
-                  <Button
-                     type="button"
-                     variant="ghost"
-                     size="icon"
-                     onClick={() => setIsCheckoutOpen(false)}
-                     className="h-8 w-8 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 shrink-0 cursor-pointer"
-                  >
-                     <X className="h-4 w-4" />
-                  </Button>
+                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-xl">
+                     Final <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Checkout</span>
+                  </h3>
+                  <div className="flex items-center gap-4 pt-4 sm:pt-6">
+                     <div className="flex -space-x-4 drop-shadow-2xl">
+                        {cart.slice(0, 3).map((item, i) => (
+                           <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-slate-800 overflow-hidden shadow-2xl relative ring-2 ring-white/10">
+                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-white/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                           </div>
+                        ))}
+                        {cart.length > 3 && (
+                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl ring-2 ring-white/10">+{cart.length - 3}</div>
+                        )}
+                     </div>
+                     <div className="h-8 w-px bg-white/10" />
+                     <div className="flex flex-col">
+                        <span className="text-xs font-black text-white tracking-widest uppercase">{cart.length} Items in Cart</span>
+                        <span className="text-[10px] font-bold text-indigo-200/70 uppercase tracking-widest mt-1">Ready for payment processing</span>
+                     </div>
+                  </div>
                </div>
             </div>
 
-            <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
+            <div className="p-6 sm:p-10 space-y-8 sm:space-y-12 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
                {/* Customer Node Selection */}
                <div className="space-y-4 sm:space-y-5">
                   {cartRequiresPrescription && (
@@ -1422,7 +1430,7 @@ export default function POSPage() {
                      <button onClick={() => setIsNewCustomerOpen(true)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Customer</button>
                   </div>
                   <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
-                    <SelectTrigger className="h-12 sm:h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold text-xs sm:text-sm tracking-wide shadow-sm">
+                    <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-sm">
                       <SelectValue placeholder="Select Customer" />
                     </SelectTrigger>
                     <SelectContent className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-2xl p-2">
@@ -1457,7 +1465,7 @@ export default function POSPage() {
                            if (m.id !== 'CREDIT') setCreditAmountPaid("");
                          }}
                          className={cn(
-                           "flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 active:scale-95 relative group overflow-hidden cursor-pointer",
+                           "flex flex-col items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all duration-300 active:scale-95 relative group overflow-hidden",
                            paymentMethod === m.id 
                              ? m.active + " scale-105 z-10" 
                              : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 " + m.bg
@@ -1657,7 +1665,7 @@ export default function POSPage() {
                </div>
 
                {/* Settlement Stats Analytics */}
-               <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-black text-white shadow-xl border border-white/10 relative overflow-hidden group">
+               <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br from-slate-900 to-black text-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
                      <TrendingUp size={180} />
                   </div>
@@ -1686,36 +1694,43 @@ export default function POSPage() {
                      {paymentMethod === 'CREDIT' && (parseFloat(creditAmountPaid) || 0) > 0 && (
                        <div className="flex justify-between items-center pt-3 border-t border-white/10">
                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em]">Upfront Collected</span>
-                        <span className="text-xl font-[1000] text-emerald-400 tracking-tighter drop-shadow-md">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
+                         <span className="text-xl font-[1000] text-emerald-400 tracking-tighter drop-shadow-md">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
                        </div>
                      )}
                   </div>
                </div>
             </div>
 
-            <div className="p-3.5 sm:p-5 flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-4 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-200 dark:border-slate-800 shadow-lg">
+            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 dark:border-slate-800">
+               <div className="flex items-center gap-2 text-slate-400">
+                  <ShieldCheck size={14} className="text-emerald-500" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">End-to-End Encryption</span>
+               </div>
+               <div className="flex items-center gap-2 text-slate-400">
+                  <CheckCircle2 size={14} className="text-blue-500" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Guaranteed Secure</span>
+               </div>
+               <div className="flex items-center gap-2 text-slate-400 hidden sm:flex">
+                  <Clock size={14} className="text-indigo-500" />
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Real-time Sync</span>
+               </div>
+            </div>
+
+            <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-100 dark:border-slate-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
                <Button 
-                  type="button"
                   variant="outline" 
-                  className="w-full sm:w-1/3 h-12 sm:h-14 rounded-xl sm:rounded-2xl font-bold uppercase text-xs tracking-wider text-slate-500 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer"
+                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-500 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
                   onClick={() => setIsCheckoutOpen(false)}
                >
                   Cancel
                </Button>
                <Button 
-                  type="button"
                   onClick={handleCheckout} 
                   disabled={loading}
-                  className="w-full sm:w-2/3 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase text-xs sm:text-sm tracking-wider shadow-lg shadow-indigo-600/30 hover:scale-[1.01] disabled:opacity-50 transition-all cursor-pointer"
+                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-[0_10px_40px_rgba(79,70,229,0.4)] hover:shadow-[0_15px_50px_rgba(79,70,229,0.6)] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 bg-[length:200%_auto] animate-gradient"
                >
-                  {loading ? (
-                    <span className="flex items-center gap-2">
-                       <RefreshCw className="h-4 w-4 animate-spin" /> Processing Sale...
-                    </span>
-                  ) : (
-                    <span className="flex items-center justify-center gap-2 drop-shadow-md">
-                       Complete Checkout • Le {Math.round(grandTotal).toLocaleString()} <ArrowRight className="h-4 w-4" />
-                    </span>
+                  {loading ? <RefreshCw className="animate-spin" /> : (
+                    <span className="flex items-center gap-3 drop-shadow-md">Complete Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" /></span>
                   )}
                </Button>
             </div>

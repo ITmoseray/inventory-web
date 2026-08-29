@@ -1,97 +1,58 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { LayoutGrid, Package, ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { LayoutGrid, Package } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface CategorySidebarProps {
   categories: any[];
   selectedCategory: string | null;
   onSelectCategory: (id: string | null) => void;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
 }
 
-export function CategorySidebar({ 
-  categories, 
-  selectedCategory, 
-  onSelectCategory,
-  isCollapsed = true,
-  onToggleCollapse
-}: CategorySidebarProps) {
+export function CategorySidebar({ categories, selectedCategory, onSelectCategory }: CategorySidebarProps) {
   return (
-    <div className={cn(
-      "hidden lg:flex flex-col h-full bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-white/10 shrink-0 z-20 shadow-sm transition-all duration-300",
-      isCollapsed ? "w-[60px]" : "w-[200px] xl:w-[230px]"
-    )}>
-      <div className={cn(
-        "p-3 border-b border-slate-100 dark:border-white/10 shrink-0 flex items-center",
-        isCollapsed ? "justify-center" : "justify-between"
-      )}>
-        {!isCollapsed && (
-          <div className="min-w-0">
-            <h2 className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">Categories</h2>
-          </div>
-        )}
-        {onToggleCollapse && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onToggleCollapse}
-            className="h-7 w-7 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer shrink-0"
-            title={isCollapsed ? "Expand Categories" : "Collapse Categories"}
-          >
-            {isCollapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
-          </Button>
-        )}
+    <div className="hidden lg:flex flex-col w-[260px] xl:w-[280px] h-full bg-white dark:bg-[#0F172A] border-r border-slate-100 dark:border-white/10 shrink-0 z-20 shadow-sm">
+      <div className="p-6 border-b border-slate-100 dark:border-white/10 shrink-0">
+         <h2 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Categories</h2>
+         <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">Filter Assets</p>
       </div>
-
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-1.5 space-y-1">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-2">
         <button
-          type="button"
           onClick={() => onSelectCategory(null)}
-          title="All Items"
           className={cn(
-            "w-full flex items-center rounded-xl transition-all duration-200 text-left cursor-pointer",
-            isCollapsed ? "justify-center p-2" : "gap-2.5 p-2.5",
+            "w-full flex items-center gap-3 p-4 rounded-2xl transition-all duration-300 relative group text-left",
             selectedCategory === null 
-              ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20" 
+              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
               : "text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
           )}
         >
           <div className={cn(
-            "h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-            selectedCategory === null ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+            selectedCategory === null ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300"
           )}>
-            <LayoutGrid size={14} />
+            <LayoutGrid size={18} />
           </div>
-          {!isCollapsed && (
-            <span className="text-[11px] font-black uppercase tracking-wider truncate">All Items</span>
-          )}
+          <span className="text-xs font-black uppercase tracking-wider">All Channels</span>
         </button>
 
         {categories?.map((cat) => (
           <button
             key={cat.id}
-            type="button"
             onClick={() => onSelectCategory(cat.id)}
-            title={cat.name}
             className={cn(
-              "w-full flex items-center rounded-xl transition-all duration-200 text-left cursor-pointer",
-              isCollapsed ? "justify-center p-2" : "gap-2.5 p-2.5",
+              "w-full flex items-center gap-3 p-4 rounded-2xl transition-all duration-300 relative group text-left",
               selectedCategory === cat.id 
-                ? "bg-indigo-600 text-white shadow-sm shadow-indigo-600/20" 
+                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
                 : "text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5 hover:text-slate-900 dark:hover:text-white"
             )}
           >
             <div className={cn(
-              "h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-colors",
-              selectedCategory === cat.id ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+              "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-colors",
+              selectedCategory === cat.id ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-400 group-hover:text-slate-700 dark:group-hover:text-slate-300"
             )}>
-              <Package size={14} />
+              <Package size={18} />
             </div>
-            {!isCollapsed && (
-              <span className="text-[11px] font-black uppercase tracking-wider truncate">{cat.name}</span>
-            )}
+            <span className="text-xs font-black uppercase tracking-wider truncate">{cat.name}</span>
           </button>
         ))}
       </div>
