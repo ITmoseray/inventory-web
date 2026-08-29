@@ -1134,62 +1134,71 @@ export default function POSPage() {
         "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl xl:w-[480px] 2xl:w-[550px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
         isCartVisible ? "h-[90vh] xl:h-full translate-y-0" : "h-[90px] xl:h-full translate-y-0"
       )}>
-        {/* Cart Header (Mobile Toggle) */}
+        {/* Cart Header (Mobile Toggle & Actions) */}
         <div 
-          className="h-[90px] px-6 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer xl:cursor-default bg-transparent z-10"
+          className="h-[80px] sm:h-[90px] px-3 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer xl:cursor-default bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md z-10"
           onClick={() => !isCartVisible && setIsCartVisible(true)}
         >
-           <div className="flex items-center gap-5">
-              <div className="relative group">
-                 <div className={cn("h-14 w-14 rounded-[1.5rem] flex items-center justify-center shadow-2xl transition-all duration-500", cart.length > 0 ? "bg-primary text-white dark:text-primary-foreground scale-110" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
-                   <Receipt className="h-7 w-7" />
+           <div className="flex items-center gap-2.5 sm:gap-5 min-w-0">
+              <div className="relative group shrink-0">
+                 <div className={cn("h-11 w-11 sm:h-14 sm:w-14 rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center shadow-xl transition-all duration-300", cart.length > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
+                   <Receipt className="h-5 w-5 sm:h-7 sm:w-7" />
                  </div>
                  {cart.length > 0 && (
-                   <span className="absolute -top-2 -right-2 h-7 w-7 rounded-xl bg-slate-900 dark:bg-indigo-600 text-white dark:text-white text-[11px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-lg">
+                   <span className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 h-5 min-w-[20px] sm:h-7 sm:w-7 px-1 rounded-full sm:rounded-xl bg-slate-900 dark:bg-indigo-600 text-white text-[9px] sm:text-[11px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-lg">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                    </span>
                  )}
               </div>
-              <div>
-                 <h2 className="text-xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Current <span className="text-primary">Sale</span></h2>
-                 <div className="flex items-center gap-2 mt-1.5">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Active Cart Items</p>
+              <div className="min-w-0">
+                 <h2 className="text-base sm:text-xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none truncate">
+                   Current <span className="text-indigo-600 dark:text-indigo-400">Sale</span>
+                 </h2>
+                 <div className="flex items-center gap-1.5 mt-1">
+                    <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-wider">
+                      {cart.length} {cart.length === 1 ? "Item" : "Items"}
+                    </p>
+                    <span className="text-slate-300 dark:text-slate-700 sm:hidden">•</span>
+                    <span className="text-[10px] sm:hidden font-black text-slate-900 dark:text-white">
+                      Le {Math.round(total).toLocaleString()}
+                    </span>
                  </div>
               </div>
            </div>
            
-           <div className="flex items-center gap-4">
+           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Desktop Total Display */}
               <div className="text-right mr-2 hidden sm:block">
                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Current Total</p>
-                 <p className="text-2xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(total).toLocaleString()}</p>
+                 <p className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(total).toLocaleString()}</p>
               </div>
+
+              {/* Drafts Queue Button */}
               <Button 
                 variant="ghost" 
-                className="xl:hidden h-12 w-12 rounded-2xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-primary transition-all"
+                size="icon"
+                className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative cursor-pointer"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setIsCartVisible(!isCartVisible);
+                  setIsDraftsModalOpen(true);
                 }}
-              >
-                <ChevronDown className={cn("transition-transform duration-500", isCartVisible ? "" : "rotate-180")} size={24} />
-              </Button>
-              <Button 
-                variant="ghost" 
-                className="flex h-12 w-12 rounded-2xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative"
-                onClick={() => setIsDraftsModalOpen(true)}
                 title="View Drafts Queue"
               >
-                <History size={24} />
+                <History className="h-4 w-4 sm:h-5 sm:w-5" />
                 {drafts.length > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-500 text-white text-[10px] font-black flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-indigo-500 text-white text-[8px] sm:text-[9px] font-black flex items-center justify-center">
                     {drafts.length}
                   </span>
                 )}
               </Button>
+
+              {/* Hold Cart Button */}
               <Button 
                 variant="ghost" 
-                className="flex h-12 w-12 rounded-2xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all"
-                onClick={() => {
+                size="icon"
+                className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (currentDraftId) {
                     toast.success("Draft is automatically saving.");
                   } else {
@@ -1199,18 +1208,37 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 title="Hold Active Cart"
               >
-                <Save size={24} />
+                <Save className="h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
+
+              {/* Clear Active Cart Button (Prominent & Visible Everywhere) */}
               <Button 
                 variant="ghost" 
-                className="flex h-12 w-12 rounded-2xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all"
-                onClick={() => {
+                className="h-9 px-2 sm:h-11 sm:px-3 rounded-xl text-rose-500 hover:text-rose-600 bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 transition-all flex items-center gap-1 cursor-pointer font-bold text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
                   if (currentDraftId) deleteDraft(currentDraftId).then(() => fetchDrafts());
                   clearCart();
+                  toast.success("Cart cleared.");
                 }}
-                title="Clear Active Cart"
+                disabled={cart.length === 0}
+                title="Clear all active items from cart"
               >
-                <Trash2 size={24} />
+                <Trash2 className="h-4 w-4" />
+                <span className="hidden xs:inline sm:inline text-[11px] font-black uppercase">Clear</span>
+              </Button>
+
+              {/* Mobile Drawer Chevron Toggle */}
+              <Button 
+                variant="outline" 
+                className="xl:hidden h-9 px-2 sm:h-11 sm:px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-all border-slate-200 dark:border-slate-700 cursor-pointer font-black text-xs gap-1"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCartVisible(!isCartVisible);
+                }}
+              >
+                <span className="text-[10px] uppercase sm:inline hidden">{isCartVisible ? "Close" : "Open"}</span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isCartVisible ? "" : "rotate-180")} />
               </Button>
            </div>
         </div>
@@ -1277,10 +1305,12 @@ export default function POSPage() {
                         </div>
                     </div>
                     <button 
+                       type="button"
                        onClick={() => removeItem(item.id)} 
-                       className="absolute top-4 right-4 text-slate-200 hover:text-rose-500 transition-all opacity-0 group-hover:opacity-100 translate-x-2 group-hover:translate-x-0"
+                       className="absolute top-3 right-3 sm:top-4 sm:right-4 h-8 w-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-950/50 transition-all opacity-100 flex items-center justify-center shadow-sm cursor-pointer z-10"
+                       title="Remove this product"
                     >
-                       <X size={20} />
+                       <X size={18} />
                     </button>
                  </motion.div>
                ))
@@ -1289,23 +1319,26 @@ export default function POSPage() {
         </div>
 
         {/* Professional Settlement Summary */}
-        <div className="p-8 sm:p-12 bg-white/50 dark:bg-slate-900/50 backdrop-blur-md border-t border-slate-100 dark:border-white/10 space-y-10 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.05)] xl:rounded-bl-[4rem]">
-           <div className="space-y-4">
-              <div className="flex justify-between items-center group">
-                 <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] group-hover:text-primary transition-colors">Subtotal</span>
-                 <span className="text-sm font-[1000] text-slate-700 dark:text-slate-300 tracking-tighter">Le {Math.round(total).toLocaleString()}</span>
+        <div className="p-4 sm:p-8 xl:p-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 space-y-4 sm:space-y-6 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.08)] xl:rounded-bl-[3rem]">
+           <div className="space-y-2 sm:space-y-4">
+              <div className="flex justify-between items-center text-xs sm:text-sm">
+                 <span className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
+                 <span className="text-xs sm:text-sm font-[1000] text-slate-700 dark:text-slate-300">Le {Math.round(total).toLocaleString()}</span>
               </div>
             
-              <div className="h-px bg-slate-50 dark:bg-slate-800 w-full my-6" />
+              <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
               <div className="flex justify-between items-end relative">
-                 <div className="absolute -left-4 top-1/2 -translate-y-1/2 w-1.5 h-12 bg-primary rounded-full hidden sm:block" />
                  <div>
-                    <p className="text-[11px] font-black text-primary uppercase tracking-[0.4em] leading-none mb-3">Grand Total</p>
-                    <p className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">Le {Math.round(grandTotal).toLocaleString()}</p>
+                    <p className="text-[10px] sm:text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em] leading-none mb-1.5 sm:mb-2">Grand Total</p>
+                    <p className="text-2xl sm:text-4xl xl:text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">
+                       Le {Math.round(grandTotal).toLocaleString()}
+                    </p>
                  </div>
-                 <div className="flex flex-col items-end gap-3">
-                    <div className="h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.8)]" />
-                    <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Ready to Checkout</span>
+                 <div className="flex flex-col items-end gap-1">
+                    <div className="flex items-center gap-1.5">
+                       <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                       <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Ready to Pay</span>
+                    </div>
                  </div>
               </div>
            </div>
@@ -1313,9 +1346,10 @@ export default function POSPage() {
            <Button 
               onClick={() => setIsCheckoutOpen(true)}
               disabled={cart.length === 0}
-               className="w-full h-20 sm:h-24 rounded-[2.5rem] bg-slate-900 text-white dark:bg-indigo-600 dark:text-white font-[1000] text-xs sm:text-sm uppercase tracking-[0.4em] shadow-2xl hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full h-14 sm:h-18 xl:h-20 rounded-2xl sm:rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-[1000] text-xs sm:text-sm xl:text-base uppercase tracking-[0.2em] sm:tracking-[0.3em] shadow-xl shadow-indigo-600/30 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2 sm:gap-3"
            >
-              Proceed to Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" />
+              <span>Proceed to Checkout</span>
+              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
            </Button>
         </div>
       </div>
