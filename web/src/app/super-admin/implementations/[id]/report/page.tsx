@@ -62,41 +62,43 @@ export default function ImplementationReportPage({
     load();
   }, [id]);
 
-  // Generate & Download PDF file
+  // Generate & Download PDF file using dom-to-image-more (supports modern CSS lab/oklch colors natively)
   const handleDownloadPDF = async () => {
     if (!reportRef.current || !record) return;
     setDownloadingPdf(true);
     const toastId = toast.loading("Compiling official PDF report...");
 
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      const jsPDF = (await import("jspdf")).default;
+      // @ts-ignore
+      const domtoimage = (await import("dom-to-image-more")).default;
+      const { jsPDF } = await import("jspdf");
 
       const el = reportRef.current;
-      const canvas = await html2canvas(el, {
+      const dataUrl = await domtoimage.toPng(el, {
+        quality: 0.98,
+        bgcolor: "#ffffff",
         scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
       });
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-
-      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pdf = new jsPDF("p", "mm", "a4");
+      const imgProps = pdf.getImageProperties(dataUrl);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      if (imgHeight <= pageHeight) {
-        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
-      } else {
-        let y = 0;
-        while (y < imgHeight) {
-          pdf.addImage(imgData, "PNG", 0, -y, imgWidth, imgHeight);
-          y += pageHeight;
-          if (y < imgHeight) pdf.addPage();
-        }
+      let heightLeft = pdfHeight;
+      let position = 0;
+
+      // Add first page
+      pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, pdfHeight);
+      heightLeft -= pageHeight;
+
+      // Add subsequent pages if content spans across multiple A4 pages
+      while (heightLeft >= 0) {
+        position = heightLeft - pdfHeight;
+        pdf.addPage();
+        pdf.addImage(dataUrl, "PNG", 0, position, pdfWidth, pdfHeight);
+        heightLeft -= pageHeight;
       }
 
       const clientClean = (record.clientName || record.business?.name || "Client").replace(/[^a-zA-Z0-9]/g, "_");
@@ -104,8 +106,11 @@ export default function ImplementationReportPage({
       pdf.save(filename);
       toast.success("PDF report downloaded successfully!", { id: toastId });
     } catch (e: any) {
-      console.error("PDF generation failed:", e);
-      toast.error("Failed to generate PDF: " + (e.message || "Unknown error"), { id: toastId });
+      console.error("PDF generation failed via dom-to-image, falling back to print dialog:", e);
+      toast.error("Opening system Print/PDF dialog as fallback...", { id: toastId });
+      setTimeout(() => {
+        window.print();
+      }, 500);
     } finally {
       setDownloadingPdf(false);
     }
