@@ -1086,38 +1086,54 @@ export default function POSPage() {
                  <span className="hidden sm:inline text-[8px] font-black text-slate-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors">Tap to Scan</span>
               </div>
            </div>
-           {/* Mobile Category Select */}
-           <div className="lg:hidden pb-4">
-              <Select value={selectedCategory || "all"} onValueChange={(val) => setSelectedCategory(val === "all" ? null : val)}>
-                <SelectTrigger className="w-full h-12 rounded-xl bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700">
-                  <SelectValue placeholder="Select Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories?.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+           {/* Mobile / Tablet Horizontal Category Pills */}
+           <div className="lg:hidden flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2 -mx-1 px-1">
+              <button
+                onClick={() => setSelectedCategory(null)}
+                className={cn(
+                  "px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0",
+                  selectedCategory === null
+                    ? "bg-primary text-white shadow-md shadow-primary/25 scale-[1.02]"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                )}
+              >
+                <LayoutGrid size={13} />
+                <span>All Assets</span>
+              </button>
+              {categories?.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={cn(
+                    "px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0",
+                    selectedCategory === cat.id
+                      ? "bg-primary text-white shadow-md shadow-primary/25 scale-[1.02]"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                  )}
+                >
+                  <Package size={13} />
+                  <span>{cat.name}</span>
+                </button>
+              ))}
            </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 pb-48 xl:pb-10 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
+        <div className="flex-1 overflow-y-auto px-3 sm:px-5 lg:px-6 pb-36 lg:pb-8 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
            {filteredProducts?.length === 0 ? (
-             <div className="h-full flex flex-col items-center justify-center text-center p-12 space-y-8">
-                <div className="h-32 w-32 bg-white dark:bg-slate-900 rounded-[3rem] flex items-center justify-center shadow-2xl border border-slate-50 dark:border-slate-800 relative overflow-hidden">
+             <div className="h-full flex flex-col items-center justify-center text-center p-8 sm:p-12 space-y-6">
+                <div className="h-24 w-24 sm:h-32 sm:w-32 bg-white dark:bg-slate-900 rounded-[2.5rem] flex items-center justify-center shadow-2xl border border-slate-50 dark:border-slate-800 relative overflow-hidden">
                    <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-                   <Package className="h-12 w-12 text-slate-100 dark:text-slate-800 animate-pulse relative z-10" />
+                   <Package className="h-10 w-10 sm:h-12 sm:w-12 text-slate-100 dark:text-slate-800 animate-pulse relative z-10" />
                 </div>
-                <div className="space-y-3">
-                   <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Deficit</h3>
-                   <p className="text-[10px] text-slate-400 font-[1000] uppercase tracking-[0.3em] max-w-[280px] leading-relaxed">No asset signatures match your current query in the Africa trade vault</p>
+                <div className="space-y-2">
+                   <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Intelligence Deficit</h3>
+                   <p className="text-[10px] text-slate-400 font-[1000] uppercase tracking-[0.3em] max-w-[280px] leading-relaxed">No asset signatures match your current query</p>
                 </div>
              </div>
            ) : (
              <motion.div 
                initial={false}
-               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-3 2xl:grid-cols-5 gap-4 sm:gap-8 mt-4 pb-20"
+               className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5 mt-2 pb-16"
              >
                 <AnimatePresence mode="popLayout">
                   {filteredProducts?.map((p) => (
@@ -1231,7 +1247,7 @@ export default function POSPage() {
               {/* Mobile Drawer Chevron Toggle */}
               <Button 
                 variant="outline" 
-                className="xl:hidden h-9 px-2 sm:h-11 sm:px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-all border-slate-200 dark:border-slate-700 cursor-pointer font-black text-xs gap-1"
+                className="lg:hidden h-9 px-2 sm:h-11 sm:px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-all border-slate-200 dark:border-slate-700 cursor-pointer font-black text-xs gap-1"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsCartVisible(!isCartVisible);
