@@ -1391,7 +1391,7 @@ export default function POSPage() {
                </div>
             </div>
 
-            <div className="p-6 sm:p-10 space-y-8 sm:space-y-12 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
+            <div className="p-3.5 sm:p-6 space-y-4 sm:space-y-6 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
                {/* Customer Node Selection */}
                <div className="space-y-4 sm:space-y-5">
                   {cartRequiresPrescription && (
@@ -1431,7 +1431,7 @@ export default function POSPage() {
                      <button onClick={() => setIsNewCustomerOpen(true)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Customer</button>
                   </div>
                   <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
-                    <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-sm">
+                    <SelectTrigger className="h-12 sm:h-14 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold text-xs sm:text-sm tracking-wide shadow-sm">
                       <SelectValue placeholder="Select Customer" />
                     </SelectTrigger>
                     <SelectContent className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-2xl p-2">
@@ -1466,7 +1466,7 @@ export default function POSPage() {
                            if (m.id !== 'CREDIT') setCreditAmountPaid("");
                          }}
                          className={cn(
-                           "flex flex-col items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all duration-300 active:scale-95 relative group overflow-hidden",
+                           "flex flex-col items-center justify-center gap-2 sm:gap-3 p-3 sm:p-4 rounded-2xl border-2 transition-all duration-200 active:scale-95 relative group overflow-hidden cursor-pointer",
                            paymentMethod === m.id 
                              ? m.active + " scale-105 z-10" 
                              : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 " + m.bg
@@ -1666,7 +1666,7 @@ export default function POSPage() {
                </div>
 
                {/* Settlement Stats Analytics */}
-               <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br from-slate-900 to-black text-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group">
+               <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-900 to-black text-white shadow-xl border border-white/10 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
                      <TrendingUp size={180} />
                   </div>
