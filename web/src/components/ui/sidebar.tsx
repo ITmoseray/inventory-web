@@ -285,7 +285,7 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           "relative bg-transparent transition-[width] duration-300 ease-in-out shrink-0",
-          isPinned ? "w-[16rem]" : "w-[4.75rem]"
+          isExpanded ? "w-[16rem]" : "w-[4.75rem]"
         )}
       />
       
@@ -305,7 +305,7 @@ function Sidebar({
         <div
           data-sidebar="sidebar"
           data-slot="sidebar-inner"
-          className="flex size-full flex-col bg-sidebar/90 backdrop-blur-2xl overflow-hidden"
+          className="flex size-full flex-col bg-sidebar overflow-hidden"
           style={{ ...sidebarStyle }}
         >
           {children}
