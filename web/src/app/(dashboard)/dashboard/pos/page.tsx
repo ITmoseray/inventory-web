@@ -343,6 +343,7 @@ export default function POSPage() {
   const [pendingPrescriptions, setPendingPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
+  const [isCategorySidebarCollapsed, setIsCategorySidebarCollapsed] = useState(false);
   const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
