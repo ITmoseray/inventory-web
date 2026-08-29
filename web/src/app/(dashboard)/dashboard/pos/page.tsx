@@ -573,6 +573,11 @@ export default function POSPage() {
             .mx-auto { margin-left: auto; margin-right: auto; }
             .flex-col { flex-direction: column; }
             .items-center { align-items: center; }
+            .shop-name-brand, .text-indigo-600 {
+              color: #4F46E5 !important;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
+            }
           </style>
         </head>
         <body>

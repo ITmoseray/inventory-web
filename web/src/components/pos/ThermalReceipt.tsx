@@ -100,7 +100,12 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
               <img src={logoUrl} alt="Logo" className="h-10 w-10 sm:h-12 sm:w-12 object-contain rounded-full border border-black/20" />
             </div>
           )}
-          <h2 className="text-sm sm:text-base font-bold uppercase break-words px-1">{businessName || "Enterprise OS"}</h2>
+          <h2 
+            className="text-sm sm:text-base font-[1000] uppercase break-words px-1 text-indigo-600 dark:text-indigo-600 shop-name-brand tracking-tight leading-snug"
+            style={{ color: "#4F46E5", WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
+          >
+            {businessName || "Enterprise OS"}
+          </h2>
           {headerTagline && (
             <p className="text-[9.5px] italic font-semibold break-words px-1">{headerTagline}</p>
           )}
