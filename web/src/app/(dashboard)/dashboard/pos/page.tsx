@@ -1131,12 +1131,12 @@ export default function POSPage() {
 
       {/* The Intelligence Ledger (Cart) */}
       <div className={cn(
-        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl xl:w-[480px] 2xl:w-[550px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
-        isCartVisible ? "h-[90vh] xl:h-full translate-y-0" : "h-[90px] xl:h-full translate-y-0"
+        "absolute lg:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl lg:w-[360px] xl:w-[480px] 2xl:w-[550px] shadow-2xl lg:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t lg:border-t-0 lg:border-l border-slate-100 dark:border-white/10 transition-all duration-300 lg:overflow-hidden flex flex-col shrink-0",
+        isCartVisible ? "h-[90dvh] lg:h-full translate-y-0" : "h-[90px] lg:h-full translate-y-0"
       )}>
         {/* Cart Header (Mobile Toggle & Actions) */}
         <div 
-          className="h-[80px] sm:h-[90px] px-3 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer xl:cursor-default bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md z-10"
+          className="h-[80px] sm:h-[90px] px-3 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer lg:cursor-default bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md z-10"
           onClick={() => !isCartVisible && setIsCartVisible(true)}
         >
            <div className="flex items-center gap-2.5 sm:gap-5 min-w-0">

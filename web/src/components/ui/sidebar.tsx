@@ -294,7 +294,7 @@ function Sidebar({
         data-slot="sidebar-container"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 z-50 hidden h-svh transition-[width,box-shadow] duration-300 ease-in-out data-[side=left]:left-0 data-[side=right]:right-0 md:flex border-r border-white/10",
+          "fixed inset-y-0 z-50 hidden h-svh transition-[width,box-shadow] duration-300 ease-in-out data-[side=left]:left-0 data-[side=right]:right-0 md:flex border-r border-slate-200 dark:border-white/10",
           isExpanded
             ? "w-[16rem] shadow-2xl ring-1 ring-black/20"
             : "w-[4.75rem] shadow-sm",
