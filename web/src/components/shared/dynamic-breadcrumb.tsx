@@ -18,7 +18,7 @@ export function DynamicBreadcrumb() {
   const pathname = usePathname();
   const pathSegments = pathname.split("/").filter((segment) => segment !== "");
 
-  if (pathname === "/" || pathname === "/dashboard") {
+  if (pathname === "/" || pathname === "/dashboard" || pathname === "/dashboard/pos") {
     return null;
   }
 

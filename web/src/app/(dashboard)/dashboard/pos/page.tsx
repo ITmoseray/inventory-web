@@ -153,7 +153,7 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
            <div className="flex-1 flex flex-col items-end gap-1.5">
               <div className="flex items-center gap-1.5">
                  <span className={cn("text-[10px] font-black tracking-tighter", isOutOfStock ? "text-rose-600 font-bold" : isLowStock ? "text-rose-500" : "text-slate-700 dark:text-slate-300")}>{p.stockQuantity}</span>
-                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nodes</span>
+                 <span className="text-[8px] font-bold text-slate-400 uppercase tracking-wider">in stock</span>
               </div>
               <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
                  <motion.div 
@@ -343,7 +343,7 @@ export default function POSPage() {
   const [pendingPrescriptions, setPendingPrescriptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [isCartVisible, setIsCartVisible] = useState(false);
-  const [isCategorySidebarCollapsed, setIsCategorySidebarCollapsed] = useState(false);
+  const [isCategorySidebarCollapsed, setIsCategorySidebarCollapsed] = useState(true);
   const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
   const [receiptData, setReceiptData] = useState<any>(null);
@@ -858,7 +858,7 @@ export default function POSPage() {
         )}
       </div>
 
-    <div className="flex flex-col lg:flex-row h-[calc(100vh-64px)] -mx-4 -my-6 md:-mx-8 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30">
+    <div className="flex flex-col lg:flex-row h-[calc(100dvh-64px)] -mx-3 sm:-mx-6 md:-mx-8 -my-4 sm:-my-6 bg-slate-50 dark:bg-[#0F172A] overflow-hidden relative selection:bg-primary/30 w-[calc(100%+1.5rem)] sm:w-[calc(100%+3rem)] md:w-[calc(100%+4rem)]">
       
       {/* Category Sidebar */}
       <CategorySidebar 
@@ -868,7 +868,7 @@ export default function POSPage() {
       />
 
       {/* Central Asset Index (Left/Center Side) */}
-      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 shadow-2xl relative z-10 lg:rounded-r-[4rem] overflow-hidden border-r border-slate-100 dark:border-slate-800">
+      <div className="flex-1 flex flex-col min-h-0 bg-white dark:bg-slate-900 relative z-10 overflow-hidden border-r border-slate-200 dark:border-slate-800">
         <header className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 shrink-0 relative overflow-hidden bg-white dark:bg-slate-900">
           
           {/* Animated background layer */}
@@ -1118,7 +1118,7 @@ export default function POSPage() {
            ) : (
              <motion.div 
                initial={false}
-               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-3 2xl:grid-cols-5 gap-4 sm:gap-8 mt-4 pb-20"
+               className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-2.5 sm:gap-3.5 mt-2 pb-24"
              >
                 <AnimatePresence mode="popLayout">
                   {filteredProducts?.map((p) => (
@@ -1132,7 +1132,7 @@ export default function POSPage() {
 
       {/* The Intelligence Ledger (Cart) */}
       <div className={cn(
-        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl xl:w-[480px] 2xl:w-[550px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
+        "fixed xl:relative bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0F172A]/80 backdrop-blur-2xl lg:w-[320px] xl:w-[360px] 2xl:w-[420px] shadow-2xl xl:shadow-[-20px_0_50px_rgba(0,0,0,0.05)] border-t xl:border-t-0 xl:border-l border-slate-100 dark:border-white/10 transition-all duration-300 xl:overflow-hidden flex flex-col shrink-0",
         isCartVisible ? "h-[90vh] xl:h-full translate-y-0" : "h-[90px] xl:h-full translate-y-0"
       )}>
         {/* Cart Header (Mobile Toggle & Actions) */}
