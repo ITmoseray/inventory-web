@@ -1357,37 +1357,28 @@ export default function POSPage() {
       
       {/* SECURE CHECKOUT MODAL */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem] sm:rounded-[4rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[95vh] flex flex-col">
-            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-6 sm:p-10 text-white relative overflow-hidden shrink-0 border-b border-white/5">
-               <div className="absolute -top-20 -right-20 h-64 w-64 bg-indigo-500/20 rounded-full blur-[80px]" />
-               <div className="absolute top-10 left-10 h-32 w-32 bg-blue-500/10 rounded-full blur-[50px]" />
-               <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-               
-               <div className="relative z-10 space-y-3">
-                  <div className="flex items-center gap-3">
-                     <Badge variant="outline" className="bg-white/5 border-white/10 text-indigo-300 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em] backdrop-blur-md">Secure Checkout</Badge>
-                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                  </div>
-                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-xl">
-                     Final <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Checkout</span>
-                  </h3>
-                  <div className="flex items-center gap-4 pt-4 sm:pt-6">
-                     <div className="flex -space-x-4 drop-shadow-2xl">
-                        {cart.slice(0, 3).map((item, i) => (
-                           <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-slate-800 overflow-hidden shadow-2xl relative ring-2 ring-white/10">
-                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-white/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
-                           </div>
-                        ))}
-                        {cart.length > 3 && (
-                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl ring-2 ring-white/10">+{cart.length - 3}</div>
-                        )}
+        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-2xl sm:rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[92vh] flex flex-col">
+            <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-black p-3.5 sm:p-5 text-white relative overflow-hidden shrink-0 border-b border-white/10">
+               <div className="relative z-10 flex items-center justify-between gap-3">
+                  <div>
+                     <div className="flex items-center gap-2">
+                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">Final Checkout</span>
+                        <span className="text-slate-500">•</span>
+                        <span className="text-[10px] font-bold text-slate-300">{cart.length} {cart.length === 1 ? "Item" : "Items"}</span>
                      </div>
-                     <div className="h-8 w-px bg-white/10" />
-                     <div className="flex flex-col">
-                        <span className="text-xs font-black text-white tracking-widest uppercase">{cart.length} Items in Cart</span>
-                        <span className="text-[10px] font-bold text-indigo-200/70 uppercase tracking-widest mt-1">Ready for payment processing</span>
-                     </div>
+                     <h3 className="text-lg sm:text-2xl font-[1000] tracking-tight uppercase italic leading-tight text-white mt-0.5">
+                        Total Due: <span className="text-indigo-400">Le {Math.round(grandTotal).toLocaleString()}</span>
+                     </h3>
                   </div>
+                  <Button
+                     type="button"
+                     variant="ghost"
+                     size="icon"
+                     onClick={() => setIsCheckoutOpen(false)}
+                     className="h-8 w-8 rounded-xl text-slate-400 hover:text-white hover:bg-white/10 shrink-0 cursor-pointer"
+                  >
+                     <X className="h-4 w-4" />
+                  </Button>
                </div>
             </div>
 
@@ -1695,43 +1686,36 @@ export default function POSPage() {
                      {paymentMethod === 'CREDIT' && (parseFloat(creditAmountPaid) || 0) > 0 && (
                        <div className="flex justify-between items-center pt-3 border-t border-white/10">
                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em]">Upfront Collected</span>
-                         <span className="text-xl font-[1000] text-emerald-400 tracking-tighter drop-shadow-md">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
+                        <span className="text-xl font-[1000] text-emerald-400 tracking-tighter drop-shadow-md">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
                        </div>
                      )}
                   </div>
                </div>
             </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 dark:border-slate-800">
-               <div className="flex items-center gap-2 text-slate-400">
-                  <ShieldCheck size={14} className="text-emerald-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">End-to-End Encryption</span>
-               </div>
-               <div className="flex items-center gap-2 text-slate-400">
-                  <CheckCircle2 size={14} className="text-blue-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Guaranteed Secure</span>
-               </div>
-               <div className="flex items-center gap-2 text-slate-400 hidden sm:flex">
-                  <Clock size={14} className="text-indigo-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Real-time Sync</span>
-               </div>
-            </div>
-
-            <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-100 dark:border-slate-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
+            <div className="p-3.5 sm:p-5 flex flex-col-reverse sm:flex-row gap-2.5 sm:gap-4 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-200 dark:border-slate-800 shadow-lg">
                <Button 
+                  type="button"
                   variant="outline" 
-                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-500 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
+                  className="w-full sm:w-1/3 h-12 sm:h-14 rounded-xl sm:rounded-2xl font-bold uppercase text-xs tracking-wider text-slate-500 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors cursor-pointer"
                   onClick={() => setIsCheckoutOpen(false)}
                >
                   Cancel
                </Button>
                <Button 
+                  type="button"
                   onClick={handleCheckout} 
                   disabled={loading}
-                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-[0_10px_40px_rgba(79,70,229,0.4)] hover:shadow-[0_15px_50px_rgba(79,70,229,0.6)] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 bg-[length:200%_auto] animate-gradient"
+                  className="w-full sm:w-2/3 h-12 sm:h-14 rounded-xl sm:rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase text-xs sm:text-sm tracking-wider shadow-lg shadow-indigo-600/30 hover:scale-[1.01] disabled:opacity-50 transition-all cursor-pointer"
                >
-                  {loading ? <RefreshCw className="animate-spin" /> : (
-                    <span className="flex items-center gap-3 drop-shadow-md">Complete Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" /></span>
+                  {loading ? (
+                    <span className="flex items-center gap-2">
+                       <RefreshCw className="h-4 w-4 animate-spin" /> Processing Sale...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center gap-2 drop-shadow-md">
+                       Complete Checkout • Le {Math.round(grandTotal).toLocaleString()} <ArrowRight className="h-4 w-4" />
+                    </span>
                   )}
                </Button>
             </div>
