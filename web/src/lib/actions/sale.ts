@@ -6,6 +6,62 @@ import { revalidatePath } from "next/cache";
 import { createNotification } from "./notification";
 import { logAudit } from "./audit";
 
+export async function getNextInvoiceNumber(businessId: string, tx: any): Promise<string> {
+  const business = await tx.business.findUnique({
+    where: { id: businessId },
+    select: { name: true, receiptSettings: true }
+  });
+
+  const businessName = business?.name || "";
+  const isTopNotch = businessName.toLowerCase().includes("top notch");
+  
+  let prefix = "INV";
+  const receiptSettings = business?.receiptSettings as any;
+  if (receiptSettings?.invoicePrefix) {
+    prefix = receiptSettings.invoicePrefix.toUpperCase().trim();
+  } else if (isTopNotch) {
+    prefix = "TNSD";
+  } else {
+    const words = businessName.trim().split(/\s+/).filter(Boolean);
+    if (words.length >= 2 && words.length <= 4) {
+      prefix = words.map((w: string) => w[0].toUpperCase()).join("");
+    }
+  }
+
+  const year = new Date().getFullYear();
+  const startOfYear = new Date(year, 0, 1);
+  const endOfYear = new Date(year + 1, 0, 1);
+
+  // Count existing sales for this business in this year
+  const count = await tx.sale.count({
+    where: {
+      businessId,
+      createdAt: {
+        gte: startOfYear,
+        lt: endOfYear,
+      }
+    }
+  });
+
+  let nextSequence = count + 1;
+  let candidate = `${prefix}-${year}-${nextSequence.toString().padStart(4, "0")}`;
+
+  // Ensure uniqueness in case of gaps or manual records
+  let existing = await tx.sale.findUnique({
+    where: { invoiceNumber: candidate }
+  });
+
+  while (existing) {
+    nextSequence++;
+    candidate = `${prefix}-${year}-${nextSequence.toString().padStart(4, "0")}`;
+    existing = await tx.sale.findUnique({
+      where: { invoiceNumber: candidate }
+    });
+  }
+
+  return candidate;
+}
+
 export async function createSale(data: {
   items: { 
     productId?: string; 
@@ -37,10 +93,13 @@ export async function createSale(data: {
 
     // Use a transaction to ensure sale, stock update, and expenses succeed together
     const sale = await prisma.$transaction(async (tx) => {
+      // Generate sequential invoice number (e.g. TNSD-2026-0001)
+      const invoiceNumber = await getNextInvoiceNumber(businessId, tx);
+
       // 1. Create the Sale record
       const newSale = await tx.sale.create({
         data: {
-          invoiceNumber: `INV-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          invoiceNumber,
           totalAmount: data.totalAmount,
           paymentMethod: data.paymentMethod,
           splitPayments: data.splitPayments ? JSON.parse(JSON.stringify(data.splitPayments)) : null,

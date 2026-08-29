@@ -527,8 +527,8 @@ export default function BusinessSettingsPage() {
                       paymentMethod="CASH"
                       cashierName="John Tucker"
                       customerName="Melina Tamba"
-                      transactionId="INV-2026-0089"
-                      businessName={formData.name || "Top Notch Drinks Closet"}
+                      transactionId={formData.name?.toLowerCase().includes("top notch") ? "TNSD-2026-0001" : "INV-2026-0001"}
+                      businessName={formData.name || "Top Notch Sales & Distribution"}
                       businessAddress={formData.address || "17 Wilkinson road, Freetown"}
                       businessPhone={formData.phone || "+232 79 373838"}
                       businessSecondaryPhone={formData.secondaryPhone || undefined}

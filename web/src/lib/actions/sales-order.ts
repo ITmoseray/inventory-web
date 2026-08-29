@@ -361,8 +361,9 @@ export async function convertSalesOrderToInvoice(id: string) {
   }
 
   const result = await prisma.$transaction(async (tx) => {
-    // 1. Create the Sale (Invoice)
-    const invoiceNumber = `INV-SO-${Date.now()}`;
+    // 1. Create the Sale (Invoice) with orderly sequential number (e.g. TNSD-2026-0001)
+    const { getNextInvoiceNumber } = await import("./sale");
+    const invoiceNumber = await getNextInvoiceNumber(businessId, tx);
     const sale = await tx.sale.create({
       data: {
         invoiceNumber,
