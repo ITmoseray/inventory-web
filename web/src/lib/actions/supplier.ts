@@ -58,7 +58,15 @@ export async function getSupplierDetails(supplierId: string) {
     include: {
       purchases: {
         where: { deletedAt: null },
-        include: { items: { include: { product: { select: { name: true } } } } },
+        include: { 
+          items: { 
+            include: { 
+              product: { 
+                select: { id: true, name: true, sku: true, stockQuantity: true, baseUnit: true } 
+              } 
+            } 
+          } 
+        },
         orderBy: { createdAt: "desc" },
       },
       payments: {

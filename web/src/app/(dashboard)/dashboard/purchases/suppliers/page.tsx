@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Plus, Search, ChevronRight, Pencil, Trash2, Phone, Mail, MapPin,
   Wallet, TrendingUp, AlertTriangle, Building2, MoreVertical, Eye,
-  RefreshCw,
+  RefreshCw, Package
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -243,13 +243,18 @@ export default function SuppliersPage() {
                         <MoreVertical className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-xl w-44">
+                    <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 dark:border-slate-800 shadow-xl w-48">
                       <DropdownMenuItem asChild>
-                        <Link href={`/dashboard/purchases/suppliers/${s.id}`} className="gap-2 font-semibold cursor-pointer">
-                          <Eye className="h-4 w-4" /> View Profile
+                        <Link href={`/dashboard/purchases/suppliers/${s.id}`} className="gap-2 font-semibold cursor-pointer text-indigo-600">
+                          <Eye className="h-4 w-4" /> View Goods &amp; Profile
                         </Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => openEdit(s)} className="gap-2 font-semibold">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/dashboard/purchases/suppliers/${s.id}`} className="gap-2 font-semibold cursor-pointer">
+                          <Package className="h-4 w-4" /> Record Goods Intake
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => openEdit(s)} className="gap-2 font-semibold cursor-pointer">
                         <Pencil className="h-4 w-4" /> Edit
                       </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => setDeleteModal({ open: true, id: s.id, name: s.name })} className="gap-2 font-semibold text-rose-500 focus:text-rose-500 cursor-pointer">
@@ -302,8 +307,8 @@ export default function SuppliersPage() {
 
                 {/* CTA */}
                 <Link href={`/dashboard/purchases/suppliers/${s.id}`} className="mt-3 block">
-                  <Button variant="ghost" className="w-full h-10 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20">
-                    View Full Profile <ChevronRight className="h-4 w-4" />
+                  <Button variant="ghost" className="w-full h-10 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 cursor-pointer">
+                    <Package className="h-3.5 w-3.5" /> View Goods &amp; Profile <ChevronRight className="h-4 w-4" />
                   </Button>
                 </Link>
               </motion.div>

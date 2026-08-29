@@ -9,7 +9,12 @@ export async function createPurchase(data: {
   supplierId?: string;
   items: { productId: string; unitId?: string; quantity: number; unitCost: number; total: number }[];
   totalAmount: number;
+  paidAmount?: number;
+  paymentStatus?: "PAID" | "PARTIAL" | "UNPAID";
+  paymentMethod?: string;
   invoiceNumber?: string;
+  dueDate?: string;
+  notes?: string;
 }) {
   try {
     const session = await auth();
@@ -19,12 +24,18 @@ export async function createPurchase(data: {
     const userId = session.user.id;
 
     const purchase = await prisma.$transaction(async (tx) => {
+      const initialPaid = data.paidAmount !== undefined ? data.paidAmount : (data.paymentStatus === "PAID" ? data.totalAmount : 0);
+      const initialStatus = data.paymentStatus || (initialPaid >= data.totalAmount ? "PAID" : initialPaid > 0 ? "PARTIAL" : "UNPAID");
+
       // 1. Create the Purchase record
       const newPurchase = await tx.purchase.create({
         data: {
           invoiceNumber: data.invoiceNumber || `PUR-${Date.now()}`,
           totalAmount: data.totalAmount,
-          supplierId: data.supplierId,
+          paidAmount: initialPaid,
+          paymentStatus: initialStatus,
+          dueDate: data.dueDate ? new Date(data.dueDate) : null,
+          supplierId: data.supplierId || null,
           businessId: businessId,
           userId: userId,
           items: {
@@ -39,6 +50,22 @@ export async function createPurchase(data: {
           },
         },
       });
+
+      // If supplier and payment was recorded at intake, record supplier payment
+      if (data.supplierId && initialPaid > 0) {
+        await tx.supplierPayment.create({
+          data: {
+            supplierId: data.supplierId,
+            amount: initialPaid,
+            paymentMethod: data.paymentMethod || "CASH",
+            referenceNumber: `INV-${newPurchase.invoiceNumber}`,
+            paymentDate: new Date(),
+            notes: data.notes || `Goods intake purchase: ${newPurchase.invoiceNumber}`,
+            businessId: businessId,
+            userId: userId,
+          }
+        });
+      }
 
       // 2. Update Stock Levels and record Stock Movements
       for (const item of data.items) {
