@@ -159,38 +159,7 @@ export function TeamChatWidget() {
 
   return (
     <>
-      {/* Floating Trigger Button on Bottom-Right */}
-      <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-40 print:hidden">
-        <Button
-          onClick={toggleChat}
-          className={cn(
-            "h-12 px-4 sm:h-13 sm:px-5 rounded-full shadow-2xl transition-all duration-300 flex items-center gap-2.5 font-black uppercase text-xs tracking-wider",
-            isChatOpen
-              ? "bg-slate-900 text-white hover:bg-slate-800"
-              : "bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-indigo-600/30 hover:scale-105"
-          )}
-        >
-          {isChatOpen ? (
-            <>
-              <X className="h-4 w-4 sm:h-5 sm:w-5" /> Close
-            </>
-          ) : (
-            <>
-              <div className="relative">
-                <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5" />
-                {unreadCount > 0 && (
-                  <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center animate-pulse">
-                    {unreadCount}
-                  </span>
-                )}
-              </div>
-              <span className="hidden xs:inline sm:inline">Staff Chat</span>
-            </>
-          )}
-        </Button>
-      </div>
-
-      {/* Slide-over Mini Chat Drawer */}
+      {/* Slide-over Mini Chat Drawer (No floating bottom button blocking pages) */}
       <AnimatePresence>
         {isChatOpen && (
           <motion.div
@@ -198,7 +167,7 @@ export function TeamChatWidget() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-18 sm:bottom-20 right-3 sm:right-5 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[calc(100vh-6rem)] rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden print:hidden"
+            className="fixed bottom-4 sm:bottom-6 right-3 sm:right-6 z-50 w-[calc(100vw-1.5rem)] sm:w-[400px] h-[520px] max-h-[calc(100vh-6rem)] rounded-3xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col overflow-hidden print:hidden"
           >
             {/* Drawer Header */}
             <div className="p-3.5 bg-gradient-to-r from-indigo-600 to-indigo-700 text-white flex items-center justify-between shrink-0">
