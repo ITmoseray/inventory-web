@@ -24,7 +24,7 @@ export default function CommunicationSettingsPage() {
   // Templates state
   const [templates, setTemplates] = useState({
     receipt: "Thank you for shopping at {business_name}! Your invoice {invoice_number} of Le {total_amount} is complete. View receipt: {receipt_url}.",
-    debt: "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!",
+    debt: "Dear {customer_name}, this is a gentle reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due for {due_date}. Please contact us to settle. Thank you!",
     stock: "System Alert: Product {product_name} is running low! Current stock: {current_stock} (Min: {min_quantity}). Please reorder from {supplier_name}."
   });
 

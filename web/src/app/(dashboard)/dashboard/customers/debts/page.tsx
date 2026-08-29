@@ -26,8 +26,10 @@ import { toast } from "sonner";
 import { getDebts, createDebtPayment } from "@/lib/actions/debt";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useSession } from "next-auth/react";
 
 export default function DebtsPage() {
+  const { data: session } = useSession();
   const [debts, setDebts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -129,18 +131,26 @@ export default function DebtsPage() {
     const customerPhone = debt.customer.phone || "";
     const cleanPhone = customerPhone.replace(/[^0-9]/g, "");
     
+    const businessName = session?.user?.businessName || "Top Notch Sales & Distribution";
+    const isTopNotch = businessName.toLowerCase().includes("top notch");
+
     const savedTemplates = localStorage.getItem("comm_templates");
-    let template = "Dear {customer_name}, this is a friendly reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due on {due_date}. Please contact us to settle. Thank you!";
+    let template = isTopNotch 
+      ? "Dear {customer_name}, this is a gentle reminder from Top Notch Sales & Distribution that you have an outstanding balance of Le {outstanding_amount} due for immediate settlement. Please contact us to settle. Thank you!"
+      : "Dear {customer_name}, this is a gentle reminder from {business_name} that you have an outstanding balance of Le {outstanding_amount} due for immediate settlement. Please contact us to settle. Thank you!";
+    
     if (savedTemplates) {
       try {
-        template = JSON.parse(savedTemplates).debt;
+        const parsed = JSON.parse(savedTemplates);
+        if (parsed.debt && !isTopNotch) {
+          template = parsed.debt;
+        }
       } catch (e) {}
     }
 
-    const businessName = "Protech Enterprise";
     const dueDateText = debt.dueDate ? format(new Date(debt.dueDate), "MMM dd, yyyy") : "immediate settlement";
     const formattedMessage = template
-      .replaceAll("{customer_name}", debt.customer.name)
+      .replaceAll("{customer_name}", debt.customer?.name || "Customer")
       .replaceAll("{business_name}", businessName)
       .replaceAll("{outstanding_amount}", Math.round(debt.totalAmount - debt.paidAmount).toLocaleString())
       .replaceAll("{due_date}", dueDateText);
