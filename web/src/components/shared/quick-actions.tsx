@@ -16,7 +16,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { useChatStore } from "@/store/use-chat-store";
@@ -24,11 +24,12 @@ import { useChatStore } from "@/store/use-chat-store";
 export function QuickActions() {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { data: session } = useSession();
   const { isChatOpen } = useChatStore();
 
-  // If Staff Chat is open, hide QuickActions so it NEVER blocks messages or input field
-  if (isChatOpen) {
+  // If Staff Chat is open or we are on POS page, hide QuickActions so it NEVER blocks POS cart, totals, or messages
+  if (isChatOpen || pathname === "/dashboard/pos" || pathname?.startsWith("/dashboard/pos")) {
     return null;
   }
 

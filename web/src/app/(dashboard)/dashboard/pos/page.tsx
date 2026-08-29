@@ -1155,19 +1155,19 @@ export default function POSPage() {
           className="h-[80px] sm:h-[90px] px-3 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer lg:cursor-default bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md z-10"
           onClick={() => !isCartVisible && setIsCartVisible(true)}
         >
-           <div className="flex items-center gap-2.5 sm:gap-5 min-w-0">
+           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
               <div className="relative group shrink-0">
-                 <div className={cn("h-11 w-11 sm:h-14 sm:w-14 rounded-2xl sm:rounded-[1.5rem] flex items-center justify-center shadow-xl transition-all duration-300", cart.length > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
-                   <Receipt className="h-5 w-5 sm:h-7 sm:w-7" />
+                 <div className={cn("h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300", cart.length > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
+                   <Receipt className="h-5 w-5 sm:h-6 sm:w-6" />
                  </div>
                  {cart.length > 0 && (
-                   <span className="absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 h-5 min-w-[20px] sm:h-7 sm:w-7 px-1 rounded-full sm:rounded-xl bg-slate-900 dark:bg-indigo-600 text-white text-[9px] sm:text-[11px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-lg">
+                   <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[18px] sm:h-5 sm:min-w-[20px] px-1 rounded-full bg-slate-900 dark:bg-indigo-600 text-white text-[8px] sm:text-[10px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-md">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                    </span>
                  )}
               </div>
-              <div className="min-w-0">
-                 <h2 className="text-base sm:text-xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none truncate">
+              <div className="min-w-0 flex-1">
+                 <h2 className="text-sm sm:text-lg font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none truncate">
                    Current <span className="text-indigo-600 dark:text-indigo-400">Sale</span>
                  </h2>
                  <div className="flex items-center gap-1.5 mt-1">
@@ -1182,11 +1182,11 @@ export default function POSPage() {
               </div>
            </div>
            
-           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
               {/* Desktop Total Display */}
-              <div className="text-right mr-2 hidden sm:block">
-                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Current Total</p>
-                 <p className="text-xl sm:text-2xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(total).toLocaleString()}</p>
+              <div className="text-right mr-1 sm:mr-2 hidden sm:block">
+                 <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5 sm:mb-1">Current Total</p>
+                 <p className="text-lg sm:text-xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(total).toLocaleString()}</p>
               </div>
 
               {/* Drafts Queue Button */}
