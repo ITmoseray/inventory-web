@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
   ShoppingCart, 
+  ShoppingBag,
   Trash2, 
   X,
   Plus, 
@@ -1152,57 +1153,56 @@ export default function POSPage() {
       )}>
         {/* Cart Header (Mobile Toggle & Actions) */}
         <div 
-          className="h-[80px] sm:h-[90px] px-3 sm:px-8 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer lg:cursor-default bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md z-10"
+          className="h-[76px] sm:h-[84px] px-3 sm:px-5 border-b border-slate-100 dark:border-white/10 flex items-center justify-between shrink-0 cursor-pointer lg:cursor-default bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md z-10 gap-2"
           onClick={() => !isCartVisible && setIsCartVisible(true)}
         >
-           <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-              <div className="relative group shrink-0">
-                 <div className={cn("h-10 w-10 sm:h-12 sm:w-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300", cart.length > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500")}>
-                   <Receipt className="h-5 w-5 sm:h-6 sm:w-6" />
+           {/* Left: Cart Icon & Item Count */}
+           <div className="flex items-center gap-2.5 min-w-0 shrink-0">
+              <div className="relative shrink-0">
+                 <div className={cn(
+                   "h-9 w-9 sm:h-10 sm:w-10 rounded-xl flex items-center justify-center shadow-md transition-all duration-300", 
+                   cart.length > 0 ? "bg-indigo-600 text-white" : "bg-slate-100 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
+                 )}>
+                   <ShoppingBag className="h-4 w-4 sm:h-5 sm:w-5" />
                  </div>
                  {cart.length > 0 && (
-                   <span className="absolute -top-1.5 -right-1.5 h-4 min-w-[18px] sm:h-5 sm:min-w-[20px] px-1 rounded-full bg-slate-900 dark:bg-indigo-600 text-white text-[8px] sm:text-[10px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-md">
+                   <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-slate-900 dark:bg-indigo-600 text-white text-[8px] sm:text-[9px] font-[1000] flex items-center justify-center border-2 border-white dark:border-slate-900 shadow-sm">
                       {cart.reduce((a, b) => a + b.quantity, 0)}
                    </span>
                  )}
               </div>
-              <div className="min-w-0 flex-1">
-                 <h2 className="text-sm sm:text-lg font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none truncate">
+              <div className="min-w-0">
+                 <h2 className="text-xs sm:text-sm font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-tight truncate">
                    Current <span className="text-indigo-600 dark:text-indigo-400">Sale</span>
                  </h2>
-                 <div className="flex items-center gap-1.5 mt-1">
-                    <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-wider">
-                      {cart.length} {cart.length === 1 ? "Item" : "Items"}
-                    </p>
-                    <span className="text-slate-300 dark:text-slate-700 sm:hidden">•</span>
-                    <span className="text-[10px] sm:hidden font-black text-slate-900 dark:text-white">
-                      Le {Math.round(total).toLocaleString()}
-                    </span>
-                 </div>
+                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-wider leading-none mt-0.5">
+                   {cart.length} {cart.length === 1 ? "Item" : "Items"}
+                 </p>
               </div>
            </div>
            
-           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-              {/* Desktop Total Display */}
-              <div className="text-right mr-1 sm:mr-2 hidden sm:block">
-                 <p className="text-[8px] sm:text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5 sm:mb-1">Current Total</p>
-                 <p className="text-lg sm:text-xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(total).toLocaleString()}</p>
+           {/* Right: Total & Action Buttons */}
+           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+              {/* Total Display */}
+              <div className="text-right mr-1">
+                 <p className="text-[8px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">Total</p>
+                 <p className="text-sm sm:text-base font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">Le {Math.round(total).toLocaleString()}</p>
               </div>
 
               {/* Drafts Queue Button */}
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative cursor-pointer"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-slate-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all relative cursor-pointer shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsDraftsModalOpen(true);
                 }}
                 title="View Drafts Queue"
               >
-                <History className="h-4 w-4 sm:h-5 sm:w-5" />
+                <History className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 {drafts.length > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 min-w-[16px] px-1 rounded-full bg-indigo-500 text-white text-[8px] sm:text-[9px] font-black flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-3.5 min-w-[14px] px-0.5 rounded-full bg-indigo-500 text-white text-[7px] font-black flex items-center justify-center">
                     {drafts.length}
                   </span>
                 )}
@@ -1212,7 +1212,7 @@ export default function POSPage() {
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="h-9 w-9 sm:h-11 sm:w-11 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all cursor-pointer"
+                className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-all cursor-pointer shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (currentDraftId) {
@@ -1224,13 +1224,13 @@ export default function POSPage() {
                 disabled={cart.length === 0}
                 title="Hold Active Cart"
               >
-                <Save className="h-4 w-4 sm:h-5 sm:w-5" />
+                <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </Button>
 
-              {/* Clear Active Cart Button (Prominent & Visible Everywhere) */}
+              {/* Clear Active Cart Button */}
               <Button 
                 variant="ghost" 
-                className="h-9 px-2 sm:h-11 sm:px-3 rounded-xl text-rose-500 hover:text-rose-600 bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 transition-all flex items-center gap-1 cursor-pointer font-bold text-xs"
+                className="h-8 px-2 sm:h-9 sm:px-2.5 rounded-xl text-rose-500 hover:text-rose-600 bg-rose-50/80 hover:bg-rose-100 dark:bg-rose-950/30 dark:hover:bg-rose-950/50 transition-all flex items-center gap-1 cursor-pointer font-bold text-xs shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (currentDraftId) deleteDraft(currentDraftId).then(() => fetchDrafts());
@@ -1238,23 +1238,23 @@ export default function POSPage() {
                   toast.success("Cart cleared.");
                 }}
                 disabled={cart.length === 0}
-                title="Clear all active items from cart"
+                title="Clear cart"
               >
-                <Trash2 className="h-4 w-4" />
-                <span className="hidden xs:inline sm:inline text-[11px] font-black uppercase">Clear</span>
+                <Trash2 className="h-3.5 w-3.5" />
+                <span className="text-[10px] font-black uppercase hidden sm:inline">Clear</span>
               </Button>
 
               {/* Mobile Drawer Chevron Toggle */}
               <Button 
                 variant="outline" 
-                className="lg:hidden h-9 px-2 sm:h-11 sm:px-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-all border-slate-200 dark:border-slate-700 cursor-pointer font-black text-xs gap-1"
+                className="lg:hidden h-8 px-2 sm:h-9 sm:px-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:text-indigo-600 transition-all border-slate-200 dark:border-slate-700 cursor-pointer font-black text-xs gap-1 shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsCartVisible(!isCartVisible);
                 }}
               >
-                <span className="text-[10px] uppercase sm:inline hidden">{isCartVisible ? "Close" : "Open"}</span>
-                <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", isCartVisible ? "" : "rotate-180")} />
+                <span className="text-[9px] uppercase sm:inline hidden">{isCartVisible ? "Close" : "Open"}</span>
+                <ChevronDown className={cn("h-3.5 w-3.5 transition-transform duration-300", isCartVisible ? "" : "rotate-180")} />
               </Button>
            </div>
         </div>
