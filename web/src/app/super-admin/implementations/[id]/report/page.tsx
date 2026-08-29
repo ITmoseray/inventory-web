@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { 
   Building2, 
   UserCheck, 
@@ -17,7 +17,12 @@ import {
   Lock, 
   FileText,
   Sparkles,
-  QrCode
+  QrCode,
+  Download,
+  Share2,
+  Send,
+  Loader2,
+  Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getClientImplementationById } from "@/lib/actions/client-implementation";
@@ -35,9 +40,11 @@ export default function ImplementationReportPage({
   const resolvedParams = use(params);
   const id = resolvedParams.id;
   const router = useRouter();
+  const reportRef = useRef<HTMLDivElement>(null);
 
   const [record, setRecord] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [downloadingPdf, setDownloadingPdf] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -55,10 +62,121 @@ export default function ImplementationReportPage({
     load();
   }, [id]);
 
+  // Generate & Download PDF file
+  const handleDownloadPDF = async () => {
+    if (!reportRef.current || !record) return;
+    setDownloadingPdf(true);
+    const toastId = toast.loading("Compiling official PDF report...");
+
+    try {
+      const html2canvas = (await import("html2canvas")).default;
+      const jsPDF = (await import("jspdf")).default;
+
+      const el = reportRef.current;
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      if (imgHeight <= pageHeight) {
+        pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+      } else {
+        let y = 0;
+        while (y < imgHeight) {
+          pdf.addImage(imgData, "PNG", 0, -y, imgWidth, imgHeight);
+          y += pageHeight;
+          if (y < imgHeight) pdf.addPage();
+        }
+      }
+
+      const clientClean = (record.clientName || record.business?.name || "Client").replace(/[^a-zA-Z0-9]/g, "_");
+      const filename = `${record.implementationNumber}_${clientClean}_Completion_Record.pdf`;
+      pdf.save(filename);
+      toast.success("PDF report downloaded successfully!", { id: toastId });
+    } catch (e: any) {
+      console.error("PDF generation failed:", e);
+      toast.error("Failed to generate PDF: " + (e.message || "Unknown error"), { id: toastId });
+    } finally {
+      setDownloadingPdf(false);
+    }
+  };
+
+  // Format WhatsApp number cleanly for Sierra Leone / International
+  const getCleanWhatsappNumber = (phoneStr?: string) => {
+    if (!phoneStr) return "";
+    let cleaned = phoneStr.replace(/\D/g, "");
+    if (cleaned.startsWith("0")) {
+      cleaned = "232" + cleaned.substring(1);
+    } else if (cleaned.length === 8) {
+      cleaned = "232" + cleaned;
+    }
+    return cleaned;
+  };
+
+  // Share via WhatsApp with professional breakdown
+  const handleShareWhatsApp = () => {
+    if (!record) return;
+
+    const invSummary = record.inventorySummary || {};
+    const rawPhone = record.contactWhatsapp || record.contactPhone || "";
+    const cleanPhone = getCleanWhatsappNumber(rawPhone);
+    const reportUrl = typeof window !== "undefined" ? window.location.href : "";
+
+    const message = 
+`🏢 *PROTECH ASSIST ENTERPRISE OS*
+📋 *Official Client Registration & Inventory Audit Completion Record*
+
+Dear *${record.clientName || record.business?.name || "Valued Client"}* (${record.ownerName || "Management"}),
+
+Your business registration, inventory catalog setup, and physical stock audit have been officially completed and certified into the Protech Assist Enterprise database!
+
+━━━━━━━━━━━━━━━━━━━━
+📌 *Implementation ID:* ${record.implementationNumber}
+📅 *Audit Date:* ${format(new Date(), "PPP")}
+🏷️ *Business Type:* ${record.businessType || record.business?.type || "Retail / Enterprise"}
+📦 *Total Products Registered:* ${invSummary.totalProducts ?? 0} Products (${invSummary.totalCategories ?? 0} Categories)
+📊 *Total Stock Units Counted:* ${(invSummary.totalQuantity ?? 0).toLocaleString()} Units
+💰 *Total Verified Inventory Valuation:* Le ${(invSummary.totalValuation ?? 0).toLocaleString()}
+🛡️ *Audit Status:* Officially Certified & Locked
+✍️ *Signatures:* Verified by Lead Auditor (${record.staffSignerName || record.assignedStaffName || "Dr. Strange Admin"}) & Client (${record.clientSignerName || record.ownerName || "Authorized Client Representative"})
+━━━━━━━━━━━━━━━━━━━━
+
+🔗 *View & Download Your Official Digital Certificate & Audit Report:*
+${reportUrl}
+
+Thank you for choosing Protech Assist Enterprise OS for your automated business management!`;
+
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = cleanPhone 
+      ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+      : `https://wa.me/?text=${encodedMessage}`;
+
+    window.open(whatsappUrl, "_blank");
+    toast.success("Opening WhatsApp to share completion record...");
+  };
+
+  // Copy share link
+  const handleCopyLink = () => {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success("Official report link copied to clipboard!");
+    }
+  };
+
   if (loading || !record) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 p-6">
-        <div className="h-8 w-8 border-3 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-3 p-6 bg-slate-50 dark:bg-slate-950">
+        <div className="h-10 w-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin" />
         <p className="text-xs font-black uppercase tracking-wider text-slate-500">Generating Official Completion Record...</p>
       </div>
     );
@@ -83,28 +201,74 @@ export default function ImplementationReportPage({
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 px-3 sm:px-6 md:px-8 py-4 sm:py-8 text-slate-900 print:bg-white print:p-0 overflow-x-hidden">
-      {/* Action Bar (Hidden on Print) */}
-      <div className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 print:hidden">
+      
+      {/* ─── ACTION TOOLBAR (Hidden on Print / PDF export) ─── */}
+      <div className="max-w-4xl mx-auto mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm">
         <Link href={`/super-admin/implementations/${record.id}`}>
-          <Button variant="outline" className="h-10 px-4 rounded-xl text-xs font-bold gap-2">
-            <ArrowLeft className="h-4 w-4" />
+          <Button variant="outline" size="sm" className="h-10 px-4 rounded-xl text-xs font-bold gap-2 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800">
+            <ArrowLeft className="h-4 w-4 text-slate-500" />
             <span>Back to Workspace</span>
           </Button>
         </Link>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          {/* 1. Download PDF Button */}
           <Button
+            onClick={handleDownloadPDF}
+            disabled={downloadingPdf}
+            className="h-10 px-4 sm:px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-md shadow-indigo-600/25 gap-2 transition-all cursor-pointer"
+          >
+            {downloadingPdf ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Downloading PDF...</span>
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4" />
+                <span>Download PDF</span>
+              </>
+            )}
+          </Button>
+
+          {/* 2. WhatsApp Share Button */}
+          <Button
+            onClick={handleShareWhatsApp}
+            className="h-10 px-4 sm:px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-md shadow-emerald-600/25 gap-2 transition-all cursor-pointer"
+          >
+            <Send className="h-4 w-4" />
+            <span>Share WhatsApp</span>
+          </Button>
+
+          {/* 3. Copy Link */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyLink}
+            className="h-10 px-3 rounded-xl border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            title="Copy Report URL"
+          >
+            <Copy className="h-4 w-4" />
+          </Button>
+
+          {/* 4. Print Report */}
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => window.print()}
-            className="h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-indigo-600/25 gap-2"
+            className="h-10 px-3 rounded-xl border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+            title="Print Paper Copy"
           >
             <Printer className="h-4 w-4" />
-            <span>Print / Save PDF Report</span>
           </Button>
         </div>
       </div>
 
-      {/* Official Report Document Page */}
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 p-8 sm:p-12 space-y-8 print:border-none print:shadow-none print:p-0 print:rounded-none print:max-w-full">
+      {/* ─── OFFICIAL REPORT DOCUMENT PAGE ─── */}
+      <div 
+        ref={reportRef}
+        className="max-w-4xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 p-6 sm:p-12 space-y-8 print:border-none print:shadow-none print:p-0 print:rounded-none print:max-w-full text-slate-900"
+      >
         
         {/* Document Header & Letterhead */}
         <div className="border-b-2 border-slate-900 pb-6 space-y-4">
@@ -289,8 +453,7 @@ export default function ImplementationReportPage({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-            {checklistDisplay.map((item, idx) => {
-              const isChecked = checklist[item.key] || false;
+            {checklistDisplay.map((item) => {
               return (
                 <div key={item.key} className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-50 border border-slate-200">
                   <div className="h-4 w-4 rounded bg-emerald-600 text-white flex items-center justify-center shrink-0">
@@ -388,6 +551,35 @@ export default function ImplementationReportPage({
         </div>
 
       </div>
+
+      {/* ─── FOOTER ACTIONS (Print Hidden) ─── */}
+      <div className="max-w-4xl mx-auto mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 print:hidden p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+        <p className="text-xs text-slate-500 font-medium">
+          Ready to send to client? Use the buttons below to export or share.
+        </p>
+
+        <div className="flex items-center gap-2">
+          <Button
+            onClick={handleDownloadPDF}
+            disabled={downloadingPdf}
+            size="sm"
+            className="rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs gap-1.5 cursor-pointer"
+          >
+            {downloadingPdf ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+            <span>Download PDF</span>
+          </Button>
+
+          <Button
+            onClick={handleShareWhatsApp}
+            size="sm"
+            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 cursor-pointer"
+          >
+            <Send className="h-3.5 w-3.5" />
+            <span>Send to Client via WhatsApp</span>
+          </Button>
+        </div>
+      </div>
+
     </div>
   );
 }
