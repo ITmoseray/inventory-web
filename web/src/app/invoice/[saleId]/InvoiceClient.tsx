@@ -201,8 +201,8 @@ export default function InvoiceClient({ sale }: { sale: any }) {
           {/* Total & NRA GST Breakdown */}
           {(() => {
             const rawSettings = (sale.business as any)?.receiptSettings || {};
-            const isNraMode = rawSettings.enableNraFiscalMode ?? false;
-            const showGst = isNraMode || (rawSettings.showGstBreakdown ?? false);
+            const isNraMode = Boolean(rawSettings.enableNraFiscalMode);
+            const showGst = Boolean(isNraMode && rawSettings.showGstBreakdown !== false) || (rawSettings.showGstBreakdown === true);
             const gstRate = rawSettings.gstRate ?? 15;
             const isTaxInclusive = rawSettings.taxInclusive ?? true;
             const rateDecimal = gstRate / 100;

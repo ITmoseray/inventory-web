@@ -94,14 +94,14 @@ export const ThermalReceipt = forwardRef<HTMLDivElement, ThermalReceiptProps>(
       ? "w-full max-w-[220px] sm:max-w-[240px] print:w-[58mm]" 
       : "w-full max-w-[280px] sm:max-w-[320px] print:w-[80mm]";
 
-    // NRA Fiscal Settings
-    const isNraMode = receiptSettings?.enableNraFiscalMode ?? false;
+    // NRA Fiscal Settings (Disabled by default unless user activates it in settings)
+    const isNraMode = Boolean(receiptSettings?.enableNraFiscalMode);
     const tin = receiptSettings?.taxIdentificationNumber || "1002934-8";
     const ecrId = receiptSettings?.nraDeviceId || "CIS-TNSD-001";
     const gstRateNum = receiptSettings?.gstRate ?? 15;
     const isTaxInclusive = receiptSettings?.taxInclusive ?? true;
-    const showGst = isNraMode || (receiptSettings?.showGstBreakdown ?? false);
-    const showFiscalSig = isNraMode || (receiptSettings?.showFiscalSignature ?? false);
+    const showGst = Boolean(receiptSettings?.enableNraFiscalMode && (receiptSettings?.showGstBreakdown !== false)) || (receiptSettings?.showGstBreakdown === true);
+    const showFiscalSig = Boolean(receiptSettings?.enableNraFiscalMode && (receiptSettings?.showFiscalSignature !== false)) || (receiptSettings?.showFiscalSignature === true);
 
     // Calculate NRA GST (15% standard rate in Sierra Leone)
     const rateDecimal = gstRateNum / 100;

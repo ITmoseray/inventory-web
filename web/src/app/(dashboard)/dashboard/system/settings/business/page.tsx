@@ -58,15 +58,15 @@ export default function BusinessSettingsPage() {
       showQrCode: true,
       showPoweredBy: true,
       paperWidth: "80mm" as "58mm" | "80mm",
-      // NRA Fiscal Compliance (SmartPay/ECR Standard)
+      // NRA Fiscal Compliance (Disabled by default - customizable by user)
       enableNraFiscalMode: false,
       taxIdentificationNumber: "1002934-8",
       nraDeviceId: "CIS-TNSD-001",
       gstRate: 15,
       taxInclusive: true,
-      showGstBreakdown: true,
-      showFiscalSignature: true,
-      showNraQrCode: true,
+      showGstBreakdown: false,
+      showFiscalSignature: false,
+      showNraQrCode: false,
     }
   });
 
@@ -104,15 +104,15 @@ export default function BusinessSettingsPage() {
               showQrCode: rawSettings.showQrCode ?? true,
               showPoweredBy: rawSettings.showPoweredBy ?? true,
               paperWidth: rawSettings.paperWidth ?? "80mm",
-              // NRA Fiscal Settings
+              // NRA Fiscal Settings (Disabled by default)
               enableNraFiscalMode: rawSettings.enableNraFiscalMode ?? false,
               taxIdentificationNumber: rawSettings.taxIdentificationNumber ?? (business.taxId || "1002934-8"),
               nraDeviceId: rawSettings.nraDeviceId ?? (isTopNotch ? "CIS-TNSD-001" : "CIS-POS-001"),
               gstRate: rawSettings.gstRate ?? 15,
               taxInclusive: rawSettings.taxInclusive ?? true,
-              showGstBreakdown: rawSettings.showGstBreakdown ?? true,
-              showFiscalSignature: rawSettings.showFiscalSignature ?? true,
-              showNraQrCode: rawSettings.showNraQrCode ?? true,
+              showGstBreakdown: rawSettings.showGstBreakdown ?? false,
+              showFiscalSignature: rawSettings.showFiscalSignature ?? false,
+              showNraQrCode: rawSettings.showNraQrCode ?? false,
             }
           });
         }

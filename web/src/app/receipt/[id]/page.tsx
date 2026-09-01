@@ -28,12 +28,12 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
   }
 
   const rawSettings = (receipt.business as any)?.receiptSettings || {};
-  const isNraMode = rawSettings.enableNraFiscalMode ?? false;
+  const isNraMode = Boolean(rawSettings.enableNraFiscalMode);
   const tin = rawSettings.taxIdentificationNumber || receipt.business.taxId || "1002934-8";
   const ecrId = rawSettings.nraDeviceId || "CIS-TNSD-001";
   const gstRate = rawSettings.gstRate ?? 15;
   const isTaxInclusive = rawSettings.taxInclusive ?? true;
-  const showGst = isNraMode || (rawSettings.showGstBreakdown ?? false);
+  const showGst = Boolean(isNraMode && rawSettings.showGstBreakdown !== false) || (rawSettings.showGstBreakdown === true);
 
   const rateDecimal = gstRate / 100;
   const totalAmount = Number(receipt.totalAmount) || 0;
