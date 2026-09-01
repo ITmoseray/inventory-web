@@ -61,6 +61,7 @@ model Business {
   subscriptions           Subscription[]
   suppliers               Supplier[]
   supplierPayments        SupplierPayment[]
+  supplierGoods           SupplierGood[]
   users                   User[]
   pushSubscriptions       PushSubscription[]
   patients                Patient[]
@@ -524,9 +525,38 @@ model Supplier {
   purchases    Purchase[]
   payments     SupplierPayment[]
   priceLists   SupplierPriceList[]
+  goods        SupplierGood[]
   business     Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
+  @@index([businessId, deletedAt])
+}
+
+model SupplierGood {
+  id             String    @id @default(cuid())
+  supplierId     String
+  itemName       String
+  category       String?
+  unit           String?   @default("pcs")
+  quantity       Decimal   @default(1) @db.Decimal(10, 2)
+  unitCost       Decimal   @default(0) @db.Decimal(10, 2)
+  totalCost      Decimal   @default(0) @db.Decimal(10, 2)
+  invoiceNumber  String?
+  deliveryDate   DateTime  @default(now())
+  paymentStatus  String    @default("PAID") // PAID, PARTIAL, UNPAID
+  paidAmount     Decimal   @default(0) @db.Decimal(10, 2)
+  dueDate        DateTime?
+  notes          String?
+  businessId     String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  supplier       Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([supplierId])
   @@index([businessId, deletedAt])
 }
 

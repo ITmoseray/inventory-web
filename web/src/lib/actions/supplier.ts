@@ -26,20 +26,27 @@ export async function getSuppliers() {
         where: { deletedAt: null },
         select: { totalAmount: true, paidAmount: true, paymentStatus: true, createdAt: true },
       },
+      goods: {
+        where: { deletedAt: null },
+        select: { totalCost: true, paidAmount: true, paymentStatus: true, deliveryDate: true },
+      },
       payments: { select: { amount: true, paymentDate: true } },
     },
     orderBy: { createdAt: "desc" },
   });
 
   return suppliers.map(s => {
-    const totalPurchased = s.purchases.reduce((sum, p) => sum + Number(p.totalAmount), 0);
-    const totalPaid = s.payments.reduce((sum, p) => sum + Number(p.amount), 0);
-    const outstandingBalance = s.purchases.reduce((sum, p) => {
-      return sum + (Number(p.totalAmount) - Number(p.paidAmount));
-    }, 0);
+    const totalPurchased = (s.purchases || []).reduce((sum, p) => sum + Number(p.totalAmount), 0) +
+                           (s.goods || []).reduce((sum, g) => sum + Number(g.totalCost), 0);
+    const totalPaid = (s.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
+    const outstandingBalance = (
+      (s.purchases || []).reduce((sum, p) => sum + (Number(p.totalAmount) - Number(p.paidAmount)), 0) +
+      (s.goods || []).reduce((sum, g) => sum + (Number(g.totalCost) - Number(g.paidAmount)), 0)
+    );
     return {
       ...serializeSupplier(s),
       purchases: undefined,
+      goods: undefined,
       payments: undefined,
       totalPurchased,
       totalPaid,
@@ -56,6 +63,10 @@ export async function getSupplierDetails(supplierId: string) {
   const supplier = await prisma.supplier.findFirst({
     where: { id: supplierId, businessId, deletedAt: null },
     include: {
+      goods: {
+        where: { deletedAt: null },
+        orderBy: { deliveryDate: "desc" },
+      },
       purchases: {
         where: { deletedAt: null },
         include: { 
@@ -77,34 +88,52 @@ export async function getSupplierDetails(supplierId: string) {
   });
   if (!supplier) throw new Error("Supplier not found");
 
-  const totalPurchased = supplier.purchases.reduce((sum, p) => sum + Number(p.totalAmount), 0);
-  const totalPaid = supplier.payments.reduce((sum, p) => sum + Number(p.amount), 0);
-  const outstandingBalance = supplier.purchases.reduce((sum, p) => {
-    return sum + (Number(p.totalAmount) - Number(p.paidAmount));
-  }, 0);
+  const totalGoodsSpend = (supplier.goods || []).reduce((sum, g) => sum + Number(g.totalCost), 0);
+  const totalPurchaseSpend = (supplier.purchases || []).reduce((sum, p) => sum + Number(p.totalAmount), 0);
+  const totalPurchased = totalGoodsSpend + totalPurchaseSpend;
 
-  // Build statement: merge purchases and payments, sorted by date
-  const purchaseTxns = supplier.purchases.map(p => ({
+  const totalPaid = (supplier.payments || []).reduce((sum, p) => sum + Number(p.amount), 0);
+  
+  const outstandingBalance = (
+    (supplier.goods || []).reduce((sum, g) => sum + (Number(g.totalCost) - Number(g.paidAmount)), 0) +
+    (supplier.purchases || []).reduce((sum, p) => sum + (Number(p.totalAmount) - Number(p.paidAmount)), 0)
+  );
+
+  // Build statement: merge goods deliveries, purchases, and payments, sorted by date
+  const goodsTxns = (supplier.goods || []).map(g => ({
+    date: g.deliveryDate.toISOString(),
+    type: "GOODS_DELIVERY" as const,
+    reference: g.invoiceNumber || `DN-${g.id.slice(-6)}`,
+    description: `${g.itemName} (${Number(g.quantity)} ${g.unit || "pcs"})`,
+    debit: Number(g.totalCost),
+    credit: 0,
+    paymentStatus: g.paymentStatus,
+    id: g.id,
+  }));
+
+  const purchaseTxns = (supplier.purchases || []).map(p => ({
     date: p.createdAt.toISOString(),
     type: "PURCHASE" as const,
     reference: p.invoiceNumber || p.id.slice(-8),
+    description: "Purchase Order",
     debit: Number(p.totalAmount),
     credit: 0,
     paymentStatus: p.paymentStatus,
     id: p.id,
   }));
 
-  const paymentTxns = supplier.payments.map(p => ({
+  const paymentTxns = (supplier.payments || []).map(p => ({
     date: p.paymentDate.toISOString(),
     type: "PAYMENT" as const,
     reference: p.referenceNumber || p.id.slice(-8),
+    description: p.notes || "Supplier Payment",
     debit: 0,
     credit: Number(p.amount),
     paymentStatus: "PAID",
     id: p.id,
   }));
 
-  const allTxns = [...purchaseTxns, ...paymentTxns].sort(
+  const allTxns = [...goodsTxns, ...purchaseTxns, ...paymentTxns].sort(
     (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
@@ -120,7 +149,19 @@ export async function getSupplierDetails(supplierId: string) {
     totalPaid,
     outstandingBalance,
     statement,
-    purchases: supplier.purchases.map(p => ({
+    goods: (supplier.goods || []).map(g => ({
+      ...g,
+      quantity: Number(g.quantity),
+      unitCost: Number(g.unitCost),
+      totalCost: Number(g.totalCost),
+      paidAmount: Number(g.paidAmount),
+      deliveryDate: g.deliveryDate.toISOString(),
+      createdAt: g.createdAt.toISOString(),
+      updatedAt: g.updatedAt.toISOString(),
+      deletedAt: g.deletedAt?.toISOString() ?? null,
+      dueDate: g.dueDate?.toISOString() ?? null,
+    })),
+    purchases: (supplier.purchases || []).map(p => ({
       ...p,
       totalAmount: Number(p.totalAmount),
       paidAmount: Number(p.paidAmount),
@@ -128,13 +169,13 @@ export async function getSupplierDetails(supplierId: string) {
       updatedAt: p.updatedAt.toISOString(),
       deletedAt: p.deletedAt?.toISOString() ?? null,
       dueDate: p.dueDate?.toISOString() ?? null,
-      items: p.items.map(i => ({
+      items: (p.items || []).map(i => ({
         ...i,
         unitCost: Number(i.unitCost),
         total: Number(i.total),
       })),
     })),
-    payments: supplier.payments.map(p => ({
+    payments: (supplier.payments || []).map(p => ({
       ...p,
       amount: Number(p.amount),
       paymentDate: p.paymentDate.toISOString(),
@@ -142,6 +183,110 @@ export async function getSupplierDetails(supplierId: string) {
       updatedAt: p.updatedAt.toISOString(),
     })),
   };
+}
+
+export async function recordSupplierGood(data: {
+  supplierId: string;
+  itemName: string;
+  category?: string;
+  unit?: string;
+  quantity: number;
+  unitCost: number;
+  invoiceNumber?: string;
+  deliveryDate?: string;
+  paymentStatus?: "PAID" | "PARTIAL" | "UNPAID";
+  paidAmount?: number;
+  dueDate?: string;
+  notes?: string;
+}) {
+  const session = await auth();
+  if (!session?.user?.businessId || !session?.user?.id) throw new Error("Unauthorized");
+  const businessId = session.user.businessId;
+  const userId = session.user.id;
+
+  const qty = Number(data.quantity) || 1;
+  const cost = Number(data.unitCost) || 0;
+  const totalCost = qty * cost;
+  const paymentStatus = data.paymentStatus || "PAID";
+  const paidAmount = paymentStatus === "PAID" ? totalCost : paymentStatus === "PARTIAL" ? (Number(data.paidAmount) || 0) : 0;
+  const deliveryDate = data.deliveryDate ? new Date(data.deliveryDate) : new Date();
+  const dueDate = data.dueDate ? new Date(data.dueDate) : null;
+
+  const result = await prisma.$transaction(async (tx) => {
+    // 1. Create Supplier Goods Record (100% standalone record keeping - NOT connected to products)
+    const good = await tx.supplierGood.create({
+      data: {
+        supplierId: data.supplierId,
+        itemName: data.itemName.trim(),
+        category: data.category?.trim() || null,
+        unit: data.unit?.trim() || "pcs",
+        quantity: qty,
+        unitCost: cost,
+        totalCost: totalCost,
+        invoiceNumber: data.invoiceNumber?.trim() || `DN-${Date.now().toString().slice(-6)}`,
+        deliveryDate: deliveryDate,
+        paymentStatus: paymentStatus,
+        paidAmount: paidAmount,
+        dueDate: dueDate,
+        notes: data.notes?.trim() || null,
+        businessId: businessId,
+      },
+    });
+
+    // 2. If payment was made (fully or partially), record a supplier payment to sync ledger balance
+    if (paidAmount > 0) {
+      await tx.supplierPayment.create({
+        data: {
+          supplierId: data.supplierId,
+          amount: paidAmount,
+          paymentMethod: "CASH",
+          referenceNumber: good.invoiceNumber ? `PAY-${good.invoiceNumber}` : `PAY-${good.id.slice(-6)}`,
+          paymentDate: deliveryDate,
+          notes: `Settlement for goods intake: ${good.itemName} (${good.quantity} ${good.unit})`,
+          businessId: businessId,
+          userId: userId,
+        },
+      });
+    }
+
+    return good;
+  });
+
+  await logAudit({
+    action: `Recorded Supplier Goods: ${data.itemName} under supplier ID ${data.supplierId}`,
+    entity: "SUPPLIER",
+    entityId: data.supplierId,
+    newData: result,
+  });
+
+  revalidatePath("/dashboard/purchases/suppliers");
+  revalidatePath(`/dashboard/purchases/suppliers/${data.supplierId}`);
+
+  return {
+    ...result,
+    quantity: Number(result.quantity),
+    unitCost: Number(result.unitCost),
+    totalCost: Number(result.totalCost),
+    paidAmount: Number(result.paidAmount),
+    deliveryDate: result.deliveryDate.toISOString(),
+    createdAt: result.createdAt.toISOString(),
+    updatedAt: result.updatedAt.toISOString(),
+  };
+}
+
+export async function deleteSupplierGood(id: string) {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const businessId = session.user.businessId;
+
+  const good = await prisma.supplierGood.update({
+    where: { id, businessId },
+    data: { deletedAt: new Date() },
+  });
+
+  revalidatePath("/dashboard/purchases/suppliers");
+  revalidatePath(`/dashboard/purchases/suppliers/${good.supplierId}`);
+  return { success: true };
 }
 
 export async function createSupplier(data: {
