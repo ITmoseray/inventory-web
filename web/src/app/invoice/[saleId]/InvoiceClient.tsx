@@ -198,27 +198,58 @@ export default function InvoiceClient({ sale }: { sale: any }) {
             </table>
           </div>
 
-          {/* Total */}
-          <div className="border-t-2 border-slate-100 pt-4">
-            <div className="flex justify-between items-center bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-4 rounded-2xl">
-              <div>
-                <p className="text-indigo-200 text-[10px] uppercase tracking-widest">Amount Paid</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <CreditCard className="h-4 w-4 text-indigo-300" />
-                  <span className="text-indigo-200 text-xs font-bold">{sale.paymentMethod?.replace("_", " ")}</span>
+          {/* Total & NRA GST Breakdown */}
+          {(() => {
+            const rawSettings = (sale.business as any)?.receiptSettings || {};
+            const isNraMode = rawSettings.enableNraFiscalMode ?? false;
+            const showGst = isNraMode || (rawSettings.showGstBreakdown ?? false);
+            const gstRate = rawSettings.gstRate ?? 15;
+            const isTaxInclusive = rawSettings.taxInclusive ?? true;
+            const rateDecimal = gstRate / 100;
+            const total = Number(sale.totalAmount) || 0;
+            const netAmount = isTaxInclusive ? (total / (1 + rateDecimal)) : total;
+            const gstAmount = isTaxInclusive ? (total - netAmount) : (total * rateDecimal);
+
+            return (
+              <div className="space-y-3 pt-2">
+                {showGst && (
+                  <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 text-xs space-y-1.5 font-medium">
+                    <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-400 border-b border-slate-200/60 pb-1">
+                      <span>NRA GST (15%) Breakdown</span>
+                      <span className="text-emerald-600 font-bold">Standard Rate A</span>
+                    </div>
+                    <div className="flex justify-between text-slate-600">
+                      <span>Taxable Net Amount:</span>
+                      <span className="font-mono font-bold">{currency} {netAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-indigo-600 font-bold">
+                      <span>GST 15% Amount:</span>
+                      <span className="font-mono">{currency} {gstAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center bg-gradient-to-r from-indigo-600 to-violet-600 text-white px-6 py-4 rounded-2xl shadow-md">
+                  <div>
+                    <p className="text-indigo-200 text-[10px] uppercase tracking-widest">Amount Paid</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <CreditCard className="h-4 w-4 text-indigo-300" />
+                      <span className="text-indigo-200 text-xs font-bold">{sale.paymentMethod?.replace("_", " ")}</span>
+                    </div>
+                  </div>
+                  <p className="text-3xl font-black">
+                    {currency} {total.toLocaleString()}
+                  </p>
                 </div>
               </div>
-              <p className="text-3xl font-black">
-                {currency} {Number(sale.totalAmount).toLocaleString()}
-              </p>
-            </div>
-          </div>
+            );
+          })()}
 
-          {/* QR Code */}
+          {/* QR Code & Verification */}
           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Scan to View Invoice</p>
-              <p className="text-xs text-slate-400 max-w-[200px]">Customer can scan this code to download a copy on their phone</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Scan to Verify &amp; View</p>
+              <p className="text-xs text-slate-400 max-w-[200px]">Scan with any phone to view the digital invoice &amp; tax record</p>
             </div>
             <div className="p-3 bg-white border-2 border-slate-100 rounded-2xl shadow-sm">
               <QRCodeSVG

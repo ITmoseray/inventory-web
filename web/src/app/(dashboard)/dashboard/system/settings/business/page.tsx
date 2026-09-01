@@ -58,6 +58,15 @@ export default function BusinessSettingsPage() {
       showQrCode: true,
       showPoweredBy: true,
       paperWidth: "80mm" as "58mm" | "80mm",
+      // NRA Fiscal Compliance (SmartPay/ECR Standard)
+      enableNraFiscalMode: false,
+      taxIdentificationNumber: "1002934-8",
+      nraDeviceId: "CIS-TNSD-001",
+      gstRate: 15,
+      taxInclusive: true,
+      showGstBreakdown: true,
+      showFiscalSignature: true,
+      showNraQrCode: true,
     }
   });
 
@@ -95,6 +104,15 @@ export default function BusinessSettingsPage() {
               showQrCode: rawSettings.showQrCode ?? true,
               showPoweredBy: rawSettings.showPoweredBy ?? true,
               paperWidth: rawSettings.paperWidth ?? "80mm",
+              // NRA Fiscal Settings
+              enableNraFiscalMode: rawSettings.enableNraFiscalMode ?? false,
+              taxIdentificationNumber: rawSettings.taxIdentificationNumber ?? (business.taxId || "1002934-8"),
+              nraDeviceId: rawSettings.nraDeviceId ?? (isTopNotch ? "CIS-TNSD-001" : "CIS-POS-001"),
+              gstRate: rawSettings.gstRate ?? 15,
+              taxInclusive: rawSettings.taxInclusive ?? true,
+              showGstBreakdown: rawSettings.showGstBreakdown ?? true,
+              showFiscalSignature: rawSettings.showFiscalSignature ?? true,
+              showNraQrCode: rawSettings.showNraQrCode ?? true,
             }
           });
         }
@@ -568,6 +586,191 @@ export default function BusinessSettingsPage() {
                           Compact Thermal (58mm)
                         </button>
                       </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* NRA 15% GST FISCAL COMPLIANCE CARD (SmartPay / ECR Standard) */}
+                <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] overflow-hidden border-2 border-indigo-500/20">
+                  <div className="bg-gradient-to-r from-emerald-600 to-indigo-600 p-4 text-white flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="h-9 w-9 rounded-xl bg-white/20 flex items-center justify-center">
+                        <ShieldCheck className="h-5 w-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-black text-sm uppercase tracking-wider leading-tight">
+                          NRA 15% GST &amp; Fiscal Compliance
+                        </h4>
+                        <p className="text-[10px] text-white/80 font-bold uppercase tracking-widest">
+                          National Revenue Authority (EBITAS / ECR SmartPay Standard)
+                        </p>
+                      </div>
+                    </div>
+                    <label className="flex items-center gap-2 cursor-pointer bg-white/15 px-3 py-1.5 rounded-xl border border-white/20">
+                      <span className="text-[10px] font-black uppercase tracking-wider">Enable NRA Mode</span>
+                      <input
+                        type="checkbox"
+                        checked={formData.receiptSettings.enableNraFiscalMode ?? false}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          receiptSettings: {
+                            ...formData.receiptSettings,
+                            enableNraFiscalMode: e.target.checked
+                          }
+                        })}
+                        className="h-4 w-4 rounded text-emerald-600 focus:ring-emerald-500"
+                      />
+                    </label>
+                  </div>
+
+                  <CardContent className="p-6 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* TIN Number */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                          Taxpayer TIN (Tax Identification No.)
+                        </Label>
+                        <Input
+                          type="text"
+                          value={formData.receiptSettings.taxIdentificationNumber || ""}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              taxIdentificationNumber: e.target.value
+                            }
+                          })}
+                          placeholder="e.g. 1002934-8"
+                          className="h-11 rounded-xl border-slate-200 dark:border-slate-800 font-mono text-xs font-bold"
+                        />
+                        <span className="text-[9px] text-slate-400 font-medium block">
+                          Official TIN issued by NRA Sierra Leone
+                        </span>
+                      </div>
+
+                      {/* ECR / CIS Device Identifier */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                          NRA CIS / ECR Device ID
+                        </Label>
+                        <Input
+                          type="text"
+                          value={formData.receiptSettings.nraDeviceId || ""}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              nraDeviceId: e.target.value
+                            }
+                          })}
+                          placeholder="e.g. CIS-TNSD-001 or FSDU-8921"
+                          className="h-11 rounded-xl border-slate-200 dark:border-slate-800 font-mono text-xs font-bold"
+                        />
+                        <span className="text-[9px] text-slate-400 font-medium block">
+                          Certified Invoicing System / Fiscal Device ID
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+                      {/* GST Rate */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                          GST Tax Rate (%)
+                        </Label>
+                        <Input
+                          type="number"
+                          min="0"
+                          max="100"
+                          value={formData.receiptSettings.gstRate ?? 15}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              gstRate: parseFloat(e.target.value) || 15
+                            }
+                          })}
+                          className="h-11 rounded-xl border-slate-200 dark:border-slate-800 font-mono text-xs font-bold"
+                        />
+                        <span className="text-[9px] text-slate-400 font-medium block">
+                          Sierra Leone Standard Rate = 15%
+                        </span>
+                      </div>
+
+                      {/* Tax Inclusive / Exclusive */}
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+                          Tax Pricing Model
+                        </Label>
+                        <select
+                          value={formData.receiptSettings.taxInclusive ? "inclusive" : "exclusive"}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              taxInclusive: e.target.value === "inclusive"
+                            }
+                          })}
+                          className="w-full h-11 px-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold cursor-pointer"
+                        >
+                          <option value="inclusive">GST Included in Prices (Standard Retail)</option>
+                          <option value="exclusive">GST Added on Top (+15%)</option>
+                        </select>
+                        <span className="text-[9px] text-slate-400 font-medium block">
+                          How tax is calculated at checkout
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Fiscal Toggles */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2">
+                      <label className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 cursor-pointer">
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">15% GST Table</span>
+                        <input
+                          type="checkbox"
+                          checked={formData.receiptSettings.showGstBreakdown ?? true}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              showGstBreakdown: e.target.checked
+                            }
+                          })}
+                          className="h-4 w-4 rounded text-indigo-600"
+                        />
+                      </label>
+
+                      <label className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 cursor-pointer">
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">SDC Signature</span>
+                        <input
+                          type="checkbox"
+                          checked={formData.receiptSettings.showFiscalSignature ?? true}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              showFiscalSignature: e.target.checked
+                            }
+                          })}
+                          className="h-4 w-4 rounded text-indigo-600"
+                        />
+                      </label>
+
+                      <label className="flex items-center justify-between p-2.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 cursor-pointer">
+                        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">NRA Verify QR</span>
+                        <input
+                          type="checkbox"
+                          checked={formData.receiptSettings.showNraQrCode ?? true}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            receiptSettings: {
+                              ...formData.receiptSettings,
+                              showNraQrCode: e.target.checked
+                            }
+                          })}
+                          className="h-4 w-4 rounded text-indigo-600"
+                        />
+                      </label>
                     </div>
                   </CardContent>
                 </Card>

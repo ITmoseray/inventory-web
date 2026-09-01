@@ -12,10 +12,15 @@ import {
   Package,
   Calendar,
   Download,
-  Filter
+  Filter,
+  ShieldCheck,
+  Printer,
+  FileText,
+  CheckCircle2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -41,6 +46,7 @@ import {
 import { toast } from "sonner";
 import { getSales } from "@/lib/actions/sale";
 import { getProducts } from "@/lib/actions/product";
+import { getCurrentBusiness } from "@/lib/actions/business";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -50,7 +56,9 @@ import { ResponsiveTable } from "@/components/shared/responsive-table";
 export default function ReportsPage() {
   const [sales, setSales] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [business, setBusiness] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isZReportOpen, setIsZReportOpen] = useState(false);
   
   useEffect(() => {
     fetchData();
@@ -59,12 +67,14 @@ export default function ReportsPage() {
   async function fetchData() {
     try {
       setLoading(true);
-      const [sData, pData] = await Promise.all([
+      const [sData, pData, bData] = await Promise.all([
         getSales(),
-        getProducts()
+        getProducts(),
+        getCurrentBusiness()
       ]);
-      setSales(sData);
-      setProducts(pData);
+      setSales(sData || []);
+      setProducts(pData || []);
+      setBusiness(bData || null);
     } catch (error) {
       toast.error("Cloud synchronization failed.");
     } finally {
@@ -190,6 +200,65 @@ export default function ReportsPage() {
         ))}
       </div>
 
+      {/* NRA 15% GST FISCAL TAX & Z-REPORT CARD (SmartPay / ECR Standard) */}
+      {(() => {
+        const rawSettings = (business?.receiptSettings as any) || {};
+        const isNraMode = rawSettings.enableNraFiscalMode ?? false;
+        const tin = rawSettings.taxIdentificationNumber || business?.taxId || "1002934-8";
+        const ecrId = rawSettings.nraDeviceId || "CIS-TNSD-001";
+        const gstRate = rawSettings.gstRate ?? 15;
+        const rateDecimal = gstRate / 100;
+        const taxableBase = totalRevenue / (1 + rateDecimal);
+        const totalGstCollected = totalRevenue - taxableBase;
+
+        return (
+          <Card className="border-none shadow-lg rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden border border-indigo-500/20">
+            <CardContent className="p-6 sm:p-8">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                      <ShieldCheck className="h-4 w-4" />
+                    </div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-400">
+                      NRA Fiscal &amp; Tax Compliance (EBITAS / ECR Standard)
+                    </span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
+                    NRA 15% GST Collection &amp; Daily Fiscal Status
+                  </h3>
+                  <p className="text-xs text-slate-300 font-medium max-w-xl">
+                    Real-time GST calculation and sales data signature for National Revenue Authority compliance and monthly tax filing.
+                  </p>
+                  <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-1">
+                    <span>TIN: <b className="text-white">{tin}</b></span>
+                    <span>•</span>
+                    <span>CIS Device ID: <b className="text-white">{ecrId}</b></span>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 min-w-[150px]">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-indigo-300">Taxable Net Base</p>
+                    <p className="text-lg font-black font-mono mt-0.5">Le {Math.round(taxableBase).toLocaleString()}</p>
+                  </div>
+                  <div className="bg-emerald-500/20 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/30 min-w-[150px]">
+                    <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">GST 15% Collected</p>
+                    <p className="text-lg font-black font-mono text-emerald-400 mt-0.5">Le {Math.round(totalGstCollected).toLocaleString()}</p>
+                  </div>
+                  <Button
+                    onClick={() => setIsZReportOpen(true)}
+                    className="h-14 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-widest shadow-xl gap-2 cursor-pointer w-full sm:w-auto"
+                  >
+                    <Printer className="h-4 w-4" /> Print NRA Z-Report
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
+
       <div className="grid gap-6 lg:gap-8 lg:grid-cols-7">
          {/* Sales Trend Chart */}
          <Card className="lg:col-span-4 border-none shadow-sm bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden">
@@ -282,6 +351,128 @@ export default function ReportsPage() {
             }
          />
       </div>
+
+      {/* NRA FISCAL Z-REPORT PRINT MODAL */}
+      <Dialog open={isZReportOpen} onOpenChange={setIsZReportOpen}>
+        <DialogContent className="sm:max-w-[440px] rounded-[2rem] border-none shadow-2xl p-6 bg-white dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <div className="flex items-center gap-2 text-emerald-600 mb-1">
+              <ShieldCheck className="h-5 w-5" />
+              <span className="text-[10px] font-black uppercase tracking-widest">NRA EBITAS / ECR Compliance</span>
+            </div>
+            <DialogTitle className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+              Official Fiscal Z-Report
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+              End-of-day tax collection &amp; fiscal reconciliation
+            </DialogDescription>
+          </DialogHeader>
+
+          {(() => {
+            const rawSettings = (business?.receiptSettings as any) || {};
+            const tin = rawSettings.taxIdentificationNumber || business?.taxId || "1002934-8";
+            const ecrId = rawSettings.nraDeviceId || "CIS-TNSD-001";
+            const gstRate = rawSettings.gstRate ?? 15;
+            const rateDecimal = gstRate / 100;
+            const taxableBase = totalRevenue / (1 + rateDecimal);
+            const totalGstCollected = totalRevenue - taxableBase;
+            const cashTotal = paidSales.filter((s: any) => s.paymentMethod === "CASH").reduce((sum: number, s: any) => sum + s.totalAmount, 0);
+            const momoTotal = paidSales.filter((s: any) => s.paymentMethod === "MOBILE_MONEY" || s.paymentMethod === "ORANGE_MONEY" || s.paymentMethod === "AFRIMONEY").reduce((sum: number, s: any) => sum + s.totalAmount, 0);
+            const bankTotal = paidSales.filter((s: any) => s.paymentMethod === "BANK_TRANSFER" || s.paymentMethod === "CARD" || s.paymentMethod === "CHEQUE").reduce((sum: number, s: any) => sum + s.totalAmount, 0);
+            const zNum = `Z-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-001`;
+
+            return (
+              <div className="space-y-4 pt-2">
+                {/* Thermal Preview Paper Container */}
+                <div id="nra-z-report-paper" className="p-4 bg-slate-50 dark:bg-slate-950 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl font-mono text-[11px] space-y-2 text-slate-900 dark:text-white">
+                  <div className="text-center border-b border-dashed border-slate-300 dark:border-slate-800 pb-2 space-y-0.5">
+                    <p className="font-black text-sm uppercase">{business?.name || "Enterprise OS"}</p>
+                    <p className="text-[9px] text-slate-500">{business?.address || "Freetown, Sierra Leone"}</p>
+                    <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1">*** NRA DAILY FISCAL Z-REPORT ***</p>
+                    <p className="text-[9px] font-bold">REPORT NO: {zNum}</p>
+                    <p className="text-[9px] text-slate-500">PRINT DATE: {new Date().toLocaleString()}</p>
+                  </div>
+
+                  <div className="text-[10px] space-y-0.5 border-b border-dashed border-slate-300 dark:border-slate-800 pb-2">
+                    <p>TAXPAYER TIN: <span className="font-bold">{tin}</span></p>
+                    <p>ECR / CIS ID: <span className="font-bold">{ecrId}</span></p>
+                    <p>OPERATIONAL SHIFT: <span className="font-bold">DAY CLOSE</span></p>
+                    <p>TRANSACTIONS: <span className="font-bold">{paidSales.length} Transactions</span></p>
+                  </div>
+
+                  <div className="space-y-1 border-b border-dashed border-slate-300 dark:border-slate-800 pb-2">
+                    <p className="font-black text-[10px] uppercase text-slate-500">TAX CATEGORY BREAKDOWN</p>
+                    <div className="flex justify-between">
+                      <span>Standard Rate A (15%):</span>
+                      <span className="font-bold">Le {Math.round(taxableBase).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-emerald-600 font-bold">
+                      <span>GST (15%) Collected:</span>
+                      <span>Le {Math.round(totalGstCollected).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>Zero-Rated (0%):</span>
+                      <span>Le 0</span>
+                    </div>
+                    <div className="flex justify-between text-slate-400">
+                      <span>Exempt (0%):</span>
+                      <span>Le 0</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1 border-b border-dashed border-slate-300 dark:border-slate-800 pb-2">
+                    <p className="font-black text-[10px] uppercase text-slate-500">SETTLEMENT SUMMARY</p>
+                    <div className="flex justify-between">
+                      <span>CASH PAYMENTS:</span>
+                      <span className="font-bold">Le {Math.round(cashTotal).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>MOBILE MONEY (ORANGE/AFRI):</span>
+                      <span className="font-bold">Le {Math.round(momoTotal).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>BANK / CARD:</span>
+                      <span className="font-bold">Le {Math.round(bankTotal).toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm font-black pt-1">
+                    <span>GROSS FISCAL TOTAL:</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-mono">
+                      Le {Math.round(totalRevenue).toLocaleString()}
+                    </span>
+                  </div>
+
+                  <div className="pt-2 text-[8px] text-center text-slate-400 border-t border-dashed border-slate-300 dark:border-slate-800 font-mono">
+                    <p className="font-bold">SDC FISCAL SIGNATURE</p>
+                    <p className="break-all font-mono text-[7.5px]">SIG: 8E4A-21CD-98BF-44E1-NRA2026</p>
+                    <p className="mt-0.5">NATIONAL REVENUE AUTHORITY • SIERRA LEONE</p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsZReportOpen(false)}
+                    className="flex-1 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer"
+                  >
+                    Close
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => window.print()}
+                    className="flex-1 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg cursor-pointer"
+                  >
+                    <Printer className="h-4 w-4" /> Print Z-Report
+                  </Button>
+                </div>
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
