@@ -5,7 +5,7 @@ import {
   Building2, Plus, Search, Filter, Download, Trash2, Edit3, 
   Calendar, FileText, CheckCircle2, AlertCircle, Clock, 
   Receipt, DollarSign, Percent, ShieldCheck, Scale, CreditCard,
-  Building, RefreshCw, X, ArrowUpRight, Check, Printer
+  Building, RefreshCw, X, ArrowUpRight, Check, Printer, Eye, Sparkles
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -97,6 +97,9 @@ export default function TaxesPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
 
+  // View / Print Single Certificate Modal
+  const [viewingRecord, setViewingRecord] = useState<any | null>(null);
+
   // Delete State
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -150,35 +153,49 @@ export default function TaxesPage() {
     setEditingRecord(null);
     const rawSettings = (business?.receiptSettings as any) || {};
     const defaultTin = rawSettings.taxIdentificationNumber || business?.taxId || "1002934-8";
+    const currentPeriod = new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" });
 
     if (preset) {
+      let suggestedTaxable = "";
+      let suggestedAmount = "";
+      let suggestedPaid = "";
+
+      // If it's the GST 15% return and we have sales data, suggest the calculated amount
+      if (preset.type === "GST_15" && analytics?.grossSalesRevenue > 0) {
+        const estBase = Math.round(analytics.grossSalesRevenue / 1.15);
+        const estGst = Math.round(analytics.estimatedSalesGst);
+        suggestedTaxable = String(estBase);
+        suggestedAmount = String(estGst);
+        suggestedPaid = String(estGst);
+      }
+
       setFormData({
         taxType: preset.type,
         taxName: preset.name,
         taxAuthority: preset.authority,
-        taxPeriod: new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-        taxableAmount: "",
+        taxPeriod: currentPeriod,
+        taxableAmount: suggestedTaxable,
         taxRate: preset.rate ? String(preset.rate) : "0",
-        taxAmount: "",
-        paidAmount: "",
+        taxAmount: suggestedAmount,
+        paidAmount: suggestedPaid,
         paymentStatus: "PAID",
         paymentDate: new Date().toISOString().slice(0, 10),
         dueDate: new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10),
         paymentMethod: "BANK_TRANSFER",
         referenceNumber: "",
         tinNumber: defaultTin,
-        notes: ""
+        notes: preset.description || ""
       });
     } else {
       setFormData({
         taxType: "GST_15",
         taxName: "NRA 15% Monthly GST Return",
         taxAuthority: "National Revenue Authority (NRA)",
-        taxPeriod: new Date().toLocaleDateString("en-US", { month: "long", year: "numeric" }),
-        taxableAmount: "",
+        taxPeriod: currentPeriod,
+        taxableAmount: analytics?.grossSalesRevenue > 0 ? String(Math.round(analytics.grossSalesRevenue / 1.15)) : "",
         taxRate: "15",
-        taxAmount: "",
-        paidAmount: "",
+        taxAmount: analytics?.estimatedSalesGst > 0 ? String(Math.round(analytics.estimatedSalesGst)) : "",
+        paidAmount: analytics?.estimatedSalesGst > 0 ? String(Math.round(analytics.estimatedSalesGst)) : "",
         paymentStatus: "PAID",
         paymentDate: new Date().toISOString().slice(0, 10),
         dueDate: new Date(Date.now() + 15 * 86400000).toISOString().slice(0, 10),
@@ -211,6 +228,21 @@ export default function TaxesPage() {
       notes: rec.notes || ""
     });
     setIsModalOpen(true);
+  };
+
+  // Quick 1-click settle unpaid balance
+  const handleQuickSettle = async (rec: any) => {
+    try {
+      await updateTaxRecord(rec.id, {
+        paidAmount: rec.taxAmount,
+        paymentStatus: "PAID",
+        paymentDate: new Date().toISOString()
+      });
+      toast.success(`Settled full balance for ${rec.taxName}`);
+      loadData();
+    } catch (err: any) {
+      toast.error("Failed to update settlement status");
+    }
   };
 
   // Auto calculate tax amount based on base & rate
@@ -604,21 +636,46 @@ export default function TaxesPage() {
                         </p>
                       </td>
 
-                      <td className="py-4 px-6 text-right">
+                      <td className="py-4 px-6 text-right print:hidden">
                         <div className="flex items-center justify-end gap-1">
+                          {/* Settle button if not fully paid */}
+                          {!isPaid && (
+                            <button
+                              type="button"
+                              onClick={() => handleQuickSettle(rec)}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/60 dark:text-emerald-400 text-[10px] font-black uppercase tracking-wider transition-colors cursor-pointer mr-1"
+                              title="Mark as Fully Paid"
+                            >
+                              Settle
+                            </button>
+                          )}
+
+                          {/* View Certificate Slip */}
+                          <button
+                            type="button"
+                            onClick={() => setViewingRecord(rec)}
+                            className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors cursor-pointer"
+                            title="View Tax Remittance Slip"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                          </button>
+
+                          {/* Edit */}
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(rec)}
-                            className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors"
+                            className="p-2 rounded-xl text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 transition-colors cursor-pointer"
                             title="Edit Tax Record"
                           >
                             <Edit3 className="h-3.5 w-3.5" />
                           </button>
+
+                          {/* Delete */}
                           <button
                             type="button"
                             onClick={() => handleDelete(rec.id)}
                             disabled={deletingId === rec.id}
-                            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors"
+                            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/50 transition-colors cursor-pointer"
                             title="Delete Tax Record"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -896,6 +953,93 @@ export default function TaxesPage() {
               </Button>
             </div>
           </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View / Print Tax Remittance Certificate Slip Modal */}
+      <Dialog open={!!viewingRecord} onOpenChange={(open) => !open && setViewingRecord(null)}>
+        <DialogContent className="sm:max-w-[480px] rounded-[2.5rem] border-none shadow-2xl p-6 sm:p-8 bg-white dark:bg-slate-900">
+          {viewingRecord && (
+            <div className="space-y-6">
+              <div className="text-center border-b border-slate-100 dark:border-slate-800 pb-4 space-y-1">
+                <div className="h-12 w-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+                  <ShieldCheck className="h-6 w-6" />
+                </div>
+                <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+                  Tax Remittance Certificate
+                </h3>
+                <p className="text-xs text-slate-500 font-medium">
+                  {business?.name || "Top Notch Sales & Distribution"}
+                </p>
+                <p className="text-[10px] font-mono text-slate-400">
+                  TIN: {viewingRecord.tinNumber || "1002934-8"} • Ref: {viewingRecord.referenceNumber || viewingRecord.id.slice(0, 8)}
+                </p>
+              </div>
+
+              <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2.5 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Tax Type:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{viewingRecord.taxName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Revenue Authority:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{viewingRecord.taxAuthority}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Tax Filing Period:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{viewingRecord.taxPeriod}</span>
+                </div>
+                {viewingRecord.taxableAmount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Taxable Base (@ {viewingRecord.taxRate}%):</span>
+                    <span className="font-mono font-bold">Le {viewingRecord.taxableAmount.toLocaleString()}</span>
+                  </div>
+                )}
+                <div className="flex justify-between border-t border-slate-200 dark:border-slate-800 pt-2 font-bold">
+                  <span className="text-slate-700 dark:text-slate-300">Total Tax Assessed:</span>
+                  <span className="font-mono text-slate-900 dark:text-white">Le {viewingRecord.taxAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-black text-sm text-emerald-600 dark:text-emerald-400">
+                  <span>Amount Remitted:</span>
+                  <span className="font-mono">Le {viewingRecord.paidAmount.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Status:</span>
+                  <span className="font-black uppercase text-emerald-600">{viewingRecord.paymentStatus}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Payment Channel:</span>
+                  <span className="font-bold">{viewingRecord.paymentMethod?.replace("_", " ")}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Settlement Date:</span>
+                  <span>{viewingRecord.paymentDate ? new Date(viewingRecord.paymentDate).toLocaleDateString() : "-"}</span>
+                </div>
+                {viewingRecord.notes && (
+                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <p className="text-[10px] text-slate-400">Notes:</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 italic">{viewingRecord.notes}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setViewingRecord(null)}
+                  className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest cursor-pointer"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => window.print()}
+                  className="flex-1 h-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg cursor-pointer"
+                >
+                  <Printer className="h-4 w-4" /> Print Slip
+                </Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
