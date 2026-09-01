@@ -103,6 +103,7 @@ export const electronicsSidebarConfig = [
           { title: "Expenses", url: "/dashboard/accounting/expenses" },
           { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
           { title: "Cash Flow", url: "/dashboard/accounting/cashflow" },
+          { title: "Tax Records & Filing", url: "/dashboard/accounting/taxes" },
         ],
       },
       { title: "Billing", url: "/dashboard/billing", icon: CreditCard, permission: "menu:accounting:billing" },

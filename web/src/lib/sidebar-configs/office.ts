@@ -66,6 +66,7 @@ export const officeSidebarConfig = [
           { title: "Office Expenses", url: "/dashboard/accounting/expenses" },
           { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
           { title: "Cashflow", url: "/dashboard/accounting/cashflow" },
+          { title: "Tax Records & Filing", url: "/dashboard/accounting/taxes" },
           { title: "Transaction Tags", url: "/dashboard/accounting/tags" },
           { title: "Bank Reconciliation", url: "/dashboard/accounting/reconciliation" },
         ],

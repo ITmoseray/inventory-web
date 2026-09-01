@@ -105,6 +105,7 @@ export const barSidebarConfig = [
           { title: "Expenses", url: "/dashboard/accounting/expenses" },
           { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
           { title: "Cash Flow", url: "/dashboard/accounting/cashflow" },
+          { title: "Tax Records & Filing", url: "/dashboard/accounting/taxes" },
           { title: "Daily Reconciliation", url: "/dashboard/accounting" },
         ],
       },

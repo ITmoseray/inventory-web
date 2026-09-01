@@ -114,6 +114,7 @@ export const shopSidebarConfig = [
           { title: "Transaction Tags", url: "/dashboard/accounting/tags" },
           { title: "Profit & Loss", url: "/dashboard/accounting/pl" },
           { title: "Cash Flow", url: "/dashboard/accounting/cashflow" },
+          { title: "Tax Records & Filing", url: "/dashboard/accounting/taxes" },
         ],
       },
       { title: "Billing", url: "/dashboard/billing", icon: CreditCard, permission: "menu:accounting:billing" },

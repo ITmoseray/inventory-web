@@ -62,6 +62,7 @@ model Business {
   suppliers               Supplier[]
   supplierPayments        SupplierPayment[]
   supplierGoods           SupplierGood[]
+  taxRecords              TaxRecord[]
   users                   User[]
   pushSubscriptions       PushSubscription[]
   patients                Patient[]
@@ -557,6 +558,38 @@ model SupplierGood {
 
   @@index([businessId])
   @@index([supplierId])
+  @@index([businessId, deletedAt])
+}
+
+model TaxRecord {
+  id              String    @id @default(cuid())
+  taxType         String    // GST_15, PAYE_PAYROLL, WITHHOLDING_TAX, CORPORATE_INCOME_TAX, CUSTOMS_DUTY, CITY_COUNCIL_RATES, TRADE_LICENSE, STAMP_DUTY, OTHER
+  taxName         String
+  taxAuthority    String    @default("National Revenue Authority (NRA)") // NRA, FCC, Local Council, Customs, etc.
+  taxPeriod       String    // e.g. "August 2026", "Q3 2026", "Annual 2025/2026"
+  taxableAmount   Decimal   @default(0) @db.Decimal(12, 2)
+  taxRate         Decimal   @default(0) @db.Decimal(5, 2)
+  taxAmount       Decimal   @default(0) @db.Decimal(12, 2)
+  paidAmount      Decimal   @default(0) @db.Decimal(12, 2)
+  paymentStatus   String    @default("PAID") // PAID, PARTIAL, PENDING, OVERDUE
+  paymentDate     DateTime? @default(now())
+  dueDate         DateTime?
+  paymentMethod   String?   @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, CHEQUE, ORANGE_MONEY, AFRIMONEY
+  referenceNumber String?   // Assessment # / Receipt # / Cheque #
+  tinNumber       String?   // TIN used for filing
+  receiptFileUrl  String?   // Proof attachment URL
+  notes           String?
+  recordedById    String?
+  businessId      String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  business        Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([businessId, taxType])
+  @@index([businessId, paymentStatus])
   @@index([businessId, deletedAt])
 }
 
