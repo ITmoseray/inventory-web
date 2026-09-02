@@ -350,11 +350,13 @@ export default function ProtechCloudHomepage() {
                 <video 
                   controls 
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   poster="/videos/protech-advert-cover.jpg"
                   className="w-full h-full object-cover"
                 >
+                  <source src="/api/video/advert" type="video/mp4" />
                   <source src="/videos/protech-advert.mp4" type="video/mp4" />
+                  <source src="/videos/0902.mp4" type="video/mp4" />
                   <source src="/videos/ads.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
