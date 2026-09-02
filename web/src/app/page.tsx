@@ -10,7 +10,7 @@ import {
   Briefcase, Stethoscope, Play, Sparkles, Phone, Mail, MapPin
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { PricingSection } from "@/components/shared/pricing-section";
 import { ExpertPopup } from "@/components/shared/expert-popup";
 import { CookieBanner } from "@/components/shared/cookie-banner";
@@ -84,6 +84,8 @@ const countries = [
 
 export default function ProtechCloudHomepage() {
   const { data: session } = useSession();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
@@ -348,10 +350,13 @@ export default function ProtechCloudHomepage() {
             <div className="max-w-5xl mx-auto rounded-[2.5rem] p-2 sm:p-4 bg-gradient-to-br from-indigo-500/25 via-violet-500/20 to-purple-500/25 border border-indigo-500/30 shadow-[0_20px_80px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_20px_80px_-15px_rgba(79,70,229,0.4)] backdrop-blur-xl">
               <div className="relative rounded-[2rem] overflow-hidden aspect-video bg-black shadow-inner group">
                 <video 
+                  ref={videoRef}
                   controls 
                   playsInline
                   preload="auto"
                   poster="/videos/protech-advert-cover.jpg"
+                  onPlay={() => setIsVideoPlaying(true)}
+                  onPause={() => setIsVideoPlaying(false)}
                   className="w-full h-full object-cover"
                 >
                   <source src="/api/video/advert" type="video/mp4" />
@@ -360,6 +365,27 @@ export default function ProtechCloudHomepage() {
                   <source src="/videos/ads.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
+
+                {/* Big Custom Play Button Overlay */}
+                {!isVideoPlaying && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (videoRef.current) {
+                        videoRef.current.play().catch(err => console.error("Playback error:", err));
+                        setIsVideoPlaying(true);
+                      }
+                    }}
+                    className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-black/40 hover:bg-black/30 backdrop-blur-[2px] transition-all duration-300 group cursor-pointer z-10"
+                  >
+                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-indigo-600/90 text-white flex items-center justify-center shadow-[0_0_50px_rgba(79,70,229,0.8)] group-hover:scale-110 group-hover:bg-indigo-500 transition-transform duration-300 border-2 border-white/40">
+                      <Play className="h-9 w-9 sm:h-11 sm:w-11 fill-white text-white ml-1.5" />
+                    </div>
+                    <span className="mt-4 px-4 py-1.5 rounded-full bg-slate-900/80 text-white font-black text-xs uppercase tracking-widest border border-white/20 shadow-lg">
+                      Click To Play Commercial
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
 
