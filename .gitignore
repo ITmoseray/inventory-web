@@ -48,7 +48,11 @@ yarn-error.log*
 *.rar
 *.7z
 photo/
-web/public/videos/
+web/public/videos/*.mp4
+web/public/videos/*.mov
+web/public/videos/*.webm
+!web/public/videos/*.jpg
+!web/public/videos/*.png
 
 # OS files
 .DS_Store

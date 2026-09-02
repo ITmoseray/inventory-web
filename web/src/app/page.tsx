@@ -7,7 +7,7 @@ import {
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
   ChevronDown, Globe, MessageSquare, BarChart, Layers, Menu, X, FileText,
-  Briefcase, Stethoscope
+  Briefcase, Stethoscope, Play, Sparkles, Phone, Mail, MapPin
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -118,7 +118,7 @@ export default function ProtechCloudHomepage() {
           </Link>
 
           <div className="hidden xl:flex items-center gap-8">
-            {["Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
+            {["Advert", "Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
               <Link key={item} href={`#${item.toLowerCase()}`} className="relative text-sm lg:text-base font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group">
                 {item}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -196,7 +196,7 @@ export default function ProtechCloudHomepage() {
         {isMobileMenuOpen && (
           <div className="xl:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
             <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {["Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
+              {["Advert", "Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
                 <Link 
                   key={item} 
                   href={`#${item.toLowerCase()}`} 
@@ -259,7 +259,7 @@ export default function ProtechCloudHomepage() {
               Designed by Protech Assist (SL) Limited to provide mission-critical intelligence for retail, wholesale, and distribution enterprises across the continent.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-24">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4 justify-center items-center mb-24">
               <button 
                 onClick={() => setIsAuthModalOpen(true)}
                 className="h-14 px-8 text-base font-semibold bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl shadow-[0_0_20px_rgba(79,70,229,0.3)] hover:shadow-[0_0_30px_rgba(79,70,229,0.5)] hover:-translate-y-1 transition-all duration-300 flex items-center justify-center shrink-0 min-w-max"
@@ -279,6 +279,13 @@ export default function ProtechCloudHomepage() {
               >
                 Book a Live Demo
               </button>
+              <a 
+                href="#advert"
+                className="h-14 px-7 text-base font-semibold border-2 border-indigo-500/40 bg-indigo-50/50 dark:bg-indigo-950/40 backdrop-blur-sm hover:bg-indigo-100 dark:hover:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 rounded-xl shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex items-center justify-center shrink-0 min-w-max gap-2"
+              >
+                <Play className="h-4 w-4 fill-indigo-600 dark:fill-indigo-400 text-indigo-600 dark:text-indigo-400" />
+                Watch Advert
+              </a>
             </div>
 
             {/* Dashboard Preview */}
@@ -315,6 +322,98 @@ export default function ProtechCloudHomepage() {
                 </div>
               ))}
             </motion.div>
+          </div>
+        </section>
+
+        {/* Official Commercial Video Advert Section */}
+        <section id="advert" className="py-20 lg:py-28 bg-gradient-to-b from-white via-indigo-50/40 to-white dark:from-slate-950 dark:via-indigo-950/20 dark:to-slate-950 border-b border-slate-200 dark:border-slate-800 relative overflow-hidden">
+          {/* Glowing background aura */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-indigo-500/15 dark:bg-indigo-600/20 blur-[150px] pointer-events-none rounded-full" />
+          
+          <div className="container px-6 mx-auto relative z-10">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-200 dark:border-indigo-800/60 bg-indigo-50 dark:bg-indigo-950/50 backdrop-blur-sm text-indigo-700 dark:text-indigo-300 text-xs font-black uppercase tracking-widest mb-4 shadow-xs">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400 animate-spin" style={{ animationDuration: '6s' }} />
+                Official Commercial &amp; Product Showcase
+              </div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-[1000] tracking-tight text-slate-900 dark:text-white uppercase italic">
+                See <span className="text-indigo-600 dark:text-indigo-400">Protech Assist</span> In Action
+              </h2>
+              <p className="mt-3 text-base sm:text-lg text-slate-600 dark:text-slate-400 font-medium leading-relaxed">
+                Watch our official commercial showcasing the Enterprise OS, high-speed POS checkout, real-time Profit &amp; Loss tracking, multi-warehouse inventory, and enterprise IT solutions.
+              </p>
+            </div>
+
+            {/* Video Container with Cyber Border */}
+            <div className="max-w-5xl mx-auto rounded-[2.5rem] p-2 sm:p-4 bg-gradient-to-br from-indigo-500/25 via-violet-500/20 to-purple-500/25 border border-indigo-500/30 shadow-[0_20px_80px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_20px_80px_-15px_rgba(79,70,229,0.4)] backdrop-blur-xl">
+              <div className="relative rounded-[2rem] overflow-hidden aspect-video bg-black shadow-inner group">
+                <video 
+                  controls 
+                  playsInline
+                  preload="metadata"
+                  poster="/videos/protech-advert-cover.jpg"
+                  className="w-full h-full object-cover"
+                >
+                  <source src="/videos/protech-advert.mp4" type="video/mp4" />
+                  <source src="/videos/ads.mp4" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            </div>
+
+            {/* Feature Highlights */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 max-w-5xl mx-auto mt-10">
+              {[
+                { label: "Point of Sale (POS)", icon: ShoppingCart, desc: "High-speed checkout" },
+                { label: "Inventory OS", icon: Box, desc: "Multi-branch tracking" },
+                { label: "Profit & Loss", icon: TrendingUp, desc: "Real-time margins" },
+                { label: "Web Development", icon: Laptop, desc: "Custom SaaS apps" },
+                { label: "Cybersecurity", icon: Shield, desc: "Fortified data security" },
+                { label: "IT Consultancy", icon: Headphones, desc: "24/7 Technical support" },
+              ].map((item, i) => (
+                <div key={i} className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs text-center space-y-1 hover:border-indigo-500/50 transition-all">
+                  <div className="h-9 w-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto mb-2">
+                    <item.icon className="h-4 w-4" />
+                  </div>
+                  <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight line-clamp-1">{item.label}</p>
+                  <p className="text-[10px] text-slate-400 font-medium line-clamp-1">{item.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Official Headquarters Contact Strip */}
+            <div className="max-w-5xl mx-auto mt-8 p-6 rounded-3xl bg-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl border border-slate-800">
+              <div className="flex items-center gap-4 text-center md:text-left">
+                <div className="p-3 rounded-2xl bg-indigo-600 text-white shrink-0 hidden sm:flex">
+                  <MapPin className="h-6 w-6" />
+                </div>
+                <div>
+                  <div className="text-xs font-black uppercase tracking-widest text-indigo-400">Headquarters &amp; Support</div>
+                  <div className="text-sm font-bold text-slate-200 mt-0.5">No. 7D Old Railway Line, Tengbeh Town, Freetown, Sierra Leone</div>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                <a 
+                  href="tel:+23273019699" 
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-2 text-slate-100 transition-colors"
+                >
+                  <Phone className="h-3.5 w-3.5 text-emerald-400" /> +232 73 019699
+                </a>
+                <a 
+                  href="tel:+23234955581" 
+                  className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-black uppercase tracking-wider flex items-center gap-2 text-slate-100 transition-colors"
+                >
+                  <Phone className="h-3.5 w-3.5 text-emerald-400" /> +232 34 955581
+                </a>
+                <a 
+                  href="mailto:protechassist36@gmail.com" 
+                  className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-xs font-black uppercase tracking-wider flex items-center gap-2 text-white shadow-md transition-colors"
+                >
+                  <Mail className="h-3.5 w-3.5" /> Email Us
+                </a>
+              </div>
+            </div>
           </div>
         </section>
 
