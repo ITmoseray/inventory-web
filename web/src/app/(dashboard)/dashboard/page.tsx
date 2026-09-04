@@ -40,6 +40,10 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { TrendChart } from "@/components/dashboard/trend-chart";
 import { SmartForecastingWidget } from "@/components/dashboard/smart-forecasting-widget";
 import { ExpiryWidget } from "@/components/dashboard/expiry-widget";
+import { QuickActionCommandBar } from "@/components/dashboard/quick-action-command-bar";
+import { AiExecutiveBriefing } from "@/components/dashboard/ai-executive-briefing";
+import { PaymentChannelTelemetry } from "@/components/dashboard/payment-channel-telemetry";
+import { LiveActivityStream } from "@/components/dashboard/live-activity-stream";
 import { Calculator as CalculatorIcon } from "lucide-react";
 import { ProfessionalCalculator } from "@/components/shared/professional-calculator";
 
@@ -389,6 +393,16 @@ export default function DashboardPage() {
               <OfficeDashboardView stats={stats} />
             ) : (
               <>
+                {/* 1. Quick Operational Action Command Center */}
+                <QuickActionCommandBar businessType={businessType} onRefresh={fetchDashboardData} />
+
+                {/* 2. Protech AI Executive Briefing HUD */}
+                <AiExecutiveBriefing 
+                  stats={stats} 
+                  businessName={session?.user?.businessName || "Protech Enterprise"} 
+                  userName={session?.user?.name?.split(' ')[0] || (session?.user?.email?.split('@')[0] === "strangesteven001" ? "Dr. Strange" : "Admin")} 
+                />
+
                 {/* Top Section: AI Assistant + Stat Cards */}
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8 w-full max-w-full min-w-0">
                   {/* AI Assistant Card */}
@@ -556,6 +570,16 @@ export default function DashboardPage() {
                   <ExpiryWidget />
                 </motion.div>
               )}
+            </div>
+
+            {/* Payment Channel Telemetry & Live Register Stream */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 mt-6 sm:mt-8 w-full max-w-full min-w-0">
+              <div className="lg:col-span-7">
+                <PaymentChannelTelemetry recentSales={recentSales} totalRevenue={stats.revenue} />
+              </div>
+              <div className="lg:col-span-5">
+                <LiveActivityStream recentSales={recentSales} onSelectSale={(sale) => { setSelectedSale(sale); setIsDetailsOpen(true); }} />
+              </div>
             </div>
 
             <div className="grid gap-8 lg:grid-cols-3 pb-12">

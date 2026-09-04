@@ -16,6 +16,9 @@ import { ExpertPopup } from "@/components/shared/expert-popup";
 import { CookieBanner } from "@/components/shared/cookie-banner";
 import { AnnouncementBanner } from "@/components/shared/announcement-banner";
 import { TestimonialsSection } from "@/components/landing/testimonials-section";
+import { InteractivePosSandbox } from "@/components/landing/interactive-pos-sandbox";
+import { RoiCalculatorSection } from "@/components/landing/roi-calculator-section";
+import { IndustrySolutionTabs } from "@/components/landing/industry-solution-tabs";
 import { useSession } from "next-auth/react";
 import {
   Dialog,
@@ -137,10 +140,20 @@ export default function ProtechCloudHomepage() {
             </div>
           </Link>
 
-          <div className="hidden xl:flex items-center gap-8">
-            {["Advert", "Features", "Solutions", "Services", "Pricing", "Testimonials", "Security"].map((item) => (
-              <Link key={item} href={`#${item.toLowerCase()}`} className="relative text-sm lg:text-base font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group">
-                {item}
+          <div className="hidden xl:flex items-center gap-6">
+            {[
+              { label: "Advert", href: "#advert" },
+              { label: "POS Sandbox", href: "#pos-sandbox" },
+              { label: "Solutions", href: "#solutions" },
+              { label: "ROI Calculator", href: "#roi-calculator" },
+              { label: "Features", href: "#features" },
+              { label: "Services", href: "#services" },
+              { label: "Pricing", href: "#pricing" },
+              { label: "Testimonials", href: "#testimonials" },
+              { label: "Security", href: "#security" },
+            ].map((item) => (
+              <Link key={item.label} href={item.href} className="relative text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group whitespace-nowrap">
+                {item.label}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full rounded-full"></span>
               </Link>
             ))}
@@ -216,14 +229,24 @@ export default function ProtechCloudHomepage() {
         {isMobileMenuOpen && (
           <div className="xl:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
             <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {["Advert", "Features", "Solutions", "Services", "Pricing", "Testimonials", "Security"].map((item) => (
+              {[
+                { label: "Advert", href: "#advert" },
+                { label: "POS Sandbox", href: "#pos-sandbox" },
+                { label: "Solutions", href: "#solutions" },
+                { label: "ROI Calculator", href: "#roi-calculator" },
+                { label: "Features", href: "#features" },
+                { label: "Services", href: "#services" },
+                { label: "Pricing", href: "#pricing" },
+                { label: "Testimonials", href: "#testimonials" },
+                { label: "Security", href: "#security" },
+              ].map((item) => (
                 <Link 
-                  key={item} 
-                  href={`#${item.toLowerCase()}`} 
+                  key={item.label} 
+                  href={item.href} 
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-3 border-b border-slate-100 dark:border-slate-800/50 last:border-0"
                 >
-                  {item}
+                  {item.label}
                 </Link>
               ))}
               
@@ -453,6 +476,15 @@ export default function ProtechCloudHomepage() {
             </div>
           </div>
         </section>
+
+        {/* Interactive Live POS Sandbox Terminal */}
+        <InteractivePosSandbox />
+
+        {/* Tailored Industry Solutions */}
+        <IndustrySolutionTabs />
+
+        {/* ROI Profit & Stock Loss Prevention Calculator */}
+        <RoiCalculatorSection />
 
         {/* Before / After Transformation Section */}
         <section className="py-24 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
@@ -964,6 +996,19 @@ export default function ProtechCloudHomepage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Floating Quick WhatsApp & Help Pill */}
+      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+        <a
+          href="https://wa.me/23273019699?text=Hello%20Protech%20Assist,%20I%20would%20like%20to%20request%20a%20consultation%20or%20demo."
+          target="_blank"
+          rel="noopener noreferrer"
+          className="h-12 px-4 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-2xl shadow-emerald-600/50 hover:scale-105 transition-all border border-emerald-400/30 cursor-pointer"
+        >
+          <MessageSquare className="h-4 w-4 fill-white" />
+          <span className="hidden sm:inline">Chat On WhatsApp</span>
+        </a>
+      </div>
     </div>
   );
 }
