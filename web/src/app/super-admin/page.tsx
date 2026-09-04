@@ -7,8 +7,9 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu, Crown,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star
 } from "lucide-react";
+import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,6 +65,7 @@ import { getEcosystemOnlinePresence } from "@/lib/actions/presence";
 
 export default function NexusSuperControl() {
   const { data: session, status } = useSession();
+  const { openLogoutFeedback } = useLogoutFeedback();
   const router = useRouter();
   const [stats, setStats] = useState<any>(null);
   const [health, setHealth] = useState<any>(null);
@@ -811,41 +813,42 @@ export default function NexusSuperControl() {
                  </div>
               </div>
            </motion.div>
-
-           {/* Right side: user info + logout */}
-           <div className="flex items-center gap-3 self-center sm:self-auto">
-              <div className="flex flex-col items-end">
-                 <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 tracking-widest leading-none uppercase">Admin User</span>
-                 <span className="text-xs font-black text-slate-800 dark:text-white mt-0.5 uppercase tracking-tighter">Dr. Strange</span>
-              </div>
-              <Button variant="outline" onClick={async () => {
-                 const { logoutUserCompletely } = await import("@/lib/utils/logout");
-                 await logoutUserCompletely(signOut);
-              }} className="h-9 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 dark:hover:bg-rose-500 dark:hover:text-white font-black text-[10px] uppercase tracking-widest transition-all">
-                 <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
-              </Button>
-           </div>
-         </div>
-
-         {/* Bottom row: CTA buttons & Live Presence Badges */}
-         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
-            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
-              <Link href="/super-admin/master-monitor" className="w-full sm:w-auto">
-                 <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] border border-amber-400/30">
-                    <Crown className="h-4 w-4 text-amber-200" /> Master Super Admin Monitor
-                 </Button>
-              </Link>
-              <Link href="/super-admin/implementations" className="w-full sm:w-auto">
-                 <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
-                    <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits
-                 </Button>
-              </Link>
-              <Link href="/super-admin/businesses" className="w-full sm:w-auto">
-                 <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
-                    <Megaphone className="h-4 w-4 text-indigo-500" /> Client Discovery &amp; Registration Vault
-                 </Button>
-              </Link>
+                     {/* Right side: user info + logout */}
+            <div className="flex items-center gap-3 self-center sm:self-auto">
+               <div className="flex flex-col items-end">
+                  <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 tracking-widest leading-none uppercase">Admin User</span>
+                  <span className="text-xs font-black text-slate-800 dark:text-white mt-0.5 uppercase tracking-tighter">Dr. Strange</span>
+               </div>
+               <Button variant="outline" onClick={() => openLogoutFeedback()} className="h-9 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 dark:hover:bg-rose-500 dark:hover:text-white font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer">
+                  <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
+               </Button>
             </div>
+          </div>
+
+          {/* Bottom row: CTA buttons & Live Presence Badges */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 sm:gap-3">
+               <Link href="/super-admin/master-monitor" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-amber-500 via-amber-600 to-indigo-600 hover:from-amber-600 hover:to-indigo-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] border border-amber-400/30">
+                     <Crown className="h-4 w-4 text-amber-200" /> Master Super Admin Monitor
+                  </Button>
+               </Link>
+               <Link href="/super-admin/implementations" className="w-full sm:w-auto">
+                  <Button className="w-full sm:w-auto h-10 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                     <ClipboardCheck className="h-4 w-4" /> Client Implementation &amp; Inventory Audits
+                  </Button>
+               </Link>
+               <Link href="/super-admin/businesses" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-slate-700 dark:text-slate-200">
+                     <Megaphone className="h-4 w-4 text-indigo-500" /> Client Discovery &amp; Registration Vault
+                  </Button>
+               </Link>
+               <Link href="/super-admin/testimonials" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10">
+                     <Star className="h-4 w-4 text-amber-500 fill-amber-500" /> Testimonials &amp; Reviews Hub
+                  </Button>
+               </Link>
+             </div>
 
             {/* Real-time Online Presence Indicators */}
             <div className="grid grid-cols-2 sm:flex items-center gap-2">

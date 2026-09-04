@@ -15,6 +15,7 @@ import { PricingSection } from "@/components/shared/pricing-section";
 import { ExpertPopup } from "@/components/shared/expert-popup";
 import { CookieBanner } from "@/components/shared/cookie-banner";
 import { AnnouncementBanner } from "@/components/shared/announcement-banner";
+import { TestimonialsSection } from "@/components/landing/testimonials-section";
 import { useSession } from "next-auth/react";
 import {
   Dialog,
@@ -137,7 +138,7 @@ export default function ProtechCloudHomepage() {
           </Link>
 
           <div className="hidden xl:flex items-center gap-8">
-            {["Advert", "Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
+            {["Advert", "Features", "Solutions", "Services", "Pricing", "Testimonials", "Security"].map((item) => (
               <Link key={item} href={`#${item.toLowerCase()}`} className="relative text-sm lg:text-base font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group">
                 {item}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full rounded-full"></span>
@@ -215,7 +216,7 @@ export default function ProtechCloudHomepage() {
         {isMobileMenuOpen && (
           <div className="xl:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
             <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
-              {["Advert", "Features", "Solutions", "Services", "Pricing", "Security"].map((item) => (
+              {["Advert", "Features", "Solutions", "Services", "Pricing", "Testimonials", "Security"].map((item) => (
                 <Link 
                   key={item} 
                   href={`#${item.toLowerCase()}`} 
@@ -761,56 +762,8 @@ export default function ProtechCloudHomepage() {
           <PricingSection selectedCountry={selectedCountry} />
         </div>
 
-        {/* 7. Social Proof */}
-        <section className="py-24 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
-           <div className="container px-6 mx-auto">
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                 <div className="space-y-8">
-                    <div>
-                       <div className="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-3">Real-World Impact</div>
-                       <h2 className="text-3xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-4">
-                          Trusted by Industry Leaders.
-                       </h2>
-                       <p className="text-lg text-slate-600 dark:text-slate-400">
-                          More than 75% of our customers report lasting operational impacts within the first 30 days of implementation.
-                       </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-6">
-                       {[
-                         { value: "1-3 hrs", label: "Saved in order processing daily", icon: Clock },
-                         { value: "20-30%", label: "Reduction in inventory wastage", icon: TrendingUp },
-                       ].map((stat, i) => (
-                         <div key={i} className="group p-6 rounded-3xl bg-white/60 dark:bg-slate-900/40 backdrop-blur-md border border-slate-200/60 dark:border-slate-800/60 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.05)] dark:hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1">
-                            <stat.icon className="h-8 w-8 text-indigo-600 dark:text-indigo-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
-                            <div className="text-4xl font-extrabold text-slate-900 dark:text-white mb-2">{stat.value}</div>
-                            <div className="text-sm font-medium text-slate-600 dark:text-slate-400">{stat.label}</div>
-                         </div>
-                       ))}
-                    </div>
-                 </div>
-
-                 <div className="bg-gradient-to-br from-slate-900 to-black rounded-[2rem] p-10 lg:p-12 relative shadow-2xl overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px] group-hover:bg-indigo-500/20 transition-colors duration-700"></div>
-                    <Quote className="absolute top-6 right-6 h-32 w-32 text-white/5 pointer-events-none group-hover:text-indigo-500/10 transition-colors duration-700" />
-                    <div className="relative z-10">
-                       <h3 className="text-2xl sm:text-3xl font-medium text-white leading-relaxed italic mb-8">
-                          "The multi-branch control changed how we operate. Real-time tracking is a lifesaver for our distribution network."
-                       </h3>
-                       <div className="flex items-center gap-4">
-                          <div className="h-12 w-12 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30">
-                            <span className="font-bold text-indigo-300 text-lg">AB</span>
-                          </div>
-                          <div>
-                             <p className="text-lg font-bold text-white">Aminata Bangura</p>
-                             <p className="text-sm font-medium text-indigo-400">CEO, Eastside Pharmacy</p>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </section>
+        {/* 7. Dynamic Social Proof & Testimonials */}
+        <TestimonialsSection />
 
         {/* 8. Final CTA */}
         <section className="py-24 relative overflow-hidden text-center">

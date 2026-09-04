@@ -1934,3 +1934,33 @@ model ChatMessage {
   @@index([conversationId, createdAt])
   @@index([senderId])
 }
+
+enum TestimonialStatus {
+  PENDING
+  APPROVED
+  FEATURED
+  REJECTED
+}
+
+model Testimonial {
+  id           String            @id @default(cuid())
+  authorName   String
+  roleTitle    String?
+  companyName  String
+  industry     String?
+  rating       Int               @default(5)
+  content      String            @db.Text
+  avatarUrl    String?
+  location     String?           @default("Freetown, Sierra Leone")
+  status       TestimonialStatus @default(PENDING)
+  isVerified   Boolean           @default(false)
+  source       String?           @default("LOGOUT_FEEDBACK") // "LOGOUT_FEEDBACK", "LANDING_PAGE", "IN_APP", "MANUAL"
+  businessId   String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+
+  @@index([status])
+  @@index([rating])
+  @@index([createdAt])
+}
+

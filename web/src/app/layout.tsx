@@ -13,6 +13,7 @@ import { GlobalThemeToggle } from "@/components/shared/global-theme-toggle";
 import { InstallPWA } from "@/components/shared/install-pwa";
 import { Toaster } from "@/components/ui/sonner";
 import { ClickSoundProvider } from "@/components/shared/click-sound-provider";
+import { LogoutFeedbackProvider } from "@/components/providers/logout-feedback-provider";
 
 export const dynamic = "force-dynamic";
 
@@ -95,7 +96,9 @@ export default function RootLayout({
               <Suspense>
               <LoadingProvider>
                 <BusinessProvider>
-                  {children}
+                  <LogoutFeedbackProvider>
+                    {children}
+                  </LogoutFeedbackProvider>
                 </BusinessProvider>
               </LoadingProvider>
               <Toaster />

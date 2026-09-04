@@ -4,9 +4,9 @@ import * as React from "react";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pin, PinOff, Building2, Store, 
   ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
-  CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
-  Crown, Zap, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare
+  Crown, Zap, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare, Star
 } from "lucide-react";
+import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 
 import {
   Sidebar,
@@ -99,6 +99,7 @@ const SidebarContentRenderer = ({
   pathname 
 }: any) => {
   const { setOpenMobile, state, isMobile, isPinned = true, togglePin = () => {}, isHovered = false } = useSidebar();
+  const { openLogoutFeedback } = useLogoutFeedback();
   const isCollapsed = !isPinned && !isHovered && !isMobile;
   const [expandedItems, setExpandedItems] = React.useState<string[]>([]);
 
@@ -432,13 +433,16 @@ const SidebarContentRenderer = ({
                          <Trophy className="mr-2 size-3.5 text-indigo-600" />
                          Referral Management
                      </DropdownMenuItem>
+                     <DropdownMenuItem render={<Link href="/super-admin/testimonials" className="flex items-center w-full text-xs text-amber-500 font-bold" />}>
+                         <Star className="mr-2 size-3.5 text-amber-500 fill-amber-500" />
+                         Testimonials Moderation
+                     </DropdownMenuItem>
                    </>
                 )}
                 <div className="h-px bg-sidebar-border my-1.5" />
-                <DropdownMenuItem onClick={async () => {
-                  const { logoutUserCompletely } = await import("@/lib/utils/logout");
-                  await logoutUserCompletely(signOut);
-                }} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 text-xs">
+                <DropdownMenuItem onClick={() => {
+                  openLogoutFeedback();
+                }} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 text-xs cursor-pointer">
                   <LogOut className="mr-2 size-3.5" />
                   Log Out
                 </DropdownMenuItem>

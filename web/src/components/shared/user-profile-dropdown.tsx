@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 
 interface UserProfileDropdownProps {
   user: {
@@ -22,9 +23,10 @@ interface UserProfileDropdownProps {
 }
 
 export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
+  const { openLogoutFeedback } = useLogoutFeedback();
+
   const handleLogout = async () => {
-    const { logoutUserCompletely } = await import("@/lib/utils/logout");
-    await logoutUserCompletely(signOut);
+    openLogoutFeedback();
   };
 
   return (
