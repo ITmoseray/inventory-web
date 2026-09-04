@@ -26,6 +26,7 @@ export const pharmacySidebarConfig = [
         permission: "menu:sales",
         items: [
           { title: "Launch POS", url: "/dashboard/pos" },
+          { title: "Cash Register", url: "/dashboard/cash-register" },
           { title: "Sales History", url: "/dashboard/sales/history" },
           { title: "Invoices", url: "/dashboard/sales/invoices" },
           { title: "Credit Sales", url: "/dashboard/customers/debts" },

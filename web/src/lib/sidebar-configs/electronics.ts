@@ -55,9 +55,11 @@ export const electronicsSidebarConfig = [
         permission: "menu:sales",
         items: [
           { title: "Launch POS", url: "/dashboard/pos" },
+          { title: "Cash Register", url: "/dashboard/cash-register" },
           { title: "Sales History", url: "/dashboard/sales/history" },
           { title: "Quotes & Proposals", url: "/dashboard/sales/quotes" },
           { title: "Invoices", url: "/dashboard/sales/invoices" },
+          { title: "Sales Orders", url: "/dashboard/sales/orders" },
           { title: "Credit Sales", url: "/dashboard/customers/debts" },
           { title: "Returns", url: "/dashboard/sales/returns" },
         ],

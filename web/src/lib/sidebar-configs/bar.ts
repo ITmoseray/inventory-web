@@ -2,7 +2,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
-  Beer, CalendarCheck, MessageSquare, GlassWater, ChefHat, ReceiptText
+  Beer, CalendarCheck, MessageSquare, GlassWater, ChefHat, ReceiptText, TrendingUp
 } from "lucide-react";
 
 export const barSidebarConfig = [
@@ -26,6 +26,7 @@ export const barSidebarConfig = [
         permission: "menu:sales",
         items: [
           { title: "Launch POS", url: "/dashboard/pos" },
+          { title: "Cash Register", url: "/dashboard/cash-register" },
           { title: "Open Tabs", url: "/dashboard/sales/orders" },
           { title: "Sales History", url: "/dashboard/sales/history" },
           { title: "Invoices", url: "/dashboard/sales/invoices" },

@@ -24,6 +24,7 @@ export const restaurantSidebarConfig = [
         permission: "menu:sales",
         items: [
           { title: "Launch POS", url: "/dashboard/pos" },
+          { title: "Cash Register", url: "/dashboard/cash-register" },
           { title: "Sales History", url: "/dashboard/sales/history" },
           { title: "Invoices", url: "/dashboard/sales/invoices" },
           { title: "Sales Orders", url: "/dashboard/sales/orders" },
