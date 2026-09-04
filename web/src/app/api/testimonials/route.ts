@@ -78,10 +78,46 @@ export const SEED_TESTIMONIALS = [
   }
 ];
 
-// GET /api/testimonials - Public: returns approved & featured reviews
+// GET /api/testimonials - Public: returns approved & featured reviews OR checks current user status
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
+    const checkUser = searchParams.get("checkUser");
+
+    // If request asks if current logged in user has already reviewed
+    if (checkUser === "true") {
+      const session = await auth();
+      if (!session?.user) {
+        return NextResponse.json({ success: true, hasSubmitted: false });
+      }
+
+      const userId = (session.user as any)?.id;
+      const userEmail = session.user?.email;
+      const businessId = (session.user as any)?.businessId;
+
+      const orConditions: any[] = [];
+      if (userId) orConditions.push({ userId });
+      if (userEmail) orConditions.push({ authorEmail: userEmail });
+      if (businessId) orConditions.push({ businessId });
+
+      if (orConditions.length > 0) {
+        const existingReview = await prisma.testimonial.findFirst({
+          where: { OR: orConditions },
+          select: { id: true, rating: true, createdAt: true, status: true },
+        });
+
+        if (existingReview) {
+          return NextResponse.json({
+            success: true,
+            hasSubmitted: true,
+            review: existingReview,
+          });
+        }
+      }
+
+      return NextResponse.json({ success: true, hasSubmitted: false });
+    }
+
     const industry = searchParams.get("industry");
     const limit = parseInt(searchParams.get("limit") || "50", 10);
 
@@ -150,7 +186,9 @@ export async function POST(req: NextRequest) {
     // Check if user is logged in
     const session = await auth();
     const isUserLoggedIn = !!session?.user;
-    const businessId = session?.user?.businessId || null;
+    const userId = (session?.user as any)?.id || null;
+    const authorEmail = session?.user?.email || null;
+    const businessId = (session?.user as any)?.businessId || null;
 
     // Submissions from logged in merchants or super admin can be auto-verified
     const isVerified = isUserLoggedIn;
@@ -162,7 +200,7 @@ export async function POST(req: NextRequest) {
     const newTestimonial = await prisma.testimonial.create({
       data: {
         authorName: authorName.trim(),
-        roleTitle: roleTitle ? roleTitle.trim() : (isUserLoggedIn ? "Verified Merchant" : "Business Owner"),
+        roleTitle: roleTitle ? roleTitle.trim() : (isUserLoggedIn ? "Verified Protech Client" : "Business Owner"),
         companyName: companyName.trim(),
         industry: industry || "Enterprise Business",
         rating: Math.max(1, Math.min(5, parseInt(rating || "5", 10))),
@@ -172,12 +210,15 @@ export async function POST(req: NextRequest) {
         status,
         isVerified,
         source: source || (isUserLoggedIn ? "LOGOUT_FEEDBACK" : "LANDING_PAGE"),
-        businessId
+        businessId,
+        userId,
+        authorEmail,
       }
     });
 
     return NextResponse.json({
       success: true,
+      hasSubmitted: true,
       message: isSuperAdmin 
         ? "Testimonial published immediately!" 
         : "Thank you for your feedback! Your review has been submitted for verification.",

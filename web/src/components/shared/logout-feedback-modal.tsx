@@ -19,6 +19,7 @@ import { signOut } from "next-auth/react";
 interface LogoutFeedbackModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onReviewed?: () => void;
   user?: any;
 }
 
@@ -47,7 +48,7 @@ const PRESET_TAGS = [
   "🚀 Great Support",
 ];
 
-export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackModalProps) {
+export function LogoutFeedbackModal({ isOpen, onClose, onReviewed, user }: LogoutFeedbackModalProps) {
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState<number | null>(null);
   const [content, setContent] = useState("");
@@ -97,7 +98,7 @@ export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackMod
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          authorName: authorName.trim() || user?.name || "Verified Merchant",
+          authorName: authorName.trim() || user?.name || "Verified Client",
           authorRole: authorRole.trim() || "Business Owner",
           companyName: companyName.trim() || user?.businessName || "Protech Client Enterprise",
           content: content.trim(),
@@ -112,6 +113,13 @@ export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackMod
       const data = await response.json();
       if (data.success) {
         setSubmittedSuccess(true);
+        if (onReviewed) onReviewed();
+        if (typeof window !== "undefined") {
+          localStorage.setItem("protech_feedback_submitted", "true");
+          if (user?.email) localStorage.setItem(`protech_feedback_${user.email}`, "true");
+          if (user?.id) localStorage.setItem(`protech_feedback_${user.id}`, "true");
+          document.cookie = "protech_feedback_submitted=true; path=/; max-age=31536000; SameSite=Lax";
+        }
         toast.success("Thank you! Your review has been received. Logging out...");
         setTimeout(async () => {
           const { logoutUserCompletely } = await import("@/lib/utils/logout");

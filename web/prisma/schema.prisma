@@ -1956,11 +1956,16 @@ model Testimonial {
   isVerified   Boolean           @default(false)
   source       String?           @default("LOGOUT_FEEDBACK") // "LOGOUT_FEEDBACK", "LANDING_PAGE", "IN_APP", "MANUAL"
   businessId   String?
+  userId       String?
+  authorEmail  String?
   createdAt    DateTime          @default(now())
   updatedAt    DateTime          @updatedAt
 
   @@index([status])
   @@index([rating])
   @@index([createdAt])
+  @@index([userId])
+  @@index([authorEmail])
+  @@index([businessId])
 }
 

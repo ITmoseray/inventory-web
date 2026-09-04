@@ -95,6 +95,10 @@ export function SubmitReviewModal({ isOpen, onClose, onSuccess }: SubmitReviewMo
       const data = await response.json();
       if (data.success) {
         setSubmittedSuccess(true);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("protech_feedback_submitted", "true");
+          document.cookie = "protech_feedback_submitted=true; path=/; max-age=31536000; SameSite=Lax";
+        }
         toast.success("Thank you! Your review has been submitted for moderation.");
         if (onSuccess) onSuccess();
         setTimeout(() => {
