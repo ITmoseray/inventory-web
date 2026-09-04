@@ -346,6 +346,8 @@ export default function POSPage() {
   const [isCartVisible, setIsCartVisible] = useState(false);
   const [isHeldCartsOpen, setIsHeldCartsOpen] = useState(false);
   const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
+  const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
+  const [whatsAppRecipientPhone, setWhatsAppRecipientPhone] = useState("");
   const [receiptData, setReceiptData] = useState<any>(null);
   const [businessInfo, setBusinessInfo] = useState<any>(null);
   const receiptRef = React.useRef<HTMLDivElement>(null);
@@ -627,31 +629,63 @@ export default function POSPage() {
     }
   };
 
+  const generateWhatsAppReceiptText = () => {
+    if (!receiptData) return "";
+    const bName = receiptData.businessName || "Protech Enterprise";
+    const inv = receiptData.transactionId || receiptData.id || "INV-REC";
+    const cashier = receiptData.cashierName || "Cashier Counter";
+    const cust = receiptData.customerName || "Valued Customer";
+    const dateStr = new Date().toLocaleString();
+    const rateDecimal = 0.15;
+    const subtotal = receiptData.total / (1 + rateDecimal);
+    const gst = receiptData.total - subtotal;
+    
+    const itemsText = (receiptData.items || []).map((it: any) => `▪️ ${it.quantity}x ${it.name} — Le ${Math.round(it.price * it.quantity).toLocaleString()}`).join("\n");
+
+    return `🧾 *OFFICIAL RECEIPT — ${bName.toUpperCase()}*\n` +
+      `-----------------------------------------\n` +
+      `🆔 *Invoice #:* ${inv}\n` +
+      `📅 *Date:* ${dateStr}\n` +
+      `👤 *Cashier:* ${cashier}\n` +
+      `🏷️ *Customer:* ${cust}\n\n` +
+      `🛒 *ITEMS PURCHASED:*\n${itemsText}\n\n` +
+      `-----------------------------------------\n` +
+      `💵 *Subtotal:* Le ${Math.round(subtotal).toLocaleString()}\n` +
+      `🏛️ *NRA GST (15%):* Le ${Math.round(gst).toLocaleString()}\n` +
+      `💰 *TOTAL PAID:* Le ${Math.round(receiptData.total).toLocaleString()}\n` +
+      `💳 *Tender:* ${(receiptData.paymentMethod || "CASH").replace('_', ' ')}\n` +
+      `-----------------------------------------\n` +
+      `✨ _Thank you for shopping at ${bName}!_\n` +
+      `🌐 *Protech Assist Enterprise POS*`;
+  };
+
   const handleWhatsAppShare = () => {
     if (!receiptData) return;
+    const cust = customers.find(c => c.id === selectedCustomer);
+    if (cust?.phone) {
+      setWhatsAppRecipientPhone(cust.phone);
+    }
+    setIsWhatsAppModalOpen(true);
+  };
 
-    const savedTemplates = localStorage.getItem("comm_templates");
-    let template = "Thank you for shopping at {business_name}! Your invoice {invoice_number} of Le {total_amount} is complete. View receipt: {receipt_url}.";
-    if (savedTemplates) {
-      try {
-        template = JSON.parse(savedTemplates).receipt;
-      } catch (e) {}
+  const executeSendWhatsAppReceipt = () => {
+    if (!receiptData) return;
+    const rawPhone = whatsAppRecipientPhone.trim();
+    let cleanPhone = rawPhone.replace(/[^0-9]/g, "");
+    if (cleanPhone.startsWith("0")) {
+      cleanPhone = "232" + cleanPhone.slice(1);
+    } else if (cleanPhone.length === 8) {
+      cleanPhone = "232" + cleanPhone;
     }
 
-    const receiptUrl = `https://receipt.protech.sl/r/${receiptData.id}`;
-    const formattedMessage = template
-      .replaceAll("{business_name}", receiptData.businessName || "Our Shop")
-      .replaceAll("{invoice_number}", receiptData.id || "INV-NEW")
-      .replaceAll("{total_amount}", Math.round(receiptData.total).toLocaleString())
-      .replaceAll("{receipt_url}", receiptUrl);
+    const message = generateWhatsAppReceiptText();
+    const waUrl = cleanPhone 
+      ? `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+      : `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
 
-    const phoneInput = prompt("Enter customer phone number (with country code, e.g. 23277123456):");
-    if (phoneInput === null) return; 
-
-    const cleanPhone = phoneInput.replace(/[^0-9]/g, "");
-    const waLink = `https://api.whatsapp.com/send?phone=${cleanPhone || ""}&text=${encodeURIComponent(formattedMessage)}`;
-    window.open(waLink, "_blank");
-    toast.success("Redirection to WhatsApp opened!");
+    window.open(waUrl, "_blank");
+    setIsWhatsAppModalOpen(false);
+    toast.success("WhatsApp receipt dispatch opened!");
   };
 
   async function handleCreateCustomer(e: React.FormEvent) {
@@ -2008,9 +2042,9 @@ export default function POSPage() {
              <Button 
                variant="outline"
                onClick={handleWhatsAppShare}
-               className="flex-1 h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase border-green-200 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
+               className="flex-1 h-14 rounded-2xl text-[10px] font-black tracking-widest uppercase border-emerald-300 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
              >
-               <Share2 className="mr-2 h-4 w-4" /> Share
+               <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
              </Button>
              <Button 
                onClick={handlePrintReceipt}
@@ -2018,6 +2052,77 @@ export default function POSPage() {
              >
                <Printer className="mr-2 h-4 w-4" /> Print
              </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* WHATSAPP DIGITAL RECEIPT DISPATCH MODAL */}
+      <Dialog open={isWhatsAppModalOpen} onOpenChange={setIsWhatsAppModalOpen}>
+        <DialogContent className="sm:max-w-[420px] w-[95vw] rounded-[2rem] border-none shadow-2xl p-6 sm:p-8 bg-white dark:bg-slate-900 flex flex-col gap-5">
+          <div className="text-center space-y-1.5">
+            <div className="mx-auto h-14 w-14 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 rounded-2xl flex items-center justify-center mb-2 shadow-inner">
+              <MessageSquare size={28} className="fill-emerald-600/20" />
+            </div>
+            <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+              WhatsApp Digital Receipt
+            </h3>
+            <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
+              Instant 1-Tap Customer Dispatch
+            </p>
+          </div>
+
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-300">
+                Customer Phone Number (WhatsApp)
+              </Label>
+              <div className="relative">
+                <Input
+                  type="tel"
+                  placeholder="e.g. 077 123 456 or +232 79 178 880"
+                  value={whatsAppRecipientPhone}
+                  onChange={(e) => setWhatsAppRecipientPhone(e.target.value)}
+                  className="h-12 text-sm font-mono font-bold rounded-xl bg-slate-50 dark:bg-slate-950 border-slate-200 dark:border-slate-800"
+                />
+              </div>
+              <p className="text-[10px] text-slate-400">
+                Supports Sierra Leone local formats (07X, 08X, 03X, +232).
+              </p>
+            </div>
+
+            {/* Receipt Summary Card */}
+            {receiptData && (
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
+                <div className="flex justify-between font-bold">
+                  <span className="text-slate-500">Invoice:</span>
+                  <span className="text-slate-900 dark:text-white font-mono">{receiptData.transactionId || receiptData.id || "INV-REC"}</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span className="text-slate-500">Total Amount:</span>
+                  <span className="text-emerald-600 font-mono font-black">Le {Math.round(receiptData.total).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span className="text-slate-500">Items:</span>
+                  <span className="text-slate-900 dark:text-white">{receiptData.items?.length || 0} Products</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="pt-2 space-y-2">
+            <Button
+              onClick={executeSendWhatsAppReceipt}
+              className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-wider gap-2 shadow-lg shadow-emerald-600/25 cursor-pointer"
+            >
+              <MessageSquare className="h-4 w-4 fill-white" /> Send Digital Receipt Now
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => setIsWhatsAppModalOpen(false)}
+              className="w-full h-9 rounded-xl text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 font-bold"
+            >
+              Cancel
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

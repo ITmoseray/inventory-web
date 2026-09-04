@@ -46,6 +46,7 @@ export const pharmacySidebarConfig = [
         permission: "menu:inventory",
         items: [
           { title: "Products", url: "/dashboard/inventory/products" },
+          { title: "Barcode Studio", url: "/dashboard/inventory/barcode" },
           { title: "Categories", url: "/dashboard/inventory/categories" },
           { title: "Expiry Tracking", url: "/dashboard/inventory/expiry" },
           { title: "Stock Adjustments", url: "/dashboard/inventory/adjustments" },

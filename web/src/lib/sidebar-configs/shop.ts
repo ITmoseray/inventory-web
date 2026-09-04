@@ -3,7 +3,7 @@ import {
   Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
   Tag, Cpu, History, Pill, Stethoscope, Briefcase, Bell, Utensils, Beer, CalendarCheck, TrendingUp,
-  MessageSquare
+  MessageSquare, Barcode
 } from "lucide-react";
 
 export const shopSidebarConfig = [
@@ -29,11 +29,10 @@ export const shopSidebarConfig = [
         items: [
           { title: "Stock Overview", url: "/dashboard/inventory/overview" },
           { title: "Products", url: "/dashboard/inventory/products" },
+          { title: "Barcode Studio", url: "/dashboard/inventory/barcode" },
           { title: "Stock Transfers", url: "/dashboard/inventory/transfers" },
           { title: "Inventory Adjustments", url: "/dashboard/inventory/adjustments" },
           { title: "Packages", url: "/dashboard/inventory/packages" },
-          { title: "Secure Terminal", url: "/dashboard/system/terminal" },
-          { title: "Network Exchange", url: "/dashboard/inventory/network" },
           { title: "Categories", url: "/dashboard/inventory/categories" },
           { title: "Batches", url: "/dashboard/inventory/batches" },
           { title: "Stock History", url: "/dashboard/inventory/history" },

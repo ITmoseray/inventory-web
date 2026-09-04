@@ -26,6 +26,7 @@ export const warehouseSidebarConfig = [
         items: [
           { title: "Stock Overview", url: "/dashboard/inventory/overview" },
           { title: "Products", url: "/dashboard/inventory/products" },
+          { title: "Barcode Studio", url: "/dashboard/inventory/barcode" },
           { title: "Categories", url: "/dashboard/inventory/categories" },
           { title: "Stock Adjustments", url: "/dashboard/inventory/adjustments" },
           { title: "Stock History", url: "/dashboard/inventory/history" },

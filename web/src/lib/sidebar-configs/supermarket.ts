@@ -28,6 +28,7 @@ export const supermarketSidebarConfig = [
         items: [
           { title: "Stock Overview", url: "/dashboard/inventory/overview" },
           { title: "Products", url: "/dashboard/inventory/products" },
+          { title: "Barcode Studio", url: "/dashboard/inventory/barcode" },
           { title: "Categories", url: "/dashboard/inventory/categories" },
           { title: "Batches", url: "/dashboard/inventory/batches" },
           { title: "Expiry Tracking", url: "/dashboard/inventory/expiry" },
