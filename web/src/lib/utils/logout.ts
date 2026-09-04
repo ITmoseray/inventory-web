@@ -1,8 +1,22 @@
 export const logoutUserCompletely = async (signOutFunction: Function) => {
   if (typeof window !== "undefined") {
+    // 0. Preserve review & feedback status before clearing
+    const preservedStorage: Record<string, string> = {};
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const key = window.localStorage.key(i);
+      if (key && (key.startsWith("protech_feedback_") || key.startsWith("protech_reviewed_"))) {
+        preservedStorage[key] = window.localStorage.getItem(key) || "";
+      }
+    }
+
     // 1. Clear Local and Session Storage
     window.localStorage.clear();
     window.sessionStorage.clear();
+
+    // Restore preserved feedback flags
+    Object.entries(preservedStorage).forEach(([k, v]) => {
+      window.localStorage.setItem(k, v);
+    });
 
     // 2. Clear IndexedDB (used by dexie or other offline storage)
     if (window.indexedDB && window.indexedDB.databases) {
@@ -18,11 +32,12 @@ export const logoutUserCompletely = async (signOutFunction: Function) => {
       }
     }
 
-    // 3. Clear all visible cookies
+    // 3. Clear all session cookies except feedback flags
     document.cookie.split(";").forEach((c) => {
-      document.cookie = c
-        .replace(/^ +/, "")
-        .replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/");
+      const cookieName = c.split("=")[0].trim();
+      if (!cookieName.startsWith("protech_feedback_")) {
+        document.cookie = cookieName + "=;expires=" + new Date(0).toUTCString() + ";path=/";
+      }
     });
   }
 

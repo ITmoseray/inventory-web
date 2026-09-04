@@ -819,7 +819,7 @@ export default function NexusSuperControl() {
                   <span className="text-[9px] font-black text-slate-400 dark:text-slate-500 tracking-widest leading-none uppercase">Admin User</span>
                   <span className="text-xs font-black text-slate-800 dark:text-white mt-0.5 uppercase tracking-tighter">Dr. Strange</span>
                </div>
-               <Button variant="outline" onClick={() => openLogoutFeedback()} className="h-9 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 dark:hover:bg-rose-500 dark:hover:text-white font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer">
+               <Button variant="outline" onClick={async () => await openLogoutFeedback()} className="h-9 px-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20 dark:text-rose-400 hover:bg-rose-600 hover:text-white hover:border-rose-600 dark:hover:bg-rose-500 dark:hover:text-white font-black text-[10px] uppercase tracking-widest transition-all cursor-pointer">
                   <LogOut className="mr-1.5 h-3.5 w-3.5" /> Log Out
                </Button>
             </div>

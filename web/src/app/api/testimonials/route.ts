@@ -94,11 +94,19 @@ export async function GET(req: NextRequest) {
       const userId = (session.user as any)?.id;
       const userEmail = session.user?.email;
       const businessId = (session.user as any)?.businessId;
+      const businessName = (session.user as any)?.businessName;
+      const authorName = session.user?.name;
 
       const orConditions: any[] = [];
       if (userId) orConditions.push({ userId });
-      if (userEmail) orConditions.push({ authorEmail: userEmail });
+      if (userEmail) orConditions.push({ authorEmail: { equals: userEmail, mode: "insensitive" } });
       if (businessId) orConditions.push({ businessId });
+      if (authorName && authorName.length > 2) {
+        orConditions.push({ authorName: { equals: authorName, mode: "insensitive" } });
+      }
+      if (businessName && businessName.length > 2) {
+        orConditions.push({ companyName: { equals: businessName, mode: "insensitive" } });
+      }
 
       if (orConditions.length > 0) {
         const existingReview = await prisma.testimonial.findFirst({

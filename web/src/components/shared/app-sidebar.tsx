@@ -441,8 +441,8 @@ const SidebarContentRenderer = ({
                    </>
                 )}
                 <div className="h-px bg-sidebar-border my-1.5" />
-                <DropdownMenuItem onClick={() => {
-                  openLogoutFeedback();
+                <DropdownMenuItem onClick={async () => {
+                  await openLogoutFeedback();
                 }} className="text-rose-600 focus:text-rose-600 focus:bg-rose-50 dark:focus:bg-rose-950/30 text-xs cursor-pointer">
                   <LogOut className="mr-2 size-3.5" />
                   Log Out

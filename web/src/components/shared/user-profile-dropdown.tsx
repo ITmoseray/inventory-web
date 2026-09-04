@@ -26,7 +26,7 @@ export function UserProfileDropdown({ user }: UserProfileDropdownProps) {
   const { openLogoutFeedback } = useLogoutFeedback();
 
   const handleLogout = async () => {
-    openLogoutFeedback();
+    await openLogoutFeedback();
   };
 
   return (
