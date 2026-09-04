@@ -153,195 +153,198 @@ export function SubmitReviewModal({ isOpen, onClose, onSuccess }: SubmitReviewMo
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmit} className="p-5 sm:p-7 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
-            {/* Super Responsive Star Rating Selector */}
-            <div className="flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-3 shadow-inner">
-              <div className="flex items-center justify-between w-full">
-                <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Rating</span>
-                <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full">
-                  {(hoverRating !== null ? hoverRating : rating)}.0 / 5.0 Stars
-                </span>
-              </div>
-              
-              {/* Star Buttons */}
-              <div className="flex items-center justify-center gap-2 sm:gap-3 py-1 select-none">
-                {[1, 2, 3, 4, 5].map((star) => {
-                  const active = (hoverRating !== null ? hoverRating : rating) >= star;
-                  return (
-                    <button
-                      key={star}
-                      type="button"
-                      onMouseEnter={() => setHoverRating(star)}
-                      onMouseLeave={() => setHoverRating(null)}
-                      onPointerDown={() => { setRating(star); setHoverRating(null); }}
-                      onClick={(e) => { e.preventDefault(); setRating(star); setHoverRating(null); }}
-                      className={`h-11 w-11 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center transition-all cursor-pointer touch-manipulation focus:outline-none ${
-                        active 
-                          ? "bg-amber-400/15 border-2 border-amber-400 scale-110 shadow-md shadow-amber-400/20" 
-                          : "bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:scale-105"
-                      }`}
-                      aria-label={`${star} Stars`}
-                    >
-                      <Star
-                        className={`h-6 w-6 sm:h-7 sm:w-7 pointer-events-none transition-colors ${
-                          active
-                            ? "text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]"
-                            : "text-slate-300 dark:text-slate-600"
+          <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+            {/* Scrollable Form Body */}
+            <div className="flex-1 overflow-y-auto p-5 sm:p-6 space-y-4 custom-scrollbar">
+              {/* Super Responsive Star Rating Selector */}
+              <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-3 shadow-inner">
+                <div className="flex items-center justify-between w-full">
+                  <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Rating</span>
+                  <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full">
+                    {(hoverRating !== null ? hoverRating : rating)}.0 / 5.0 Stars
+                  </span>
+                </div>
+                
+                {/* Star Buttons */}
+                <div className="flex items-center justify-center gap-2 sm:gap-3 py-1 select-none">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const active = (hoverRating !== null ? hoverRating : rating) >= star;
+                    return (
+                      <button
+                        key={star}
+                        type="button"
+                        onMouseEnter={() => setHoverRating(star)}
+                        onMouseLeave={() => setHoverRating(null)}
+                        onPointerDown={() => { setRating(star); setHoverRating(null); }}
+                        onClick={(e) => { e.preventDefault(); setRating(star); setHoverRating(null); }}
+                        className={`h-11 w-11 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center transition-all cursor-pointer touch-manipulation focus:outline-none ${
+                          active 
+                            ? "bg-amber-400/15 border-2 border-amber-400 scale-110 shadow-md shadow-amber-400/20" 
+                            : "bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:scale-105"
                         }`}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
+                        aria-label={`${star} Stars`}
+                      >
+                        <Star
+                          className={`h-6 w-6 sm:h-7 sm:w-7 pointer-events-none transition-colors ${
+                            active
+                              ? "text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]"
+                              : "text-slate-300 dark:text-slate-600"
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
 
-              {/* Quick Number Pills for Instant Rating */}
-              <div className="grid grid-cols-5 gap-1.5 w-full pt-1">
-                {[
-                  { val: 1, label: "1★ Poor" },
-                  { val: 2, label: "2★ Fair" },
-                  { val: 3, label: "3★ Good" },
-                  { val: 4, label: "4★ Great" },
-                  { val: 5, label: "5★ Best" },
-                ].map((item) => (
-                  <button
-                    key={item.val}
-                    type="button"
-                    onPointerDown={() => { setRating(item.val); setHoverRating(null); }}
-                    onClick={(e) => { e.preventDefault(); setRating(item.val); setHoverRating(null); }}
-                    className={`py-1.5 px-0.5 rounded-xl text-[10px] font-bold transition-all border text-center cursor-pointer ${
-                      rating === item.val
-                        ? "bg-amber-400 text-slate-950 border-amber-400 font-extrabold shadow-sm"
-                        : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-300"
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Review Textarea */}
-            <div className="space-y-1.5">
-              <Label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                Your Testimonial <span className="text-rose-500">*</span>
-              </Label>
-              <Textarea
-                rows={3}
-                placeholder="Describe how Protech Assist helped your inventory management, cashier speed, accounting, or branch control..."
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                className="w-full resize-none text-sm rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500"
-                required
-              />
-            </div>
-
-            {/* Quick Feature Tags */}
-            <div className="space-y-1.5">
-              <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                Key Highlights (Optional)
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {PRESET_TAGS.map((tag) => {
-                  const isSelected = selectedTags.includes(tag);
-                  return (
+                {/* Quick Number Pills for Instant Rating */}
+                <div className="grid grid-cols-5 gap-1.5 w-full pt-1">
+                  {[
+                    { val: 1, label: "1★ Poor" },
+                    { val: 2, label: "2★ Fair" },
+                    { val: 3, label: "3★ Good" },
+                    { val: 4, label: "4★ Great" },
+                    { val: 5, label: "5★ Best" },
+                  ].map((item) => (
                     <button
-                      key={tag}
+                      key={item.val}
                       type="button"
-                      onClick={() => toggleTag(tag)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
-                        isSelected
-                          ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
-                          : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-indigo-400"
+                      onPointerDown={() => { setRating(item.val); setHoverRating(null); }}
+                      onClick={(e) => { e.preventDefault(); setRating(item.val); setHoverRating(null); }}
+                      className={`py-1.5 px-0.5 rounded-xl text-[10px] font-bold transition-all border text-center cursor-pointer ${
+                        rating === item.val
+                          ? "bg-amber-400 text-slate-950 border-amber-400 font-extrabold shadow-sm"
+                          : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-300"
                       }`}
                     >
-                      {tag}
+                      {item.label}
                     </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Author Details (Name, Role, Company, Location) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-500 uppercase">
-                  Your Full Name <span className="text-rose-500">*</span>
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="e.g. Mariatu Sesay"
-                  value={authorName}
-                  onChange={(e) => setAuthorName(e.target.value)}
-                  className="h-9 text-xs rounded-xl"
-                  required
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-500 uppercase">Your Role / Designation</Label>
-                <Input
-                  type="text"
-                  placeholder="e.g. Managing Director / CEO"
-                  value={authorRole}
-                  onChange={(e) => setAuthorRole(e.target.value)}
-                  className="h-9 text-xs rounded-xl"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-500 uppercase">
-                  Business Name <span className="text-rose-500">*</span>
-                </Label>
-                <Input
-                  type="text"
-                  placeholder="e.g. Crown Pharmacy &amp; Supermart"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  className="h-9 text-xs rounded-xl"
-                  required
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-[11px] font-bold text-slate-500 uppercase">Industry Sector</Label>
-                <select
-                  value={industry}
-                  onChange={(e) => setIndustry(e.target.value)}
-                  className="h-9 w-full text-xs rounded-xl bg-background border border-input px-3 py-1 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
-                >
-                  {INDUSTRY_OPTIONS.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
                   ))}
-                </select>
+                </div>
+              </div>
+
+              {/* Review Textarea */}
+              <div className="space-y-1.5">
+                <Label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                  Your Testimonial <span className="text-rose-500">*</span>
+                </Label>
+                <Textarea
+                  rows={3}
+                  placeholder="Describe how Protech Assist helped your inventory management, cashier speed, accounting, or branch control..."
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="w-full resize-none text-sm rounded-xl border-slate-200 dark:border-slate-800 focus:ring-2 focus:ring-indigo-500"
+                  required
+                />
+              </div>
+
+              {/* Quick Feature Tags */}
+              <div className="space-y-1.5">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+                  Key Highlights (Optional)
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {PRESET_TAGS.map((tag) => {
+                    const isSelected = selectedTags.includes(tag);
+                    return (
+                      <button
+                        key={tag}
+                        type="button"
+                        onClick={() => toggleTag(tag)}
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold transition-all border ${
+                          isSelected
+                            ? "bg-indigo-600 text-white border-indigo-600 shadow-sm"
+                            : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:border-indigo-400"
+                        }`}
+                      >
+                        {tag}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Author Details (Name, Role, Company, Location) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-500 uppercase">
+                    Your Full Name <span className="text-rose-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Mariatu Sesay"
+                    value={authorName}
+                    onChange={(e) => setAuthorName(e.target.value)}
+                    className="h-9 text-xs rounded-xl"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-500 uppercase">Your Role / Designation</Label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Managing Director / CEO"
+                    value={authorRole}
+                    onChange={(e) => setAuthorRole(e.target.value)}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-500 uppercase">
+                    Business Name <span className="text-rose-500">*</span>
+                  </Label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Crown Pharmacy &amp; Supermart"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="h-9 text-xs rounded-xl"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[11px] font-bold text-slate-500 uppercase">Industry Sector</Label>
+                  <select
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    className="h-9 w-full text-xs rounded-xl bg-background border border-input px-3 py-1 text-slate-900 dark:text-slate-200 focus:ring-2 focus:ring-indigo-500"
+                  >
+                    {INDUSTRY_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Location & Verification */}
+              <div className="space-y-1">
+                <Label className="text-[11px] font-bold text-slate-500 uppercase">City &amp; Country</Label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Freetown, Sierra Leone"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="h-9 text-xs rounded-xl"
+                />
               </div>
             </div>
 
-            {/* Location & Verification */}
-            <div className="space-y-1">
-              <Label className="text-[11px] font-bold text-slate-500 uppercase">City &amp; Country</Label>
-              <Input
-                type="text"
-                placeholder="e.g. Freetown, Sierra Leone"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                className="h-9 text-xs rounded-xl"
-              />
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
+            {/* Pinned Bottom Actions */}
+            <div className="shrink-0 p-4 sm:p-5 bg-slate-50/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800/80 flex items-center justify-end gap-3">
               <Button
                 type="button"
                 variant="ghost"
                 onClick={onClose}
                 disabled={submitting}
-                className="text-xs font-bold text-slate-500"
+                className="text-xs font-bold text-slate-500 cursor-pointer"
               >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 disabled={submitting}
-                className="h-11 px-6 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20"
+                className="h-11 px-6 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-black text-xs uppercase tracking-widest gap-2 shadow-lg shadow-indigo-600/20 cursor-pointer"
               >
                 {submitting ? (
                   "Submitting..."
