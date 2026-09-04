@@ -20,6 +20,7 @@ const shopPlans = [
     id: 'BASIC',
     monthlyPrice: 60,
     annualPrice: 50,
+    annualTotal: 600,
     description: 'Perfect for small shops starting out.',
     features: ['1 User / Staff Member', 'Up to 500 Products', 'Stock Management', 'Sales Recording & Invoices', 'Basic Reports'],
     popular: false,
@@ -31,6 +32,7 @@ const shopPlans = [
     id: 'STANDARD',
     monthlyPrice: 150,
     annualPrice: 125,
+    annualTotal: 1500,
     description: 'For growing retail businesses.',
     features: ['Up to 5 Users / Staff', 'Up to 5,000 Products', 'Supplier Management', 'Purchase Orders & Receivables', 'Low Stock Smart Alerts', 'Sales & Inventory Reports'],
     popular: false,
@@ -42,6 +44,7 @@ const shopPlans = [
     id: 'ENTERPRISE',
     monthlyPrice: 300,
     annualPrice: 250,
+    annualTotal: 3000,
     description: 'Everything you need to scale.',
     features: ['Unlimited Users / Staff', 'Unlimited Products', 'Customer CRM & Credits', 'Profit & Loss Dynamic Reports', 'Barcode scan & generator', 'Multi-Branch Reporting'],
     popular: true,
@@ -56,6 +59,7 @@ const officePlans = [
     id: 'BASIC',
     monthlyPrice: 60,
     annualPrice: 50,
+    annualTotal: 600,
     description: 'Perfect for small offices and clinics.',
     features: ['1 User / Admin', 'Basic Expense Tracking', 'Invoice & Quotation Generation', 'Client CRM', 'Basic Reports'],
     popular: false,
@@ -67,6 +71,7 @@ const officePlans = [
     id: 'STANDARD',
     monthlyPrice: 150,
     annualPrice: 125,
+    annualTotal: 1500,
     description: 'For growing service-based businesses.',
     features: ['Up to 5 Users', 'Advanced Expense & Budgeting', 'Payroll & Employee Attendance', 'Multi-currency Support', 'Performance Reports'],
     popular: false,
@@ -78,6 +83,7 @@ const officePlans = [
     id: 'ENTERPRISE',
     monthlyPrice: 300,
     annualPrice: 250,
+    annualTotal: 3000,
     description: 'Everything you need to scale operations.',
     features: ['Unlimited Users', 'Full HR & Payroll System', 'Advanced Profit & Loss', 'Role-Based Access Control', 'Multi-Branch Support'],
     popular: true,
@@ -92,6 +98,7 @@ const educationPlans = [
     id: 'BASIC',
     monthlyPrice: 100,
     annualPrice: 83,
+    annualTotal: 1000,
     description: 'Perfect for small schools and nurseries.',
     features: ['Up to 100 Students', 'Student Registration & CRM', 'Basic Fee Collection', 'Class Attendance'],
     popular: false,
@@ -103,6 +110,7 @@ const educationPlans = [
     id: 'STANDARD',
     monthlyPrice: 250,
     annualPrice: 208,
+    annualTotal: 2500,
     description: 'For growing educational institutions.',
     features: ['Up to 500 Students', 'Automated Fee Invoicing', 'Grading & Report Cards', 'Parent Communication (SMS/Email)'],
     popular: false,
@@ -114,6 +122,7 @@ const educationPlans = [
     id: 'ENTERPRISE',
     monthlyPrice: 500,
     annualPrice: 416,
+    annualTotal: 5000,
     description: 'Complete management for large institutions.',
     features: ['Unlimited Students', 'Full Academic & Hostel Mgmt', 'Advanced Staff Payroll', 'Complete Financial Ledger & P&L'],
     popular: true,
@@ -127,7 +136,8 @@ const collegePlans = [
     name: 'College Basic',
     id: 'BASIC',
     monthlyPrice: 200,
-    annualPrice: 160,
+    annualPrice: 167,
+    annualTotal: 2000,
     description: 'Perfect for small colleges and vocational institutes.',
     features: ['Up to 500 Students', 'Course Registration', 'Basic Fee Collection', 'Faculty Directory'],
     popular: false,
@@ -139,6 +149,7 @@ const collegePlans = [
     id: 'STANDARD',
     monthlyPrice: 500,
     annualPrice: 416,
+    annualTotal: 5000,
     description: 'For growing universities and large colleges.',
     features: ['Up to 2,000 Students', 'Multi-department Mgmt', 'Advanced Grading System', 'Digital Library Mgmt', 'Student Portal'],
     popular: false,
@@ -150,6 +161,7 @@ const collegePlans = [
     id: 'ENTERPRISE',
     monthlyPrice: 1000,
     annualPrice: 833,
+    annualTotal: 10000,
     description: 'Complete campus management ecosystem.',
     features: ['Unlimited Students', 'Hostel & Facility Mgmt', 'Advanced Staff Payroll', 'Alumni CRM', 'Full Financials & Audit'],
     popular: true,
@@ -163,7 +175,7 @@ export default function PricingPage() {
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'annual'>('monthly');
   const currency = getCurrencyConfig('sl');
   const [selectedPlanForCalculator, setSelectedPlanForCalculator] = useState(shopPlans[1]);
-  const [activePaymentPlan, setActivePaymentPlan] = useState<string | null>(null);
+  const [activePaymentPlan, setActivePaymentPlan] = useState<{ name: string; amount: number } | null>(null);
   const [showCompare, setShowCompare] = useState(false);
 
   const now = new Date();
@@ -173,14 +185,18 @@ export default function PricingPage() {
   const hasUsedTrial = !hasActivePaidSub && !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < now;
 
-  const selectedCalculatorBasePrice = billingPeriod === 'monthly' ? selectedPlanForCalculator.monthlyPrice : selectedPlanForCalculator.annualPrice;
+  const isAnnual = billingPeriod === 'annual';
+  const selectedCalculatorBasePrice = isAnnual ? selectedPlanForCalculator.annualPrice : selectedPlanForCalculator.monthlyPrice;
 
   const renderPlanGrid = (plansToRender: typeof shopPlans) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8 pb-12 max-w-6xl mx-auto">
       {plansToRender.map((plan, idx) => {
-        const basePrice = billingPeriod === 'monthly' ? plan.monthlyPrice : plan.annualPrice;
-        const price = Math.round(basePrice * currency.rate);
-        const savings = Math.round((plan.monthlyPrice * 12 - plan.annualPrice * 12) * currency.rate);
+        const regularMonthlyPrice = Math.round(plan.monthlyPrice * currency.rate);
+        const effectiveMonthlyPrice = Math.round(plan.annualPrice * currency.rate);
+        const displayedPrice = isAnnual ? effectiveMonthlyPrice : regularMonthlyPrice;
+        const annualLumpSum = Math.round(plan.annualTotal * currency.rate);
+        const annualSavings = Math.round(((plan.monthlyPrice * 12) - plan.annualTotal) * currency.rate);
+        const billedAmount = isAnnual ? annualLumpSum : regularMonthlyPrice;
 
         return (
           <motion.div
@@ -234,19 +250,40 @@ export default function PricingPage() {
 
                     <CardContent className="px-6 sm:px-8 pb-6 flex-1 flex flex-col justify-between">
                       <div>
-                        <div className="flex items-baseline gap-1 mb-6 mt-2">
-                          <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
-                          <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
-                            {price.toLocaleString()}
-                          </span>
-                          <span className="text-xs font-bold text-slate-400">/mo</span>
-                        </div>
+                        {/* Price & Savings Display */}
+                        <div className="flex flex-col gap-1.5 mb-6 mt-2">
+                          {isAnnual && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold line-through text-slate-400">
+                                {currency.symbol} {regularMonthlyPrice.toLocaleString()}/mo
+                              </span>
+                              <span className="text-[9px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-md">
+                                Save {currency.symbol} {annualSavings.toLocaleString()}/yr
+                              </span>
+                            </div>
+                          )}
 
-                        {billingPeriod === 'annual' && savings > 0 && (
-                          <div className="mb-4 text-[9px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider bg-emerald-500/10 px-2.5 py-1 rounded-lg w-fit">
-                            Billed annually (Save {currency.symbol}{savings.toLocaleString()}/yr)
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-sm font-black text-slate-400 dark:text-slate-500 mr-0.5">{currency.symbol}</span>
+                            <span className="text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter">
+                              {displayedPrice.toLocaleString()}
+                            </span>
+                            <span className="text-xs font-bold text-slate-400">/mo</span>
                           </div>
-                        )}
+
+                          {/* Detailed Cadence Clarification */}
+                          {isAnnual ? (
+                            <div className="text-[10px] font-bold text-slate-600 dark:text-slate-400 mt-1 flex items-center gap-1.5 bg-slate-100/70 dark:bg-slate-800/60 px-3 py-1.5 rounded-xl border border-slate-200/50 dark:border-white/5">
+                              <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                              <span>Billed annually as <strong className="text-slate-900 dark:text-white">{currency.symbol} {annualLumpSum.toLocaleString()}/yr</strong> (2 Months Free)</span>
+                            </div>
+                          ) : (
+                            <div className="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1.5">
+                              <span className="inline-block w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+                              <span>Billed monthly ({currency.symbol} {(regularMonthlyPrice * 12).toLocaleString()}/yr) • Cancel anytime</span>
+                            </div>
+                          )}
+                        </div>
 
                         <div className="h-px bg-slate-100 dark:bg-white/5 mb-6" />
 
@@ -283,10 +320,10 @@ export default function PricingPage() {
                           onClick={async () => {
                             try {
                               await requestSubscription(plan.id, billingPeriod);
-                              setActivePaymentPlan(plan.name);
+                              setActivePaymentPlan({ name: plan.name, amount: billedAmount });
                             } catch (err) {
                               console.error("Subscription error:", err);
-                              setActivePaymentPlan(plan.name);
+                              setActivePaymentPlan({ name: plan.name, amount: billedAmount });
                             }
                           }}
                           className={cn(
@@ -358,7 +395,9 @@ export default function PricingPage() {
             </button>
             <span className={cn("text-xs font-black uppercase tracking-wider transition-colors flex items-center gap-1.5", billingPeriod === 'annual' ? "text-slate-900 dark:text-white" : "text-slate-400")}>
               Annually 
-              <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[8px] font-black uppercase tracking-widest animate-bounce">Save 20%</span>
+              <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[8px] font-black uppercase tracking-widest animate-bounce">
+                2 Months FREE (Save 17%)
+              </span>
             </span>
           </div>
         </div>
@@ -406,7 +445,10 @@ export default function PricingPage() {
         <ManualPaymentModal 
            isOpen={!!activePaymentPlan} 
            onClose={() => setActivePaymentPlan(null)} 
-           planName={activePaymentPlan || ""} 
+           planName={activePaymentPlan?.name || ""} 
+           billingPeriod={billingPeriod}
+           amount={activePaymentPlan?.amount}
+           currencySymbol={currency.symbol}
         />
       </div>
     </div>

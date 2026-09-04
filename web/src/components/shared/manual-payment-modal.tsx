@@ -9,11 +9,21 @@ interface ManualPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   planName: string;
+  billingPeriod?: 'monthly' | 'annual';
+  amount?: number;
+  currencySymbol?: string;
 }
 
 import { useSession } from "next-auth/react";
 
-export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentModalProps) {
+export function ManualPaymentModal({ 
+  isOpen, 
+  onClose, 
+  planName,
+  billingPeriod = 'monthly',
+  amount,
+  currencySymbol = 'NLe'
+}: ManualPaymentModalProps) {
   const { data: session } = useSession();
   const merchantNumber = "073019699";
   const merchantName = "ProTech Assist";
@@ -24,12 +34,15 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
     toast.success(`${label} copied to clipboard!`);
   };
 
+  const periodLabel = billingPeriod === 'annual' ? 'Annual (12 Months)' : 'Monthly (1 Month)';
+  const formattedAmount = amount ? `${currencySymbol} ${amount.toLocaleString()}` : '';
+
   const getWhatsappLink = () => {
     const shopName = (session?.user as any)?.businessName || "Unknown Shop";
     const userName = session?.user?.name || "";
     const userEmail = session?.user?.email || "";
     
-    const message = `Dear ProTech Support Team,\n\nI am writing to notify you that I have successfully initiated an Orange Money payment for the *${planName} Plan*.\n\n*Subscription Details:*\n- Shop / Business Name: *${shopName}*\n- Account Holder Name: ${userName}\n- Account Email: ${userEmail}\n- Contact Number: \n- Transaction Reference ID: \n\nI have attached a screenshot of the payment receipt for your verification. Please process this request to activate/renew our subscription.\n\nThank you,\n${userName || "Valued Client"}`;
+    const message = `Dear ProTech Support Team,\n\nI am writing to notify you that I have successfully initiated an Orange Money payment${formattedAmount ? ` of *${formattedAmount}*` : ''} for the *${planName} Plan (${periodLabel})*.\n\n*Subscription Details:*\n- Shop / Business Name: *${shopName}*\n- Account Holder Name: ${userName}\n- Account Email: ${userEmail}\n- Plan: ${planName} (${periodLabel})\n${formattedAmount ? `- Amount Paid: ${formattedAmount}\n` : ''}- Contact Number: \n- Transaction Reference ID: \n\nI have attached a screenshot of the payment receipt for your verification. Please process this request to activate/renew our subscription.\n\nThank you,\n${userName || "Valued Client"}`;
     
     return `https://wa.me/${supportWhatsapp}?text=${encodeURIComponent(message)}`;
   };
@@ -49,12 +62,38 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
               <p className="text-orange-100 font-bold text-[9px] sm:text-[10px] uppercase tracking-[0.2em] mt-0.5">SL Mobile Wallet Settlement</p>
             </div>
           </div>
-          <div className="inline-flex px-3 py-1 rounded-full bg-white/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest mt-1">
-            PLAN Node: {planName}
+          <div className="flex flex-wrap items-center gap-2 mt-1">
+            <div className="inline-flex px-3 py-1 rounded-full bg-white/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">
+              Plan: {planName}
+            </div>
+            <div className="inline-flex px-3 py-1 rounded-full bg-white/20 text-[8px] sm:text-[9px] font-black uppercase tracking-widest">
+              {billingPeriod === 'annual' ? '⚡ 1 Year Billing' : 'Monthly Billing'}
+            </div>
           </div>
         </div>
 
         <div className="p-6 sm:p-8 space-y-6 sm:space-y-8">
+          {/* Amount Due Card (if amount is passed) */}
+          {amount && (
+            <div className="bg-orange-50/80 dark:bg-orange-950/30 p-4 sm:p-5 rounded-2xl border border-orange-200/80 dark:border-orange-500/20 flex items-center justify-between">
+              <div>
+                <p className="text-[9px] font-black text-orange-600 dark:text-orange-400 uppercase tracking-widest">Amount to Transfer</p>
+                <div className="flex items-baseline gap-1 mt-0.5">
+                  <span className="text-2xl sm:text-3xl font-[1000] text-slate-900 dark:text-white tracking-tight">{formattedAmount}</span>
+                  <span className="text-[10px] font-bold text-slate-500">({periodLabel})</span>
+                </div>
+              </div>
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="h-9 px-3 rounded-xl border-orange-300 dark:border-orange-500/30 text-orange-700 dark:text-orange-300 hover:bg-orange-100 dark:hover:bg-orange-900/30 font-bold text-[9px] uppercase tracking-wider shrink-0 gap-1.5"
+                onClick={() => handleCopy(amount.toString(), "Amount")}
+              >
+                <Copy size={11} /> Copy
+              </Button>
+            </div>
+          )}
+
           {/* Credentials Card */}
           <div className="bg-slate-50 dark:bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-4">
             <div className="flex flex-row items-center justify-between gap-4 pb-3 border-b border-slate-100 dark:border-slate-800">
@@ -102,7 +141,10 @@ export function ManualPaymentModal({ isOpen, onClose, planName }: ManualPaymentM
                 </div>
                 <h5 className="text-[9px] sm:text-[10px] font-black text-slate-800 dark:text-white uppercase tracking-wider">Execute Wallet Transfer</h5>
                 <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed mt-0.5">
-                  Send the payment amount matching your subscription rate to the number above.
+                  {amount 
+                    ? `Transfer exact amount ${formattedAmount} to ${merchantNumber} (${merchantName}).`
+                    : `Send the payment amount matching your subscription rate to the number above.`
+                  }
                 </p>
               </div>
 
