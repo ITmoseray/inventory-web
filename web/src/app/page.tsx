@@ -257,7 +257,7 @@ export default function ProtechCloudHomepage() {
             <div className="absolute top-[20%] right-[-10%] w-[30%] h-[50%] rounded-full bg-purple-500/10 dark:bg-purple-600/10 blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
             <div className="absolute bottom-[-20%] left-[20%] w-[50%] h-[50%] rounded-full bg-blue-500/10 dark:bg-blue-600/10 blur-[100px] animate-pulse" style={{ animationDelay: '4s' }}></div>
             {/* Subtle Grid Noise */}
-            <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-[0.05] mix-blend-overlay"></div>
+            <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.03] dark:opacity-[0.05] mix-blend-overlay"></div>
           </div>
 
           <div className="container px-6 mx-auto text-center relative z-10">
@@ -816,7 +816,7 @@ export default function ProtechCloudHomepage() {
         {/* 8. Final CTA */}
         <section className="py-24 relative overflow-hidden text-center">
            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 via-purple-700 to-indigo-900 z-0"></div>
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.05] mix-blend-overlay z-0"></div>
+           <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.05] mix-blend-overlay z-0"></div>
            <div className="absolute top-[-50%] left-[-10%] w-[50%] h-[100%] rounded-full bg-white/10 blur-[100px] animate-pulse pointer-events-none z-0"></div>
            
            <div className="container px-6 mx-auto relative z-10">

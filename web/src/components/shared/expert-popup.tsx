@@ -75,6 +75,7 @@ export function ExpertPopup() {
                   src="/images/1000001630.jpg"
                   alt="Executive Advisor"
                   fill
+                  sizes="36px"
                   className="object-cover"
                 />
                 <span className="absolute bottom-0 right-0 h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-full bg-emerald-400 ring-2 ring-slate-900 animate-pulse" />
@@ -135,6 +136,7 @@ export function ExpertPopup() {
                     src="/images/1000001630.jpg"
                     alt="Executive Specialist"
                     fill
+                    sizes="56px"
                     className="object-cover"
                   />
                   <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 sm:h-3.5 sm:w-3.5 bg-emerald-500 border-2 border-white dark:border-slate-950 rounded-full shadow-sm animate-pulse" />

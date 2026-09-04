@@ -530,7 +530,7 @@ export default function LoginPage() {
              transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
              className="absolute bottom-[0%] -left-[10%] w-[600px] h-[600px] bg-violet-600/20 rounded-full blur-[100px]" 
            />
-           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] dark:opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
+           <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-[0.03] dark:opacity-20 brightness-100 contrast-150 mix-blend-overlay"></div>
         </div>
 
         {/* Abstract 3D Grid Pattern */}
