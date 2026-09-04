@@ -996,19 +996,6 @@ export default function ProtechCloudHomepage() {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Floating Quick WhatsApp & Help Pill */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-        <a
-          href="https://wa.me/23273019699?text=Hello%20Protech%20Assist,%20I%20would%20like%20to%20request%20a%20consultation%20or%20demo."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="h-12 px-4 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-2xl shadow-emerald-600/50 hover:scale-105 transition-all border border-emerald-400/30 cursor-pointer"
-        >
-          <MessageSquare className="h-4 w-4 fill-white" />
-          <span className="hidden sm:inline">Chat On WhatsApp</span>
-        </a>
-      </div>
     </div>
   );
 }

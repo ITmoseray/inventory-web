@@ -169,7 +169,7 @@ export function IndustrySolutionTabs() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.3 }}
-              className="rounded-3xl p-6 sm:p-10 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-8 items-center"
+              className="rounded-3xl p-5 sm:p-8 lg:p-10 bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 shadow-xl grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center"
             >
               {/* Left Details (7 cols) */}
               <div className="lg:col-span-7 space-y-5">

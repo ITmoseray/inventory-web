@@ -67,7 +67,7 @@ export function PaymentChannelTelemetry({ recentSales = [], totalRevenue = 0 }: 
 
   return (
     <div className="p-5 sm:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">
             Tender &amp; Payment Gateway Breakdown
@@ -92,7 +92,7 @@ export function PaymentChannelTelemetry({ recentSales = [], totalRevenue = 0 }: 
       </div>
 
       {/* Breakdown Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 pt-1">
         {channels.map((ch, idx) => (
           <div key={idx} className="p-3 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-1">
             <div className="flex items-center justify-between">

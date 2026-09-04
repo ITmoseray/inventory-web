@@ -88,7 +88,7 @@ export function QuickActionCommandBar({ businessType = "SHOP", onRefresh }: Quic
               <span>Calculator</span>
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[400px] p-0 border-none bg-transparent shadow-none">
+          <DialogContent className="sm:max-w-[400px] max-w-[95vw] mx-auto p-0 border-none bg-transparent shadow-none">
             <ProfessionalCalculator />
           </DialogContent>
         </Dialog>

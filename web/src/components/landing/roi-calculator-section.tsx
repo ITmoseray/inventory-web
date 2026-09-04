@@ -49,7 +49,7 @@ export function RoiCalculatorSection() {
           </p>
 
           {/* Currency Toggle */}
-          <div className="inline-flex items-center p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 mt-2">
+          <div className="inline-flex flex-wrap justify-center items-center p-1 rounded-xl bg-slate-200/70 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 mt-2 gap-1">
             <button
               onClick={() => setCurrency("SLL")}
               className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
@@ -58,7 +58,7 @@ export function RoiCalculatorSection() {
                   : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
               }`}
             >
-              🇸🇱 Sierra Leone Leones (Le)
+              🇸🇱 Leones (Le)
             </button>
             <button
               onClick={() => setCurrency("USD")}
@@ -77,7 +77,7 @@ export function RoiCalculatorSection() {
         <div className="max-w-5xl mx-auto rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
           
           {/* Left: Interactive Input Sliders (7 cols) */}
-          <div className="lg:col-span-7 p-6 sm:p-8 space-y-6">
+          <div className="lg:col-span-7 p-5 sm:p-8 space-y-5 sm:space-y-6">
             <div className="space-y-1">
               <h3 className="text-lg font-black text-slate-900 dark:text-white uppercase tracking-tight">
                 Enter Your Store Parameters
