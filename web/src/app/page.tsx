@@ -368,17 +368,16 @@ export default function ProtechCloudHomepage() {
               <div className="relative rounded-[2rem] overflow-hidden aspect-video bg-black shadow-inner group">
                 <video 
                   ref={videoRef}
-                  src="/videos/protech-advert.mp4"
                   controls 
                   playsInline
-                  preload="auto"
+                  preload="metadata"
                   poster="/videos/protech-advert-cover.jpg"
                   onPlay={() => setIsVideoPlaying(true)}
                   onPause={() => setIsVideoPlaying(false)}
                   className="w-full h-full object-cover"
+                  suppressHydrationWarning
                 >
                   <source src="/videos/protech-advert.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
                 </video>
 
                 {/* Big Custom Play Button Overlay */}
