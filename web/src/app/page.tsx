@@ -93,6 +93,23 @@ export default function ProtechCloudHomepage() {
   const [previewFeature, setPreviewFeature] = useState<any | null>(null);
   const [selectedCountry, setSelectedCountry] = useState(countries.find(c => c.code === "sl") || countries[0]);
 
+  const handlePlayVideo = () => {
+    if (videoRef.current) {
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsVideoPlaying(true);
+          })
+          .catch((err) => {
+            if (err?.name !== "AbortError") {
+              console.error("Video playback error:", err);
+            }
+          });
+      }
+    }
+  };
+
   const hasUsedTrial = !!session?.user?.trialEndDate;
   const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
 
@@ -365,25 +382,19 @@ export default function ProtechCloudHomepage() {
                 </video>
 
                 {/* Big Custom Play Button Overlay */}
-                {!isVideoPlaying && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (videoRef.current) {
-                        videoRef.current.play().catch(err => console.error("Playback error:", err));
-                        setIsVideoPlaying(true);
-                      }
-                    }}
-                    className="absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-black/40 hover:bg-black/30 backdrop-blur-[2px] transition-all duration-300 group cursor-pointer z-10"
-                  >
-                    <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-indigo-600/90 text-white flex items-center justify-center shadow-[0_0_50px_rgba(79,70,229,0.8)] group-hover:scale-110 group-hover:bg-indigo-500 transition-transform duration-300 border-2 border-white/40">
-                      <Play className="h-9 w-9 sm:h-11 sm:w-11 fill-white text-white ml-1.5" />
-                    </div>
-                    <span className="mt-4 px-4 py-1.5 rounded-full bg-slate-900/80 text-white font-black text-xs uppercase tracking-widest border border-white/20 shadow-lg">
-                      Click To Play Commercial
-                    </span>
-                  </button>
-                )}
+                <div
+                  onClick={handlePlayVideo}
+                  className={`absolute inset-0 w-full h-full flex flex-col items-center justify-center bg-black/40 hover:bg-black/30 backdrop-blur-[2px] transition-all duration-300 z-10 ${
+                    isVideoPlaying ? "opacity-0 pointer-events-none" : "opacity-100 cursor-pointer"
+                  }`}
+                >
+                  <div className="h-20 w-20 sm:h-24 sm:w-24 rounded-full bg-indigo-600/90 text-white flex items-center justify-center shadow-[0_0_50px_rgba(79,70,229,0.8)] hover:scale-110 hover:bg-indigo-500 transition-transform duration-300 border-2 border-white/40">
+                    <Play className="h-9 w-9 sm:h-11 sm:w-11 fill-white text-white ml-1.5" />
+                  </div>
+                  <span className="mt-4 px-4 py-1.5 rounded-full bg-slate-900/80 text-white font-black text-xs uppercase tracking-widest border border-white/20 shadow-lg">
+                    Click To Play Commercial
+                  </span>
+                </div>
               </div>
             </div>
 
