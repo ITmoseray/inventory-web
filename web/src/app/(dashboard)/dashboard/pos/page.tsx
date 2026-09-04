@@ -219,6 +219,7 @@ export default function POSPage() {
   const [paymentMethod, setPaymentMethod] = useState<"CASH" | "MOBILE_MONEY" | "CARD" | "CREDIT" | "SPLIT">("CASH");
   const [paymentStatus, setPaymentStatus] = useState<"PAID" | "UNPAID" | "PARTIAL">("PAID");
   const [amountPaid, setAmountPaid] = useState<number>(0);
+  const [cashTendered, setCashTendered] = useState<string>("");
   const [creditAmountPaid, setCreditAmountPaid] = useState<string>(""); // partial payment on credit
   const [splitPayments, setSplitPayments] = useState<{ method: "CASH" | "MOBILE_MONEY" | "CARD"; amount: number }[]>([]);
   const [momoProvider, setMomoProvider] = useState<"ORANGE_MONEY" | "AFRIMONEY">("ORANGE_MONEY");
@@ -850,6 +851,7 @@ export default function POSPage() {
         clearCart();
         setIsCheckoutOpen(false);
         setIsCartVisible(false);
+        setCashTendered("");
         setCreditAmountPaid("");
         setMomoRefCode("");
         setMomoPhone("");
@@ -1406,203 +1408,247 @@ export default function POSPage() {
       
       {/* SECURE CHECKOUT MODAL */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="sm:max-w-[650px] w-[95vw] rounded-[2rem] sm:rounded-[4rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[95vh] flex flex-col">
-            <div className="bg-gradient-to-br from-slate-900 via-indigo-950 to-black p-6 sm:p-10 text-white relative overflow-hidden shrink-0 border-b border-white/5">
-               <div className="absolute -top-20 -right-20 h-64 w-64 bg-indigo-500/20 rounded-full blur-[80px]" />
-               <div className="absolute top-10 left-10 h-32 w-32 bg-blue-500/10 rounded-full blur-[50px]" />
-               <div className="absolute inset-0 bg-grid-pattern opacity-[0.02]" />
-               
-               <div className="relative z-10 space-y-3">
-                  <div className="flex items-center gap-3">
-                     <Badge variant="outline" className="bg-white/5 border-white/10 text-indigo-300 text-[10px] font-black rounded-xl h-7 px-4 uppercase tracking-[0.3em] backdrop-blur-md">Secure Checkout</Badge>
-                     <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
-                  </div>
-                  <h3 className="text-3xl sm:text-5xl font-[1000] tracking-tighter uppercase italic leading-none drop-shadow-xl">
-                     Final <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400">Checkout</span>
-                  </h3>
-                  <div className="flex items-center gap-4 pt-4 sm:pt-6">
-                     <div className="flex -space-x-4 drop-shadow-2xl">
-                        {cart.slice(0, 3).map((item, i) => (
-                           <div key={i} className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-slate-800 overflow-hidden shadow-2xl relative ring-2 ring-white/10">
-                              {item.imageUrl ? <Image src={item.imageUrl} alt="" fill className="object-cover" unoptimized /> : <Package className="h-5 w-5 text-white/50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
-                           </div>
-                        ))}
-                        {cart.length > 3 && (
-                           <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl border-2 border-slate-900 bg-gradient-to-br from-indigo-500 to-blue-600 flex items-center justify-center text-[10px] font-black z-10 shadow-2xl ring-2 ring-white/10">+{cart.length - 3}</div>
-                        )}
-                     </div>
-                     <div className="h-8 w-px bg-white/10" />
-                     <div className="flex flex-col">
-                        <span className="text-xs font-black text-white tracking-widest uppercase">{cart.length} Items in Cart</span>
-                        <span className="text-[10px] font-bold text-indigo-200/70 uppercase tracking-widest mt-1">Ready for payment processing</span>
-                     </div>
-                  </div>
-               </div>
+        <DialogContent className="max-w-[1100px] w-[96vw] rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[92vh] flex flex-col">
+          {/* Sleek Header */}
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-4 sm:px-8 sm:py-5 text-white relative overflow-hidden shrink-0 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-3.5 relative z-10">
+              <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shadow-inner">
+                <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-300">POS Terminal Settlement</span>
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-400">Live Sync</span>
+                </div>
+                <h2 className="text-lg sm:text-2xl font-[1000] tracking-tight uppercase text-white flex items-center gap-2">
+                  Final Checkout & Settlement
+                </h2>
+              </div>
             </div>
 
-            <div className="p-6 sm:p-10 space-y-8 sm:space-y-12 bg-white dark:bg-slate-950 overflow-y-auto custom-scrollbar flex-1">
-               {/* Customer Node Selection */}
-               <div className="space-y-4 sm:space-y-5">
-                  {cartRequiresPrescription && (
-                    <div className="mb-6 p-4 rounded-[1.5rem] bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="p-2 rounded-xl bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400">
-                           <FileText size={18} />
-                        </div>
-                        <Label className="text-[11px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-[0.3em]">Prescription Link (Optional)</Label>
-                      </div>
-                      <Select value={prescriptionId} onValueChange={setPrescriptionId}>
-                        <SelectTrigger className="h-14 rounded-[1.2rem] border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-900 font-bold text-sm tracking-widest shadow-sm">
-                          <SelectValue placeholder="Select Prescription (If applicable)" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-[1.5rem] border-blue-100 dark:border-blue-900 shadow-xl p-2 max-h-60 overflow-y-auto">
-                          {pendingPrescriptions.length === 0 ? (
-                            <div className="p-4 text-center text-xs font-bold text-slate-400">No pending prescriptions found.</div>
-                          ) : (
-                            pendingPrescriptions.map((script) => (
-                              <SelectItem key={script.id} value={script.id} className="font-bold py-3 text-xs rounded-xl focus:bg-rose-50 dark:focus:bg-rose-900/20">
-                                {script.prescriptionNumber} - {script.patient?.name} (Dr. {script.doctorName})
-                              </SelectItem>
-                            ))
-                          )}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between px-2">
-                     <div className="flex items-center gap-3">
-                        <div className="p-2 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600">
-                           <User size={18} />
-                        </div>
-                        <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Customer Details</Label>
-                     </div>
-                     <button onClick={() => setIsNewCustomerOpen(true)} className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">+ New Customer</button>
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Payable</span>
+                <span className="text-xl font-[1000] tracking-tight text-emerald-400">Le {Math.round(grandTotal).toLocaleString()}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsCheckoutOpen(false)}
+                className="h-9 w-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* 2-Column Responsive Body */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
+            
+            {/* LEFT COLUMN: Payment Controls & Tender (7 cols) */}
+            <div className="lg:col-span-7 p-5 sm:p-7 space-y-5 lg:overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
+              
+              {/* Customer Selection Row */}
+              <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-indigo-500" />
+                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer / Account</Label>
                   </div>
-                  <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
-                    <SelectTrigger className="h-16 sm:h-20 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-black text-sm uppercase tracking-widest shadow-sm">
-                      <SelectValue placeholder="Select Customer" />
+                  <button 
+                    type="button"
+                    onClick={() => setIsNewCustomerOpen(true)} 
+                    className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="h-3 w-3" /> New Customer
+                  </button>
+                </div>
+                <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
+                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs uppercase tracking-wider shadow-sm">
+                    <SelectValue placeholder="Select Customer" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800 shadow-xl p-1 max-h-56">
+                    <SelectItem value="WALKIN" className="font-bold uppercase tracking-wider py-2.5 text-xs rounded-lg">
+                      🚶 Walk-in Customer (Standard)
+                    </SelectItem>
+                    {customers.map((c) => (
+                      <SelectItem key={c.id} value={c.id} className="font-bold py-2.5 text-xs rounded-lg">
+                        {c.name} {c.phone ? `(${c.phone})` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Prescription Link if Applicable */}
+              {cartRequiresPrescription && (
+                <div className="p-3.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <Label className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Linked Prescription</Label>
+                  </div>
+                  <Select value={prescriptionId} onValueChange={setPrescriptionId}>
+                    <SelectTrigger className="h-11 rounded-xl border-blue-200 dark:border-blue-900 bg-white dark:bg-slate-900 font-bold text-xs">
+                      <SelectValue placeholder="Select Prescription (Optional)" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-[2rem] border-slate-100 dark:border-slate-800 shadow-2xl p-2">
-                      <SelectItem value="WALKIN" className="font-black uppercase tracking-widest py-4 text-xs rounded-xl focus:bg-primary/5">Walk-in Customer</SelectItem>
-                      {customers.map((c) => (
-                        <SelectItem key={c.id} value={c.id} className="font-black uppercase tracking-widest py-4 text-xs rounded-xl focus:bg-primary/5">{c.name} ({c.phone})</SelectItem>
-                      ))}
+                    <SelectContent className="rounded-xl">
+                      {pendingPrescriptions.length === 0 ? (
+                        <div className="p-3 text-center text-xs font-bold text-slate-400">No pending prescriptions</div>
+                      ) : (
+                        pendingPrescriptions.map((script) => (
+                          <SelectItem key={script.id} value={script.id} className="text-xs font-bold">
+                            {script.prescriptionNumber} - {script.patient?.name} (Dr. {script.doctorName})
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
-               </div>
+                </div>
+              )}
 
-               {/* Settlement Vector Matrix */}
-               <div className="space-y-4 sm:space-y-6">
-                  <div className="flex items-center gap-3 px-2">
-                     <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600">
-                        <Banknote size={18} />
-                     </div>
-                     <Label className="text-[11px] font-black text-slate-400 uppercase tracking-[0.3em]">Payment Method</Label>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-                     {[
-                       { id: 'CASH', label: 'CASH', icon: Banknote, color: 'text-emerald-500', bg: 'hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:border-emerald-200 dark:hover:border-emerald-800', active: 'bg-gradient-to-br from-emerald-400 to-emerald-600 border-transparent text-white shadow-[0_10px_30px_rgba(52,211,153,0.4)]' },
-                       { id: 'MOBILE_MONEY', label: 'MOBILE MONEY', icon: Smartphone, color: 'text-blue-500', bg: 'hover:bg-blue-50 dark:hover:bg-blue-950/20 hover:border-blue-200 dark:hover:border-blue-800', active: 'bg-gradient-to-br from-blue-400 to-blue-600 border-transparent text-white shadow-[0_10px_30px_rgba(59,130,246,0.4)]' },
-                       { id: 'CARD', label: 'CARD', icon: CardIcon, color: 'text-indigo-500', bg: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:border-indigo-200 dark:hover:border-indigo-800', active: 'bg-gradient-to-br from-indigo-400 to-indigo-600 border-transparent text-white shadow-[0_10px_30px_rgba(99,102,241,0.4)]' },
-                       { id: 'CREDIT', label: 'CREDIT', icon: HandCoins, color: 'text-amber-500', bg: 'hover:bg-amber-50 dark:hover:bg-amber-950/20 hover:border-amber-200 dark:hover:border-amber-800', active: 'bg-gradient-to-br from-amber-400 to-amber-600 border-transparent text-white shadow-[0_10px_30px_rgba(245,158,11,0.4)]' },
-                       { id: 'SPLIT', label: 'SPLIT', icon: LayoutGrid, color: 'text-fuchsia-500', bg: 'hover:bg-fuchsia-50 dark:hover:bg-fuchsia-950/20 hover:border-fuchsia-200 dark:hover:border-fuchsia-800', active: 'bg-gradient-to-br from-fuchsia-400 to-fuchsia-600 border-transparent text-white shadow-[0_10px_30px_rgba(217,70,239,0.4)]' },
-                     ].map((m) => (
-                       <button
-                         key={m.id}
-                         onClick={() => {
-                           setPaymentMethod(m.id as any);
-                           if (m.id !== 'CREDIT') setCreditAmountPaid("");
-                         }}
-                         className={cn(
-                           "flex flex-col items-center justify-center gap-3 sm:gap-4 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border-2 transition-all duration-300 active:scale-95 relative group overflow-hidden",
-                           paymentMethod === m.id 
-                             ? m.active + " scale-105 z-10" 
-                             : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500 " + m.bg
-                         )}
-                       >
-                         {paymentMethod !== m.id && (
-                            <div className="absolute inset-0 bg-slate-50 dark:bg-slate-800/50 opacity-0 group-hover:opacity-100 transition-opacity" />
-                         )}
-                         <m.icon className={cn("h-6 w-6 sm:h-7 sm:w-7 transition-transform duration-500 group-hover:scale-125 relative z-10", paymentMethod === m.id ? "text-white" : m.color)} />
-                         <span className={cn("text-[10px] font-[1000] uppercase tracking-[0.2em] text-center leading-tight relative z-10", paymentMethod === m.id ? "text-white" : "text-slate-600 dark:text-slate-400")}>{m.label}</span>
-                         {paymentMethod === m.id && (
-                           <motion.div layoutId="paymentActiveIndicator" className="absolute top-3 right-3 h-2 w-2 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]" />
-                         )}
-                       </button>
-                     ))}
-                  </div>
+              {/* Payment Method Selector Grid */}
+              <div className="space-y-2.5">
+                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Payment Method</Label>
+                <div className="grid grid-cols-5 gap-2">
+                  {[
+                    { id: 'CASH', label: 'Cash', icon: Banknote, activeBorder: 'border-emerald-500 bg-emerald-500 text-white shadow-emerald-500/25', inactiveText: 'text-emerald-600 dark:text-emerald-400' },
+                    { id: 'MOBILE_MONEY', label: 'MoMo', icon: Smartphone, activeBorder: 'border-blue-600 bg-blue-600 text-white shadow-blue-600/25', inactiveText: 'text-blue-600 dark:text-blue-400' },
+                    { id: 'CARD', label: 'Card / POS', icon: CardIcon, activeBorder: 'border-indigo-600 bg-indigo-600 text-white shadow-indigo-600/25', inactiveText: 'text-indigo-600 dark:text-indigo-400' },
+                    { id: 'CREDIT', label: 'Credit', icon: HandCoins, activeBorder: 'border-amber-500 bg-amber-500 text-white shadow-amber-500/25', inactiveText: 'text-amber-600 dark:text-amber-400' },
+                    { id: 'SPLIT', label: 'Split', icon: LayoutGrid, activeBorder: 'border-fuchsia-600 bg-fuchsia-600 text-white shadow-fuchsia-600/25', inactiveText: 'text-fuchsia-600 dark:text-fuchsia-400' },
+                  ].map((m) => {
+                    const isActive = paymentMethod === m.id;
+                    return (
+                      <button
+                        key={m.id}
+                        type="button"
+                        onClick={() => {
+                          setPaymentMethod(m.id as any);
+                          if (m.id !== 'CREDIT') setCreditAmountPaid("");
+                        }}
+                        className={cn(
+                          "flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 transition-all cursor-pointer select-none",
+                          isActive
+                            ? `${m.activeBorder} shadow-lg scale-[1.02]`
+                            : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-300"
+                        )}
+                      >
+                        <m.icon className={cn("h-5 w-5", isActive ? "text-white" : m.inactiveText)} />
+                        <span className="text-[10px] font-black uppercase tracking-wider">{m.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                  {/* SPLIT PAYMENT UI */}
-                  {paymentMethod === 'SPLIT' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="rounded-[2rem] border-2 border-fuchsia-150 dark:border-fuchsia-900/40 bg-fuchsia-50/50 dark:bg-fuchsia-950/10 p-6 sm:p-8 space-y-5"
-                    >
-                      <div className="flex items-center gap-3">
-                        <LayoutGrid size={18} className="text-fuchsia-500 shrink-0" />
-                        <p className="text-[11px] font-black text-fuchsia-700 dark:text-fuchsia-400 uppercase tracking-widest flex-1">Split Configuration</p>
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                          Remaining: Le {Math.max(0, grandTotal - splitPayments.reduce((acc, curr) => acc + curr.amount, 0)).toLocaleString()}
-                        </span>
+              {/* Dynamic Tender Panels */}
+              <div className="min-h-[160px]">
+                {/* CASH PANEL */}
+                {paymentMethod === 'CASH' && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                    <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/40 p-4 rounded-2xl space-y-3.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Banknote className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                          <Label className="text-[10px] font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest">Amount Tendered (Received)</Label>
+                        </div>
+                        {cashTendered && (
+                          <button 
+                            type="button" 
+                            onClick={() => setCashTendered("")}
+                            className="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-wider cursor-pointer"
+                          >
+                            Clear
+                          </button>
+                        )}
                       </div>
-                      
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        {(["CASH", "CARD", "MOBILE_MONEY"] as const).map(method => {
-                          const existingIndex = splitPayments.findIndex(s => s.method === method);
-                          const amount = existingIndex >= 0 ? splitPayments[existingIndex].amount : 0;
-                          
+
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">Le</span>
+                        <Input
+                          type="number"
+                          min="0"
+                          placeholder={Math.round(grandTotal).toString()}
+                          value={cashTendered}
+                          onChange={(e) => setCashTendered(e.target.value)}
+                          className="pl-11 h-13 rounded-xl border-emerald-300 dark:border-emerald-800 bg-white dark:bg-slate-900 font-mono font-black text-lg text-slate-900 dark:text-white"
+                        />
+                      </div>
+
+                      {/* Fast Tender Quick Buttons */}
+                      <div className="space-y-1.5">
+                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Fast Cash Presets:</span>
+                        <div className="flex flex-wrap gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setCashTendered(Math.round(grandTotal).toString())}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                          >
+                            Exact (Le {Math.round(grandTotal).toLocaleString()})
+                          </button>
+                          {[50, 100, 200, 500, 1000, 2000, 5000].map((denom) => (
+                            <button
+                              key={denom}
+                              type="button"
+                              onClick={() => setCashTendered(denom.toString())}
+                              className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 font-mono font-bold text-[10px] text-slate-700 dark:text-slate-300 transition-all cursor-pointer"
+                            >
+                              Le {denom >= 1000 ? `${denom / 1000}k` : denom}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Change Due Result Card */}
+                      {(() => {
+                        const tendered = parseFloat(cashTendered) || 0;
+                        const change = tendered - grandTotal;
+                        if (tendered >= grandTotal) {
                           return (
-                            <div key={method} className="space-y-2">
-                              <Label className="text-[10px] font-black uppercase text-slate-500">{method.replace('_', ' ')}</Label>
-                              <Input 
-                                type="number"
-                                min="0"
-                                placeholder="0"
-                                value={amount || ""}
-                                onChange={(e) => {
-                                  const val = parseFloat(e.target.value) || 0;
-                                  const newSplits = [...splitPayments];
-                                  const idx = newSplits.findIndex(s => s.method === method);
-                                  if (idx >= 0) {
-                                    if (val === 0) newSplits.splice(idx, 1);
-                                    else newSplits[idx].amount = val;
-                                  } else if (val > 0) {
-                                    newSplits.push({ method, amount: val });
-                                  }
-                                  setSplitPayments(newSplits);
-                                }}
-                                className="h-12 bg-white dark:bg-slate-900 font-mono"
-                              />
+                            <div className="p-3.5 rounded-xl bg-emerald-500 text-white flex items-center justify-between shadow-md shadow-emerald-500/20">
+                              <div>
+                                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-100">Change to Return</span>
+                                <p className="text-xs font-medium text-emerald-50">Give back to customer</p>
+                              </div>
+                              <span className="text-xl font-[1000] tracking-tight">Le {Math.round(change).toLocaleString()}</span>
                             </div>
                           );
-                        })}
-                      </div>
-                    </motion.div>
-                  )}
+                        } else if (tendered > 0) {
+                          return (
+                            <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-between border border-amber-200 dark:border-amber-900/50">
+                              <span className="text-[10px] font-black uppercase tracking-wider">Remaining Due:</span>
+                              <span className="text-sm font-[1000] font-mono">Le {Math.round(grandTotal - tendered).toLocaleString()}</span>
+                            </div>
+                          );
+                        }
+                        return (
+                          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-500 text-[10px] font-bold text-center uppercase tracking-wider">
+                            Enter cash received or click Exact to verify change
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  </motion.div>
+                )}
 
-                  {/* Mobile Money Verification Panel */}
-                  {paymentMethod === 'MOBILE_MONEY' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="rounded-[2rem] border-2 border-blue-150 dark:border-blue-900/40 bg-blue-50/50 dark:bg-blue-950/10 p-6 sm:p-8 space-y-5"
-                    >
-                      <div className="flex items-center gap-3">
-                        <Smartphone size={18} className="text-blue-500 shrink-0" />
-                        <p className="text-[11px] font-black text-blue-700 dark:text-blue-400 uppercase tracking-widest">Mobile Money Reconciliation</p>
+                {/* MOBILE MONEY PANEL */}
+                {paymentMethod === 'MOBILE_MONEY' && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-3.5">
+                    <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/40 p-4 rounded-2xl space-y-3.5">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="h-4 w-4 text-blue-600" />
+                        <Label className="text-[10px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest">Mobile Money Provider</Label>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
+                      <div className="grid grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={() => setMomoProvider("ORANGE_MONEY")}
                           className={cn(
-                            "py-3 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all",
+                            "py-2.5 rounded-xl border font-black text-xs uppercase tracking-wider transition-all cursor-pointer",
                             momoProvider === "ORANGE_MONEY"
-                              ? "bg-orange-500 border-transparent text-white shadow-lg shadow-orange-500/20"
-                              : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500"
+                              ? "bg-orange-500 border-orange-500 text-white shadow-md shadow-orange-500/20"
+                              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
                           )}
                         >
                           Orange Money
@@ -1611,179 +1657,284 @@ export default function POSPage() {
                           type="button"
                           onClick={() => setMomoProvider("AFRIMONEY")}
                           className={cn(
-                            "py-3 rounded-xl border font-bold text-xs uppercase tracking-wider transition-all",
+                            "py-2.5 rounded-xl border font-black text-xs uppercase tracking-wider transition-all cursor-pointer",
                             momoProvider === "AFRIMONEY"
-                              ? "bg-blue-600 border-transparent text-white shadow-lg shadow-blue-600/20"
-                              : "bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800 text-slate-500"
+                              ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/20"
+                              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
                           )}
                         >
                           AfriMoney
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Transaction Code / Ref</Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Transaction Code / Ref</Label>
                           <Input
                             placeholder="e.g. CO260623.1301.A102"
                             value={momoRefCode}
                             onChange={(e) => setMomoRefCode(e.target.value)}
-                            className="h-12 rounded-xl border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 font-bold"
+                            className="h-10 rounded-xl bg-white dark:bg-slate-900 font-mono text-xs font-bold"
                           />
                         </div>
-                        <div className="space-y-2">
-                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Payer Phone (Optional)</Label>
+                        <div className="space-y-1.5">
+                          <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Payer Phone (Optional)</Label>
                           <Input
-                            placeholder="+232 77 123456"
+                            placeholder="e.g. 077 123456"
                             value={momoPhone}
                             onChange={(e) => setMomoPhone(e.target.value)}
-                            className="h-12 rounded-xl border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 font-bold"
+                            className="h-10 rounded-xl bg-white dark:bg-slate-900 font-mono text-xs font-bold"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-2 pt-2 border-t border-blue-100/50 dark:border-blue-900/20">
-                        <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] flex justify-between">
-                          <span>Quick-Parse SMS Confirmation</span>
-                          <span className="text-[9px] text-blue-500 font-black lowercase">Paste SMS text here</span>
-                        </Label>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between items-center">
+                          <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Quick-Parse SMS Confirmation</Label>
+                          <span className="text-[9px] text-blue-500 font-bold">Auto-extracts Ref & Phone</span>
+                        </div>
                         <Textarea
-                          placeholder="Paste Orange Money or AfriMoney confirmation message here..."
+                          placeholder="Paste customer SMS confirmation message here to auto-fill..."
                           value={momoSmsPaste}
-                          onChange={(e) => setMomoSmsPaste(e.target.value)}
-                          className="rounded-xl border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 text-[11px] p-3 min-h-[60px]"
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setMomoSmsPaste(val);
+                            const txn = val.match(/(?:Txn\s*ID|TxId|Trans\s*ID|Ref|ID)[:\s]+([A-Za-z0-9\.\-_]+)/i) || val.match(/\b(CO\d{6}\.\d{4}\.[A-Z0-9]+|PP\d+|MP\d+|CI\d+)\b/i);
+                            if (txn && txn[1]) setMomoRefCode(txn[1]);
+                            const ph = val.match(/(?:from|to|subscriber|sender|payer)[:\s]+(?:\+?232|0)?([7893]\d{7})/i) || val.match(/\b(?:\+?232|0)?([7893]\d{7})\b/);
+                            if (ph && ph[1]) setMomoPhone("0" + ph[1]);
+                          }}
+                          className="rounded-xl bg-white dark:bg-slate-900 text-xs p-2.5 min-h-[50px]"
                         />
                       </div>
-                    </motion.div>
-                  )}
+                    </div>
+                  </motion.div>
+                )}
 
-                  {/* Credit Panel */}
-                  {paymentMethod === 'CREDIT' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="rounded-[2rem] border-2 border-amber-100 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/20 p-6 sm:p-8 space-y-5"
-                    >
-                      {selectedCustomer === 'WALKIN' ? (
-                        <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400">
-                          <AlertTriangle size={18} className="shrink-0" />
-                          <p className="text-[11px] font-black uppercase tracking-widest leading-relaxed">
-                            A registered customer is required to issue credit. Select a customer above.
-                          </p>
+                {/* CARD PANEL */}
+                {paymentMethod === 'CARD' && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-900/40 text-center space-y-3">
+                    <div className="h-12 w-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
+                      <CardIcon className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">POS Terminal Card Swipe</h4>
+                      <p className="text-[11px] text-slate-500 mt-1">Please insert or tap customer debit/credit card on the external card terminal for <span className="font-bold text-slate-900 dark:text-white">Le {Math.round(grandTotal).toLocaleString()}</span>.</p>
+                    </div>
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[9px] font-black uppercase tracking-widest">
+                      Terminal Ready
+                    </Badge>
+                  </motion.div>
+                )}
+
+                {/* CREDIT PANEL */}
+                {paymentMethod === 'CREDIT' && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 space-y-3.5">
+                    {selectedCustomer === 'WALKIN' ? (
+                      <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400 p-2">
+                        <AlertTriangle className="h-5 w-5 shrink-0" />
+                        <p className="text-xs font-bold leading-relaxed">
+                          Credit sales require a registered customer profile. Please select or add a customer above.
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2">
+                          <HandCoins className="h-4 w-4 text-amber-600" />
+                          <Label className="text-[10px] font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest">Credit Sale & Upfront Payment</Label>
                         </div>
-                      ) : (
-                        <>
-                          <div className="flex items-center gap-3">
-                            <CheckCircle2 size={18} className="text-amber-500 shrink-0" />
-                            <p className="text-[11px] font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">Credit Sale — Debt will be recorded</p>
+                        
+                        <div className="space-y-1.5">
+                          <Label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Upfront Cash / Deposit (Optional)</Label>
+                          <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">Le</span>
+                            <Input
+                              type="number"
+                              min="0"
+                              max={grandTotal}
+                              placeholder="0"
+                              value={creditAmountPaid}
+                              onChange={(e) => setCreditAmountPaid(e.target.value)}
+                              className="pl-10 h-11 rounded-xl bg-white dark:bg-slate-900 font-mono font-bold text-sm"
+                            />
                           </div>
-                          <div className="space-y-3">
-                            <Label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Upfront Payment (optional)</Label>
-                            <div className="relative">
-                              <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[11px] font-black text-slate-400">Le</span>
-                              <Input
-                                type="number"
-                                min="0"
-                                max={grandTotal}
-                                placeholder="0"
-                                value={creditAmountPaid}
-                                onChange={(e) => setCreditAmountPaid(e.target.value)}
-                                className="pl-10 h-14 rounded-2xl border-amber-100 dark:border-amber-900/40 bg-white dark:bg-slate-900 font-black text-sm text-right tracking-widest"
-                              />
-                            </div>
-                          </div>
-                          <div className="pt-2 space-y-3 border-t border-amber-100 dark:border-amber-900/30">
-                            <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Owed</span>
-                              <span className="text-sm font-[1000] text-slate-800 dark:text-white tracking-tighter">Le {Math.round(grandTotal).toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Upfront Paid</span>
-                              <span className="text-sm font-[1000] text-emerald-600 tracking-tighter">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
-                            </div>
-                            <div className="flex justify-between items-center pt-2 border-t border-amber-200 dark:border-amber-900/40">
-                              <span className="text-[10px] font-black text-amber-600 dark:text-amber-400 uppercase tracking-widest">Outstanding Debt</span>
-                              <span className="text-lg font-[1000] text-amber-600 dark:text-amber-400 tracking-tighter">
-                                Le {Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}
-                              </span>
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </motion.div>
-                  )}
-               </div>
-
-               {/* Settlement Stats Analytics */}
-               <div className="p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] bg-gradient-to-br from-slate-900 to-black text-white shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
-                     <TrendingUp size={180} />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                  
-                  <div className="space-y-4 sm:space-y-6 relative z-10">
-                     <div className="flex justify-between items-center">
-                        <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em] drop-shadow-md">Total Amount Due</span>
-                        <span className="text-3xl sm:text-5xl font-[1000] tracking-tighter drop-shadow-2xl">Le {Math.round(grandTotal).toLocaleString()}</span>
-                     </div>
-                     <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent w-full" />
-                     <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-3">
-                           <div className={cn("h-2.5 w-2.5 rounded-full animate-pulse shadow-lg", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "bg-amber-400 shadow-amber-400/50" : "bg-emerald-400 shadow-emerald-400/50")} />
-                           <span className={cn("text-[11px] font-black uppercase tracking-[0.4em]", paymentMethod === 'CREDIT' && selectedCustomer !== 'WALKIN' && (parseFloat(creditAmountPaid) || 0) < grandTotal ? "text-amber-400" : "text-emerald-400")}>
-                             {paymentMethod === 'CREDIT' ? 'Credit Outstanding' : 'Resolved Balance'}
-                           </span>
                         </div>
-                        <span className={cn("text-2xl sm:text-3xl font-[1000] tracking-tighter drop-shadow-xl", paymentMethod === 'CREDIT' ? "text-amber-400" : "text-emerald-400")}>
-                          {paymentMethod === 'CREDIT'
-                            ? `Le ${Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}`
-                            : 'Le 0'
-                          }
-                        </span>
-                     </div>
-                     {paymentMethod === 'CREDIT' && (parseFloat(creditAmountPaid) || 0) > 0 && (
-                       <div className="flex justify-between items-center pt-3 border-t border-white/10">
-                         <span className="text-[11px] font-black text-slate-400 uppercase tracking-[0.4em]">Upfront Collected</span>
-                         <span className="text-xl font-[1000] text-emerald-400 tracking-tighter drop-shadow-md">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
-                       </div>
-                     )}
+
+                        <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/40 space-y-2">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Total Sale:</span>
+                            <span className="font-bold">Le {Math.round(grandTotal).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-emerald-600 font-bold uppercase tracking-wider text-[10px]">Upfront Paid:</span>
+                            <span className="font-bold text-emerald-600">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
+                          </div>
+                          <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <span className="text-amber-600 font-black uppercase tracking-wider text-[10px]">Remaining Debt:</span>
+                            <span className="text-base font-[1000] text-amber-600">Le {Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}</span>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </motion.div>
+                )}
+
+                {/* SPLIT PANEL */}
+                {paymentMethod === 'SPLIT' && (
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-fuchsia-50/50 dark:bg-fuchsia-950/20 border border-fuchsia-200/80 dark:border-fuchsia-900/40 space-y-3.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <LayoutGrid className="h-4 w-4 text-fuchsia-600" />
+                        <Label className="text-[10px] font-black text-fuchsia-800 dark:text-fuchsia-300 uppercase tracking-widest">Multi-Tender Split</Label>
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-500">
+                        Remaining: Le {Math.max(0, grandTotal - splitPayments.reduce((acc, curr) => acc + curr.amount, 0)).toLocaleString()}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                      {(["CASH", "CARD", "MOBILE_MONEY"] as const).map(method => {
+                        const existingIndex = splitPayments.findIndex(s => s.method === method);
+                        const amount = existingIndex >= 0 ? splitPayments[existingIndex].amount : 0;
+                        return (
+                          <div key={method} className="space-y-1">
+                            <Label className="text-[9px] font-black uppercase text-slate-500">{method.replace('_', ' ')}</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder="0"
+                              value={amount || ""}
+                              onChange={(e) => {
+                                const val = parseFloat(e.target.value) || 0;
+                                const newSplits = [...splitPayments];
+                                const idx = newSplits.findIndex(s => s.method === method);
+                                if (idx >= 0) {
+                                  if (val === 0) newSplits.splice(idx, 1);
+                                  else newSplits[idx].amount = val;
+                                } else if (val > 0) {
+                                  newSplits.push({ method, amount: val });
+                                }
+                                setSplitPayments(newSplits);
+                              }}
+                              className="h-10 bg-white dark:bg-slate-900 font-mono text-xs font-bold"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
+            </div>
+
+            {/* RIGHT COLUMN: Itemized Cart Breakdown & Financial Ledger (5 cols) */}
+            <div className="lg:col-span-5 p-5 sm:p-7 bg-slate-50/70 dark:bg-slate-900/40 flex flex-col justify-between space-y-5 lg:overflow-y-auto custom-scrollbar">
+              
+              {/* Cart Itemized Header & List */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200/80 dark:border-slate-800">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag className="h-4 w-4 text-indigo-500" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Cart Breakdown ({cart.length})</span>
                   </div>
-               </div>
-            </div>
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{cart.reduce((a, b) => a + b.quantity, 0)} Units</span>
+                </div>
 
-            <div className="bg-slate-50 dark:bg-slate-900/50 p-4 flex flex-wrap items-center justify-center gap-6 border-t border-slate-100 dark:border-slate-800">
-               <div className="flex items-center gap-2 text-slate-400">
-                  <ShieldCheck size={14} className="text-emerald-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">End-to-End Encryption</span>
-               </div>
-               <div className="flex items-center gap-2 text-slate-400">
-                  <CheckCircle2 size={14} className="text-blue-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Guaranteed Secure</span>
-               </div>
-               <div className="flex items-center gap-2 text-slate-400 hidden sm:flex">
-                  <Clock size={14} className="text-indigo-500" />
-                  <span className="text-[9px] font-black uppercase tracking-[0.2em]">Real-time Sync</span>
-               </div>
-            </div>
+                <div className="space-y-2 max-h-[160px] sm:max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                  {cart.map((item, i) => (
+                    <div key={item.id + (item.unitId || "") + i} className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 text-xs">
+                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                        <div className="h-7 w-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-[10px] flex items-center justify-center shrink-0">
+                          {item.quantity}×
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-800 dark:text-white truncate text-[11px] leading-tight">{item.name}</p>
+                          <p className="text-[9px] text-slate-400">@ Le {Math.round(item.price).toLocaleString()} {item.unitName ? `/${item.unitName}` : ""}</p>
+                        </div>
+                      </div>
+                      <span className="font-mono font-bold text-[11px] text-slate-900 dark:text-slate-200 shrink-0">
+                        Le {Math.round(item.price * item.quantity).toLocaleString()}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <div className="p-6 sm:p-10 flex flex-col sm:flex-row gap-4 sm:gap-5 bg-white dark:bg-slate-950 relative z-10 shrink-0 border-t border-slate-100 dark:border-slate-800/50 shadow-[0_-10px_40px_rgba(0,0,0,0.02)]">
-               <Button 
-                  variant="outline" 
-                  className="flex-1 h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] font-black uppercase text-[10px] sm:text-[11px] tracking-[0.3em] text-slate-500 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors"
-                  onClick={() => setIsCheckoutOpen(false)}
-               >
-                  Cancel
-               </Button>
-               <Button 
-                  onClick={handleCheckout} 
-                  disabled={loading}
-                  className="flex-[2] h-16 sm:h-20 rounded-[1.5rem] sm:rounded-[2rem] bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-600 text-white font-[1000] uppercase text-[10px] sm:text-[11px] tracking-[0.4em] shadow-[0_10px_40px_rgba(79,70,229,0.4)] hover:shadow-[0_15px_50px_rgba(79,70,229,0.6)] hover:scale-[1.02] disabled:opacity-50 transition-all duration-300 bg-[length:200%_auto] animate-gradient"
-               >
-                  {loading ? <RefreshCw className="animate-spin" /> : (
-                    <span className="flex items-center gap-3 drop-shadow-md">Complete Checkout <ArrowRight className="group-hover:translate-x-3 transition-transform duration-500" /></span>
+              {/* Ledger & Grand Total Summary */}
+              <div className="space-y-3 pt-3 border-t border-slate-200/80 dark:border-slate-800">
+                <div className="space-y-1.5 text-xs">
+                  <div className="flex justify-between items-center text-slate-500">
+                    <span className="text-[10px] font-bold uppercase tracking-wider">Subtotal:</span>
+                    <span className="font-mono font-bold">Le {Math.round(total).toLocaleString()}</span>
+                  </div>
+                  {totalDiscount > 0 && (
+                    <div className="flex justify-between items-center text-rose-500">
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Discount:</span>
+                      <span className="font-mono font-bold">-Le {Math.round(totalDiscount).toLocaleString()}</span>
+                    </div>
                   )}
-               </Button>
+                  {tax > 0 && (
+                    <div className="flex justify-between items-center text-slate-500">
+                      <span className="text-[10px] font-bold uppercase tracking-wider">NRA GST (15%):</span>
+                      <span className="font-mono font-bold">Le {Math.round(tax).toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Grand Total Hero Display */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white shadow-xl space-y-2 relative overflow-hidden">
+                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl" />
+                  <div className="flex justify-between items-center relative z-10">
+                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-300">Total Due</span>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[9px] font-bold">
+                      {paymentMethod.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                  <div className="text-2xl sm:text-3xl font-[1000] tracking-tight text-white relative z-10">
+                    Le {Math.round(grandTotal).toLocaleString()}
+                  </div>
+                </div>
+
+                {/* Trust Badges */}
+                <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest pt-1">
+                  <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-emerald-500" /> SSL Secured</span>
+                  <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-blue-500" /> NRA Compliant</span>
+                  <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-indigo-500" /> Instant Ledger</span>
+                </div>
+              </div>
+
             </div>
+
+          </div>
+
+          {/* Sticky Bottom Action Footer */}
+          <div className="p-4 sm:p-5 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsCheckoutOpen(false)}
+              className="h-12 sm:h-14 px-5 rounded-xl font-bold uppercase text-[10px] tracking-wider text-slate-500 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
+            >
+              Cancel (ESC)
+            </Button>
+            
+            <Button
+              type="button"
+              onClick={handleCheckout}
+              disabled={loading || cart.length === 0}
+              className="h-12 sm:h-14 flex-1 rounded-xl bg-gradient-to-r from-emerald-600 via-indigo-600 to-emerald-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-[1000] uppercase text-xs tracking-widest shadow-lg shadow-emerald-600/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <span>Finalize Sale & Print Receipt</span>
+                  <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
 
