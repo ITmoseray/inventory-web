@@ -78,16 +78,18 @@ export function QuickActionCommandBar({ businessType = "SHOP", onRefresh }: Quic
 
         {/* 5. Professional Calculator Dialog */}
         <Dialog>
-          <DialogTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border-slate-700 font-bold text-xs gap-1.5 cursor-pointer"
-            >
-              <Calculator className="h-3.5 w-3.5 text-amber-400" />
-              <span>Calculator</span>
-            </Button>
-          </DialogTrigger>
+          <DialogTrigger
+            render={
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-9 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-200 border-slate-700 font-bold text-xs gap-1.5 cursor-pointer"
+              >
+                <Calculator className="h-3.5 w-3.5 text-amber-400" />
+                <span>Calculator</span>
+              </Button>
+            }
+          />
           <DialogContent className="sm:max-w-[400px] max-w-[95vw] mx-auto p-0 border-none bg-transparent shadow-none">
             <ProfessionalCalculator />
           </DialogContent>

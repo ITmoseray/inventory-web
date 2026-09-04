@@ -153,11 +153,13 @@ export default function ConsultationsPage() {
                         <History className="mr-2 h-4 w-4" /> History
                      </Button>
                      <Dialog open={labDialogOpen} onOpenChange={setLabDialogOpen}>
-                        <DialogTrigger asChild>
-                           <Button variant="secondary" size="sm" className="rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 transition-colors shadow-[0_0_15px_-3px_#10b981]">
-                              <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
-                           </Button>
-                        </DialogTrigger>
+                        <DialogTrigger
+                           render={
+                              <Button variant="secondary" size="sm" className="rounded-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-600 dark:text-emerald-300 border border-emerald-500/30 transition-colors shadow-[0_0_15px_-3px_#10b981]">
+                                 <FlaskConical className="mr-2 h-4 w-4" /> Order Lab
+                              </Button>
+                           }
+                        />
                         <DialogContent className="bg-card/95 backdrop-blur-xl border border-border text-foreground sm:max-w-[425px] rounded-3xl shadow-2xl">
                           <DialogHeader>
                             <DialogTitle className="text-2xl font-black text-foreground">Order Lab Test</DialogTitle>

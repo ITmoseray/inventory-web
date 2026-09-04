@@ -133,11 +133,13 @@ export default function PatientsRegistryPage() {
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-500/25">
-              <Plus className="h-4 w-4" /> Register Patient
-            </Button>
-          </DialogTrigger>
+          <DialogTrigger
+            render={
+              <Button className="h-12 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-[10px] uppercase tracking-widest gap-2 shadow-lg shadow-indigo-500/25">
+                <Plus className="h-4 w-4" /> Register Patient
+              </Button>
+            }
+          />
           <DialogContent className="sm:max-w-xl max-h-[90vh] overflow-y-auto custom-scrollbar border-slate-100 bg-white dark:bg-slate-900 rounded-[2rem] text-slate-900 dark:text-white">
             <DialogHeader>
               <DialogTitle className="text-xl font-[1000] tracking-tight uppercase text-slate-900 dark:text-white">Register Patient Profile</DialogTitle>

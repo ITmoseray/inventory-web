@@ -85,12 +85,14 @@ export function MedicalBillsModal({ onPaymentSuccess }: MedicalBillsModalProps) 
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="h-12 px-6 rounded-2xl border-brand-500/50 bg-brand-500/10 font-black text-[10px] uppercase tracking-widest gap-2 text-brand-600 dark:text-brand-400 hover:bg-brand-500/30 hover:text-foreground transition-all shadow-[0_0_15px_-3px_#14b8a6]">
-          <Receipt className="h-4 w-4" />
-          Medical Bills
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button variant="outline" className="h-12 px-6 rounded-2xl border-brand-500/50 bg-brand-500/10 font-black text-[10px] uppercase tracking-widest gap-2 text-brand-600 dark:text-brand-400 hover:bg-brand-500/30 hover:text-foreground transition-all shadow-[0_0_15px_-3px_#14b8a6]">
+            <Receipt className="h-4 w-4" />
+            Medical Bills
+          </Button>
+        }
+      />
       <DialogContent className="sm:max-w-[800px] bg-card/95 backdrop-blur-3xl border border-border text-foreground shadow-2xl rounded-[2rem] p-6 sm:p-8">
         
         {/* Decorative Glow */}
