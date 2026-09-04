@@ -48,9 +48,9 @@ yarn-error.log*
 *.rar
 *.7z
 photo/
-web/public/videos/*.mp4
 web/public/videos/*.mov
 web/public/videos/*.webm
+!web/public/videos/protech-advert.mp4
 !web/public/videos/*.jpg
 !web/public/videos/*.png
 

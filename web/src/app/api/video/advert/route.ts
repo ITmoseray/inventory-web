@@ -8,7 +8,8 @@ export async function GET(req: NextRequest) {
   try {
     const candidatePaths = [
       path.join(process.cwd(), "public", "videos", "protech-advert.mp4"),
-      path.join(process.cwd(), "public", "videos", "0902.mp4"),
+      path.join(process.cwd(), "web", "public", "videos", "protech-advert.mp4"),
+      path.join(__dirname, "../../../../../public/videos/protech-advert.mp4"),
       "C:\\Users\\ProTech\\OneDrive\\Desktop\\0902\\0902.mp4"
     ];
 
