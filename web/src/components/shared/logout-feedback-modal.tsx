@@ -133,9 +133,9 @@ export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackMod
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && !submitting && onClose()}>
-      <DialogContent className="max-w-xl w-full p-0 overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl">
+      <DialogContent className="max-w-xl w-full p-0 overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl max-h-[90vh] flex flex-col">
         {/* Glowing Top Banner */}
-        <div className="relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-8 text-white overflow-hidden">
+        <div className="relative bg-gradient-to-br from-indigo-600 via-indigo-700 to-purple-800 p-6 sm:p-7 text-white overflow-hidden shrink-0">
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex items-start justify-between gap-4">
             <div className="space-y-1.5">
@@ -158,7 +158,7 @@ export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackMod
 
         {/* Content Body */}
         {submittedSuccess ? (
-          <div className="p-8 text-center space-y-4">
+          <div className="p-8 text-center space-y-4 flex-1 flex flex-col items-center justify-center">
             <div className="h-16 w-16 mx-auto rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
               <CheckCircle className="h-10 w-10 animate-bounce" />
             </div>
@@ -168,11 +168,18 @@ export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackMod
             </p>
           </div>
         ) : (
-          <form onSubmit={handleSubmitAndLogout} className="p-6 sm:p-8 space-y-5">
-            {/* Star Rating Selector */}
-            <div className="flex flex-col items-center justify-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200/60 dark:border-slate-800/60 space-y-2">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Rating</span>
-              <div className="flex items-center gap-2">
+          <form onSubmit={handleSubmitAndLogout} className="p-5 sm:p-7 space-y-4 overflow-y-auto flex-1 custom-scrollbar">
+            {/* Super Responsive Star Rating Selector */}
+            <div className="flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200/80 dark:border-slate-800/80 space-y-3 shadow-inner">
+              <div className="flex items-center justify-between w-full">
+                <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">Your Rating</span>
+                <span className="text-xs font-bold text-amber-500 bg-amber-500/10 px-2.5 py-0.5 rounded-full">
+                  {(hoverRating !== null ? hoverRating : rating)}.0 / 5.0 Stars
+                </span>
+              </div>
+              
+              {/* Star Buttons */}
+              <div className="flex items-center justify-center gap-2 sm:gap-3 py-1 select-none">
                 {[1, 2, 3, 4, 5].map((star) => {
                   const active = (hoverRating !== null ? hoverRating : rating) >= star;
                   return (
@@ -181,31 +188,55 @@ export function LogoutFeedbackModal({ isOpen, onClose, user }: LogoutFeedbackMod
                       type="button"
                       onMouseEnter={() => setHoverRating(star)}
                       onMouseLeave={() => setHoverRating(null)}
-                      onClick={() => setRating(star)}
-                      className="p-1 transition-transform hover:scale-125 focus:outline-none cursor-pointer"
+                      onPointerDown={() => { setRating(star); setHoverRating(null); }}
+                      onClick={(e) => { e.preventDefault(); setRating(star); setHoverRating(null); }}
+                      className={`h-11 w-11 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center transition-all cursor-pointer touch-manipulation focus:outline-none ${
+                        active 
+                          ? "bg-amber-400/15 border-2 border-amber-400 scale-110 shadow-md shadow-amber-400/20" 
+                          : "bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 hover:scale-105"
+                      }`}
+                      aria-label={`${star} Stars`}
                     >
                       <Star
-                        className={`h-8 w-8 transition-colors ${
+                        className={`h-6 w-6 sm:h-7 sm:w-7 pointer-events-none transition-colors ${
                           active
-                            ? "text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.5)]"
-                            : "text-slate-300 dark:text-slate-700"
+                            ? "text-amber-400 fill-amber-400 drop-shadow-[0_2px_8px_rgba(251,191,36,0.6)]"
+                            : "text-slate-300 dark:text-slate-600"
                         }`}
                       />
                     </button>
                   );
                 })}
               </div>
-              <span className="text-xs font-black text-indigo-600 dark:text-indigo-400">
-                {rating === 5 && "⭐ Excellent - Highly Recommended!"}
-                {rating === 4 && "👍 Very Good - Solved Major Headaches"}
-                {rating === 3 && "👌 Good - Useful Features"}
-                {rating === 2 && "⚠️ Fair - Needs Improvement"}
-                {rating === 1 && "🛑 Needs Attention"}
-              </span>
+
+              {/* Quick Number Pills for Instant Rating */}
+              <div className="grid grid-cols-5 gap-1.5 w-full pt-1">
+                {[
+                  { val: 1, label: "1★ Poor" },
+                  { val: 2, label: "2★ Fair" },
+                  { val: 3, label: "3★ Good" },
+                  { val: 4, label: "4★ Great" },
+                  { val: 5, label: "5★ Best" },
+                ].map((item) => (
+                  <button
+                    key={item.val}
+                    type="button"
+                    onPointerDown={() => { setRating(item.val); setHoverRating(null); }}
+                    onClick={(e) => { e.preventDefault(); setRating(item.val); setHoverRating(null); }}
+                    className={`py-1.5 px-0.5 rounded-xl text-[10px] font-bold transition-all border text-center cursor-pointer ${
+                      rating === item.val
+                        ? "bg-amber-400 text-slate-950 border-amber-400 font-extrabold shadow-sm"
+                        : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-amber-300"
+                    }`}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Review Textarea */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                 Your Review / Testimonial <span className="text-rose-500">*</span>
               </Label>
