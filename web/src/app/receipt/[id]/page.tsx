@@ -46,7 +46,7 @@ export default async function PublicReceiptPage({ params }: { params: Promise<{ 
       <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl border border-slate-100 print:shadow-none print:border-none print:w-full">
         {/* Header */}
         <div className="bg-indigo-600 p-8 text-center relative overflow-hidden rounded-t-3xl print:bg-slate-900 print:text-white print:rounded-none">
-           <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+           <div className="absolute top-0 left-0 w-full h-full bg-[url('/noise.svg')] opacity-10 mix-blend-overlay"></div>
            <div className="relative z-10 flex flex-col items-center">
               {receipt.business.logoUrl ? (
                 <img src={receipt.business.logoUrl} alt="Logo" className="h-16 w-16 rounded-full border-4 border-white/20 mb-4 bg-white object-cover shadow-md" />

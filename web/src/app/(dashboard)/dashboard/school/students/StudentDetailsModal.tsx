@@ -33,7 +33,7 @@ export default function StudentDetailsModal({ isOpen, onClose, student }: Props)
           >
             {/* Header / Banner */}
             <div className="relative h-32 sm:h-40 bg-gradient-to-r from-violet-600 to-indigo-600 shrink-0">
-               <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+               <div className="absolute inset-0 bg-[url('/noise.svg')] opacity-10 mix-blend-overlay"></div>
                <button 
                 onClick={onClose} 
                 className="absolute top-4 right-4 p-2 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md transition-colors"
