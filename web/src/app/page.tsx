@@ -368,6 +368,7 @@ export default function ProtechCloudHomepage() {
               <div className="relative rounded-[2rem] overflow-hidden aspect-video bg-black shadow-inner group">
                 <video 
                   ref={videoRef}
+                  src="/videos/protech-advert.mp4"
                   controls 
                   playsInline
                   preload="auto"
@@ -377,7 +378,6 @@ export default function ProtechCloudHomepage() {
                   className="w-full h-full object-cover"
                 >
                   <source src="/videos/protech-advert.mp4" type="video/mp4" />
-                  <source src="/api/video/advert" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
 
