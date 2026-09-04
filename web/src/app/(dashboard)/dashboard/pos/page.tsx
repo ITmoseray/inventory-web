@@ -1408,38 +1408,42 @@ export default function POSPage() {
         </div>
       </div>
       
-      {/* SECURE CHECKOUT MODAL */}
+      {/* SECURE CHECKOUT MODAL - EXPANSIVE WIDESCREEN SETTLEMENT CENTER */}
       <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
-        <DialogContent className="max-w-[1100px] w-[96vw] rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 max-h-[92vh] flex flex-col">
-          {/* Sleek Header */}
-          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-4 sm:px-8 sm:py-5 text-white relative overflow-hidden shrink-0 border-b border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-3.5 relative z-10">
-              <div className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shadow-inner">
-                <ShieldCheck className="h-5 w-5 sm:h-6 sm:w-6" />
+        <DialogContent 
+          showCloseButton={false}
+          className="w-[98vw] sm:w-[96vw] max-w-[1400px] 2xl:max-w-[1520px] h-[94vh] max-h-[94vh] rounded-[2rem] sm:rounded-[3rem] border border-slate-200/80 dark:border-slate-800/80 shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950 flex flex-col"
+        >
+          {/* Expansive Header Banner */}
+          <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-4 sm:px-10 sm:py-6 text-white relative overflow-hidden shrink-0 border-b border-white/10 flex items-center justify-between">
+            <div className="flex items-center gap-4 relative z-10">
+              <div className="h-12 w-12 sm:h-14 sm:w-14 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400 shadow-inner">
+                <ShieldCheck className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
               <div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-300">POS Terminal Settlement</span>
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-400">Live Sync</span>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-[0.3em] text-indigo-300">Point of Sale Terminal</span>
+                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                  <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-emerald-400">Live Register Active</span>
                 </div>
-                <h2 className="text-lg sm:text-2xl font-[1000] tracking-tight uppercase text-white flex items-center gap-2">
-                  Final Checkout & Settlement
+                <h2 className="text-xl sm:text-3xl font-[1000] tracking-tight uppercase text-white flex items-center gap-2">
+                  Final Checkout &amp; Settlement
                 </h2>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 relative z-10">
+            <div className="flex items-center gap-4 relative z-10">
               <div className="hidden sm:flex flex-col items-end">
-                <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">Total Payable</span>
-                <span className="text-xl font-[1000] tracking-tight text-emerald-400">Le {Math.round(grandTotal).toLocaleString()}</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Payable Amount</span>
+                <span className="text-2xl sm:text-3xl font-[1000] tracking-tight text-emerald-400">Le {Math.round(grandTotal).toLocaleString()}</span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsCheckoutOpen(false)}
-                className="h-9 w-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                className="h-10 w-10 sm:h-11 sm:w-11 rounded-2xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors cursor-pointer"
+                title="Close (ESC)"
               >
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
             </div>
           </div>
@@ -1447,35 +1451,35 @@ export default function POSPage() {
           {/* 2-Column Responsive Body */}
           <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
             
-            {/* LEFT COLUMN: Payment Controls & Tender (7 cols) */}
-            <div className="lg:col-span-7 p-5 sm:p-7 space-y-5 lg:overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800">
+            {/* LEFT COLUMN: Payment Controls & Tender (7 cols / ~58%) */}
+            <div className="lg:col-span-7 xl:col-span-7 p-6 sm:p-8 xl:p-10 space-y-6 lg:overflow-y-auto custom-scrollbar border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-800/80">
               
               {/* Customer Selection Row */}
-              <div className="bg-slate-50 dark:bg-slate-900/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 space-y-2.5">
+              <div className="bg-slate-50 dark:bg-slate-900/70 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-slate-200/80 dark:border-slate-800 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-indigo-500" />
-                    <Label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Customer / Account</Label>
+                  <div className="flex items-center gap-2.5">
+                    <User className="h-4 w-4 sm:h-5 sm:w-5 text-indigo-500" />
+                    <Label className="text-xs sm:text-sm font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Customer / Account Profile</Label>
                   </div>
                   <button 
                     type="button"
                     onClick={() => setIsNewCustomerOpen(true)} 
-                    className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-wider hover:underline flex items-center gap-1 cursor-pointer"
                   >
-                    <Plus className="h-3 w-3" /> New Customer
+                    <Plus className="h-3.5 w-3.5" /> New Customer
                   </button>
                 </div>
                 <Select value={selectedCustomer} onValueChange={(val) => setSelectedCustomer(val || "WALKIN")}>
-                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs uppercase tracking-wider shadow-sm">
+                  <SelectTrigger className="h-13 sm:h-15 rounded-xl sm:rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs sm:text-sm uppercase tracking-wider shadow-sm">
                     <SelectValue placeholder="Select Customer" />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-slate-200 dark:border-slate-800 shadow-xl p-1 max-h-56">
-                    <SelectItem value="WALKIN" className="font-bold uppercase tracking-wider py-2.5 text-xs rounded-lg">
-                      🚶 Walk-in Customer (Standard)
+                  <SelectContent className="rounded-2xl border-slate-200 dark:border-slate-800 shadow-2xl p-2 max-h-64">
+                    <SelectItem value="WALKIN" className="font-bold uppercase tracking-wider py-3 text-xs sm:text-sm rounded-xl">
+                      🚶 Walk-in Customer (Standard Retail)
                     </SelectItem>
                     {customers.map((c) => (
-                      <SelectItem key={c.id} value={c.id} className="font-bold py-2.5 text-xs rounded-lg">
-                        {c.name} {c.phone ? `(${c.phone})` : ""}
+                      <SelectItem key={c.id} value={c.id} className="font-bold py-3 text-xs sm:text-sm rounded-xl">
+                        👤 {c.name} {c.phone ? `(${c.phone})` : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -1484,13 +1488,13 @@ export default function POSPage() {
 
               {/* Prescription Link if Applicable */}
               {cartRequiresPrescription && (
-                <div className="p-3.5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 space-y-2">
+                <div className="p-4 sm:p-5 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 space-y-2.5">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <Label className="text-[10px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Linked Prescription</Label>
+                    <Label className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Linked Prescription</Label>
                   </div>
                   <Select value={prescriptionId} onValueChange={setPrescriptionId}>
-                    <SelectTrigger className="h-11 rounded-xl border-blue-200 dark:border-blue-900 bg-white dark:bg-slate-900 font-bold text-xs">
+                    <SelectTrigger className="h-12 sm:h-14 rounded-xl border-blue-200 dark:border-blue-900 bg-white dark:bg-slate-900 font-bold text-xs sm:text-sm">
                       <SelectValue placeholder="Select Prescription (Optional)" />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl">
@@ -1498,7 +1502,7 @@ export default function POSPage() {
                         <div className="p-3 text-center text-xs font-bold text-slate-400">No pending prescriptions</div>
                       ) : (
                         pendingPrescriptions.map((script) => (
-                          <SelectItem key={script.id} value={script.id} className="text-xs font-bold">
+                          <SelectItem key={script.id} value={script.id} className="text-xs font-bold py-2.5">
                             {script.prescriptionNumber} - {script.patient?.name} (Dr. {script.doctorName})
                           </SelectItem>
                         ))
@@ -1509,9 +1513,9 @@ export default function POSPage() {
               )}
 
               {/* Payment Method Selector Grid */}
-              <div className="space-y-2.5">
-                <Label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Select Payment Method</Label>
-                <div className="grid grid-cols-5 gap-2">
+              <div className="space-y-3">
+                <Label className="text-xs font-black text-slate-400 uppercase tracking-widest">Select Payment Method</Label>
+                <div className="grid grid-cols-5 gap-2.5 sm:gap-3.5">
                   {[
                     { id: 'CASH', label: 'Cash', icon: Banknote, activeBorder: 'border-emerald-500 bg-emerald-500 text-white shadow-emerald-500/25', inactiveText: 'text-emerald-600 dark:text-emerald-400' },
                     { id: 'MOBILE_MONEY', label: 'MoMo', icon: Smartphone, activeBorder: 'border-blue-600 bg-blue-600 text-white shadow-blue-600/25', inactiveText: 'text-blue-600 dark:text-blue-400' },
@@ -1529,14 +1533,14 @@ export default function POSPage() {
                           if (m.id !== 'CREDIT') setCreditAmountPaid("");
                         }}
                         className={cn(
-                          "flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 transition-all cursor-pointer select-none",
+                          "flex flex-col items-center justify-center gap-2 p-3.5 sm:p-4 rounded-2xl sm:rounded-3xl border-2 transition-all cursor-pointer select-none",
                           isActive
-                            ? `${m.activeBorder} shadow-lg scale-[1.02]`
+                            ? `${m.activeBorder} shadow-xl scale-[1.03] ring-2 ring-white/20`
                             : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-600 dark:text-slate-300"
                         )}
                       >
-                        <m.icon className={cn("h-5 w-5", isActive ? "text-white" : m.inactiveText)} />
-                        <span className="text-[10px] font-black uppercase tracking-wider">{m.label}</span>
+                        <m.icon className={cn("h-6 w-6 sm:h-7 sm:w-7", isActive ? "text-white" : m.inactiveText)} />
+                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider">{m.label}</span>
                       </button>
                     );
                   })}
@@ -1544,21 +1548,21 @@ export default function POSPage() {
               </div>
 
               {/* Dynamic Tender Panels */}
-              <div className="min-h-[160px]">
+              <div className="min-h-[200px]">
                 {/* CASH PANEL */}
                 {paymentMethod === 'CASH' && (
                   <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                    <div className="bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/80 dark:border-emerald-900/40 p-4 rounded-2xl space-y-3.5">
+                    <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border-2 border-emerald-200/80 dark:border-emerald-900/40 p-5 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Banknote className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                          <Label className="text-[10px] font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest">Amount Tendered (Received)</Label>
+                          <Banknote className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                          <Label className="text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-widest">Amount Tendered (Physical Cash Received)</Label>
                         </div>
                         {cashTendered && (
                           <button 
                             type="button" 
                             onClick={() => setCashTendered("")}
-                            className="text-[10px] font-black text-slate-400 hover:text-rose-500 uppercase tracking-wider cursor-pointer"
+                            className="text-xs font-black text-slate-400 hover:text-rose-500 uppercase tracking-wider cursor-pointer"
                           >
                             Clear
                           </button>
@@ -1566,34 +1570,34 @@ export default function POSPage() {
                       </div>
 
                       <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400">Le</span>
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-lg sm:text-xl font-black text-slate-400 font-mono">Le</span>
                         <Input
                           type="number"
                           min="0"
                           placeholder={Math.round(grandTotal).toString()}
                           value={cashTendered}
                           onChange={(e) => setCashTendered(e.target.value)}
-                          className="pl-11 h-13 rounded-xl border-emerald-300 dark:border-emerald-800 bg-white dark:bg-slate-900 font-mono font-black text-lg text-slate-900 dark:text-white"
+                          className="pl-14 sm:pl-16 h-15 sm:h-18 rounded-2xl border-2 border-emerald-300 dark:border-emerald-800 bg-white dark:bg-slate-900 font-mono font-black text-2xl sm:text-3xl text-slate-900 dark:text-white"
                         />
                       </div>
 
                       {/* Fast Tender Quick Buttons */}
-                      <div className="space-y-1.5">
-                        <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Fast Cash Presets:</span>
-                        <div className="flex flex-wrap gap-1.5">
+                      <div className="space-y-2">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Fast Cash Presets (Sierra Leone Leones):</span>
+                        <div className="flex flex-wrap gap-2">
                           <button
                             type="button"
                             onClick={() => setCashTendered(Math.round(grandTotal).toString())}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-black text-[10px] uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+                            className="h-11 sm:h-12 px-4 sm:px-5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-md shadow-emerald-600/25 transition-all cursor-pointer"
                           >
                             Exact (Le {Math.round(grandTotal).toLocaleString()})
                           </button>
-                          {[50, 100, 200, 500, 1000, 2000, 5000].map((denom) => (
+                          {[50, 100, 200, 500, 1000, 2000, 5000, 10000].map((denom) => (
                             <button
                               key={denom}
                               type="button"
                               onClick={() => setCashTendered(denom.toString())}
-                              className="px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 font-mono font-bold text-[10px] text-slate-700 dark:text-slate-300 transition-all cursor-pointer"
+                              className="h-11 sm:h-12 px-3.5 sm:px-4 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 font-mono font-bold text-xs sm:text-sm text-slate-700 dark:text-slate-200 transition-all cursor-pointer shadow-sm"
                             >
                               Le {denom >= 1000 ? `${denom / 1000}k` : denom}
                             </button>
@@ -1607,25 +1611,25 @@ export default function POSPage() {
                         const change = tendered - grandTotal;
                         if (tendered >= grandTotal) {
                           return (
-                            <div className="p-3.5 rounded-xl bg-emerald-500 text-white flex items-center justify-between shadow-md shadow-emerald-500/20">
+                            <div className="p-4 sm:p-6 rounded-2xl bg-emerald-500 text-white flex items-center justify-between shadow-xl shadow-emerald-500/25">
                               <div>
-                                <span className="text-[9px] font-black uppercase tracking-widest text-emerald-100">Change to Return</span>
-                                <p className="text-xs font-medium text-emerald-50">Give back to customer</p>
+                                <span className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-emerald-100">Change Due (Return to Customer)</span>
+                                <p className="text-xs sm:text-sm font-medium text-emerald-50 mt-0.5">Physical cash handover</p>
                               </div>
-                              <span className="text-xl font-[1000] tracking-tight">Le {Math.round(change).toLocaleString()}</span>
+                              <span className="text-2xl sm:text-4xl font-[1000] font-mono tracking-tight">Le {Math.round(change).toLocaleString()}</span>
                             </div>
                           );
                         } else if (tendered > 0) {
                           return (
-                            <div className="p-3 rounded-xl bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 flex items-center justify-between border border-amber-200 dark:border-amber-900/50">
-                              <span className="text-[10px] font-black uppercase tracking-wider">Remaining Due:</span>
-                              <span className="text-sm font-[1000] font-mono">Le {Math.round(grandTotal - tendered).toLocaleString()}</span>
+                            <div className="p-4 sm:p-5 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200 flex items-center justify-between border-2 border-amber-200 dark:border-amber-900/50">
+                              <span className="text-xs sm:text-sm font-black uppercase tracking-wider">Remaining Balance Due:</span>
+                              <span className="text-lg sm:text-2xl font-[1000] font-mono text-amber-600 dark:text-amber-400">Le {Math.round(grandTotal - tendered).toLocaleString()}</span>
                             </div>
                           );
                         }
                         return (
-                          <div className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-500 text-[10px] font-bold text-center uppercase tracking-wider">
-                            Enter cash received or click Exact to verify change
+                          <div className="p-3.5 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-500 text-xs font-bold text-center uppercase tracking-wider">
+                            Enter physical cash received or click Exact to verify change
                           </div>
                         );
                       })()}
@@ -1635,21 +1639,21 @@ export default function POSPage() {
 
                 {/* MOBILE MONEY PANEL */}
                 {paymentMethod === 'MOBILE_MONEY' && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-3.5">
-                    <div className="bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/80 dark:border-blue-900/40 p-4 rounded-2xl space-y-3.5">
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                    <div className="bg-blue-50/60 dark:bg-blue-950/20 border-2 border-blue-200/80 dark:border-blue-900/40 p-5 sm:p-6 rounded-2xl sm:rounded-3xl space-y-4">
                       <div className="flex items-center gap-2">
-                        <Smartphone className="h-4 w-4 text-blue-600" />
-                        <Label className="text-[10px] font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest">Mobile Money Provider</Label>
+                        <Smartphone className="h-5 w-5 text-blue-600" />
+                        <Label className="text-xs font-black text-blue-800 dark:text-blue-300 uppercase tracking-widest">Mobile Money Provider</Label>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2">
+                      <div className="grid grid-cols-2 gap-3">
                         <button
                           type="button"
                           onClick={() => setMomoProvider("ORANGE_MONEY")}
                           className={cn(
-                            "py-2.5 rounded-xl border font-black text-xs uppercase tracking-wider transition-all cursor-pointer",
+                            "py-3.5 rounded-2xl border-2 font-black text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer",
                             momoProvider === "ORANGE_MONEY"
-                              ? "bg-orange-500 border-orange-500 text-white shadow-md shadow-orange-500/20"
+                              ? "bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/25 scale-[1.02]"
                               : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
                           )}
                         >
@@ -1659,9 +1663,9 @@ export default function POSPage() {
                           type="button"
                           onClick={() => setMomoProvider("AFRIMONEY")}
                           className={cn(
-                            "py-2.5 rounded-xl border font-black text-xs uppercase tracking-wider transition-all cursor-pointer",
+                            "py-3.5 rounded-2xl border-2 font-black text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer",
                             momoProvider === "AFRIMONEY"
-                              ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-600/20"
+                              ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/25 scale-[1.02]"
                               : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400"
                           )}
                         >
@@ -1669,31 +1673,31 @@ export default function POSPage() {
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                         <div className="space-y-1.5">
-                          <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Transaction Code / Ref</Label>
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Transaction Code / Ref</Label>
                           <Input
                             placeholder="e.g. CO260623.1301.A102"
                             value={momoRefCode}
                             onChange={(e) => setMomoRefCode(e.target.value)}
-                            className="h-10 rounded-xl bg-white dark:bg-slate-900 font-mono text-xs font-bold"
+                            className="h-12 rounded-xl bg-white dark:bg-slate-900 font-mono text-sm font-bold"
                           />
                         </div>
                         <div className="space-y-1.5">
-                          <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Payer Phone (Optional)</Label>
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Payer Phone (Optional)</Label>
                           <Input
                             placeholder="e.g. 077 123456"
                             value={momoPhone}
                             onChange={(e) => setMomoPhone(e.target.value)}
-                            className="h-10 rounded-xl bg-white dark:bg-slate-900 font-mono text-xs font-bold"
+                            className="h-12 rounded-xl bg-white dark:bg-slate-900 font-mono text-sm font-bold"
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <Label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Quick-Parse SMS Confirmation</Label>
-                          <span className="text-[9px] text-blue-500 font-bold">Auto-extracts Ref & Phone</span>
+                          <Label className="text-[10px] font-black text-slate-400 uppercase tracking-wider">Quick-Parse SMS Confirmation</Label>
+                          <span className="text-[10px] text-blue-500 font-bold">Auto-extracts Ref &amp; Phone</span>
                         </div>
                         <Textarea
                           placeholder="Paste customer SMS confirmation message here to auto-fill..."
@@ -1706,7 +1710,7 @@ export default function POSPage() {
                             const ph = val.match(/(?:from|to|subscriber|sender|payer)[:\s]+(?:\+?232|0)?([7893]\d{7})/i) || val.match(/\b(?:\+?232|0)?([7893]\d{7})\b/);
                             if (ph && ph[1]) setMomoPhone("0" + ph[1]);
                           }}
-                          className="rounded-xl bg-white dark:bg-slate-900 text-xs p-2.5 min-h-[50px]"
+                          className="rounded-xl bg-white dark:bg-slate-900 text-xs sm:text-sm p-3 min-h-[60px]"
                         />
                       </div>
                     </div>
@@ -1715,15 +1719,17 @@ export default function POSPage() {
 
                 {/* CARD PANEL */}
                 {paymentMethod === 'CARD' && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-200/80 dark:border-indigo-900/40 text-center space-y-3">
-                    <div className="h-12 w-12 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
-                      <CardIcon className="h-6 w-6" />
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-8 rounded-3xl bg-indigo-50/60 dark:bg-indigo-950/20 border-2 border-indigo-200/80 dark:border-indigo-900/40 text-center space-y-4">
+                    <div className="h-16 w-16 rounded-3xl bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-inner">
+                      <CardIcon className="h-8 w-8" />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-white">POS Terminal Card Swipe</h4>
-                      <p className="text-[11px] text-slate-500 mt-1">Please insert or tap customer debit/credit card on the external card terminal for <span className="font-bold text-slate-900 dark:text-white">Le {Math.round(grandTotal).toLocaleString()}</span>.</p>
+                      <h4 className="text-base font-black uppercase tracking-wider text-slate-800 dark:text-white">POS Terminal Card Swipe</h4>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+                        Please insert or tap customer debit/credit card on the external card terminal for <span className="font-bold text-slate-900 dark:text-white">Le {Math.round(grandTotal).toLocaleString()}</span>.
+                      </p>
                     </div>
-                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-200 text-[9px] font-black uppercase tracking-widest">
+                    <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-300 text-xs font-black uppercase tracking-widest px-4 py-1">
                       Terminal Ready
                     </Badge>
                   </motion.div>
@@ -1731,25 +1737,25 @@ export default function POSPage() {
 
                 {/* CREDIT PANEL */}
                 {paymentMethod === 'CREDIT' && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/40 space-y-3.5">
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-3xl bg-amber-50/60 dark:bg-amber-950/20 border-2 border-amber-200/80 dark:border-amber-900/40 space-y-4">
                     {selectedCustomer === 'WALKIN' ? (
-                      <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400 p-2">
-                        <AlertTriangle className="h-5 w-5 shrink-0" />
-                        <p className="text-xs font-bold leading-relaxed">
+                      <div className="flex items-center gap-3 text-amber-700 dark:text-amber-400 p-3">
+                        <AlertTriangle className="h-6 w-6 shrink-0" />
+                        <p className="text-xs sm:text-sm font-bold leading-relaxed">
                           Credit sales require a registered customer profile. Please select or add a customer above.
                         </p>
                       </div>
                     ) : (
                       <>
                         <div className="flex items-center gap-2">
-                          <HandCoins className="h-4 w-4 text-amber-600" />
-                          <Label className="text-[10px] font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest">Credit Sale & Upfront Payment</Label>
+                          <HandCoins className="h-5 w-5 text-amber-600" />
+                          <Label className="text-xs font-black text-amber-800 dark:text-amber-300 uppercase tracking-widest">Credit Sale &amp; Upfront Deposit</Label>
                         </div>
                         
                         <div className="space-y-1.5">
-                          <Label className="text-[9px] font-black text-slate-500 uppercase tracking-wider">Upfront Cash / Deposit (Optional)</Label>
+                          <Label className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Upfront Cash / Deposit (Optional)</Label>
                           <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400">Le</span>
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-black text-slate-400 font-mono">Le</span>
                             <Input
                               type="number"
                               min="0"
@@ -1757,23 +1763,23 @@ export default function POSPage() {
                               placeholder="0"
                               value={creditAmountPaid}
                               onChange={(e) => setCreditAmountPaid(e.target.value)}
-                              className="pl-10 h-11 rounded-xl bg-white dark:bg-slate-900 font-mono font-bold text-sm"
+                              className="pl-12 h-13 rounded-xl bg-white dark:bg-slate-900 font-mono font-bold text-base"
                             />
                           </div>
                         </div>
 
-                        <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/40 space-y-2">
-                          <div className="flex justify-between items-center text-xs">
+                        <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-amber-200 dark:border-amber-900/40 space-y-2.5">
+                          <div className="flex justify-between items-center text-xs sm:text-sm">
                             <span className="text-slate-500 font-bold uppercase tracking-wider text-[10px]">Total Sale:</span>
                             <span className="font-bold">Le {Math.round(grandTotal).toLocaleString()}</span>
                           </div>
-                          <div className="flex justify-between items-center text-xs">
+                          <div className="flex justify-between items-center text-xs sm:text-sm">
                             <span className="text-emerald-600 font-bold uppercase tracking-wider text-[10px]">Upfront Paid:</span>
                             <span className="font-bold text-emerald-600">Le {Math.round(parseFloat(creditAmountPaid) || 0).toLocaleString()}</span>
                           </div>
-                          <div className="pt-1.5 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                            <span className="text-amber-600 font-black uppercase tracking-wider text-[10px]">Remaining Debt:</span>
-                            <span className="text-base font-[1000] text-amber-600">Le {Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}</span>
+                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <span className="text-amber-600 font-black uppercase tracking-wider text-xs">Remaining Debt:</span>
+                            <span className="text-xl font-[1000] font-mono text-amber-600">Le {Math.round(Math.max(0, grandTotal - (parseFloat(creditAmountPaid) || 0))).toLocaleString()}</span>
                           </div>
                         </div>
                       </>
@@ -1783,24 +1789,24 @@ export default function POSPage() {
 
                 {/* SPLIT PANEL */}
                 {paymentMethod === 'SPLIT' && (
-                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-fuchsia-50/50 dark:bg-fuchsia-950/20 border border-fuchsia-200/80 dark:border-fuchsia-900/40 space-y-3.5">
+                  <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-3xl bg-fuchsia-50/50 dark:bg-fuchsia-950/20 border-2 border-fuchsia-200/80 dark:border-fuchsia-900/40 space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <LayoutGrid className="h-4 w-4 text-fuchsia-600" />
-                        <Label className="text-[10px] font-black text-fuchsia-800 dark:text-fuchsia-300 uppercase tracking-widest">Multi-Tender Split</Label>
+                        <LayoutGrid className="h-5 w-5 text-fuchsia-600" />
+                        <Label className="text-xs font-black text-fuchsia-800 dark:text-fuchsia-300 uppercase tracking-widest">Multi-Tender Split</Label>
                       </div>
-                      <span className="text-[10px] font-bold text-slate-500">
+                      <span className="text-xs font-bold text-slate-500 font-mono">
                         Remaining: Le {Math.max(0, grandTotal - splitPayments.reduce((acc, curr) => acc + curr.amount, 0)).toLocaleString()}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       {(["CASH", "CARD", "MOBILE_MONEY"] as const).map(method => {
                         const existingIndex = splitPayments.findIndex(s => s.method === method);
                         const amount = existingIndex >= 0 ? splitPayments[existingIndex].amount : 0;
                         return (
-                          <div key={method} className="space-y-1">
-                            <Label className="text-[9px] font-black uppercase text-slate-500">{method.replace('_', ' ')}</Label>
+                          <div key={method} className="space-y-1.5">
+                            <Label className="text-[10px] font-black uppercase text-slate-500">{method.replace('_', ' ')}</Label>
                             <Input
                               type="number"
                               min="0"
@@ -1818,7 +1824,7 @@ export default function POSPage() {
                                 }
                                 setSplitPayments(newSplits);
                               }}
-                              className="h-10 bg-white dark:bg-slate-900 font-mono text-xs font-bold"
+                              className="h-12 bg-white dark:bg-slate-900 font-mono text-sm font-bold"
                             />
                           </div>
                         );
@@ -1830,32 +1836,32 @@ export default function POSPage() {
 
             </div>
 
-            {/* RIGHT COLUMN: Itemized Cart Breakdown & Financial Ledger (5 cols) */}
-            <div className="lg:col-span-5 p-5 sm:p-7 bg-slate-50/70 dark:bg-slate-900/40 flex flex-col justify-between space-y-5 lg:overflow-y-auto custom-scrollbar">
+            {/* RIGHT COLUMN: Itemized Cart Breakdown & Financial Ledger (5 cols / ~42%) */}
+            <div className="lg:col-span-5 xl:col-span-5 p-6 sm:p-8 xl:p-10 bg-slate-50/80 dark:bg-slate-900/50 flex flex-col justify-between space-y-6 lg:overflow-y-auto custom-scrollbar">
               
               {/* Cart Itemized Header & List */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200/80 dark:border-slate-800">
+              <div className="space-y-3.5">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-200/80 dark:border-slate-800">
                   <div className="flex items-center gap-2">
-                    <ShoppingBag className="h-4 w-4 text-indigo-500" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-400">Cart Breakdown ({cart.length})</span>
+                    <ShoppingBag className="h-5 w-5 text-indigo-500" />
+                    <span className="text-xs sm:text-sm font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Cart Breakdown ({cart.length})</span>
                   </div>
-                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">{cart.reduce((a, b) => a + b.quantity, 0)} Units</span>
+                  <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{cart.reduce((a, b) => a + b.quantity, 0)} Total Units</span>
                 </div>
 
-                <div className="space-y-2 max-h-[160px] sm:max-h-[200px] overflow-y-auto custom-scrollbar pr-1">
+                <div className="space-y-2.5 max-h-[260px] sm:max-h-[320px] xl:max-h-[380px] overflow-y-auto custom-scrollbar pr-1">
                   {cart.map((item, i) => (
-                    <div key={item.id + (item.unitId || "") + i} className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800/80 text-xs">
-                      <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                        <div className="h-7 w-7 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold text-[10px] flex items-center justify-center shrink-0">
+                    <div key={item.id + (item.unitId || "") + i} className="flex items-center justify-between p-3 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800 shadow-sm text-xs sm:text-sm">
+                      <div className="flex items-center gap-3 min-w-0 pr-2">
+                        <div className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 font-black text-xs flex items-center justify-center shrink-0">
                           {item.quantity}×
                         </div>
                         <div className="min-w-0">
-                          <p className="font-bold text-slate-800 dark:text-white truncate text-[11px] leading-tight">{item.name}</p>
-                          <p className="text-[9px] text-slate-400">@ Le {Math.round(item.price).toLocaleString()} {item.unitName ? `/${item.unitName}` : ""}</p>
+                          <p className="font-bold text-slate-900 dark:text-white truncate text-xs sm:text-sm leading-tight">{item.name}</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">@ Le {Math.round(item.price).toLocaleString()} {item.unitName ? `/${item.unitName}` : ""}</p>
                         </div>
                       </div>
-                      <span className="font-mono font-bold text-[11px] text-slate-900 dark:text-slate-200 shrink-0">
+                      <span className="font-mono font-black text-xs sm:text-sm text-slate-900 dark:text-slate-100 shrink-0">
                         Le {Math.round(item.price * item.quantity).toLocaleString()}
                       </span>
                     </div>
@@ -1864,45 +1870,45 @@ export default function POSPage() {
               </div>
 
               {/* Ledger & Grand Total Summary */}
-              <div className="space-y-3 pt-3 border-t border-slate-200/80 dark:border-slate-800">
-                <div className="space-y-1.5 text-xs">
+              <div className="space-y-4 pt-4 border-t border-slate-200/80 dark:border-slate-800">
+                <div className="space-y-2 text-xs sm:text-sm">
                   <div className="flex justify-between items-center text-slate-500">
-                    <span className="text-[10px] font-bold uppercase tracking-wider">Subtotal:</span>
+                    <span className="text-xs font-bold uppercase tracking-wider">Subtotal:</span>
                     <span className="font-mono font-bold">Le {Math.round(total).toLocaleString()}</span>
                   </div>
                   {totalDiscount > 0 && (
                     <div className="flex justify-between items-center text-rose-500">
-                      <span className="text-[10px] font-bold uppercase tracking-wider">Discount:</span>
+                      <span className="text-xs font-bold uppercase tracking-wider">Discount (Happy Hour):</span>
                       <span className="font-mono font-bold">-Le {Math.round(totalDiscount).toLocaleString()}</span>
                     </div>
                   )}
                   {tax > 0 && (
                     <div className="flex justify-between items-center text-slate-500">
-                      <span className="text-[10px] font-bold uppercase tracking-wider">NRA GST (15%):</span>
+                      <span className="text-xs font-bold uppercase tracking-wider">NRA GST (15%):</span>
                       <span className="font-mono font-bold">Le {Math.round(tax).toLocaleString()}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Grand Total Hero Display */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white shadow-xl space-y-2 relative overflow-hidden">
-                  <div className="absolute -right-6 -bottom-6 w-24 h-24 bg-indigo-500/10 rounded-full blur-2xl" />
+                <div className="p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-slate-900 via-indigo-950 to-black text-white shadow-2xl space-y-2 relative overflow-hidden">
+                  <div className="absolute -right-6 -bottom-6 w-28 h-28 bg-indigo-500/15 rounded-full blur-2xl" />
                   <div className="flex justify-between items-center relative z-10">
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-indigo-300">Total Due</span>
-                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[9px] font-bold">
+                    <span className="text-xs font-black uppercase tracking-[0.25em] text-indigo-300">Total Settlement Due</span>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-[10px] font-bold px-3 py-0.5">
                       {paymentMethod.replace('_', ' ')}
                     </Badge>
                   </div>
-                  <div className="text-2xl sm:text-3xl font-[1000] tracking-tight text-white relative z-10">
+                  <div className="text-3xl sm:text-5xl font-[1000] tracking-tight text-white relative z-10 font-mono">
                     Le {Math.round(grandTotal).toLocaleString()}
                   </div>
                 </div>
 
                 {/* Trust Badges */}
-                <div className="flex items-center justify-between text-[9px] font-black text-slate-400 uppercase tracking-widest pt-1">
-                  <span className="flex items-center gap-1"><ShieldCheck className="h-3 w-3 text-emerald-500" /> SSL Secured</span>
-                  <span className="flex items-center gap-1"><CheckCircle2 className="h-3 w-3 text-blue-500" /> NRA Compliant</span>
-                  <span className="flex items-center gap-1"><Clock className="h-3 w-3 text-indigo-500" /> Instant Ledger</span>
+                <div className="flex items-center justify-between text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">
+                  <span className="flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-emerald-500" /> SSL Secured</span>
+                  <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-blue-500" /> NRA Compliant</span>
+                  <span className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-indigo-500" /> Instant Ledger</span>
                 </div>
               </div>
 
@@ -1911,12 +1917,12 @@ export default function POSPage() {
           </div>
 
           {/* Sticky Bottom Action Footer */}
-          <div className="p-4 sm:p-5 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
+          <div className="p-5 sm:p-8 bg-white dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4 shrink-0 shadow-[0_-10px_30px_rgba(0,0,0,0.02)]">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsCheckoutOpen(false)}
-              className="h-12 sm:h-14 px-5 rounded-xl font-bold uppercase text-[10px] tracking-wider text-slate-500 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
+              className="h-14 sm:h-16 px-6 sm:px-8 rounded-2xl font-bold uppercase text-xs sm:text-sm tracking-wider text-slate-500 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 cursor-pointer"
             >
               Cancel (ESC)
             </Button>
@@ -1925,14 +1931,14 @@ export default function POSPage() {
               type="button"
               onClick={handleCheckout}
               disabled={loading || cart.length === 0}
-              className="h-12 sm:h-14 flex-1 rounded-xl bg-gradient-to-r from-emerald-600 via-indigo-600 to-emerald-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-[1000] uppercase text-xs tracking-widest shadow-lg shadow-emerald-600/25 transition-all cursor-pointer flex items-center justify-center gap-2"
+              className="h-14 sm:h-16 flex-1 rounded-2xl bg-gradient-to-r from-emerald-600 via-indigo-600 to-emerald-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-[1000] uppercase text-xs sm:text-sm tracking-widest shadow-xl shadow-emerald-600/30 transition-all cursor-pointer flex items-center justify-center gap-3"
             >
               {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
+                <RefreshCw className="h-5 w-5 animate-spin" />
               ) : (
                 <>
-                  <span>Finalize Sale & Print Receipt</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <span>Finalize Sale &amp; Print Thermal Receipt</span>
+                  <ArrowRight className="h-5 w-5" />
                 </>
               )}
             </Button>
