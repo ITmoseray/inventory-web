@@ -176,7 +176,9 @@ export default function POSPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isHappyHour = searchParams.get("mode") === "happyhour";
-  const { cart, addItem, removeItem, updateQuantity, clearCart, total, tax, grandTotal, currentDraftId, setDraftId, setCart } = usePOSStore();
+  const { cart, addItem, removeItem, updateQuantity, clearCart, total, grandTotal, currentDraftId, setDraftId, setCart } = usePOSStore();
+  const tax = 0;
+  const totalDiscount = isHappyHour ? Math.round(total * 0.1) : 0;
   const { isOnline, isSyncing, initialSync } = useOfflineSync();
 
   const [searchQuery, setSearchQuery] = useState("");
