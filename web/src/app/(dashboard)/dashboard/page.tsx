@@ -328,10 +328,10 @@ export default function DashboardPage() {
         className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10 mb-8"
       >
         <div className="space-y-2">
-           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+           <h1 suppressHydrationWarning className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
              {activeTab === "Dashboard" ? getGreeting() : activeTab}
            </h1>
-           <div className="flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+           <div suppressHydrationWarning className="flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
              <div className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-primary" /> {format(currentTime, "h:mm a")}</div>
              <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
              <div className="flex items-center gap-1.5">{format(currentTime, "EEEE, MMMM do, yyyy")}</div>
@@ -402,9 +402,9 @@ export default function DashboardPage() {
                           <Sparkles className="h-3.5 w-3.5" />
                           <span className="text-[10px] font-black uppercase tracking-widest text-white">Protech AI Assistant</span>
                         </div>
-                        <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-none mb-3">
-    Hi {session?.user?.name?.split(' ')[0] || (session?.user?.email?.split('@')[0] === "strangesteven001" ? "Dr. Strange" : "Admin")},
-  </h2>
+                        <h2 suppressHydrationWarning className="text-2xl sm:text-3xl font-black tracking-tight leading-none mb-3">
+                          Hi {session?.user?.name?.split(' ')[0] || (session?.user?.email?.split('@')[0] === "strangesteven001" ? "Dr. Strange" : "Admin")},
+                        </h2>
   <p className="text-indigo-100 font-medium text-xs sm:text-sm max-w-[240px] leading-relaxed">
     {Number(stats.todayRevenue || 0) <= 0 
       ? "Your store is ready for trade today. Open POS to process your first sale and start tracking velocity!" 
