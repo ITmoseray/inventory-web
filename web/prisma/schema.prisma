@@ -104,6 +104,7 @@ model Business {
   activationTier          ActivationTier?          @relation(fields: [activationTierId], references: [id])
   redeemedVouchers        LicenseVoucher[]         @relation("RedeemedByBusiness")
   clientImplementations   ClientImplementation[]
+  staffAgreements         StaffAgreement[]
   lastActiveAt            DateTime?
 
   @@index([slug])
@@ -157,6 +158,7 @@ model User {
   createdImplementations  ClientImplementation[]   @relation("CreatedImplementations")
   conversationMemberships ConversationMember[]
   chatMessages            ChatMessage[]
+  staffAgreements         StaffAgreement[]
 
   @@index([businessId])
   @@index([roleId])
@@ -1967,5 +1969,54 @@ model Testimonial {
   @@index([userId])
   @@index([authorEmail])
   @@index([businessId])
+}
+
+model StaffAgreement {
+  id                    String    @id @default(cuid())
+  agreementNumber       String    @unique
+  businessId            String
+  userId                String?
+  status                String    @default("PENDING") // PENDING | SIGNED | VERIFIED | REVOKED
+  
+  // Staff Information
+  fullName              String
+  jobTitle              String
+  department            String?
+  phone                 String
+  email                 String?
+  nationalId            String?   // NIN / Voter ID / Passport
+  address               String?
+  dateOfBirth           DateTime?
+  emergencyContactName  String?
+  emergencyContactPhone String?
+  employmentType        String    @default("FULL_TIME") // FULL_TIME | PART_TIME | CONTRACT | PROBATION
+  startDate             DateTime? @default(now())
+
+  // Agreement Content & Terms
+  agreementType         String    @default("EMPLOYMENT_COMPLIANCE") // EMPLOYMENT_COMPLIANCE | CODE_OF_CONDUCT | NDA | CASHIER_ACCOUNTABILITY
+  termsContent          String?   @db.Text
+  customClauses         Json?
+
+  // Digital Signature & Verification
+  signatureData         String?   @db.Text
+  signerFullName        String?
+  signedAt              DateTime?
+  ipAddress             String?
+  userAgent             String?
+  verifiedByAdmin       Boolean   @default(false)
+  verifiedAt            DateTime?
+  adminNotes            String?
+
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  deletedAt             DateTime?
+
+  business              Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user                  User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([businessId])
+  @@index([userId])
+  @@index([status])
+  @@index([agreementNumber])
 }
 

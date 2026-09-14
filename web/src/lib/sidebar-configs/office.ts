@@ -84,6 +84,7 @@ export const officeSidebarConfig = [
         permission: "menu:staff",
         items: [
           { title: "Employees", url: "/dashboard/staff/employees" },
+          { title: "Staff Agreements", url: "/dashboard/staff/agreements" },
           { title: "Attendance Logs", url: "/dashboard/staff/attendance" },
           { title: "Payroll Manager", url: "/dashboard/staff/payroll" },
         ],

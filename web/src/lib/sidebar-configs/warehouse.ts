@@ -80,6 +80,7 @@ export const warehouseSidebarConfig = [
         permission: "menu:staff",
         items: [
           { title: "Employees", url: "/dashboard/staff/employees" },
+          { title: "Staff Agreements", url: "/dashboard/staff/agreements" },
           { title: "Attendance", url: "/dashboard/staff/attendance" },
           { title: "Payroll", url: "/dashboard/staff/payroll" },
         ],

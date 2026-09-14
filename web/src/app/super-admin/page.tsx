@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu, Crown,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star, FileSignature
 } from "lucide-react";
 import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 import { Button } from "@/components/ui/button";
@@ -846,6 +846,11 @@ export default function NexusSuperControl() {
                <Link href="/super-admin/testimonials" className="w-full sm:w-auto">
                   <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10">
                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" /> Testimonials &amp; Reviews Hub
+                  </Button>
+               </Link>
+               <Link href="/super-admin/agreements" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-indigo-600 dark:text-indigo-400 border-indigo-500/30 hover:bg-indigo-500/10">
+                     <FileSignature className="h-4 w-4 text-indigo-500" /> Staff Agreements &amp; Compliance Vault
                   </Button>
                </Link>
              </div>

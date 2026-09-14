@@ -123,6 +123,7 @@ export const barSidebarConfig = [
         permission: "menu:staff",
         items: [
           { title: "Employees", url: "/dashboard/staff/employees" },
+          { title: "Staff Agreements", url: "/dashboard/staff/agreements" },
           { title: "Shifts", url: "/dashboard/staff/attendance" },
           { title: "Attendance", url: "/dashboard/staff/attendance" },
           { title: "Payroll", url: "/dashboard/staff/payroll" },
