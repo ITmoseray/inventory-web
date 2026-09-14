@@ -900,6 +900,13 @@ export default function NexusSuperControl() {
             <Crown className="h-3.5 w-3.5 shrink-0 text-amber-500" />
             <span>Master Monitor</span>
           </Link>
+          <Link
+            href="/super-admin/agreements"
+            className="flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30"
+          >
+            <FileSignature className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
+            <span>Staff Agreements</span>
+          </Link>
           {[
             { id: "telemetry", label: "System Activity", icon: Activity },
             { id: "terminal", label: "Control Shell", icon: Terminal },
