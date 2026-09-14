@@ -90,6 +90,11 @@ export default function SuperAdminAgreementsVault() {
       setAgreements(res.agreements);
       setStats(res.stats);
       setBusinesses(res.businesses);
+      // Auto-select ProTech business as default
+      const protechB = res.businesses.find((b: any) => b.name?.toLowerCase().includes("protech"));
+      if (protechB && !createBusinessId) {
+        setCreateBusinessId(protechB.id);
+      }
       setSystemUsers(uList);
     } catch (err: any) {
       toast.error(err.message || "Failed to load staff agreements");

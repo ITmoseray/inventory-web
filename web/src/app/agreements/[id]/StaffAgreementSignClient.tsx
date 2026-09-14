@@ -123,7 +123,7 @@ export function StaffAgreementSignClient({ agreement: initialAgreement }: StaffA
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Enterprise OS Compliance</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">ProTech Enterprise Compliance</span>
                 <span className="h-1.5 w-1.5 rounded-full bg-slate-300 dark:bg-slate-700" />
                 <span className="font-mono text-xs font-bold text-slate-500">{agreement.agreementNumber}</span>
               </div>
@@ -342,16 +342,16 @@ export function StaffAgreementSignClient({ agreement: initialAgreement }: StaffA
             {/* 3. Operational Policies, Code of Conduct & Fiduciary Rules */}
             <div className="space-y-4">
               <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-2 print:border-black">
-                <FileText className="h-4 w-4" /> Section 3: Enterprise Policy Articles &amp; Fiduciary Obligations
+                <FileText className="h-4 w-4" /> Section 3: ProTech Policy Articles &amp; Fiduciary Obligations
               </h3>
 
               <div className="space-y-3 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed font-normal">
                 <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/70 dark:border-slate-800 space-y-1.5">
                   <h4 className="font-black text-slate-900 dark:text-white uppercase text-xs tracking-wider">
-                    Article I — Professional Integrity &amp; Operational Conduct
+                    Article I — ProTech Professional Integrity &amp; Operational Conduct
                   </h4>
                   <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    The staff member agrees to uphold the highest standard of honesty, punctuality, and diligence in all duties. Staff must execute assigned tasks faithfully and adhere strictly to enterprise opening/closing protocols and shift schedules.
+                    The ProTech staff member agrees to uphold the highest standard of honesty, punctuality, and diligence in all duties. Staff must execute assigned duties faithfully and adhere strictly to ProTech Assist SL standard operating procedures.
                   </p>
                 </div>
 
