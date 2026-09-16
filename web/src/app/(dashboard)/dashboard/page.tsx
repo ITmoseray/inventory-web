@@ -46,6 +46,7 @@ import { PaymentChannelTelemetry } from "@/components/dashboard/payment-channel-
 import { LiveActivityStream } from "@/components/dashboard/live-activity-stream";
 import { Calculator as CalculatorIcon } from "lucide-react";
 import { ProfessionalCalculator } from "@/components/shared/professional-calculator";
+import { SimpleSalesProfitDashboard } from "@/components/dashboard/simple-sales-profit-dashboard";
 
 const TABS = ["Dashboard", "Getting Started"];
 
@@ -53,6 +54,12 @@ export default function DashboardPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session } = useSession();
+
+  const isSimpleMode = (session?.user as any)?.businessManagementMode === "SIMPLE_SALES_PROFIT";
+  if (isSimpleMode) {
+    return <SimpleSalesProfitDashboard />;
+  }
+
   const [activeTab, setActiveTab] = useState("Dashboard");
   const [currentTime, setCurrentTime] = useState(new Date());
   

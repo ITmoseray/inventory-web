@@ -60,6 +60,7 @@ import { clinicSidebarConfig } from "@/lib/sidebar-configs/clinic";
 import { hospitalSidebarConfig } from "@/lib/sidebar-configs/hospital";
 import { officeSidebarConfig } from "@/lib/sidebar-configs/office";
 import { getSchoolSidebarConfig } from "@/lib/sidebar-configs/school";
+import { simpleSalesProfitSidebarConfig } from "@/lib/sidebar-configs/simple-sales-profit";
 
 const getSidebarConfig = (type: string, institutionType?: string | null) => {
   switch (type) {
@@ -599,7 +600,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
      permissionsJson: JSON.stringify(session?.user?.permissions || [])
   });
 
+  const isSimpleMode = (session?.user as any)?.businessManagementMode === "SIMPLE_SALES_PROFIT";
+
   const navGroups = React.useMemo(() => {
+    if (isSimpleMode) {
+      return simpleSalesProfitSidebarConfig as NavGroup[];
+    }
+
     const configs = businessTypes.map(type => getSidebarConfig(type, session?.user?.institutionType)).filter(Boolean);
     if (configs.length === 0) {
       console.warn("DEBUG Sidebar: No configurations found for types:", businessTypes);
@@ -641,7 +648,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     });
 
     return merged;
-  }, [businessTypesString, session?.user?.institutionType]);
+  }, [businessTypesString, session?.user?.institutionType, isSimpleMode]);
   
   const filteredNavGroups = React.useMemo(() => {
     if (status === "loading") return [];

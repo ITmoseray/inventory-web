@@ -5,13 +5,22 @@ import { useSession } from "next-auth/react";
 import { 
   Building, Save, Globe, Smartphone, Store, ShieldCheck,
   Receipt, Sliders, Eye, Phone, MessageSquare, Mail, MapPin,
-  CheckCircle2, Sparkles, AlertCircle, RefreshCw, Palette, Hash
+  CheckCircle2, Sparkles, AlertCircle, RefreshCw, Palette, Hash,
+  Layers, TrendingUp, AlertTriangle, ArrowRightLeft, ShieldAlert
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { getCurrentBusiness, updateBusiness } from "@/lib/actions/business";
 import { ImageUploader } from "@/components/ui/image-uploader";
@@ -30,6 +39,11 @@ export default function BusinessSettingsPage() {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  // Business Management Mode switching state
+  const [isModeModalOpen, setIsModeModalOpen] = useState(false);
+  const [pendingMode, setPendingMode] = useState<"FULL_INVENTORY" | "SIMPLE_SALES_PROFIT" | null>(null);
+  const [switchingMode, setSwitchingMode] = useState(false);
+
   // Form State
   const [formData, setFormData] = useState({
     name: "",
@@ -41,6 +55,7 @@ export default function BusinessSettingsPage() {
     logoUrl: "",
     type: "",
     plan: "",
+    businessManagementMode: "FULL_INVENTORY" as "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT",
     receiptSettings: {
       headerTagline: "",
       footerMessage: "Thank you for your business!",
@@ -87,6 +102,7 @@ export default function BusinessSettingsPage() {
             logoUrl: business.logoUrl || "",
             type: business.type || "",
             plan: business.plan || "",
+            businessManagementMode: (business as any).businessManagementMode || "FULL_INVENTORY",
             receiptSettings: {
               headerTagline: rawSettings.headerTagline ?? "",
               footerMessage: rawSettings.footerMessage ?? "Thank you for your business!",
@@ -126,6 +142,52 @@ export default function BusinessSettingsPage() {
     loadBusiness();
   }, []);
 
+  const userRole = (session?.user?.role || "").toUpperCase();
+  const perms = (session?.user as any)?.permissions || [];
+  const canManageMode = 
+    userRole.includes("ADMIN") || 
+    userRole.includes("OWNER") || 
+    userRole.includes("SUPERADMIN") || 
+    perms.includes("manage_settings") || 
+    perms.includes("all");
+
+  const requestModeSwitch = (mode: "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT") => {
+    if (mode === formData.businessManagementMode) return;
+    if (!canManageMode) {
+      toast.error("Only administrators or business owners can change the Business Operating Mode.");
+      return;
+    }
+    setPendingMode(mode);
+    setIsModeModalOpen(true);
+  };
+
+  const handleConfirmModeSwitch = async () => {
+    if (!pendingMode) return;
+    setSwitchingMode(true);
+    try {
+      const result = await updateBusiness({
+        businessManagementMode: pendingMode
+      });
+      if (result.success) {
+        setFormData(prev => ({ ...prev, businessManagementMode: pendingMode }));
+        setIsModeModalOpen(false);
+        toast.success(
+          pendingMode === "SIMPLE_SALES_PROFIT"
+            ? "Switched to Simple Sales & Profit Mode!"
+            : "Switched to Full Inventory & POS Mode!"
+        );
+        await update();
+        router.refresh();
+      } else {
+        toast.error(result.error || "Failed to switch mode");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to switch mode");
+    } finally {
+      setSwitchingMode(false);
+    }
+  };
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -139,7 +201,8 @@ export default function BusinessSettingsPage() {
         email: formData.email,
         address: formData.address,
         logoUrl: formData.logoUrl,
-        receiptSettings: formData.receiptSettings
+        receiptSettings: formData.receiptSettings,
+        businessManagementMode: formData.businessManagementMode
       });
       
       if (result.success) {
@@ -370,6 +433,144 @@ export default function BusinessSettingsPage() {
                        </Button>
                     </div>
                  </CardContent>
+              </Card>
+
+              {/* Business Operating Mode Selector */}
+              <Card className="md:col-span-3 border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-xl rounded-[2rem] overflow-hidden">
+                <CardHeader className="p-8 pb-4 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2.5">
+                        <Layers className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                        <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+                          Business Management Mode
+                        </CardTitle>
+                      </div>
+                      <CardDescription className="text-xs text-slate-500">
+                        Choose how your business records transactions. You can switch between modes at any time without losing previous data.
+                      </CardDescription>
+                    </div>
+                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-[11px] font-bold text-slate-700 dark:text-slate-300 w-fit">
+                      <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                      Active: {formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? "Simple Sales & Profit" : "Full Inventory & POS"}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="p-8 pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    {/* Option 1: Full Inventory & POS */}
+                    <div
+                      onClick={() => requestModeSwitch("FULL_INVENTORY")}
+                      className={cn(
+                        "relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 text-left flex flex-col justify-between group",
+                        formData.businessManagementMode === "FULL_INVENTORY"
+                          ? "border-indigo-600 bg-indigo-50/40 dark:bg-indigo-950/20 shadow-lg shadow-indigo-600/10"
+                          : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/50"
+                      )}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105",
+                            formData.businessManagementMode === "FULL_INVENTORY"
+                              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                              : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                          )}>
+                            <Store className="w-6 h-6" />
+                          </div>
+                          {formData.businessManagementMode === "FULL_INVENTORY" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                              <CheckCircle2 className="w-3 h-3" /> Active Mode
+                            </span>
+                          ) : (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="rounded-xl text-[11px] font-bold h-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                requestModeSwitch("FULL_INVENTORY");
+                              }}
+                            >
+                              Switch to this mode
+                            </Button>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="text-base font-black text-slate-900 dark:text-white">
+                            Full Inventory &amp; POS
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Comprehensive product catalog, barcode scanning, stock batches, low-stock warnings, purchase orders, and live cashier POS checkout terminal.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 mt-4 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-500 font-medium">Recommended for:</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-300">Retailers, Pharmacies, Supermarkets</span>
+                      </div>
+                    </div>
+
+                    {/* Option 2: Simple Sales & Profit */}
+                    <div
+                      onClick={() => requestModeSwitch("SIMPLE_SALES_PROFIT")}
+                      className={cn(
+                        "relative p-6 rounded-2xl border-2 cursor-pointer transition-all duration-200 text-left flex flex-col justify-between group",
+                        formData.businessManagementMode === "SIMPLE_SALES_PROFIT"
+                          ? "border-indigo-600 bg-indigo-50/40 dark:bg-indigo-950/20 shadow-lg shadow-indigo-600/10"
+                          : "border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/50 dark:bg-slate-950/50"
+                      )}
+                    >
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className={cn(
+                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-105",
+                            formData.businessManagementMode === "SIMPLE_SALES_PROFIT"
+                              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/30"
+                              : "bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                          )}>
+                            <TrendingUp className="w-6 h-6" />
+                          </div>
+                          {formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-600 text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                              <CheckCircle2 className="w-3 h-3" /> Active Mode
+                            </span>
+                          ) : (
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="outline"
+                              className="rounded-xl text-[11px] font-bold h-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                requestModeSwitch("SIMPLE_SALES_PROFIT");
+                              }}
+                            >
+                              Switch to this mode
+                            </Button>
+                          )}
+                        </div>
+
+                        <div>
+                          <h4 className="text-base font-black text-slate-900 dark:text-white">
+                            Simple Sales &amp; Profit
+                          </h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                            Streamlined financial recording for businesses that record daily total sales, restock purchases, other income, and operational expenses with automatic Gross &amp; Net Profit calculations.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="pt-4 mt-4 border-t border-slate-200/60 dark:border-slate-800/60 flex items-center justify-between text-[11px]">
+                        <span className="text-slate-500 font-medium">Recommended for:</span>
+                        <span className="font-bold text-slate-700 dark:text-slate-300">Quick totals, Service shops, Fast reporting</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             </div>
           )}
@@ -869,6 +1070,83 @@ export default function BusinessSettingsPage() {
             </div>
           )}
         </form>
+
+        {/* Mode Switch Warning Confirmation Dialog */}
+        <Dialog open={isModeModalOpen} onOpenChange={setIsModeModalOpen}>
+          <DialogContent className="max-w-md rounded-2xl p-6">
+            <DialogHeader>
+              <DialogTitle className="text-lg font-black flex items-center gap-2 text-slate-900 dark:text-white">
+                <AlertTriangle className="w-5 h-5 text-amber-500" />
+                Switch Business Management Mode?
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Please review the operational changes before confirming this transition.
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-3 py-2">
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-800 dark:text-amber-300 space-y-2">
+                <p className="font-bold flex items-center gap-1.5">
+                  <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600 dark:text-amber-400" />
+                  What changes?
+                </p>
+                <p className="text-[11px] leading-relaxed">
+                  Switching to <strong>{pendingMode === "SIMPLE_SALES_PROFIT" ? "Simple Sales & Profit" : "Full Inventory & POS"}</strong> will adapt your dashboard overview and sidebar navigation.
+                </p>
+                <p className="text-[11px] leading-relaxed">
+                  • <strong>Zero Data Loss:</strong> All your previous inventory, products, barcodes, stock movements, and daily entries remain completely safe and untouched in the database.
+                </p>
+                {pendingMode === "SIMPLE_SALES_PROFIT" ? (
+                  <p className="text-[11px] leading-relaxed">
+                    • <strong>In Simple Mode:</strong> Detailed product-level POS and stock management will be hidden. Your workflow focuses on recording daily total sales, restock purchases, expenses, and automated profit &amp; loss statements.
+                  </p>
+                ) : (
+                  <p className="text-[11px] leading-relaxed">
+                    • <strong>In Full Inventory Mode:</strong> Full inventory catalog, barcode scanning, POS cashier terminal, batch expiration, and stock alerts are re-enabled.
+                  </p>
+                )}
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-800/60 text-xs space-y-1">
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Transition</span>
+                <div className="flex items-center justify-between font-bold text-slate-700 dark:text-slate-200">
+                  <span>{formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? "Simple Sales & Profit" : "Full Inventory & POS"}</span>
+                  <ArrowRightLeft className="w-4 h-4 text-indigo-500" />
+                  <span className="text-indigo-600 dark:text-indigo-400">
+                    {pendingMode === "SIMPLE_SALES_PROFIT" ? "Simple Sales & Profit" : "Full Inventory & POS"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="flex flex-row items-center justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsModeModalOpen(false)}
+                className="rounded-xl text-xs font-bold"
+                disabled={switchingMode}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                onClick={handleConfirmModeSwitch}
+                disabled={switchingMode}
+                className="rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white"
+              >
+                {switchingMode ? (
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    Switching Mode...
+                  </div>
+                ) : (
+                  "Confirm Switch"
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

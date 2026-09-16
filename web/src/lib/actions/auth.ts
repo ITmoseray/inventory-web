@@ -9,7 +9,7 @@ import { getDefaultPermissionsForRole } from "@/lib/actions/user";
 import { processReferral, getOrCreateReferralCode } from "@/lib/actions/referral";
 
 export async function registerBusiness(data: any) {
-  const { businessName, email, password, businessType, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail, referralSource, customReferralSource } = data;
+  const { businessName, email, password, businessType, businessManagementMode, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail, referralSource, customReferralSource } = data;
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -46,6 +46,7 @@ export async function registerBusiness(data: any) {
         customReferralSource: customReferralSource || null,
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: dbBusinessType,
+        businessManagementMode: businessManagementMode === "SIMPLE_SALES_PROFIT" ? "SIMPLE_SALES_PROFIT" : "FULL_INVENTORY",
         institutionType: institutionType || null,
         plan: plan,
         status: "ACTIVE",

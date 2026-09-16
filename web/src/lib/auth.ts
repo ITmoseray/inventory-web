@@ -26,6 +26,7 @@ declare module "next-auth" {
       businessId: string;
       businessName: string;
       businessType: string;
+      businessManagementMode?: "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT";
       institutionType: string | null;
       trialEndDate: Date | null;
       plan: string | null;
@@ -40,6 +41,7 @@ declare module "next-auth" {
     businessId: string;
     businessName: string;
     businessType: string;
+    businessManagementMode?: "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT";
     institutionType: string | null;
     trialEndDate: Date | null;
     plan: string | null;
@@ -134,6 +136,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               businessId: user.businessId,
               businessName: user.business.name,
               businessType: user.business.type,
+              businessManagementMode: (user.business as any).businessManagementMode || "FULL_INVENTORY",
               trialEndDate: user.business.trialEndDate,
               plan: user.business.plan,
               subscriptionEndDate: (user.business as any).subscriptionEndDate || null,
@@ -361,6 +364,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.businessName && session.user) session.user.businessName = token.businessName as string;
       if (token.role && session.user) session.user.role = token.role as string;
       if (token.businessType && session.user) session.user.businessType = token.businessType as string;
+      if (token.businessManagementMode && session.user) session.user.businessManagementMode = token.businessManagementMode as any;
       if (token.institutionType && session.user) session.user.institutionType = token.institutionType as string;
       if (token.trialEndDate && session.user) session.user.trialEndDate = token.trialEndDate as Date;
       if (token.plan && session.user) session.user.plan = token.plan as string;
@@ -389,6 +393,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.businessName = (user as any).businessName;
         token.role = (user as any).role;
         token.businessType = (user as any).businessType;
+        token.businessManagementMode = (user as any).businessManagementMode || "FULL_INVENTORY";
         token.institutionType = (user as any).institutionType;
         token.trialEndDate = (user as any).trialEndDate;
         token.plan = (user as any).plan;
@@ -418,6 +423,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               token.role = dbUser.role.name;
               token.permissions = dbUser.role.permissions.map(p => p.key);
               token.businessType = dbUser.business.type;
+              token.businessManagementMode = (dbUser.business as any).businessManagementMode || "FULL_INVENTORY";
               token.institutionType = dbUser.business.institutionType;
               token.businessName = dbUser.business.name;
               token.businessId = dbUser.businessId;
@@ -457,6 +463,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                   token.originalBusinessId = token.businessId;
                   token.originalBusinessName = token.businessName;
                   token.originalBusinessType = token.businessType;
+                  token.originalBusinessManagementMode = token.businessManagementMode;
                   token.originalInstitutionType = token.institutionType;
                   token.originalTrialEndDate = token.trialEndDate;
                   token.originalPlan = token.plan;
@@ -470,6 +477,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 token.businessId = targetUser.businessId;
                 token.businessName = targetUser.business.name;
                 token.businessType = targetUser.business.type;
+                token.businessManagementMode = (targetUser.business as any).businessManagementMode || "FULL_INVENTORY";
                 token.institutionType = targetUser.business.institutionType;
                 token.trialEndDate = targetUser.business.trialEndDate;
                 token.plan = targetUser.business.plan;
@@ -484,6 +492,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.businessId = token.originalBusinessId as string;
             token.businessName = token.originalBusinessName as string;
             token.businessType = token.originalBusinessType as string;
+            token.businessManagementMode = token.originalBusinessManagementMode as any || "FULL_INVENTORY";
             token.institutionType = token.originalInstitutionType as string | null;
             token.trialEndDate = token.originalTrialEndDate as any;
             token.plan = token.originalPlan as string;
@@ -496,6 +505,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             delete token.originalBusinessId;
             delete token.originalBusinessName;
             delete token.originalBusinessType;
+            delete token.originalBusinessManagementMode;
             delete token.originalInstitutionType;
             delete token.originalTrialEndDate;
             delete token.originalPlan;

@@ -14,6 +14,7 @@ model Business {
   type                    BusinessType             @default(SHOP)
   institutionType         String?
   plan                    SubscriptionPlan         @default(FREE)
+  businessManagementMode  BusinessManagementMode   @default(FULL_INVENTORY)
   status                  String                   @default("PENDING")
   trialStartDate          DateTime?                @default(now())
   trialEndDate            DateTime?
@@ -58,6 +59,7 @@ model Business {
   salesOrders             SalesOrder[]
   salesOrderItems         SalesOrderItem[]
   stockMovements          StockMovement[]
+  simpleDailyEntries      SimpleDailyEntry[]
   subscriptions           Subscription[]
   suppliers               Supplier[]
   supplierPayments        SupplierPayment[]
@@ -159,6 +161,7 @@ model User {
   conversationMemberships ConversationMember[]
   chatMessages            ChatMessage[]
   staffAgreements         StaffAgreement[]
+  simpleDailyEntries      SimpleDailyEntry[]
 
   @@index([businessId])
   @@index([roleId])
@@ -2018,5 +2021,33 @@ model StaffAgreement {
   @@index([userId])
   @@index([status])
   @@index([agreementNumber])
+}
+
+enum BusinessManagementMode {
+  FULL_INVENTORY
+  SIMPLE_SALES_PROFIT
+}
+
+model SimpleDailyEntry {
+  id             String    @id @default(cuid())
+  businessId     String
+  userId         String?
+  date           DateTime
+  totalSales     Decimal   @default(0) @db.Decimal(12, 2)
+  totalPurchases Decimal   @default(0) @db.Decimal(12, 2)
+  otherIncome    Decimal   @default(0) @db.Decimal(12, 2)
+  expenses       Decimal   @default(0) @db.Decimal(12, 2)
+  grossProfit    Decimal   @default(0) @db.Decimal(12, 2)
+  netProfit      Decimal   @default(0) @db.Decimal(12, 2)
+  notes          String?   @db.Text
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([businessId, date])
+  @@index([businessId, deletedAt])
 }
 

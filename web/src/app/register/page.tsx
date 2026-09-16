@@ -40,7 +40,9 @@ import {
   Tag,
   Cpu,
   Wine,
-  Megaphone
+  Megaphone,
+  TrendingUp,
+  Calculator
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -138,6 +140,7 @@ export default function RegisterPage() {
     customReferralSource: "",
     referralCode: typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") || "" : "",
     businessType: "SHOP",
+    businessManagementMode: "FULL_INVENTORY" as "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT",
     institutionType: "",
     plan: "FREE",
     logoUrl: "",
@@ -404,8 +407,10 @@ export default function RegisterPage() {
                     <p className="text-[10px] font-black text-white uppercase mt-0.5">{formData.timezone.split('/')[1] || 'Freetown'}</p>
                  </div>
                  <div className="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
-                    <p className="text-[8px] font-black text-slate-400 uppercase">Modules</p>
-                    <p className="text-[10px] font-black text-emerald-400 uppercase mt-0.5">POS + AI</p>
+                    <p className="text-[8px] font-black text-slate-400 uppercase">Operating Mode</p>
+                    <p className="text-[10px] font-black text-emerald-400 uppercase mt-0.5">
+                      {formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? "Simple P&L" : "Full POS"}
+                    </p>
                  </div>
               </div>
            </div>
@@ -637,6 +642,108 @@ export default function RegisterPage() {
                              </div>
                           </div>
                         )}
+
+                        {/* Business Management Mode Selector */}
+                        <div className="space-y-3 pt-4 border-t border-slate-200 dark:border-slate-800">
+                           <div className="flex items-center justify-between">
+                              <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">
+                                Business Management Mode *
+                              </Label>
+                              <span className="text-[8px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">
+                                Select Operating Style
+                              </span>
+                           </div>
+
+                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              {/* Full Inventory Mode */}
+                              <div
+                                onClick={() => setFormData({ ...formData, businessManagementMode: "FULL_INVENTORY" })}
+                                className={cn(
+                                  "p-3.5 sm:p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between relative overflow-hidden group",
+                                  formData.businessManagementMode === "FULL_INVENTORY"
+                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-xl shadow-indigo-600/25 scale-[1.01]"
+                                    : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900/60"
+                                )}
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className={cn(
+                                      "h-8 w-8 rounded-xl flex items-center justify-center font-bold",
+                                      formData.businessManagementMode === "FULL_INVENTORY"
+                                        ? "bg-white/20 text-white"
+                                        : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20"
+                                    )}>
+                                      <Package className="h-4 w-4" />
+                                    </div>
+                                    {formData.businessManagementMode === "FULL_INVENTORY" ? (
+                                      <span className="h-5 w-5 rounded-full bg-white text-indigo-600 flex items-center justify-center font-black text-xs shadow-sm">✓</span>
+                                    ) : (
+                                      <span className="text-[8px] font-black uppercase tracking-wider text-slate-400">Default</span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs font-black uppercase tracking-wider leading-tight">
+                                    Full Inventory &amp; POS
+                                  </p>
+                                  <p className={cn(
+                                    "text-[10px] mt-1.5 leading-relaxed",
+                                    formData.businessManagementMode === "FULL_INVENTORY" ? "text-indigo-100" : "text-slate-500 dark:text-slate-400"
+                                  )}>
+                                    Product-by-product inventory, barcode scanning, live POS register, batch expiry, and stock tracking.
+                                  </p>
+                                </div>
+                                <div className={cn(
+                                  "mt-3 pt-2.5 border-t text-[9px] font-bold uppercase tracking-wider flex items-center justify-between",
+                                  formData.businessManagementMode === "FULL_INVENTORY" ? "border-indigo-500/40 text-indigo-200" : "border-slate-200 dark:border-slate-800 text-slate-400"
+                                )}>
+                                  <span>Recommended for retail &amp; shops</span>
+                                </div>
+                              </div>
+
+                              {/* Simple Sales & Profit Mode */}
+                              <div
+                                onClick={() => setFormData({ ...formData, businessManagementMode: "SIMPLE_SALES_PROFIT" })}
+                                className={cn(
+                                  "p-3.5 sm:p-4 rounded-2xl border text-left cursor-pointer transition-all flex flex-col justify-between relative overflow-hidden group",
+                                  formData.businessManagementMode === "SIMPLE_SALES_PROFIT"
+                                    ? "bg-indigo-600 text-white border-indigo-600 shadow-xl shadow-indigo-600/25 scale-[1.01]"
+                                    : "bg-slate-50 dark:bg-slate-950/40 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-900/60"
+                                )}
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className={cn(
+                                      "h-8 w-8 rounded-xl flex items-center justify-center font-bold",
+                                      formData.businessManagementMode === "SIMPLE_SALES_PROFIT"
+                                        ? "bg-white/20 text-white"
+                                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20"
+                                    )}>
+                                      <TrendingUp className="h-4 w-4" />
+                                    </div>
+                                    {formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? (
+                                      <span className="h-5 w-5 rounded-full bg-white text-indigo-600 flex items-center justify-center font-black text-xs shadow-sm">✓</span>
+                                    ) : (
+                                      <span className="text-[8px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">Fast Totals</span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs font-black uppercase tracking-wider leading-tight">
+                                    Simple Sales &amp; Profit
+                                  </p>
+                                  <p className={cn(
+                                    "text-[10px] mt-1.5 leading-relaxed",
+                                    formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? "text-indigo-100" : "text-slate-500 dark:text-slate-400"
+                                  )}>
+                                    No item-by-item catalog needed. Record daily total sales, stock purchases, income, and expenses with instant automated profit calculations.
+                                  </p>
+                                </div>
+                                <div className={cn(
+                                  "mt-3 pt-2.5 border-t text-[9px] font-bold uppercase tracking-wider flex items-center justify-between",
+                                  formData.businessManagementMode === "SIMPLE_SALES_PROFIT" ? "border-indigo-500/40 text-indigo-200" : "border-slate-200 dark:border-slate-800 text-slate-400"
+                                )}>
+                                  <span>Ideal for quick cashflow tracking</span>
+                                </div>
+                              </div>
+                           </div>
+                        </div>
                      </div>
 
                      <Button 

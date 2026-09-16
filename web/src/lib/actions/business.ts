@@ -118,10 +118,26 @@ export async function updateBusiness(data: {
   logoUrl?: string; 
   address?: string;
   receiptSettings?: any;
+  businessManagementMode?: "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT";
 }) {
   try {
     const session = await auth();
     if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+    if (data.businessManagementMode !== undefined) {
+      const userRole = (session.user.role || "").toUpperCase();
+      const perms = (session.user as any)?.permissions || [];
+      const isAuthorized = 
+        userRole.includes("ADMIN") || 
+        userRole.includes("OWNER") || 
+        userRole.includes("SUPERADMIN") ||
+        perms.includes("manage_settings") ||
+        perms.includes("all");
+
+      if (!isAuthorized) {
+        throw new Error("Only administrators or owners can change the Business Management Mode.");
+      }
+    }
 
     const updated = await prisma.business.update({
       where: { id: session.user.businessId },
@@ -134,12 +150,17 @@ export async function updateBusiness(data: {
         ...(data.logoUrl !== undefined && { logoUrl: data.logoUrl }),
         ...(data.address !== undefined && { address: data.address }),
         ...(data.receiptSettings !== undefined && { receiptSettings: data.receiptSettings }),
+        ...(data.businessManagementMode !== undefined && { businessManagementMode: data.businessManagementMode }),
       }
     });
 
     revalidatePath("/dashboard/system/settings/business");
     revalidatePath("/dashboard/pos");
     revalidatePath("/dashboard");
+    revalidatePath("/dashboard/simple-sales");
+    revalidatePath("/dashboard/simple-purchases");
+    revalidatePath("/dashboard/simple-profit-loss");
+    revalidatePath("/dashboard/simple-reports");
     return { success: true, business: updated };
   } catch (error: any) {
     console.error("UPDATE BUSINESS ERROR:", error);
