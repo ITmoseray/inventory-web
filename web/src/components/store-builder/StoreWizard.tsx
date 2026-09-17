@@ -13,6 +13,7 @@ import Link from "next/link";
 interface Props {
   initialBusiness?: any;
   availableProducts?: any[];
+  initialPrompt?: string;
   onComplete?: (store: any) => void;
   onStoreCreated?: (store: any) => void;
 }
@@ -36,13 +37,16 @@ const QUICK_TEMPLATES = [
 export function StoreWizard({ 
   initialBusiness, 
   availableProducts = [], 
+  initialPrompt,
   onComplete, 
   onStoreCreated 
 }: Props) {
   const [prompt, setPrompt] = useState(
-    initialBusiness?.type 
-      ? `I operate a ${initialBusiness.type.toLowerCase()} business named ${initialBusiness.name || "My Store"} in ${initialBusiness.address || "Freetown, Sierra Leone"}. Build me a modern, high-converting online storefront with WhatsApp ordering.`
-      : ""
+    initialPrompt || (
+      initialBusiness?.type 
+        ? `I operate a ${initialBusiness.type.toLowerCase()} business named ${initialBusiness.name || "My Store"} in ${initialBusiness.address || "Freetown, Sierra Leone"}. Build me a modern, high-converting online storefront with WhatsApp ordering.`
+        : ""
+    )
   );
 
   const [isGenerating, setIsGenerating] = useState(false);

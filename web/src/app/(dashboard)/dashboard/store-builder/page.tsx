@@ -11,11 +11,18 @@ import { StoreBuilderDashboardClient } from "@/components/store-builder/StoreBui
 
 export const dynamic = "force-dynamic";
 
-export default async function StoreBuilderPage() {
+export default async function StoreBuilderPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ prompt?: string; tab?: string }>;
+}) {
   const session = await auth();
   if (!session?.user?.businessId) {
     redirect("/login");
   }
+
+  const resolvedParams = searchParams ? await searchParams : {};
+  const initialPrompt = resolvedParams?.prompt || "";
 
   const businessId = session.user.businessId;
 
@@ -64,6 +71,7 @@ export default async function StoreBuilderPage() {
         orders={orders || []}
         analytics={analytics}
         businessName={business?.name || "My Business"}
+        initialPrompt={initialPrompt}
       />
     </div>
   );

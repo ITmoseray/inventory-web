@@ -23,6 +23,7 @@ interface Props {
   orders: any[];
   analytics: any;
   businessName: string;
+  initialPrompt?: string;
 }
 
 export function StoreBuilderDashboardClient({
@@ -31,11 +32,12 @@ export function StoreBuilderDashboardClient({
   curatedProducts = [],
   orders = [],
   analytics,
-  businessName
+  businessName,
+  initialPrompt
 }: Props) {
   const [store, setStore] = useState(initialStore);
   const [activeTab, setActiveTab] = useState<"analytics" | "studio" | "products" | "orders" | "settings">("analytics");
-  const [showWizard, setShowWizard] = useState(!initialStore);
+  const [showWizard, setShowWizard] = useState(!initialStore || !!initialPrompt);
   const [copied, setCopied] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
@@ -96,6 +98,7 @@ export function StoreBuilderDashboardClient({
         )}
         <StoreWizard 
           availableProducts={availableProducts}
+          initialPrompt={initialPrompt}
           onStoreCreated={(newStore) => {
             setStore(newStore);
             setShowWizard(false);
