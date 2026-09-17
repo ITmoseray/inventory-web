@@ -45,6 +45,48 @@ export const StoreThemeSchema = z.object({
 
 export type StoreTheme = z.infer<typeof StoreThemeSchema>;
 
+export const DEFAULT_STORE_THEME: StoreTheme = {
+  style: "modern",
+  colors: {
+    primary: "#4F46E5",
+    secondary: "#06B6D4",
+    accent: "#F59E0B",
+    background: "#FFFFFF",
+    surface: "#F8FAFC",
+    text: "#0F172A",
+    mutedText: "#64748B",
+    headerBg: "#FFFFFF",
+    footerBg: "#0F172A",
+    footerText: "#F8FAFC",
+  },
+  fonts: {
+    heading: "Inter",
+    body: "Inter",
+  },
+  borderRadius: "lg",
+  headerLayout: "standard",
+  showAnnouncementBar: true,
+  announcementText: "Welcome to our online store! Fast nationwide delivery available.",
+  announcementBg: "#4F46E5",
+  announcementTextColor: "#FFFFFF",
+};
+
+export function normalizeStoreTheme(rawTheme?: any): StoreTheme {
+  if (!rawTheme || typeof rawTheme !== "object") return DEFAULT_STORE_THEME;
+  return {
+    ...DEFAULT_STORE_THEME,
+    ...rawTheme,
+    colors: {
+      ...DEFAULT_STORE_THEME.colors,
+      ...(rawTheme.colors || {}),
+    },
+    fonts: {
+      ...DEFAULT_STORE_THEME.fonts,
+      ...(rawTheme.fonts || {}),
+    },
+  };
+}
+
 // ─── SECTION TYPES ───────────────────────────────────────────────
 export const StoreSectionTypes = [
   "hero",

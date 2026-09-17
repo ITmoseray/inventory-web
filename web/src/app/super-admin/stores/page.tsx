@@ -4,10 +4,10 @@ import React, { useState, useEffect } from "react";
 import { 
   Store, Globe, Eye, ShoppingCart, DollarSign, Search, 
   Power, ExternalLink, ShieldCheck, Filter, ArrowLeft, RefreshCw,
-  Building2, Users, AlertCircle, Sparkles
+  Building2, Users, AlertCircle, Sparkles, Trash2, AlertOctagon, X
 } from "lucide-react";
 import Link from "next/link";
-import { getSuperAdminStores, superAdminToggleStoreStatus } from "@/lib/actions/store-builder";
+import { getSuperAdminStores, superAdminToggleStoreStatus, superAdminDeleteStore } from "@/lib/actions/store-builder";
 import { toast } from "sonner";
 
 export default function SuperAdminStoresPage() {
@@ -16,6 +16,10 @@ export default function SuperAdminStoresPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
+
+  // Super Admin Delete Modal
+  const [storeToDelete, setStoreToDelete] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchStores = async () => {
     setLoading(true);
@@ -44,6 +48,21 @@ export default function SuperAdminStoresPage() {
       toast.error(err.message || "Failed to update store status");
     } finally {
       setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteStore = async () => {
+    if (!storeToDelete) return;
+    setIsDeleting(true);
+    try {
+      await superAdminDeleteStore(storeToDelete.id);
+      setStores(prev => prev.filter(s => s.id !== storeToDelete.id));
+      toast.success(`Store "${storeToDelete.name}" permanently deleted.`);
+      setStoreToDelete(null);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete store");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -78,7 +97,7 @@ export default function SuperAdminStoresPage() {
             </h1>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            Global monitoring, traffic analysis, and moderation of all tenant online storefronts across ProTech Assist OS.
+            Global monitoring, traffic analysis, moderation, and store lifecycle management across ProTech Assist OS.
           </p>
         </div>
 
@@ -153,7 +172,7 @@ export default function SuperAdminStoresPage() {
                 <th className="py-3.5 px-4 text-center">Orders</th>
                 <th className="py-3.5 px-4 text-center">Status</th>
                 <th className="py-3.5 px-4">Created Date</th>
-                <th className="py-3.5 px-4 text-right">Moderation</th>
+                <th className="py-3.5 px-4 text-right">Moderation Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -219,21 +238,31 @@ export default function SuperAdminStoresPage() {
                     </td>
 
                     <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => handleToggleStatus(store.id, store.status)}
-                        disabled={actionLoadingId === store.id}
-                        className={`px-3 py-1 text-xs font-semibold rounded-lg border transition-colors ${
-                          store.status === "PUBLISHED"
-                            ? "bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20"
-                            : "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 hover:bg-emerald-500/20"
-                        }`}
-                      >
-                        {actionLoadingId === store.id 
-                          ? "Saving..." 
-                          : store.status === "PUBLISHED" 
-                            ? "Suspend Store" 
-                            : "Activate / Publish"}
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleToggleStatus(store.id, store.status)}
+                          disabled={actionLoadingId === store.id}
+                          className={`px-3 py-1.5 text-xs font-bold rounded-xl border transition-all ${
+                            store.status === "PUBLISHED"
+                              ? "bg-amber-500/10 text-amber-600 border-amber-500/30 hover:bg-amber-500/20"
+                              : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/20"
+                          }`}
+                        >
+                          {actionLoadingId === store.id 
+                            ? "Saving..." 
+                            : store.status === "PUBLISHED" 
+                              ? "Suspend" 
+                              : "Activate"}
+                        </button>
+
+                        <button
+                          onClick={() => setStoreToDelete(store)}
+                          title="Permanently delete store"
+                          className="p-1.5 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-600 transition-colors"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -242,6 +271,67 @@ export default function SuperAdminStoresPage() {
           </table>
         </div>
       </div>
+
+      {/* ── SUPER ADMIN DELETE CONFIRMATION MODAL ──────────── */}
+      {storeToDelete && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-card border border-border rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-200">
+            <div className="flex items-start justify-between gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
+                <Trash2 className="w-6 h-6" />
+              </div>
+              <button
+                onClick={() => setStoreToDelete(null)}
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-lg font-black tracking-tight text-foreground">
+                Super Admin Delete: &quot;{storeToDelete.name}&quot;?
+              </h3>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                You are deleting this storefront on behalf of tenant <strong className="text-foreground">{storeToDelete.business?.name}</strong>. The public web link <span className="font-mono text-primary font-bold">/store/{storeToDelete.slug}</span> and custom storefront pages will be permanently deleted.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-xl bg-muted/60 border text-xs text-muted-foreground flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+              <span>Tenant inventory products and physical POS records remain intact.</span>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setStoreToDelete(null)}
+                className="px-4 py-2 text-xs font-semibold rounded-xl border hover:bg-muted text-foreground transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteStore}
+                disabled={isDeleting}
+                className="inline-flex items-center gap-2 px-5 py-2 text-xs font-bold uppercase tracking-wider rounded-xl bg-red-600 hover:bg-red-700 text-white transition-all disabled:opacity-50 shadow-md shadow-red-600/20"
+              >
+                {isDeleting ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="w-3.5 h-3.5" />
+                    Confirm Permanent Delete
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

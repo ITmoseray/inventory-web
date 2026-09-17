@@ -854,3 +854,75 @@ export async function superAdminToggleStoreStatus(storeId: string, status: "DRAF
   revalidatePath(`/store/${updated.slug}`);
   return { success: true, status: updated.status };
 }
+
+// ─── 15. DELETE STORE (TENANT RESET) ──────────────────────────────
+export async function deleteStore() {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+  const businessId = session.user.businessId;
+
+  const store = await prisma.store.findUnique({
+    where: { businessId }
+  });
+
+  if (!store) {
+    throw new Error("Store not found");
+  }
+
+  // 1. Delete associated store records (StorePages, StoreProducts, StoreAnalytics)
+  await prisma.storeProduct.deleteMany({
+    where: { storeId: store.id }
+  });
+
+  await prisma.storePage.deleteMany({
+    where: { storeId: store.id }
+  });
+
+  await prisma.storeAnalytics.deleteMany({
+    where: { storeId: store.id }
+  });
+
+  // Dissociate any SalesOrders linked to this store so customer records are safely preserved
+  await prisma.salesOrder.updateMany({
+    where: { storeId: store.id },
+    data: { storeId: null }
+  });
+
+  // 2. Delete the Store itself
+  await prisma.store.delete({
+    where: { id: store.id }
+  });
+
+  revalidatePath("/dashboard/store-builder");
+  revalidatePath("/super-admin/stores");
+  revalidatePath(`/store/${store.slug}`);
+
+  return { success: true };
+}
+
+// ─── 16. SUPER ADMIN DELETE STORE ─────────────────────────────────
+export async function superAdminDeleteStore(storeId: string) {
+  const session = await auth();
+  const isSuper = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
+  if (!isSuper) throw new Error("Unauthorized: Super Admin access required");
+
+  const store = await prisma.store.findUnique({
+    where: { id: storeId }
+  });
+  if (!store) throw new Error("Store not found");
+
+  await prisma.storeProduct.deleteMany({ where: { storeId: store.id } });
+  await prisma.storePage.deleteMany({ where: { storeId: store.id } });
+  await prisma.storeAnalytics.deleteMany({ where: { storeId: store.id } });
+  await prisma.salesOrder.updateMany({
+    where: { storeId: store.id },
+    data: { storeId: null }
+  });
+  await prisma.store.delete({ where: { id: store.id } });
+
+  revalidatePath("/super-admin/stores");
+  revalidatePath(`/store/${store.slug}`);
+
+  return { success: true };
+}

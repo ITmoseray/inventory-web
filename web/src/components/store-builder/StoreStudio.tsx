@@ -6,7 +6,7 @@ import {
   Trash2, ChevronUp, ChevronDown, Plus, Wand2, X, Check, ArrowRight,
   Palette, Layout, Settings, RefreshCw, ShoppingBag, Layers, ExternalLink
 } from "lucide-react";
-import { StoreSection, StoreTheme, StoreSectionType, StoreSectionTypes } from "@/types/store-builder";
+import { StoreSection, StoreTheme, StoreSectionType, StoreSectionTypes, normalizeStoreTheme } from "@/types/store-builder";
 import { updateStoreConfig, updateStorePageSections, toggleStorePublish, modifyStoreWithAIAction } from "@/lib/actions/store-builder";
 import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
@@ -45,7 +45,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
 
   const homePage = store.pages?.find((p: any) => p.slug === "home" || p.isHome) || store.pages?.[0];
   const [sections, setSections] = useState<StoreSection[]>((homePage?.sections as unknown as StoreSection[]) || []);
-  const [theme, setTheme] = useState<StoreTheme>((store.themeConfig as unknown as StoreTheme) || {});
+  const [theme, setTheme] = useState<StoreTheme>(normalizeStoreTheme(store.themeConfig));
   const [selectedSectionId, setSelectedSectionId] = useState<string>(sections[0]?.id || "");
 
   const [isSaving, setIsSaving] = useState(false);
@@ -169,7 +169,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
     try {
       const res = await modifyStoreWithAIAction(prompt);
       if (res.success) {
-        if (res.updatedTheme) setTheme(res.updatedTheme as StoreTheme);
+        if (res.updatedTheme) setTheme(normalizeStoreTheme(res.updatedTheme));
         if (res.updatedSections) setSections(res.updatedSections as StoreSection[]);
         toast.success(res.explanation || "Store updated with AI!");
         setIsAiModalOpen(false);

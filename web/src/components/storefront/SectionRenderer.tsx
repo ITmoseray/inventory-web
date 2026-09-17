@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { StoreSection, StoreTheme, StoreNavigation } from "@/types/store-builder";
+import { StoreSection, StoreTheme, StoreNavigation, normalizeStoreTheme } from "@/types/store-builder";
 import { HeroSection } from "./sections/HeroSection";
 import { ProductGridSection } from "./sections/ProductGridSection";
 import { FeaturedProductSection } from "./sections/FeaturedProductSection";
@@ -21,7 +21,7 @@ import { FooterSection } from "./sections/FooterSection";
 
 interface Props {
   section: StoreSection;
-  theme: StoreTheme;
+  theme?: any;
   storeSlug: string;
   storeName: string;
   products?: any[];
@@ -34,7 +34,7 @@ interface Props {
 
 export function SectionRenderer({
   section,
-  theme,
+  theme: rawTheme,
   storeSlug,
   storeName,
   products = [],
@@ -45,6 +45,7 @@ export function SectionRenderer({
   contactPhone,
 }: Props) {
   if (!section || section.visible === false) return null;
+  const theme = normalizeStoreTheme(rawTheme);
 
   switch (section.type) {
     case "hero":

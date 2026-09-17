@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { ShoppingBag, MessageCircle, Menu, X, Store as StoreIcon } from "lucide-react";
-import { StoreTheme, StoreNavigation } from "@/types/store-builder";
+import { StoreTheme, StoreNavigation, normalizeStoreTheme } from "@/types/store-builder";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
 
 interface Props {
@@ -11,7 +11,7 @@ interface Props {
   storeSlug: string;
   logoUrl?: string | null;
   whatsappNumber?: string | null;
-  theme: StoreTheme;
+  theme?: any;
   navigation?: StoreNavigation;
 }
 
@@ -20,9 +20,11 @@ export function StoreHeader({
   storeSlug,
   logoUrl,
   whatsappNumber,
-  theme,
+  theme: rawTheme,
   navigation,
 }: Props) {
+  const theme = normalizeStoreTheme(rawTheme);
+  const c = theme.colors;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { getTotalItems, setIsCartOpen } = useStoreCart();
   const totalItems = getTotalItems();
@@ -44,7 +46,7 @@ export function StoreHeader({
         <div
           className="py-2 px-4 text-center text-xs font-bold transition-all shadow-sm"
           style={{
-            backgroundColor: theme.announcementBg || theme.colors.primary,
+            backgroundColor: theme.announcementBg || c.primary,
             color: theme.announcementTextColor || "#FFFFFF",
           }}
         >
@@ -56,7 +58,7 @@ export function StoreHeader({
       <div 
         className="backdrop-blur-md border-b transition-colors"
         style={{
-          backgroundColor: theme.colors.headerBg ? `${theme.colors.headerBg}F5` : "rgba(255, 255, 255, 0.95)",
+          backgroundColor: c.headerBg ? `${c.headerBg}F5` : "rgba(255, 255, 255, 0.95)",
           borderColor: "rgba(0, 0, 0, 0.08)",
         }}
       >
@@ -68,12 +70,12 @@ export function StoreHeader({
             ) : (
               <div 
                 className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-md group-hover:scale-105 transition-transform"
-                style={{ backgroundColor: theme.colors.primary }}
+                style={{ backgroundColor: c.primary }}
               >
                 {storeName.slice(0, 2).toUpperCase()}
               </div>
             )}
-            <span className="font-black text-base sm:text-xl tracking-tight leading-none" style={{ color: theme.colors.text }}>
+            <span className="font-black text-base sm:text-xl tracking-tight leading-none" style={{ color: c.text }}>
               {storeName}
             </span>
           </Link>
@@ -85,7 +87,7 @@ export function StoreHeader({
                 key={item.id}
                 href={item.url}
                 className="text-xs sm:text-sm font-bold tracking-wide transition-colors hover:opacity-80"
-                style={{ color: theme.colors.mutedText }}
+                style={{ color: c.mutedText }}
               >
                 {item.label}
               </Link>
@@ -112,9 +114,9 @@ export function StoreHeader({
               onClick={() => setIsCartOpen(true)}
               className="relative p-2.5 rounded-xl border transition-all hover:scale-105 active:scale-95 flex items-center justify-center shadow-sm"
               style={{
-                backgroundColor: theme.colors.surface,
+                backgroundColor: c.surface,
                 borderColor: "rgba(0,0,0,0.1)",
-                color: theme.colors.text,
+                color: c.text,
               }}
               title="Open Shopping Cart"
             >
@@ -122,7 +124,7 @@ export function StoreHeader({
               {totalItems > 0 && (
                 <span 
                   className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-[10px] font-black flex items-center justify-center text-white shadow-md animate-in zoom-in-50 duration-200"
-                  style={{ backgroundColor: theme.colors.primary }}
+                  style={{ backgroundColor: c.primary }}
                 >
                   {totalItems > 99 ? "99+" : totalItems}
                 </span>
@@ -133,7 +135,7 @@ export function StoreHeader({
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="md:hidden p-2.5 rounded-xl border flex items-center justify-center text-slate-700 dark:text-slate-300"
-              style={{ backgroundColor: theme.colors.surface, borderColor: "rgba(0,0,0,0.1)" }}
+              style={{ backgroundColor: c.surface, borderColor: "rgba(0,0,0,0.1)" }}
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
@@ -144,7 +146,7 @@ export function StoreHeader({
         {mobileMenuOpen && (
           <div 
             className="md:hidden border-t px-4 py-4 space-y-3 animate-in slide-in-from-top-2 duration-200"
-            style={{ backgroundColor: theme.colors.background }}
+            style={{ backgroundColor: c.background }}
           >
             {navItems.map((item) => (
               <Link
@@ -152,7 +154,7 @@ export function StoreHeader({
                 href={item.url}
                 onClick={() => setMobileMenuOpen(false)}
                 className="block py-2 text-sm font-bold"
-                style={{ color: theme.colors.text }}
+                style={{ color: c.text }}
               >
                 {item.label}
               </Link>
