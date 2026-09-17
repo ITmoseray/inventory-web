@@ -39,6 +39,16 @@ const config: NextConfig = {
   async redirects() {
     return [
       {
+        source: "/admin/store-builder",
+        destination: "/dashboard/store-builder",
+        permanent: true,
+      },
+      {
+        source: "/admin/store-builder/:path*",
+        destination: "/dashboard/store-builder",
+        permanent: true,
+      },
+      {
         source: "/dashboard/staff",
         destination: "/dashboard/staff/employees",
         permanent: true,

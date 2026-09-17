@@ -630,7 +630,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                   <span className="text-xs text-slate-400 block">Total Items in Catalog</span>
                 </div>
                 <Link
-                  href="/admin/store-builder/products"
+                  href="/dashboard/store-builder"
                   className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-[11px] flex items-center gap-1"
                 >
                   Curate <ArrowRight className="w-3 h-3" />
