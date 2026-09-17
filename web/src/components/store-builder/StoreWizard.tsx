@@ -136,6 +136,10 @@ export function StoreWizard({
         <div className="space-y-6">
           {/* Hero Header */}
           <div className="text-center space-y-3 py-4">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-indigo-500/40 shadow-xl shadow-indigo-500/20 mx-auto mb-2">
+              <img src="/images/ai-store-icon.png" alt="ProTech AI Store" className="w-full h-full object-cover" />
+            </div>
+
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider shadow-sm">
               <Sparkles className="w-3.5 h-3.5" />
               ProTech AI Store Architect

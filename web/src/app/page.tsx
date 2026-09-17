@@ -140,8 +140,9 @@ export default function ProtechCloudHomepage() {
             </div>
           </Link>
 
-          <div className="hidden xl:flex items-center gap-6">
+          <div className="hidden xl:flex items-center gap-5">
             {[
+              { label: "AI Store", href: "#ai-store", isNew: true },
               { label: "Advert", href: "#advert" },
               { label: "POS Sandbox", href: "#pos-sandbox" },
               { label: "Solutions", href: "#solutions" },
@@ -152,7 +153,12 @@ export default function ProtechCloudHomepage() {
               { label: "Testimonials", href: "#testimonials" },
               { label: "Security", href: "#security" },
             ].map((item) => (
-              <Link key={item.label} href={item.href} className="relative text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group whitespace-nowrap">
+              <Link key={item.label} href={item.href} className="relative text-xs lg:text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors py-2 group whitespace-nowrap flex items-center gap-1.5">
+                {item.isNew && (
+                  <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 text-[9px] font-black text-white uppercase tracking-wider shadow-xs animate-pulse">
+                    AI
+                  </span>
+                )}
                 {item.label}
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 transition-all duration-300 group-hover:w-full rounded-full"></span>
               </Link>
@@ -230,6 +236,7 @@ export default function ProtechCloudHomepage() {
           <div className="xl:hidden border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
             <div className="container mx-auto px-4 py-4 flex flex-col gap-2">
               {[
+                { label: "ProTech AI Store", href: "#ai-store", isNew: true },
                 { label: "Advert", href: "#advert" },
                 { label: "POS Sandbox", href: "#pos-sandbox" },
                 { label: "Solutions", href: "#solutions" },
@@ -244,9 +251,14 @@ export default function ProtechCloudHomepage() {
                   key={item.label} 
                   href={item.href} 
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-3 border-b border-slate-100 dark:border-slate-800/50 last:border-0"
+                  className="text-base font-semibold text-slate-700 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-3 border-b border-slate-100 dark:border-slate-800/50 last:border-0 flex items-center justify-between"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  {item.isNew && (
+                    <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-[10px] font-black text-white uppercase tracking-wider shadow-sm">
+                      NEW AI
+                    </span>
+                  )}
                 </Link>
               ))}
               
@@ -480,6 +492,142 @@ export default function ProtechCloudHomepage() {
         {/* Interactive Live POS Sandbox Terminal */}
         <InteractivePosSandbox />
 
+        {/* ProTech AI Store Showcase Section */}
+        <section id="ai-store" className="py-24 lg:py-32 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-white relative overflow-hidden border-b border-slate-800">
+          {/* Neon Glow Effects */}
+          <div className="absolute top-1/4 left-10 w-96 h-96 bg-indigo-500/15 rounded-full blur-[140px] pointer-events-none" />
+          <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/15 rounded-full blur-[140px] pointer-events-none" />
+
+          <div className="container px-6 mx-auto relative z-10">
+            {/* Header / Intro */}
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-500/40 bg-indigo-500/10 backdrop-blur-md text-indigo-400 text-xs font-black uppercase tracking-widest mb-4 shadow-lg shadow-indigo-500/10">
+                <Sparkles className="h-3.5 w-3.5 text-indigo-400 animate-pulse" />
+                Next-Gen eCommerce Architecture
+              </div>
+              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-[1000] tracking-tight text-white leading-tight">
+                Build Your Online Store <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-300 to-cyan-300">
+                  With AI In 30 Seconds
+                </span>
+              </h2>
+              <p className="mt-4 text-base sm:text-lg text-slate-400 font-medium leading-relaxed max-w-2xl mx-auto">
+                No coding or manual configuration. Tell ProTech AI about your business, and our Atlas-grade engine crafts your brand identity, connects your real inventory, and publishes a live storefront with WhatsApp checkout.
+              </p>
+            </div>
+
+            {/* Main Interactive Grid */}
+            <div className="grid lg:grid-cols-12 gap-10 items-center max-w-6xl mx-auto">
+              {/* Left Column: Feature Highlights */}
+              <div className="lg:col-span-7 space-y-6">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  {[
+                    {
+                      title: "1-Click AI Generation",
+                      desc: "13 commercial archetypes (Fashion, Grocery, Pharmacy, Tech, Restaurant, Hardware).",
+                      tag: "Instant"
+                    },
+                    {
+                      title: "Live 3-Column Studio",
+                      desc: "Full undo/redo history, responsive frame switcher (Desktop, Tablet, Mobile), and 16 modular sections.",
+                      tag: "Studio"
+                    },
+                    {
+                      title: "Conversational AI Co-Pilot",
+                      desc: "Docked prompt bar in the studio. Tweak colors, add sale banners, or rewrite copy in plain English.",
+                      tag: "Co-Pilot"
+                    },
+                    {
+                      title: "WhatsApp Checkout",
+                      desc: "Customers place orders straight to your WhatsApp. Automatically creates SalesOrders in your OS.",
+                      tag: "Connected"
+                    }
+                  ].map((feat, idx) => (
+                    <div
+                      key={idx}
+                      className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-indigo-500/50 transition-all duration-300 group hover:-translate-y-0.5 shadow-sm"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                          {feat.tag}
+                        </span>
+                        <Check className="w-4 h-4 text-emerald-400 opacity-80 group-hover:scale-110 transition-transform" />
+                      </div>
+                      <h4 className="font-bold text-sm text-white group-hover:text-indigo-300 transition-colors">
+                        {feat.title}
+                      </h4>
+                      <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                        {feat.desc}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* AI Copywriter Callout */}
+                <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 text-indigo-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h5 className="font-bold text-sm text-white flex items-center gap-2">
+                      AI Product Copywriter &amp; Smart Upsells
+                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-indigo-500 text-white">Included</span>
+                    </h5>
+                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                      Synthesize high-converting product headlines, benefit bullets, and SEO meta tags with one click. Plus, increase basket size with catalog-powered "Frequently Bought Together" upsells.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Action CTA Buttons */}
+                <div className="flex flex-wrap items-center gap-4 pt-2">
+                  <Link
+                    href="/admin/store-builder"
+                    className="h-13 px-8 text-sm font-black uppercase tracking-wider rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-600 hover:brightness-110 text-white shadow-[0_0_25px_rgba(99,102,241,0.4)] hover:shadow-[0_0_35px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5"
+                  >
+                    <span>Launch AI Store Builder</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                  <Link
+                    href="/pricing"
+                    className="h-13 px-6 text-sm font-bold rounded-xl border border-slate-700 bg-slate-900/80 hover:bg-slate-800 text-slate-200 flex items-center justify-center gap-2 transition-colors"
+                  >
+                    View Pricing Plans
+                  </Link>
+                </div>
+              </div>
+
+              {/* Right Column: Icon & Visual Showcase Card */}
+              <div className="lg:col-span-5 flex flex-col items-center">
+                <div className="relative w-full max-w-md aspect-square rounded-[2.5rem] p-3 bg-gradient-to-br from-indigo-500/30 via-violet-500/20 to-cyan-500/30 border border-indigo-500/40 shadow-[0_20px_60px_-10px_rgba(79,70,229,0.5)] group">
+                  {/* Glowing Backlight */}
+                  <div className="absolute -inset-1 rounded-[2.5rem] bg-gradient-to-r from-indigo-500 to-purple-600 opacity-30 blur-xl group-hover:opacity-50 transition-opacity duration-500 -z-10" />
+
+                  <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-slate-950 flex flex-col items-center justify-center p-4">
+                    {/* The 3D AI Icon */}
+                    <div className="relative w-64 h-64 sm:w-72 sm:h-72 transition-transform duration-500 group-hover:scale-105">
+                      <Image
+                        src="/images/ai-store-icon.png"
+                        alt="ProTech AI Store"
+                        fill
+                        className="object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.8)]"
+                        priority
+                        unoptimized
+                      />
+                    </div>
+
+                    {/* Floating pill badge */}
+                    <div className="mt-3 px-4 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/40 backdrop-blur-md flex items-center gap-2 text-xs font-bold text-slate-200 shadow-xl">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      <span>13 Commercial Archetypes Ready</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Tailored Industry Solutions */}
         <IndustrySolutionTabs />
 
@@ -594,6 +742,7 @@ export default function ProtechCloudHomepage() {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
                  {[
+                    { title: "ProTech AI Store", desc: "Build a complete online storefront in 30 seconds with 13 commercial archetypes & WhatsApp checkout.", icon: Store, href: "/admin/store-builder", isModal: true, image: "/images/ai-store-icon.png" },
                     { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory", isModal: true, image: "/images/Inventory.png" },
                     { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos", isModal: true, image: "/images/Sales_and_POS.png" },
                     { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck, href: "/dashboard/purchases", isModal: true, image: "/images/Purchasing.png" },

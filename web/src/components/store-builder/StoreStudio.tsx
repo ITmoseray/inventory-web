@@ -332,9 +332,11 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
         {/* Left: Store identity & breadcrumb */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <span className="font-black text-sm tracking-tight text-white flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
-              {store.name}
+            <span className="font-black text-sm tracking-tight text-white flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg overflow-hidden border border-indigo-500/40 relative shrink-0 shadow-xs">
+                <img src="/images/ai-store-icon.png" alt="ProTech AI Store" className="w-full h-full object-cover" />
+              </div>
+              <span>{store.name}</span>
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               AI Studio
