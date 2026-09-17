@@ -35,7 +35,7 @@ export const StoreThemeSchema = z.object({
     heading: z.string().default("Inter"),
     body: z.string().default("Inter"),
   }),
-  borderRadius: z.enum(["none", "sm", "md", "lg", "full"]).default("lg"),
+  borderRadius: z.enum(["none", "sm", "md", "lg", "xl", "full"]).default("lg"),
   headerLayout: z.enum(["standard", "centered", "minimal"]).default("standard"),
   showAnnouncementBar: z.boolean().default(true),
   announcementText: z.string().default("Welcome to our online store! Fast nationwide delivery available."),
@@ -90,16 +90,16 @@ export type StoreNavItem = z.infer<typeof StoreNavItemSchema>;
 
 export const StoreNavigationSchema = z.object({
   header: z.array(StoreNavItemSchema).default([
-    { id: "nav-1", label: "Home", url: "/" },
-    { id: "nav-2", label: "Shop", url: "/products" },
-    { id: "nav-3", label: "About", url: "/about" },
-    { id: "nav-4", label: "Contact", url: "/contact" },
+    { id: "nav-1", label: "Home", url: "/", isExternal: false },
+    { id: "nav-2", label: "Shop", url: "/products", isExternal: false },
+    { id: "nav-3", label: "About", url: "/about", isExternal: false },
+    { id: "nav-4", label: "Contact", url: "/contact", isExternal: false },
   ]),
   footer: z.array(StoreNavItemSchema).default([
-    { id: "f-1", label: "Shop All", url: "/products" },
-    { id: "f-2", label: "About Us", url: "/about" },
-    { id: "f-3", label: "Contact Us", url: "/contact" },
-    { id: "f-4", label: "Delivery Policy", url: "/delivery" },
+    { id: "f-1", label: "Shop All", url: "/products", isExternal: false },
+    { id: "f-2", label: "About Us", url: "/about", isExternal: false },
+    { id: "f-3", label: "Contact Us", url: "/contact", isExternal: false },
+    { id: "f-4", label: "Delivery Policy", url: "/delivery", isExternal: false },
   ]),
 });
 
@@ -111,6 +111,7 @@ export const StoreSettingsSchema = z.object({
   freeDeliveryThreshold: z.number().optional(),
   deliveryEstimateDays: z.string().default("1-2 business days"),
   minOrderAmount: z.number().default(0),
+  minOrder: z.number().optional(),
   allowCashOnDelivery: z.boolean().default(true),
   allowOnlinePayment: z.boolean().default(false),
   whatsappOrdering: z.boolean().default(true),
@@ -118,6 +119,8 @@ export const StoreSettingsSchema = z.object({
   supportPhone: z.string().default(""),
   supportEmail: z.string().default(""),
   physicalAddress: z.string().default(""),
+  announcementText: z.string().optional(),
+  announcementEnabled: z.boolean().optional(),
   seo: z.object({
     metaTitle: z.string().default(""),
     metaDescription: z.string().default(""),

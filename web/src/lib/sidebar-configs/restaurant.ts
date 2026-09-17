@@ -2,13 +2,15 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Utensils, ClipboardList, Wallet, UserCheck, FileText, CalendarCheck, 
   CreditCard, Book, DollarSign, Truck, MessageSquare
+, Store
 } from "lucide-react";
 
 export const restaurantSidebarConfig = [
   { 
     label: "Intelligence", 
     items: [
-      { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
+      { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "AI Store Builder", url: "/dashboard/store-builder", icon: Store, permission: "menu:overview" }, 
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Daily Sales", url: "/dashboard/analytics", icon: BarChart3, permission: "menu:intelligence:analytics" },
       { title: "Reports", url: "/dashboard/reports", icon: BarChart3, permission: "menu:intelligence:reports" },

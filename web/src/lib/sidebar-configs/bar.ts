@@ -3,6 +3,7 @@ import {
   Wallet, FileText, Truck, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
   Beer, CalendarCheck, MessageSquare, GlassWater, ChefHat, ReceiptText, TrendingUp
+, Store
 } from "lucide-react";
 
 export const barSidebarConfig = [
@@ -10,6 +11,7 @@ export const barSidebarConfig = [
     label: "Intelligence",
     items: [
       { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "AI Store Builder", url: "/dashboard/store-builder", icon: Store, permission: "menu:overview" },
       { title: "Intelligence Hub", url: "/dashboard/registry", icon: ShieldCheck, permission: "menu:intelligence:hub" },
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Analytics", url: "/dashboard/analytics", icon: ActivityIcon, permission: "menu:intelligence:analytics" },

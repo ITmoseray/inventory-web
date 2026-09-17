@@ -2,6 +2,7 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Wallet, FileText, Truck, CreditCard, Book, DollarSign, UserCheck, 
   Tag, MessageSquare, TrendingUp
+, Store
 } from "lucide-react";
 
 export const boutiqueSidebarConfig = [
@@ -45,6 +46,7 @@ export const boutiqueSidebarConfig = [
   {
     label: "Commerce",
     items: [
+      { title: "AI Store Builder", url: "/dashboard/store-builder", icon: Store, permission: "menu:sales" },
       {
         title: "Sales",
         url: "/dashboard/sales",

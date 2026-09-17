@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu, Crown,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star, FileSignature
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star, FileSignature, Store
 } from "lucide-react";
 import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 import { Button } from "@/components/ui/button";
@@ -853,6 +853,11 @@ export default function NexusSuperControl() {
                      <FileSignature className="h-4 w-4 text-indigo-500" /> Staff Agreements &amp; Compliance Vault
                   </Button>
                </Link>
+               <Link href="/super-admin/stores" className="w-full sm:w-auto">
+                  <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/10">
+                     <Store className="h-4 w-4 text-emerald-500" /> AI Storefronts Hub
+                  </Button>
+               </Link>
              </div>
 
             {/* Real-time Online Presence Indicators */}
@@ -906,6 +911,13 @@ export default function NexusSuperControl() {
           >
             <FileSignature className="h-3.5 w-3.5 shrink-0 text-indigo-500" />
             <span>Staff Agreements</span>
+          </Link>
+          <Link
+            href="/super-admin/stores"
+            className="flex items-center gap-2 px-3 md:px-4 py-2.5 rounded-xl text-[10px] md:text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap shrink-0 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+          >
+            <Store className="h-3.5 w-3.5 shrink-0 text-emerald-500" />
+            <span>AI Storefronts</span>
           </Link>
           {[
             { id: "telemetry", label: "System Activity", icon: Activity },

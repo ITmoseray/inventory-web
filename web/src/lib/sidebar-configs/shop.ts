@@ -4,6 +4,7 @@ import {
   CreditCard, Book, DollarSign, UserCheck, ClipboardList, Clock, 
   Tag, Cpu, History, Pill, Stethoscope, Briefcase, Bell, Utensils, Beer, CalendarCheck, TrendingUp,
   MessageSquare, Barcode
+, Store
 } from "lucide-react";
 
 export const shopSidebarConfig = [
@@ -55,6 +56,7 @@ export const shopSidebarConfig = [
   {
     label: "Commerce",
     items: [
+      { title: "AI Store Builder", url: "/dashboard/store-builder", icon: Store, permission: "menu:sales" },
       {
         title: "Sales",
         url: "/dashboard/sales",

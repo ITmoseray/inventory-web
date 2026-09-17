@@ -2,13 +2,15 @@ import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, 
   Pill, Stethoscope, FileText, Wallet, UserCheck, CreditCard, 
   Book, DollarSign, Truck, MessageSquare, TrendingUp
+, Store
 } from "lucide-react";
 
 export const pharmacySidebarConfig = [
   { 
     label: "Intelligence", 
     items: [
-      { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" }, 
+      { title: "Overview", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+      { title: "AI Store Builder", url: "/dashboard/store-builder", icon: Store, permission: "menu:overview" }, 
       { title: "AI Assistant", url: "/dashboard/intelligence/chat", icon: MessageSquare, permission: "menu:intelligence:chat" },
       { title: "Stock Forecast", url: "/dashboard/intelligence/replenishment", icon: TrendingUp, permission: "menu:intelligence:replenishment" },
       { title: "Low Stock Alerts", url: "/dashboard/inventory/expiry", icon: Pill, permission: "menu:inventory" },

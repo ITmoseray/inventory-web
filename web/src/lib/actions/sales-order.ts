@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 /** Generate a sequential SO number: SO-000001, SO-000002, … */
-async function generateSoNumber(businessId: string): Promise<string> {
+export async function generateSoNumber(businessId: string): Promise<string> {
   const count = await prisma.salesOrder.count({ where: { businessId } });
   return `SO-${String(count + 1).padStart(6, "0")}`;
 }

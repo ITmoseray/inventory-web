@@ -210,9 +210,9 @@ export async function updateStoreConfig(data: {
   whatsappPhone?: string;
   contactPhone?: string;
   contactEmail?: string;
-  themeConfig?: StoreTheme;
-  navigation?: StoreNavigation;
-  settings?: StoreSettings;
+  themeConfig?: Partial<StoreTheme>;
+  navigation?: Partial<StoreNavigation>;
+  settings?: Partial<StoreSettings>;
   socialLinks?: any;
 }) {
   const session = await auth();
@@ -756,4 +756,55 @@ export async function getStoreAnalyticsOverview() {
     totalRevenue,
     recentDaily: serializeStore(analytics.slice(0, 7).reverse())
   };
+}
+
+// ─── 13. SUPER ADMIN ECOSYSTEM STORES ─────────────────────────────
+export async function getSuperAdminStores() {
+  const session = await auth();
+  const isSuper = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
+  if (!isSuper) throw new Error("Unauthorized: Super Admin access required");
+
+  const stores = await prisma.store.findMany({
+    include: {
+      business: {
+        select: {
+          id: true,
+          name: true,
+          phone: true,
+          address: true,
+          email: true,
+          type: true
+        }
+      },
+      _count: {
+        select: {
+          products: true,
+          salesOrders: true
+        }
+      },
+      analytics: {
+        orderBy: { date: "desc" },
+        take: 7
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+
+  return serializeStore(stores);
+}
+
+// ─── 14. SUPER ADMIN TOGGLE STORE STATUS ───────────────────────────
+export async function superAdminToggleStoreStatus(storeId: string, status: "DRAFT" | "PUBLISHED" | "SUSPENDED") {
+  const session = await auth();
+  const isSuper = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
+  if (!isSuper) throw new Error("Unauthorized: Super Admin access required");
+
+  const updated = await prisma.store.update({
+    where: { id: storeId },
+    data: { status }
+  });
+
+  revalidatePath("/super-admin/stores");
+  revalidatePath(`/store/${updated.slug}`);
+  return { success: true, status: updated.status };
 }
