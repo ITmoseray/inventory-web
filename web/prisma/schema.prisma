@@ -108,6 +108,7 @@ model Business {
   clientImplementations   ClientImplementation[]
   staffAgreements         StaffAgreement[]
   lastActiveAt            DateTime?
+  store                   Store?
 
   @@index([slug])
 }
@@ -283,6 +284,7 @@ model Product {
   wastages              Wastage[]
   supplierPriceLists    SupplierPriceList[]
   bundleItems           BundleItem[]
+  storeProducts         StoreProduct[]
 
   @@index([businessId, sku])
   @@index([businessId, deletedAt])
@@ -439,11 +441,14 @@ model SalesOrder {
   customer      Customer?                 @relation(fields: [customerId], references: [id])
   items         SalesOrderItem[]
   statusHistory SalesOrderStatusHistory[]
+  storeId       String?
+  store         Store?                    @relation(fields: [storeId], references: [id], onDelete: SetNull)
 
   @@index([businessId])
   @@index([businessId, status])
   @@index([businessId, deletedAt])
   @@index([soNumber])
+  @@index([storeId])
 }
 
 model SalesOrderItem {
@@ -2049,5 +2054,107 @@ model SimpleDailyEntry {
 
   @@index([businessId, date])
   @@index([businessId, deletedAt])
+}
+
+// =================================================================
+// PROTECH AI STORE BUILDER MODELS
+// =================================================================
+
+enum StoreStatus {
+  DRAFT
+  PUBLISHED
+  SUSPENDED
+}
+
+model Store {
+  id              String           @id @default(cuid())
+  businessId      String           @unique
+  name            String
+  slug            String           @unique
+  description     String?          @db.Text
+  logoUrl         String?
+  bannerUrl       String?
+  faviconUrl      String?
+  status          StoreStatus      @default(DRAFT)
+  currency        String           @default("SLE")
+  whatsappPhone   String?
+  contactEmail    String?
+  contactPhone    String?
+  socialLinks     Json?            // { facebook?: string, instagram?: string, twitter?: string, tiktok?: string }
+  themeConfig     Json             // { style, colors: { primary, secondary, accent, background, surface, text, mutedText }, fonts: { heading, body }, borderRadius, headerLayout, heroLayout }
+  navigation      Json?            // { header: [{ id, label, url }], footer: [{ id, label, url }] }
+  settings        Json?            // { deliveryFee, freeDeliveryThreshold, minOrder, allowCashOnDelivery, allowOnlinePayment, seo: { title, description } }
+  customDomain    String?          @unique
+  publishedAt     DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  business        Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  pages           StorePage[]
+  products        StoreProduct[]
+  salesOrders     SalesOrder[]
+  analytics       StoreAnalytics[]
+
+  @@index([businessId])
+  @@index([slug])
+  @@index([status])
+}
+
+model StorePage {
+  id              String           @id @default(cuid())
+  storeId         String
+  title           String
+  slug            String           // "home", "about", "contact", "products", "faq"
+  isHome          Boolean          @default(false)
+  sections        Json             // Array of typed section configs [{ id, type, order, visible, settings, content }]
+  seoTitle        String?
+  seoDescription  String?
+  published       Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, slug])
+  @@index([storeId])
+}
+
+model StoreProduct {
+  id              String           @id @default(cuid())
+  storeId         String
+  productId       String
+  isFeatured      Boolean          @default(false)
+  displayOrder    Int              @default(0)
+  customBadge     String?          // "NEW", "HOT", "SALE", "TRENDING"
+  customPrice     Decimal?         @db.Decimal(10, 2)
+  isVisible       Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, productId])
+  @@index([storeId])
+  @@index([productId])
+  @@index([isFeatured])
+}
+
+model StoreAnalytics {
+  id              String           @id @default(cuid())
+  storeId         String
+  date            DateTime         @db.Date
+  visitors        Int              @default(0)
+  pageViews       Int              @default(0)
+  ordersCount     Int              @default(0)
+  revenue         Decimal          @default(0) @db.Decimal(10, 2)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@unique([storeId, date])
+  @@index([storeId])
+  @@index([date])
 }
 
