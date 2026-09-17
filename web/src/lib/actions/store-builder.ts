@@ -92,7 +92,8 @@ export async function createOrGenerateStore(input: AIStoreGenerationInput) {
       name: aiConfig.name,
       slug: finalSlug,
       description: aiConfig.description,
-      status: "DRAFT",
+      status: "PUBLISHED",
+      publishedAt: new Date(),
       currency: "SLE",
       whatsappPhone: input.whatsapp || input.phone || "",
       contactPhone: input.phone || "",
@@ -105,6 +106,8 @@ export async function createOrGenerateStore(input: AIStoreGenerationInput) {
       name: aiConfig.name,
       slug: finalSlug,
       description: aiConfig.description,
+      status: "PUBLISHED",
+      publishedAt: new Date(),
       whatsappPhone: input.whatsapp || input.phone || "",
       contactPhone: input.phone || "",
       contactEmail: input.email || "",
@@ -449,10 +452,24 @@ export async function updateStoreProductLink(productId: string, data: {
 // ─── 9. GET PUBLIC STOREFRONT DATA (NO AUTH REQUIRED) ─────────────
 export async function getPublicStorefrontData(slug: string) {
   try {
+    const session = await auth().catch(() => null);
+    const userBusinessId = session?.user?.businessId;
+    const isSuperAdmin = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
+
+    const cleanSlug = slug.toLowerCase().trim();
     const store = await prisma.store.findFirst({
       where: { 
-        slug: slug.toLowerCase().trim(),
-        status: "PUBLISHED"
+        slug: cleanSlug,
+        ...(isSuperAdmin
+          ? {}
+          : userBusinessId
+          ? {
+              OR: [
+                { status: "PUBLISHED" },
+                { businessId: userBusinessId }
+              ]
+            }
+          : { status: "PUBLISHED" })
       },
       include: {
         business: {
@@ -527,6 +544,35 @@ export async function getPublicStorefrontData(slug: string) {
     return serializeStore(store);
   } catch (error) {
     console.error("GET PUBLIC STOREFRONT ERROR:", error);
+    return null;
+  }
+}
+
+// ─── 9b. GET STORE DRAFT INFO (FOR COMING SOON SCREEN) ─────────────
+export async function getStoreDraftInfo(slug: string) {
+  try {
+    const cleanSlug = slug.toLowerCase().trim();
+    const store = await prisma.store.findFirst({
+      where: { slug: cleanSlug },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        status: true,
+        logoUrl: true,
+        description: true,
+        business: {
+          select: {
+            name: true,
+            logoUrl: true,
+            phone: true,
+            email: true
+          }
+        }
+      }
+    });
+    return serializeStore(store);
+  } catch {
     return null;
   }
 }
