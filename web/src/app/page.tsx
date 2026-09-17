@@ -860,7 +860,7 @@ export default function ProtechCloudHomepage() {
                   ].map((mod, i) => {
                     const cardVariants = {
                       hidden: { opacity: 0, y: 30 },
-                      show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+                      show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
                     };
 
                     if (mod.isModal) {
@@ -1173,7 +1173,7 @@ export default function ProtechCloudHomepage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!previewFeature} onOpenChange={(open) => !open && setPreviewFeature(null)}>
+      <Dialog open={!!previewFeature} onOpenChange={(open: boolean) => !open && setPreviewFeature(null)}>
         <DialogContent className="sm:max-w-4xl bg-white dark:bg-slate-950 p-0 overflow-hidden border-0 shadow-2xl rounded-2xl">
           {previewFeature && (
             <div className="relative h-[65vh] w-full bg-slate-100 dark:bg-slate-900 flex items-end">
