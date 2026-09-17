@@ -17,7 +17,7 @@ export const authConfig: NextAuthConfig = {
     },
     async session({ session, token }) {
       if (token.sub && session.user) session.user.id = token.sub as string;
-      if (token.businessId && session.user) session.user.businessId = token.businessId as string;
+      if (session.user) session.user.businessId = (token.businessId as string) || null;
       if (token.role && session.user) session.user.role = token.role as string;
       if (token.businessType && session.user) session.user.businessType = token.businessType as string;
       if (token.trialEndDate && session.user) session.user.trialEndDate = token.trialEndDate as Date;

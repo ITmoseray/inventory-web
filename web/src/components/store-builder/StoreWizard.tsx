@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { 
   Sparkles, Store, ShoppingBag, Wand2, ArrowRight, 
   CheckCircle2, Globe, RefreshCw, Check, Zap, Layers,
-  Phone, MapPin, ChevronDown, ChevronUp, Palette
+  Phone, MapPin, ChevronDown, ChevronUp, Palette, Building2
 } from "lucide-react";
 import { createStoreFromPromptAIAction } from "@/lib/actions/store-builder";
 import { toast } from "sonner";
@@ -47,6 +47,10 @@ export function StoreWizard({
         ? `I operate a ${initialBusiness.type.toLowerCase()} business named ${initialBusiness.name || "My Store"} in ${initialBusiness.address || "Freetown, Sierra Leone"}. Build me a modern, high-converting online storefront with WhatsApp ordering.`
         : ""
     )
+  );
+
+  const [storeType, setStoreType] = useState<"ENTERPRISE_CONNECTED" | "STANDALONE">(
+    availableProducts.length > 0 ? "ENTERPRISE_CONNECTED" : "STANDALONE"
   );
 
   const [isGenerating, setIsGenerating] = useState(false);
@@ -104,18 +108,27 @@ export function StoreWizard({
     }, 1400);
 
     try {
-      // Real backend operation: prompt analysis, catalog link, AI generation, DB persistence
-      const res = await createStoreFromPromptAIAction(prompt);
+      // Real backend operation: prompt analysis, catalog link / standalone synthesis, AI generation, DB persistence
+      const res = await createStoreFromPromptAIAction(prompt, storeType);
 
       clearInterval(interval);
 
       if (res.success && res.store) {
+        const isStandaloneResult = res.storeType === "STANDALONE";
         // Mark all milestones as completely finished with real backend facts
         setGenerationMilestones([
           { id: 1, title: "Understanding your business", completedDetail: `Business category identified: ${res.analysis?.businessCategory || "Retail"}`, isComplete: true, isActive: false },
           { id: 2, title: "Creating your brand identity", completedDetail: `Synthesized brand palette & typography (${res.analysis?.styleArchetype || "Modern"})`, isComplete: true, isActive: false },
           { id: 3, title: "Structuring storefront layout", completedDetail: "16 responsive e-commerce sections generated", isComplete: true, isActive: false },
-          { id: 4, title: "Connecting your catalog", completedDetail: `Connected ${res.connectedProductCount || availableProducts.length || 0} products from Enterprise OS inventory`, isComplete: true, isActive: false },
+          { 
+            id: 4, 
+            title: "Connecting your catalog", 
+            completedDetail: isStandaloneResult 
+              ? `Curated ${res.connectedProductCount || 0} starter products with custom pricing & WhatsApp ordering` 
+              : `Connected ${res.connectedProductCount || availableProducts.length || 0} products from Enterprise OS inventory`, 
+            isComplete: true, 
+            isActive: false 
+          },
           { id: 5, title: "Writing store copy & offers", completedDetail: "Headlines, trust badges, and WhatsApp routes generated", isComplete: true, isActive: false },
           { id: 6, title: "Optimizing mobile experience", completedDetail: "Mobile layouts & WhatsApp 1-click checkout active", isComplete: true, isActive: false },
         ]);
@@ -158,6 +171,63 @@ export function StoreWizard({
             </p>
           </div>
 
+          {/* Mode Selector: Connect Enterprise OS vs. Standalone Online Store */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto">
+            <button
+              type="button"
+              onClick={() => setStoreType("ENTERPRISE_CONNECTED")}
+              className={`p-4 rounded-2xl border text-left transition-all relative ${
+                storeType === "ENTERPRISE_CONNECTED"
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
+                  : "border-border bg-card/60 hover:bg-muted/50 text-muted-foreground"
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  storeType === "ENTERPRISE_CONNECTED" ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-foreground"
+                }`}>
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-foreground">Connect Enterprise OS</h4>
+                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">
+                    {availableProducts.length} products detected
+                  </span>
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug">
+                Reuses active inventory, connects POS orders to Sales Orders, and maintains tenant isolation.
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setStoreType("STANDALONE")}
+              className={`p-4 rounded-2xl border text-left transition-all relative ${
+                storeType === "STANDALONE"
+                  ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-md"
+                  : "border-border bg-card/60 hover:bg-muted/50 text-muted-foreground"
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  storeType === "STANDALONE" ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-foreground"
+                }`}>
+                  <ShoppingBag className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-xs text-foreground">Standalone Online Store</h4>
+                  <span className="text-[10px] text-indigo-500 font-semibold">
+                    No Enterprise shop required
+                  </span>
+                </div>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug">
+                Independent catalog with WhatsApp checkout & delivery. Includes non-destructive 1-click upgrade.
+              </p>
+            </button>
+          </div>
+
           {/* Large AI Prompt Box */}
           <div className="relative rounded-3xl border-2 border-primary/30 bg-card p-4 sm:p-6 shadow-xl shadow-primary/5 transition-all focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
             <div className="flex items-start gap-3">
@@ -176,12 +246,18 @@ export function StoreWizard({
 
                 {/* Bottom Bar inside Prompt Card */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/60">
-                  {/* Catalog Detection Badge */}
+                  {/* Mode Status / Detection Badge */}
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>
-                      <strong className="text-foreground">{availableProducts.length} active products</strong> in your Enterprise OS inventory will be linked automatically.
-                    </span>
+                    <span className={`w-2 h-2 rounded-full ${storeType === "ENTERPRISE_CONNECTED" ? "bg-emerald-500" : "bg-indigo-500"} animate-pulse`} />
+                    {storeType === "ENTERPRISE_CONNECTED" ? (
+                      <span>
+                        <strong className="text-foreground">{availableProducts.length} active products</strong> in your Enterprise OS inventory will be linked automatically.
+                      </span>
+                    ) : (
+                      <span>
+                        <strong className="text-foreground">Standalone Mode:</strong> AI will synthesize archetype starter products with WhatsApp ordering.
+                      </span>
+                    )}
                   </div>
 
                   {/* Primary Generate Button */}

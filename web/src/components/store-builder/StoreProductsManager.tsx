@@ -1,23 +1,35 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { 
   Search, Eye, EyeOff, Star, Tag, DollarSign, Check, X, Filter, 
   ShoppingBag, ArrowUpDown, RefreshCw, ExternalLink, Sparkles, Wand2,
-  Copy, CheckCheck, FileText, ChevronRight
+  Copy, CheckCheck, FileText, ChevronRight, Plus, Trash2, Edit3, Upload,
+  Image as ImageIcon, Layers, AlertCircle
 } from "lucide-react";
-import { updateStoreProductLink, generateProductAICopyAction } from "@/lib/actions/store-builder";
+import { 
+  updateStoreProductLink, 
+  generateProductAICopyAction,
+  addStandaloneProductAction,
+  updateStandaloneProductAction,
+  deleteStandaloneProductAction,
+  bulkAddStandaloneProductsAction
+} from "@/lib/actions/store-builder";
+import { uploadProductImage } from "@/lib/actions/upload";
 import { AIProductCopyOutput } from "@/types/store-builder";
 import { toast } from "sonner";
 import Link from "next/link";
 
 interface ProductItem {
   id: string;
+  storeProductId?: string;
   name: string;
   sku?: string | null;
   unitPrice: number;
+  salePrice?: number | null;
   stockQuantity: number;
   imageUrl?: string | null;
+  images?: string[];
   category: string;
   status: string;
   isListedOnline: boolean;
@@ -25,25 +37,56 @@ interface ProductItem {
   customBadge?: string | null;
   customPrice?: number | null;
   displayOrder: number;
+  isStandalone?: boolean;
+  description?: string | null;
 }
 
 interface Props {
   initialProducts: ProductItem[];
   currency?: string;
   storeSlug?: string;
+  isStandalone?: boolean;
 }
 
-export function StoreProductsManager({ initialProducts = [], currency = "SLE", storeSlug }: Props) {
+export function StoreProductsManager({ initialProducts = [], currency = "SLE", storeSlug, isStandalone = false }: Props) {
   const [products, setProducts] = useState<ProductItem[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("ALL");
   const [filterMode, setFilterMode] = useState<"ALL" | "ONLINE" | "FEATURED" | "HIDDEN">("ALL");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
+  // Standalone Add Product Modal State
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isSubmittingNewProduct, setIsSubmittingNewProduct] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isGeneratingNewProductAi, setIsGeneratingNewProductAi] = useState(false);
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    category: "General",
+    price: "",
+    salePrice: "",
+    stockQuantity: "10",
+    description: "",
+    sku: "",
+    imageUrl: "",
+    customBadge: "",
+    isFeatured: false
+  });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Bulk Add Modal State
+  const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkInputText, setBulkInputText] = useState("");
+  const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
+
   // Edit badge / custom price modal
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
   const [badgeInput, setBadgeInput] = useState("");
   const [customPriceInput, setCustomPriceInput] = useState("");
+  const [editNameInput, setEditNameInput] = useState("");
+  const [editCategoryInput, setEditCategoryInput] = useState("");
+  const [editStockInput, setEditStockInput] = useState("");
+  const [editSalePriceInput, setEditSalePriceInput] = useState("");
 
   // AI Copywriter Modal State
   const [aiProduct, setAiProduct] = useState<ProductItem | null>(null);
@@ -71,12 +114,19 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
     setLoadingId(product.id);
     const newStatus = !product.isListedOnline;
     try {
-      await updateStoreProductLink(product.id, {
-        isVisible: newStatus,
-        isFeatured: newStatus ? product.isFeatured : false,
-        customBadge: product.customBadge,
-        customPrice: product.customPrice
-      });
+      if (product.isStandalone) {
+        await updateStandaloneProductAction(product.id, {
+          isVisible: newStatus,
+          isFeatured: newStatus ? product.isFeatured : false
+        });
+      } else {
+        await updateStoreProductLink(product.id, {
+          isVisible: newStatus,
+          isFeatured: newStatus ? product.isFeatured : false,
+          customBadge: product.customBadge,
+          customPrice: product.customPrice
+        });
+      }
       setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isListedOnline: newStatus, isFeatured: newStatus ? p.isFeatured : false } : p));
       toast.success(newStatus ? `"${product.name}" is now visible online` : `"${product.name}" hidden from online store`);
     } catch (err: any) {
@@ -94,12 +144,19 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
     setLoadingId(product.id);
     const newFeatured = !product.isFeatured;
     try {
-      await updateStoreProductLink(product.id, {
-        isVisible: true,
-        isFeatured: newFeatured,
-        customBadge: product.customBadge,
-        customPrice: product.customPrice
-      });
+      if (product.isStandalone) {
+        await updateStandaloneProductAction(product.id, {
+          isVisible: true,
+          isFeatured: newFeatured
+        });
+      } else {
+        await updateStoreProductLink(product.id, {
+          isVisible: true,
+          isFeatured: newFeatured,
+          customBadge: product.customBadge,
+          customPrice: product.customPrice
+        });
+      }
       setProducts(prev => prev.map(p => p.id === product.id ? { ...p, isFeatured: newFeatured } : p));
       toast.success(newFeatured ? `"${product.name}" spotlighted as Featured!` : `"${product.name}" removed from Featured`);
     } catch (err: any) {
@@ -109,10 +166,28 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
     }
   };
 
+  const handleDeleteStandaloneProduct = async (product: ProductItem) => {
+    if (!confirm(`Are you sure you want to remove "${product.name}" from your store?`)) return;
+    setLoadingId(product.id);
+    try {
+      await deleteStandaloneProductAction(product.id);
+      setProducts(prev => prev.filter(p => p.id !== product.id));
+      toast.success(`"${product.name}" deleted from store catalog`);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to delete product");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
   const handleOpenEdit = (p: ProductItem) => {
     setEditingProduct(p);
     setBadgeInput(p.customBadge || "");
-    setCustomPriceInput(p.customPrice ? String(p.customPrice) : "");
+    setCustomPriceInput(p.customPrice ? String(p.customPrice) : p.unitPrice ? String(p.unitPrice) : "");
+    setEditNameInput(p.name || "");
+    setEditCategoryInput(p.category || "");
+    setEditStockInput(p.stockQuantity != null ? String(p.stockQuantity) : "");
+    setEditSalePriceInput(p.salePrice ? String(p.salePrice) : "");
   };
 
   const handleSaveCustomDetails = async () => {
@@ -121,26 +196,217 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
     try {
       const parsedPrice = customPriceInput.trim() ? parseFloat(customPriceInput.trim()) : null;
       const cleanBadge = badgeInput.trim() ? badgeInput.trim().toUpperCase() : null;
+      const parsedSalePrice = editSalePriceInput.trim() ? parseFloat(editSalePriceInput.trim()) : null;
+      const parsedStock = editStockInput.trim() ? parseInt(editStockInput.trim()) : undefined;
 
-      await updateStoreProductLink(editingProduct.id, {
-        isVisible: editingProduct.isListedOnline,
-        isFeatured: editingProduct.isFeatured,
-        customBadge: cleanBadge,
-        customPrice: parsedPrice
-      });
+      if (editingProduct.isStandalone) {
+        const updateRes = await updateStandaloneProductAction(editingProduct.id, {
+          name: editNameInput.trim() || editingProduct.name,
+          category: editCategoryInput.trim() || editingProduct.category,
+          price: parsedPrice !== null ? parsedPrice : editingProduct.unitPrice,
+          salePrice: parsedSalePrice,
+          stockQuantity: parsedStock,
+          customBadge: cleanBadge
+        });
 
-      setProducts(prev => prev.map(p => p.id === editingProduct.id ? {
-        ...p,
-        customBadge: cleanBadge,
-        customPrice: parsedPrice
-      } : p));
+        if (updateRes.success && updateRes.product) {
+          const sp = updateRes.product;
+          setProducts(prev => prev.map(p => p.id === editingProduct.id ? {
+            ...p,
+            name: sp.name,
+            category: sp.category,
+            unitPrice: Number(sp.price),
+            salePrice: sp.salePrice ? Number(sp.salePrice) : null,
+            stockQuantity: sp.stockQuantity != null ? Number(sp.stockQuantity) : p.stockQuantity,
+            customBadge: sp.customBadge,
+            customPrice: Number(sp.price)
+          } : p));
+        }
+      } else {
+        await updateStoreProductLink(editingProduct.id, {
+          isVisible: editingProduct.isListedOnline,
+          isFeatured: editingProduct.isFeatured,
+          customBadge: cleanBadge,
+          customPrice: parsedPrice
+        });
 
-      toast.success("Product online overrides saved!");
+        setProducts(prev => prev.map(p => p.id === editingProduct.id ? {
+          ...p,
+          customBadge: cleanBadge,
+          customPrice: parsedPrice
+        } : p));
+      }
+
+      toast.success("Product settings saved!");
       setEditingProduct(null);
     } catch (err: any) {
       toast.error(err.message || "Failed to save product details");
     } finally {
       setLoadingId(null);
+    }
+  };
+
+  // Image Upload handler for Add Product Modal
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await uploadProductImage(formData);
+      if (res.success && res.url) {
+        setNewProduct(prev => ({ ...prev, imageUrl: res.url }));
+        toast.success("Image uploaded!");
+      } else {
+        toast.error(res.error || "Failed to upload image");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Image upload failed");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  // AI Copy generation for New Product Modal
+  const handleNewProductAiCopy = async () => {
+    if (!newProduct.name.trim()) {
+      toast.error("Please enter a product name first");
+      return;
+    }
+    setIsGeneratingNewProductAi(true);
+    try {
+      const res = await generateProductAICopyAction({
+        name: newProduct.name,
+        category: newProduct.category,
+        price: parseFloat(newProduct.price) || 0,
+        notes: newProduct.description
+      });
+      if (res.success && res.copy) {
+        setNewProduct(prev => ({
+          ...prev,
+          description: res.copy?.fullDescription || res.copy?.shortDescription || prev.description,
+          customBadge: res.copy?.badge || prev.customBadge || "HOT"
+        }));
+        toast.success("AI description & promotional badge generated!");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "AI copy generation error");
+    } finally {
+      setIsGeneratingNewProductAi(false);
+    }
+  };
+
+  // Create Standalone Product Submit
+  const handleCreateStandaloneProduct = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProduct.name.trim()) {
+      toast.error("Please enter a product name");
+      return;
+    }
+    const parsedPrice = parseFloat(newProduct.price);
+    if (isNaN(parsedPrice) || parsedPrice < 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
+    setIsSubmittingNewProduct(true);
+    try {
+      const res = await addStandaloneProductAction({
+        name: newProduct.name.trim(),
+        price: parsedPrice,
+        salePrice: newProduct.salePrice ? parseFloat(newProduct.salePrice) : undefined,
+        category: newProduct.category.trim() || "General",
+        stockQuantity: newProduct.stockQuantity ? parseInt(newProduct.stockQuantity) : 99,
+        description: newProduct.description.trim() || undefined,
+        sku: newProduct.sku.trim() || undefined,
+        images: newProduct.imageUrl.trim() ? [newProduct.imageUrl.trim()] : [],
+        customBadge: newProduct.customBadge.trim() || undefined,
+        isFeatured: newProduct.isFeatured
+      });
+
+      if (res.success && res.product) {
+        const sp = res.product;
+        const createdItem: ProductItem = {
+          id: sp.id,
+          name: sp.name,
+          sku: sp.sku,
+          unitPrice: Number(sp.price),
+          salePrice: sp.salePrice ? Number(sp.salePrice) : null,
+          stockQuantity: sp.stockQuantity != null ? Number(sp.stockQuantity) : 99,
+          imageUrl: sp.images && sp.images.length > 0 ? sp.images[0] : null,
+          images: sp.images || [],
+          category: sp.category || "General",
+          status: "active",
+          isListedOnline: true,
+          isFeatured: !!sp.isFeatured,
+          customBadge: sp.customBadge || null,
+          customPrice: Number(sp.price),
+          displayOrder: sp.displayOrder || 0,
+          isStandalone: true,
+          description: sp.description
+        };
+        setProducts(prev => [createdItem, ...prev]);
+        toast.success(`🎉 Product "${createdItem.name}" added to online store!`);
+        setIsAddModalOpen(false);
+        setNewProduct({
+          name: "",
+          category: "General",
+          price: "",
+          salePrice: "",
+          stockQuantity: "10",
+          description: "",
+          sku: "",
+          imageUrl: "",
+          customBadge: "",
+          isFeatured: false
+        });
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add product");
+    } finally {
+      setIsSubmittingNewProduct(false);
+    }
+  };
+
+  // Bulk Add Products Submit
+  const handleBulkAddProducts = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!bulkInputText.trim()) {
+      toast.error("Please enter at least one product row");
+      return;
+    }
+
+    // Format: Name, Price, Category (one per line)
+    const lines = bulkInputText.split("\n").filter(l => l.trim().length > 0);
+    const parsedItems = lines.map(line => {
+      const parts = line.split(",").map(p => p.trim());
+      const name = parts[0] || "Item";
+      const price = parseFloat(parts[1]) || 0;
+      const category = parts[2] || "General";
+      const stockQuantity = parseInt(parts[3]) || 20;
+      return { name, price, category, stockQuantity };
+    });
+
+    if (parsedItems.length === 0) {
+      toast.error("No valid products detected");
+      return;
+    }
+
+    setIsSubmittingBulk(true);
+    try {
+      const res = await bulkAddStandaloneProductsAction(parsedItems);
+      if (res.success) {
+        toast.success(`🎉 Added ${res.count} products to your storefront!`);
+        setIsBulkModalOpen(false);
+        setBulkInputText("");
+        // Reload page or refresh list
+        window.location.reload();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to bulk add products");
+    } finally {
+      setIsSubmittingBulk(false);
     }
   };
 
@@ -210,16 +476,34 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
             Choose which products from your inventory appear in your storefront, feature top sellers, or use AI Copywriter to generate high-converting product descriptions and SEO tags.
           </p>
         </div>
-        {storeSlug && (
-          <Link
-            href={`/store/${storeSlug}`}
-            target="_blank"
-            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-fit"
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:brightness-110 shadow-sm transition-all"
           >
-            <ExternalLink className="w-3.5 h-3.5" />
-            View Live Store Catalog
-          </Link>
-        )}
+            <Plus className="w-3.5 h-3.5" />
+            <span>Add Product</span>
+          </button>
+
+          <button
+            onClick={() => setIsBulkModalOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-bold rounded-xl bg-muted border border-border hover:bg-muted/80 text-foreground transition-all"
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Bulk Add</span>
+          </button>
+
+          {storeSlug && (
+            <Link
+              href={`/store/${storeSlug}`}
+              target="_blank"
+              className="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors w-fit"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              View Storefront
+            </Link>
+          )}
+        </div>
       </div>
 
       {/* Filter Bar */}
@@ -340,7 +624,16 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
 
                     {/* Custom Store Price */}
                     <td className="py-3.5 px-4 text-right">
-                      {p.customPrice ? (
+                      {p.salePrice ? (
+                        <div className="flex flex-col items-end">
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                            {currency} {p.salePrice.toLocaleString()}
+                          </span>
+                          <span className="text-[10px] text-muted-foreground line-through">
+                            {currency} {p.unitPrice.toLocaleString()}
+                          </span>
+                        </div>
+                      ) : p.customPrice ? (
                         <span className="font-bold text-emerald-600 dark:text-emerald-400">
                           {currency} {p.customPrice.toLocaleString()}
                         </span>
@@ -414,7 +707,7 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
                       </button>
                     </td>
 
-                    {/* Actions: AI Copy + Customize */}
+                    {/* Actions: AI Copy + Customize / Edit + Delete */}
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
@@ -427,10 +720,22 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
                         </button>
                         <button
                           onClick={() => handleOpenEdit(p)}
-                          className="px-2.5 py-1 text-xs font-medium rounded-lg border hover:bg-muted transition-colors"
+                          className="px-2.5 py-1 text-xs font-medium rounded-lg border hover:bg-muted transition-colors flex items-center gap-1"
+                          title={p.isStandalone ? "Edit Product" : "Customize Online Settings"}
                         >
-                          Customize
+                          {p.isStandalone && <Edit3 className="w-3 h-3 text-muted-foreground" />}
+                          <span>{p.isStandalone ? "Edit" : "Customize"}</span>
                         </button>
+                        {p.isStandalone && (
+                          <button
+                            onClick={() => handleDeleteStandaloneProduct(p)}
+                            disabled={loadingId === p.id}
+                            className="p-1.5 text-xs font-medium rounded-lg border border-red-500/20 hover:bg-red-500/10 text-red-600 dark:text-red-400 transition-colors disabled:opacity-50"
+                            title="Delete product from catalog"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -441,70 +746,169 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
         </div>
       </div>
 
-      {/* ── CUSTOMIZE OVERRIDES MODAL ───────────────────────── */}
+      {/* ── CUSTOMIZE OVERRIDES / EDIT MODAL ─────────────────── */}
       {editingProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-card border rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+          <div className="bg-card border rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b">
-              <h3 className="font-bold text-base text-foreground">Online Product Settings</h3>
+              <h3 className="font-bold text-base text-foreground">
+                {editingProduct.isStandalone ? "Edit Standalone Product" : "Online Product Settings"}
+              </h3>
               <button onClick={() => setEditingProduct(null)} className="p-1 rounded-lg hover:bg-muted text-muted-foreground">
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div>
-              <p className="text-sm font-semibold text-foreground">{editingProduct.name}</p>
-              <p className="text-xs text-muted-foreground">Standard Inventory Price: {currency} {editingProduct.unitPrice.toLocaleString()}</p>
-            </div>
-
-            <div className="space-y-3 pt-1">
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Custom Online Price (Optional)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
-                    {currency}
-                  </span>
+            {editingProduct.isStandalone ? (
+              /* Full Standalone Product Editor */
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Product Title
+                  </label>
                   <input
-                    type="number"
-                    step="0.01"
-                    placeholder={`Leave empty for standard (${editingProduct.unitPrice})`}
-                    value={customPriceInput}
-                    onChange={(e) => setCustomPriceInput(e.target.value)}
-                    className="w-full pl-12 pr-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    type="text"
+                    value={editNameInput}
+                    onChange={(e) => setEditNameInput(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder="Product name"
                   />
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-1">
-                  Allows you to offer an online-exclusive discount or web promo price without altering your in-store POS pricing.
-                </p>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-foreground mb-1">
-                  Promotional Badge (e.g. SALE, HOT, 20% OFF, TRENDING)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. SALE or NEW"
-                  value={badgeInput}
-                  onChange={(e) => setBadgeInput(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-                <div className="flex items-center gap-1.5 mt-2">
-                  {["SALE", "HOT", "NEW", "TRENDING", "BESTSELLER"].map(preset => (
-                    <button
-                      key={preset}
-                      type="button"
-                      onClick={() => setBadgeInput(preset)}
-                      className="px-2 py-0.5 rounded text-[10px] font-bold border bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground"
-                    >
-                      +{preset}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1">
+                      Regular Price ({currency})
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={customPriceInput}
+                      onChange={(e) => setCustomPriceInput(e.target.value)}
+                      className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1">
+                      Sale Price (Optional)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={editSalePriceInput}
+                      onChange={(e) => setEditSalePriceInput(e.target.value)}
+                      className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      placeholder="Discounted"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1">
+                      Category
+                    </label>
+                    <input
+                      type="text"
+                      value={editCategoryInput}
+                      onChange={(e) => setEditCategoryInput(e.target.value)}
+                      className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-foreground mb-1">
+                      Stock Quantity
+                    </label>
+                    <input
+                      type="number"
+                      value={editStockInput}
+                      onChange={(e) => setEditStockInput(e.target.value)}
+                      className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Promotional Badge (e.g. SALE, HOT, NEW, 20% OFF)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. SALE or NEW"
+                    value={badgeInput}
+                    onChange={(e) => setBadgeInput(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <div className="flex items-center gap-1.5 mt-2">
+                    {["SALE", "HOT", "NEW", "TRENDING", "BESTSELLER"].map(preset => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setBadgeInput(preset)}
+                        className="px-2 py-0.5 rounded text-[10px] font-bold border bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground"
+                      >
+                        +{preset}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              /* Enterprise Product Override Settings */
+              <div className="space-y-3 pt-1">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">{editingProduct.name}</p>
+                  <p className="text-xs text-muted-foreground">Standard Inventory Price: {currency} {editingProduct.unitPrice.toLocaleString()}</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Custom Online Price (Optional)
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">
+                      {currency}
+                    </span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      placeholder={`Leave empty for standard (${editingProduct.unitPrice})`}
+                      value={customPriceInput}
+                      onChange={(e) => setCustomPriceInput(e.target.value)}
+                      className="w-full pl-12 pr-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    Allows you to offer an online-exclusive discount or web promo price without altering your in-store POS pricing.
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Promotional Badge (e.g. SALE, HOT, 20% OFF, TRENDING)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. SALE or NEW"
+                    value={badgeInput}
+                    onChange={(e) => setBadgeInput(e.target.value)}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <div className="flex items-center gap-1.5 mt-2">
+                    {["SALE", "HOT", "NEW", "TRENDING", "BESTSELLER"].map(preset => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setBadgeInput(preset)}
+                        className="px-2 py-0.5 rounded text-[10px] font-bold border bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground"
+                      >
+                        +{preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             <div className="flex items-center justify-end gap-2 pt-4 border-t">
               <button
@@ -518,7 +922,7 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
                 disabled={loadingId === editingProduct.id}
                 className="px-4 py-2 text-xs font-semibold rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
               >
-                {loadingId === editingProduct.id ? "Saving..." : "Save Settings"}
+                {loadingId === editingProduct.id ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
@@ -749,6 +1153,291 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
                 )}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── ADD STANDALONE PRODUCT MODAL ───────────────────── */}
+      {isAddModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-card border rounded-3xl w-full max-w-xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-3 border-b">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <Plus className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-foreground">Add New Store Product</h3>
+                  <p className="text-xs text-muted-foreground">Add an item to your online storefront with custom pricing & photos.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddModalOpen(false)}
+                className="p-1 rounded-xl hover:bg-muted text-muted-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateStandaloneProduct} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Classic Cotton Polo Shirt"
+                  value={newProduct.name}
+                  onChange={(e) => setNewProduct(prev => ({ ...prev, name: e.target.value }))}
+                  className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Regular Price ({currency}) *
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    placeholder="e.g. 250"
+                    value={newProduct.price}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, price: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Sale / Discount Price ({currency})
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="Optional (e.g. 200)"
+                    value={newProduct.salePrice}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, salePrice: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Category
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Fashion, Tech, Groceries"
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Stock Quantity
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="e.g. 25"
+                    value={newProduct.stockQuantity}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, stockQuantity: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                </div>
+              </div>
+
+              {/* Image Input & Cloudinary Upload */}
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-foreground">
+                  Product Image
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="url"
+                    placeholder="https://images.unsplash.com/... or upload"
+                    value={newProduct.imageUrl}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, imageUrl: e.target.value }))}
+                    className="flex-1 px-3 py-2 bg-background border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 font-mono"
+                  />
+                  <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploadingImage}
+                    className="px-3 py-2 text-xs font-bold rounded-xl border bg-muted hover:bg-muted/80 flex items-center gap-1.5 shrink-0"
+                  >
+                    {isUploadingImage ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                    <span>{isUploadingImage ? "Uploading..." : "Upload"}</span>
+                  </button>
+                </div>
+                {newProduct.imageUrl && (
+                  <div className="w-14 h-14 rounded-xl border overflow-hidden bg-muted mt-1">
+                    <img src={newProduct.imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                  </div>
+                )}
+              </div>
+
+              {/* Description with AI Assistant */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-foreground">
+                    Description
+                  </label>
+                  <button
+                    type="button"
+                    onClick={handleNewProductAiCopy}
+                    disabled={isGeneratingNewProductAi}
+                    className="text-[11px] font-bold text-indigo-500 hover:text-indigo-600 flex items-center gap-1"
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span>{isGeneratingNewProductAi ? "Generating..." : "✨ AI Copywriter"}</span>
+                  </button>
+                </div>
+                <textarea
+                  rows={3}
+                  placeholder="Compelling description highlighting key materials, sizing, and benefits..."
+                  value={newProduct.description}
+                  onChange={(e) => setNewProduct(prev => ({ ...prev, description: e.target.value }))}
+                  className="w-full px-3 py-2 bg-background border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
+                />
+              </div>
+
+              {/* Badge & Featured */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">
+                    Promotional Badge
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. NEW, SALE, HOT"
+                    value={newProduct.customBadge}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, customBadge: e.target.value }))}
+                    className="w-full px-3 py-2 bg-background border rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  />
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    {["NEW", "SALE", "HOT", "BESTSELLER"].map(preset => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setNewProduct(prev => ({ ...prev, customBadge: preset }))}
+                        className="px-2 py-0.5 rounded text-[10px] font-bold border bg-muted/60 hover:bg-muted text-muted-foreground"
+                      >
+                        +{preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-6">
+                  <input
+                    type="checkbox"
+                    id="newIsFeatured"
+                    checked={newProduct.isFeatured}
+                    onChange={(e) => setNewProduct(prev => ({ ...prev, isFeatured: e.target.checked }))}
+                    className="rounded border-border text-primary focus:ring-primary h-4 w-4"
+                  />
+                  <label htmlFor="newIsFeatured" className="text-xs font-semibold text-foreground cursor-pointer">
+                    Feature on Store Homepage
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsAddModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium rounded-xl border hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingNewProduct}
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:brightness-110 shadow-sm disabled:opacity-50"
+                >
+                  {isSubmittingNewProduct ? "Adding Product..." : "Add to Storefront"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── BULK ADD PRODUCTS MODAL ────────────────────────── */}
+      {isBulkModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-card border rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                  <Layers className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-foreground">Bulk Add Products</h3>
+                  <p className="text-xs text-muted-foreground">Add multiple items at once using quick comma-separated format.</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsBulkModalOpen(false)}
+                className="p-1 rounded-xl hover:bg-muted text-muted-foreground"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleBulkAddProducts} className="space-y-4">
+              <div className="p-3 rounded-xl bg-muted/40 border text-xs text-muted-foreground space-y-1">
+                <p className="font-bold text-foreground">Format per line:</p>
+                <p className="font-mono text-[11px]">Product Name, Price, Category, Stock</p>
+                <p className="text-[11px] text-muted-foreground mt-1">Example:</p>
+                <p className="font-mono text-[11px] text-primary">Summer Floral Dress, 450, Fashion, 15</p>
+                <p className="font-mono text-[11px] text-primary">Leather Oxford Shoes, 850, Footwear, 8</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Product Lines
+                </label>
+                <textarea
+                  rows={6}
+                  placeholder={`Men's Casual Shirt, 350, Fashion, 20\nClassic Leather Belt, 150, Accessories, 15\nWireless Bluetooth Earbuds, 450, Electronics, 10`}
+                  value={bulkInputText}
+                  onChange={(e) => setBulkInputText(e.target.value)}
+                  className="w-full px-3 py-2 bg-background border rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-3 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsBulkModalOpen(false)}
+                  className="px-4 py-2 text-xs font-medium rounded-xl border hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmittingBulk}
+                  className="px-5 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:brightness-110 shadow-sm disabled:opacity-50"
+                >
+                  {isSubmittingBulk ? "Importing..." : "Import All Products"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -34,13 +34,81 @@ function serializeStore(store: any) {
   }));
 }
 
-// ─── 1. GET STORE BY AUTHENTICATED BUSINESS ───────────────────────
+// ─── HELPER: RESOLVE CURRENT USER STORE ───────────────────────────
+export async function resolveStoreForUser(session: any) {
+  if (!session?.user?.id) throw new Error("Unauthorized");
+  const businessId = session.user.businessId;
+  const userId = session.user.id;
+
+  const store = await prisma.store.findFirst({
+    where: {
+      OR: [
+        ...(businessId ? [{ businessId }] : []),
+        { ownerId: userId }
+      ]
+    }
+  });
+  return store;
+}
+
+// ─── HELPER: GENERATE SAMPLE PRODUCTS FOR STANDALONE STORES ────────
+function generateSampleProductsForArchetype(archetype: string, storeName: string) {
+  switch (archetype) {
+    case "fashion":
+    case "luxury":
+      return [
+        { name: "Tailored Premium Blazer", price: 650, category: "Apparel", description: "Structured slim-fit silhouette crafted with luxury breathable fabric.", isFeatured: true, customBadge: "NEW" },
+        { name: "Handcrafted Leather Chelsea Boots", price: 780, category: "Footwear", description: "Full-grain leather with cushioned inner sole and durable traction.", isFeatured: true, customBadge: "HOT" },
+        { name: "Minimalist Italian Leather Bag", price: 540, category: "Accessories", description: "Timeless day-to-evening aesthetic with gold-tone hardware accents.", isFeatured: true, customBadge: "POPULAR" },
+        { name: "Organic Silk Touch Scarf", price: 195, category: "Accessories", description: "Soft, vibrant drape designed for effortless everyday sophistication.", isFeatured: false }
+      ];
+    case "electronics":
+      return [
+        { name: "Active Noise-Cancelling Headphones", price: 850, category: "Audio", description: "Studio-grade fidelity with 40-hour wireless playtime and instant pairing.", isFeatured: true, customBadge: "TOP SELLER" },
+        { name: "Ultra AMOLED Smart Watch", price: 620, category: "Wearables", description: "Comprehensive biometric tracking, GPS navigation, and waterproof chassis.", isFeatured: true, customBadge: "NEW" },
+        { name: "Fast Wireless Charging Hub (3-in-1)", price: 290, category: "Accessories", description: "Simultaneous high-speed power delivery for smartphone, earbuds, and watch.", isFeatured: true },
+        { name: "Rugged Braided Fast-Charge Cable", price: 85, category: "Cables", description: "Military-grade reinforcement with 65W Power Delivery support.", isFeatured: false }
+      ];
+    case "grocery":
+    case "supermarket":
+      return [
+        { name: "Extra Virgin Cold-Pressed Olive Oil", price: 145, category: "Pantry", description: "First cold press olive oil with rich, authentic Mediterranean aroma.", isFeatured: true, customBadge: "FRESH" },
+        { name: "Artisan Whole Grain Sourdough", price: 45, category: "Bakery", description: "Naturally fermented sourdough baked fresh every morning.", isFeatured: true },
+        { name: "Organic Mountain Honey (500g)", price: 95, category: "Pantry", description: "Pure unfiltered wildflower honey harvested directly from local apiaries.", isFeatured: true, customBadge: "BEST" },
+        { name: "Premium Roasted Arabica Coffee Beans", price: 160, category: "Beverages", description: "Single-origin aromatic roast notes of caramel and hazelnut.", isFeatured: false }
+      ];
+    case "pharmacy":
+      return [
+        { name: "High-Potency Vitamin C + Zinc (60s)", price: 90, category: "Vitamins", description: "Daily immune fortification formula with enhanced bio-absorption.", isFeatured: true, customBadge: "ESSENTIAL" },
+        { name: "Digital Rapid Thermometer", price: 65, category: "Medical Devices", description: "Clinical accuracy with instant 10-second auditory readout.", isFeatured: true },
+        { name: "Hydrating Dermatological Cream", price: 120, category: "Skincare", description: "Gentle fragrance-free ceramide barrier restoration for dry skin.", isFeatured: true },
+        { name: "First Aid Safety Kit (Home & Car)", price: 180, category: "First Aid", description: "Comprehensive 50-piece medical emergency response pack.", isFeatured: false }
+      ];
+    default:
+      return [
+        { name: `${storeName} Signature Collection`, price: 350, category: "Featured", description: "Our bestselling flagship product curated for uncompromising quality.", isFeatured: true, customBadge: "FEATURED" },
+        { name: "Essential Daily Edition", price: 220, category: "Popular", description: "Engineered for reliable everyday utility and customer satisfaction.", isFeatured: true, customBadge: "HOT" },
+        { name: "Premium Travel & Work Accessory", price: 180, category: "Accessories", description: "Compact, durable construction made for modern mobile lifestyles.", isFeatured: true },
+        { name: "Deluxe Starter Pack", price: 490, category: "Bundles", description: "Complete package offering exceptional value and customer favorites.", isFeatured: false, customBadge: "VALUE" }
+      ];
+  }
+}
+
+// ─── 1. GET STORE BY AUTHENTICATED USER / BUSINESS ────────────────
 export async function getStoreByBusiness() {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const store = await prisma.store.findUnique({
-    where: { businessId: session.user.businessId },
+  const businessId = session.user.businessId;
+  const userId = session.user.id;
+
+  const store = await prisma.store.findFirst({
+    where: {
+      OR: [
+        ...(businessId ? [{ businessId }] : []),
+        { ownerId: userId }
+      ]
+    },
     include: {
       pages: {
         orderBy: { createdAt: "asc" }
@@ -69,12 +137,16 @@ export async function getStoreByBusiness() {
   return serializeStore(store);
 }
 
+export const getCurrentStore = getStoreByBusiness;
+
 // ─── 2. CREATE OR GENERATE STORE WITH AI ──────────────────────────
 export async function createOrGenerateStore(input: AIStoreGenerationInput) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
+  const userId = session.user.id;
   const businessId = session.user.businessId;
+  const isEnterprise = input.storeType === "ENTERPRISE_CONNECTED" && !!businessId;
 
   // 1. Generate full AI configuration
   const aiConfig = await generateAIStoreConfiguration(input);
@@ -82,44 +154,69 @@ export async function createOrGenerateStore(input: AIStoreGenerationInput) {
   // 2. Ensure slug is unique across all stores
   let finalSlug = aiConfig.slug;
   const existingWithSlug = await prisma.store.findFirst({
-    where: { slug: finalSlug, businessId: { not: businessId } }
+    where: {
+      slug: finalSlug,
+      ...(isEnterprise ? { businessId: { not: businessId } } : { ownerId: { not: userId } })
+    }
   });
   if (existingWithSlug) {
     finalSlug = `${finalSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
   }
 
-  // 3. Upsert Store Record
-  const store = await prisma.store.upsert({
-    where: { businessId },
-    create: {
-      businessId,
-      name: aiConfig.name,
-      slug: finalSlug,
-      description: aiConfig.description,
-      status: "PUBLISHED",
-      publishedAt: new Date(),
-      currency: "SLE",
-      whatsappPhone: input.whatsapp || input.phone || "",
-      contactPhone: input.phone || "",
-      contactEmail: input.email || "",
-      themeConfig: aiConfig.theme as any,
-      navigation: aiConfig.navigation as any,
-      settings: aiConfig.settings as any,
-    },
-    update: {
-      name: aiConfig.name,
-      slug: finalSlug,
-      description: aiConfig.description,
-      status: "PUBLISHED",
-      publishedAt: new Date(),
-      whatsappPhone: input.whatsapp || input.phone || "",
-      contactPhone: input.phone || "",
-      contactEmail: input.email || "",
-      themeConfig: aiConfig.theme as any,
-      navigation: aiConfig.navigation as any,
-      settings: aiConfig.settings as any,
+  // 3. Find existing store for this user/business
+  const existingStore = await prisma.store.findFirst({
+    where: {
+      OR: [
+        ...(isEnterprise && businessId ? [{ businessId }] : []),
+        { ownerId: userId }
+      ]
     }
   });
+
+  let store: any;
+  if (existingStore) {
+    store = await prisma.store.update({
+      where: { id: existingStore.id },
+      data: {
+        name: aiConfig.name,
+        slug: finalSlug,
+        description: aiConfig.description,
+        status: "PUBLISHED",
+        publishedAt: new Date(),
+        whatsappPhone: input.whatsapp || input.phone || "",
+        contactPhone: input.phone || "",
+        contactEmail: input.email || session.user.email || "",
+        location: input.location || "Freetown, Sierra Leone",
+        storeType: isEnterprise ? "ENTERPRISE_CONNECTED" : "STANDALONE",
+        businessId: isEnterprise ? businessId : null,
+        ownerId: userId,
+        themeConfig: aiConfig.theme as any,
+        navigation: aiConfig.navigation as any,
+        settings: aiConfig.settings as any,
+      }
+    });
+  } else {
+    store = await prisma.store.create({
+      data: {
+        name: aiConfig.name,
+        slug: finalSlug,
+        description: aiConfig.description,
+        status: "PUBLISHED",
+        publishedAt: new Date(),
+        currency: "SLE",
+        whatsappPhone: input.whatsapp || input.phone || "",
+        contactPhone: input.phone || "",
+        contactEmail: input.email || session.user.email || "",
+        location: input.location || "Freetown, Sierra Leone",
+        storeType: isEnterprise ? "ENTERPRISE_CONNECTED" : "STANDALONE",
+        businessId: isEnterprise ? businessId : null,
+        ownerId: userId,
+        themeConfig: aiConfig.theme as any,
+        navigation: aiConfig.navigation as any,
+        settings: aiConfig.settings as any,
+      }
+    });
+  }
 
   // 4. Upsert Home Page
   const homePage = await prisma.storePage.upsert({
@@ -143,55 +240,83 @@ export async function createOrGenerateStore(input: AIStoreGenerationInput) {
     }
   });
 
-  // 5. Connect selected products to store
-  if (input.productIds && input.productIds.length > 0) {
-    for (let i = 0; i < input.productIds.length; i++) {
-      const pid = input.productIds[i];
-      await prisma.storeProduct.upsert({
-        where: {
-          storeId_productId: {
-            storeId: store.id,
-            productId: pid
-          }
-        },
-        create: {
-          storeId: store.id,
-          productId: pid,
-          isFeatured: i < 4,
-          displayOrder: i,
-          isVisible: true,
-          customBadge: i === 0 ? "FEATURED" : (i === 1 ? "POPULAR" : null)
-        },
-        update: {
-          isVisible: true
+  // 5. Connect or create products
+  if (isEnterprise && businessId) {
+    // Enterprise flow: Link existing catalog products
+    if (input.productIds && input.productIds.length > 0) {
+      for (let i = 0; i < input.productIds.length; i++) {
+        const pid = input.productIds[i];
+        const existingSp = await prisma.storeProduct.findFirst({
+          where: { storeId: store.id, productId: pid }
+        });
+        if (existingSp) {
+          await prisma.storeProduct.update({
+            where: { id: existingSp.id },
+            data: { isVisible: true }
+          });
+        } else {
+          await prisma.storeProduct.create({
+            data: {
+              storeId: store.id,
+              productId: pid,
+              isFeatured: i < 4,
+              displayOrder: i,
+              isVisible: true,
+              customBadge: i === 0 ? "FEATURED" : (i === 1 ? "POPULAR" : null)
+            }
+          });
         }
+      }
+    } else {
+      const availableProducts = await prisma.product.findMany({
+        where: { businessId, deletedAt: null, status: "active" },
+        take: 12,
+        orderBy: { createdAt: "desc" }
       });
+      for (let i = 0; i < availableProducts.length; i++) {
+        const p = availableProducts[i];
+        const existingSp = await prisma.storeProduct.findFirst({
+          where: { storeId: store.id, productId: p.id }
+        });
+        if (!existingSp) {
+          await prisma.storeProduct.create({
+            data: {
+              storeId: store.id,
+              productId: p.id,
+              isFeatured: i < 4,
+              displayOrder: i,
+              isVisible: true,
+              customBadge: i === 0 ? "FEATURED" : null
+            }
+          });
+        }
+      }
     }
   } else {
-    // If none specified, auto-link top active products from this business
-    const availableProducts = await prisma.product.findMany({
-      where: { businessId, deletedAt: null, status: "active" },
-      take: 12,
-      orderBy: { createdAt: "desc" }
-    });
-    for (let i = 0; i < availableProducts.length; i++) {
-      const p = availableProducts[i];
-      await prisma.storeProduct.upsert({
-        where: {
-          storeId_productId: {
-            storeId: store.id,
-            productId: p.id
-          }
-        },
-        create: {
+    // Standalone flow: Add standalone products
+    const initialStandalone = (input.standaloneProducts && input.standaloneProducts.length > 0)
+      ? input.standaloneProducts
+      : generateSampleProductsForArchetype(input.styleArchetype, aiConfig.name);
+
+    for (let i = 0; i < initialStandalone.length; i++) {
+      const item = initialStandalone[i];
+      await prisma.storeProduct.create({
+        data: {
           storeId: store.id,
-          productId: p.id,
+          productId: null,
+          name: item.name,
+          price: item.price || 100,
+          salePrice: item.salePrice || null,
+          description: item.description || null,
+          category: item.category || "General",
+          sku: item.sku || null,
+          images: item.images || (item.imageUrl ? [item.imageUrl] : []),
+          stockQuantity: item.stockQuantity != null ? item.stockQuantity : null,
           isFeatured: i < 4,
           displayOrder: i,
           isVisible: true,
-          customBadge: i === 0 ? "FEATURED" : null
-        },
-        update: { isVisible: true }
+          customBadge: item.customBadge || (i === 0 ? "FEATURED" : (i === 1 ? "POPULAR" : null))
+        }
       });
     }
   }
@@ -217,21 +342,21 @@ export async function updateStoreConfig(data: {
   whatsappPhone?: string;
   contactPhone?: string;
   contactEmail?: string;
+  location?: string;
   themeConfig?: Partial<StoreTheme>;
   navigation?: Partial<StoreNavigation>;
   settings?: Partial<StoreSettings>;
   socialLinks?: any;
 }) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
-
-  const businessId = session.user.businessId;
+  const store = await resolveStoreForUser(session);
+  if (!store) throw new Error("Store not found");
 
   // Validate slug uniqueness if changed
-  if (data.slug) {
+  if (data.slug && data.slug !== store.slug) {
     const cleanSlug = data.slug.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-");
     const existing = await prisma.store.findFirst({
-      where: { slug: cleanSlug, businessId: { not: businessId } }
+      where: { slug: cleanSlug, id: { not: store.id } }
     });
     if (existing) {
       throw new Error("This store URL slug is already taken. Please choose another.");
@@ -240,7 +365,7 @@ export async function updateStoreConfig(data: {
   }
 
   const updated = await prisma.store.update({
-    where: { businessId },
+    where: { id: store.id },
     data: {
       ...(data.name !== undefined && { name: data.name }),
       ...(data.slug !== undefined && { slug: data.slug }),
@@ -251,6 +376,7 @@ export async function updateStoreConfig(data: {
       ...(data.whatsappPhone !== undefined && { whatsappPhone: data.whatsappPhone }),
       ...(data.contactPhone !== undefined && { contactPhone: data.contactPhone }),
       ...(data.contactEmail !== undefined && { contactEmail: data.contactEmail }),
+      ...(data.location !== undefined && { location: data.location }),
       ...(data.themeConfig !== undefined && { themeConfig: data.themeConfig as any }),
       ...(data.navigation !== undefined && { navigation: data.navigation as any }),
       ...(data.settings !== undefined && { settings: data.settings as any }),
@@ -266,11 +392,7 @@ export async function updateStoreConfig(data: {
 // ─── 4. UPDATE PAGE SECTIONS (VISUAL BUILDER) ─────────────────────
 export async function updateStorePageSections(slug: string, sections: StoreSection[]) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
-
-  const store = await prisma.store.findUnique({
-    where: { businessId: session.user.businessId }
-  });
+  const store = await resolveStoreForUser(session);
   if (!store) throw new Error("Store not found");
 
   const page = await prisma.storePage.update({
@@ -293,11 +415,7 @@ export async function updateStorePageSections(slug: string, sections: StoreSecti
 // ─── 5. PUBLISH / UNPUBLISH STORE ─────────────────────────────────
 export async function toggleStorePublish(publish: boolean) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
-
-  const store = await prisma.store.findUnique({
-    where: { businessId: session.user.businessId }
-  });
+  const store = await resolveStoreForUser(session);
   if (!store) throw new Error("Store not found");
 
   const updated = await prisma.store.update({
@@ -316,18 +434,15 @@ export async function toggleStorePublish(publish: boolean) {
 // ─── 6. AI ASSISTANT MODIFICATION ─────────────────────────────────
 export async function modifyStoreWithAIAction(command: string) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
-
-  const store = await prisma.store.findUnique({
-    where: { businessId: session.user.businessId },
-    include: {
-      pages: { where: { slug: "home" } }
-    }
-  });
+  const store = await resolveStoreForUser(session);
   if (!store) throw new Error("Store not found");
 
-  const homePage = store.pages[0];
-  const currentSections = (homePage?.sections as unknown as StoreSection[]) || [];
+  const homePage = await prisma.storePage.findFirst({
+    where: { storeId: store.id, slug: "home" }
+  });
+  if (!homePage) throw new Error("Home page not found");
+
+  const currentSections = (homePage.sections as unknown as StoreSection[]) || [];
 
   const result = await executeAIStoreModification(
     {
@@ -347,7 +462,7 @@ export async function modifyStoreWithAIAction(command: string) {
     });
   }
 
-  if (result.homeSections && homePage) {
+  if (result.homeSections) {
     await prisma.storePage.update({
       where: { id: homePage.id },
       data: { sections: result.homeSections as any }
@@ -368,22 +483,45 @@ export async function modifyStoreWithAIAction(command: string) {
 // ─── 7. GET CURATED STORE PRODUCTS FOR MANAGEMENT ─────────────────
 export async function getStoreCuratedProducts() {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const store = await resolveStoreForUser(session);
+  if (!store) return [];
 
-  const businessId = session.user.businessId;
+  // Standalone Store: return direct standalone StoreProduct items
+  if (store.storeType === "STANDALONE" || !store.businessId) {
+    const standaloneProducts = await prisma.storeProduct.findMany({
+      where: { storeId: store.id },
+      orderBy: [{ isFeatured: "desc" }, { displayOrder: "asc" }, { createdAt: "desc" }]
+    });
 
-  // Get or find store
-  const store = await prisma.store.findUnique({
-    where: { businessId }
-  });
+    return standaloneProducts.map(sp => ({
+      id: sp.id,
+      storeProductId: sp.id,
+      name: sp.name || "Untitled Product",
+      sku: sp.sku || "",
+      unitPrice: sp.price ? Number(sp.price) : 0,
+      salePrice: sp.salePrice ? Number(sp.salePrice) : null,
+      stockQuantity: sp.stockQuantity != null ? Number(sp.stockQuantity) : null,
+      imageUrl: sp.images && sp.images.length > 0 ? sp.images[0] : null,
+      images: sp.images || [],
+      category: sp.category || "General",
+      status: sp.status || "active",
+      description: sp.description || "",
+      isListedOnline: sp.isVisible,
+      isFeatured: sp.isFeatured,
+      customBadge: sp.customBadge || null,
+      customPrice: sp.customPrice ? Number(sp.customPrice) : null,
+      displayOrder: sp.displayOrder,
+      isStandalone: true
+    }));
+  }
 
-  // All catalog products
+  // Enterprise Store: fetch catalog and overlay store products
   const products = await prisma.product.findMany({
-    where: { businessId, deletedAt: null },
+    where: { businessId: store.businessId, deletedAt: null },
     include: {
       category: { select: { id: true, name: true } },
       storeProducts: {
-        where: { storeId: store?.id || "" }
+        where: { storeId: store.id }
       }
     },
     orderBy: { createdAt: "desc" }
@@ -393,6 +531,7 @@ export async function getStoreCuratedProducts() {
     const sp = p.storeProducts[0];
     return {
       id: p.id,
+      storeProductId: sp?.id,
       name: p.name,
       sku: p.sku,
       unitPrice: Number(p.unitPrice),
@@ -400,17 +539,17 @@ export async function getStoreCuratedProducts() {
       imageUrl: p.imageUrl,
       category: p.category?.name || "Uncategorized",
       status: p.status,
-      // Store-specific overrides:
       isListedOnline: !!sp && sp.isVisible,
       isFeatured: !!sp && sp.isFeatured,
       customBadge: sp?.customBadge || null,
       customPrice: sp?.customPrice ? Number(sp.customPrice) : null,
-      displayOrder: sp?.displayOrder || 0
+      displayOrder: sp?.displayOrder || 0,
+      isStandalone: false
     };
   });
 }
 
-// ─── 8. TOGGLE / UPDATE STORE PRODUCT LINK ────────────────────────
+// ─── 8. TOGGLE / UPDATE STORE PRODUCT LINK (ENTERPRISE) ───────────
 export async function updateStoreProductLink(productId: string, data: {
   isVisible: boolean;
   isFeatured?: boolean;
@@ -418,34 +557,138 @@ export async function updateStoreProductLink(productId: string, data: {
   customPrice?: number | null;
 }) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
-
-  const store = await prisma.store.findUnique({
-    where: { businessId: session.user.businessId }
-  });
+  const store = await resolveStoreForUser(session);
   if (!store) throw new Error("Store not found");
 
-  await prisma.storeProduct.upsert({
-    where: {
-      storeId_productId: {
-        storeId: store.id,
-        productId
+  const existing = await prisma.storeProduct.findFirst({
+    where: { storeId: store.id, productId }
+  });
+
+  if (existing) {
+    await prisma.storeProduct.update({
+      where: { id: existing.id },
+      data: {
+        isVisible: data.isVisible,
+        ...(data.isFeatured !== undefined && { isFeatured: data.isFeatured }),
+        ...(data.customBadge !== undefined && { customBadge: data.customBadge }),
+        ...(data.customPrice !== undefined && { customPrice: data.customPrice })
       }
-    },
-    create: {
+    });
+  } else {
+    await prisma.storeProduct.create({
+      data: {
+        storeId: store.id,
+        productId,
+        isVisible: data.isVisible,
+        isFeatured: data.isFeatured ?? false,
+        customBadge: data.customBadge ?? null,
+        customPrice: data.customPrice ?? null
+      }
+    });
+  }
+
+  revalidatePath("/dashboard/store-builder");
+  revalidatePath(`/store/${store.slug}`);
+  return { success: true };
+}
+
+// ─── 8b. STANDALONE PRODUCT CRUD ACTIONS ──────────────────────────
+export async function addStandaloneProductAction(data: {
+  name: string;
+  price: number;
+  salePrice?: number;
+  description?: string;
+  category?: string;
+  sku?: string;
+  images?: string[];
+  stockQuantity?: number;
+  variants?: any;
+  specifications?: any;
+  isFeatured?: boolean;
+  customBadge?: string;
+}) {
+  const session = await auth();
+  const store = await resolveStoreForUser(session);
+  if (!store) throw new Error("Store not found");
+
+  const productCount = await prisma.storeProduct.count({ where: { storeId: store.id } });
+
+  const product = await prisma.storeProduct.create({
+    data: {
       storeId: store.id,
-      productId,
-      isVisible: data.isVisible,
-      isFeatured: data.isFeatured ?? false,
-      customBadge: data.customBadge ?? null,
-      customPrice: data.customPrice ?? null
-    },
-    update: {
-      isVisible: data.isVisible,
-      ...(data.isFeatured !== undefined && { isFeatured: data.isFeatured }),
-      ...(data.customBadge !== undefined && { customBadge: data.customBadge }),
-      ...(data.customPrice !== undefined && { customPrice: data.customPrice })
+      productId: null,
+      name: data.name.trim(),
+      price: data.price,
+      salePrice: data.salePrice || null,
+      description: data.description || null,
+      category: data.category || "General",
+      sku: data.sku || null,
+      images: data.images || [],
+      stockQuantity: data.stockQuantity != null ? data.stockQuantity : null,
+      variants: data.variants || null,
+      specifications: data.specifications || null,
+      isFeatured: !!data.isFeatured,
+      customBadge: data.customBadge || null,
+      displayOrder: productCount,
+      isVisible: true
     }
+  });
+
+  revalidatePath("/dashboard/store-builder");
+  revalidatePath(`/store/${store.slug}`);
+  return { success: true, product: serializeStore(product) };
+}
+
+export async function updateStandaloneProductAction(id: string, data: Partial<{
+  name: string;
+  price: number;
+  salePrice?: number;
+  description?: string;
+  category?: string;
+  sku?: string;
+  images?: string[];
+  stockQuantity?: number;
+  variants?: any;
+  specifications?: any;
+  isFeatured?: boolean;
+  customBadge?: string;
+  isVisible?: boolean;
+}>) {
+  const session = await auth();
+  const store = await resolveStoreForUser(session);
+  if (!store) throw new Error("Store not found");
+
+  const updated = await prisma.storeProduct.update({
+    where: { id, storeId: store.id },
+    data: {
+      ...(data.name ? { name: data.name.trim() } : {}),
+      ...(data.price != null ? { price: data.price } : {}),
+      ...(data.salePrice !== undefined ? { salePrice: data.salePrice } : {}),
+      ...(data.description !== undefined ? { description: data.description } : {}),
+      ...(data.category !== undefined ? { category: data.category } : {}),
+      ...(data.sku !== undefined ? { sku: data.sku } : {}),
+      ...(data.images !== undefined ? { images: data.images } : {}),
+      ...(data.stockQuantity !== undefined ? { stockQuantity: data.stockQuantity } : {}),
+      ...(data.variants !== undefined ? { variants: data.variants } : {}),
+      ...(data.specifications !== undefined ? { specifications: data.specifications } : {}),
+      ...(data.isFeatured !== undefined ? { isFeatured: data.isFeatured } : {}),
+      ...(data.customBadge !== undefined ? { customBadge: data.customBadge } : {}),
+      ...(data.isVisible !== undefined ? { isVisible: data.isVisible } : {})
+    }
+  });
+
+  revalidatePath("/dashboard/store-builder");
+  revalidatePath(`/store/${store.slug}`);
+  return { success: true, product: serializeStore(updated) };
+}
+
+export async function deleteStandaloneProductAction(id: string) {
+  const session = await auth();
+  const store = await resolveStoreForUser(session);
+  if (!store) throw new Error("Store not found");
+
+  await prisma.storeProduct.delete({
+    where: { id, storeId: store.id }
   });
 
   revalidatePath("/dashboard/store-builder");
@@ -453,10 +696,46 @@ export async function updateStoreProductLink(productId: string, data: {
   return { success: true };
 }
 
+export async function bulkAddStandaloneProductsAction(products: any[]) {
+  const session = await auth();
+  const store = await resolveStoreForUser(session);
+  if (!store) throw new Error("Store not found");
+
+  const startOrder = await prisma.storeProduct.count({ where: { storeId: store.id } });
+
+  const created = [];
+  for (let i = 0; i < products.length; i++) {
+    const item = products[i];
+    const p = await prisma.storeProduct.create({
+      data: {
+        storeId: store.id,
+        productId: null,
+        name: item.name.trim(),
+        price: item.price || 0,
+        salePrice: item.salePrice || null,
+        description: item.description || null,
+        category: item.category || "General",
+        sku: item.sku || null,
+        images: item.images || (item.imageUrl ? [item.imageUrl] : []),
+        stockQuantity: item.stockQuantity != null ? item.stockQuantity : null,
+        isFeatured: i < 3,
+        displayOrder: startOrder + i,
+        isVisible: true
+      }
+    });
+    created.push(p);
+  }
+
+  revalidatePath("/dashboard/store-builder");
+  revalidatePath(`/store/${store.slug}`);
+  return { success: true, count: created.length };
+}
+
 // ─── 9. GET PUBLIC STOREFRONT DATA (NO AUTH REQUIRED) ─────────────
 export async function getPublicStorefrontData(slug: string) {
   try {
     const session = await auth().catch(() => null);
+    const userId = session?.user?.id;
     const userBusinessId = session?.user?.businessId;
     const isSuperAdmin = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
 
@@ -466,11 +745,12 @@ export async function getPublicStorefrontData(slug: string) {
         slug: cleanSlug,
         ...(isSuperAdmin
           ? {}
-          : userBusinessId
+          : userId
           ? {
               OR: [
                 { status: "PUBLISHED" },
-                { businessId: userBusinessId }
+                ...(userBusinessId ? [{ businessId: userBusinessId }] : []),
+                { ownerId: userId }
               ]
             }
           : { status: "PUBLISHED" })
@@ -494,10 +774,15 @@ export async function getPublicStorefrontData(slug: string) {
         products: {
           where: {
             isVisible: true,
-            product: {
-              deletedAt: null,
-              status: "active"
-            }
+            OR: [
+              { productId: null }, // Standalone products
+              {
+                product: {
+                  deletedAt: null,
+                  status: "active"
+                }
+              }
+            ]
           },
           include: {
             product: {
@@ -519,6 +804,24 @@ export async function getPublicStorefrontData(slug: string) {
     });
 
     if (!store) return null;
+
+    // Normalize standalone products into unified format
+    const normalizedProducts = store.products.map((sp: any) => {
+      if (sp.product) return sp;
+      return {
+        ...sp,
+        product: {
+          id: sp.id,
+          name: sp.name || "Product",
+          sku: sp.sku || "",
+          description: sp.description || "",
+          unitPrice: sp.price ? Number(sp.price) : 0,
+          stockQuantity: sp.stockQuantity != null ? Number(sp.stockQuantity) : 99,
+          imageUrl: sp.images && sp.images.length > 0 ? sp.images[0] : null,
+          category: { id: "std", name: sp.category || "General" }
+        }
+      };
+    });
 
     // Record visit analytics
     try {
@@ -545,7 +848,10 @@ export async function getPublicStorefrontData(slug: string) {
       // Non-blocking
     }
 
-    return serializeStore(store);
+    return serializeStore({
+      ...store,
+      products: normalizedProducts
+    });
   } catch (error) {
     console.error("GET PUBLIC STOREFRONT ERROR:", error);
     return null;
@@ -601,9 +907,95 @@ export async function submitStorefrontOrder(
       throw new Error("Store is currently unavailable");
     }
 
+    const storeSettings = (store.settings as unknown as StoreSettings) || {};
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const deliveryFee = checkoutData.deliveryMethod === "DELIVERY" ? (storeSettings.deliveryFee || 0) : 0;
+    const totalAmount = subtotal + deliveryFee;
+
+    // ─── CASE A: STANDALONE STORE ORDER ─────────────────────────────
+    if (store.storeType === "STANDALONE" || !store.businessId) {
+      const orderCount = await prisma.storeOrder.count({ where: { storeId: store.id } });
+      const orderNumber = `ORD-${String(orderCount + 1001).padStart(5, "0")}`;
+
+      const storeOrder = await prisma.storeOrder.create({
+        data: {
+          orderNumber,
+          storeId: store.id,
+          customerName: checkoutData.customerName,
+          customerPhone: checkoutData.customerPhone,
+          customerEmail: checkoutData.customerEmail || null,
+          deliveryAddress: checkoutData.deliveryAddress,
+          deliveryMethod: checkoutData.deliveryMethod,
+          paymentMethod: checkoutData.paymentMethod === "CASH_ON_DELIVERY" ? "CASH_ON_DELIVERY" : "ONLINE",
+          notes: checkoutData.orderNotes || null,
+          subtotal,
+          deliveryFee,
+          totalAmount,
+          status: "PENDING",
+          items: {
+            create: items.map(item => ({
+              storeProductId: item.productId || null,
+              productName: item.name,
+              quantity: item.quantity,
+              unitPrice: item.price,
+              total: item.price * item.quantity,
+              imageUrl: item.imageUrl || null
+            }))
+          }
+        }
+      });
+
+      // Record analytics
+      try {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        await prisma.storeAnalytics.upsert({
+          where: { storeId_date: { storeId: store.id, date: today } },
+          create: { storeId: store.id, date: today, ordersCount: 1, revenue: totalAmount },
+          update: { ordersCount: { increment: 1 }, revenue: { increment: totalAmount } }
+        });
+      } catch {}
+
+      // Format WhatsApp message
+      const formattedCurrency = store.currency || "SLE";
+      let waMessage = `🛍️ *NEW ONLINE ORDER #${orderNumber}*\n`;
+      waMessage += `*Store:* ${store.name}\n\n`;
+      waMessage += `*Customer:* ${checkoutData.customerName}\n`;
+      waMessage += `*Phone:* ${checkoutData.customerPhone}\n`;
+      waMessage += `*Delivery Address:* ${checkoutData.deliveryAddress}\n`;
+      waMessage += `*Method:* ${checkoutData.deliveryMethod}\n\n`;
+      waMessage += `*Items:*\n`;
+      items.forEach(i => {
+        waMessage += `• ${i.quantity}x ${i.name} — ${formattedCurrency} ${(i.price * i.quantity).toLocaleString()}\n`;
+      });
+      waMessage += `\n*Subtotal:* ${formattedCurrency} ${subtotal.toLocaleString()}\n`;
+      if (deliveryFee > 0) {
+        waMessage += `*Delivery Fee:* ${formattedCurrency} ${deliveryFee.toLocaleString()}\n`;
+      }
+      waMessage += `*Total Payable:* ${formattedCurrency} ${totalAmount.toLocaleString()}\n`;
+      waMessage += `*Payment:* ${checkoutData.paymentMethod === "CASH_ON_DELIVERY" ? "Cash on Delivery" : "Online/Transfer"}\n`;
+      if (checkoutData.orderNotes) {
+        waMessage += `*Note:* ${checkoutData.orderNotes}\n`;
+      }
+
+      const waPhone = (store.whatsappPhone || store.contactPhone || "").replace(/[^0-9]/g, "");
+      const whatsappUrl = waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent(waMessage)}` : null;
+
+      revalidatePath(`/store/${store.slug}`);
+      revalidatePath("/dashboard/store-builder");
+
+      return {
+        success: true,
+        soNumber: orderNumber,
+        orderId: storeOrder.id,
+        totalAmount,
+        whatsappUrl
+      };
+    }
+
+    // ─── CASE B: ENTERPRISE CONNECTED STORE ORDER ───────────────────
     const businessId = store.businessId;
 
-    // 1. Find or create Customer record for this business
     let customer = await prisma.customer.findFirst({
       where: {
         businessId,
@@ -627,22 +1019,13 @@ export async function submitStorefrontOrder(
       });
     }
 
-    // 2. Calculate subtotal & delivery fee
-    const storeSettings = (store.settings as unknown as StoreSettings) || {};
-    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const deliveryFee = checkoutData.deliveryMethod === "DELIVERY" ? (storeSettings.deliveryFee || 0) : 0;
-    const totalAmount = subtotal + deliveryFee;
-
-    // 3. Find a default user for business to associate with order (e.g. business admin)
     const adminUser = await prisma.user.findFirst({
       where: { businessId, status: "active" }
     });
     const fallbackUserId = adminUser?.id || store.businessId;
 
-    // 4. Generate orderly SO Number
     const soNumber = await generateSoNumber(businessId);
 
-    // 5. Create SalesOrder in Enterprise OS
     const order = await prisma.salesOrder.create({
       data: {
         soNumber,
@@ -685,7 +1068,6 @@ export async function submitStorefrontOrder(
       }
     });
 
-    // 6. Record analytics for orders & revenue
     try {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -709,7 +1091,6 @@ export async function submitStorefrontOrder(
       });
     } catch {}
 
-    // 7. Format WhatsApp message
     const formattedCurrency = store.currency || "SLE";
     let waMessage = `🛍️ *NEW ONLINE ORDER #${soNumber}*\n`;
     waMessage += `*Store:* ${store.name}\n\n`;
@@ -731,7 +1112,7 @@ export async function submitStorefrontOrder(
       waMessage += `*Note:* ${checkoutData.orderNotes}\n`;
     }
 
-    const waPhone = (store.whatsappPhone || store.business.whatsappPhone || store.business.phone || "").replace(/[^0-9]/g, "");
+    const waPhone = (store.whatsappPhone || store.business?.whatsappPhone || store.business?.phone || "").replace(/[^0-9]/g, "");
     const whatsappUrl = waPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent(waMessage)}` : null;
 
     revalidatePath(`/store/${store.slug}`);
@@ -754,13 +1135,43 @@ export async function submitStorefrontOrder(
 // ─── 11. GET STORE ORDERS FOR DASHBOARD ───────────────────────────
 export async function getStoreOrders() {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const store = await resolveStoreForUser(session);
+  if (!store) return [];
 
-  const businessId = session.user.businessId;
+  // If Standalone: query StoreOrder
+  if (store.storeType === "STANDALONE" || !store.businessId) {
+    const standaloneOrders = await prisma.storeOrder.findMany({
+      where: { storeId: store.id },
+      include: { items: true },
+      orderBy: { createdAt: "desc" },
+      take: 50
+    });
 
+    return serializeStore(standaloneOrders.map(o => ({
+      id: o.id,
+      soNumber: o.orderNumber,
+      customerName: o.customerName,
+      customerPhone: o.customerPhone,
+      deliveryAddress: o.deliveryAddress,
+      deliveryMethod: o.deliveryMethod,
+      paymentTerms: o.paymentMethod,
+      totalAmount: o.totalAmount,
+      status: o.status,
+      createdAt: o.createdAt,
+      items: o.items.map(i => ({
+        id: i.id,
+        productName: i.productName,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice,
+        total: i.total
+      }))
+    })));
+  }
+
+  // Enterprise Connected: query SalesOrder
   const orders = await prisma.salesOrder.findMany({
     where: {
-      businessId,
+      businessId: store.businessId,
       storeId: { not: null },
       deletedAt: null
     },
@@ -777,10 +1188,11 @@ export async function getStoreOrders() {
 // ─── 12. GET STORE ANALYTICS METRICS ──────────────────────────────
 export async function getStoreAnalyticsOverview() {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const store = await resolveStoreForUser(session);
+  if (!store) return null;
 
-  const store = await prisma.store.findUnique({
-    where: { businessId: session.user.businessId },
+  const fullStore = await prisma.store.findUnique({
+    where: { id: store.id },
     include: {
       analytics: {
         orderBy: { date: "desc" },
@@ -789,17 +1201,17 @@ export async function getStoreAnalyticsOverview() {
     }
   });
 
-  if (!store) return null;
+  if (!fullStore) return null;
 
-  const analytics = store.analytics || [];
+  const analytics = fullStore.analytics || [];
   const totalVisitors = analytics.reduce((acc, a) => acc + a.visitors, 0);
   const totalPageViews = analytics.reduce((acc, a) => acc + a.pageViews, 0);
   const totalOrders = analytics.reduce((acc, a) => acc + a.ordersCount, 0);
   const totalRevenue = analytics.reduce((acc, a) => acc + Number(a.revenue), 0);
 
   return {
-    storeStatus: store.status,
-    storeSlug: store.slug,
+    storeStatus: fullStore.status,
+    storeSlug: fullStore.slug,
     totalVisitors,
     totalPageViews,
     totalOrders,
@@ -829,7 +1241,8 @@ export async function getSuperAdminStores() {
       _count: {
         select: {
           products: true,
-          salesOrders: true
+          salesOrders: true,
+          standaloneOrders: true
         }
       },
       analytics: {
@@ -859,22 +1272,13 @@ export async function superAdminToggleStoreStatus(storeId: string, status: "DRAF
   return { success: true, status: updated.status };
 }
 
-// ─── 15. DELETE STORE (TENANT RESET) ──────────────────────────────
+// ─── 15. DELETE STORE (MERCHANT RESET) ─────────────────────────────
 export async function deleteStore() {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  const store = await resolveStoreForUser(session);
+  if (!store) throw new Error("Store not found");
 
-  const businessId = session.user.businessId;
-
-  const store = await prisma.store.findUnique({
-    where: { businessId }
-  });
-
-  if (!store) {
-    throw new Error("Store not found");
-  }
-
-  // 1. Delete associated store records (StorePages, StoreProducts, StoreAnalytics)
+  // 1. Delete associated store records
   await prisma.storeProduct.deleteMany({
     where: { storeId: store.id }
   });
@@ -887,7 +1291,11 @@ export async function deleteStore() {
     where: { storeId: store.id }
   });
 
-  // Dissociate any SalesOrders linked to this store so customer records are safely preserved
+  await prisma.storeOrder.deleteMany({
+    where: { storeId: store.id }
+  });
+
+  // Dissociate any SalesOrders linked to this store so customer records are preserved
   await prisma.salesOrder.updateMany({
     where: { storeId: store.id },
     data: { storeId: null }
@@ -919,6 +1327,7 @@ export async function superAdminDeleteStore(storeId: string) {
   await prisma.storeProduct.deleteMany({ where: { storeId: store.id } });
   await prisma.storePage.deleteMany({ where: { storeId: store.id } });
   await prisma.storeAnalytics.deleteMany({ where: { storeId: store.id } });
+  await prisma.storeOrder.deleteMany({ where: { storeId: store.id } });
   await prisma.salesOrder.updateMany({
     where: { storeId: store.id },
     data: { storeId: null }
@@ -934,15 +1343,19 @@ export async function superAdminDeleteStore(storeId: string) {
 // ─── 17. ANALYZE STORE PROMPT (REAL-TIME STAGE 1) ─────────────────
 export async function analyzeStorePromptAction(prompt: string) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
-  const business = await prisma.business.findUnique({
-    where: { id: session.user.businessId }
-  });
+  let business: any = null;
+  let availableProductCount = 0;
 
-  const availableProductCount = await prisma.product.count({
-    where: { businessId: session.user.businessId, deletedAt: null, status: "active" }
-  });
+  if (session.user.businessId) {
+    business = await prisma.business.findUnique({
+      where: { id: session.user.businessId }
+    });
+    availableProductCount = await prisma.product.count({
+      where: { businessId: session.user.businessId, deletedAt: null, status: "active" }
+    });
+  }
 
   const analysis = await analyzeStorePrompt(prompt, business);
 
@@ -950,31 +1363,37 @@ export async function analyzeStorePromptAction(prompt: string) {
     success: true,
     analysis,
     availableProductCount,
-    businessName: business?.name || analysis.suggestedName
+    businessName: business?.name || analysis.suggestedName,
+    isStandalone: !session.user.businessId
   };
 }
 
 // ─── 18. ATLAS-STYLE 1-CLICK AI STORE CREATION ─────────────────────
-export async function createStoreFromPromptAIAction(prompt: string) {
+export async function createStoreFromPromptAIAction(prompt: string, forcedStoreType?: "ENTERPRISE_CONNECTED" | "STANDALONE") {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
   const businessId = session.user.businessId;
-  const business = await prisma.business.findUnique({
-    where: { id: businessId }
-  });
+  const isEnterprise = !!businessId && forcedStoreType !== "STANDALONE";
+
+  let business: any = null;
+  let catalogProducts: any[] = [];
+
+  if (isEnterprise && businessId) {
+    business = await prisma.business.findUnique({
+      where: { id: businessId }
+    });
+    catalogProducts = await prisma.product.findMany({
+      where: { businessId, deletedAt: null, status: "active" },
+      take: 12,
+      orderBy: { createdAt: "desc" }
+    });
+  }
 
   // 1. Analyze prompt
   const analysis = await analyzeStorePrompt(prompt, business);
 
-  // 2. Fetch up to 12 active products from Enterprise OS inventory
-  const catalogProducts = await prisma.product.findMany({
-    where: { businessId, deletedAt: null, status: "active" },
-    take: 12,
-    orderBy: { createdAt: "desc" }
-  });
-
-  // 3. Prepare AI generation input
+  // 2. Prepare AI generation input
   const input: AIStoreGenerationInput = {
     businessName: business?.name || analysis.suggestedName,
     businessType: analysis.businessCategory,
@@ -982,26 +1401,29 @@ export async function createStoreFromPromptAIAction(prompt: string) {
     location: analysis.location,
     phone: business?.phone || "",
     whatsapp: (business as any)?.whatsappPhone || business?.phone || "",
-    email: business?.email || "",
+    email: business?.email || session.user.email || "",
     targetCustomers: `Shoppers seeking verified ${analysis.businessCategory.toLowerCase()}`,
     styleArchetype: analysis.styleArchetype,
-    productIds: catalogProducts.map(p => p.id)
+    productIds: catalogProducts.map(p => p.id),
+    storeType: isEnterprise ? "ENTERPRISE_CONNECTED" : "STANDALONE",
+    standaloneProducts: isEnterprise ? [] : generateSampleProductsForArchetype(analysis.styleArchetype, analysis.suggestedName)
   };
 
-  // 4. Create and synthesize store
+  // 3. Create and synthesize store
   const result = await createOrGenerateStore(input);
 
   return {
     ...result,
     analysis,
-    connectedProductCount: catalogProducts.length
+    connectedProductCount: isEnterprise ? catalogProducts.length : (input.standaloneProducts?.length || 0),
+    storeType: isEnterprise ? "ENTERPRISE_CONNECTED" : "STANDALONE"
   };
 }
 
 // ─── 19. GENERATE AI PRODUCT COPY (TITLE, BULLETS, SEO) ───────────
 export async function generateProductAICopyAction(input: AIProductCopyInput) {
   const session = await auth();
-  if (!session?.user?.businessId) throw new Error("Unauthorized");
+  if (!session?.user?.id) throw new Error("Unauthorized");
 
   const copy = await generateProductAICopy(input);
   return { success: true, copy };
@@ -1034,11 +1456,146 @@ export async function getStoreUpsellOffersAction(storeSlug: string, cartProductI
 
     if (!store) return { success: false, offers: [] };
 
-    const offers = generateProductUpsellOffers(store.products, cartProductIds);
+    // Map products ensuring standalone products have product object
+    const normalizedProducts = store.products.map((sp: any) => {
+      if (sp.product) return sp;
+      return {
+        ...sp,
+        product: {
+          id: sp.id,
+          name: sp.name || "Product",
+          unitPrice: sp.price ? Number(sp.price) : 0,
+          imageUrl: sp.images && sp.images.length > 0 ? sp.images[0] : null,
+          stockQuantity: sp.stockQuantity != null ? Number(sp.stockQuantity) : 99,
+          category: { name: sp.category || "General" }
+        }
+      };
+    });
+
+    const offers = generateProductUpsellOffers(normalizedProducts, cartProductIds);
     return { success: true, offers };
   } catch (err: any) {
     console.error("GET STORE UPSELLS ERROR:", err);
     return { success: false, offers: [] };
   }
+}
+
+// ─── 21. UPGRADE STANDALONE STORE TO ENTERPRISE OS ────────────────
+export async function upgradeStoreToEnterpriseAction(data: {
+  businessName: string;
+  businessType: string;
+  address?: string;
+  phone?: string;
+  currency?: string;
+}) {
+  const session = await auth();
+  if (!session?.user?.id) throw new Error("Unauthorized");
+
+  const userId = session.user.id;
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user) throw new Error("User not found");
+
+  if (user.businessId) {
+    throw new Error("This account is already connected to an Enterprise OS organization.");
+  }
+
+  const store = await prisma.store.findFirst({
+    where: { ownerId: userId, storeType: "STANDALONE" },
+    include: { products: true }
+  });
+
+  if (!store) {
+    throw new Error("No standalone store found to upgrade.");
+  }
+
+  // 1. Create the new Enterprise OS Business
+  const baseSlug = (data.businessName || store.name)
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-");
+  const businessSlug = `${baseSlug}-${Math.random().toString(36).substring(7)}`;
+
+  const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL", "OFFICE", "SCHOOL"];
+  const dbBusinessType = allowedTypes.includes(data.businessType) ? (data.businessType as any) : "SHOP";
+
+  const business = await prisma.business.create({
+    data: {
+      name: data.businessName || store.name,
+      slug: businessSlug,
+      type: dbBusinessType,
+      phone: data.phone || store.contactPhone || user.phone || "",
+      address: data.address || store.location || "Freetown, Sierra Leone",
+      email: store.contactEmail || user.email,
+      currency: data.currency || store.currency || "SLE",
+      status: "ACTIVE",
+      plan: "FREE",
+      enabledModules: ["POS", "INVENTORY", "CRM", "STORE_BUILDER"],
+      trialStartDate: new Date(),
+      trialEndDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+    }
+  });
+
+  // 2. Create Admin role for the new business
+  const allPermissions = await prisma.permission.findMany();
+  const adminRole = await prisma.role.create({
+    data: {
+      name: "ADMIN",
+      businessId: business.id,
+      permissions: {
+        connect: allPermissions.map(p => ({ id: p.id }))
+      }
+    }
+  });
+
+  // 3. Connect User to the Business and Admin Role
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      businessId: business.id,
+      roleId: adminRole.id
+    }
+  });
+
+  // 4. Migrate Standalone Products to Enterprise OS Products non-destructively
+  for (const sp of store.products) {
+    if (!sp.productId && sp.name) {
+      const newProduct = await prisma.product.create({
+        data: {
+          businessId: business.id,
+          name: sp.name,
+          sku: sp.sku || `SKU-${Math.floor(100000 + Math.random() * 900000)}`,
+          description: sp.description || null,
+          unitPrice: sp.price || 0,
+          stockQuantity: sp.stockQuantity != null ? sp.stockQuantity : 10,
+          imageUrl: sp.images && sp.images.length > 0 ? sp.images[0] : null,
+          status: sp.status || "active"
+        }
+      });
+
+      await prisma.storeProduct.update({
+        where: { id: sp.id },
+        data: { productId: newProduct.id }
+      });
+    }
+  }
+
+  // 5. Upgrade Store record to ENTERPRISE_CONNECTED
+  await prisma.store.update({
+    where: { id: store.id },
+    data: {
+      businessId: business.id,
+      storeType: "ENTERPRISE_CONNECTED"
+    }
+  });
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/store-builder");
+  revalidatePath(`/store/${store.slug}`);
+
+  return {
+    success: true,
+    businessId: business.id,
+    businessName: business.name
+  };
 }
 

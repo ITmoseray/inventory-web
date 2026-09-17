@@ -121,14 +121,14 @@ model User {
   passwordHash            String
   status                  String                    @default("active")
   failedLoginAttempts     Int                       @default(0)
-  businessId              String
+  businessId              String?
   lastLoginAt             DateTime?
   lastActiveAt            DateTime?
   isOnline                Boolean                   @default(false)
   createdAt               DateTime                  @default(now())
   updatedAt               DateTime                  @updatedAt
   deletedAt               DateTime?
-  roleId                  String
+  roleId                  String?
   specialization          String?
   phone                   String?
   department              String?
@@ -150,8 +150,9 @@ model User {
   stockMovements          StockMovement[]
   salesOrders             SalesOrder[]
   salesOrderStatusHistory SalesOrderStatusHistory[]
-  business                Business                  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  role                    Role                      @relation(fields: [roleId], references: [id])
+  business                Business?                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  role                    Role?                     @relation(fields: [roleId], references: [id])
+  ownedStores             Store[]                   @relation("StoreOwner")
   appointments            Appointment[]
   consultations           Consultation[]
   labTests                LabTest[]                 @relation("LabTechnician")
@@ -2066,9 +2067,16 @@ enum StoreStatus {
   SUSPENDED
 }
 
+enum StoreType {
+  ENTERPRISE_CONNECTED
+  STANDALONE
+}
+
 model Store {
   id              String           @id @default(cuid())
-  businessId      String           @unique
+  businessId      String?          @unique
+  ownerId         String?
+  storeType       StoreType        @default(ENTERPRISE_CONNECTED)
   name            String
   slug            String           @unique
   description     String?          @db.Text
@@ -2080,6 +2088,7 @@ model Store {
   whatsappPhone   String?
   contactEmail    String?
   contactPhone    String?
+  location        String?
   socialLinks     Json?            // { facebook?: string, instagram?: string, twitter?: string, tiktok?: string }
   themeConfig     Json             // { style, colors: { primary, secondary, accent, background, surface, text, mutedText }, fonts: { heading, body }, borderRadius, headerLayout, heroLayout }
   navigation      Json?            // { header: [{ id, label, url }], footer: [{ id, label, url }] }
@@ -2089,15 +2098,19 @@ model Store {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  business        Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business        Business?        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  owner           User?            @relation("StoreOwner", fields: [ownerId], references: [id], onDelete: SetNull)
   pages           StorePage[]
   products        StoreProduct[]
   salesOrders     SalesOrder[]
+  standaloneOrders StoreOrder[]
   analytics       StoreAnalytics[]
 
   @@index([businessId])
+  @@index([ownerId])
   @@index([slug])
   @@index([status])
+  @@index([storeType])
 }
 
 model StorePage {
@@ -2122,7 +2135,22 @@ model StorePage {
 model StoreProduct {
   id              String           @id @default(cuid())
   storeId         String
-  productId       String
+  productId       String?          // Nullable for STANDALONE products
+  
+  // Standalone product properties (used when productId is null)
+  name            String?
+  description     String?          @db.Text
+  sku             String?
+  category        String?
+  price           Decimal?         @db.Decimal(10, 2)
+  salePrice       Decimal?         @db.Decimal(10, 2)
+  images          String[]         @default([])
+  stockQuantity   Int?
+  status          String           @default("active")
+  variants        Json?            // [{ name: string, options: string[] }]
+  specifications  Json?            // [{ key: string, value: string }]
+
+  // Shared storefront display & merchandising properties
   isFeatured      Boolean          @default(false)
   displayOrder    Int              @default(0)
   customBadge     String?          // "NEW", "HOT", "SALE", "TRENDING"
@@ -2132,12 +2160,53 @@ model StoreProduct {
   updatedAt       DateTime         @updatedAt
 
   store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  product         Product          @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product         Product?         @relation(fields: [productId], references: [id], onDelete: Cascade)
 
-  @@unique([storeId, productId])
   @@index([storeId])
   @@index([productId])
   @@index([isFeatured])
+}
+
+model StoreOrder {
+  id              String           @id @default(cuid())
+  orderNumber     String           @unique
+  storeId         String
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  deliveryAddress String
+  deliveryMethod  String           @default("DELIVERY") // "DELIVERY" | "PICKUP"
+  paymentMethod   String           @default("CASH_ON_DELIVERY") // "CASH_ON_DELIVERY" | "ONLINE"
+  paymentStatus   String           @default("PENDING") // "PENDING" | "PAID" | "FAILED"
+  status          String           @default("PENDING") // "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED"
+  subtotal        Decimal          @db.Decimal(10, 2)
+  deliveryFee     Decimal          @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal          @db.Decimal(10, 2)
+  notes           String?          @db.Text
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  items           StoreOrderItem[]
+
+  @@index([storeId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model StoreOrderItem {
+  id              String           @id @default(cuid())
+  orderId         String
+  storeProductId  String?
+  productName     String
+  quantity        Int              @default(1)
+  unitPrice       Decimal          @db.Decimal(10, 2)
+  total           Decimal          @db.Decimal(10, 2)
+  imageUrl        String?
+
+  order           StoreOrder       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
 }
 
 model StoreAnalytics {

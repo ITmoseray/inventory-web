@@ -17,7 +17,7 @@ export default async function StoreBuilderPage({
   searchParams?: Promise<{ prompt?: string; tab?: string }>;
 }) {
   const session = await auth();
-  if (!session?.user?.businessId) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 
@@ -26,30 +26,34 @@ export default async function StoreBuilderPage({
 
   const businessId = session.user.businessId;
 
-  // Load existing store or null
+  // Load existing store, curated products, orders, analytics, catalog
   const [store, curatedProducts, orders, analytics, availableProducts, business] = await Promise.all([
     getStoreByBusiness(),
     getStoreCuratedProducts(),
     getStoreOrders(),
     getStoreAnalyticsOverview(),
-    prisma.product.findMany({
-      where: { businessId, deletedAt: null },
-      select: {
-        id: true,
-        name: true,
-        sku: true,
-        unitPrice: true,
-        stockQuantity: true,
-        imageUrl: true,
-        category: { select: { id: true, name: true } }
-      },
-      orderBy: { createdAt: "desc" },
-      take: 60
-    }),
-    prisma.business.findUnique({
-      where: { id: businessId },
-      select: { name: true, phone: true, email: true, whatsappPhone: true }
-    })
+    businessId
+      ? prisma.product.findMany({
+          where: { businessId, deletedAt: null },
+          select: {
+            id: true,
+            name: true,
+            sku: true,
+            unitPrice: true,
+            stockQuantity: true,
+            imageUrl: true,
+            category: { select: { id: true, name: true } }
+          },
+          orderBy: { createdAt: "desc" },
+          take: 60
+        })
+      : Promise.resolve([]),
+    businessId
+      ? prisma.business.findUnique({
+          where: { id: businessId },
+          select: { name: true, phone: true, email: true, whatsappPhone: true }
+        })
+      : Promise.resolve(null)
   ]);
 
   const serializedCatalog = availableProducts.map(p => ({
@@ -70,7 +74,7 @@ export default async function StoreBuilderPage({
         curatedProducts={curatedProducts}
         orders={orders || []}
         analytics={analytics}
-        businessName={business?.name || "My Business"}
+        businessName={business?.name || store?.name || session.user.name || "My Store"}
         initialPrompt={initialPrompt}
       />
     </div>

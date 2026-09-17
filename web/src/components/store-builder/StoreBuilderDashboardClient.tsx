@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { 
   Store as StoreIcon, Sparkles, Globe, Eye, Palette, ShoppingBag, 
   Settings, BarChart3, ExternalLink, Copy, Check, Power, RefreshCw,
-  PlusCircle, Layers, ArrowRight, Trash2, AlertOctagon, X, Wand2
+  PlusCircle, Layers, ArrowRight, Trash2, AlertOctagon, X, Wand2, Rocket
 } from "lucide-react";
 import { StoreWizard } from "./StoreWizard";
 import { StoreStudio } from "./StoreStudio";
@@ -12,6 +12,7 @@ import { StoreProductsManager } from "./StoreProductsManager";
 import { StoreOrdersManager } from "./StoreOrdersManager";
 import { StoreAnalyticsView } from "./StoreAnalyticsView";
 import { StoreSettingsManager } from "./StoreSettingsManager";
+import { StoreUpgradeModal } from "./StoreUpgradeModal";
 import { toggleStorePublish, deleteStore } from "@/lib/actions/store-builder";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -40,6 +41,7 @@ export function StoreBuilderDashboardClient({
   const [showWizard, setShowWizard] = useState(!initialStore || !!initialPrompt);
   const [copied, setCopied] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   // Top header delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -160,6 +162,15 @@ export function StoreBuilderDashboardClient({
                   <span className={`w-2 h-2 rounded-full ${isPublished ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
                   {store.status}
                 </span>
+                {store.storeType === "STANDALONE" ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                    ⚡ Standalone Store
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30">
+                    🏢 Enterprise Connected
+                  </span>
+                )}
               </div>
               
               <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1.5 flex-wrap">
@@ -177,6 +188,16 @@ export function StoreBuilderDashboardClient({
 
           {/* Global Storefront Controls */}
           <div className="flex items-center gap-2 flex-wrap">
+            {store.storeType === "STANDALONE" && (
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-110 text-white shadow-sm transition-all hover:scale-105"
+              >
+                <Rocket className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Upgrade to Enterprise</span>
+              </button>
+            )}
+
             <button
               onClick={handleCopyLink}
               title="Copy public storefront link"
@@ -318,6 +339,7 @@ export function StoreBuilderDashboardClient({
             initialProducts={curatedProducts} 
             currency={store.currency || "SLE"}
             storeSlug={store.slug}
+            isStandalone={store.storeType === "STANDALONE"}
           />
         )}
 
@@ -405,6 +427,13 @@ export function StoreBuilderDashboardClient({
           </div>
         </div>
       )}
+
+      {/* ── UPGRADE TO ENTERPRISE OS MODAL ───────────────────── */}
+      <StoreUpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        storeName={store.name}
+      />
     </div>
   );
 }

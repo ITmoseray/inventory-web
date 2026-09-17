@@ -6,7 +6,7 @@ import {
   Trash2, ChevronUp, ChevronDown, Plus, Wand2, X, Check, ArrowRight,
   Palette, Layout, Settings, RefreshCw, ShoppingBag, Layers, ExternalLink,
   RotateCcw, RotateCw, Upload, Image as ImageIcon, FileText, Menu, Phone,
-  Tag, Sliders, CheckCircle2
+  Tag, Sliders, CheckCircle2, Rocket
 } from "lucide-react";
 import { 
   StoreSection, 
@@ -24,6 +24,7 @@ import { uploadProductImage } from "@/lib/actions/upload";
 import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { SectionRenderer } from "@/components/storefront/SectionRenderer";
+import { StoreUpgradeModal } from "./StoreUpgradeModal";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -83,6 +84,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
   const [isPublishing, setIsPublishing] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [dockPrompt, setDockPrompt] = useState("");
   const [isAiExecuting, setIsAiExecuting] = useState(false);
   const [uploadingImageField, setUploadingImageField] = useState<string | null>(null);
@@ -341,6 +343,15 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
               AI Studio
             </span>
+            {store.storeType === "STANDALONE" ? (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                ⚡ Standalone
+              </span>
+            ) : (
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                🏢 Enterprise Connected
+              </span>
+            )}
           </div>
 
           <div className="h-4 w-px bg-slate-800 hidden sm:block" />
@@ -411,6 +422,17 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {store.storeType === "STANDALONE" && (
+            <button
+              onClick={() => setIsUpgradeModalOpen(true)}
+              className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-110 text-white flex items-center gap-1.5 shadow-md shadow-orange-500/20 transition-transform hover:scale-105"
+              title="Upgrade to ProTech Enterprise OS"
+            >
+              <Rocket className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Upgrade</span>
+            </button>
+          )}
+
           {/* AI Assistant Modal Trigger */}
           <button
             onClick={() => setIsAiModalOpen(true)}
@@ -1264,6 +1286,13 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
           </div>
         </div>
       )}
+
+      {/* ── UPGRADE TO ENTERPRISE OS MODAL ───────────────────── */}
+      <StoreUpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        storeName={store.name}
+      />
     </div>
   );
 }

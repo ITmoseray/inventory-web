@@ -196,6 +196,49 @@ export const StorePageSchema = z.object({
 
 export type StorePageData = z.infer<typeof StorePageSchema>;
 
+export type StoreMode = "ENTERPRISE_CONNECTED" | "STANDALONE";
+
+export interface StandaloneProductInput {
+  name: string;
+  sku?: string;
+  category?: string;
+  price: number;
+  salePrice?: number;
+  description?: string;
+  images?: string[];
+  stockQuantity?: number;
+  status?: string;
+  variants?: any;
+  specifications?: any;
+  isFeatured?: boolean;
+  customBadge?: string;
+}
+
+export interface StandaloneProductDTO extends StandaloneProductInput {
+  id: string;
+  storeId: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface StorefrontUnifiedProduct {
+  id: string;
+  storeProductId: string;
+  name: string;
+  sku?: string | null;
+  description?: string | null;
+  price: number;
+  salePrice?: number | null;
+  originalPrice?: number | null;
+  imageUrl?: string | null;
+  images?: string[];
+  stockQuantity?: number | null;
+  category: string;
+  isFeatured: boolean;
+  customBadge?: string | null;
+  isStandalone: boolean;
+}
+
 // ─── STORE GENERATION SCHEMA (AI CONTRACT) ───────────────────────
 export const AIStoreGenerationInputSchema = z.object({
   businessName: z.string().min(2),
@@ -208,6 +251,8 @@ export const AIStoreGenerationInputSchema = z.object({
   targetCustomers: z.string().optional(),
   styleArchetype: z.enum(StoreStyleArchetypes).default("modern"),
   productIds: z.array(z.string()).default([]),
+  storeType: z.enum(["ENTERPRISE_CONNECTED", "STANDALONE"]).default("ENTERPRISE_CONNECTED"),
+  standaloneProducts: z.array(z.any()).optional().default([]),
 });
 
 export type AIStoreGenerationInput = z.infer<typeof AIStoreGenerationInputSchema>;

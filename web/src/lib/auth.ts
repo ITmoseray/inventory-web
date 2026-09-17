@@ -23,30 +23,30 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      businessId: string;
-      businessName: string;
-      businessType: string;
+      businessId?: string | null;
+      businessName?: string | null;
+      businessType?: string | null;
       businessManagementMode?: "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT";
-      institutionType: string | null;
-      trialEndDate: Date | null;
-      plan: string | null;
-      subscriptionEndDate: Date | null;
-      role: string;
+      institutionType?: string | null;
+      trialEndDate?: Date | null;
+      plan?: string | null;
+      subscriptionEndDate?: Date | null;
+      role?: string | null;
       permissions: string[];
       originalRole?: string;
     } & DefaultSession["user"];
   }
 
   interface User {
-    businessId: string;
-    businessName: string;
-    businessType: string;
+    businessId?: string | null;
+    businessName?: string | null;
+    businessType?: string | null;
     businessManagementMode?: "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT";
-    institutionType: string | null;
-    trialEndDate: Date | null;
-    plan: string | null;
-    subscriptionEndDate: Date | null;
-    role: string;
+    institutionType?: string | null;
+    trialEndDate?: Date | null;
+    plan?: string | null;
+    subscriptionEndDate?: Date | null;
+    role?: string | null;
     permissions: string[];
     originalRole?: string;
   }
@@ -133,15 +133,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               name: user.name,
               email: user.email,
               image: user.imageUrl || null,
-              businessId: user.businessId,
-              businessName: user.business.name,
-              businessType: user.business.type,
-              businessManagementMode: (user.business as any).businessManagementMode || "FULL_INVENTORY",
-              trialEndDate: user.business.trialEndDate,
-              plan: user.business.plan,
-              subscriptionEndDate: (user.business as any).subscriptionEndDate || null,
-              role: user.role.name,
-              permissions: user.role.permissions.map(p => p.key),
+              businessId: user.businessId || null,
+              businessName: user.business?.name || "Standalone Store",
+              businessType: user.business?.type || ("SHOP" as any),
+              businessManagementMode: (user.business as any)?.businessManagementMode || "FULL_INVENTORY",
+              trialEndDate: user.business?.trialEndDate || null,
+              plan: user.business?.plan || "STANDALONE_STORE",
+              subscriptionEndDate: (user.business as any)?.subscriptionEndDate || null,
+              role: user.role?.name || "STORE_OWNER",
+              permissions: user.role?.permissions?.map(p => p.key) || ["VIEW_STORE_BUILDER"],
               emailVerified: user.emailVerified,
             };
           } catch (error) {
