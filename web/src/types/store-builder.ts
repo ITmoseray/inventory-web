@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// ─── STYLE ARCHETYPES ─────────────────────────────────────────────
+// ─── STYLE ARCHETYPES (13 COMMERCIAL TEMPLATES + NUANCES) ───────
 export const StoreStyleArchetypes = [
   "modern",
   "luxury",
@@ -12,6 +12,13 @@ export const StoreStyleArchetypes = [
   "pharmacy",
   "restaurant",
   "corporate",
+  "hardware",
+  "beauty",
+  "furniture",
+  "services",
+  "school",
+  "ngo",
+  "general",
 ] as const;
 
 export type StoreStyleArchetype = typeof StoreStyleArchetypes[number];
@@ -247,3 +254,56 @@ export interface StorefrontCustomerCheckoutData {
   paymentMethod: "CASH_ON_DELIVERY" | "WHATSAPP" | "ONLINE";
   orderNotes?: string;
 }
+
+// ─── AI GENERATION PIPELINE STAGES ───────────────────────────────
+export type AIGenerationStage = 
+  | "analyzing" 
+  | "branding" 
+  | "catalog" 
+  | "sections" 
+  | "copywriting" 
+  | "optimizing" 
+  | "completed";
+
+export interface AIGenerationStepInfo {
+  stage: AIGenerationStage;
+  label: string;
+  detail: string;
+  isComplete: boolean;
+  isActive: boolean;
+}
+
+// ─── AI PRODUCT CONTENT TYPES ────────────────────────────────────
+export interface AIProductCopyInput {
+  name: string;
+  category?: string;
+  notes?: string;
+  price?: number;
+  features?: string;
+}
+
+export interface AIProductCopyOutput {
+  title: string;
+  shortDescription: string;
+  fullDescription: string;
+  features: string[];
+  benefits: string[];
+  seoTitle: string;
+  seoDescription: string;
+  tags: string[];
+}
+
+// ─── AI OFFERS & UPSELLS TYPES ───────────────────────────────────
+export interface AIStoreUpsellOffer {
+  id: string;
+  productId: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  discountPercentage?: number;
+  imageUrl?: string | null;
+  offerType: "frequently_bought_together" | "bundle" | "cross_sell" | "upgrade";
+  headline: string;
+  badge?: string;
+}
+

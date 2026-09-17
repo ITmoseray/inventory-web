@@ -1,9 +1,11 @@
 "use client";
 
-import React from "react";
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck, Sparkles } from "lucide-react";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
-import { StoreTheme, StoreSettings } from "@/types/store-builder";
+import { StoreTheme, StoreSettings, AIStoreUpsellOffer } from "@/types/store-builder";
+import { getStoreUpsellOffersAction } from "@/lib/actions/store-builder";
+import { toast } from "sonner";
 
 interface Props {
   theme: StoreTheme;
@@ -18,11 +20,43 @@ export function StoreCartDrawer({ theme, settings, currency = "SLE", storeSlug }
     isCartOpen, 
     setIsCartOpen, 
     setIsCheckoutOpen,
+    addItem,
     removeItem, 
     updateQuantity, 
     getSubtotal, 
     getTotalItems 
   } = useStoreCart();
+
+  const [upsellOffers, setUpsellOffers] = useState<AIStoreUpsellOffer[]>([]);
+  const [isLoadingOffers, setIsLoadingOffers] = useState(false);
+
+  // Fetch AI upsell offers whenever items change
+  useEffect(() => {
+    if (items.length === 0 || !storeSlug) {
+      setUpsellOffers([]);
+      return;
+    }
+
+    const cartIds = items.map(i => i.productId);
+    let isMounted = true;
+    setIsLoadingOffers(true);
+
+    getStoreUpsellOffersAction(storeSlug, cartIds)
+      .then((res) => {
+        if (isMounted && res.success && res.offers) {
+          const filtered = res.offers.filter((o: any) => !cartIds.includes(o.productId));
+          setUpsellOffers(filtered);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted) setIsLoadingOffers(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [items.length, storeSlug]);
 
   if (!isCartOpen) return null;
 
@@ -34,6 +68,18 @@ export function StoreCartDrawer({ theme, settings, currency = "SLE", storeSlug }
   const handleProceedToCheckout = () => {
     setIsCartOpen(false);
     setIsCheckoutOpen(true);
+  };
+
+  const handleAddUpsell = (offer: AIStoreUpsellOffer) => {
+    addItem({
+      id: `cart-${offer.productId}`,
+      productId: offer.productId,
+      name: offer.name,
+      price: offer.price,
+      imageUrl: offer.imageUrl || undefined,
+      maxStock: 999,
+    }, 1);
+    toast.success(`Added "${offer.name}" to cart!`);
   };
 
   return (
@@ -150,6 +196,63 @@ export function StoreCartDrawer({ theme, settings, currency = "SLE", storeSlug }
                 </div>
               </div>
             ))
+          )}
+
+          {/* AI Frequently Bought Together Upsells */}
+          {items.length > 0 && upsellOffers.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between mb-2.5">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
+                    Frequently Bought Together
+                  </span>
+                </div>
+                <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-full">
+                  AI Recommended
+                </span>
+              </div>
+
+              <div className="space-y-2">
+                {upsellOffers.slice(0, 3).map((offer) => (
+                  <div
+                    key={offer.id}
+                    className="p-2.5 rounded-xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900/90 flex items-center justify-between gap-3 shadow-xs hover:border-indigo-300 dark:hover:border-indigo-700 transition-all"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-11 h-11 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0 flex items-center justify-center border border-slate-200 dark:border-slate-700">
+                        {offer.imageUrl ? (
+                          <img src={offer.imageUrl} alt={offer.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <ShoppingBag className="w-4 h-4 text-slate-400" />
+                        )}
+                      </div>
+                      <div className="min-w-0">
+                        <h5 className="font-bold text-xs text-slate-900 dark:text-white truncate">{offer.name}</h5>
+                        <div className="flex items-center gap-1.5 text-xs">
+                          <span className="font-black text-indigo-600 dark:text-indigo-400">
+                            {currency} {offer.price.toLocaleString()}
+                          </span>
+                          {offer.badge && (
+                            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                              {offer.badge}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => handleAddUpsell(offer)}
+                      className="shrink-0 px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-all active:scale-95"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Add</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
 

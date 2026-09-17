@@ -4,7 +4,11 @@ import {
   AIStoreGenerationOutputSchema,
   StoreStyleArchetype,
   StoreTheme,
-  StoreSection
+  StoreSection,
+  AIProductCopyInput,
+  AIProductCopyOutput,
+  AIStoreUpsellOffer,
+  normalizeStoreTheme
 } from "@/types/store-builder";
 
 // ─── STYLE PRESETS (CURATED DESIGNS) ──────────────────────────────
@@ -233,6 +237,160 @@ export const STYLE_PRESETS: Record<StoreStyleArchetype, {
     heroBadge: "ENTERPRISE SOLUTIONS",
     heroHeadline: "Professional Supplies, Tools & Office Services",
     heroSubheadline: "Bulk corporate purchasing, vetted suppliers, invoice settlement, and commercial logistics."
+  },
+  hardware: {
+    theme: {
+      style: "hardware",
+      colors: {
+        primary: "#B45309",
+        secondary: "#374151",
+        accent: "#F59E0B",
+        background: "#FFFFFF",
+        surface: "#F9FAFB",
+        text: "#111827",
+        mutedText: "#4B5563",
+        headerBg: "#1F2937",
+        footerBg: "#111827",
+        footerText: "#F3F4F6",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "md",
+    },
+    heroBadge: "HEAVY-DUTY TOOLS & HARDWARE",
+    heroHeadline: "Quality Building Materials, Hardware & Tools",
+    heroSubheadline: "Trusted electricals, plumbing supplies, power tools, paints, and contractor equipment."
+  },
+  beauty: {
+    theme: {
+      style: "beauty",
+      colors: {
+        primary: "#DB2777",
+        secondary: "#9333EA",
+        accent: "#F43F5E",
+        background: "#FFF5F7",
+        surface: "#FFFFFF",
+        text: "#831843",
+        mutedText: "#9D174D",
+        headerBg: "#FFFFFF",
+        footerBg: "#500724",
+        footerText: "#FCE7F3",
+      },
+      fonts: { heading: "Playfair Display", body: "Inter" },
+      borderRadius: "full",
+    },
+    heroBadge: "PREMIUM BEAUTY & GLAMOUR",
+    heroHeadline: "Radiant Skincare, Cosmetics & Fragrances",
+    heroSubheadline: "Discover authentic luxury makeup, hair care, body pampering, and signature fragrances."
+  },
+  furniture: {
+    theme: {
+      style: "furniture",
+      colors: {
+        primary: "#78350F",
+        secondary: "#A16207",
+        accent: "#059669",
+        background: "#FDFBF7",
+        surface: "#F8F4EE",
+        text: "#451A03",
+        mutedText: "#78350F",
+        headerBg: "#FDFBF7",
+        footerBg: "#271406",
+        footerText: "#FDFBF7",
+      },
+      fonts: { heading: "Playfair Display", body: "Inter" },
+      borderRadius: "lg",
+    },
+    heroBadge: "ELEGANT LIVING & CRAFT",
+    heroHeadline: "Handcrafted Furniture & Home Decor",
+    heroSubheadline: "Bespoke living sets, solid hardwood dining, bedroom suites, and luxury architectural furnishings."
+  },
+  services: {
+    theme: {
+      style: "services",
+      colors: {
+        primary: "#0284C7",
+        secondary: "#4F46E5",
+        accent: "#10B981",
+        background: "#FFFFFF",
+        surface: "#F0F9FF",
+        text: "#0C4A6E",
+        mutedText: "#0369A1",
+        headerBg: "#FFFFFF",
+        footerBg: "#0C4A6E",
+        footerText: "#E0F2FE",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "lg",
+    },
+    heroBadge: "VERIFIED LOCAL EXPERTS",
+    heroHeadline: "Book Professional Services & Repairs Online",
+    heroSubheadline: "Licensed technicians, salon styling, appliance repairs, and skilled commercial services."
+  },
+  school: {
+    theme: {
+      style: "school",
+      colors: {
+        primary: "#1D4ED8",
+        secondary: "#B45309",
+        accent: "#F59E0B",
+        background: "#FFFFFF",
+        surface: "#EFF6FF",
+        text: "#1E3A8A",
+        mutedText: "#1D4ED8",
+        headerBg: "#FFFFFF",
+        footerBg: "#1E3A8A",
+        footerText: "#DBEAFE",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "md",
+    },
+    heroBadge: "ACADEMIC EXCELLENCE",
+    heroHeadline: "School Supplies, Uniforms & Learning Materials",
+    heroSubheadline: "Textbooks, stationery, branded school uniforms, and digital educational resources."
+  },
+  ngo: {
+    theme: {
+      style: "ngo",
+      colors: {
+        primary: "#047857",
+        secondary: "#0284C7",
+        accent: "#F59E0B",
+        background: "#F9FDFB",
+        surface: "#ECFDF5",
+        text: "#064E3B",
+        mutedText: "#047857",
+        headerBg: "#FFFFFF",
+        footerBg: "#064E3B",
+        footerText: "#D1FAE5",
+      },
+      fonts: { heading: "Plus Jakarta Sans", body: "Inter" },
+      borderRadius: "xl",
+    },
+    heroBadge: "COMMUNITY IMPACT",
+    heroHeadline: "Empowering Lives & Supporting Grassroots Change",
+    heroSubheadline: "Support community development projects, purchase artisan charity items, and empower youth."
+  },
+  general: {
+    theme: {
+      style: "general",
+      colors: {
+        primary: "#4F46E5",
+        secondary: "#06B6D4",
+        accent: "#F59E0B",
+        background: "#FFFFFF",
+        surface: "#F8FAFC",
+        text: "#0F172A",
+        mutedText: "#64748B",
+        headerBg: "#FFFFFF",
+        footerBg: "#0F172A",
+        footerText: "#F8FAFC",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "lg",
+    },
+    heroBadge: "EVERYDAY ESSENTIALS",
+    heroHeadline: "Your Premier Online Destination for Everything",
+    heroSubheadline: "Wide selection of household goods, electronics, fashion, and daily essentials with fast doorstep delivery."
   }
 };
 
@@ -687,13 +845,38 @@ export async function executeAIStoreModification(
   // Quick heuristic modifications for common patterns
   const lower = command.toLowerCase();
 
-  // Color change heuristics
-  if (lower.includes("black and gold") || lower.includes("gold and black")) {
-    const updatedTheme = {
-      ...currentStore.themeConfig,
-      style: "luxury" as const,
+  // Heuristic 1: Blue and white color scheme
+  if (lower.includes("blue and white") || lower.includes("white and blue")) {
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "modern",
       colors: {
-        ...currentStore.themeConfig.colors,
+        ...normalizeStoreTheme(currentStore.themeConfig).colors,
+        primary: "#2563EB",
+        secondary: "#0284C7",
+        accent: "#38BDF8",
+        background: "#FFFFFF",
+        surface: "#F0F9FF",
+        text: "#0F172A",
+        mutedText: "#475569",
+        headerBg: "#FFFFFF",
+        footerBg: "#0F172A",
+        footerText: "#F8FAFC",
+      }
+    };
+    return {
+      themeConfig: updatedTheme,
+      explanation: "Switched color palette to vibrant royal blue with crisp white surfaces and dark text."
+    };
+  }
+
+  // Heuristic 2: Black and gold luxury
+  if (lower.includes("black and gold") || lower.includes("gold and black")) {
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "luxury",
+      colors: {
+        ...normalizeStoreTheme(currentStore.themeConfig).colors,
         primary: "#D4AF37",
         secondary: "#1A1A1A",
         accent: "#C5A059",
@@ -704,7 +887,9 @@ export async function executeAIStoreModification(
         headerBg: "#0A0A0A",
         footerBg: "#050505",
         footerText: "#D4AF37",
-      }
+      },
+      fonts: { heading: "Playfair Display", body: "Inter" },
+      borderRadius: "none",
     };
     return {
       themeConfig: updatedTheme,
@@ -712,12 +897,13 @@ export async function executeAIStoreModification(
     };
   }
 
+  // Heuristic 3: Luxury / Premium makeover
   if (lower.includes("luxury") || lower.includes("premium")) {
-    const updatedTheme = {
-      ...currentStore.themeConfig,
-      style: "luxury" as const,
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "luxury",
       fonts: { heading: "Playfair Display", body: "Inter" },
-      borderRadius: "none" as const,
+      borderRadius: "none",
     };
     return {
       themeConfig: updatedTheme,
@@ -725,6 +911,155 @@ export async function executeAIStoreModification(
     };
   }
 
+  // Heuristic 4: Modern makeover
+  if (lower.includes("more modern") || lower.includes("modern clean")) {
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "modern",
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "xl",
+    };
+    return {
+      themeConfig: updatedTheme,
+      explanation: "Updated typography to ultra-clean Inter and applied modern rounded corners."
+    };
+  }
+
+  // Heuristic 5: Make hero section bigger
+  if (lower.includes("hero") && (lower.includes("bigger") || lower.includes("larger") || lower.includes("expand"))) {
+    const updatedSections = currentStore.homeSections.map(sec => {
+      if (sec.type === "hero") {
+        return {
+          ...sec,
+          settings: {
+            ...sec.settings,
+            minHeight: "720px",
+            size: "large",
+            align: "center",
+          }
+        };
+      }
+      return sec;
+    });
+    return {
+      homeSections: updatedSections,
+      explanation: "Expanded the Hero banner to high-impact full-height (720px) with centered focus."
+    };
+  }
+
+  // Heuristic 6: Make product cards smaller / compact
+  if (lower.includes("product") && (lower.includes("smaller") || lower.includes("compact"))) {
+    const updatedSections = currentStore.homeSections.map(sec => {
+      if (sec.type === "product-grid" || sec.type === "product-carousel") {
+        return {
+          ...sec,
+          settings: {
+            ...sec.settings,
+            columns: 4,
+            cardSize: "compact",
+          }
+        };
+      }
+      return sec;
+    });
+    return {
+      homeSections: updatedSections,
+      explanation: "Configured product grid to a 4-column compact card density for faster browsing."
+    };
+  }
+
+  // Heuristic 7: Add a new arrivals section
+  if (lower.includes("new arrival") || lower.includes("arrivals section")) {
+    const newArrivalsSection: StoreSection = {
+      id: "sec-arrivals-" + Date.now(),
+      type: "product-carousel",
+      order: 1,
+      visible: true,
+      settings: { badge: "JUST IN", autoScroll: true },
+      content: {
+        title: "Fresh New Arrivals",
+        subtitle: "The very latest additions to our catalog, available for immediate delivery."
+      }
+    };
+    const updatedSections = [
+      currentStore.homeSections[0] || newArrivalsSection,
+      newArrivalsSection,
+      ...currentStore.homeSections.slice(1)
+    ].map((s, idx) => ({ ...s, order: idx }));
+    return {
+      homeSections: updatedSections,
+      explanation: "Added a dedicated 'Fresh New Arrivals' product carousel right below your Hero banner."
+    };
+  }
+
+  // Heuristic 8: Add Ramadan / Festive promotion
+  if (lower.includes("ramadan") || lower.includes("eid")) {
+    const ramadanSection: StoreSection = {
+      id: "sec-ramadan-" + Date.now(),
+      type: "promotional-offer",
+      order: 1,
+      visible: true,
+      settings: { bgGradient: true, theme: "festive" },
+      content: {
+        badge: "🌙 RAMADAN KAREEM SPECIAL",
+        title: "Blessed Season Flash Deals: Up to 25% OFF",
+        description: "Celebrate with family and friends. Enjoy exclusive holiday discounts and swift doorstep delivery.",
+        ctaText: "Shop Ramadan Specials",
+        ctaUrl: "#products",
+        discountText: "25% OFF",
+      }
+    };
+    const updatedSections = [
+      currentStore.homeSections[0] || ramadanSection,
+      ramadanSection,
+      ...currentStore.homeSections.slice(1)
+    ].map((s, idx) => ({ ...s, order: idx }));
+    return {
+      homeSections: updatedSections,
+      explanation: "Added a festive Ramadan Kareem promotional banner with holiday discount badges."
+    };
+  }
+
+  // Heuristic 9: Move featured products above categories
+  if (lower.includes("products above") || lower.includes("featured above categories") || lower.includes("move featured")) {
+    const sections = [...currentStore.homeSections];
+    const gridIdx = sections.findIndex(s => s.type === "product-grid" || s.type === "product-carousel");
+    const catIdx = sections.findIndex(s => s.type === "categories");
+    if (gridIdx !== -1 && catIdx !== -1 && gridIdx > catIdx) {
+      const gridSec = sections.splice(gridIdx, 1)[0];
+      sections.splice(catIdx, 0, gridSec);
+      const reordered = sections.map((s, idx) => ({ ...s, order: idx }));
+      return {
+        homeSections: reordered,
+        explanation: "Moved your Featured Products section above the Category Grid for faster conversion."
+      };
+    }
+  }
+
+  // Heuristic 10: Rewrite homepage copy
+  if (lower.includes("rewrite") && (lower.includes("homepage") || lower.includes("copy") || lower.includes("content"))) {
+    const updatedSections = currentStore.homeSections.map(sec => {
+      if (sec.type === "hero") {
+        return {
+          ...sec,
+          content: {
+            ...sec.content,
+            badge: "2026 SIGNATURE COLLECTION",
+            title: `Elevate Your Lifestyle with ${currentStore.name}`,
+            subtitle: "Unmatched quality, verified authentic goods, and priority doorstep delivery. Experience the difference.",
+            primaryButtonText: "Explore Collection",
+          }
+        };
+      }
+      return sec;
+    });
+    return {
+      homeSections: updatedSections,
+      explanation: "Rewrote homepage headlines and subheadings with fresh, conversion-optimized marketing copy."
+    };
+  }
+
+  // Heuristic 11: General discount / promo banner
   if (lower.includes("discount") || lower.includes("promo banner") || lower.includes("20% off") || lower.includes("sale")) {
     const promoSection: StoreSection = {
       id: "sec-promo-" + Date.now(),
@@ -753,22 +1088,23 @@ export async function executeAIStoreModification(
     };
   }
 
-  // LLM deep modification
+  // Deep LLM modification via Gemini 2.5 Flash
   try {
     if (await gemini.isAvailable()) {
       const systemPrompt = `
-You are an AI Store Assistant. The user wants to modify an existing store.
-You will receive the current theme and sections JSON, and an instruction.
-Return a JSON object with:
+You are an expert AI Store Architect for ProTech Enterprise OS.
+The user wants to modify an existing storefront configuration using a natural language instruction.
+Return valid raw JSON only conforming strictly to this format:
 {
-  "themeConfig": optional updated StoreTheme,
-  "homeSections": optional updated Array of StoreSection,
-  "explanation": "Brief description of what was changed"
+  "themeConfig": optional updated StoreTheme object,
+  "homeSections": optional updated Array of StoreSection objects,
+  "explanation": "Brief description of the changes applied"
 }
-Return valid raw JSON only.
+Do NOT wrap with markdown code blocks.
 `;
       const userPrompt = `
 Command: ${command}
+Current Store Name: ${currentStore.name}
 Current Theme: ${JSON.stringify(currentStore.themeConfig)}
 Current Sections Count: ${currentStore.homeSections.length}
 First 3 Sections: ${JSON.stringify(currentStore.homeSections.slice(0, 3))}
@@ -787,3 +1123,230 @@ First 3 Sections: ${JSON.stringify(currentStore.homeSections.slice(0, 3))}
     explanation: `Processed update for: "${command}". Sections and theme were re-aligned.`
   };
 }
+
+// ─── AI PROMPT ANALYZER (ATLAS-STYLE 1-BOX GENERATION) ────────────
+export interface StorePromptAnalysisResult {
+  businessCategory: string;
+  suggestedName: string;
+  styleArchetype: StoreStyleArchetype;
+  location: string;
+  description: string;
+  keyProductTerms: string[];
+}
+
+export async function analyzeStorePrompt(
+  prompt: string, 
+  businessProfile?: any
+): Promise<StorePromptAnalysisResult> {
+  const gemini = new GeminiProviderAdapter();
+  const lower = prompt.toLowerCase();
+
+  // Smart Keyword Classifier for instant, reliable archetype mapping
+  let archetype: StoreStyleArchetype = "general";
+  let category = "General Merchandise";
+
+  if (lower.includes("fashion") || lower.includes("dress") || lower.includes("shoe") || lower.includes("clothing") || lower.includes("boutique") || lower.includes("bag")) {
+    archetype = "fashion";
+    category = "Fashion & Apparel";
+  } else if (lower.includes("tech") || lower.includes("phone") || lower.includes("electronic") || lower.includes("gadget") || lower.includes("laptop")) {
+    archetype = "electronics";
+    category = "Tech & Electronics";
+  } else if (lower.includes("grocery") || lower.includes("food") || lower.includes("fruit") || lower.includes("supermarket") || lower.includes("market")) {
+    archetype = "grocery";
+    category = "Fresh Grocery & Supermarket";
+  } else if (lower.includes("restaurant") || lower.includes("meal") || lower.includes("cafe") || lower.includes("dine") || lower.includes("kitchen") || lower.includes("bakery")) {
+    archetype = "restaurant";
+    category = "Restaurant & Food";
+  } else if (lower.includes("pharmacy") || lower.includes("medicine") || lower.includes("health") || lower.includes("drug") || lower.includes("clinic")) {
+    archetype = "pharmacy";
+    category = "Pharmacy & Healthcare";
+  } else if (lower.includes("hardware") || lower.includes("tool") || lower.includes("building") || lower.includes("cement") || lower.includes("plumbing")) {
+    archetype = "hardware";
+    category = "Hardware & Tools";
+  } else if (lower.includes("beauty") || lower.includes("makeup") || lower.includes("cosmetic") || lower.includes("perfume") || lower.includes("skincare")) {
+    archetype = "beauty";
+    category = "Beauty & Cosmetics";
+  } else if (lower.includes("furniture") || lower.includes("sofa") || lower.includes("decor") || lower.includes("interior") || lower.includes("chair")) {
+    archetype = "furniture";
+    category = "Furniture & Home Living";
+  } else if (lower.includes("service") || lower.includes("repair") || lower.includes("salon") || lower.includes("cleaning") || lower.includes("mechanic")) {
+    archetype = "services";
+    category = "Services & Booking";
+  } else if (lower.includes("school") || lower.includes("student") || lower.includes("book") || lower.includes("academy") || lower.includes("education")) {
+    archetype = "school";
+    category = "Education & School Supplies";
+  } else if (lower.includes("ngo") || lower.includes("charity") || lower.includes("community") || lower.includes("non-profit") || lower.includes("foundation")) {
+    archetype = "ngo";
+    category = "NGO & Community Initiatives";
+  } else if (lower.includes("corporate") || lower.includes("office") || lower.includes("b2b") || lower.includes("business")) {
+    archetype = "corporate";
+    category = "Corporate & Professional Business";
+  }
+
+  // Location extraction
+  let location = businessProfile?.address || "Freetown, Sierra Leone";
+  if (lower.includes("freetown")) location = "Freetown, Sierra Leone";
+  else if (lower.includes("bo")) location = "Bo, Sierra Leone";
+  else if (lower.includes("kenema")) location = "Kenema, Sierra Leone";
+  else if (lower.includes("makeni")) location = "Makeni, Sierra Leone";
+
+  // Name extraction / derivation
+  let suggestedName = businessProfile?.name || "";
+  if (!suggestedName) {
+    // Generate a creative, tailored store name from prompt keywords
+    const words = prompt.replace(/[^a-zA-Z0-9 ]/g, "").split(/\s+/).filter(w => w.length > 3);
+    const topWord = words[0] ? words[0].charAt(0).toUpperCase() + words[0].slice(1) : "ProTech";
+    suggestedName = `${topWord} ${category.split(" ")[0]} Hub`;
+  }
+
+  // Try LLM deep extraction if Gemini is available
+  try {
+    if (await gemini.isAvailable()) {
+      const systemPrompt = `
+You are an expert eCommerce store classification engine.
+Given a user's prompt about their business, return a JSON object with:
+{
+  "businessCategory": string,
+  "suggestedName": string,
+  "styleArchetype": "fashion" | "electronics" | "grocery" | "restaurant" | "pharmacy" | "hardware" | "beauty" | "furniture" | "services" | "corporate" | "school" | "ngo" | "general",
+  "location": string,
+  "description": string,
+  "keyProductTerms": string[]
+}
+Return raw JSON only.
+`;
+      const raw = await gemini.generateText(prompt, systemPrompt);
+      const cleanJson = raw.replace(/^\s*```(json)?/i, "").replace(/```\s*$/, "").trim();
+      const parsed = JSON.parse(cleanJson);
+      return {
+        businessCategory: parsed.businessCategory || category,
+        suggestedName: parsed.suggestedName || suggestedName,
+        styleArchetype: parsed.styleArchetype || archetype,
+        location: parsed.location || location,
+        description: parsed.description || prompt,
+        keyProductTerms: Array.isArray(parsed.keyProductTerms) ? parsed.keyProductTerms : []
+      };
+    }
+  } catch (err) {
+    console.warn("LLM prompt analysis fallback to keyword classifier:", err);
+  }
+
+  return {
+    businessCategory: category,
+    suggestedName,
+    styleArchetype: archetype,
+    location,
+    description: prompt,
+    keyProductTerms: []
+  };
+}
+
+// ─── AI PRODUCT CONTENT GENERATOR ─────────────────────────────────
+export async function generateProductAICopy(
+  input: AIProductCopyInput
+): Promise<AIProductCopyOutput> {
+  const gemini = new GeminiProviderAdapter();
+
+  const fallbackOutput: AIProductCopyOutput = {
+    title: input.name,
+    shortDescription: `Premium quality ${input.name}. Guaranteed authentic and verified for optimal satisfaction.`,
+    fullDescription: `Introducing ${input.name}, carefully designed to provide superior performance, durability, and value. Whether for everyday use or special occasions, this item delivers verified quality with full support.`,
+    features: [
+      "100% Genuine and Inspected Quality",
+      "Durable, Long-Lasting Construction",
+      "Ergonomic, High-Utility Design",
+      "Backed by ProTech Assist Customer Guarantee"
+    ],
+    benefits: [
+      "Instant peace of mind with authentic verification",
+      "Elevates daily productivity and style",
+      "Fast local doorstep delivery"
+    ],
+    seoTitle: `${input.name} | Buy Online at Best Price`,
+    seoDescription: `Order ${input.name} online today. Verified genuine quality, prompt doorstep delivery, and flexible payment options.`,
+    tags: [input.category || "General", "Trending", "Verified Quality", "Best Seller"]
+  };
+
+  try {
+    if (await gemini.isAvailable()) {
+      const systemPrompt = `
+You are an expert eCommerce product copywriter and SEO specialist.
+Generate compelling, high-converting product marketing content.
+Return valid raw JSON only conforming strictly to this format:
+{
+  "title": string (enhanced product title),
+  "shortDescription": string (1-2 sentences),
+  "fullDescription": string (2 paragraphs with benefits),
+  "features": string[] (4 bullet points),
+  "benefits": string[] (3 bullet points),
+  "seoTitle": string (max 60 chars),
+  "seoDescription": string (max 160 chars),
+  "tags": string[] (4-6 tags)
+}
+Do NOT wrap in markdown code fences.
+`;
+      const userPrompt = `
+Product Name: ${input.name}
+Category: ${input.category || "Retail"}
+Price: ${input.price || "Standard"}
+Notes / Specifications: ${input.notes || input.features || "Standard specification"}
+`;
+
+      const raw = await gemini.generateText(userPrompt, systemPrompt);
+      const cleanJson = raw.replace(/^\s*```(json)?/i, "").replace(/```\s*$/, "").trim();
+      const parsed = JSON.parse(cleanJson);
+      return {
+        title: parsed.title || fallbackOutput.title,
+        shortDescription: parsed.shortDescription || fallbackOutput.shortDescription,
+        fullDescription: parsed.fullDescription || fallbackOutput.fullDescription,
+        features: Array.isArray(parsed.features) ? parsed.features : fallbackOutput.features,
+        benefits: Array.isArray(parsed.benefits) ? parsed.benefits : fallbackOutput.benefits,
+        seoTitle: parsed.seoTitle || fallbackOutput.seoTitle,
+        seoDescription: parsed.seoDescription || fallbackOutput.seoDescription,
+        tags: Array.isArray(parsed.tags) ? parsed.tags : fallbackOutput.tags,
+      };
+    }
+  } catch (err) {
+    console.warn("AI Product Copy generator fallback:", err);
+  }
+
+  return fallbackOutput;
+}
+
+// ─── AI OFFERS & UPSELLS GENERATOR ────────────────────────────────
+export function generateProductUpsellOffers(
+  storeProducts: any[],
+  cartProductIds: string[]
+): AIStoreUpsellOffer[] {
+  if (!storeProducts || storeProducts.length === 0) return [];
+
+  // Filter out products already in cart
+  const available = storeProducts.filter(p => {
+    const pid = p.product?.id || p.productId || p.id;
+    return !cartProductIds.includes(pid) && (p.isVisible !== false);
+  });
+
+  if (available.length === 0) return [];
+
+  // Pick up to 3 complementary items
+  return available.slice(0, 3).map((item, idx) => {
+    const p = item.product || item;
+    const price = Number(item.customPrice || p.unitPrice || 0);
+    const discount = idx === 0 ? 10 : (idx === 1 ? 15 : undefined);
+    const discountedPrice = discount ? Math.round(price * (1 - discount / 100)) : undefined;
+
+    return {
+      id: `offer-${item.id || p.id}`,
+      productId: p.id,
+      name: p.name,
+      price: discountedPrice || price,
+      originalPrice: discountedPrice ? price : undefined,
+      discountPercentage: discount,
+      imageUrl: p.imageUrl,
+      offerType: idx === 0 ? "frequently_bought_together" : "bundle",
+      headline: idx === 0 ? "Frequently Bought Together" : "Special Bundle Offer",
+      badge: discount ? `${discount}% OFF` : "POPULAR ADD-ON"
+    };
+  });
+}
+

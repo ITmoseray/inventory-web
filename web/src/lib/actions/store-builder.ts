@@ -10,11 +10,15 @@ import {
   StoreNavigation, 
   StoreSettings,
   StorefrontCustomerCheckoutData,
-  CartItem
+  CartItem,
+  AIProductCopyInput
 } from "@/types/store-builder";
 import { 
   generateAIStoreConfiguration, 
-  executeAIStoreModification 
+  executeAIStoreModification,
+  analyzeStorePrompt,
+  generateProductAICopy,
+  generateProductUpsellOffers
 } from "@/lib/store-builder/ai-service";
 import { generateSoNumber } from "@/lib/actions/sales-order";
 
@@ -926,3 +930,115 @@ export async function superAdminDeleteStore(storeId: string) {
 
   return { success: true };
 }
+
+// ─── 17. ANALYZE STORE PROMPT (REAL-TIME STAGE 1) ─────────────────
+export async function analyzeStorePromptAction(prompt: string) {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+  const business = await prisma.business.findUnique({
+    where: { id: session.user.businessId }
+  });
+
+  const availableProductCount = await prisma.product.count({
+    where: { businessId: session.user.businessId, deletedAt: null, status: "active" }
+  });
+
+  const analysis = await analyzeStorePrompt(prompt, business);
+
+  return {
+    success: true,
+    analysis,
+    availableProductCount,
+    businessName: business?.name || analysis.suggestedName
+  };
+}
+
+// ─── 18. ATLAS-STYLE 1-CLICK AI STORE CREATION ─────────────────────
+export async function createStoreFromPromptAIAction(prompt: string) {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+  const businessId = session.user.businessId;
+  const business = await prisma.business.findUnique({
+    where: { id: businessId }
+  });
+
+  // 1. Analyze prompt
+  const analysis = await analyzeStorePrompt(prompt, business);
+
+  // 2. Fetch up to 12 active products from Enterprise OS inventory
+  const catalogProducts = await prisma.product.findMany({
+    where: { businessId, deletedAt: null, status: "active" },
+    take: 12,
+    orderBy: { createdAt: "desc" }
+  });
+
+  // 3. Prepare AI generation input
+  const input: AIStoreGenerationInput = {
+    businessName: business?.name || analysis.suggestedName,
+    businessType: analysis.businessCategory,
+    description: analysis.description,
+    location: analysis.location,
+    phone: business?.phone || "",
+    whatsapp: (business as any)?.whatsappPhone || business?.phone || "",
+    email: business?.email || "",
+    targetCustomers: `Shoppers seeking verified ${analysis.businessCategory.toLowerCase()}`,
+    styleArchetype: analysis.styleArchetype,
+    productIds: catalogProducts.map(p => p.id)
+  };
+
+  // 4. Create and synthesize store
+  const result = await createOrGenerateStore(input);
+
+  return {
+    ...result,
+    analysis,
+    connectedProductCount: catalogProducts.length
+  };
+}
+
+// ─── 19. GENERATE AI PRODUCT COPY (TITLE, BULLETS, SEO) ───────────
+export async function generateProductAICopyAction(input: AIProductCopyInput) {
+  const session = await auth();
+  if (!session?.user?.businessId) throw new Error("Unauthorized");
+
+  const copy = await generateProductAICopy(input);
+  return { success: true, copy };
+}
+
+// ─── 20. GET STORE UPSELL RECOMMENDATIONS FOR CART ─────────────────
+export async function getStoreUpsellOffersAction(storeSlug: string, cartProductIds: string[]) {
+  try {
+    const store = await prisma.store.findUnique({
+      where: { slug: storeSlug },
+      include: {
+        products: {
+          where: { isVisible: true },
+          include: {
+            product: {
+              select: {
+                id: true,
+                name: true,
+                unitPrice: true,
+                imageUrl: true,
+                stockQuantity: true,
+                category: { select: { name: true } }
+              }
+            }
+          },
+          take: 10
+        }
+      }
+    });
+
+    if (!store) return { success: false, offers: [] };
+
+    const offers = generateProductUpsellOffers(store.products, cartProductIds);
+    return { success: true, offers };
+  } catch (err: any) {
+    console.error("GET STORE UPSELLS ERROR:", err);
+    return { success: false, offers: [] };
+  }
+}
+
