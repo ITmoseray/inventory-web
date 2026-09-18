@@ -8,6 +8,11 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function CreateStorePage() {
-  return <PublicStoreCreatorClient />;
+export default async function CreateStorePage({
+  searchParams
+}: {
+  searchParams?: Promise<{ prompt?: string }>;
+}) {
+  const resolvedParams = searchParams ? await searchParams : {};
+  return <PublicStoreCreatorClient initialPrompt={resolvedParams?.prompt || ""} />;
 }

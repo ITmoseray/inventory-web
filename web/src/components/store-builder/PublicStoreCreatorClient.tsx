@@ -28,8 +28,12 @@ const INSPIRATION_CHIPS = [
   { label: "🔨 Hardware & Tools", prompt: "Quality building materials, electrical supplies, power tools, and paints with bulk discount quotes." },
 ];
 
-export function PublicStoreCreatorClient() {
-  const [prompt, setPrompt] = useState("");
+interface Props {
+  initialPrompt?: string;
+}
+
+export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
+  const [prompt, setPrompt] = useState(initialPrompt);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedStore, setGeneratedStore] = useState<any | null>(null);
@@ -90,6 +94,12 @@ export function PublicStoreCreatorClient() {
       setIsGenerating(false);
     }
   };
+
+  React.useEffect(() => {
+    if (initialPrompt && initialPrompt.trim().length >= 5) {
+      handleGenerate(initialPrompt.trim());
+    }
+  }, [initialPrompt]);
 
   const handleClaimStore = async (e: React.FormEvent) => {
     e.preventDefault();

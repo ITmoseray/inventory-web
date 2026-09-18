@@ -359,7 +359,7 @@ export default function ProtechCloudHomepage() {
                     const trimmed = heroAiPrompt.trim();
                     const targetUrl = session?.user
                       ? (trimmed ? `/dashboard/store-builder?prompt=${encodeURIComponent(trimmed)}` : "/dashboard/store-builder")
-                      : (trimmed ? `/login?callbackUrl=${encodeURIComponent(`/dashboard/store-builder?prompt=${trimmed}`)}` : "/login?callbackUrl=/dashboard/store-builder");
+                      : (trimmed ? `/create-store?prompt=${encodeURIComponent(trimmed)}` : "/create-store");
                     router.push(targetUrl);
                   }}
                   className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
@@ -681,7 +681,7 @@ export default function ProtechCloudHomepage() {
                 {/* Action CTA Buttons */}
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <Link
-                    href={session?.user ? "/dashboard/store-builder" : "/login?callbackUrl=/dashboard/store-builder"}
+                    href={session?.user ? "/dashboard/store-builder" : "/create-store"}
                     className="h-13 px-8 text-sm font-black uppercase tracking-wider rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-indigo-600 hover:brightness-110 text-white shadow-[0_0_25px_rgba(99,102,241,0.4)] hover:shadow-[0_0_35px_rgba(99,102,241,0.6)] flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5"
                   >
                     <span>Launch AI Store Builder</span>
@@ -841,7 +841,7 @@ export default function ProtechCloudHomepage() {
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
               >
                  {[
-                    { title: "ProTech AI Store", desc: "Build a complete online storefront in 30 seconds with 13 commercial archetypes & WhatsApp checkout.", icon: Store, href: "/dashboard/store-builder", isModal: true, image: "/images/ai-store-icon.png" },
+                    { title: "ProTech AI Store", desc: "Build a complete online storefront in 30 seconds with 13 commercial archetypes & WhatsApp checkout.", icon: Store, href: session?.user ? "/dashboard/store-builder" : "/create-store", isModal: true, image: "/images/ai-store-icon.png" },
                     { title: "Inventory", desc: "Monitor stock, movements, batches, and transfers.", icon: Box, href: "/dashboard/inventory", isModal: true, image: "/images/Inventory.png" },
                     { title: "Sales & POS", desc: "Fast checkout, receipt printing, and analytics.", icon: ShoppingCart, href: "/dashboard/pos", isModal: true, image: "/images/Sales_and_POS.png" },
                     { title: "Purchasing", desc: "Manage suppliers and automate replenishment.", icon: Truck, href: "/dashboard/purchases", isModal: true, image: "/images/Purchasing.png" },
