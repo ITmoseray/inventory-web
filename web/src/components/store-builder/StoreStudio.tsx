@@ -18,13 +18,17 @@ import {
   updateStoreConfig, 
   updateStorePageSections, 
   toggleStorePublish, 
-  modifyStoreWithAIAction 
+  modifyStoreWithAIAction,
+  saveStoreAsTemplateAction 
 } from "@/lib/actions/store-builder";
 import { uploadProductImage } from "@/lib/actions/upload";
 import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { SectionRenderer } from "@/components/storefront/SectionRenderer";
 import { StoreUpgradeModal } from "./StoreUpgradeModal";
+import { TemplateGallery } from "./TemplateGallery";
+import { STARTER_TEMPLATES } from "@/lib/store-builder/starter-templates";
+import { StoreTemplateDTO, TemplateCategories, TemplateStyles } from "@/types/store-builder";
 import { toast } from "sonner";
 import Link from "next/link";
 
@@ -89,11 +93,86 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
   const [isAiExecuting, setIsAiExecuting] = useState(false);
   const [uploadingImageField, setUploadingImageField] = useState<string | null>(null);
 
+  // Template Gallery & Export State
+  const [isChangeTemplateOpen, setIsChangeTemplateOpen] = useState(false);
+  const [isSaveTemplateOpen, setIsSaveTemplateOpen] = useState(false);
+  const [templateToApply, setTemplateToApply] = useState<StoreTemplateDTO | null>(null);
+
+  const [templateName, setTemplateName] = useState(`${store.name} Layout`);
+  const [templateCategory, setTemplateCategory] = useState("Fashion & Apparel");
+  const [templateDescription, setTemplateDescription] = useState(store.description || "Custom handcrafted online store layout.");
+  const [templateTags, setTemplateTags] = useState("custom, modern, retail");
+  const [templateStyle, setTemplateStyle] = useState("modern");
+  const [isSavingTemplate, setIsSavingTemplate] = useState(false);
+
   const bgImageInputRef = useRef<HTMLInputElement>(null);
   const featureImageInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId);
+
+  // Apply a template to the current studio workspace
+  const handleApplyTemplate = (tpl: StoreTemplateDTO) => {
+    const newTheme = normalizeStoreTheme(tpl.themeConfig);
+    const rawSections = (tpl.sections as StoreSection[]) || [];
+    const adaptedSections = rawSections.map((sec) => {
+      const content = { ...(sec.content || {}) };
+      if (sec.type === "hero") {
+        content.headline = `Welcome to ${store.name}`;
+        if (store.description) content.subheadline = store.description;
+      } else if (sec.type === "contact") {
+        content.title = `Contact ${store.name}`;
+        content.phone = store.contactPhone || content.phone || "";
+        content.whatsapp = store.whatsappPhone || content.whatsapp || "";
+        content.email = store.contactEmail || content.email || "";
+      } else if (sec.type === "footer") {
+        content.aboutText = `${store.name} — Your premier destination for quality ${tpl.category.toLowerCase()}.`;
+        content.copyright = `© ${new Date().getFullYear()} ${store.name}. Powered by ProTech Assist Enterprise OS.`;
+      }
+      return { ...sec, content };
+    });
+
+    setTheme(newTheme);
+    setSections(adaptedSections);
+    if (adaptedSections[0]) {
+      setSelectedSectionId(adaptedSections[0].id);
+    }
+    pushState(adaptedSections, newTheme);
+    setIsChangeTemplateOpen(false);
+    setTemplateToApply(null);
+    toast.success(`Template "${tpl.name}" applied! Click Save to make it permanent.`);
+  };
+
+  // Export current store as a reusable template
+  const handleSaveAsTemplate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!templateName.trim()) {
+      toast.error("Please enter a template name");
+      return;
+    }
+    setIsSavingTemplate(true);
+    try {
+      const tags = templateTags.split(",").map(t => t.trim()).filter(Boolean);
+      const res = await saveStoreAsTemplateAction({
+        storeId: store.id,
+        name: templateName.trim(),
+        category: templateCategory,
+        description: templateDescription.trim(),
+        tags: tags.length > 0 ? tags : [templateCategory.toLowerCase(), "custom"],
+        style: templateStyle,
+      });
+      if (res.success) {
+        toast.success(`Template "${templateName}" saved to the catalog!`);
+        setIsSaveTemplateOpen(false);
+      } else {
+        toast.error(res.error || "Failed to save template");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save template");
+    } finally {
+      setIsSavingTemplate(false);
+    }
+  };
 
   // Helper: push new state to Undo / Redo history
   const pushState = (newSections: StoreSection[], newTheme: StoreTheme) => {
@@ -432,6 +511,26 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
               <span className="hidden sm:inline">Upgrade</span>
             </button>
           )}
+
+          {/* Change Template Button */}
+          <button
+            onClick={() => setIsChangeTemplateOpen(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center gap-1.5 border border-slate-700/80 transition-all"
+            title="Switch store template theme & layout"
+          >
+            <Layout className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="hidden lg:inline">Templates</span>
+          </button>
+
+          {/* Save As Template Button */}
+          <button
+            onClick={() => setIsSaveTemplateOpen(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-slate-800/90 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center gap-1.5 border border-slate-700/80 transition-all"
+            title="Save this design as a reusable template in the catalog"
+          >
+            <Tag className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden lg:inline">Export Template</span>
+          </button>
 
           {/* AI Assistant Modal Trigger */}
           <button
@@ -1293,6 +1392,206 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
         onClose={() => setIsUpgradeModalOpen(false)}
         storeName={store.name}
       />
+
+      {/* ── CHANGE TEMPLATE MODAL ─────────────────────────────── */}
+      {isChangeTemplateOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex flex-col p-4 sm:p-6 overflow-y-auto">
+          <div className="relative w-full max-w-7xl mx-auto bg-slate-900 rounded-3xl border border-slate-800 p-6 shadow-2xl flex flex-col my-auto">
+            <div className="flex items-center justify-between pb-4 mb-6 border-b border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
+                  <Layout className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">Select a New Template Layout</h2>
+                  <p className="text-xs text-slate-400">
+                    Choose a starter template to apply its styling, colors, and layout sections to &quot;{store.name}&quot;.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setIsChangeTemplateOpen(false);
+                  setTemplateToApply(null);
+                }}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Confirmation Banner if a template was picked */}
+            {templateToApply && (
+              <div className="mb-6 p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <h4 className="font-bold text-sm text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                    Apply &quot;{templateToApply.name}&quot; Template?
+                  </h4>
+                  <p className="text-xs text-indigo-200/80 mt-0.5">
+                    This will update your color palette, fonts, and section structure. Your existing products and orders will stay completely safe.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <button
+                    onClick={() => setTemplateToApply(null)}
+                    className="flex-1 sm:flex-initial px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => handleApplyTemplate(templateToApply)}
+                    className="flex-1 sm:flex-initial px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg"
+                  >
+                    Confirm & Apply
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <div className="max-h-[70vh] overflow-y-auto pr-1">
+              <TemplateGallery
+                initialTemplates={STARTER_TEMPLATES}
+                hasEnterpriseAccount={store.storeType === "ENTERPRISE_CONNECTED"}
+                userBusinessName={store.name}
+                onSelectTemplate={(tpl) => setTemplateToApply(tpl)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── SAVE AS TEMPLATE MODAL ─────────────────────────────── */}
+      {isSaveTemplateOpen && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                  <Tag className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-white">Export Design as Template</h3>
+                  <p className="text-xs text-slate-400">
+                    Save your custom sections and theme colors as a reusable template.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsSaveTemplateOpen(false)}
+                disabled={isSavingTemplate}
+                className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveAsTemplate} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Template Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={templateName}
+                  onChange={(e) => setTemplateName(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Industry Category
+                </label>
+                <select
+                  value={templateCategory}
+                  onChange={(e) => setTemplateCategory(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                >
+                  {TemplateCategories.filter(c => c !== "All").map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                  Template Description
+                </label>
+                <textarea
+                  rows={2}
+                  value={templateDescription}
+                  onChange={(e) => setTemplateDescription(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Design Style
+                  </label>
+                  <select
+                    value={templateStyle}
+                    onChange={(e) => setTemplateStyle(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs capitalize focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  >
+                    {TemplateStyles.filter(s => s !== "all").map((st) => (
+                      <option key={st} value={st} className="capitalize">{st}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">
+                    Search Tags
+                  </label>
+                  <input
+                    type="text"
+                    value={templateTags}
+                    onChange={(e) => setTemplateTags(e.target.value)}
+                    placeholder="fashion, minimal, chic"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-800 bg-slate-950 text-white text-xs focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400">
+                🔒 Privacy safe: Your customer orders, private phone numbers, and catalog products will be safely sanitized before export.
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSaveTemplateOpen(false)}
+                  disabled={isSavingTemplate}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-400 hover:text-white"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingTemplate || !templateName.trim()}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-600 hover:brightness-110 text-white shadow-lg flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {isSavingTemplate ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      Saving to Catalog...
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" />
+                      Export Reusable Template
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

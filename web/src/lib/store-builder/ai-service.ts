@@ -391,6 +391,138 @@ export const STYLE_PRESETS: Record<StoreStyleArchetype, {
     heroBadge: "EVERYDAY ESSENTIALS",
     heroHeadline: "Your Premier Online Destination for Everything",
     heroSubheadline: "Wide selection of household goods, electronics, fashion, and daily essentials with fast doorstep delivery."
+  },
+  bold: {
+    theme: {
+      style: "bold",
+      colors: {
+        primary: "#09090B",
+        secondary: "#E11D48",
+        accent: "#F43F5E",
+        background: "#FFFFFF",
+        surface: "#F4F4F5",
+        text: "#09090B",
+        mutedText: "#52525B",
+        headerBg: "#09090B",
+        footerBg: "#09090B",
+        footerText: "#FAFAFA",
+      },
+      fonts: { heading: "Plus Jakarta Sans", body: "Inter" },
+      borderRadius: "md",
+    },
+    heroBadge: "BOLD & UNCOMPROMISING",
+    heroHeadline: "Statement Pieces That Command Attention",
+    heroSubheadline: "Discover audacious collections crafted with uncompromising attention to strength and style."
+  },
+  clean: {
+    theme: {
+      style: "clean",
+      colors: {
+        primary: "#2563EB",
+        secondary: "#64748B",
+        accent: "#38BDF8",
+        background: "#FFFFFF",
+        surface: "#F8FAFC",
+        text: "#0F172A",
+        mutedText: "#64748B",
+        headerBg: "#FFFFFF",
+        footerBg: "#0F172A",
+        footerText: "#F8FAFC",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "lg",
+    },
+    heroBadge: "CLEAN & MODERN",
+    heroHeadline: "Effortless Shopping, Elevated Quality",
+    heroSubheadline: "Curated goods with crisp clarity and frictionless doorstep delivery."
+  },
+  vibrant: {
+    theme: {
+      style: "vibrant",
+      colors: {
+        primary: "#7C3AED",
+        secondary: "#EC4899",
+        accent: "#F59E0B",
+        background: "#FAFAFC",
+        surface: "#F5F3FF",
+        text: "#2E1065",
+        mutedText: "#6D28D9",
+        headerBg: "#FFFFFF",
+        footerBg: "#1E1B4B",
+        footerText: "#EDE9FE",
+      },
+      fonts: { heading: "Plus Jakarta Sans", body: "Inter" },
+      borderRadius: "xl",
+    },
+    heroBadge: "VIBRANT & COLORFUL",
+    heroHeadline: "Energy, Color and Inspiration for Your Life",
+    heroSubheadline: "Bright collections that bring vibrant joy, creativity and excitement into everyday moments."
+  },
+  industrial: {
+    theme: {
+      style: "industrial",
+      colors: {
+        primary: "#F97316",
+        secondary: "#334155",
+        accent: "#EAB308",
+        background: "#0F172A",
+        surface: "#1E293B",
+        text: "#F8FAFC",
+        mutedText: "#94A3B8",
+        headerBg: "#0F172A",
+        footerBg: "#020617",
+        footerText: "#CBD5E1",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "sm",
+    },
+    heroBadge: "INDUSTRIAL GRADE PERFORMANCE",
+    heroHeadline: "Engineered Tough for Demanding Conditions",
+    heroSubheadline: "Rugged durability, professional-grade tools, and heavy-duty reliability that never quits."
+  },
+  playful: {
+    theme: {
+      style: "playful",
+      colors: {
+        primary: "#F43F5E",
+        secondary: "#06B6D4",
+        accent: "#FBBF24",
+        background: "#FFFBEB",
+        surface: "#FEF3C7",
+        text: "#78350F",
+        mutedText: "#92400E",
+        headerBg: "#FFFFFF",
+        footerBg: "#78350F",
+        footerText: "#FEF3C7",
+      },
+      fonts: { heading: "Plus Jakarta Sans", body: "Inter" },
+      borderRadius: "full",
+    },
+    heroBadge: "FUN & PLAYFUL DISCOVERIES",
+    heroHeadline: "Joyful Essentials Designed to Delight",
+    heroSubheadline: "Spark imagination and smiles with high-energy, fun products for all ages."
+  },
+  minimalist: {
+    theme: {
+      style: "minimalist",
+      colors: {
+        primary: "#18181B",
+        secondary: "#52525B",
+        accent: "#27272A",
+        background: "#FFFFFF",
+        surface: "#FAFAFA",
+        text: "#18181B",
+        mutedText: "#71717A",
+        headerBg: "#FFFFFF",
+        footerBg: "#18181B",
+        footerText: "#FAFAFA",
+      },
+      fonts: { heading: "Inter", body: "Inter" },
+      borderRadius: "none",
+    },
+    heroBadge: "MINIMALIST REFINEMENT",
+    heroHeadline: "Quiet Luxury in Its Purest Form",
+    heroSubheadline: "Thoughtfully reductive design that eliminates excess to let quality shine through."
   }
 };
 

@@ -101,14 +101,23 @@ export default function SuperAdminStoresPage() {
           </p>
         </div>
 
-        <button
-          onClick={fetchStores}
-          disabled={loading}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-card border hover:bg-muted transition-colors w-fit"
-        >
-          <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-          Refresh Registry
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link
+            href="/super-admin/templates"
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Manage Templates (20+)
+          </Link>
+          <button
+            onClick={fetchStores}
+            disabled={loading}
+            className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl bg-card border hover:bg-muted transition-colors w-fit"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            Refresh Registry
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards */}

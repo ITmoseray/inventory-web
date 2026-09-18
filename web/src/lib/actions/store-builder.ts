@@ -11,7 +11,9 @@ import {
   StoreSettings,
   StorefrontCustomerCheckoutData,
   CartItem,
-  AIProductCopyInput
+  AIProductCopyInput,
+  StoreTemplateDTO,
+  CreateStoreFromTemplateInput
 } from "@/types/store-builder";
 import { 
   generateAIStoreConfiguration, 
@@ -21,6 +23,7 @@ import {
   generateProductUpsellOffers
 } from "@/lib/store-builder/ai-service";
 import { generateSoNumber } from "@/lib/actions/sales-order";
+import { STARTER_TEMPLATES, getStarterTemplateById } from "@/lib/store-builder/starter-templates";
 
 // ─── HELPER: SERIALIZE DECIMALS ───────────────────────────────────
 function serializeStore(store: any) {
@@ -1597,5 +1600,509 @@ export async function upgradeStoreToEnterpriseAction(data: {
     businessId: business.id,
     businessName: business.name
   };
+}
+
+// =================================================================
+// TEMPLATE GALLERY & SELECTION SYSTEM SERVER ACTIONS
+// =================================================================
+
+export async function getStoreTemplatesAction(filter?: {
+  category?: string;
+  style?: string;
+  search?: string;
+}) {
+  try {
+    let dbTemplates: any[] = [];
+    try {
+      dbTemplates = await prisma.storeTemplate.findMany({
+        where: {
+          status: "PUBLISHED",
+          ...(filter?.category && filter.category !== "All" ? { category: filter.category } : {}),
+          ...(filter?.style && filter.style !== "all" ? { style: filter.style } : {}),
+          ...(filter?.search ? {
+            OR: [
+              { name: { contains: filter.search, mode: "insensitive" } },
+              { description: { contains: filter.search, mode: "insensitive" } },
+              { category: { contains: filter.search, mode: "insensitive" } },
+              { tags: { has: filter.search.toLowerCase() } }
+            ]
+          } : {})
+        },
+        orderBy: [
+          { isFeatured: "desc" },
+          { usageCount: "desc" },
+          { viewsCount: "desc" }
+        ]
+      });
+    } catch (dbErr) {
+      console.warn("DB query for store templates failed or table empty, using starter templates:", dbErr);
+    }
+
+    if (!dbTemplates || dbTemplates.length === 0) {
+      let templates = [...STARTER_TEMPLATES];
+      if (filter?.category && filter.category !== "All") {
+        templates = templates.filter(t => t.category.toLowerCase() === filter.category!.toLowerCase());
+      }
+      if (filter?.style && filter.style !== "all") {
+        templates = templates.filter(t => t.style.toLowerCase() === filter.style!.toLowerCase());
+      }
+      if (filter?.search) {
+        const q = filter.search.toLowerCase();
+        templates = templates.filter(t => 
+          t.name.toLowerCase().includes(q) || 
+          t.description.toLowerCase().includes(q) ||
+          t.category.toLowerCase().includes(q) ||
+          t.tags.some(tag => tag.toLowerCase().includes(q))
+        );
+      }
+      return { success: true, templates };
+    }
+
+    return { success: true, templates: serializeStore(dbTemplates) as StoreTemplateDTO[] };
+  } catch (error: any) {
+    console.error("getStoreTemplatesAction error:", error);
+    return { success: false, error: error.message || "Failed to load templates", templates: STARTER_TEMPLATES };
+  }
+}
+
+export async function getStoreTemplateByIdAction(templateId: string) {
+  try {
+    let template: any = null;
+    try {
+      template = await prisma.storeTemplate.findFirst({
+        where: {
+          OR: [
+            { templateId },
+            { slug: templateId },
+            { id: templateId }
+          ]
+        }
+      });
+      if (template) {
+        prisma.storeTemplate.update({
+          where: { id: template.id },
+          data: { viewsCount: { increment: 1 } }
+        }).catch(() => {});
+      }
+    } catch (dbErr) {
+      console.warn("Template DB lookup error:", dbErr);
+    }
+
+    if (!template) {
+      template = getStarterTemplateById(templateId);
+    }
+
+    if (!template) {
+      return { success: false, error: "Template not found" };
+    }
+
+    return { success: true, template: serializeStore(template) as StoreTemplateDTO };
+  } catch (error: any) {
+    console.error("getStoreTemplateByIdAction error:", error);
+    return { success: false, error: error.message || "Failed to get template" };
+  }
+}
+
+export async function createStoreFromTemplateAction(input: CreateStoreFromTemplateInput) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    const userId = session.user.id;
+    const businessId = session.user.businessId;
+    const isEnterprise = input.storeType === "ENTERPRISE_CONNECTED" && !!businessId;
+
+    // 1. Resolve template
+    let template: any = await prisma.storeTemplate.findFirst({
+      where: {
+        OR: [
+          { templateId: input.templateId },
+          { slug: input.templateId }
+        ]
+      }
+    });
+
+    if (!template) {
+      const fallback = getStarterTemplateById(input.templateId);
+      if (!fallback) throw new Error(`Template not found: ${input.templateId}`);
+      template = fallback;
+    }
+
+    // 2. Compute Theme Configuration
+    const baseTheme = (template.themeConfig as StoreTheme) || {};
+    const finalTheme: StoreTheme = {
+      ...baseTheme,
+      colors: {
+        ...baseTheme.colors,
+        ...(input.customColors?.primary ? { primary: input.customColors.primary } : {}),
+        ...(input.customColors?.secondary ? { secondary: input.customColors.secondary } : {}),
+        ...(input.customColors?.accent ? { accent: input.customColors.accent } : {}),
+      }
+    };
+
+    // 3. Generate clean slug
+    let cleanSlug = input.businessName
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    if (!cleanSlug) cleanSlug = `store-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const existingWithSlug = await prisma.store.findFirst({
+      where: {
+        slug: cleanSlug,
+        ...(isEnterprise ? { businessId: { not: businessId } } : { ownerId: { not: userId } })
+      }
+    });
+    if (existingWithSlug) {
+      cleanSlug = `${cleanSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    // 4. Adapt Template Sections to the Business Name & Contact
+    const rawSections = (template.sections as StoreSection[]) || [];
+    const adaptedSections = rawSections.map((sec) => {
+      const content = { ...(sec.content || {}) };
+      if (sec.type === "hero") {
+        if (!content.headline || content.headline.includes("Redefine") || content.headline.includes("Gourmet")) {
+          content.headline = `Welcome to ${input.businessName}`;
+        }
+        if (input.description) {
+          content.subheadline = input.description;
+        }
+      } else if (sec.type === "contact") {
+        content.title = `Contact ${input.businessName}`;
+        content.phone = input.phone || content.phone || "";
+        content.whatsapp = input.whatsapp || input.phone || content.whatsapp || "";
+        content.email = input.email || session.user.email || content.email || "";
+      } else if (sec.type === "footer") {
+        content.aboutText = `${input.businessName} — Your premier destination for quality ${template.category.toLowerCase()}.`;
+        content.copyright = `© ${new Date().getFullYear()} ${input.businessName}. Powered by ProTech Assist Enterprise OS.`;
+      }
+      return {
+        ...sec,
+        content
+      };
+    });
+
+    // 5. Find existing store for this user/business to update, or create new
+    const existingStore = await prisma.store.findFirst({
+      where: {
+        OR: [
+          ...(isEnterprise && businessId ? [{ businessId }] : []),
+          { ownerId: userId }
+        ]
+      }
+    });
+
+    let store: any;
+    if (existingStore) {
+      store = await prisma.store.update({
+        where: { id: existingStore.id },
+        data: {
+          name: input.businessName,
+          slug: cleanSlug,
+          description: input.description || template.description,
+          templateId: template.templateId,
+          status: "PUBLISHED",
+          publishedAt: new Date(),
+          currency: input.currency || "SLE",
+          whatsappPhone: input.whatsapp || input.phone || "",
+          contactPhone: input.phone || "",
+          contactEmail: input.email || session.user.email || "",
+          storeType: isEnterprise ? "ENTERPRISE_CONNECTED" : "STANDALONE",
+          businessId: isEnterprise ? businessId : null,
+          ownerId: userId,
+          themeConfig: finalTheme as any,
+          navigation: (template.navigation || {
+            header: [
+              { id: "nav-1", label: "Home", url: `/store/${cleanSlug}`, isExternal: false },
+              { id: "nav-2", label: "Shop All", url: `/store/${cleanSlug}#products`, isExternal: false },
+              { id: "nav-3", label: "Contact", url: `/store/${cleanSlug}#contact`, isExternal: false },
+            ],
+            footer: [
+              { id: "f-1", label: "Catalog", url: `/store/${cleanSlug}#products`, isExternal: false },
+              { id: "f-2", label: "Contact Us", url: `/store/${cleanSlug}#contact`, isExternal: false },
+            ]
+          }) as any,
+          settings: {
+            deliveryFee: 30,
+            freeDeliveryThreshold: 300,
+            deliveryEstimateDays: "1-2 business days",
+            minOrderAmount: 0,
+            allowCashOnDelivery: true,
+            allowOnlinePayment: false,
+            whatsappOrdering: true,
+            whatsappNumber: input.whatsapp || input.phone || "",
+            supportPhone: input.phone || "",
+            supportEmail: input.email || "",
+            seo: {
+              metaTitle: `${input.businessName} | Official Store`,
+              metaDescription: input.description || template.description
+            }
+          } as any,
+        }
+      });
+    } else {
+      store = await prisma.store.create({
+        data: {
+          name: input.businessName,
+          slug: cleanSlug,
+          description: input.description || template.description,
+          templateId: template.templateId,
+          status: "PUBLISHED",
+          publishedAt: new Date(),
+          currency: input.currency || "SLE",
+          whatsappPhone: input.whatsapp || input.phone || "",
+          contactPhone: input.phone || "",
+          contactEmail: input.email || session.user.email || "",
+          storeType: isEnterprise ? "ENTERPRISE_CONNECTED" : "STANDALONE",
+          businessId: isEnterprise ? businessId : null,
+          ownerId: userId,
+          themeConfig: finalTheme as any,
+          navigation: (template.navigation || {
+            header: [
+              { id: "nav-1", label: "Home", url: `/store/${cleanSlug}`, isExternal: false },
+              { id: "nav-2", label: "Shop All", url: `/store/${cleanSlug}#products`, isExternal: false },
+              { id: "nav-3", label: "Contact", url: `/store/${cleanSlug}#contact`, isExternal: false },
+            ],
+            footer: [
+              { id: "f-1", label: "Catalog", url: `/store/${cleanSlug}#products`, isExternal: false },
+              { id: "f-2", label: "Contact Us", url: `/store/${cleanSlug}#contact`, isExternal: false },
+            ]
+          }) as any,
+          settings: {
+            deliveryFee: 30,
+            freeDeliveryThreshold: 300,
+            deliveryEstimateDays: "1-2 business days",
+            minOrderAmount: 0,
+            allowCashOnDelivery: true,
+            allowOnlinePayment: false,
+            whatsappOrdering: true,
+            whatsappNumber: input.whatsapp || input.phone || "",
+            supportPhone: input.phone || "",
+            supportEmail: input.email || "",
+            seo: {
+              metaTitle: `${input.businessName} | Official Store`,
+              metaDescription: input.description || template.description
+            }
+          } as any,
+        }
+      });
+    }
+
+    // 6. Upsert Home Page with Adapted Sections
+    await prisma.storePage.upsert({
+      where: {
+        storeId_slug: {
+          storeId: store.id,
+          slug: "home"
+        }
+      },
+      create: {
+        storeId: store.id,
+        title: "Home",
+        slug: "home",
+        isHome: true,
+        sections: adaptedSections as any,
+        published: true
+      },
+      update: {
+        sections: adaptedSections as any,
+        published: true
+      }
+    });
+
+    // 7. If STANDALONE and store has no products yet, populate sample products
+    const productCount = await prisma.storeProduct.count({ where: { storeId: store.id } });
+    if (productCount === 0 && (!isEnterprise || !businessId)) {
+      const sampleItems = generateSampleProductsForArchetype(template.style || "general", input.businessName);
+      for (const item of sampleItems) {
+        await prisma.storeProduct.create({
+          data: {
+            storeId: store.id,
+            name: item.name,
+            price: item.price,
+            category: item.category,
+            description: item.description,
+            isFeatured: item.isFeatured ?? true,
+            customBadge: item.customBadge,
+            stockQuantity: 20,
+            status: "active",
+            isVisible: true
+          }
+        });
+      }
+    }
+
+    // 8. Increment template usageCount in DB
+    try {
+      await prisma.storeTemplate.updateMany({
+        where: { templateId: template.templateId },
+        data: { usageCount: { increment: 1 } }
+      });
+    } catch (e) {}
+
+    revalidatePath("/dashboard");
+    revalidatePath("/dashboard/store-builder");
+    revalidatePath(`/store/${cleanSlug}`);
+
+    return {
+      success: true,
+      storeId: store.id,
+      storeSlug: store.slug
+    };
+  } catch (error: any) {
+    console.error("createStoreFromTemplateAction error:", error);
+    return { success: false, error: error.message || "Failed to create store from template" };
+  }
+}
+
+export async function saveStoreAsTemplateAction(input: {
+  storeId: string;
+  name: string;
+  category: string;
+  description: string;
+  tags: string[];
+  style?: string;
+  previewImage?: string;
+}) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    const store = await prisma.store.findUnique({
+      where: { id: input.storeId },
+      include: { pages: true }
+    });
+
+    if (!store) throw new Error("Store not found");
+    if (store.ownerId !== session.user.id && store.businessId !== session.user.businessId) {
+      throw new Error("You do not have permission to export this store as a template.");
+    }
+
+    const homePage = store.pages.find(p => p.isHome || p.slug === "home") || store.pages[0];
+    const rawSections = (homePage?.sections as StoreSection[]) || [];
+
+    // Sanitize sections to remove private business details
+    const sanitizedSections = rawSections.map((sec) => {
+      const content = { ...(sec.content || {}) };
+      if (sec.type === "contact") {
+        content.phone = "+232 79 000000";
+        content.whatsapp = "+232 79 000000";
+        content.email = "hello@example.com";
+      }
+      return { ...sec, content };
+    });
+
+    const templateSlug = input.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+    const templateId = `tpl-custom-${templateSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const newTemplate = await prisma.storeTemplate.create({
+      data: {
+        templateId,
+        name: input.name,
+        slug: `${templateSlug}-${Math.floor(1000 + Math.random() * 9000)}`,
+        category: input.category,
+        description: input.description,
+        tags: input.tags.map(t => t.toLowerCase().trim()),
+        style: input.style || "modern",
+        previewImage: input.previewImage || store.bannerUrl || null,
+        thumbnail: input.previewImage || store.logoUrl || null,
+        themeConfig: store.themeConfig as any,
+        sections: sanitizedSections as any,
+        navigation: store.navigation as any,
+        status: "PUBLISHED",
+        creatorId: session.user.id,
+        isFeatured: false,
+        supportedFeatures: ["whatsapp_checkout", "responsive_catalog", "ai_customizer"]
+      }
+    });
+
+    revalidatePath("/dashboard/store-builder");
+
+    return {
+      success: true,
+      template: serializeStore(newTemplate) as StoreTemplateDTO
+    };
+  } catch (error: any) {
+    console.error("saveStoreAsTemplateAction error:", error);
+    return { success: false, error: error.message || "Failed to save store as template" };
+  }
+}
+
+export async function recordTemplateInteractionAction(templateId: string, type: "view" | "preview" | "select") {
+  try {
+    if (type === "view" || type === "preview") {
+      await prisma.storeTemplate.updateMany({
+        where: { templateId },
+        data: { viewsCount: { increment: 1 } }
+      });
+    }
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
+}
+
+export async function seedStoreTemplatesAction() {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) throw new Error("Unauthorized");
+
+    let count = 0;
+    for (const tpl of STARTER_TEMPLATES) {
+      await prisma.storeTemplate.upsert({
+        where: { templateId: tpl.templateId },
+        create: {
+          templateId: tpl.templateId,
+          name: tpl.name,
+          slug: tpl.slug,
+          category: tpl.category,
+          description: tpl.description,
+          tags: tpl.tags,
+          style: tpl.style,
+          thumbnail: tpl.thumbnail,
+          previewImage: tpl.previewImage,
+          themeConfig: tpl.themeConfig as any,
+          sections: tpl.sections as any,
+          navigation: tpl.navigation as any,
+          productLayout: tpl.productLayout as any,
+          mobileSettings: tpl.mobileSettings as any,
+          supportedFeatures: tpl.supportedFeatures,
+          status: tpl.status,
+          isFeatured: tpl.isFeatured,
+          viewsCount: tpl.viewsCount,
+          usageCount: tpl.usageCount,
+        },
+        update: {
+          name: tpl.name,
+          category: tpl.category,
+          description: tpl.description,
+          tags: tpl.tags,
+          style: tpl.style,
+          thumbnail: tpl.thumbnail,
+          previewImage: tpl.previewImage,
+          themeConfig: tpl.themeConfig as any,
+          sections: tpl.sections as any,
+          navigation: tpl.navigation as any,
+          productLayout: tpl.productLayout as any,
+          mobileSettings: tpl.mobileSettings as any,
+          supportedFeatures: tpl.supportedFeatures,
+          isFeatured: tpl.isFeatured,
+        }
+      });
+      count++;
+    }
+
+    revalidatePath("/dashboard/store-builder");
+    return { success: true, count };
+  } catch (error: any) {
+    console.error("seedStoreTemplatesAction error:", error);
+    return { success: false, error: error.message || "Failed to seed templates" };
+  }
 }
 

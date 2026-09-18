@@ -5,7 +5,8 @@ import {
   getStoreByBusiness, 
   getStoreCuratedProducts, 
   getStoreOrders, 
-  getStoreAnalyticsOverview 
+  getStoreAnalyticsOverview,
+  getStoreTemplatesAction
 } from "@/lib/actions/store-builder";
 import { StoreBuilderDashboardClient } from "@/components/store-builder/StoreBuilderDashboardClient";
 
@@ -26,8 +27,8 @@ export default async function StoreBuilderPage({
 
   const businessId = session.user.businessId;
 
-  // Load existing store, curated products, orders, analytics, catalog
-  const [store, curatedProducts, orders, analytics, availableProducts, business] = await Promise.all([
+  // Load existing store, curated products, orders, analytics, catalog, templates
+  const [store, curatedProducts, orders, analytics, availableProducts, business, templatesRes] = await Promise.all([
     getStoreByBusiness(),
     getStoreCuratedProducts(),
     getStoreOrders(),
@@ -53,7 +54,8 @@ export default async function StoreBuilderPage({
           where: { id: businessId },
           select: { name: true, phone: true, email: true, whatsappPhone: true }
         })
-      : Promise.resolve(null)
+      : Promise.resolve(null),
+    getStoreTemplatesAction()
   ]);
 
   const serializedCatalog = availableProducts.map(p => ({
@@ -76,6 +78,7 @@ export default async function StoreBuilderPage({
         analytics={analytics}
         businessName={business?.name || store?.name || session.user.name || "My Store"}
         initialPrompt={initialPrompt}
+        initialTemplates={templatesRes?.templates || []}
       />
     </div>
   );

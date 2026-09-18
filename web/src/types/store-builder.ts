@@ -19,6 +19,12 @@ export const StoreStyleArchetypes = [
   "school",
   "ngo",
   "general",
+  "bold",
+  "clean",
+  "vibrant",
+  "industrial",
+  "playful",
+  "minimalist",
 ] as const;
 
 export type StoreStyleArchetype = typeof StoreStyleArchetypes[number];
@@ -350,5 +356,98 @@ export interface AIStoreUpsellOffer {
   offerType: "frequently_bought_together" | "bundle" | "cross_sell" | "upgrade";
   headline: string;
   badge?: string;
+}
+
+// ─── TEMPLATE CATALOG TYPES ──────────────────────────────────────
+export const TemplateCategories = [
+  "All",
+  "Fashion & Apparel",
+  "Electronics & Tech",
+  "Supermarket & Grocery",
+  "Health & Pharmacy",
+  "Beauty & Cosmetics",
+  "Food & Restaurant",
+  "Home & Furniture",
+  "Jewelry & Luxury",
+  "Automotive & Hardware",
+  "Kids & Toys",
+  "Sports & Outdoor",
+  "Corporate & Services",
+] as const;
+
+export type TemplateCategory = typeof TemplateCategories[number];
+
+export const TemplateStyles = [
+  "all",
+  "modern",
+  "minimalist",
+  "bold",
+  "luxury",
+  "vibrant",
+  "clean",
+  "elegant",
+  "industrial",
+  "playful",
+] as const;
+
+export type TemplateStyle = typeof TemplateStyles[number];
+
+export interface StoreTemplateDTO {
+  id: string;
+  templateId: string;
+  name: string;
+  slug: string;
+  category: string;
+  description: string;
+  tags: string[];
+  style: string;
+  thumbnail?: string | null;
+  previewImage?: string | null;
+  themeConfig: StoreTheme;
+  sections: StoreSection[];
+  navigation?: StoreNavigation | null;
+  pages?: any;
+  productLayout?: {
+    columnsDesktop: number;
+    columnsMobile: number;
+    cardStyle: "modern" | "bordered" | "minimal" | "elevated" | "compact";
+    showQuickBuy: boolean;
+    showWishlist: boolean;
+    showRating: boolean;
+    badgePosition: "top-left" | "top-right";
+  };
+  productCard?: Record<string, any>;
+  mobileSettings?: {
+    stickyBottomNav: boolean;
+    compactHeader: boolean;
+    gridColumns: number;
+  };
+  supportedFeatures: string[];
+  version: number;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  isFeatured: boolean;
+  viewsCount: number;
+  usageCount: number;
+  creatorId?: string | null;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+}
+
+export interface CreateStoreFromTemplateInput {
+  templateId: string;
+  businessName: string;
+  businessType: string;
+  description?: string;
+  phone?: string;
+  whatsapp?: string;
+  email?: string;
+  currency?: string;
+  storeType: "ENTERPRISE_CONNECTED" | "STANDALONE";
+  businessId?: string;
+  customColors?: {
+    primary?: string;
+    secondary?: string;
+    accent?: string;
+  };
 }
 

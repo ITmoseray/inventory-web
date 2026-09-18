@@ -13,6 +13,9 @@ import { StoreOrdersManager } from "./StoreOrdersManager";
 import { StoreAnalyticsView } from "./StoreAnalyticsView";
 import { StoreSettingsManager } from "./StoreSettingsManager";
 import { StoreUpgradeModal } from "./StoreUpgradeModal";
+import { TemplateGallery } from "./TemplateGallery";
+import { STARTER_TEMPLATES } from "@/lib/store-builder/starter-templates";
+import { StoreTemplateDTO } from "@/types/store-builder";
 import { toggleStorePublish, deleteStore } from "@/lib/actions/store-builder";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -25,6 +28,7 @@ interface Props {
   analytics: any;
   businessName: string;
   initialPrompt?: string;
+  initialTemplates?: StoreTemplateDTO[];
 }
 
 export function StoreBuilderDashboardClient({
@@ -34,11 +38,13 @@ export function StoreBuilderDashboardClient({
   orders = [],
   analytics,
   businessName,
-  initialPrompt
+  initialPrompt,
+  initialTemplates
 }: Props) {
   const [store, setStore] = useState(initialStore);
-  const [activeTab, setActiveTab] = useState<"analytics" | "studio" | "products" | "orders" | "settings">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "studio" | "products" | "orders" | "templates" | "settings">("analytics");
   const [showWizard, setShowWizard] = useState(!initialStore || !!initialPrompt);
+  const [wizardView, setWizardView] = useState<"ai" | "templates">("ai");
   const [copied, setCopied] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -71,7 +77,7 @@ export function StoreBuilderDashboardClient({
     }
   };
 
-  // If user has no store or entered wizard mode, show the AI Store Wizard
+  // If user has no store or entered wizard mode, show the AI Store Wizard or Template Gallery
   if (!store || showWizard) {
     return (
       <div className="space-y-6">
@@ -86,7 +92,7 @@ export function StoreBuilderDashboardClient({
                   Active storefront loaded: <span className="font-bold text-primary">{store.name}</span>
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  You are currently in AI creation mode. You can return to your live store dashboard anytime.
+                  You are currently in creation mode. You can return to your live store dashboard anytime.
                 </p>
               </div>
             </div>
@@ -98,15 +104,52 @@ export function StoreBuilderDashboardClient({
             </button>
           </div>
         )}
-        <StoreWizard 
-          availableProducts={availableProducts}
-          initialPrompt={initialPrompt}
-          onStoreCreated={(newStore) => {
-            setStore(newStore);
-            setShowWizard(false);
-            toast.success("Welcome to your new AI Storefront!");
-          }}
-        />
+
+        {/* Mode Switcher: AI Wizard vs 20+ Templates */}
+        <div className="flex items-center justify-center">
+          <div className="inline-flex p-1 rounded-2xl bg-card border border-border shadow-sm">
+            <button
+              onClick={() => setWizardView("ai")}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                wizardView === "ai"
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Wand2 className="w-4 h-4" />
+              AI Store Generator
+            </button>
+            <button
+              onClick={() => setWizardView("templates")}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                wizardView === "templates"
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Sparkles className="w-4 h-4" />
+              Browse 20+ Templates
+            </button>
+          </div>
+        </div>
+
+        {wizardView === "ai" ? (
+          <StoreWizard 
+            availableProducts={availableProducts}
+            initialPrompt={initialPrompt}
+            onStoreCreated={(newStore) => {
+              setStore(newStore);
+              setShowWizard(false);
+              toast.success("Welcome to your new AI Storefront!");
+            }}
+          />
+        ) : (
+          <TemplateGallery
+            initialTemplates={initialTemplates && initialTemplates.length > 0 ? initialTemplates : STARTER_TEMPLATES}
+            hasEnterpriseAccount={store?.storeType === "ENTERPRISE_CONNECTED" || !!store?.businessId}
+            userBusinessName={store?.name || businessName}
+          />
+        )}
       </div>
     );
   }
@@ -305,6 +348,18 @@ export function StoreBuilderDashboardClient({
         </button>
 
         <button
+          onClick={() => setActiveTab("templates")}
+          className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
+            activeTab === "templates"
+              ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <Sparkles className="w-4 h-4" />
+          Templates (20+)
+        </button>
+
+        <button
           onClick={() => setActiveTab("settings")}
           className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all ${
             activeTab === "settings"
@@ -348,6 +403,14 @@ export function StoreBuilderDashboardClient({
             initialOrders={orders} 
             currency={store.currency || "SLE"}
             storeSlug={store.slug}
+          />
+        )}
+
+        {activeTab === "templates" && (
+          <TemplateGallery
+            initialTemplates={initialTemplates && initialTemplates.length > 0 ? initialTemplates : STARTER_TEMPLATES}
+            hasEnterpriseAccount={store.storeType === "ENTERPRISE_CONNECTED" || !!store.businessId}
+            userBusinessName={store.name || businessName}
           />
         )}
 

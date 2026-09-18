@@ -2083,6 +2083,7 @@ model Store {
   logoUrl         String?
   bannerUrl       String?
   faviconUrl      String?
+  templateId      String?
   status          StoreStatus      @default(DRAFT)
   currency        String           @default("SLE")
   whatsappPhone   String?
@@ -2225,5 +2226,42 @@ model StoreAnalytics {
   @@unique([storeId, date])
   @@index([storeId])
   @@index([date])
+}
+
+// =================================================================
+// STORE TEMPLATES CATALOG
+// =================================================================
+
+model StoreTemplate {
+  id                String   @id @default(cuid())
+  templateId        String   @unique
+  name              String
+  slug              String   @unique
+  category          String
+  description       String   @db.Text
+  tags              String[] @default([])
+  style             String   @default("modern")
+  thumbnail         String?
+  previewImage      String?
+  themeConfig       Json
+  sections          Json
+  navigation        Json?
+  pages             Json?
+  productLayout     Json?
+  productCard       Json?
+  mobileSettings    Json?
+  supportedFeatures String[] @default(["whatsapp_checkout", "responsive_catalog", "ai_customizer"])
+  version           Int      @default(1)
+  status            String   @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  isFeatured        Boolean  @default(false)
+  viewsCount        Int      @default(0)
+  usageCount        Int      @default(0)
+  creatorId         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([category])
+  @@index([style])
+  @@index([status])
 }
 
