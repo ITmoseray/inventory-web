@@ -6,7 +6,7 @@ import {
   Trash2, ChevronUp, ChevronDown, Plus, Wand2, X, Check, ArrowRight,
   Palette, Layout, Settings, RefreshCw, ShoppingBag, Layers, ExternalLink,
   RotateCcw, RotateCw, Upload, Image as ImageIcon, FileText, Menu, Phone,
-  Tag, Sliders, CheckCircle2, Rocket
+  Tag, Sliders, CheckCircle2, Rocket, Crown
 } from "lucide-react";
 import { 
   StoreSection, 
@@ -26,6 +26,7 @@ import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { SectionRenderer } from "@/components/storefront/SectionRenderer";
 import { StoreUpgradeModal } from "./StoreUpgradeModal";
+import { StoreBillingModal } from "./StoreBillingModal";
 import { TemplateGallery } from "./TemplateGallery";
 import { STARTER_TEMPLATES } from "@/lib/store-builder/starter-templates";
 import { StoreTemplateDTO, TemplateCategories, TemplateStyles } from "@/types/store-builder";
@@ -89,6 +90,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
+  const [isBillingModalOpen, setIsBillingModalOpen] = useState(false);
   const [dockPrompt, setDockPrompt] = useState("");
   const [isAiExecuting, setIsAiExecuting] = useState(false);
   const [uploadingImageField, setUploadingImageField] = useState<string | null>(null);
@@ -530,6 +532,16 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
           >
             <Tag className="w-3.5 h-3.5 text-amber-400" />
             <span className="hidden lg:inline">Export Template</span>
+          </button>
+
+          {/* Billing Plan Trigger */}
+          <button
+            onClick={() => setIsBillingModalOpen(true)}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 flex items-center gap-1.5 transition-colors"
+            title="View Store Plan, Quotas & Upgrades"
+          >
+            <Crown className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Plan: {store.plan || "Free"}</span>
           </button>
 
           {/* AI Assistant Modal Trigger */}
@@ -1592,6 +1604,14 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
           </div>
         </div>
       )}
+
+      {/* Store Billing & Plans Modal */}
+      <StoreBillingModal
+        isOpen={isBillingModalOpen}
+        onClose={() => setIsBillingModalOpen(false)}
+        storeId={store.id}
+        onPlanUpdated={(newPlan) => setStore((prev: any) => ({ ...prev, plan: newPlan }))}
+      />
     </div>
   );
 }

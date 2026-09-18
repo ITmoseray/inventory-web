@@ -196,7 +196,7 @@ export function StoreWizard({
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground leading-snug">
-                Reuses active inventory, connects POS orders to Sales Orders, and maintains tenant isolation.
+                Syncs directly with your existing shop's products, stock quantities, and prices. Online orders flow right into your sales orders.
               </p>
             </button>
 
@@ -223,7 +223,7 @@ export function StoreWizard({
                 </div>
               </div>
               <p className="text-[11px] text-muted-foreground leading-snug">
-                Independent catalog with WhatsApp checkout & delivery. Includes non-destructive 1-click upgrade.
+                Start fresh with sample products and direct WhatsApp checkout. No existing shop or warehouse setup required.
               </p>
             </button>
           </div>
@@ -244,6 +244,10 @@ export function StoreWizard({
                   className="w-full bg-transparent border-0 resize-none text-sm sm:text-base font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0 leading-relaxed"
                 />
 
+                <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-[11px] text-muted-foreground">
+                  💡 <strong>Tip for best results:</strong> Mention what you sell, your target customers, and your city (e.g. Freetown, Bo, Kenema).
+                </div>
+
                 {/* Bottom Bar inside Prompt Card */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/60">
                   {/* Mode Status / Detection Badge */}
@@ -255,7 +259,7 @@ export function StoreWizard({
                       </span>
                     ) : (
                       <span>
-                        <strong className="text-foreground">Standalone Mode:</strong> AI will synthesize archetype starter products with WhatsApp ordering.
+                        <strong className="text-foreground">Standalone Store:</strong> AI will create sample products with prices and WhatsApp checkout.
                       </span>
                     )}
                   </div>

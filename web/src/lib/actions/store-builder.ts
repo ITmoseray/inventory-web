@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import bcrypt from "bcryptjs";
 import { 
   AIStoreGenerationInput, 
   StoreSection, 
@@ -2105,4 +2106,212 @@ export async function seedStoreTemplatesAction() {
     return { success: false, error: error.message || "Failed to seed templates" };
   }
 }
+
+// ─── GUEST STORE PREVIEW ACTION (ZERO-LOGIN SANDBOX) ──────────────
+export async function generateGuestStorePreviewAction(input: {
+  prompt?: string;
+  templateId?: string;
+}) {
+  try {
+    if (input.templateId) {
+      const tpl = await prisma.storeTemplate.findUnique({ where: { templateId: input.templateId } }) || getStarterTemplateById(input.templateId);
+      if (tpl) {
+        return {
+          success: true,
+          name: tpl.name,
+          slug: tpl.slug,
+          description: tpl.description,
+          theme: tpl.themeConfig,
+          sections: tpl.sections,
+          navigation: tpl.navigation,
+          settings: {
+            deliveryFee: 50,
+            freeDeliveryThreshold: 500,
+            allowCashOnDelivery: true,
+            allowOnlinePayment: false,
+            seo: { title: tpl.name, description: tpl.description }
+          },
+          sampleProducts: generateSampleProductsForArchetype(tpl.style, tpl.name),
+          whatsapp: "+23276000000"
+        };
+      }
+    }
+
+    const cleanPrompt = input.prompt?.trim() || "A modern online boutique in Freetown with WhatsApp ordering";
+    const analysis = await analyzeStorePrompt(cleanPrompt, null);
+    const aiConfig = await generateAIStoreConfiguration({
+      businessName: analysis.suggestedName,
+      businessType: analysis.businessCategory,
+      description: analysis.description,
+      location: analysis.location || "Freetown, Sierra Leone",
+      phone: "+23276000000",
+      whatsapp: "+23276000000",
+      email: "hello@store.sl",
+      targetCustomers: `Shoppers seeking verified ${analysis.businessCategory.toLowerCase()}`,
+      styleArchetype: analysis.styleArchetype,
+      productIds: [],
+      storeType: "STANDALONE",
+      standaloneProducts: generateSampleProductsForArchetype(analysis.styleArchetype, analysis.suggestedName)
+    });
+
+    const sampleProducts = generateSampleProductsForArchetype(aiConfig.theme.style, aiConfig.name);
+
+    return {
+      success: true,
+      name: aiConfig.name,
+      slug: aiConfig.slug,
+      description: aiConfig.description,
+      theme: aiConfig.theme,
+      sections: aiConfig.homeSections,
+      navigation: aiConfig.navigation,
+      settings: aiConfig.settings,
+      sampleProducts,
+      whatsapp: "+23276000000"
+    };
+  } catch (error: any) {
+    console.error("generateGuestStorePreviewAction error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to generate store preview"
+    };
+  }
+}
+
+// ─── CLAIM GUEST STORE ACTION (1-CLICK USER REGISTRATION & SAVE) ────
+export async function claimGuestStoreAction(input: {
+  storeData: {
+    name: string;
+    slug: string;
+    description: string;
+    theme: any;
+    sections: any[];
+    navigation: any;
+    settings: any;
+    sampleProducts: any[];
+    whatsappPhone?: string;
+    templateId?: string;
+  };
+  userData: {
+    name: string;
+    email: string;
+    password?: string;
+    phone?: string;
+  };
+}) {
+  try {
+    const { storeData, userData } = input;
+    if (!userData.email) throw new Error("Email address is required");
+    const normalizedEmail = userData.email.trim().toLowerCase();
+
+    // 1. Check if user already exists or create new user
+    let user = await prisma.user.findUnique({
+      where: { email: normalizedEmail }
+    });
+
+    if (!user) {
+      if (!userData.password || userData.password.length < 6) {
+        throw new Error("Please choose a password with at least 6 characters");
+      }
+      const passwordHash = await bcrypt.hash(userData.password, 10);
+      user = await prisma.user.create({
+        data: {
+          email: normalizedEmail,
+          name: userData.name || storeData.name,
+          passwordHash,
+          phone: userData.phone || storeData.whatsappPhone || null,
+          status: "active",
+        }
+      });
+    }
+
+    // 2. Resolve unique slug
+    let finalSlug = storeData.slug || storeData.name.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-");
+    const existing = await prisma.store.findFirst({ where: { slug: finalSlug } });
+    if (existing) {
+      finalSlug = `${finalSlug}-${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+
+    // 3. Create Store
+    const store = await prisma.store.create({
+      data: {
+        name: storeData.name,
+        slug: finalSlug,
+        description: storeData.description || `Welcome to ${storeData.name}`,
+        status: "PUBLISHED",
+        publishedAt: new Date(),
+        currency: "SLE",
+        whatsappPhone: userData.phone || storeData.whatsappPhone || "",
+        contactPhone: userData.phone || storeData.whatsappPhone || "",
+        contactEmail: normalizedEmail,
+        location: "Sierra Leone",
+        storeType: "STANDALONE",
+        ownerId: user.id,
+        businessId: null,
+        templateId: storeData.templateId || null,
+        plan: "FREE",
+        aiGenerationsUsed: 1,
+        aiGenerationsLimit: 5,
+        productsLimit: 10,
+        customDomainAllowed: false,
+        themeConfig: storeData.theme,
+        navigation: storeData.navigation,
+        settings: storeData.settings
+      }
+    });
+
+    // 4. Create Home Page
+    await prisma.storePage.create({
+      data: {
+        storeId: store.id,
+        title: "Home",
+        slug: "home",
+        isHome: true,
+        sections: storeData.sections as any,
+        published: true,
+        seoTitle: `${storeData.name} - Official Online Store`,
+        seoDescription: storeData.description || `Shop authentic products from ${storeData.name}`
+      }
+    });
+
+    // 5. Seed Standalone Products
+    if (storeData.sampleProducts && storeData.sampleProducts.length > 0) {
+      for (const [idx, sp] of storeData.sampleProducts.entries()) {
+        await prisma.storeProduct.create({
+          data: {
+            storeId: store.id,
+            productId: null,
+            name: sp.name,
+            description: sp.description || "",
+            price: sp.price || 150,
+            category: sp.category || "General",
+            images: sp.image ? [sp.image] : [],
+            isFeatured: sp.isFeatured ?? idx < 3,
+            customBadge: sp.customBadge || null,
+            displayOrder: idx,
+            status: "active"
+          }
+        });
+      }
+    }
+
+    revalidatePath("/dashboard/store-builder");
+    revalidatePath(`/store/${finalSlug}`);
+
+    return {
+      success: true,
+      userId: user.id,
+      storeId: store.id,
+      storeSlug: finalSlug,
+      storeUrl: `/store/${finalSlug}`,
+      dashboardUrl: "/dashboard/store-builder"
+    };
+  } catch (error: any) {
+    console.error("claimGuestStoreAction error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to claim store"
+    };
+  }
+}
+
 

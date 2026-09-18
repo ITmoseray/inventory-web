@@ -153,6 +153,7 @@ model User {
   business                Business?                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
   role                    Role?                     @relation(fields: [roleId], references: [id])
   ownedStores             Store[]                   @relation("StoreOwner")
+  storeSubscriptions      StoreSubscription[]       @relation("UserStoreSubscriptions")
   appointments            Appointment[]
   consultations           Consultation[]
   labTests                LabTest[]                 @relation("LabTechnician")
@@ -2072,46 +2073,84 @@ enum StoreType {
   STANDALONE
 }
 
-model Store {
-  id              String           @id @default(cuid())
-  businessId      String?          @unique
-  ownerId         String?
-  storeType       StoreType        @default(ENTERPRISE_CONNECTED)
-  name            String
-  slug            String           @unique
-  description     String?          @db.Text
-  logoUrl         String?
-  bannerUrl       String?
-  faviconUrl      String?
-  templateId      String?
-  status          StoreStatus      @default(DRAFT)
-  currency        String           @default("SLE")
-  whatsappPhone   String?
-  contactEmail    String?
-  contactPhone    String?
-  location        String?
-  socialLinks     Json?            // { facebook?: string, instagram?: string, twitter?: string, tiktok?: string }
-  themeConfig     Json             // { style, colors: { primary, secondary, accent, background, surface, text, mutedText }, fonts: { heading, body }, borderRadius, headerLayout, heroLayout }
-  navigation      Json?            // { header: [{ id, label, url }], footer: [{ id, label, url }] }
-  settings        Json?            // { deliveryFee, freeDeliveryThreshold, minOrder, allowCashOnDelivery, allowOnlinePayment, seo: { title, description } }
-  customDomain    String?          @unique
-  publishedAt     DateTime?
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+enum StorePlan {
+  FREE
+  PRO
+  BUSINESS
+}
 
-  business        Business?        @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  owner           User?            @relation("StoreOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  pages           StorePage[]
-  products        StoreProduct[]
-  salesOrders     SalesOrder[]
-  standaloneOrders StoreOrder[]
-  analytics       StoreAnalytics[]
+model Store {
+  id                   String              @id @default(cuid())
+  businessId           String?             @unique
+  ownerId              String?
+  storeType            StoreType           @default(ENTERPRISE_CONNECTED)
+  name                 String
+  slug                 String              @unique
+  description          String?             @db.Text
+  logoUrl              String?
+  bannerUrl            String?
+  faviconUrl           String?
+  templateId           String?
+  plan                 StorePlan           @default(FREE)
+  aiGenerationsUsed    Int                 @default(0)
+  aiGenerationsLimit   Int                 @default(5)
+  productsLimit        Int                 @default(10)
+  customDomainAllowed  Boolean             @default(false)
+  planExpiresAt        DateTime?
+  status               StoreStatus         @default(DRAFT)
+  currency             String              @default("SLE")
+  whatsappPhone        String?
+  contactEmail         String?
+  contactPhone         String?
+  location             String?
+  socialLinks          Json?               // { facebook?: string, instagram?: string, twitter?: string, tiktok?: string }
+  themeConfig          Json                // { style, colors: { primary, secondary, accent, background, surface, text, mutedText }, fonts: { heading, body }, borderRadius, headerLayout, heroLayout }
+  navigation           Json?               // { header: [{ id, label, url }], footer: [{ id, label, url }] }
+  settings             Json?               // { deliveryFee, freeDeliveryThreshold, minOrder, allowCashOnDelivery, allowOnlinePayment, seo: { title, description } }
+  customDomain         String?             @unique
+  publishedAt          DateTime?
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  business             Business?           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  owner                User?               @relation("StoreOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  pages                StorePage[]
+  products             StoreProduct[]
+  salesOrders          SalesOrder[]
+  standaloneOrders     StoreOrder[]
+  analytics            StoreAnalytics[]
+  subscriptions        StoreSubscription[]
 
   @@index([businessId])
   @@index([ownerId])
   @@index([slug])
   @@index([status])
   @@index([storeType])
+  @@index([plan])
+}
+
+model StoreSubscription {
+  id              String           @id @default(cuid())
+  storeId         String
+  userId          String
+  plan            StorePlan
+  amount          Decimal          @db.Decimal(10, 2)
+  currency        String           @default("SLE")
+  billingCycle    String           @default("monthly") // monthly | yearly
+  status          String           @default("active")  // active | canceled | expired
+  paymentMethod   String?          // orange_money | afrimoney | card | bank_transfer | manual
+  paymentRef      String?
+  startDate       DateTime         @default(now())
+  endDate         DateTime
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user            User             @relation("UserStoreSubscriptions", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([storeId])
+  @@index([userId])
+  @@index([status])
 }
 
 model StorePage {

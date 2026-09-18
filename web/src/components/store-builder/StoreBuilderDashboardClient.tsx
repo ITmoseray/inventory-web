@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { 
   Store as StoreIcon, Sparkles, Globe, Eye, Palette, ShoppingBag, 
   Settings, BarChart3, ExternalLink, Copy, Check, Power, RefreshCw,
-  PlusCircle, Layers, ArrowRight, Trash2, AlertOctagon, X, Wand2, Rocket
+  PlusCircle, Layers, ArrowRight, Trash2, AlertOctagon, X, Wand2, Rocket, Crown
 } from "lucide-react";
 import { StoreWizard } from "./StoreWizard";
 import { StoreStudio } from "./StoreStudio";
@@ -13,6 +13,7 @@ import { StoreOrdersManager } from "./StoreOrdersManager";
 import { StoreAnalyticsView } from "./StoreAnalyticsView";
 import { StoreSettingsManager } from "./StoreSettingsManager";
 import { StoreUpgradeModal } from "./StoreUpgradeModal";
+import { StoreBillingModal } from "./StoreBillingModal";
 import { TemplateGallery } from "./TemplateGallery";
 import { STARTER_TEMPLATES } from "@/lib/store-builder/starter-templates";
 import { StoreTemplateDTO } from "@/types/store-builder";
@@ -48,6 +49,7 @@ export function StoreBuilderDashboardClient({
   const [copied, setCopied] = useState(false);
   const [isTogglingStatus, setIsTogglingStatus] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showBillingModal, setShowBillingModal] = useState(false);
 
   // Top header delete modal state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -282,6 +284,16 @@ export function StoreBuilderDashboardClient({
               <span className="hidden sm:inline">AI Wizard</span>
             </button>
 
+            {/* Plan Badge & Billing Trigger */}
+            <button
+              onClick={() => setShowBillingModal(true)}
+              title="Manage Plan, Quotas & Upgrades"
+              className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold transition-all shadow-sm"
+            >
+              <Crown className="w-3.5 h-3.5 text-amber-500" />
+              <span>{store.plan || "Free"}</span>
+            </button>
+
             {/* Quick Delete Storefront Button */}
             <button
               onClick={() => {
@@ -369,6 +381,14 @@ export function StoreBuilderDashboardClient({
         >
           <Settings className="w-4 h-4" />
           Settings & Danger Zone
+        </button>
+
+        <button
+          onClick={() => setShowBillingModal(true)}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all text-amber-600 dark:text-amber-400 font-bold"
+        >
+          <Crown className="w-4 h-4 text-amber-500" />
+          Plans & Billing
         </button>
       </div>
 
@@ -495,7 +515,15 @@ export function StoreBuilderDashboardClient({
       <StoreUpgradeModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        storeName={store.name}
+        storeName={store?.name || "Online Store"}
+      />
+
+      {/* ── BILLING & PLANS MODAL ────────────────────────────── */}
+      <StoreBillingModal
+        isOpen={showBillingModal}
+        onClose={() => setShowBillingModal(false)}
+        storeId={store?.id}
+        onPlanUpdated={(newPlan) => setStore((prev: any) => ({ ...prev, plan: newPlan }))}
       />
     </div>
   );
