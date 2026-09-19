@@ -17,6 +17,7 @@ import Link from "next/link";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useSearchParams } from "next/navigation";
+import { EnterprisePageHeader, EnterpriseBadge } from "@/components/enterprise";
 
 interface Message {
   role: "user" | "assistant";
@@ -141,45 +142,31 @@ function NeuralChatContent() {
       <div className="max-w-5xl mx-auto w-full flex-1 flex flex-col space-y-6 relative z-10">
         
         {/* HEADER & CONNECTION STATE */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200/60 dark:border-slate-800/60 pb-6">
-          <div className="space-y-1">
-             <div className="flex items-center gap-2.5">
-                <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
-                   <MessageSquare className="h-4 w-4" />
-                </div>
-                <span className="text-[10px] font-black uppercase tracking-[0.35em] text-slate-450 dark:text-slate-500">
-                  African Trade Intelligence
-                </span>
-             </div>
-             <h1 className="text-3xl md:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight uppercase italic flex items-center gap-2">
-               Neural <span className="text-indigo-600 dark:text-indigo-400">Chat Node</span>
-             </h1>
-          </div>
-
-          <div className="flex items-center gap-3">
-             <div className={cn(
-               "px-3.5 py-1.5 rounded-full flex items-center gap-2 border text-[10px] font-black uppercase tracking-widest transition-all",
-               status === "ACTIVE" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-500" :
-               status === "OFFLINE" ? "bg-rose-500/10 border-rose-500/20 text-rose-600 dark:text-rose-500" : "bg-slate-800 border-slate-700 text-slate-500"
-             )}>
-                <div className={cn("h-1.5 w-1.5 rounded-full", 
-                  status === "ACTIVE" ? "bg-emerald-500 animate-pulse" : 
-                  status === "OFFLINE" ? "bg-rose-500" : "bg-slate-650"
-                )} />
-                <span>
-                   {status === "ACTIVE" ? `${version || "Active"}` : status}
-                </span>
-             </div>
-             <Button 
-               variant="outline" 
-               size="icon" 
-               onClick={checkConnection}
-               className="h-10 w-10 rounded-xl border-slate-200 bg-white dark:bg-slate-900 text-slate-500 hover:bg-slate-50"
-             >
-                <RefreshCw className={cn("h-4 w-4 text-slate-450", status === "CHECKING" && "animate-spin")} />
-             </Button>
-          </div>
-        </div>
+        <EnterprisePageHeader
+          title="ProTech AI Business Copilot"
+          subtitle="Real-time assistant for inventory queries, executive briefing, stock forecasting, and growth simulation."
+          badge={
+            <EnterpriseBadge 
+              variant={status === "ACTIVE" ? "success" : status === "OFFLINE" ? "danger" : "neutral"} 
+              size="sm" 
+              dot 
+              pulse={status === "ACTIVE"}
+            >
+              {status === "ACTIVE" ? `${version || "AI Engine Online"}` : status === "OFFLINE" ? "Offline" : "Connecting..."}
+            </EnterpriseBadge>
+          }
+          actions={
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={checkConnection}
+              className="h-10 px-3.5 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 font-bold text-xs gap-2"
+            >
+              <RefreshCw className={cn("h-3.5 w-3.5 text-slate-400", status === "CHECKING" && "animate-spin")} />
+              Sync Link
+            </Button>
+          }
+        />
 
         {/* WORKSPACE AREA */}
         <div className="flex-1 min-h-[400px] grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">

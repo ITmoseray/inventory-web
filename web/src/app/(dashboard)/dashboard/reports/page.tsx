@@ -52,6 +52,7 @@ import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 import { ResponsiveTable } from "@/components/shared/responsive-table";
+import { EnterprisePageHeader, EnterpriseKpiCard, EnterpriseBadge, PaymentStatusBadge } from "@/components/enterprise";
 
 export default function ReportsPage() {
   const [sales, setSales] = useState<any[]>([]);
@@ -141,63 +142,67 @@ export default function ReportsPage() {
     {
       header: "Audit Status",
       accessor: (sale: any) => (
-        <div className="text-right lg:text-left">
-           <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-black uppercase tracking-tighter shadow-sm border border-emerald-100 dark:border-emerald-800/50">
-              {sale.paymentStatus}
-           </span>
-        </div>
+        <PaymentStatusBadge status={sale.paymentStatus} />
       )
     }
   ];
 
   return (
-    <div className="space-y-8 p-4 sm:p-6 md:p-10 animate-in fade-in duration-700 pb-20 bg-slate-50/30 dark:bg-slate-950/50">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div>
-           <div className="flex items-center gap-2 mb-2">
-              <div className="p-1.5 rounded-lg bg-indigo-600 text-white shadow-xl shadow-indigo-500/20">
-                 <BarChart3 className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Neural Analytics</span>
-           </div>
-           <h1 className="text-3xl sm:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight uppercase italic">Strategic <span className="text-indigo-600">Intelligence</span></h1>
-           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">Deep-dive into your business profitability and sales velocity.</p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-           <Button variant="outline" onClick={() => window.print()} className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-black uppercase text-[10px] tracking-widest bg-white dark:bg-slate-900 shadow-sm transition-all hover:scale-[1.02]">
+    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 md:p-8 animate-in fade-in duration-700 pb-20">
+      <EnterprisePageHeader
+        title="Executive Reports & Fiscal Audit"
+        subtitle="Deep-dive into business profitability, gross margin yields, GST compliance, and audit trails."
+        badge={
+          <EnterpriseBadge variant="primary" size="sm">
+            <BarChart3 className="h-3 w-3 mr-1" /> Financial Analytics
+          </EnterpriseBadge>
+        }
+        actions={
+          <div className="flex flex-col sm:flex-row gap-2.5 w-full xl:w-auto">
+            <Button variant="outline" onClick={() => window.print()} className="h-11 px-5 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-bold text-xs bg-white dark:bg-slate-900 shadow-sm transition-all">
               <Download className="h-4 w-4 text-indigo-600" /> Export PDF Vault
-           </Button>
-           <Button onClick={() => toast.success("Current cycle synchronized.", { description: "Displaying analytics for the current operational cycle." })} className="h-14 px-8 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-black uppercase text-[10px] tracking-widest shadow-2xl transition-all hover:scale-[1.02] active:scale-95 gap-2">
+            </Button>
+            <Button onClick={() => toast.success("Current cycle synchronized.", { description: "Displaying analytics for the current operational cycle." })} className="h-11 px-5 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-bold text-xs shadow-md transition-all gap-2">
               <Calendar className="h-4 w-4" /> Current Cycle
-           </Button>
-        </div>
-      </div>
+            </Button>
+          </div>
+        }
+      />
 
       {/* Primary KPIs Grid */}
       <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {[
-          { label: "Net Revenue Yield", value: totalRevenue, icon: DollarSign, color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/30", sub: "+12.5% VS LAST CYCLE" },
-          { label: "Cost of Goods (COGS)", value: analytics.totalCost, icon: Package, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/30", sub: "DIRECT ASSET EXPENSE" },
-          { label: "Gross Profit Margin", value: grossProfit, icon: TrendingUp, color: "text-emerald-500", bg: "bg-slate-900 dark:bg-slate-950 dark:text-white", sub: `${margin.toFixed(1)}% EFFICIENCY`, isDark: true },
-          { label: "Transaction Velocity", value: sales.length, icon: ShoppingCart, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/30", sub: `AVG TICKET: Le ${Math.round(totalRevenue / (sales.length || 1)).toLocaleString()}`, noPrefix: true }
-        ].map((kpi, i) => (
-          <Card key={i} className={cn("border-none shadow-sm rounded-[2.5rem] overflow-hidden relative group", kpi.isDark ? "bg-slate-900 text-white dark:bg-slate-950 dark:text-white dark:border dark:border-slate-800" : "bg-white dark:bg-slate-900")}>
-             <CardHeader className="p-6 sm:p-8 pb-2">
-                <CardTitle className={cn("text-[10px] font-black uppercase tracking-widest flex items-center gap-2", kpi.isDark ? "text-slate-400" : "text-slate-400")}>
-                   <kpi.icon className={cn("h-3 w-3", kpi.color)} /> {kpi.label}
-                </CardTitle>
-             </CardHeader>
-             <CardContent className="p-6 sm:p-8 pt-0">
-                <div className="text-2xl sm:text-3xl font-[1000] tracking-tighter">
-                  {kpi.noPrefix ? "" : "Le "}{Math.round(kpi.value as number).toLocaleString()}
-                </div>
-                <div className={cn("mt-4 text-[9px] font-black uppercase tracking-widest", kpi.isDark ? "text-emerald-400" : "text-emerald-500")}>
-                   {kpi.sub}
-                </div>
-             </CardContent>
-          </Card>
-        ))}
+        <EnterpriseKpiCard
+          title="Net Revenue Yield"
+          value={Math.round(totalRevenue)}
+          currency="SLE"
+          change={12.5}
+          changeLabel="vs last cycle"
+          icon={DollarSign}
+          iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Cost of Goods (COGS)"
+          value={Math.round(analytics.totalCost)}
+          currency="SLE"
+          subtitle="Direct asset expense"
+          icon={Package}
+          iconColor="text-rose-600 bg-rose-50 dark:bg-rose-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Gross Profit Margin"
+          value={Math.round(grossProfit)}
+          currency="SLE"
+          subtitle={`${margin.toFixed(1)}% efficiency`}
+          icon={TrendingUp}
+          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Transaction Velocity"
+          value={sales.length}
+          subtitle={`Avg Ticket: SLE ${Math.round(totalRevenue / (sales.length || 1)).toLocaleString()}`}
+          icon={ShoppingCart}
+          iconColor="text-blue-600 bg-blue-50 dark:bg-blue-950/40"
+        />
       </div>
 
       {/* NRA 15% GST FISCAL TAX & Z-REPORT CARD (SmartPay / ECR Standard) */}

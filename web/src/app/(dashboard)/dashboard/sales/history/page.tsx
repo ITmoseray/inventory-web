@@ -48,6 +48,7 @@ import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { ResponsiveTable } from "@/components/shared/responsive-table";
+import { EnterprisePageHeader, EnterpriseBadge, PaymentStatusBadge, EnterpriseEmptyState } from "@/components/enterprise";
 
 export default function SalesHistoryPage() {
   const { data: session } = useSession();
@@ -219,56 +220,51 @@ export default function SalesHistoryPage() {
     {
       header: "Status",
       accessor: (sale: any) => (
-        <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
-          sale.paymentStatus === 'PAID' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400")}>
-          {sale.paymentStatus}
-        </div>
+        <PaymentStatusBadge status={sale.paymentStatus} />
       )
     }
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-10 p-4 sm:p-6 md:p-10 animate-in fade-in duration-700 pb-20">
-      <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-        <div>
-           <div className="flex items-center gap-2 mb-2">
-              <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
-                 <ShoppingCart className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">{copy.intelligence}</span>
-           </div>
-           <h1 className="text-3xl sm:text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight uppercase italic">{copy.titlePrefix} <span className={cn(isBar ? "text-rose-500" : "text-primary")}>{copy.titleHighlight}</span></h1>
-           <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-2">{copy.subtitle}</p>
-        </div>
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-20">
+      <EnterprisePageHeader
+        title={`${copy.titlePrefix} ${copy.titleHighlight}`}
+        subtitle={copy.subtitle}
+        badge={
+          <EnterpriseBadge variant="primary" size="sm">
+            <ShoppingCart className="h-3 w-3 mr-1" /> {copy.intelligence}
+          </EnterpriseBadge>
+        }
+        actions={
+          <div className="flex flex-col sm:flex-row gap-2.5 w-full xl:w-auto">
+            <Button variant="outline" className="h-11 px-5 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-bold text-xs" onClick={handleExportCSV}>
+              <FileDown className="h-4 w-4 text-primary" /> Export CSV
+            </Button>
+            <Button className={cn("h-11 px-5 rounded-2xl text-white font-bold text-xs shadow-md", colors.primary)} onClick={handlePrint}>
+              <Printer className="h-4 w-4 mr-2" /> Print Report
+            </Button>
+          </div>
+        }
+      />
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto">
-           <Button variant="outline" className="h-14 px-8 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-black uppercase text-[10px] tracking-widest" onClick={handleExportCSV}>
-              <FileDown className="h-4 w-4 text-primary" /> Export CSV Vault
-           </Button>
-           <Button className={cn("h-14 px-8 rounded-2xl text-white font-black uppercase text-[10px] tracking-widest shadow-xl", colors.primary)} onClick={handlePrint}>
-              <Printer className="h-4 w-4 mr-2" /> Print System Report
-           </Button>
-        </div>
-      </div>
-
-      <Card className="border-none shadow-sm bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm p-4 sm:p-6 rounded-2xl sm:rounded-[2rem]">
+      <Card className="border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-sm">
         <div className="flex flex-col md:flex-row gap-4 justify-between">
             <div className="relative flex-1 group">
                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
                <Input 
                  placeholder={`Search ${isBar ? "tab or guest" : "invoice or customer"}...`} 
-                 className="h-12 sm:h-14 pl-12 rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 focus:bg-white transition-all font-bold text-xs"
+                 className="h-12 pl-11 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 focus:bg-white transition-all font-bold text-xs"
                  value={searchQuery}
                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                />
             </div>
             <div className="flex gap-2">
                <Select value={filterRange} onValueChange={(val: string | null) => setFilterRange(val ?? "TODAY")}>
-                 <SelectTrigger className="h-12 sm:h-14 rounded-2xl w-full md:w-[220px] border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 font-black text-[10px] uppercase tracking-widest text-slate-500 shadow-sm">
+                 <SelectTrigger className="h-12 rounded-2xl w-full md:w-[220px] border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs text-slate-700 dark:text-slate-300 shadow-sm">
                    <SelectValue />
                  </SelectTrigger>
-                 <SelectContent className="rounded-2xl border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
-                   {ranges.map((r: any) => <SelectItem key={r.value} value={r.value} className="font-bold py-3 uppercase tracking-widest text-[10px]">{r.label}</SelectItem>)}
+                 <SelectContent className="rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
+                   {ranges.map((r: any) => <SelectItem key={r.value} value={r.value} className="font-bold py-2.5 text-xs">{r.label}</SelectItem>)}
                  </SelectContent>
                </Select>
             </div>
@@ -284,12 +280,11 @@ export default function SalesHistoryPage() {
           setIsDetailsOpen(true);
         }}
         emptyState={
-          <div className="h-64 flex flex-col items-center justify-center text-center space-y-4 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-inner">
-             <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto">
-                <Receipt className="h-8 w-8 text-slate-200 dark:text-slate-600" />
-             </div>
-             <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">{copy.emptyState}</p>
-          </div>
+          <EnterpriseEmptyState
+            title={copy.emptyState}
+            description="No transactions found for the selected time range. Try selecting a broader period or changing search keywords."
+            icon={Receipt}
+          />
         }
       />
 

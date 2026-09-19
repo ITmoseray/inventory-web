@@ -24,6 +24,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { EnterprisePageHeader, EnterpriseKpiCard, EnterpriseCard, EnterpriseBadge } from "@/components/enterprise";
 
 export default function ProfitLossPage() {
   const [data, setData] = useState<any>(null);
@@ -134,51 +135,59 @@ export default function ProfitLossPage() {
   return (
     <div className="p-6 md:p-10 space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white">
-            Profit &amp; Loss Analysis
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-            Last {range} days · as of {format(new Date(), "dd MMM yyyy")}
-          </p>
-        </div>
-      </div>
+      <EnterprisePageHeader
+        title="Profit & Loss Statement"
+        subtitle={`Accrual accounting overview for the last ${range} days · as of ${format(new Date(), "dd MMMM yyyy")}`}
+        badge={
+          <EnterpriseBadge variant="primary" size="sm">
+            Financial Ledger
+          </EnterpriseBadge>
+        }
+      />
 
       {/* Summary Cards */}
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
-        {summaryCards.map((card, i) => (
-          <Card
-            key={i}
-            className={cn(
-              "border rounded-3xl shadow-lg overflow-hidden",
-              card.border
-            )}
-          >
-            <CardContent className="p-5">
-              <div className={cn("inline-flex p-2 rounded-xl mb-3", card.bg)}>
-                <card.icon className={cn("h-5 w-5", card.color)} />
-              </div>
-              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">
-                {card.title}
-              </p>
-              <p
-                className={cn(
-                  "text-2xl font-[900] tracking-tight",
-                  card.value < 0 ? "text-rose-600" : "text-slate-900 dark:text-white"
-                )}
-              >
-                Le {Math.round(Math.abs(card.value)).toLocaleString()}
-                {card.value < 0 && (
-                  <span className="text-sm font-bold ml-1">(Loss)</span>
-                )}
-              </p>
-              {card.sub && (
-                <p className="text-xs text-slate-400 mt-1">{card.sub}</p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <EnterpriseKpiCard
+          title="Total Revenue"
+          value={Math.round(data.totalRevenue)}
+          currency="SLE"
+          subtitle="Gross turnover"
+          icon={TrendingUp}
+          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Cost of Goods (COGS)"
+          value={Math.round(data.totalCOGS)}
+          currency="SLE"
+          subtitle="Inventory cost"
+          icon={ShoppingCart}
+          iconColor="text-amber-600 bg-amber-50 dark:bg-amber-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Gross Profit"
+          value={Math.round(data.grossProfit)}
+          currency="SLE"
+          subtitle={`${grossMarginPct}% gross margin`}
+          icon={BarChart3}
+          iconColor="text-sky-600 bg-sky-50 dark:bg-sky-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Operating Expenses"
+          value={Math.round(data.operatingExpenses)}
+          currency="SLE"
+          subtitle="Opex & overheads"
+          icon={TrendingDown}
+          iconColor="text-rose-600 bg-rose-50 dark:bg-rose-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Net Profit"
+          value={Math.round(Math.abs(data.netProfit))}
+          currency="SLE"
+          subtitle={`${marginPct}% net margin`}
+          icon={DollarSign}
+          iconColor={data.netProfit >= 0 ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40" : "text-rose-600 bg-rose-50 dark:bg-rose-950/40"}
+          badge={data.netProfit < 0 ? <EnterpriseBadge variant="danger" size="sm">Loss</EnterpriseBadge> : <EnterpriseBadge variant="success" size="sm">Surplus</EnterpriseBadge>}
+        />
       </div>
 
       {/* Income Statement Breakdown */}

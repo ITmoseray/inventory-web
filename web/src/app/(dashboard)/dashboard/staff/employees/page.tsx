@@ -22,6 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EnterprisePageHeader, EnterpriseKpiCard, UserRoleBadge } from "@/components/enterprise";
 import {
   Table,
   TableBody,
@@ -270,26 +271,23 @@ export default function EmployeesPage() {
 
   return (
     <div className="space-y-8 p-6 md:p-10 max-w-7xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div>
-           <div className="flex items-center gap-3 mb-2">
-              <div className={cn("p-2 rounded-xl text-white shadow-sm", colors.primary)}>
-                 <Users className="h-5 w-5" />
-              </div>
-           </div>
-           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
-             Staff Directory
-           </h1>
-           <p className="text-slate-500 mt-1 text-sm">Manage your team, assign roles, and configure employee access policies.</p>
-        </div>
+      <EnterprisePageHeader
+        title="Staff & Workforce Directory"
+        description="Manage your enterprise team members, configure role-based access control (RBAC), and assign operational privileges."
+        badge={`${users.length} Active Accounts`}
+        badgeVariant="blue"
+        actions={
+          <Button 
+            onClick={() => setIsAddOpen(true)}
+            className={cn("rounded-xl text-white font-bold px-6 shadow-md transition-all", colors.primary)}
+          >
+            <UserPlus className="h-4 w-4 mr-2" /> Add Employee
+          </Button>
+        }
+      />
 
-        <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-           <DialogTrigger render={
-              <Button className={cn("rounded-xl text-white font-bold px-6 shadow-md transition-all", colors.primary)}>
-                 <UserPlus className="h-4 w-4 mr-2" /> Add Employee
-              </Button>
-           } />
-           <DialogContent className="rounded-2xl sm:rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 w-[95vw] sm:w-auto sm:max-w-2xl md:max-w-3xl text-slate-900 dark:text-white overflow-hidden max-h-[95vh] flex flex-col">
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+         <DialogContent className="rounded-2xl sm:rounded-3xl border-none shadow-2xl p-0 bg-white dark:bg-slate-950 w-[95vw] sm:w-auto sm:max-w-2xl md:max-w-3xl text-slate-900 dark:text-white overflow-hidden max-h-[95vh] flex flex-col">
               <div className="bg-slate-50 dark:bg-slate-900 p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center gap-4">
                  <div className="min-w-0 flex-1">
                     <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Create Employee Profile</h3>
@@ -545,21 +543,39 @@ export default function EmployeesPage() {
               </form>
            </DialogContent>
         </Dialog>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-         {[
-           { label: "Active Nodes", value: users.length.toString().padStart(2, '0'), icon: Users, color: "text-blue-500" },
-           { label: "Privileged Access", value: users.filter((u: any) => u.roleName === 'ADMIN').length.toString().padStart(2, '0'), icon: ShieldCheck, color: "text-emerald-500" },
-           { label: "Connectivity", value: "99.8%", icon: Activity, color: "text-indigo-500" },
-           { label: "Pending Logs", value: "00", icon: Mail, color: "text-slate-400" }
-         ].map((stat, i) => (
-           <Card key={i} className="border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm">
-              <stat.icon className={cn("h-5 w-5 mb-4", stat.color)} />
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
-              <h2 className="text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter">{stat.value}</h2>
-           </Card>
-         ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <EnterpriseKpiCard
+          label="Active Personnel"
+          value={users.length.toString().padStart(2, '0')}
+          icon={<Users className="h-5 w-5" />}
+          change="100% active"
+          trend="up"
+          tone="blue"
+        />
+        <EnterpriseKpiCard
+          label="Privileged Access (RBAC)"
+          value={users.filter((u: any) => u.roleName === 'ADMIN' || u.roleName === 'SUPER_ADMIN').length.toString().padStart(2, '0')}
+          icon={<ShieldCheck className="h-5 w-5" />}
+          change="Admin Level"
+          trend="neutral"
+          tone="emerald"
+        />
+        <EnterpriseKpiCard
+          label="System Connectivity"
+          value="99.8%"
+          icon={<Activity className="h-5 w-5" />}
+          change="Operational"
+          trend="up"
+          tone="indigo"
+        />
+        <EnterpriseKpiCard
+          label="Pending Audits"
+          value="00"
+          icon={<Mail className="h-5 w-5" />}
+          change="All Cleared"
+          trend="neutral"
+          tone="amber"
+        />
       </div>
 
       <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-sm overflow-hidden">
@@ -644,10 +660,7 @@ export default function EmployeesPage() {
                       </>
                     )}
                     <TableCell>
-                       <div className={cn("inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium", 
-                          String(u.roleName || "") === 'ADMIN' ? "bg-primary/10 text-primary" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300")}>
-                          <Shield size={12} /> {String(u.roleName || "Staff")}
-                       </div>
+                       <UserRoleBadge role={String(u.roleName || "STAFF")} />
                     </TableCell>
                     <TableCell>
                        <div className="text-sm text-slate-500">{u.createdAt ? format(new Date(u.createdAt), "MMM dd, yyyy") : ""}</div>

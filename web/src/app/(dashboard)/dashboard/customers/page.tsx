@@ -51,6 +51,7 @@ import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { EnterprisePageHeader, EnterpriseKpiCard, EnterpriseBadge } from "@/components/enterprise";
 
 
 export default function CustomersPage() {
@@ -199,76 +200,80 @@ export default function CustomersPage() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700 pb-20">
-      
-      {/* Header with View Switcher */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-8">
-        <div className="flex items-center gap-4">
-           <DropdownMenu onOpenChange={(open) => !open && setViewSearch("")}>
-              <DropdownMenuTrigger render={
-                 <button className="group flex items-center gap-3 outline-none focus:outline-none text-left">
-                    <div className="h-10 w-10 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 group-hover:scale-110 transition-transform">
-                       <Users className="h-5 w-5" />
-                    </div>
-                    <div>
-                       <h1 className="text-2xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tight italic leading-none flex items-center gap-3">
-                          {VIEWS.find(v => v.val === viewFilter)?.label}
-                          <ChevronDown className="h-5 w-5 text-indigo-600 group-hover:translate-y-0.5 transition-transform" />
-                       </h1>
-                    </div>
-                 </button>
-              } />
-              <DropdownMenuContent className="rounded-[2.5rem] border-slate-100 shadow-2xl p-4 min-w-[320px] bg-white animate-in zoom-in-95 duration-200" sideOffset={20}>
-                 <div className="relative mb-4 px-2">
-                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-300" />
-                    <Input 
-                      placeholder="Search views..." 
-                      value={viewSearch}
-                      onChange={(e) => setViewSearch(e.target.value)}
-                      className="h-10 pl-10 rounded-xl border-slate-100 bg-slate-50 text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-indigo-600/10 transition-all"
-                    />
-                 </div>
-                 <div className="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar px-1">
-                    {filteredViews.map(item => (
-                      <DropdownMenuItem 
-                        key={item.val} 
-                        onClick={() => setViewFilter(item.val)}
-                        className={cn(
-                          "rounded-xl h-12 font-black uppercase tracking-widest text-[10px] px-5 cursor-pointer transition-all flex items-center justify-between",
-                          viewFilter === item.val 
-                            ? "bg-indigo-600 text-white shadow-xl shadow-indigo-600/20" 
-                            : "text-slate-500 hover:bg-indigo-50 hover:text-indigo-600"
-                        )}
-                      >
-                         {item.label}
-                         {viewFilter === item.val && <CheckCircle2 className="h-4 w-4" />}
-                      </DropdownMenuItem>
-                    ))}
-                    {filteredViews.length === 0 && (
-                      <div className="p-10 text-center space-y-2">
-                         <Info className="h-6 w-6 text-slate-200 mx-auto" />
-                         <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">No matching views found</p>
-                      </div>
-                    )}
-                 </div>
-              </DropdownMenuContent>
-           </DropdownMenu>
-        </div>
+    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-20">
+      <EnterprisePageHeader
+        title="Customer Directory & CRM"
+        subtitle="Manage customer relationships, contact credentials, lifetime sales value, and payment history."
+        badge={
+          <EnterpriseBadge variant="primary" size="sm">
+            <Users className="h-3 w-3 mr-1" /> CRM Module
+          </EnterpriseBadge>
+        }
+        actions={
+          <div className="flex items-center gap-2.5">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={handleImport}
+            />
+            <Button 
+              variant="outline" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={importing}
+              className="h-11 px-4 rounded-2xl border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-white dark:hover:bg-slate-800 transition-all gap-2"
+            >
+              <FileDown className="h-4 w-4" /> {importing ? "Importing..." : "Import CSV"}
+            </Button>
+            <Button 
+              onClick={() => {
+                setEditingCustomer(null);
+                resetForm();
+                setIsDialogOpen(true);
+              }}
+              className="h-11 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider gap-2 shadow-md shadow-indigo-600/20 transition-all"
+            >
+              <Plus className="h-4 w-4" /> New Customer
+            </Button>
+          </div>
+        }
+      />
 
-        <div className="flex items-center gap-3">
-           <Dialog open={isDialogOpen} onOpenChange={(open) => {
-             setIsDialogOpen(open);
-             if (!open) {
-               setEditingCustomer(null);
-               resetForm();
-             }
-           }}>
-             <DialogTrigger render={
-               <Button className="h-12 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-black uppercase tracking-widest text-[10px] gap-2 shadow-xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95">
-                 <Plus className="h-5 w-5" /> New
-               </Button>
-             } />
-             <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
+      {/* Enterprise KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <EnterpriseKpiCard
+          title="Total Customers"
+          value={customers.length}
+          subtitle="Registered client nodes"
+          icon={Users}
+          iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Total Lifetime Value"
+          value={Math.round(customers.reduce((sum, c) => sum + (c.totalSpend || 0), 0))}
+          currency="SLE"
+          subtitle="Cumulative gross sales"
+          icon={CreditCard}
+          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
+        />
+        <EnterpriseKpiCard
+          title="Active Accounts"
+          value={customers.filter(c => (c.totalSpend || 0) > 0).length}
+          subtitle="Repeat purchasing clients"
+          icon={CheckCircle2}
+          iconColor="text-purple-600 bg-purple-50 dark:bg-purple-950/40"
+        />
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (!open) {
+          setEditingCustomer(null);
+          resetForm();
+        }
+      }}>
+        <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
                <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 p-4 opacity-10">
                      <Users size={120} />
@@ -334,23 +339,6 @@ export default function CustomersPage() {
                </form>
              </DialogContent>
            </Dialog>
-           <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleImport}
-           />
-           <Button 
-             variant="outline" 
-             onClick={() => fileInputRef.current?.click()}
-             disabled={importing}
-             className="h-12 px-6 rounded-xl border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 font-black uppercase tracking-widest text-[10px] hover:bg-white dark:hover:bg-slate-800 transition-all"
-           >
-              <FileDown className="h-4 w-4" /> {importing ? "Importing..." : "Import"}
-           </Button>
-        </div>
-      </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center p-20 gap-6 animate-pulse">
