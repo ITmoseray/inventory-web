@@ -47,6 +47,7 @@ import { LiveActivityStream } from "@/components/dashboard/live-activity-stream"
 import { Calculator as CalculatorIcon } from "lucide-react";
 import { ProfessionalCalculator } from "@/components/shared/professional-calculator";
 import { SimpleSalesProfitDashboard } from "@/components/dashboard/simple-sales-profit-dashboard";
+import { EnterprisePageHeader, EnterpriseKpiCard, EnterpriseCard, EnterpriseBadge, PaymentStatusBadge } from "@/components/enterprise";
 
 const TABS = ["Dashboard", "Getting Started"];
 
@@ -333,40 +334,34 @@ export default function DashboardPage() {
     <div className="relative min-h-full space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       
       {/* Top Header Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10 mb-8"
-      >
-        <div className="space-y-2">
-           <h1 suppressHydrationWarning className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-             {activeTab === "Dashboard" ? getGreeting() : activeTab}
-           </h1>
-           <div suppressHydrationWarning className="flex items-center gap-3 text-sm font-medium text-slate-500 dark:text-slate-400">
-             <div className="flex items-center gap-1.5"><Clock className="h-4 w-4 text-primary" /> {format(currentTime, "h:mm a")}</div>
-             <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-             <div className="flex items-center gap-1.5">{format(currentTime, "EEEE, MMMM do, yyyy")}</div>
-           </div>
-        </div>
-
-        {activeTab === "Dashboard" && businessType !== "OFFICE" && (
-          <div className="flex items-center gap-3">
-             <Button 
-               variant="outline"
-               onClick={() => router.push("/dashboard/reports")}
-               className="h-10 px-4 rounded-xl border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 font-bold text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
-             >
-               View Reports
-             </Button>
-             <Button 
-               onClick={() => router.push("/dashboard/pos")}
-               className="h-10 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all gap-2"
-             >
-               <Plus className="h-4 w-4" /> Create Order
-             </Button>
-          </div>
-        )}
-      </motion.div>
+      <EnterprisePageHeader
+        title={activeTab === "Dashboard" ? getGreeting() : activeTab}
+        subtitle={`${format(currentTime, "EEEE, MMMM do, yyyy • h:mm a")} • Node: ${session?.user?.businessName || "Protech Enterprise"}`}
+        badge={
+          <EnterpriseBadge variant="success" size="sm" dot pulse>
+            System Online
+          </EnterpriseBadge>
+        }
+        actions={
+          activeTab === "Dashboard" && businessType !== "OFFICE" ? (
+            <div className="flex items-center gap-2.5">
+              <Button 
+                variant="outline"
+                onClick={() => router.push("/dashboard/reports")}
+                className="h-10 px-4 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
+              >
+                View Reports
+              </Button>
+              <Button 
+                onClick={() => router.push("/dashboard/pos")}
+                className="h-10 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all gap-2"
+              >
+                <ShoppingCart className="h-4 w-4" /> Open POS Terminal
+              </Button>
+            </div>
+          ) : undefined
+        }
+      />
 
       {/* Main Tab Switcher */}
       <div className="flex items-center gap-4 sm:gap-8 border-b border-slate-200 dark:border-slate-800 relative z-10 overflow-x-auto no-scrollbar pb-1">
@@ -450,75 +445,58 @@ export default function DashboardPage() {
 
                   {/* Stat Cards */}
                   <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
-                    <StatCard 
+                    <EnterpriseKpiCard 
                       title="Total Revenue" 
-                      value={stats.revenue} 
-                      prefix="Le "
-                      description="All-time revenue" 
+                      value={Math.round(stats.revenue || 0)} 
+                      currency="SLE"
+                      subtitle="All-time gross turnover" 
                       icon={DollarSign}
-                      colorClass="text-primary"
-                      bgClass="bg-primary/10 dark:bg-primary/20"
-                      delay={0.1}
-                      href="/dashboard/sales/history"
-                      iconAnimation="float"
+                      iconColor="text-primary bg-primary/10"
+                      onClick={() => router.push("/dashboard/sales/history")}
                     />
-                    <StatCard 
+                    <EnterpriseKpiCard 
                       title="Today's Revenue" 
-                      value={stats.todayRevenue || 0} 
-                      prefix="Le "
-                      description="vs yesterday" 
-                      icon={Activity}
-                      colorClass="text-indigo-500"
-                      bgClass="bg-indigo-500/10 dark:bg-indigo-500/20"
-                      delay={0.15}
-                      href="/dashboard/sales/history"
+                      value={Math.round(stats.todayRevenue || 0)} 
+                      currency="SLE"
                       change={stats.revenueChange || 0}
-                      iconAnimation="pulse"
+                      changeLabel="vs yesterday"
+                      icon={Activity}
+                      iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
+                      onClick={() => router.push("/dashboard/sales/history")}
                     />
-                    <StatCard 
+                    <EnterpriseKpiCard 
                       title="Total Orders" 
-                      value={stats.orders} 
-                      description="vs yesterday" 
-                      icon={ShoppingCart}
-                      colorClass="text-emerald-500"
-                      bgClass="bg-emerald-500/10 dark:bg-emerald-500/20"
-                      delay={0.2}
-                      href="/dashboard/sales/orders"
+                      value={stats.orders || 0} 
                       change={stats.ordersChange || 8.2}
-                      iconAnimation="bounce"
+                      changeLabel="vs yesterday"
+                      icon={ShoppingCart}
+                      iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
+                      onClick={() => router.push("/dashboard/sales/orders")}
                     />
-                    <StatCard 
+                    <EnterpriseKpiCard 
                       title={businessType === "PHARMACY" ? "Drug Items" : "Total Products"} 
-                      value={stats.skuCount} 
-                      description="Managed Catalog" 
+                      value={stats.skuCount || 0} 
+                      subtitle="Active Catalog SKUs" 
                       icon={Package}
-                      colorClass="text-purple-500"
-                      bgClass="bg-purple-500/10 dark:bg-purple-500/20"
-                      delay={0.3}
-                      href="/dashboard/inventory/products"
-                      iconAnimation="spin"
+                      iconColor="text-purple-600 bg-purple-50 dark:bg-purple-950/40"
+                      onClick={() => router.push("/dashboard/inventory/products")}
                     />
-                    <StatCard 
+                    <EnterpriseKpiCard 
                       title="Low Stock Alerts" 
-                      value={stats.lowStock} 
-                      description="Requires attention" 
+                      value={stats.lowStock || 0} 
+                      subtitle={stats.lowStock > 0 ? "Requires restock action" : "All stocks optimal"} 
                       icon={AlertCircle}
-                      colorClass="text-rose-500"
-                      bgClass="bg-rose-500/10 dark:bg-rose-500/20"
-                      delay={0.4}
-                      href="/dashboard/inventory/products"
-                      iconAnimation="shake"
+                      iconColor={stats.lowStock > 0 ? "text-rose-600 bg-rose-50 dark:bg-rose-950/40" : "text-slate-500 bg-slate-100 dark:bg-slate-800"}
+                      badge={stats.lowStock > 0 ? <EnterpriseBadge variant="danger" size="sm" pulse>Action</EnterpriseBadge> : undefined}
+                      onClick={() => router.push("/dashboard/inventory/products")}
                     />
-                    <StatCard 
+                    <EnterpriseKpiCard 
                       title="Over Stock Alerts" 
-                      value={stats.overStock} 
-                      description="Excess inventory" 
+                      value={stats.overStock || 0} 
+                      subtitle="Excess capital tied" 
                       icon={AlertCircle}
-                      colorClass="text-amber-500"
-                      bgClass="bg-amber-500/10 dark:bg-amber-500/20"
-                      delay={0.5}
-                      href="/dashboard/inventory/products"
-                      iconAnimation="ping"
+                      iconColor="text-amber-600 bg-amber-50 dark:bg-amber-950/40"
+                      onClick={() => router.push("/dashboard/inventory/products")}
                     />
                   </div>
                 </div>
@@ -648,13 +626,8 @@ export default function DashboardPage() {
 
                                     <div className="text-right shrink-0">
                                       <div className="font-black text-xs sm:text-sm text-slate-900 dark:text-white font-mono">Le {Math.round(parseFloat(sale.totalAmount)).toLocaleString()}</div>
-                                      <div className={cn(
-                                        "px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold mt-1 inline-block", 
-                                        sale.paymentStatus === "PAID" 
-                                          ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border border-emerald-500/20" 
-                                          : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-500/20"
-                                      )}>
-                                        {sale.paymentStatus}
+                                      <div className="mt-1">
+                                        <PaymentStatusBadge status={sale.paymentStatus} />
                                       </div>
                                     </div>
                                   </div>
