@@ -106,11 +106,11 @@ export function AnnouncementBanner() {
           transition={{ duration: 0.3, ease: "easeInOut" }}
           className="overflow-hidden w-full"
         >
-          <div className="w-full bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 border-b border-indigo-500/30 text-white py-2.5 px-4 text-xs font-semibold tracking-wide flex items-center justify-between gap-3 shadow-md">
+          <div className="w-full bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 border-b border-indigo-500/30 text-white py-2 px-2.5 sm:px-4 text-xs font-semibold tracking-wide flex items-center justify-between gap-2 sm:gap-3 shadow-md">
             {/* Left Megaphone Icon */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="h-6 w-6 rounded-full bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400">
-                
+                <Megaphone className="h-3 w-3" />
               </div>
               <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-[10px] font-black uppercase tracking-wider text-indigo-200">
                 Broadcast

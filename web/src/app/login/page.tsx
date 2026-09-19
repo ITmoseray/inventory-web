@@ -218,7 +218,7 @@ export default function LoginPage() {
         </motion.div>
 
         {/* Main Form Content */}
-        <div className="flex-1 flex flex-col justify-center px-6 sm:px-12 lg:px-20 z-10 pb-20 max-w-[560px] mx-auto w-full">
+        <div className="flex-1 flex flex-col justify-center px-4 sm:px-12 lg:px-20 z-10 pb-20 max-w-[560px] mx-auto w-full">
           
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, ease: "easeOut" }}
@@ -238,7 +238,7 @@ export default function LoginPage() {
             {/* Ambient form glow */}
             <div className="absolute -inset-0.5 bg-gradient-to-br from-indigo-500/10 to-violet-500/0 dark:from-indigo-500/20 dark:to-violet-500/0 rounded-[2.5rem] blur-xl opacity-50" />
             
-            <div className="relative w-full bg-white dark:bg-[#0a0a0a]/90 backdrop-blur-2xl rounded-[2rem] p-8 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-2xl border border-slate-200/50 dark:border-white/[0.08]">
+            <div className="relative w-full bg-white dark:bg-[#0a0a0a]/90 backdrop-blur-2xl rounded-[2rem] p-6 sm:p-10 shadow-2xl shadow-slate-200/50 dark:shadow-2xl border border-slate-200/50 dark:border-white/[0.08]">
               
               <AnimatePresence mode="wait">
                 {currentStep === "EMAIL" && (

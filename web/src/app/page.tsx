@@ -69,17 +69,17 @@ export default function ProtechCloudHomepage() {
 
       {/* ── 1. GLOBAL NAVIGATION ───────────────────────────────────── */}
       <header className="sticky top-0 w-full z-[100] bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-all duration-300">
-        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <nav className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-4">
           {/* Brand Logo & Tagline */}
-          <Link className="flex items-center gap-2 sm:gap-3 shrink-0 group" href="/">
-            <div className="relative h-9 w-9 sm:h-11 sm:w-11 overflow-hidden rounded-xl shadow-md border border-slate-200 dark:border-slate-800 bg-white group-hover:scale-105 transition-transform shrink-0">
+          <Link className="flex items-center gap-1.5 sm:gap-3 shrink-0 group min-w-0" href="/">
+            <div className="relative h-8 w-8 sm:h-11 sm:w-11 overflow-hidden rounded-xl shadow-md border border-slate-200 dark:border-slate-800 bg-white group-hover:scale-105 transition-transform shrink-0">
               <Image src="/images/PA.png" alt="ProTech Assist Logo" fill sizes="44px" className="object-cover p-0.5 sm:p-1" unoptimized />
             </div>
-            <div className="flex flex-col">
-              <span className="font-black text-sm sm:text-lg lg:text-xl tracking-tight text-slate-900 dark:text-white leading-tight">
+            <div className="flex flex-col min-w-0">
+              <span className="font-black text-xs sm:text-lg lg:text-xl tracking-tight text-slate-900 dark:text-white leading-tight whitespace-nowrap">
                 ProTech Assist
               </span>
-              <span className="text-[8px] sm:text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none mt-0.5">
+              <span className="text-[7px] sm:text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest leading-none mt-0.5 whitespace-nowrap">
                 Enterprise OS
               </span>
             </div>
@@ -113,7 +113,7 @@ export default function ProtechCloudHomepage() {
           </div>
 
           {/* Action Area */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-3 shrink-0">
             {/* Globe Icon with Region Dropdown */}
             <div 
               className="relative cursor-pointer group shrink-0"
@@ -122,21 +122,21 @@ export default function ProtechCloudHomepage() {
             >
               <button 
                 onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                className="flex items-center gap-1 sm:gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-700 dark:text-slate-300 hover:border-indigo-500/40 transition-all shadow-xs group-hover:scale-105"
+                className="flex items-center gap-1 p-1 sm:px-2.5 sm:py-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-700 dark:text-slate-300 hover:border-indigo-500/40 transition-all shadow-xs shrink-0"
                 title="Select Region"
               >
-                <div className="relative h-6 w-6 sm:h-8 sm:w-8 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
+                <div className="relative h-5 w-5 sm:h-8 sm:w-8 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
                   <img src="/images/globe-icon.jpg" alt="Globe" className="w-full h-full object-cover" />
                 </div>
-                <div className="flex items-center gap-1 pr-0.5 sm:pr-1">
-                  <img src={`https://flagcdn.com/w20/${selectedCountry.code}.png`} width="14" alt={selectedCountry.name} className="rounded-xs" />
-                  <span className="uppercase text-[10px] sm:text-[11px] font-black">{selectedCountry.code}</span>
-                  <ChevronDown className="h-3 w-3 opacity-60" />
+                <div className="flex items-center gap-0.5 sm:gap-1 pr-0.5">
+                  <img src={`https://flagcdn.com/w20/${selectedCountry.code}.png`} width="14" alt={selectedCountry.name} className="rounded-xs hidden sm:inline-block" />
+                  <span className="uppercase text-[9px] sm:text-[11px] font-black">{selectedCountry.code}</span>
+                  <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 opacity-60" />
                 </div>
               </button>
               
               {showCountryDropdown && (
-                <div className="absolute right-0 top-full mt-1.5 w-52 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-1">
+                <div className="absolute right-0 top-full mt-1.5 w-48 sm:w-52 max-w-[calc(100vw-24px)] bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden z-50 p-1.5 animate-in fade-in slide-in-from-top-1">
                   <div className="px-2.5 py-1.5 text-[10px] font-black text-slate-400 uppercase tracking-widest">
                     Select Operating Region
                   </div>
@@ -177,28 +177,28 @@ export default function ProtechCloudHomepage() {
             </Link>
 
             {/* Mobile Stacked Actions: Login directly on top of Start Free Trial */}
-            <div className="sm:hidden flex flex-col items-stretch gap-1 shrink-0">
+            <div className="sm:hidden flex flex-col items-stretch gap-0.5 shrink-0">
               <Link 
                 href="/login" 
-                className="h-6 px-2.5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 flex items-center justify-center text-center shadow-xs"
+                className="h-5 px-2 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[8.5px] font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 flex items-center justify-center text-center shadow-xs leading-none"
               >
                 Login
               </Link>
               <Link 
                 href={ctaHref} 
-                className="h-6 px-2.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-wider shadow-xs flex items-center justify-center text-center whitespace-nowrap"
+                className="h-5 px-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[8px] font-black uppercase tracking-wider shadow-xs flex items-center justify-center text-center whitespace-nowrap leading-none"
               >
-                <span>{ctaText === "Start Free Trial" ? "Free Trial" : "Upgrade"}</span>
+                <span>{ctaText}</span>
               </Link>
             </div>
             
             {/* Mobile Menu Toggle */}
             <button 
-              className="xl:hidden p-1.5 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors shrink-0"
+              className="xl:hidden p-1 sm:p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors shrink-0"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label="Toggle menu"
             >
-              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMobileMenuOpen ? <X className="h-4 w-4 sm:h-5 sm:w-5" /> : <Menu className="h-4 w-4 sm:h-5 sm:w-5" />}
             </button>
           </div>
         </nav>
@@ -247,21 +247,20 @@ export default function ProtechCloudHomepage() {
 
       <main className="flex-1">
         {/* ── 2. HERO SECTION ────────────────────────────────────────── */}
-        <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-32 overflow-hidden">
+        <section className="relative pt-10 pb-16 sm:pt-16 sm:pb-20 lg:pt-24 lg:pb-32 overflow-hidden">
           {/* Subtle Enterprise Gradient Glow */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-indigo-500/15 via-purple-500/10 to-transparent rounded-full blur-3xl" />
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 text-center relative z-10 space-y-6 sm:space-y-8">
             {/* Mission Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-200/80 dark:border-indigo-800/60 bg-indigo-50/80 dark:bg-indigo-950/40 backdrop-blur-md text-indigo-700 dark:text-indigo-300 text-xs font-black uppercase tracking-widest shadow-xs">
-              
+            <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-indigo-200/80 dark:border-indigo-800/60 bg-indigo-50/80 dark:bg-indigo-950/40 backdrop-blur-md text-indigo-700 dark:text-indigo-300 text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-xs">
               <span>ProTech Assist Enterprise OS • Empowering Businesses Through Technology</span>
             </div>
 
             {/* Core Headline */}
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.08] max-w-5xl mx-auto">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black tracking-tight text-slate-900 dark:text-white leading-[1.12] max-w-5xl mx-auto">
               Run Your Entire Business <br className="hidden sm:inline" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-indigo-500 to-purple-600 dark:from-indigo-400 dark:via-indigo-300 dark:to-purple-400">
                 From One Powerful System.
@@ -269,7 +268,7 @@ export default function ProtechCloudHomepage() {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-base sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
+            <p className="text-sm sm:text-lg lg:text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed font-medium">
               ProTech Assist combines enterprise inventory control, ultra-fast point of sale, customer credit ledgers, multi-warehouse tracking, financial profit & loss, and integrated AI intelligence into one unified operating system.
             </p>
 
