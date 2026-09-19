@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, Users, Heart, Gift, ArrowRight } from "lucide-react";
+import { Trophy, Users, Heart, Gift, ArrowRight, Zap } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn, getIndustryColor } from "@/lib/utils";

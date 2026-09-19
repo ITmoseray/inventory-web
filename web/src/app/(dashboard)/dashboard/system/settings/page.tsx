@@ -9,7 +9,7 @@ import {
   ArrowRight, Landmark, Briefcase, Plus, Menu,
   MapPin, Coins, Hash, Mail, Tag, Play, History, Box, 
   Wallet, Activity, Edit, Undo, Layers, Terminal, Calendar,
-  CheckCircle2, AlertCircle, Copy, FileSpreadsheet, Receipt
+  CheckCircle2, AlertCircle, Copy, FileSpreadsheet, Receipt, Palette
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

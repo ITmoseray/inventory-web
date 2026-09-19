@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   X, Phone, Calendar, ArrowRight, MessageSquare, Users, CheckCircle2, Send, Clock, Shield, Headphones,
-  Store, Building2, Stethoscope, ChevronRight, HelpCircle
+  Store, Building2, Stethoscope, ChevronRight, HelpCircle, Zap
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
