@@ -63,6 +63,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { BackButton } from "@/components/layout/ModuleHeader";
 import { ConfirmModal } from "@/components/ui/confirm-modal";
 import { useRouter } from "next/navigation";
+import { EnterprisePageHeader, EnterpriseKpiCard, EnterpriseBadge, StockStatusBadge } from "@/components/enterprise";
 
 // ─── Packaging Unit Interface ─────────────────────────────────────────────────
 interface PackagingUnit {
@@ -435,148 +436,104 @@ export default function ProductsPage() {
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-16">
       
       {/* 1. TOP HEADER & COMMAND CONTROLS */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <BackButton />
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-slate-900 dark:text-white uppercase italic">
-                {isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} <span className="text-indigo-600 dark:text-indigo-400">Catalog</span>
-              </h1>
-              <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-[10px] font-mono font-bold uppercase border border-indigo-500/20 hidden sm:inline-flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" /> Catalog Manager
-              </span>
+      <EnterprisePageHeader
+        title={`${isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} Catalog`}
+        subtitle="Manage product catalog, real-time stock levels, profit margins, and packaging units."
+        badge={
+          <EnterpriseBadge variant="primary" size="sm">
+            <Sparkles className="h-3 w-3 mr-1" /> Catalog Manager
+          </EnterpriseBadge>
+        }
+        actions={
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* View Mode Switcher */}
+            <div className="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl flex items-center border border-slate-200 dark:border-slate-700 shadow-xs">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={cn(
+                  "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
+                  viewMode === "grid" 
+                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm" 
+                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                )}
+                title="Visual Cards View"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden md:inline text-[11px] uppercase tracking-wider">Cards</span>
+              </button>
+              <button
+                onClick={() => setViewMode("table")}
+                className={cn(
+                  "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
+                  viewMode === "table" 
+                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm" 
+                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
+                )}
+                title="Table View"
+              >
+                <List className="h-4 w-4" />
+                <span className="hidden md:inline text-[11px] uppercase tracking-wider">Table</span>
+              </button>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-[0.2em] text-[10px] mt-1.5">
-              Manage product catalog, stock counts, and retail selling prices.
-            </p>
-          </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          {/* View Mode Switcher */}
-          <div className="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl flex items-center border border-slate-200 dark:border-slate-700 shadow-xs">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={cn(
-                "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
-                viewMode === "grid" 
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm" 
-                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              )}
-              title="Visual Cards View"
+            <Button 
+              variant="outline" 
+              onClick={() => toast.success("Catalog exported to CSV format.")}
+              className="rounded-2xl border-slate-200 dark:border-slate-800 font-bold gap-2 h-11 px-4 text-xs hover:bg-white dark:hover:bg-slate-900 transition-all"
             >
-              <LayoutGrid className="h-4 w-4" />
-              <span className="hidden md:inline text-[11px] uppercase tracking-wider">Visual Cards</span>
-            </button>
-            <button
-              onClick={() => setViewMode("table")}
-              className={cn(
-                "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
-                viewMode === "table" 
-                  ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm" 
-                  : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              )}
-              title="Table View"
+              <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /> 
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+
+            <Button 
+              onClick={() => {
+                setEditingProduct(null);
+                resetForm();
+                setIsDialogOpen(true);
+              }}
+              className="h-11 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider gap-2 shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
             >
-              <List className="h-4 w-4" />
-              <span className="hidden md:inline text-[11px] uppercase tracking-wider">Data Table</span>
-            </button>
+              <Plus className="h-4 w-4" /> Add Product
+            </Button>
           </div>
-
-          <Button 
-            variant="outline" 
-            onClick={() => toast.success("Catalog exported to CSV format.")}
-            className="rounded-2xl border-slate-200 dark:border-slate-800 font-bold gap-2 h-11 px-4 text-xs hover:bg-white dark:hover:bg-slate-900 transition-all"
-          >
-            <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /> 
-            <span className="hidden sm:inline">Export</span>
-          </Button>
-
-          <Button 
-            onClick={() => {
-              setEditingProduct(null);
-              resetForm();
-              setIsDialogOpen(true);
-            }}
-            className="h-11 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider gap-2 shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
-          >
-            <Plus className="h-4 w-4" /> Add Product
-          </Button>
-        </div>
-      </div>
+        }
+      />
 
       {/* 2. TOP GRAPHICAL KPI ANALYTICS BAR */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        {/* Card 1: Total SKUs */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-indigo-500/40 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Total Products</span>
-            <div className="h-8 w-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
-              <Package className="h-4 w-4" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">{products.length} <span className="text-xs font-normal text-slate-400">Items</span></h3>
-            <p className="text-[11px] font-bold text-slate-500 mt-1 flex items-center gap-1.5">
-              <Box className="h-3 w-3 text-indigo-500" /> {totalStockCount.toLocaleString()} Total Units in Stock
-            </p>
-          </div>
-        </div>
+        <EnterpriseKpiCard
+          title="Total Products"
+          value={products.length}
+          subtitle={`${totalStockCount.toLocaleString()} units in inventory`}
+          icon={Package}
+          iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
+        />
 
-        {/* Card 2: Retail Asset Valuation */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-emerald-500/40 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Total Stock Value</span>
-            <div className="h-8 w-8 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
-              <DollarSign className="h-4 w-4" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white font-mono tracking-tight">Le {Math.round(totalRetailValuation).toLocaleString()}</h3>
-            <p className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1">
-              <ArrowUpRight className="h-3.5 w-3.5" /> Cost Value: Le {Math.round(totalCostValuation).toLocaleString()}
-            </p>
-          </div>
-        </div>
+        <EnterpriseKpiCard
+          title="Total Stock Value"
+          value={Math.round(totalRetailValuation)}
+          currency="SLE"
+          subtitle={`Cost: SLE ${Math.round(totalCostValuation).toLocaleString()}`}
+          icon={DollarSign}
+          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
+        />
 
-        {/* Card 3: Potential Profit Margin */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-purple-500/40 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Avg Profit Margin</span>
-            <div className="h-8 w-8 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 flex items-center justify-center">
-              <TrendingUp className="h-4 w-4" />
-            </div>
-          </div>
-          <div>
-            <h3 className="text-2xl sm:text-3xl font-black text-purple-600 dark:text-purple-400 font-mono tracking-tight">+{avgMargin.toFixed(1)}%</h3>
-            <p className="text-[11px] font-bold text-slate-500 mt-1 flex items-center gap-1.5">
-              <BarChart3 className="h-3 w-3 text-purple-500" /> Healthy Retail Yield
-            </p>
-          </div>
-        </div>
+        <EnterpriseKpiCard
+          title="Avg Profit Margin"
+          value={`+${avgMargin.toFixed(1)}%`}
+          subtitle="Healthy Retail Yield"
+          icon={TrendingUp}
+          iconColor="text-purple-600 bg-purple-50 dark:bg-purple-950/40"
+        />
 
-        {/* Card 4: Critical Stock & Best Seller */}
-        <div className="p-4 sm:p-5 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs relative overflow-hidden flex flex-col justify-between group hover:border-amber-500/40 transition-colors">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] font-mono uppercase font-bold text-slate-400">Stock Alerts</span>
-            <div className={cn(
-              "h-8 w-8 rounded-xl flex items-center justify-center",
-              lowStockCount > 0 ? "bg-rose-50 dark:bg-rose-950/40 text-rose-600 animate-pulse" : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600"
-            )}>
-              <AlertCircle className="h-4 w-4" />
-            </div>
-          </div>
-          <div>
-            <h3 className={cn("text-2xl sm:text-3xl font-black font-mono tracking-tight", lowStockCount > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-900 dark:text-white")}>
-              {lowStockCount} <span className="text-xs font-normal text-slate-400">Low Stock</span>
-            </h3>
-            <p className="text-[11px] font-bold text-amber-600 dark:text-amber-400 mt-1 truncate">
-              ⭐ Best: {fastMovingProducts[0]?.name || "Hikvision 2MP IP Camera"}
-            </p>
-          </div>
-        </div>
+        <EnterpriseKpiCard
+          title="Stock Alerts"
+          value={lowStockCount}
+          subtitle={lowStockCount > 0 ? "Requires restock action" : "All stock counts optimal"}
+          icon={AlertCircle}
+          iconColor={lowStockCount > 0 ? "text-rose-600 bg-rose-50 dark:bg-rose-950/40" : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"}
+          badge={lowStockCount > 0 ? <EnterpriseBadge variant="danger" size="sm" pulse>Action</EnterpriseBadge> : undefined}
+        />
       </div>
 
       {/* 3. VISUAL CATEGORY FILTER RIBBON & SEARCH BAR */}
@@ -900,17 +857,8 @@ export default function ProductsPage() {
 
                     {/* Column 3: Stock Count */}
                     <TableCell className="p-4">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className={cn("font-mono font-black text-sm", isLow ? "text-rose-600 animate-pulse" : "text-slate-900 dark:text-white")}>
-                            {stock} units
-                          </span>
-                          {isLow && (
-                            <span className="px-1.5 py-0.5 rounded text-[8px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 uppercase">
-                              Low
-                            </span>
-                          )}
-                        </div>
+                      <div className="space-y-1.5">
+                        <StockStatusBadge stock={stock} minStock={minStock} />
                         <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
                           <div
                             className={cn("h-full", isLow ? "bg-rose-500" : "bg-emerald-500")}
