@@ -78,7 +78,6 @@ export function NeuralAnalyst() {
               <div>
                  <CardTitle className="text-xl font-[1000] tracking-tight uppercase italic flex items-center gap-2">
                     Neural <span className="text-indigo-400">Analyst</span>
-                    {status === "ACTIVE" && }
                  </CardTitle>
                  <CardDescription className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">
                     {version?.includes("Cloud") ? "Cloud Intelligence Node" : "Local Intelligence Node"} {version ? `(${version})` : ""}

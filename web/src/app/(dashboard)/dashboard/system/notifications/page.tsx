@@ -233,7 +233,7 @@ export default function NotificationsPage() {
                             n.type === 'SUCCESS' ? "bg-emerald-500/10 text-emerald-600" :
                             n.type === 'SYSTEM_UPDATE' ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" :
                             "bg-blue-500/10 text-blue-600")}>
-                             {n.type === 'ERROR' ? <AlertCircle size={20} /> : n.type === 'SUCCESS' ? <CheckCircle2 size={20} /> : n.type === 'SYSTEM_UPDATE' ?  : <Info size={20} />}
+                             {n.type === 'ERROR' ? <AlertCircle size={20} /> : n.type === 'SUCCESS' ? <CheckCircle2 size={20} /> : n.type === 'SYSTEM_UPDATE' ? <BellRing size={20} /> : <Info size={20} />}
                           </div>
                           <div>
                              <div className="flex items-center gap-3 mb-1">

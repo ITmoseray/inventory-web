@@ -16,7 +16,8 @@ import {
   Lock,
   ArrowRight,
   Activity,
-  Loader2
+  Loader2,
+  Bot
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -299,11 +300,11 @@ export default function EmployeesPage() {
                    variant="outline"
                    className="h-10 px-4 rounded-xl font-bold text-sm flex items-center gap-2 shadow-sm transition-all"
                  >
-                   {aiLoading ? (
-                     <Loader2 className="h-3 w-3 animate-spin" />
-                   ) : (
-                     
-                   )}
+                    {aiLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Bot className="h-3.5 w-3.5" />
+                    )}
                    AI Autofill
                  </Button>
               </div>
