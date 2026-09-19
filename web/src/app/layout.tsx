@@ -1,7 +1,7 @@
 import { SplashScreenWrapper } from "@/components/shared/splash-screen-wrapper";
 import { VersionRecoveryListener } from "@/components/shared/version-recovery-listener";
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -40,7 +40,26 @@ export const viewport: import("next").Viewport = {
   themeColor: "#4f46e5",
 };
 
-const inter = Inter({ subsets: ["latin"], display: "swap" });
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
+});
 
 export default function RootLayout({
   children,
@@ -82,7 +101,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} min-h-full w-full max-w-full overflow-x-hidden flex flex-col antialiased relative`}>
+      <body className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} ${inter.className} min-h-full w-full max-w-full overflow-x-hidden flex flex-col antialiased relative`}>
         <VersionRecoveryListener />
         <SplashScreenWrapper />
         <ThemeProvider
