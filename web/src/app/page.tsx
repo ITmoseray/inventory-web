@@ -160,14 +160,14 @@ export default function ProtechCloudHomepage() {
               )}
             </div>
 
+            {/* Desktop Login & CTA */}
             <Link 
               href="/login" 
-              className="hidden md:flex h-10 px-4 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-xs shrink-0"
+              className="hidden sm:flex h-10 px-4 items-center justify-center rounded-xl border border-slate-200 dark:border-slate-700/80 bg-white dark:bg-slate-900 text-xs font-black uppercase tracking-wider text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all shadow-xs shrink-0"
             >
               Login
             </Link>
 
-            {/* Desktop CTA */}
             <Link 
               href={ctaHref} 
               className="hidden sm:flex h-10 px-4 sm:px-5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-indigo-600/20 transition-all items-center justify-center gap-1.5 whitespace-nowrap shrink-0"
@@ -176,13 +176,21 @@ export default function ProtechCloudHomepage() {
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
-            {/* Mobile Compact CTA */}
-            <Link 
-              href={ctaHref} 
-              className="sm:hidden flex h-8 px-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white text-[10px] font-black uppercase tracking-wider shadow-sm transition-all items-center justify-center whitespace-nowrap shrink-0"
-            >
-              <span>{ctaText === "Start Free Trial" ? "Free Trial" : "Upgrade"}</span>
-            </Link>
+            {/* Mobile Stacked Actions: Login directly on top of Start Free Trial */}
+            <div className="sm:hidden flex flex-col items-stretch gap-1 shrink-0">
+              <Link 
+                href="/login" 
+                className="h-6 px-2.5 rounded-md border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 flex items-center justify-center text-center shadow-xs"
+              >
+                Login
+              </Link>
+              <Link 
+                href={ctaHref} 
+                className="h-6 px-2.5 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black uppercase tracking-wider shadow-xs flex items-center justify-center text-center whitespace-nowrap"
+              >
+                <span>{ctaText === "Start Free Trial" ? "Free Trial" : "Upgrade"}</span>
+              </Link>
+            </div>
             
             {/* Mobile Menu Toggle */}
             <button 
