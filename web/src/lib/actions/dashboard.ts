@@ -179,6 +179,42 @@ export async function getDashboardStats() {
         _sum: { totalAmount: true },
         orderBy: { _sum: { totalAmount: 'desc' } },
         take: 5
+      }),
+      // Customer Count
+      prisma.customer.count({
+        where: { businessId }
+      }),
+      // Outstanding Credit (Pending Debts)
+      prisma.debt.aggregate({
+        where: { businessId, status: "PENDING" },
+        _sum: { amount: true }
+      }),
+      // Monthly Expenses
+      prisma.expense.aggregate({
+        where: { businessId, createdAt: { gte: startOfMonth(today) } },
+        _sum: { amount: true }
+      }),
+      // Monthly Revenue
+      prisma.sale.aggregate({
+        where: { businessId, paymentStatus: "PAID", createdAt: { gte: startOfMonth(today) } },
+        _sum: { totalAmount: true }
+      }),
+      // Category distribution
+      prisma.category.findMany({
+        where: { businessId },
+        select: {
+          id: true,
+          name: true,
+          _count: { select: { products: true } }
+        },
+        take: 6
+      }),
+      // Low stock products
+      prisma.product.findMany({
+        where: { businessId, type: { not: 'SERVICE' } },
+        select: { id: true, name: true, stockQuantity: true, minStockLevel: true },
+        orderBy: { stockQuantity: 'asc' },
+        take: 5
       })
     ]);
 
@@ -219,6 +255,21 @@ export async function getDashboardStats() {
     const totalAllTimeRevenue = Number(revenueData._sum.totalAmount?.toString() || 0) + Number(debtPaymentData._sum.amount?.toString() || 0);
     const todayRevenue = Number(todayRevenueData._sum.totalAmount?.toString() || 0) + Number(todayDebtPaymentData._sum.amount?.toString() || 0);
     const yesterdayRevenue = Number(yesterdayRevenueData._sum.totalAmount?.toString() || 0) + Number(yesterdayDebtPaymentData._sum.amount?.toString() || 0);
+    const monthlyRevenue = Number(monthlyRevenueData._sum.totalAmount?.toString() || 0);
+    const monthlyExpenses = Number(monthlyExpensesData._sum.amount?.toString() || 0);
+    const netProfit = monthlyRevenue - monthlyExpenses;
+    const profitMargin = monthlyRevenue > 0 ? ((netProfit / monthlyRevenue) * 100).toFixed(1) : "0.0";
+    const totalOutstandingCredit = Number(outstandingCreditData._sum.amount?.toString() || 0);
+
+    // Calculate category percentages
+    const totalCategoryProducts = categoryDistributionData.reduce((acc, c) => acc + c._count.products, 0);
+    const categoryColors = ["#2563EB", "#10B981", "#8B5CF6", "#F59E0B", "#0EA5E9", "#EC4899"];
+    const categoryData = categoryDistributionData.map((c, i) => ({
+      name: c.name,
+      value: totalCategoryProducts > 0 ? Math.round((c._count.products / totalCategoryProducts) * 100) : 0,
+      count: c._count.products,
+      color: categoryColors[i % categoryColors.length]
+    }));
 
     // 2. Calculate Growth Percentages
     const revenueChange = yesterdayRevenue === 0 
@@ -231,18 +282,26 @@ export async function getDashboardStats() {
 
     return {
       revenue: totalAllTimeRevenue,
-      todayRevenue: todayRevenue,
+      monthlyRevenue,
+      todayRevenue,
       revenueChange,
       orders: todayOrdersCount, // "Today's Orders" now correctly reflects today's count!
       ordersChange,
-      skuCount: skuCount,
+      skuCount,
       lowStock: lowStockCount[0]?.count || 0,
       overStock: overStockCount[0]?.count || 0,
       expiringItems: expiringCount,
       activeTransactions: todayOrdersCount, // Using today's active orders
-      staffCount: staffCount,
-      topProducts: topProducts,
-      topStaff: topStaff
+      staffCount,
+      customerCount: customerCount || 0,
+      outstandingCredit: totalOutstandingCredit,
+      monthlyExpenses,
+      netProfit,
+      profitMargin,
+      topProducts,
+      topStaff,
+      categoryData,
+      lowStockProducts: lowStockProductsData
     };
   } catch (error) {
     console.error("Failed to fetch dashboard stats:", error);
