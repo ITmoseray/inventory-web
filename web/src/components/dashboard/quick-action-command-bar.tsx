@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { 
   ShoppingCart, PackagePlus, Receipt, Wallet, 
-  Calculator, Sparkles, Plus, ArrowUpRight, BarChart3, RotateCw
+  Calculator, Plus, ArrowUpRight, BarChart3, RotateCw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
@@ -21,7 +21,7 @@ export function QuickActionCommandBar({ businessType = "SHOP", onRefresh }: Quic
       {/* Title / Status */}
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 rounded-xl bg-indigo-600/30 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shrink-0">
-          <Sparkles className="h-5 w-5 animate-pulse text-amber-300" />
+          
         </div>
         <div>
           <div className="flex items-center gap-2">

@@ -9,7 +9,6 @@ import {
   DialogDescription 
 } from "@/components/ui/dialog";
 import { 
-  Sparkles, 
   Rocket, 
   Building2, 
   Box, 
@@ -209,7 +208,7 @@ export function StoreUpgradeModal({ isOpen, onClose, storeName }: Props) {
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-3.5 h-3.5" />
+                  
                   <span>Confirm &amp; Upgrade to Enterprise OS</span>
                 </>
               )}

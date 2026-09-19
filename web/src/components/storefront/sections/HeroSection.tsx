@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ShoppingBag, MessageCircle, ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import { ShoppingBag, MessageCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import { StoreSection, StoreTheme } from "@/types/store-builder";
 
 interface Props {
@@ -140,7 +140,7 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
 
                 {/* Floating Micro Badge */}
                 <div className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black/60 text-white backdrop-blur-md border border-white/20 shadow-lg">
-                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  
                   Featured Collection
                 </div>
 

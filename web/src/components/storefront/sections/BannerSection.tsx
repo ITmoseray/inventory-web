@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { StoreSection, StoreTheme } from "@/types/store-builder";
 
 interface Props {
@@ -33,7 +33,7 @@ export function BannerSection({ section, theme, storeSlug }: Props) {
         <div className="max-w-2xl mx-auto space-y-4 relative z-10">
           {badge && (
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/20 backdrop-blur-md border border-white/20">
-              <Sparkles className="w-3 h-3 text-amber-300" /> {badge}
+               {badge}
             </span>
           )}
 

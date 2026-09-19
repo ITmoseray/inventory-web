@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Sparkles, FileText, Search, ArrowRight, UserCheck, ShieldCheck, 
+  FileText, Search, ArrowRight, UserCheck, ShieldCheck, 
   Phone, Mail, TrendingUp, TrendingDown, Minus,
   ShoppingBag, AlertTriangle, CheckCircle2, Clock, ChevronDown, X, BarChart3
 } from "lucide-react";
@@ -315,7 +315,7 @@ export default function PurchaseProfilesPage() {
                   ))}
                 </div>
                 <Button onClick={loadData} className="h-12 px-8 rounded-xl bg-indigo-600 text-white font-black uppercase text-[10px] tracking-widest hover:bg-indigo-500 transition-all shadow-lg shadow-indigo-600/20">
-                  <Sparkles className="h-4 w-4 mr-2" /> Refresh Intelligence
+                   Refresh Intelligence
                 </Button>
               </div>
               <div className="w-full md:w-40 aspect-square bg-white/5 rounded-3xl border border-white/10 flex flex-col items-center justify-center gap-2 shrink-0">

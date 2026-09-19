@@ -11,8 +11,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { 
   Eye, EyeOff, Loader2, Lock, Mail, ArrowLeft, 
-  CheckCircle2, User, ArrowRight, ShieldCheck, 
-  Sparkles, Fingerprint, Command
+  CheckCircle2, User, ArrowRight, ShieldCheck, Fingerprint, Command
 } from "lucide-react";
 import { resendVerificationEmail } from "@/lib/actions/verification";
 import { preLoginCheck } from "@/lib/actions/auth-actions";
@@ -550,7 +549,7 @@ export default function LoginPage() {
              transition={{ delay: 0.2, duration: 0.8 }}
              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-100 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-300 text-[10px] font-bold uppercase tracking-[0.2em] mb-8 backdrop-blur-md"
            >
-              <Sparkles className="h-3 w-3" />
+              
               <span>Next Generation Platform</span>
            </motion.div>
            

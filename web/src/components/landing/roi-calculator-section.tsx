@@ -3,8 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  Calculator, TrendingUp, ShieldCheck, Clock, DollarSign, 
-  Sparkles, ArrowRight, CheckCircle2, AlertTriangle, BarChart3,
+  Calculator, TrendingUp, ShieldCheck, Clock, DollarSign, ArrowRight, CheckCircle2, AlertTriangle, BarChart3,
   Layers, Lock
 } from "lucide-react";
 import Link from "next/link";

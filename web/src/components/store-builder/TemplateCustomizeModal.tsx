@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { 
   X, 
-  Sparkles, 
   Check, 
   Store as StoreIcon, 
   Building2, 
@@ -110,7 +109,7 @@ export function TemplateCustomizeModal({
               className="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md font-bold text-lg"
               style={{ backgroundColor: primaryColor }}
             >
-              <Sparkles className="w-5 h-5" />
+              
             </div>
             <div>
               <div className="flex items-center gap-2">

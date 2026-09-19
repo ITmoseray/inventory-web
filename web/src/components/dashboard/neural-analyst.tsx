@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Zap, ShieldAlert, Cpu, Activity, Sparkles, Terminal, RefreshCw, AlertCircle } from "lucide-react";
+import { Zap, ShieldAlert, Cpu, Activity, Terminal, RefreshCw, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { checkOllamaStatus, getNeuralAnalysis } from "@/lib/actions/ai";
@@ -78,7 +78,7 @@ export function NeuralAnalyst() {
               <div>
                  <CardTitle className="text-xl font-[1000] tracking-tight uppercase italic flex items-center gap-2">
                     Neural <span className="text-indigo-400">Analyst</span>
-                    {status === "ACTIVE" && <Sparkles className="h-4 w-4 text-amber-400 animate-bounce" />}
+                    {status === "ACTIVE" && }
                  </CardTitle>
                  <CardDescription className="text-[9px] font-black uppercase tracking-[0.3em] text-slate-500">
                     {version?.includes("Cloud") ? "Cloud Intelligence Node" : "Local Intelligence Node"} {version ? `(${version})` : ""}

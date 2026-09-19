@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { 
   Globe, Search, MoreVertical, KeyRound, UserCheck, 
   CheckCircle, Trash2, ArrowLeft, Filter, Zap, Shield, Copy,
-  Megaphone, PieChart, TrendingUp, Eye, FileText, Sparkles,
+  Megaphone, PieChart, TrendingUp, Eye, FileText,
   Building2, Mail, Phone, MapPin, Coins, Clock, Compass, Users, AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

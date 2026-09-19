@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { 
   ArrowLeft, Code2, Globe, Database, Network, Cloud, 
-  ExternalLink, Sparkles, Layers, Box, Cpu, ArrowUpRight, Zap
+  ExternalLink, Layers, Box, Cpu, ArrowUpRight, Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -63,7 +63,7 @@ const TECH_STACK = [
   { name: "Neon PostgreSQL", icon: Database, desc: "Serverless Postgres with autoscaling database branching" },
   { name: "Tailwind CSS", icon: Code2, desc: "Utility-first CSS for premium layouts & responsiveness" },
   { name: "Zustand Context", icon: Cpu, desc: "Global lightweight state synchronization engine" },
-  { name: "Framer Motion", icon: Sparkles, desc: "Hardware-accelerated fluid micro-animations" },
+  { name: "Framer Motion", icon: Layers, desc: "Hardware-accelerated fluid micro-animations" },
   { name: "TypeScript", icon: Globe, desc: "Strictly typed codebase for bulletproof reliability" }
 ];
 
@@ -125,7 +125,7 @@ export default function CorporatePortfolioPage() {
           className="text-center max-w-4xl mx-auto space-y-6"
         >
           <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em]">
-            <Sparkles className="h-3.5 w-3.5" /> Engineering Enterprise Grade Software
+             Engineering Enterprise Grade Software
           </motion.div>
           <motion.h1 variants={itemVariants} className="text-5xl lg:text-8xl font-black tracking-tight leading-none uppercase italic">
             Corporate <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">Portfolio</span>

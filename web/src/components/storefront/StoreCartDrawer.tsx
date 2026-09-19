@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck, Sparkles } from "lucide-react";
+import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, Truck } from "lucide-react";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
 import { StoreTheme, StoreSettings, AIStoreUpsellOffer } from "@/types/store-builder";
 import { getStoreUpsellOffersAction } from "@/lib/actions/store-builder";
@@ -203,7 +203,7 @@ export function StoreCartDrawer({ theme, settings, currency = "SLE", storeSlug }
             <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
               <div className="flex items-center justify-between mb-2.5">
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
+                  
                   <span className="text-xs font-black uppercase tracking-wider text-slate-800 dark:text-slate-200">
                     Frequently Bought Together
                   </span>

@@ -5,7 +5,7 @@ import {
   ShieldCheck, CheckCircle2, AlertTriangle, FileSignature, 
   Printer, User, Phone, Mail, Building2, MapPin, Calendar, 
   Clock, Award, Lock, FileText, ArrowRight, RefreshCw, Stamp,
-  ExternalLink, Check, Sparkles
+  ExternalLink, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -465,7 +465,7 @@ export function StaffAgreementSignClient({ agreement: initialAgreement }: StaffA
                       </>
                     ) : (
                       <>
-                        <Sparkles className="h-5 w-5" />
+                        
                         <span>Sign &amp; Formally Accept Enterprise Agreement</span>
                         <ArrowRight className="h-5 w-5" />
                       </>

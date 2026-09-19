@@ -5,7 +5,7 @@ import {
   Plus, Minus, Pencil, Trash2, MoreVertical, Package, Search, Filter, 
   Download, ArrowUpDown, ShoppingCart, Tag, Calculator, ChevronDown, 
   ChevronUp, Info, Boxes, Layers, LayoutGrid, List, Eye, BarChart3, 
-  TrendingUp, Sparkles, AlertCircle, CheckCircle2, QrCode, ExternalLink, 
+  TrendingUp, AlertCircle, CheckCircle2, QrCode, ExternalLink, 
   DollarSign, Activity, Star, ArrowUpRight, ShieldCheck, Box, RefreshCw,
   Percent, Check, ArrowRight, ShieldAlert, FileText, Image as ImageIcon,
   Laptop, Pill, ShoppingBag, Wine, Hammer
@@ -441,7 +441,7 @@ export default function ProductsPage() {
         subtitle="Manage product catalog, real-time stock levels, profit margins, and packaging units."
         badge={
           <EnterpriseBadge variant="primary" size="sm">
-            <Sparkles className="h-3 w-3 mr-1" /> Catalog Manager
+             Catalog Manager
           </EnterpriseBadge>
         }
         actions={
@@ -1190,7 +1190,7 @@ export default function ProductsPage() {
               {sourcingMode === null ? (
                 <div className="p-8 sm:p-12 rounded-3xl border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 text-center space-y-3 bg-white/40 dark:bg-slate-900/30">
                   <div className="h-12 w-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 flex items-center justify-center mx-auto shadow-inner">
-                    <Sparkles className="h-6 w-6 animate-pulse" />
+                    
                   </div>
                   <div className="space-y-1">
                     <h4 className="text-sm font-black uppercase text-slate-900 dark:text-white">
@@ -1256,7 +1256,7 @@ export default function ProductsPage() {
                         onClick={generateSmartSKU}
                         className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline"
                       >
-                        <Sparkles className="h-3 w-3" /> Auto-Gen Code
+                         Auto-Gen Code
                       </button>
                     </div>
                     <Input

@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Check, Star, Sparkles, ArrowLeft, Zap, Shield, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, Star, ArrowLeft, Zap, Shield, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';

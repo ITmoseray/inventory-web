@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { 
-  Sparkles, Wand2, ArrowRight, CheckCircle2, Globe, RefreshCw, 
+  Wand2, ArrowRight, CheckCircle2, Globe, RefreshCw, 
   Laptop, Tablet, Smartphone, Check, ShoppingBag, X, Phone, Lock, 
   Mail, User, ExternalLink, ShieldCheck, ChevronRight, Eye
 } from "lucide-react";
@@ -155,7 +155,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black shadow-sm">
-              <Sparkles className="w-5 h-5" />
+              
             </div>
             <div>
               <span className="font-black text-sm tracking-tight">ProTech</span>{" "}
@@ -186,7 +186,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
         {/* ── HERO HEADER ────────────────────────────────────── */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
+            
             100% Free • No Shop Account or Credit Card Required
           </div>
 
@@ -262,7 +262,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    
                     Generate My Store
                   </>
                 )}
@@ -457,7 +457,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                  <Sparkles className="w-5 h-5" />
+                  
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-foreground">Claim Your Online Store</h3>

@@ -16,7 +16,7 @@ import {
 import Image from "next/image";
 import { 
   Plus, Box, Users, FileText, ShoppingCart, Truck, Globe, ShieldCheck, 
-  CreditCard, MapPin, Activity, Sparkles, History, Clock, ArrowRight, 
+  CreditCard, MapPin, Activity, History, Clock, ArrowRight, 
   Play, MessageCircle, Wallet, Smartphone, SmartphoneIcon, Printer, Receipt, 
   DollarSign, AlertCircle, Package, Book, Zap, Cpu, UserCheck, Briefcase, Database, BrainCircuit, RefreshCw
 } from "lucide-react";
@@ -432,11 +432,11 @@ export default function DashboardPage() {
                   <div className="xl:col-span-1">
                     <div className="h-full relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-500 via-purple-500 to-indigo-700 p-8 text-white shadow-xl shadow-indigo-500/20 flex flex-col justify-between group cursor-pointer border border-indigo-400/20">
                       <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
-                        <Sparkles className="w-32 h-32" />
+                        
                       </div>
                       <div className="relative z-10">
                         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/20 mb-6 shadow-sm">
-                          <Sparkles className="h-3.5 w-3.5" />
+                          
                           <span className="text-[10px] font-black uppercase tracking-widest text-white">Protech AI Assistant</span>
                         </div>
                         <h2 suppressHydrationWarning className="text-2xl sm:text-3xl font-black tracking-tight leading-none mb-3">
@@ -1347,7 +1347,7 @@ export default function DashboardPage() {
         <DialogContent className="sm:max-w-[550px] rounded-[3rem] border-none shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] p-0 overflow-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
           <div className="bg-slate-900 p-10 text-white relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5">
-              <Sparkles size={140} />
+              
             </div>
             <div className="relative z-10 space-y-2">
               <div className="text-[10px] font-black uppercase tracking-[0.5em] text-indigo-400 italic">System Release Note</div>

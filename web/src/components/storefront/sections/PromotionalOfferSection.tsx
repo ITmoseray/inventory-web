@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, MessageCircle, ArrowRight } from "lucide-react";
+import { MessageCircle, ArrowRight } from "lucide-react";
 import { StoreSection, StoreTheme } from "@/types/store-builder";
 
 interface Props {
@@ -27,7 +27,7 @@ export function PromotionalOfferSection({ section, theme, storeSlug, whatsappNum
       >
         <div className="space-y-2 text-center md:text-left max-w-xl">
           <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/20">
-            <Sparkles className="w-3 h-3" /> {content.badge || "SPECIAL OFFER"}
+             {content.badge || "SPECIAL OFFER"}
           </span>
           <h3 className="text-2xl sm:text-3xl font-black tracking-tight">
             {content.title || "Limited Time Deal: Order Online & Save!"}

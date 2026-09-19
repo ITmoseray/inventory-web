@@ -12,7 +12,6 @@ import {
   Trash2, 
   Eye, 
   Clock,
-  Sparkles,
   RefreshCw,
   BellRing,
   MoreVertical,
@@ -179,7 +178,7 @@ export default function NotificationsPage() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
          {[
            { label: "Total Alerts", value: notifications.length.toString().padStart(2, '0'), icon: BellRing, color: "text-blue-500" },
-           { label: "Unread Signals", value: unreadCount.toString().padStart(2, '0'), icon: Sparkles, color: "text-amber-500" },
+           { label: "Unread Signals", value: unreadCount.toString().padStart(2, '0'), icon: Zap, color: "text-amber-500" },
            { label: "Critical Nodes", value: notifications.filter(n => n.type === 'ERROR' || n.type === 'CRITICAL').length.toString().padStart(2, '0'), icon: AlertCircle, color: "text-rose-500" },
            { label: "Sync Status", value: "Verified", icon: CheckCircle2, color: "text-emerald-500" }
          ].map((stat, i) => (
@@ -234,7 +233,7 @@ export default function NotificationsPage() {
                             n.type === 'SUCCESS' ? "bg-emerald-500/10 text-emerald-600" :
                             n.type === 'SYSTEM_UPDATE' ? "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" :
                             "bg-blue-500/10 text-blue-600")}>
-                             {n.type === 'ERROR' ? <AlertCircle size={20} /> : n.type === 'SUCCESS' ? <CheckCircle2 size={20} /> : n.type === 'SYSTEM_UPDATE' ? <Sparkles size={20} /> : <Info size={20} />}
+                             {n.type === 'ERROR' ? <AlertCircle size={20} /> : n.type === 'SUCCESS' ? <CheckCircle2 size={20} /> : n.type === 'SYSTEM_UPDATE' ?  : <Info size={20} />}
                           </div>
                           <div>
                              <div className="flex items-center gap-3 mb-1">

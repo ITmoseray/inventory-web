@@ -9,7 +9,7 @@ import {
   ExternalLink, Play, HelpCircle, MessageCircle, FileText,
   Smartphone, Globe, LayoutDashboard, Database, Activity,
   Calendar, Menu, X, ArrowRight, ShieldCheck, CreditCard,
-  MapPin, Plus, Sparkles, BrainCircuit, Receipt, Printer,
+  MapPin, Plus, BrainCircuit, Receipt, Printer,
   Store, Building2, Stethoscope, Utensils, GraduationCap,
   TrendingDown, RefreshCw, Layers, Award, Check, DollarSign,
   History, Wallet, SmartphoneIcon, UserCheck, Briefcase, Zap,
@@ -253,7 +253,7 @@ export function DemoDashboard() {
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-400 text-[10px] font-mono font-bold tracking-wider uppercase border border-indigo-500/30 animate-pulse">
-              <Sparkles className="h-3 w-3" /> Demo Sandbox
+               Demo Sandbox
             </span>
             <span className="text-xs font-bold hidden sm:inline text-slate-200">
               Protech Assist Enterprise OS
@@ -573,11 +573,11 @@ export function DemoDashboard() {
                     <div className="xl:col-span-1">
                       <div className="h-full relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-600 via-purple-600 to-indigo-800 p-8 text-white shadow-xl flex flex-col justify-between group border border-indigo-400/20">
                         <div className="absolute top-0 right-0 p-6 opacity-20 group-hover:scale-110 transition-transform duration-500 group-hover:rotate-12">
-                          <Sparkles className="w-32 h-32" />
+                          
                         </div>
                         <div className="relative z-10">
                           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/20 mb-6 shadow-sm">
-                            <Sparkles className="h-3.5 w-3.5" />
+                            
                             <span className="text-[10px] font-black uppercase tracking-widest text-white">Protech AI Assistant</span>
                           </div>
                           <h2 className="text-3xl font-black tracking-tight leading-none mb-3">Hi Dr. Strange,</h2>
@@ -1490,7 +1490,7 @@ export function DemoDashboard() {
 
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-2xl bg-indigo-600 flex items-center justify-center shadow-lg">
-                  <Sparkles className="h-5 w-5 text-white" />
+                  
                 </div>
                 <div>
                   <h3 className="text-base font-black text-white">Protech AI Copilot • Executive Summary</h3>

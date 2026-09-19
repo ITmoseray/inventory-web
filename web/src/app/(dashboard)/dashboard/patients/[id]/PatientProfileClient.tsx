@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import { 
   User, Phone, MapPin, Calendar, Clock, Stethoscope, 
   FlaskConical, FileText, Receipt, CheckCircle2, Trash2, 
-  Plus, X, CreditCard, ShieldAlert, Sparkles, Printer, Download
+  Plus, X, CreditCard, ShieldAlert, Printer, Download
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

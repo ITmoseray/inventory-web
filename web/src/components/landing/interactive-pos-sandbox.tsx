@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ShoppingCart, Plus, Minus, Trash2, CheckCircle2, Sparkles, 
+  ShoppingCart, Plus, Minus, Trash2, CheckCircle2, 
   Receipt, Smartphone, CreditCard, Wallet, RotateCcw, ArrowRight,
   Package, Tag, Zap, ShieldCheck, Printer, Search
 } from "lucide-react";
@@ -269,7 +269,7 @@ export function InteractivePosSandbox() {
                     {/* Quick barcode simulation hint */}
                     <div className="mt-4 p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-center justify-between text-[10px] sm:text-[11px] text-slate-400">
                       <span className="flex items-center gap-1.5 font-medium">
-                        <Sparkles className="h-3.5 w-3.5 text-indigo-400 shrink-0" />
+                        
                         Barcode Scanner &amp; Thermal Printer built-in
                       </span>
                       <span className="text-indigo-400 font-bold hidden sm:inline">0.12s Scan Speed</span>

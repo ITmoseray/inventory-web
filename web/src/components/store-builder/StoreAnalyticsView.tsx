@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { 
   Users, Eye, ShoppingCart, DollarSign, TrendingUp, Share2, 
-  ExternalLink, Copy, Check, Sparkles, ArrowUpRight
+  ExternalLink, Copy, Check, ArrowUpRight
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -34,7 +34,7 @@ export function StoreAnalyticsView({ analytics, currency = "SLE", storeName = "Y
   if (!analytics) {
     return (
       <div className="p-12 text-center bg-card border rounded-2xl text-muted-foreground">
-        <Sparkles className="w-8 h-8 mx-auto text-primary mb-2 opacity-50" />
+        
         <h3 className="text-base font-semibold text-foreground">Analytics initializing</h3>
         <p className="text-xs mt-1">Analytics data will update automatically as shoppers visit your storefront.</p>
       </div>

@@ -11,7 +11,6 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   Activity,
-  Sparkles,
   BarChart3,
   RefreshCw
 } from "lucide-react";
@@ -189,7 +188,7 @@ export default function CashFlowPage() {
 
          <Card className="border-none bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-2xl relative overflow-hidden flex flex-col justify-center">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-[100px]" />
-            <Sparkles className="h-10 w-10 mb-6 text-indigo-200 animate-pulse" />
+            
             <h3 className="text-2xl font-[1000] tracking-tight mb-4 uppercase italic leading-tight">Neural Solvency Prediction</h3>
             <p className="text-indigo-100/70 text-xs font-bold leading-relaxed uppercase tracking-widest mb-8">
                Our predictive models indicate a 98.2% probability of positive cash flow for the next cycle. Operational liquidity nodes are stable.

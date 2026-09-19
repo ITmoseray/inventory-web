@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShoppingCart, Stethoscope, Utensils, GraduationCap, Truck, 
-  Check, ArrowRight, Shield, Zap, Sparkles, Building2
+  Check, ArrowRight, Shield, Zap, Building2
 } from "lucide-react";
 import Link from "next/link";
 
@@ -175,7 +175,7 @@ export function IndustrySolutionTabs() {
               <div className="lg:col-span-7 space-y-5">
                 <div className="space-y-2">
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-xs font-black uppercase tracking-wider">
-                    <Sparkles className="h-3 w-3" />
+                    
                     {currentIndustry.badge}
                   </div>
                   <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Trophy, Users, Heart, Gift, ArrowRight } from "lucide-react";
+import { Trophy, Users, Heart, Gift, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn, getIndustryColor } from "@/lib/utils";
@@ -42,7 +42,7 @@ export default function LoyaltyProgramPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
          {[
            { label: "Active Members", value: stats.activeMembers.toString(), icon: Users, color: "text-blue-500" },
-           { label: "Points Issued", value: stats.pointsIssued, icon: Sparkles, color: "text-amber-500" },
+           { label: "Points Issued", value: stats.pointsIssued, icon: Zap, color: "text-amber-500" },
            { label: "Rewards Redeemed", value: stats.rewardsRedeemed.toString(), icon: Gift, color: "text-emerald-500" },
            { label: "Member Growth", value: stats.memberGrowth, icon: Heart, color: "text-rose-500" }
          ].map((stat, i) => (

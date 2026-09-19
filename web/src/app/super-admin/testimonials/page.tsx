@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { 
   Star, ShieldCheck, CheckCircle2, XCircle, Trash2, ArrowLeft, RefreshCw, 
-  Search, Filter, Sparkles, MessageSquare, Building2, User, MapPin, 
+  Search, Filter, MessageSquare, Building2, User, MapPin, 
   Calendar, Award, Check, AlertCircle, Edit3, Heart, ExternalLink
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

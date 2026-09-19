@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
 import Image from "next/image";
 
 export default function DashboardLoading() {
@@ -25,9 +24,9 @@ export default function DashboardLoading() {
 
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+          
           <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Initializing Intelligence</span>
-          <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+          
         </div>
         
         <div className="w-48 h-1.5 bg-slate-100 dark:bg-slate-900 rounded-full overflow-hidden relative">

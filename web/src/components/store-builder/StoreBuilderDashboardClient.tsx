@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { 
-  Store as StoreIcon, Sparkles, Globe, Eye, Palette, ShoppingBag, 
+  Store as StoreIcon, Globe, Eye, Palette, ShoppingBag, 
   Settings, BarChart3, ExternalLink, Copy, Check, Power, RefreshCw,
   PlusCircle, Layers, ArrowRight, Trash2, AlertOctagon, X, Wand2, Rocket, Crown
 } from "lucide-react";
@@ -129,7 +129,7 @@ export function StoreBuilderDashboardClient({
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Sparkles className="w-4 h-4" />
+              
               Browse 20+ Templates
             </button>
           </div>
@@ -280,7 +280,7 @@ export function StoreBuilderDashboardClient({
               title="Re-run AI Store Creation Wizard"
               className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all shadow-sm"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              
               <span className="hidden sm:inline">AI Wizard</span>
             </button>
 
@@ -367,7 +367,7 @@ export function StoreBuilderDashboardClient({
               : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
-          <Sparkles className="w-4 h-4" />
+          
           Templates (20+)
         </button>
 

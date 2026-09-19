@@ -17,8 +17,7 @@ import {
   Printer, 
   FileText, 
   Trash2, 
-  RefreshCw, 
-  Sparkles,
+  RefreshCw,
   Package,
   Layers,
   MapPin,
@@ -230,7 +229,7 @@ export default function ClientImplementationsHub() {
               <ArrowLeft className="h-4 w-4" />
             </Link>
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-              <Sparkles className="h-3 w-3" />
+              
               <span>Implementation &amp; Audit Engine</span>
             </div>
           </div>

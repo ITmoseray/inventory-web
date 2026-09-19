@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { 
   Building, Save, Globe, Smartphone, Store, ShieldCheck,
   Receipt, Sliders, Eye, Phone, MessageSquare, Mail, MapPin,
-  CheckCircle2, Sparkles, AlertCircle, RefreshCw, Palette, Hash,
+  CheckCircle2, AlertCircle, RefreshCw, Palette, Hash,
   Layers, TrendingUp, AlertTriangle, ArrowRightLeft, ShieldAlert
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";

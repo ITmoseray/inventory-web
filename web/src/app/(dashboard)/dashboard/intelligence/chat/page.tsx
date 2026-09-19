@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { 
-  MessageSquare, Send, Bot, User, Cpu, Sparkles, RefreshCw, 
+  MessageSquare, Send, Bot, User, Cpu, RefreshCw, 
   Terminal, ArrowLeft, Lightbulb, Zap, HelpCircle, CheckCircle2 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

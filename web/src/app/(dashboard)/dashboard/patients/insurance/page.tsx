@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Construction } from "lucide-react";
+import { Construction } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn, getIndustryColor } from "@/lib/utils";
 import { useSession } from "next-auth/react";
@@ -24,9 +24,9 @@ export default function PlaceholderPage() {
         
         <div className="space-y-2">
           <div className="flex items-center justify-center gap-2">
-            <Sparkles className={cn("h-4 w-4", colors.text)} />
+            
             <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">Intelligence Node</span>
-            <Sparkles className={cn("h-4 w-4", colors.text)} />
+            
           </div>
           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Insurance Node</h1>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">

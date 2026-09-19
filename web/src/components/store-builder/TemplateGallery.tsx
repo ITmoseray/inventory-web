@@ -4,7 +4,6 @@ import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import { 
   Search, 
-  Sparkles, 
   Eye, 
   ArrowRight, 
   SlidersHorizontal, 
@@ -103,7 +102,7 @@ export function TemplateGallery({
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-950 p-6 sm:p-10 text-white border border-indigo-500/20 shadow-2xl">
         <div className="relative z-10 max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+            
             20+ Commercial-Grade Starter Templates
           </div>
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">

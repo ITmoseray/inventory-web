@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Minus, Columns, Smartphone, Laptop, Sparkles } from 'lucide-react';
+import { CheckCircle2, Minus, Columns, Smartphone, Laptop } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const features = [
@@ -80,7 +80,7 @@ export function FeatureComparisonTable() {
             "text-xs font-black px-3 py-1.5 rounded-xl uppercase tracking-widest flex items-center gap-1",
             plans.find(p => p.id === activeMobilePlan)?.color
           )}>
-            <Sparkles className="h-3 w-3" />
+            
             {plans.find(p => p.id === activeMobilePlan)?.name}
           </span>
         </div>

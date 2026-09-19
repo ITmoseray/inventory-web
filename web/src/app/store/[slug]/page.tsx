@@ -7,7 +7,7 @@ import { SectionRenderer } from "@/components/storefront/SectionRenderer";
 import { StoreCartDrawer } from "@/components/storefront/StoreCartDrawer";
 import { StoreCheckoutModal } from "@/components/storefront/StoreCheckoutModal";
 import { StoreSection, StoreTheme, StoreNavigation, StoreSettings } from "@/types/store-builder";
-import { Store as StoreIcon, ShieldAlert, Sparkles, LogIn, ArrowRight } from "lucide-react";
+import { Store as StoreIcon, ShieldAlert, LogIn, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface PageProps {
@@ -41,7 +41,7 @@ export default async function StorefrontPage({ params }: PageProps) {
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6 text-center">
           <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 p-8 sm:p-10 shadow-xl space-y-6">
             <div className="w-16 h-16 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto">
-              <Sparkles className="w-8 h-8" />
+              
             </div>
             
             <div className="space-y-2">

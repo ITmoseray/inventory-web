@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useOnboardingStore } from "@/store/use-onboarding-store";
 import { Button } from "@/components/ui/button";
 import { Badge } from "../ui/badge";
-import { ChevronLeft, ChevronRight, X, Sparkles, Zap, Cpu, ShieldCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Zap, Cpu, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 
@@ -131,7 +131,7 @@ export function OnboardingGuide() {
              <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
                    <div className="h-8 w-8 rounded-lg bg-teal-600 flex items-center justify-center shadow-sm">
-                      <Sparkles className="h-4 w-4 text-white" />
+                      
                    </div>
                    <div className="flex flex-col">
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white leading-none">System Intelligence</h4>

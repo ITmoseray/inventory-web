@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from 'react';
-import { Check, Star, Sparkles, HelpCircle, ChevronDown, ChevronUp, Shield, Zap, Info, Phone, Mail } from 'lucide-react';
+import { Check, Star, HelpCircle, ChevronDown, ChevronUp, Shield, Zap, Info, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -366,7 +366,7 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
             viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100/80 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-bold text-xs uppercase tracking-widest shadow-md"
           >
-            <Sparkles className="h-3.5 w-3.5 fill-current animate-pulse text-indigo-500" />
+            
             <span>30-Day Free Trial available on all plans</span>
           </motion.div>
           

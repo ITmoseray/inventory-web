@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Sparkles, ArrowRight, GraduationCap, School as SchoolIcon, ChevronRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, GraduationCap, School as SchoolIcon, ChevronRight, ShieldCheck } from 'lucide-react';
 import { prisma } from '@/lib/prisma'; // Assuming this is how prisma is imported in this app
 
 export const metadata = {
@@ -50,7 +50,7 @@ export default async function SchoolHubPage() {
           </div>
 
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-medium text-sm mb-6 border border-indigo-200 dark:border-indigo-800/50 animate-in fade-in slide-in-from-bottom-5 duration-1000 delay-200 fill-mode-both">
-            <Sparkles className="w-4 h-4" />
+            
             Academic Session 2026/2027
           </div>
 

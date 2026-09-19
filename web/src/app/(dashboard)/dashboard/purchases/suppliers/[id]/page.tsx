@@ -7,7 +7,7 @@ import {
   ArrowLeft, Building2, Phone, Mail, MapPin, Wallet, TrendingUp,
   FileText, Clock, CheckCircle2, AlertTriangle, Plus, Printer,
   CreditCard, Banknote, Smartphone, RefreshCw, Package, Boxes,
-  Trash2, Calendar, Sparkles, Receipt, ChevronRight, Tag
+  Trash2, Calendar, Receipt, ChevronRight, Tag
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -5,7 +5,7 @@ import {
   ShieldCheck, CheckCircle2, AlertTriangle, FileSignature, 
   Printer, User, Phone, Mail, Building2, MapPin, Calendar, 
   Clock, Award, Lock, FileText, ArrowRight, RefreshCw, Stamp,
-  ExternalLink, Check, Sparkles, Search, Plus, Trash2, Copy,
+  ExternalLink, Check, Search, Plus, Trash2, Copy,
   Share2, ArrowLeft, Eye, X, Filter, ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

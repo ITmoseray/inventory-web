@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { 
-  Laptop, Tablet, Smartphone, Sparkles, Save, Globe, Eye, EyeOff, 
+  Laptop, Tablet, Smartphone, Save, Globe, Eye, EyeOff, 
   Trash2, ChevronUp, ChevronDown, Plus, Wand2, X, Check, ArrowRight,
   Palette, Layout, Settings, RefreshCw, ShoppingBag, Layers, ExternalLink,
   RotateCcw, RotateCw, Upload, Image as ImageIcon, FileText, Menu, Phone,
@@ -549,7 +549,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
             onClick={() => setIsAiModalOpen(true)}
             className="px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-indigo-500 to-purple-600 hover:brightness-110 text-white flex items-center gap-1.5 shadow-md shadow-indigo-500/20"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            
             <span className="hidden sm:inline">Ask AI</span>
           </button>
 
@@ -1063,7 +1063,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                 }}
                 className="flex items-center gap-2 bg-slate-950/80 rounded-xl px-3 py-1.5 border border-slate-800 focus-within:border-indigo-500 transition-colors"
               >
-                <Sparkles className="w-4 h-4 text-indigo-400 shrink-0 animate-pulse" />
+                
                 <input
                   type="text"
                   placeholder="Ask AI to change anything (e.g. 'Make the hero bigger', 'Rewrite headline to sound premium')..."
@@ -1317,7 +1317,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4" />
+                  
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-white">AI Store Assistant</h3>
@@ -1437,7 +1437,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
               <div className="mb-6 p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/40 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div>
                   <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-indigo-400" />
+                    
                     Apply &quot;{templateToApply.name}&quot; Template?
                   </h4>
                   <p className="text-xs text-indigo-200/80 mt-0.5">

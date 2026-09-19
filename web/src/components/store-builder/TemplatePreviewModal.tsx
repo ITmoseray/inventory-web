@@ -6,7 +6,6 @@ import {
   Monitor, 
   Tablet, 
   Smartphone, 
-  Sparkles, 
   Check, 
   Eye, 
   ExternalLink,
@@ -98,7 +97,7 @@ export function TemplatePreviewModal({
             className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-bold"
             style={{ backgroundColor: template.themeConfig.colors.primary }}
           >
-            <Sparkles className="w-4 h-4" />
+            
           </div>
           <div>
             <div className="flex items-center gap-2">

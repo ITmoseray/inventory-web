@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Receipt, Sparkles, X, ArrowRight, SlidersHorizontal } from "lucide-react";
+import { Receipt, X, ArrowRight, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -70,7 +70,7 @@ export function ReceiptFeatureCallout() {
                 <Receipt className="h-4 w-4" />
               </div>
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 text-[10px] font-black uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
-                <Sparkles className="h-3 w-3 animate-pulse" />
+                
                 <span>New Feature Alert</span>
               </div>
             </div>

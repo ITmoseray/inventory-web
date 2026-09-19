@@ -14,7 +14,6 @@ import {
   Trash2, 
   Edit2, 
   Lock,
-  Sparkles,
   ArrowRight,
   Activity,
   Loader2
@@ -303,7 +302,7 @@ export default function EmployeesPage() {
                    {aiLoading ? (
                      <Loader2 className="h-3 w-3 animate-spin" />
                    ) : (
-                     <Sparkles className="h-3 w-3" />
+                     
                    )}
                    AI Autofill
                  </Button>

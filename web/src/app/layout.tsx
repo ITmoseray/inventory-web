@@ -82,7 +82,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} min-h-full flex flex-col antialiased relative`}>
+      <body className={`${inter.className} min-h-full w-full max-w-full overflow-x-hidden flex flex-col antialiased relative`}>
         <VersionRecoveryListener />
         <SplashScreenWrapper />
         <ThemeProvider

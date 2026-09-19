@@ -6,7 +6,7 @@ import {
   Globe, CreditCard, Layout, Zap, Bell, FileText, 
   ShoppingCart, Package, Truck, MessageSquare, Database, 
   Smartphone, Share2, Code2, Calculator, Percent, Clock,
-  ArrowRight, Landmark, Briefcase, Plus, Menu, Sparkles,
+  ArrowRight, Landmark, Briefcase, Plus, Menu,
   MapPin, Coins, Hash, Mail, Tag, Play, History, Box, 
   Wallet, Activity, Edit, Undo, Layers, Terminal, Calendar,
   CheckCircle2, AlertCircle, Copy, FileSpreadsheet, Receipt
@@ -32,7 +32,7 @@ const SETTINGS_GROUPS = [
     icon: Building,
     items: [
       { name: "Organization Profile", icon: Building, url: "/dashboard/system/settings/business" },
-      { name: "Branding", icon: Sparkles },
+      { name: "Branding", icon: Palette },
       { name: "Locations", icon: MapPin },
       { name: "AI Integration", icon: Zap },
       { name: "Manage Subscription", icon: CreditCard, url: "/dashboard/billing" }

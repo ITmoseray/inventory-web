@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
-  X, Phone, Calendar, ArrowRight, MessageSquare, Users, 
-  Sparkles, CheckCircle2, Send, Clock, Shield, Headphones,
+  X, Phone, Calendar, ArrowRight, MessageSquare, Users, CheckCircle2, Send, Clock, Shield, Headphones,
   Store, Building2, Stethoscope, ChevronRight, HelpCircle
 } from "lucide-react";
 import Image from "next/image";
@@ -14,7 +13,7 @@ const CONSULTATION_TOPICS = [
   { id: "retail", label: "Retail & POS", icon: Store },
   { id: "pharmacy", label: "Pharmacy & Clinic", icon: Stethoscope },
   { id: "wholesale", label: "Wholesale & ERP", icon: Building2 },
-  { id: "custom", label: "Custom Enterprise", icon: Sparkles },
+  { id: "custom", label: "Custom Enterprise", icon: Zap },
 ];
 
 export function ExpertPopup() {
@@ -267,7 +266,7 @@ export function ExpertPopup() {
                     className="w-full p-3 rounded-xl bg-indigo-50/70 dark:bg-indigo-950/30 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/40 text-indigo-900 dark:text-indigo-200 text-xs font-bold flex items-center justify-between border border-indigo-200/60 dark:border-indigo-800/40 transition-colors"
                   >
                     <div className="flex items-center gap-2.5">
-                      <Sparkles className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                      
                       <span>Explore Demo Sandbox Account</span>
                     </div>
                     <ChevronRight className="h-4 w-4 text-indigo-500" />

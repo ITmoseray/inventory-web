@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Star, Heart, CheckCircle, Sparkles, LogOut, ArrowRight, ShieldCheck } from "lucide-react";
+import { Star, Heart, CheckCircle, LogOut, ArrowRight, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { signOut } from "next-auth/react";
 
@@ -148,7 +148,7 @@ export function LogoutFeedbackModal({ isOpen, onClose, onReviewed, user }: Logou
           <div className="relative z-10 flex items-start justify-between gap-4">
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-bold uppercase tracking-wider text-indigo-100">
-                <Sparkles className="h-3.5 w-3.5 text-amber-300 fill-amber-300" />
+                
                 Feedback &amp; Review
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">

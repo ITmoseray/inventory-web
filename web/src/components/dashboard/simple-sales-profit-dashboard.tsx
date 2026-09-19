@@ -20,8 +20,7 @@ import {
   BarChart3, 
   Coins, 
   Trash2, 
-  Edit2, 
-  Sparkles,
+  Edit2,
   Sliders,
   Clock,
   Briefcase

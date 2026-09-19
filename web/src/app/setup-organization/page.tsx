@@ -34,7 +34,6 @@ import {
   Users,
   Building2,
   Receipt,
-  Sparkles,
   CreditCard,
   Plus,
   FileSpreadsheet

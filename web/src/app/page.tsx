@@ -8,7 +8,7 @@ import {
   GraduationCap, Building2, Check, Heart, Clock, Code2, Laptop, Database, 
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
   ChevronDown, Globe, MessageSquare, BarChart3, Layers, Menu, X, FileText,
-  Briefcase, Stethoscope, Play, Sparkles, Phone, Mail, MapPin, ShieldCheck,
+  Briefcase, Stethoscope, Play, Phone, Mail, MapPin, ShieldCheck,
   CheckCircle2, AlertTriangle, Activity, Lock, Cpu, DollarSign, RefreshCw, Zap
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -238,7 +238,7 @@ export default function ProtechCloudHomepage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 space-y-8">
             {/* Mission Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-indigo-200/80 dark:border-indigo-800/60 bg-indigo-50/80 dark:bg-indigo-950/40 backdrop-blur-md text-indigo-700 dark:text-indigo-300 text-xs font-black uppercase tracking-widest shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+              
               <span>ProTech Assist Enterprise OS • Empowering Businesses Through Technology</span>
             </div>
 
@@ -322,7 +322,7 @@ export default function ProtechCloudHomepage() {
                     type="submit"
                     className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black uppercase tracking-wider shadow-md flex items-center justify-center gap-1.5 transition-transform active:scale-95"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
+                    
                     <span>Build Store</span>
                   </button>
                 </form>

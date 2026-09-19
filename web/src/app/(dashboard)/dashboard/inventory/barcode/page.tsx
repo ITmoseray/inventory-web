@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { 
-  Barcode, Printer, Search, Plus, Trash2, Sliders, 
-  Sparkles, Check, Download, Layers, ShieldCheck, ArrowRight,
+  Barcode, Printer, Search, Plus, Trash2, Sliders, Check, Download, Layers, ShieldCheck, ArrowRight,
   Package, RefreshCw, Eye, Grid3X3, Copy
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

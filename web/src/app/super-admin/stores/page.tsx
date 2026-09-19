@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Store, Globe, Eye, ShoppingCart, DollarSign, Search, 
   Power, ExternalLink, ShieldCheck, Filter, ArrowLeft, RefreshCw,
-  Building2, Users, AlertCircle, Sparkles, Trash2, AlertOctagon, X
+  Building2, Users, AlertCircle, Trash2, AlertOctagon, X
 } from "lucide-react";
 import Link from "next/link";
 import { getSuperAdminStores, superAdminToggleStoreStatus, superAdminDeleteStore } from "@/lib/actions/store-builder";
@@ -106,7 +106,7 @@ export default function SuperAdminStoresPage() {
             href="/super-admin/templates"
             className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-all"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            
             Manage Templates (20+)
           </Link>
           <button

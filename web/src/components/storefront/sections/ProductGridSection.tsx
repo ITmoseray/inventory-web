@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ShoppingBag, Eye, Tag, Sparkles } from "lucide-react";
+import { ShoppingBag, Eye, Tag } from "lucide-react";
 import { StoreSection, StoreTheme, normalizeStoreProduct } from "@/types/store-builder";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
 import { toast } from "sonner";

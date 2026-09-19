@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { 
-  Sparkles, Store, ShoppingBag, Wand2, ArrowRight, 
+  Store, ShoppingBag, Wand2, ArrowRight, 
   CheckCircle2, Globe, RefreshCw, Check, Zap, Layers,
   Phone, MapPin, ChevronDown, ChevronUp, Palette, Building2
 } from "lucide-react";
@@ -158,7 +158,7 @@ export function StoreWizard({
             </div>
 
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
+              
               ProTech AI Store Architect
             </div>
 

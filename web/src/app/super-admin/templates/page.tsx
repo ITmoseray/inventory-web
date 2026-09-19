@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  Sparkles, 
   ArrowLeft, 
   RefreshCw, 
   Eye, 
@@ -110,7 +109,7 @@ export default function SuperAdminTemplatesPage() {
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-indigo-600/20 text-indigo-400 flex items-center justify-center font-bold">
-              <Sparkles className="w-5 h-5" />
+              
             </div>
             <div>
               <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">

@@ -4,8 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { 
   MessageSquare, Send, Hash, User, Users, Plus, Search, 
-  Circle, CheckCheck, Paperclip, Smile, MoreVertical, 
-  Sparkles, RefreshCw, Shield, Bell, Phone, Mail, ChevronRight,
+  Circle, CheckCheck, Paperclip, Smile, MoreVertical, RefreshCw, Shield, Bell, Phone, Mail, ChevronRight,
   Info, ArrowLeft
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

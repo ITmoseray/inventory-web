@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { ArrowRight, ShieldCheck, Zap, Sparkles } from "lucide-react";
+import { ArrowRight, ShieldCheck, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface SplashScreenProps {
@@ -123,7 +123,7 @@ export const SplashScreen = ({ onDismiss }: SplashScreenProps) => {
           >
             <div className="h-px w-6 sm:w-12 bg-gradient-to-r from-transparent via-cyan-400/60 to-indigo-500/80" />
             <div className="flex items-center gap-1.5">
-              <Sparkles className="h-2.5 w-2.5 text-cyan-400 animate-pulse" />
+              
               <span className="text-[10px] sm:text-xs font-mono font-extrabold tracking-[0.3em] sm:tracking-[0.45em] uppercase text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-300 to-cyan-400 drop-shadow-[0_0_12px_rgba(34,211,238,0.5)]">
                 Enterprise OS
               </span>

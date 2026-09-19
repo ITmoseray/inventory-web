@@ -41,8 +41,7 @@ import {
   ScanLine,
   Share2,
   MessageSquare,
-  AlertTriangle,
-  Sparkles
+  AlertTriangle
 } from "lucide-react";
 import domtoimage from "dom-to-image-more";
 import { toast } from "sonner";
@@ -1044,7 +1043,7 @@ export default function POSPage() {
           {/* Happy Hour Banner */}
           {isHappyHour && (
             <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg shadow-amber-500/30 animate-pulse">
-              <Sparkles className="h-4 w-4 shrink-0" />
+              
               <div className="flex flex-col leading-none">
                 <span className="text-[10px] font-[1000] uppercase tracking-[0.3em]">Happy Hour</span>
                 <span className="text-[8px] font-bold opacity-80">Special pricing active</span>

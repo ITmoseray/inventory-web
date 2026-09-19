@@ -16,7 +16,6 @@ import {
   Check, 
   Lock, 
   FileText,
-  Sparkles,
   QrCode,
   Download,
   Share2,

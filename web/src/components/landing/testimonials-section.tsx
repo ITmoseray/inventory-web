@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  Star, Quote, ShieldCheck, Sparkles, MessageSquare, 
+  Star, Quote, ShieldCheck, MessageSquare, 
   ArrowRight, ChevronRight, CheckCircle2, TrendingUp, Clock, 
   Building2, Users, Award, MapPin
 } from "lucide-react";
@@ -96,7 +96,7 @@ export function TestimonialsSection() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/60 text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
-              <Sparkles className="h-3.5 w-3.5 fill-amber-400 text-amber-400" /> Real-World Client Impact
+               Real-World Client Impact
             </div>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Trusted by 150+ Leading <br />

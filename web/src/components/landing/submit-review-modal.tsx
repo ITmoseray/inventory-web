@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Star, Heart, CheckCircle2, Sparkles, Send, ShieldCheck } from "lucide-react";
+import { Star, Heart, CheckCircle2, Send, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 interface SubmitReviewModalProps {
@@ -129,7 +129,7 @@ export function SubmitReviewModal({ isOpen, onClose, onSuccess }: SubmitReviewMo
           <div className="relative z-10 flex items-start justify-between gap-4">
             <div className="space-y-1.5">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-xs font-bold uppercase tracking-wider text-indigo-100">
-                <Sparkles className="h-3.5 w-3.5 text-amber-300 fill-amber-300" />
+                
                 Share Your Experience
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white">

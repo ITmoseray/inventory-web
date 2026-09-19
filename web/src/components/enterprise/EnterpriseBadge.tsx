@@ -9,8 +9,7 @@ import {
   Info, 
   Clock, 
   ShieldCheck, 
-  Package, 
-  Sparkles 
+  Package 
 } from "lucide-react";
 
 export type BadgeVariant = 

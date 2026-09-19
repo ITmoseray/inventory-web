@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { Megaphone, X, ArrowRight, Sparkles } from "lucide-react";
+import { Megaphone, X, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 
@@ -110,7 +110,7 @@ export function AnnouncementBanner() {
             {/* Left Megaphone Icon */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="h-6 w-6 rounded-full bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-400">
-                <Sparkles className="h-3.5 w-3.5 animate-pulse text-amber-300" />
+                
               </div>
               <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-indigo-500/30 border border-indigo-400/30 text-[10px] font-black uppercase tracking-wider text-indigo-200">
                 Broadcast

@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { LayoutGrid, ArrowRight, Sparkles } from "lucide-react";
+import { LayoutGrid, ArrowRight } from "lucide-react";
 import { StoreSection, StoreTheme, normalizeStoreProduct } from "@/types/store-builder";
 
 interface Props {

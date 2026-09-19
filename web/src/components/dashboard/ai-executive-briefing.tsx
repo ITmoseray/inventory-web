@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { 
-  BrainCircuit, Sparkles, TrendingUp, AlertCircle, 
+  BrainCircuit, TrendingUp, AlertCircle, 
   CheckCircle2, ArrowRight, Lightbulb, ChevronRight, X
 } from "lucide-react";
 

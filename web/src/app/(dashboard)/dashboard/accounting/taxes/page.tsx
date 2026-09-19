@@ -5,7 +5,7 @@ import {
   Building2, Plus, Search, Filter, Download, Trash2, Edit3, 
   Calendar, FileText, CheckCircle2, AlertCircle, Clock, 
   Receipt, DollarSign, Percent, ShieldCheck, Scale, CreditCard,
-  Building, RefreshCw, X, ArrowUpRight, Check, Printer, Eye, Sparkles
+  Building, RefreshCw, X, ArrowUpRight, Check, Printer, Eye
 } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
