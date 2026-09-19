@@ -346,18 +346,28 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
               </div>
             </div>
 
-            {/* Viewport Frame */}
-            <div className="flex justify-center bg-slate-950/80 backdrop-blur-md p-4 sm:p-8 rounded-3xl border border-border/80 shadow-2xl overflow-hidden">
+            {/* Viewport Frame Container */}
+            <div className="flex justify-center bg-slate-950/90 backdrop-blur-md p-2 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl overflow-x-hidden w-full">
               <div
                 style={{
                   width: viewport === "desktop" ? "100%" : viewport === "tablet" ? "768px" : "390px",
+                  maxWidth: "100%",
                   transition: "width 0.3s ease-in-out"
                 }}
-                className="bg-background rounded-2xl overflow-hidden border border-border shadow-2xl max-h-[85vh] overflow-y-auto"
+                className={`bg-background overflow-hidden border border-border shadow-2xl max-h-[85vh] overflow-y-auto w-full transition-all ${
+                  viewport === "mobile" 
+                    ? "rounded-[32px] sm:border-[8px] sm:border-slate-800" 
+                    : viewport === "tablet"
+                    ? "rounded-2xl sm:border-[6px] sm:border-slate-800"
+                    : "rounded-2xl"
+                }`}
               >
                 <StoreThemeWrapper theme={normalizeStoreTheme(generatedStore.theme)}>
                   <StoreHeader 
                     storeName={generatedStore.name} 
+                    storeSlug={generatedStore.slug || "preview"}
+                    whatsappNumber={generatedStore.whatsapp || "+23276000000"}
+                    theme={generatedStore.theme}
                     navigation={generatedStore.navigation} 
                   />
                   <div className="space-y-0">
@@ -365,9 +375,13 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                       <SectionRenderer
                         key={sec.id}
                         section={sec}
+                        theme={generatedStore.theme}
                         storeName={generatedStore.name}
-                        storeType="STANDALONE"
-                        sampleProducts={generatedStore.sampleProducts}
+                        storeSlug={generatedStore.slug || "preview"}
+                        products={generatedStore.sampleProducts || []}
+                        navigation={generatedStore.navigation}
+                        whatsappNumber={generatedStore.whatsapp || "+23276000000"}
+                        currency="SLE"
                       />
                     ))}
                   </div>

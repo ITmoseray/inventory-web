@@ -245,6 +245,84 @@ export interface StorefrontUnifiedProduct {
   isStandalone: boolean;
 }
 
+export function normalizeStoreProduct(item: any): StorefrontUnifiedProduct {
+  if (!item) {
+    return {
+      id: "prod-fallback",
+      storeProductId: "prod-fallback",
+      name: "Featured Item",
+      price: 0,
+      category: "General",
+      isFeatured: false,
+      isStandalone: true,
+      stockQuantity: 10,
+    };
+  }
+
+  const prod = item.product || item;
+  const id = item.id || prod.id || `sp-${Math.random().toString(36).substring(2, 9)}`;
+  const name = item.name || prod.name || "Featured Product";
+  
+  // Price extraction
+  let price = 0;
+  if (item.customPrice !== undefined && item.customPrice !== null) {
+    price = Number(item.customPrice);
+  } else if (item.price !== undefined && item.price !== null) {
+    price = Number(item.price);
+  } else if (prod.unitPrice !== undefined && prod.unitPrice !== null) {
+    price = Number(prod.unitPrice);
+  } else if (prod.price !== undefined && prod.price !== null) {
+    price = Number(prod.price);
+  }
+
+  // Original / compare at price
+  let originalPrice: number | null = null;
+  if (item.originalPrice) {
+    originalPrice = Number(item.originalPrice);
+  } else if (item.salePrice && item.price && Number(item.price) > Number(item.salePrice)) {
+    originalPrice = Number(item.price);
+    price = Number(item.salePrice);
+  } else if (prod.compareAtPrice) {
+    originalPrice = Number(prod.compareAtPrice);
+  }
+
+  // Image handling
+  const rawImages = item.images || prod.images || [];
+  const imageUrl = item.imageUrl || item.image || (Array.isArray(rawImages) && rawImages[0]) || prod.imageUrl || null;
+
+  // Category handling
+  const category = (typeof item.category === "string" ? item.category : null) 
+    || (typeof prod.category === "string" ? prod.category : prod.category?.name) 
+    || "General";
+
+  // Stock handling
+  const stockQuantity = item.stockQuantity !== undefined 
+    ? Number(item.stockQuantity) 
+    : (prod.stockQuantity !== undefined ? Number(prod.stockQuantity) : 99);
+
+  // Badge & flags
+  const badge = item.customBadge || item.badge || prod.customBadge || (item.isFeatured || prod.isFeatured ? "FEATURED" : null) || (prod.isFavorite ? "POPULAR" : null);
+  const isFeatured = Boolean(item.isFeatured || prod.isFeatured);
+
+  return {
+    id: String(id),
+    storeProductId: String(item.id || id),
+    name,
+    sku: item.sku || prod.sku || null,
+    description: item.description || prod.description || null,
+    price,
+    salePrice: item.salePrice ? Number(item.salePrice) : null,
+    originalPrice,
+    imageUrl,
+    images: Array.isArray(rawImages) && rawImages.length > 0 ? rawImages : imageUrl ? [imageUrl] : [],
+    stockQuantity,
+    category,
+    isFeatured,
+    customBadge: badge || null,
+    isStandalone: !item.product,
+  };
+}
+
 // ─── STORE GENERATION SCHEMA (AI CONTRACT) ───────────────────────
 export const AIStoreGenerationInputSchema = z.object({
   businessName: z.string().min(2),

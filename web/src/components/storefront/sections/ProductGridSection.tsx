@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
-import { StoreSection, StoreTheme } from "@/types/store-builder";
+import { ShoppingBag, Eye, Tag, Sparkles } from "lucide-react";
+import { StoreSection, StoreTheme, normalizeStoreProduct } from "@/types/store-builder";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
 import { toast } from "sonner";
 
@@ -15,33 +15,42 @@ interface Props {
   currency?: string;
 }
 
-export function ProductGridSection({ section, theme, storeSlug, products = [], currency = "SLE" }: Props) {
+export function ProductGridSection({ 
+  section, 
+  theme, 
+  storeSlug, 
+  products = [], 
+  currency = "SLE" 
+}: Props) {
   const content = section.content || {};
   const settings = section.settings || {};
   const { addItem } = useStoreCart();
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
 
   const title = content.title || "Featured Catalog";
-  const subtitle = content.subtitle || "Explore our top picks and popular essentials";
+  const subtitle = content.subtitle || "Explore our top picks, popular essentials, and trending drops";
   const limit = settings.limit || 16;
 
-  const categories = ["ALL", ...Array.from(new Set(products.map(p => p.product?.category?.name || "General").filter(Boolean)))];
+  // Normalize all incoming products
+  const normalizedProducts = (products || []).map(normalizeStoreProduct);
 
-  const filtered = products
+  // Extract unique categories
+  const categories = [
+    "ALL", 
+    ...Array.from(new Set(normalizedProducts.map(p => p.category).filter(Boolean)))
+  ];
+
+  // Filter products by selected category
+  const filtered = normalizedProducts
     .filter(item => {
       if (selectedCategory === "ALL") return true;
-      const cat = item.product?.category?.name || "General";
-      return cat === selectedCategory;
+      return item.category.toLowerCase() === selectedCategory.toLowerCase();
     })
     .slice(0, limit);
 
-  const handleAddToCart = (item: any) => {
-    const prod = item.product;
-    const price = item.customPrice ? Number(item.customPrice) : Number(prod.unitPrice);
-    const stock = Number(prod.stockQuantity) || 0;
-
-    if (stock <= 0) {
-      toast.error("Item currently out of stock");
+  const handleAddToCart = (prod: ReturnType<typeof normalizeStoreProduct>) => {
+    if (!prod.inStock) {
+      toast.error("Item is currently out of stock");
       return;
     }
 
@@ -49,31 +58,39 @@ export function ProductGridSection({ section, theme, storeSlug, products = [], c
       id: prod.id,
       productId: prod.id,
       name: prod.name,
-      price: price,
-      imageUrl: prod.imageUrl,
-      maxStock: stock,
-      sku: prod.sku,
+      price: prod.price,
+      imageUrl: prod.imageUrl || undefined,
+      maxStock: prod.stockQuantity || 99,
+      sku: prod.sku || undefined,
     });
     toast.success(`Added "${prod.name}" to cart!`);
   };
 
   return (
-    <section id="products" className="py-16 px-4 max-w-7xl mx-auto">
-      <div className="text-center max-w-2xl mx-auto mb-10 space-y-2">
-        <h2 className="text-2xl sm:text-4xl font-black tracking-tight" style={{ color: theme.colors.text }}>
+    <section id="products" className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      {/* Section Header */}
+      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2.5">
+        <h2 
+          className="text-2xl sm:text-4xl font-black tracking-tight" 
+          style={{ color: theme.colors.text }}
+        >
           {title}
         </h2>
-        <p className="text-xs sm:text-sm font-medium leading-relaxed" style={{ color: theme.colors.mutedText }}>
+        <p 
+          className="text-xs sm:text-sm font-medium leading-relaxed max-w-lg mx-auto" 
+          style={{ color: theme.colors.mutedText }}
+        >
           {subtitle}
         </p>
 
+        {/* Mobile Swipeable Category Pills */}
         {categories.length > 2 && (
-          <div className="flex items-center justify-center gap-2 pt-4 flex-wrap">
+          <div className="pt-4 flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-0 flex-nowrap sm:flex-wrap">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className="px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200"
+                className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap flex-shrink-0 active:scale-95 shadow-sm"
                 style={{
                   backgroundColor: selectedCategory === cat ? theme.colors.primary : theme.colors.surface,
                   color: selectedCategory === cat ? "#FFFFFF" : theme.colors.mutedText,
@@ -87,85 +104,121 @@ export function ProductGridSection({ section, theme, storeSlug, products = [], c
         )}
       </div>
 
+      {/* Product Grid */}
       {filtered.length === 0 ? (
-        <div className="text-center py-12 p-8 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-dashed border-slate-300 dark:border-slate-800">
+        <div className="text-center py-16 p-8 rounded-3xl bg-slate-50 dark:bg-slate-900/60 border border-dashed border-slate-300 dark:border-slate-800">
           <ShoppingBag className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-          <h3 className="text-base font-bold text-slate-700 dark:text-slate-300">Catalog is being updated</h3>
-          <p className="text-xs text-slate-500 mt-1">Check back shortly or contact our team directly.</p>
+          <h3 className="text-base font-bold text-slate-800 dark:text-slate-200">Catalog is being curated</h3>
+          <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+            {selectedCategory !== "ALL" 
+              ? `No items found in category "${selectedCategory}".` 
+              : "Check back shortly or contact our team directly."}
+          </p>
+          {selectedCategory !== "ALL" && (
+            <button
+              onClick={() => setSelectedCategory("ALL")}
+              className="mt-4 px-4 py-2 rounded-xl text-xs font-bold bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200"
+            >
+              Show All Products
+            </button>
+          )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {filtered.map(item => {
-            const p = item.product;
-            const price = item.customPrice ? Number(item.customPrice) : Number(p.unitPrice);
-            const badge = item.customBadge || (p.isFavorite ? "POPULAR" : null);
-            const inStock = Number(p.stockQuantity) > 0;
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+          {filtered.map(prod => {
+            const hasDiscount = prod.originalPrice && prod.originalPrice > prod.price;
+            const discountPct = hasDiscount 
+              ? Math.round(((prod.originalPrice! - prod.price) / prod.originalPrice!) * 100) 
+              : null;
 
             return (
               <div
-                key={item.id}
-                className="group relative rounded-2xl border transition-all duration-300 hover:shadow-xl flex flex-col justify-between overflow-hidden bg-white dark:bg-slate-900"
+                key={prod.id}
+                className="group relative rounded-2xl border transition-all duration-300 hover:shadow-xl flex flex-col justify-between overflow-hidden bg-white dark:bg-slate-900/90"
                 style={{ borderColor: "rgba(0,0,0,0.08)" }}
               >
-                <div className="relative aspect-square w-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-                  {p.imageUrl ? (
+                {/* Product Thumbnail Container */}
+                <div className="relative aspect-square w-full bg-slate-100 dark:bg-slate-800/80 overflow-hidden">
+                  {prod.imageUrl ? (
                     <img
-                      src={p.imageUrl}
-                      alt={p.name}
+                      src={prod.imageUrl}
+                      alt={prod.name}
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-300">
-                      <ShoppingBag className="w-12 h-12 stroke-[1.5]" />
+                    <div className="w-full h-full flex items-center justify-center text-slate-300 dark:text-slate-600">
+                      <ShoppingBag className="w-10 sm:w-12 h-10 sm:h-12 stroke-[1.5]" />
                     </div>
                   )}
 
-                  {badge && (
-                    <div 
-                      className="absolute top-2.5 left-2.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider text-white shadow-md"
-                      style={{ backgroundColor: theme.colors.accent }}
-                    >
-                      {badge}
-                    </div>
-                  )}
+                  {/* Floating Badges */}
+                  <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
+                    {prod.customBadge && (
+                      <div 
+                        className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-white shadow-md"
+                        style={{ backgroundColor: theme.colors.accent }}
+                      >
+                        {prod.customBadge}
+                      </div>
+                    )}
+                    {discountPct && (
+                      <div className="px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
+                        {discountPct}% OFF
+                      </div>
+                    )}
+                  </div>
 
-                  {!inStock && (
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] flex items-center justify-center">
-                      <span className="px-3 py-1 rounded-full bg-rose-600 text-white text-xs font-black uppercase tracking-widest">
+                  {/* Out of Stock Overlay */}
+                  {!prod.inStock && (
+                    <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center z-20">
+                      <span className="px-2.5 sm:px-3 py-1 rounded-full bg-rose-600 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg">
                         Out of Stock
                       </span>
                     </div>
                   )}
                 </div>
 
-                <div className="p-4 flex flex-col flex-1 justify-between gap-3">
-                  <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">
-                      {p.category?.name || "General"}
+                {/* Product Info & Quick Buy */}
+                <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between gap-3">
+                  <div className="space-y-1">
+                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 block truncate">
+                      {prod.category}
                     </span>
-                    <Link href={`/store/${storeSlug}/product/${p.id}`}>
-                      <h3 className="font-bold text-sm line-clamp-2 hover:underline" style={{ color: theme.colors.text }}>
-                        {p.name}
+                    <Link href={`/store/${storeSlug}/product/${prod.id}`}>
+                      <h3 
+                        className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug hover:underline" 
+                        style={{ color: theme.colors.text }}
+                      >
+                        {prod.name}
                       </h3>
                     </Link>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] text-slate-400 font-bold uppercase block leading-none">Price</span>
-                      <span className="font-black text-base sm:text-lg" style={{ color: theme.colors.primary }}>
-                        {currency} {price.toLocaleString()}
+                  {/* Price Row & Cart Trigger */}
+                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-end justify-between gap-2">
+                    <div className="min-w-0">
+                      {hasDiscount && (
+                        <span className="text-[10px] text-slate-400 line-through block leading-none mb-0.5 font-semibold">
+                          {currency} {prod.originalPrice!.toLocaleString()}
+                        </span>
+                      )}
+                      <span 
+                        className="font-black text-sm sm:text-base tracking-tight truncate block" 
+                        style={{ color: theme.colors.primary }}
+                      >
+                        {currency} {prod.price.toLocaleString()}
                       </span>
                     </div>
 
                     <button
-                      onClick={() => handleAddToCart(item)}
-                      disabled={!inStock}
+                      onClick={() => handleAddToCart(prod)}
+                      disabled={!prod.inStock}
                       title="Add to Cart"
-                      className="w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
                       style={{ backgroundColor: theme.colors.primary }}
                     >
-                      <ShoppingBag className="w-4 h-4" />
+                      <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 </div>

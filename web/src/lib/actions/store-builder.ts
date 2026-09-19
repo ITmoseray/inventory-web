@@ -61,39 +61,218 @@ function generateSampleProductsForArchetype(archetype: string, storeName: string
     case "fashion":
     case "luxury":
       return [
-        { name: "Tailored Premium Blazer", price: 650, category: "Apparel", description: "Structured slim-fit silhouette crafted with luxury breathable fabric.", isFeatured: true, customBadge: "NEW" },
-        { name: "Handcrafted Leather Chelsea Boots", price: 780, category: "Footwear", description: "Full-grain leather with cushioned inner sole and durable traction.", isFeatured: true, customBadge: "HOT" },
-        { name: "Minimalist Italian Leather Bag", price: 540, category: "Accessories", description: "Timeless day-to-evening aesthetic with gold-tone hardware accents.", isFeatured: true, customBadge: "POPULAR" },
-        { name: "Organic Silk Touch Scarf", price: 195, category: "Accessories", description: "Soft, vibrant drape designed for effortless everyday sophistication.", isFeatured: false }
+        { 
+          name: "Tailored Premium Blazer", 
+          price: 650, 
+          originalPrice: 780,
+          category: "Apparel", 
+          description: "Structured slim-fit silhouette crafted with luxury breathable fabric.", 
+          imageUrl: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "NEW",
+          stockQuantity: 15
+        },
+        { 
+          name: "Handcrafted Leather Chelsea Boots", 
+          price: 780, 
+          originalPrice: 920,
+          category: "Footwear", 
+          description: "Full-grain leather with cushioned inner sole and durable traction.", 
+          imageUrl: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "HOT",
+          stockQuantity: 12
+        },
+        { 
+          name: "Minimalist Italian Leather Bag", 
+          price: 540, 
+          category: "Accessories", 
+          description: "Timeless day-to-evening aesthetic with gold-tone hardware accents.", 
+          imageUrl: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "POPULAR",
+          stockQuantity: 20
+        },
+        { 
+          name: "Organic Silk Touch Scarf", 
+          price: 195, 
+          category: "Accessories", 
+          description: "Soft, vibrant drape designed for effortless everyday sophistication.", 
+          imageUrl: "https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=600&auto=format&fit=crop&q=80",
+          isFeatured: false,
+          stockQuantity: 30
+        }
       ];
     case "electronics":
       return [
-        { name: "Active Noise-Cancelling Headphones", price: 850, category: "Audio", description: "Studio-grade fidelity with 40-hour wireless playtime and instant pairing.", isFeatured: true, customBadge: "TOP SELLER" },
-        { name: "Ultra AMOLED Smart Watch", price: 620, category: "Wearables", description: "Comprehensive biometric tracking, GPS navigation, and waterproof chassis.", isFeatured: true, customBadge: "NEW" },
-        { name: "Fast Wireless Charging Hub (3-in-1)", price: 290, category: "Accessories", description: "Simultaneous high-speed power delivery for smartphone, earbuds, and watch.", isFeatured: true },
-        { name: "Rugged Braided Fast-Charge Cable", price: 85, category: "Cables", description: "Military-grade reinforcement with 65W Power Delivery support.", isFeatured: false }
+        { 
+          name: "Active Noise-Cancelling Headphones", 
+          price: 850, 
+          originalPrice: 990,
+          category: "Audio", 
+          description: "Studio-grade fidelity with 40-hour wireless playtime and instant pairing.", 
+          imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "TOP SELLER",
+          stockQuantity: 25
+        },
+        { 
+          name: "Ultra AMOLED Smart Watch", 
+          price: 620, 
+          category: "Wearables", 
+          description: "Comprehensive biometric tracking, GPS navigation, and waterproof chassis.", 
+          imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "NEW",
+          stockQuantity: 18
+        },
+        { 
+          name: "Fast Wireless Charging Hub (3-in-1)", 
+          price: 290, 
+          originalPrice: 350,
+          category: "Accessories", 
+          description: "Simultaneous high-speed power delivery for smartphone, earbuds, and watch.", 
+          imageUrl: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true,
+          stockQuantity: 40
+        },
+        { 
+          name: "Rugged Braided Fast-Charge Cable", 
+          price: 85, 
+          category: "Cables", 
+          description: "Military-grade reinforcement with 65W Power Delivery support.", 
+          imageUrl: "https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=600&auto=format&fit=crop&q=80",
+          isFeatured: false,
+          stockQuantity: 50
+        }
       ];
     case "grocery":
     case "supermarket":
       return [
-        { name: "Extra Virgin Cold-Pressed Olive Oil", price: 145, category: "Pantry", description: "First cold press olive oil with rich, authentic Mediterranean aroma.", isFeatured: true, customBadge: "FRESH" },
-        { name: "Artisan Whole Grain Sourdough", price: 45, category: "Bakery", description: "Naturally fermented sourdough baked fresh every morning.", isFeatured: true },
-        { name: "Organic Mountain Honey (500g)", price: 95, category: "Pantry", description: "Pure unfiltered wildflower honey harvested directly from local apiaries.", isFeatured: true, customBadge: "BEST" },
-        { name: "Premium Roasted Arabica Coffee Beans", price: 160, category: "Beverages", description: "Single-origin aromatic roast notes of caramel and hazelnut.", isFeatured: false }
+        { 
+          name: "Extra Virgin Cold-Pressed Olive Oil", 
+          price: 145, 
+          originalPrice: 175,
+          category: "Pantry", 
+          description: "First cold press olive oil with rich, authentic Mediterranean aroma.", 
+          imageUrl: "https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "FRESH",
+          stockQuantity: 30
+        },
+        { 
+          name: "Artisan Whole Grain Sourdough", 
+          price: 45, 
+          category: "Bakery", 
+          description: "Naturally fermented sourdough baked fresh every morning.", 
+          imageUrl: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true,
+          stockQuantity: 20
+        },
+        { 
+          name: "Organic Mountain Honey (500g)", 
+          price: 95, 
+          category: "Pantry", 
+          description: "Pure unfiltered wildflower honey harvested directly from local apiaries.", 
+          imageUrl: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "BEST",
+          stockQuantity: 25
+        },
+        { 
+          name: "Premium Roasted Arabica Coffee Beans", 
+          price: 160, 
+          category: "Beverages", 
+          description: "Single-origin aromatic roast notes of caramel and hazelnut.", 
+          imageUrl: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=600&auto=format&fit=crop&q=80",
+          isFeatured: false,
+          stockQuantity: 35
+        }
       ];
     case "pharmacy":
       return [
-        { name: "High-Potency Vitamin C + Zinc (60s)", price: 90, category: "Vitamins", description: "Daily immune fortification formula with enhanced bio-absorption.", isFeatured: true, customBadge: "ESSENTIAL" },
-        { name: "Digital Rapid Thermometer", price: 65, category: "Medical Devices", description: "Clinical accuracy with instant 10-second auditory readout.", isFeatured: true },
-        { name: "Hydrating Dermatological Cream", price: 120, category: "Skincare", description: "Gentle fragrance-free ceramide barrier restoration for dry skin.", isFeatured: true },
-        { name: "First Aid Safety Kit (Home & Car)", price: 180, category: "First Aid", description: "Comprehensive 50-piece medical emergency response pack.", isFeatured: false }
+        { 
+          name: "High-Potency Vitamin C + Zinc (60s)", 
+          price: 90, 
+          originalPrice: 110,
+          category: "Vitamins", 
+          description: "Daily immune fortification formula with enhanced bio-absorption.", 
+          imageUrl: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "ESSENTIAL",
+          stockQuantity: 40
+        },
+        { 
+          name: "Digital Rapid Thermometer", 
+          price: 65, 
+          category: "Medical Devices", 
+          description: "Clinical accuracy with instant 10-second auditory readout.", 
+          imageUrl: "https://images.unsplash.com/photo-1584017911766-d451b3d0e843?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true,
+          stockQuantity: 25
+        },
+        { 
+          name: "Hydrating Dermatological Cream", 
+          price: 120, 
+          category: "Skincare", 
+          description: "Gentle fragrance-free ceramide barrier restoration for dry skin.", 
+          imageUrl: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true,
+          stockQuantity: 30
+        },
+        { 
+          name: "First Aid Safety Kit (Home & Car)", 
+          price: 180, 
+          category: "First Aid", 
+          description: "Comprehensive 50-piece medical emergency response pack.", 
+          imageUrl: "https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=600&auto=format&fit=crop&q=80",
+          isFeatured: false,
+          stockQuantity: 15
+        }
       ];
     default:
       return [
-        { name: `${storeName} Signature Collection`, price: 350, category: "Featured", description: "Our bestselling flagship product curated for uncompromising quality.", isFeatured: true, customBadge: "FEATURED" },
-        { name: "Essential Daily Edition", price: 220, category: "Popular", description: "Engineered for reliable everyday utility and customer satisfaction.", isFeatured: true, customBadge: "HOT" },
-        { name: "Premium Travel & Work Accessory", price: 180, category: "Accessories", description: "Compact, durable construction made for modern mobile lifestyles.", isFeatured: true },
-        { name: "Deluxe Starter Pack", price: 490, category: "Bundles", description: "Complete package offering exceptional value and customer favorites.", isFeatured: false, customBadge: "VALUE" }
+        { 
+          name: `${storeName} Signature Collection`, 
+          price: 350, 
+          originalPrice: 420,
+          category: "Featured", 
+          description: "Our bestselling flagship product curated for uncompromising quality.", 
+          imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "FEATURED",
+          stockQuantity: 20
+        },
+        { 
+          name: "Essential Daily Edition", 
+          price: 220, 
+          category: "Popular", 
+          description: "Engineered for reliable everyday utility and customer satisfaction.", 
+          imageUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true, 
+          customBadge: "HOT",
+          stockQuantity: 25
+        },
+        { 
+          name: "Premium Travel & Work Accessory", 
+          price: 180, 
+          category: "Accessories", 
+          description: "Compact, durable construction made for modern mobile lifestyles.", 
+          imageUrl: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&auto=format&fit=crop&q=80",
+          isFeatured: true,
+          stockQuantity: 30
+        },
+        { 
+          name: "Deluxe Starter Pack", 
+          price: 490, 
+          originalPrice: 580,
+          category: "Bundles", 
+          description: "Complete package offering exceptional value and customer favorites.", 
+          imageUrl: "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=600&auto=format&fit=crop&q=80",
+          isFeatured: false, 
+          customBadge: "VALUE",
+          stockQuantity: 15
+        }
       ];
   }
 }

@@ -173,14 +173,14 @@ export function TemplatePreviewModal({
       </div>
 
       {/* Main Preview Container */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 flex items-start justify-center bg-slate-950/60">
+      <div className="flex-1 overflow-y-auto p-2 sm:p-6 flex items-start justify-center bg-slate-950/60 overflow-x-hidden">
         <div
-          className={`transition-all duration-300 shadow-2xl overflow-hidden ${
+          className={`transition-all duration-300 shadow-2xl overflow-hidden max-w-full ${
             device === "desktop"
               ? "w-full max-w-6xl rounded-2xl border border-slate-800"
               : device === "tablet"
-              ? "w-[768px] rounded-3xl border-8 border-slate-800 ring-2 ring-slate-700"
-              : "w-[390px] rounded-[40px] border-[10px] border-slate-800 ring-4 ring-slate-750"
+              ? "w-[768px] rounded-3xl border-4 sm:border-8 border-slate-800 ring-2 ring-slate-700"
+              : "w-[390px] rounded-3xl sm:rounded-[40px] border-4 sm:border-[10px] border-slate-800 ring-2 sm:ring-4 ring-slate-750"
           }`}
         >
           {/* Simulated Browser Bar for Device Preview */}
