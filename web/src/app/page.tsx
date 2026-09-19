@@ -114,19 +114,24 @@ export default function ProtechCloudHomepage() {
 
           {/* Action Area */}
           <div className="flex items-center gap-2.5 sm:gap-4">
-            {/* Region Selector */}
+            {/* Globe Icon with Region Dropdown */}
             <div 
-              className="relative cursor-pointer"
+              className="relative cursor-pointer group"
               onMouseEnter={() => setShowCountryDropdown(true)}
               onMouseLeave={() => setShowCountryDropdown(false)}
             >
               <button 
                 onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-700 dark:text-slate-300 hover:border-primary/40 transition-colors shadow-xs"
+                className="flex items-center gap-2 p-1 sm:px-2.5 sm:py-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs font-bold text-slate-700 dark:text-slate-300 hover:border-indigo-500/40 transition-all shadow-xs group-hover:scale-105"
               >
-                <img src={`https://flagcdn.com/w20/${selectedCountry.code}.png`} width="16" alt={selectedCountry.name} className="rounded-xs" />
-                <span className="hidden sm:inline uppercase text-[11px] font-black">{selectedCountry.code}</span>
-                <ChevronDown className="h-3 w-3 opacity-60" />
+                <div className="relative h-7 w-7 sm:h-8 sm:w-8 rounded-full overflow-hidden shadow-sm border border-slate-200 dark:border-slate-700 shrink-0">
+                  <img src="/images/globe-icon.jpg" alt="Globe" className="w-full h-full object-cover" />
+                </div>
+                <div className="flex items-center gap-1.5 pr-1">
+                  <img src={`https://flagcdn.com/w20/${selectedCountry.code}.png`} width="16" alt={selectedCountry.name} className="rounded-xs" />
+                  <span className="hidden sm:inline uppercase text-[11px] font-black">{selectedCountry.code}</span>
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </div>
               </button>
               
               {showCountryDropdown && (

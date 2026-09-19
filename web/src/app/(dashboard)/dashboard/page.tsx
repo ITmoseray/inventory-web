@@ -334,34 +334,55 @@ export default function DashboardPage() {
     <div className="relative min-h-full space-y-6 w-full max-w-full min-w-0 overflow-x-hidden">
       
       {/* Top Header Section */}
-      <EnterprisePageHeader
-        title={activeTab === "Dashboard" ? getGreeting() : activeTab}
-        subtitle={`${format(currentTime, "EEEE, MMMM do, yyyy • h:mm a")} • Node: ${session?.user?.businessName || "Protech Enterprise"}`}
-        badge={
-          <EnterpriseBadge variant="success" size="sm" dot pulse>
-            System Online
-          </EnterpriseBadge>
-        }
-        actions={
-          activeTab === "Dashboard" && businessType !== "OFFICE" ? (
-            <div className="flex items-center gap-2.5">
-              <Button 
-                variant="outline"
-                onClick={() => router.push("/dashboard/reports")}
-                className="h-10 px-4 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
-              >
-                View Reports
-              </Button>
-              <Button 
-                onClick={() => router.push("/dashboard/pos")}
-                className="h-10 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all gap-2"
-              >
-                <ShoppingCart className="h-4 w-4" /> Open POS Terminal
-              </Button>
-            </div>
-          ) : undefined
-        }
-      />
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200/80 dark:border-slate-800 pb-6 relative z-10"
+      >
+        <div className="flex items-center gap-4">
+           <div className="relative">
+              <div className="h-14 w-14 rounded-2xl bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+                 <Box className="h-7 w-7" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 h-5 w-5 bg-emerald-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center shadow-xs">
+                 <div className="h-2 w-2 bg-white rounded-full animate-ping" />
+              </div>
+           </div>
+           <div>
+              <div className="flex items-center gap-2">
+                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {activeTab === "Dashboard" ? getGreeting() : activeTab}
+                 </h1>
+                 <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50">
+                    Live Node
+                 </span>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 flex items-center gap-1.5">
+                 <span>{format(currentTime, "EEEE, MMMM do, yyyy")}</span>
+                 <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
+                 <span className="font-mono text-indigo-600 dark:text-indigo-400">{format(currentTime, "hh:mm:ss a")}</span>
+              </p>
+           </div>
+        </div>
+
+        {activeTab === "Dashboard" && businessType !== "OFFICE" && (
+          <div className="flex items-center gap-3">
+             <Button 
+               variant="outline"
+               onClick={() => router.push("/dashboard/reports")}
+               className="h-10 px-4 rounded-xl border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 font-bold text-xs shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-700 dark:text-slate-300"
+             >
+               View Reports
+             </Button>
+             <Button 
+               onClick={() => router.push("/dashboard/pos")}
+               className="h-10 px-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-xs shadow-sm shadow-primary/20 transition-all gap-2"
+             >
+               <Plus className="h-4 w-4" /> Create Order
+             </Button>
+          </div>
+        )}
+      </motion.div>
 
       {/* Main Tab Switcher */}
       <div className="flex items-center gap-4 sm:gap-8 border-b border-slate-200 dark:border-slate-800 relative z-10 overflow-x-auto no-scrollbar pb-1">
@@ -445,58 +466,75 @@ export default function DashboardPage() {
 
                   {/* Stat Cards */}
                   <div className="xl:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2 2xl:grid-cols-3 gap-4 sm:gap-6">
-                    <EnterpriseKpiCard 
+                    <StatCard 
                       title="Total Revenue" 
-                      value={Math.round(stats.revenue || 0)} 
-                      currency="SLE"
-                      subtitle="All-time gross turnover" 
+                      value={stats.revenue} 
+                      prefix="Le "
+                      description="All-time revenue" 
                       icon={DollarSign}
-                      iconColor="text-primary bg-primary/10"
-                      onClick={() => router.push("/dashboard/sales/history")}
+                      colorClass="text-primary"
+                      bgClass="bg-primary/10 dark:bg-primary/20"
+                      delay={0.1}
+                      href="/dashboard/sales/history"
+                      iconAnimation="float"
                     />
-                    <EnterpriseKpiCard 
+                    <StatCard 
                       title="Today's Revenue" 
-                      value={Math.round(stats.todayRevenue || 0)} 
-                      currency="SLE"
-                      change={stats.revenueChange || 0}
-                      changeLabel="vs yesterday"
+                      value={stats.todayRevenue || 0} 
+                      prefix="Le "
+                      description="vs yesterday" 
                       icon={Activity}
-                      iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
-                      onClick={() => router.push("/dashboard/sales/history")}
+                      colorClass="text-indigo-500"
+                      bgClass="bg-indigo-500/10 dark:bg-indigo-500/20"
+                      delay={0.15}
+                      href="/dashboard/sales/history"
+                      change={stats.revenueChange || 0}
+                      iconAnimation="pulse"
                     />
-                    <EnterpriseKpiCard 
+                    <StatCard 
                       title="Total Orders" 
-                      value={stats.orders || 0} 
-                      change={stats.ordersChange || 8.2}
-                      changeLabel="vs yesterday"
+                      value={stats.orders} 
+                      description="vs yesterday" 
                       icon={ShoppingCart}
-                      iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
-                      onClick={() => router.push("/dashboard/sales/orders")}
+                      colorClass="text-emerald-500"
+                      bgClass="bg-emerald-500/10 dark:bg-emerald-500/20"
+                      delay={0.2}
+                      href="/dashboard/sales/orders"
+                      change={stats.ordersChange || 8.2}
+                      iconAnimation="bounce"
                     />
-                    <EnterpriseKpiCard 
+                    <StatCard 
                       title={businessType === "PHARMACY" ? "Drug Items" : "Total Products"} 
-                      value={stats.skuCount || 0} 
-                      subtitle="Active Catalog SKUs" 
+                      value={stats.skuCount} 
+                      description="Managed Catalog" 
                       icon={Package}
-                      iconColor="text-purple-600 bg-purple-50 dark:bg-purple-950/40"
-                      onClick={() => router.push("/dashboard/inventory/products")}
+                      colorClass="text-purple-500"
+                      bgClass="bg-purple-500/10 dark:bg-purple-500/20"
+                      delay={0.3}
+                      href="/dashboard/inventory/products"
+                      iconAnimation="spin"
                     />
-                    <EnterpriseKpiCard 
+                    <StatCard 
                       title="Low Stock Alerts" 
-                      value={stats.lowStock || 0} 
-                      subtitle={stats.lowStock > 0 ? "Requires restock action" : "All stocks optimal"} 
+                      value={stats.lowStock} 
+                      description="Requires attention" 
                       icon={AlertCircle}
-                      iconColor={stats.lowStock > 0 ? "text-rose-600 bg-rose-50 dark:bg-rose-950/40" : "text-slate-500 bg-slate-100 dark:bg-slate-800"}
-                      badge={stats.lowStock > 0 ? <EnterpriseBadge variant="danger" size="sm" pulse>Action</EnterpriseBadge> : undefined}
-                      onClick={() => router.push("/dashboard/inventory/products")}
+                      colorClass="text-rose-500"
+                      bgClass="bg-rose-500/10 dark:bg-rose-500/20"
+                      delay={0.4}
+                      href="/dashboard/inventory/products"
+                      iconAnimation="shake"
                     />
-                    <EnterpriseKpiCard 
+                    <StatCard 
                       title="Over Stock Alerts" 
-                      value={stats.overStock || 0} 
-                      subtitle="Excess capital tied" 
+                      value={stats.overStock} 
+                      description="Excess inventory" 
                       icon={AlertCircle}
-                      iconColor="text-amber-600 bg-amber-50 dark:bg-amber-950/40"
-                      onClick={() => router.push("/dashboard/inventory/products")}
+                      colorClass="text-amber-500"
+                      bgClass="bg-amber-500/10 dark:bg-amber-500/20"
+                      delay={0.5}
+                      href="/dashboard/inventory/products"
+                      iconAnimation="ping"
                     />
                   </div>
                 </div>
