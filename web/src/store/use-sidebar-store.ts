@@ -10,8 +10,8 @@ interface SidebarState {
 export const useSidebarStore = create<SidebarState>()(
   persist(
     (set) => ({
-      colorHex: '#0f172a',
-      colorHsl: '222.2 47.4% 11.2%', // Default Navy (shadcn default)
+      colorHex: '#0B1629', // Figma Make Deep Navy 900
+      colorHsl: '218 58% 10%',
       setColor: (colorHex, colorHsl) => set({ colorHex, colorHsl }),
     }),
     {

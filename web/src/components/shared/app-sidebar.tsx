@@ -3,9 +3,10 @@
 import * as React from "react";
 import {
   LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, Pin, PinOff, Building2, Store, 
-  ChevronRight, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
+  ChevronRight, ChevronDown, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
-  Crown, Zap, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare, Star
+  Crown, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare, Star,
+  Brain, Boxes, TrendingUp, UserCog, Shield, PieChart, Receipt, Warehouse, ClipboardList, HelpCircle, AlertCircle, Tag
 } from "lucide-react";
 import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 
@@ -126,29 +127,23 @@ const SidebarContentRenderer = ({
   
   return (
     <>
-      <SidebarHeader className={cn("transition-all duration-300", isCollapsed ? "pt-4 px-2 pb-3 space-y-3" : "pt-6 px-4 pb-2")}>
-        {/* DUAL LOGOS (PROTECH + BUSINESS) WHEN COLLAPSED */}
+      <SidebarHeader className={cn("transition-all duration-300", isCollapsed ? "pt-4 px-2 pb-3 space-y-3" : "pt-5 px-3.5 pb-2")}>
+        {/* COLLAPSED HEADER */}
         {isCollapsed ? (
           <div className="flex flex-col items-center gap-3 py-1">
-            {/* 1. Protech Assist Logo Badge */}
+            {/* 1. Brand Logo Badge */}
             <Link 
               href="/dashboard" 
-              title="Protech Assist Enterprise OS"
-              className="relative flex h-11 w-11 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-2 ring-white/10 hover:scale-105 transition-transform shrink-0"
+              title="Inventory OS — ProTech Assist"
+              className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform shrink-0"
             >
-              <Image 
-                src="/images/PA.png" 
-                alt="Protech Logo" 
-                fill 
-                className="object-cover p-1" 
-                unoptimized 
-              />
+              <Store className="w-4 h-4 text-white" />
             </Link>
 
             {/* 2. Business Logo Badge */}
             <div 
               title={`${businessContext?.name && businessContext.name !== "Loading..." ? businessContext.name : (session?.user?.businessName || "Business Node")} (${businessType || "ENTERPRISE"} UNIT)`}
-              className="relative flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl bg-white/10 border border-white/20 shadow-md group cursor-pointer hover:border-primary/50 transition-all hover:scale-105 shrink-0"
+              className="relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white/10 border border-white/20 shadow-md group cursor-pointer hover:border-primary/50 transition-all hover:scale-105 shrink-0"
             >
               {businessContext?.logoUrl ? (
                 <Image 
@@ -159,14 +154,14 @@ const SidebarContentRenderer = ({
                   unoptimized 
                 />
               ) : (
-                <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-black text-xs uppercase">
+                <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-bold text-[10px] uppercase">
                   {(businessContext?.name && businessContext.name !== "Loading...")
                     ? businessContext.name.charAt(0).toUpperCase() 
-                    : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-5 w-5 text-white/80" />)}
+                    : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-3.5 w-3.5 text-white/80" />)}
                 </div>
               )}
               {/* Online Pulse Dot */}
-              <div className="absolute top-1 right-1 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-slate-900 animate-pulse" />
+              <div className="absolute top-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-[#0B1629] animate-pulse" />
             </div>
 
             {/* 3. Pin Action Button */}
@@ -184,24 +179,18 @@ const SidebarContentRenderer = ({
             <div className="flex items-center justify-between gap-2">
               <Link 
                 href="/dashboard" 
-                className="flex items-center gap-3 min-w-0" 
+                className="flex items-center gap-2.5 min-w-0" 
                 onClick={() => setOpenMobile(false)}
               >
-                <div className="relative flex aspect-square size-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl shadow-primary/20 ring-4 ring-primary/5">
-                  <Image 
-                    src="/images/PA.png" 
-                    alt="Protech Logo" 
-                    fill 
-                    className="object-cover" 
-                    unoptimized 
-                  />
+                <div className="relative flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] shadow-md shadow-blue-500/20">
+                  <Store className="w-4 h-4 text-white" />
                 </div>
-                <div className="relative flex flex-col gap-0.5 leading-none transition-all duration-300 min-w-0">
-                  <span className="font-black text-lg text-white tracking-tighter truncate">
-                    Protech <span className="text-primary italic">Assist</span>
+                <div className="relative flex flex-col leading-none transition-all duration-300 min-w-0">
+                  <span className="font-display font-bold text-[13.5px] text-white tracking-tight truncate">
+                    Inventory OS
                   </span>
-                  <span className="text-[10px] text-slate-400 uppercase font-black tracking-[0.25em] truncate">
-                    Enterprise OS
+                  <span className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">
+                    ProTech Assist
                   </span>
                 </div>
               </Link>
@@ -211,20 +200,20 @@ const SidebarContentRenderer = ({
                 onClick={togglePin}
                 title={isPinned ? "Unpin Sidebar (Hover to Expand)" : "Pin Sidebar (Keep Open)"}
                 className={cn(
-                  "h-8 w-8 rounded-xl flex items-center justify-center transition-all shrink-0 border",
+                  "h-7 w-7 rounded-lg flex items-center justify-center transition-all shrink-0 border",
                   isPinned 
-                    ? "bg-primary/20 border-primary/30 text-primary hover:bg-primary/30" 
+                    ? "bg-[#1B3357] border-[#2563EB]/40 text-blue-400 hover:bg-[#234070]" 
                     : "bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10"
                 )}
               >
-                {isPinned ? <Pin className="h-4 w-4 fill-current" /> : <PinOff className="h-4 w-4" />}
+                {isPinned ? <Pin className="h-3.5 w-3.5 fill-current" /> : <PinOff className="h-3.5 w-3.5" />}
               </button>
             </div>
             
             {/* Business Context Card */}
-            <div className="mt-5 mb-3 px-0.5">
-               <div className="p-3 rounded-2xl bg-white/5 border border-white/10 shadow-inner group transition-all hover:border-primary/40 flex items-center gap-3">
-                  <div className="relative h-10 w-10 rounded-xl overflow-hidden border border-white/20 bg-slate-800 shrink-0 flex items-center justify-center shadow-md">
+            <div className="mt-3.5 mb-2">
+               <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/10 shadow-inner group transition-all hover:border-[#2563EB]/40 flex items-center gap-2.5">
+                  <div className="relative h-8 w-8 rounded-lg overflow-hidden border border-white/20 bg-slate-800 shrink-0 flex items-center justify-center shadow-sm">
                     {businessContext?.logoUrl ? (
                       <Image 
                         src={businessContext.logoUrl} 
@@ -234,22 +223,22 @@ const SidebarContentRenderer = ({
                         unoptimized 
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-indigo-600 to-primary text-white font-black text-sm uppercase">
+                      <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold text-xs uppercase">
                         {(businessContext?.name && businessContext.name !== "Loading...")
                           ? businessContext.name.charAt(0).toUpperCase()
-                          : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-4 w-4 text-white" />)}
+                          : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-3.5 w-3.5 text-white" />)}
                       </div>
                     )}
-                    <div className="absolute bottom-0.5 right-0.5 h-2 w-2 rounded-full bg-emerald-500 ring-2 ring-slate-900 animate-pulse" />
+                    <div className="absolute bottom-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-[#0B1629] animate-pulse" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <span className="text-xs font-black text-white truncate block group-hover:text-primary transition-colors">
+                    <span className="text-xs font-semibold text-white truncate block group-hover:text-blue-400 transition-colors">
                       {(businessContext?.name && businessContext.name !== "Loading...") 
                         ? businessContext.name 
                         : (session?.user?.businessName || "Protech Store Node")}
                     </span>
-                    <div className="flex items-center gap-1.5 mt-1">
-                      <span className="text-[9px] font-black text-slate-300 uppercase tracking-wider px-1.5 py-0.5 rounded bg-white/10 truncate">
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="text-[9px] font-medium text-slate-400 uppercase tracking-wider truncate">
                         {businessType || "ENTERPRISE"} UNIT
                       </span>
                     </div>
@@ -277,9 +266,14 @@ const SidebarContentRenderer = ({
              </div>
           )}
           {filteredNavGroups.map((group: NavGroup) => (
-            <div key={group.label} className="space-y-2">
-              <div className={cn("px-4 text-[9px] font-black text-slate-400 uppercase tracking-[0.3em] mb-3 transition-all", isCollapsed && "opacity-0 h-0 overflow-hidden")}>{group.label}</div>
-              <div className="space-y-1">
+            <div key={group.label} className="space-y-1">
+              <div className={cn(
+                "px-3 text-[10.5px] font-bold text-slate-400 uppercase tracking-[0.1em] mt-3.5 mb-1.5 transition-all font-sans",
+                isCollapsed && "opacity-0 h-0 overflow-hidden m-0"
+              )}>
+                {group.label}
+              </div>
+              <div className="space-y-0.5">
                 {group.items.map((item: NavItem) => {
                   const hasChildren = item.items && item.items.length > 0;
                   const isExpanded = expandedItems.includes(item.title);
@@ -287,28 +281,28 @@ const SidebarContentRenderer = ({
                   const isActive = pathname.startsWith(item.url) && (item.url !== "/dashboard" || pathname === "/dashboard");
 
                   return (
-                    <div key={item.title} className="space-y-1">
+                    <div key={item.title} className="space-y-0.5">
                       <SidebarMenuItem>
                         <SidebarMenuButton 
                           tooltip={item.title} 
                           isActive={isActive && !hasChildren}
                           onClick={() => hasChildren ? toggleExpand(item.title) : setOpenMobile(false)}
                           className={cn(
-                            "h-11 rounded-xl transition-all duration-300 font-bold px-4 group/btn",
+                            "h-9 rounded-lg transition-all duration-150 text-[13.5px] font-medium px-3 group/btn flex items-center gap-2.5 w-full",
                             isActive && !hasChildren
-                              ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                              : "text-slate-400 hover:text-white hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98]",
-                            hasChildren && isExpanded && "bg-white/5"
+                              ? "bg-[#1B3357] text-white shadow-none font-semibold" 
+                              : "text-slate-400 hover:text-[#CBD5E1] hover:bg-[#152847]",
+                            hasChildren && isExpanded && "bg-[#152847]/60 text-white"
                           )}
                           render={!hasChildren ? <Link href={item.url} /> : undefined}
                         >
-                          <div className="flex items-center gap-4 flex-1">
-                            {Icon && <Icon className={cn("size-5 transition-transform duration-300 group-hover/btn:scale-110", (isActive && !hasChildren) ? "text-primary-foreground" : "text-slate-400 group-hover/btn:text-white")} />}
+                          <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                            {Icon && <Icon className={cn("size-4 shrink-0 transition-transform duration-150", (isActive && !hasChildren) ? "text-white" : "text-slate-400 group-hover/btn:text-[#CBD5E1]")} />}
                             <span className="truncate">{item.title}</span>
                           </div>
                           {hasChildren && (
                             <ChevronRight className={cn(
-                              "size-4 text-slate-400 transition-transform duration-300",
+                              "size-3.5 text-slate-400 transition-transform duration-200 shrink-0",
                               isExpanded && "rotate-90 text-white"
                             )} />
                           )}
@@ -322,10 +316,10 @@ const SidebarContentRenderer = ({
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
                               className="overflow-hidden"
                             >
-                              <div className="pl-9 pr-2 py-1 space-y-1 border-l border-white/10 ml-6">
+                              <div className="pl-6 pr-1 py-1 space-y-0.5 border-l border-white/10 ml-4">
                                 {item.items?.map((subItem) => {
                                   const isSubActive = pathname === subItem.url || pathname.startsWith(subItem.url + "/");
                                   return (
@@ -334,10 +328,10 @@ const SidebarContentRenderer = ({
                                       href={subItem.url}
                                       onClick={() => setOpenMobile(false)}
                                       className={cn(
-                                        "block px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-lg transition-all",
+                                        "block px-3 py-1.5 text-[12.5px] font-medium rounded-lg transition-all truncate",
                                         isSubActive 
-                                          ? "text-white bg-white/10" 
-                                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                                          ? "text-white bg-[#1B3357]" 
+                                          : "text-slate-400 hover:text-[#CBD5E1] hover:bg-[#152847]"
                                       )}
                                     >
                                       {subItem.title}
@@ -612,42 +606,97 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       console.warn("DEBUG Sidebar: No configurations found for types:", businessTypes);
       return [];
     }
-    const merged: NavGroup[] = [];
+    const figmaDomainGroups: { [key: string]: NavGroup } = {
+      "MAIN": {
+        label: "MAIN",
+        items: [
+          { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard, permission: "menu:overview" },
+          { title: "Business Hub", url: "/dashboard/registry", icon: Building2, permission: "menu:intelligence:hub" },
+          { title: "Point of Sale", url: "/dashboard/pos", icon: ShoppingCart, permission: "menu:sales" },
+        ]
+      },
+      "INVENTORY": { label: "INVENTORY", items: [] },
+      "SALES & CRM": { label: "SALES & CRM", items: [] },
+      "FINANCE": { label: "FINANCE", items: [] },
+      "ANALYTICS": { label: "ANALYTICS", items: [] },
+      "ADMIN": { label: "ADMIN", items: [] },
+    };
+
+    const customGroups: NavGroup[] = [];
+
     configs.forEach(config => {
-        config?.forEach(group => {
-            const existingGroup = merged.find(g => g.label === group.label);
-            if (existingGroup) {
-                group.items.forEach(item => {
-                    if (!existingGroup.items.find((i: any) => i.title === item.title)) {
-                        existingGroup.items.push(item);
-                    }
-                });
-            } else {
-                merged.push({...group, items: [...group.items]});
+      config?.forEach(group => {
+        const gLabel = group.label.toUpperCase();
+        group.items.forEach(item => {
+          const title = item.title.toLowerCase();
+          const url = item.url.toLowerCase();
+
+          // Skip items already represented in MAIN
+          if (url === "/dashboard" && item.title === "Overview") return;
+          if (url === "/dashboard/registry" && item.title === "Intelligence Hub") return;
+          if (url === "/dashboard/pos" && item.title === "Launch POS") return;
+
+          // Categorize into Figma Make domain groups
+          if (url.includes("/inventory") || url.includes("/purchases") || title.includes("inventory") || title.includes("purchase") || title.includes("stock") || title.includes("warehouse")) {
+            if (!figmaDomainGroups["INVENTORY"].items.some(i => i.url === item.url && i.title === item.title)) {
+              figmaDomainGroups["INVENTORY"].items.push(item);
             }
+          } else if (url.includes("/sales") || url.includes("/customers") || url.includes("/store-builder") || url.includes("/services") || title.includes("sales") || title.includes("customer") || title.includes("supplier") || title.includes("order")) {
+            if (!figmaDomainGroups["SALES & CRM"].items.some(i => i.url === item.url && i.title === item.title)) {
+              figmaDomainGroups["SALES & CRM"].items.push(item);
+            }
+          } else if (url.includes("/accounting") || url.includes("/invoices") || url.includes("/payments") || url.includes("/credit") || url.includes("/debts") || title.includes("finance") || title.includes("invoice") || title.includes("payment")) {
+            if (!figmaDomainGroups["FINANCE"].items.some(i => i.url === item.url && i.title === item.title)) {
+              figmaDomainGroups["FINANCE"].items.push(item);
+            }
+          } else if (url.includes("/intelligence") || url.includes("/analytics") || url.includes("/reports") || title.includes("report") || title.includes("ai") || title.includes("forecast") || title.includes("profit & loss") || title.includes("p&l")) {
+            if (!figmaDomainGroups["ANALYTICS"].items.some(i => i.url === item.url && i.title === item.title)) {
+              figmaDomainGroups["ANALYTICS"].items.push(item);
+            }
+          } else if (url.includes("/staff") || url.includes("/system") || title.includes("employee") || title.includes("role") || title.includes("log") || title.includes("setting") || title.includes("manual")) {
+            if (!figmaDomainGroups["ADMIN"].items.some(i => i.url === item.url && i.title === item.title)) {
+              figmaDomainGroups["ADMIN"].items.push(item);
+            }
+          } else {
+            // Specialized industry group (e.g. CLINIC, SCHOOL, RESTAURANT, BAR)
+            let existing = customGroups.find(g => g.label === group.label.toUpperCase());
+            if (!existing) {
+              existing = { label: group.label.toUpperCase(), items: [] };
+              customGroups.push(existing);
+            }
+            if (!existing.items.some(i => i.title === item.title)) {
+              existing.items.push(item);
+            }
+          }
         });
+      });
     });
 
-    // Add Referral Program & Team Chat to System or create a new group
-    let systemGroup = merged.find(g => g.label === "System");
-    if (!systemGroup) {
-      systemGroup = { label: "System", items: [] };
-      merged.push(systemGroup);
-    }
-    systemGroup.items.push({
+    // Add Chat and Referrals to ADMIN
+    figmaDomainGroups["ADMIN"].items.push({
       title: "Team & Staff Chat",
       url: "/dashboard/chat",
       icon: MessageSquare,
       permission: "view_dashboard"
     });
-    systemGroup.items.push({
+    figmaDomainGroups["ADMIN"].items.push({
       title: "Referral Program",
       url: "/dashboard/referrals",
       icon: Crown,
       permission: "view_dashboard"
     });
 
-    return merged;
+    const orderedFigmaGroups = [
+      figmaDomainGroups["MAIN"],
+      figmaDomainGroups["INVENTORY"],
+      ...customGroups,
+      figmaDomainGroups["SALES & CRM"],
+      figmaDomainGroups["FINANCE"],
+      figmaDomainGroups["ANALYTICS"],
+      figmaDomainGroups["ADMIN"],
+    ].filter(g => g.items.length > 0);
+
+    return orderedFigmaGroups;
   }, [businessTypesString, session?.user?.institutionType, isSimpleMode]);
   
   const filteredNavGroups = React.useMemo(() => {

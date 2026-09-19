@@ -2,7 +2,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { AutoLogoutProvider } from "@/components/providers/auto-logout-provider";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Bell, Zap, AlertCircle, Clock, Crown } from "lucide-react";
+import { Bell, Brain, AlertCircle, Clock, Crown } from "lucide-react";
 import { NotificationBell } from "@/components/shared/notification-bell";
 import { ToastManager } from "@/components/shared/toast-manager";
 import { LogoutButton } from "@/components/shared/logout-button";
@@ -203,24 +203,32 @@ export default async function DashboardLayout({
           <div id="welcome-center" className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-1 pointer-events-none opacity-0" />
           <TrialBanner />
           <AnnouncementBanner />
-          <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-100 dark:border-white/5 bg-white/80 dark:bg-[hsl(222.2,47.4%,11.2%)]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 transition-all shadow-[0_4px_20px_-2px_rgba(0,0,0,0.02)] dark:shadow-none">
+          <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-white/80 dark:bg-[#0F1E38]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 md:px-8 transition-all">
             <div className="flex items-center gap-4 flex-1 min-w-0">
               <SidebarTrigger className="flex-shrink-0" />
-              <div className="hidden md:block flex-1 max-w-md">
+              <div className="hidden sm:block min-w-0">
+                <h1 className="font-display text-[17px] font-bold text-foreground leading-tight truncate">
+                  Dashboard
+                </h1>
+                <div className="text-[11.5px] text-muted-foreground truncate">
+                  {business?.name || session?.user?.businessName || "ProTech Assist"} — {session?.user?.role || "Main Branch"}
+                </div>
+              </div>
+              <div className="hidden lg:block flex-1 max-w-xs ml-4">
                 <GlobalSearch />
               </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-               <Link href="/dashboard/intelligence/chat" className="hidden md:flex items-center gap-2 h-9 px-4 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-primary dark:text-indigo-400 text-xs font-bold hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors border border-indigo-100 dark:border-indigo-500/20 shadow-sm">
-                  <Zap className="h-3.5 w-3.5 fill-current" />
-                  AI Assistant
+               <Link href="/dashboard/intelligence/chat" className="flex items-center gap-1.5 h-8 px-3 rounded-lg bg-gradient-to-r from-blue-600 to-sky-500 text-white text-xs font-semibold hover:opacity-90 transition-opacity shadow-sm">
+                  <Brain className="h-3.5 w-3.5" />
+                  <span>AI</span>
                </Link>
                <OfflineSyncIndicator />
                <HeaderThemeToggle />
                <TeamChatBell />
                <NotificationBell />
-               <div className="h-5 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block mx-0.5" />
+               <div className="h-5 w-px bg-border hidden sm:block mx-0.5" />
                <UserProfileDropdown user={session?.user as any} />
             </div>
           </header>

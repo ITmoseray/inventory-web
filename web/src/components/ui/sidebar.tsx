@@ -29,9 +29,9 @@ import { useSidebarStore } from "@/store/use-sidebar-store"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH = "14.25rem" // 228px matching Figma Make
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "4.75rem"
+const SIDEBAR_WIDTH_ICON = "4rem" // 64px matching Figma Make
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContextProps = {
