@@ -133,347 +133,263 @@ export default function ProfitLossPage() {
   ];
 
   return (
-    <div className="p-6 md:p-10 space-y-8">
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <EnterprisePageHeader
-        title="Profit & Loss Statement"
-        subtitle={`Accrual accounting overview for the last ${range} days · as of ${format(new Date(), "dd MMMM yyyy")}`}
-        badge={
-          <EnterpriseBadge variant="primary" size="sm">
-            Financial Ledger
-          </EnterpriseBadge>
-        }
-      />
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <EnterpriseKpiCard
-          title="Total Revenue"
-          value={Math.round(data.totalRevenue)}
-          currency="SLE"
-          subtitle="Gross turnover"
-          icon={TrendingUp}
-          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Cost of Goods (COGS)"
-          value={Math.round(data.totalCOGS)}
-          currency="SLE"
-          subtitle="Inventory cost"
-          icon={ShoppingCart}
-          iconColor="text-amber-600 bg-amber-50 dark:bg-amber-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Gross Profit"
-          value={Math.round(data.grossProfit)}
-          currency="SLE"
-          subtitle={`${grossMarginPct}% gross margin`}
-          icon={BarChart3}
-          iconColor="text-sky-600 bg-sky-50 dark:bg-sky-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Operating Expenses"
-          value={Math.round(data.operatingExpenses)}
-          currency="SLE"
-          subtitle="Opex & overheads"
-          icon={TrendingDown}
-          iconColor="text-rose-600 bg-rose-50 dark:bg-rose-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Net Profit"
-          value={Math.round(Math.abs(data.netProfit))}
-          currency="SLE"
-          subtitle={`${marginPct}% net margin`}
-          icon={DollarSign}
-          iconColor={data.netProfit >= 0 ? "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40" : "text-rose-600 bg-rose-50 dark:bg-rose-950/40"}
-          badge={data.netProfit < 0 ? <EnterpriseBadge variant="danger" size="sm">Loss</EnterpriseBadge> : <EnterpriseBadge variant="success" size="sm">Surplus</EnterpriseBadge>}
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold font-display text-slate-900 dark:text-white tracking-tight">
+            Profit &amp; Loss Statement
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Accrual accounting overview for the last {range} days · as of {format(new Date(), "dd MMMM yyyy")}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" className="h-9 px-3.5 rounded-lg font-medium text-xs border-slate-200 dark:border-slate-800 gap-1.5" onClick={() => window.print()}>
+            <Receipt className="h-3.5 w-3.5 text-slate-500" />
+            <span>Export Statement</span>
+          </Button>
+        </div>
       </div>
 
-      {/* Income Statement Breakdown */}
+      {/* Summary Cards */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        {[
+          { title: "Total Revenue", value: Math.round(data.totalRevenue), sub: "Gross turnover", icon: TrendingUp, color: "#10B981", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+          { title: "Cost of Goods (COGS)", value: Math.round(data.totalCOGS), sub: "Inventory cost", icon: ShoppingCart, color: "#F59E0B", bg: "bg-amber-50 dark:bg-amber-950/30" },
+          { title: "Gross Profit", value: Math.round(data.grossProfit), sub: `${grossMarginPct}% gross margin`, icon: BarChart3, color: "#2563EB", bg: "bg-blue-50 dark:bg-blue-950/30" },
+          { title: "Operating Expenses", value: Math.round(data.operatingExpenses), sub: "Opex & overheads", icon: TrendingDown, color: "#EF4444", bg: "bg-rose-50 dark:bg-rose-950/30" },
+          {
+            title: "Net Profit",
+            value: Math.round(data.netProfit),
+            sub: `${marginPct}% net margin`,
+            icon: DollarSign,
+            color: data.netProfit >= 0 ? "#8B5CF6" : "#EF4444",
+            bg: data.netProfit >= 0 ? "bg-purple-50 dark:bg-purple-950/30" : "bg-rose-50 dark:bg-rose-950/30"
+          },
+        ].map((kpi, i) => (
+          <div key={i} className="card p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">{kpi.title}</span>
+              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", kpi.bg)}>
+                <kpi.icon className="h-4 w-4" style={{ color: kpi.color }} />
+              </div>
+            </div>
+            <div>
+              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white tracking-tight">
+                {kpi.value < 0 ? `-Le ${Math.abs(kpi.value).toLocaleString()}` : `Le ${kpi.value.toLocaleString()}`}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{kpi.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Income Statement & Margin Analysis Breakdown */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* P&L Statement */}
-        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-slate-900">
-          <CardHeader className="px-6 pt-6 pb-4">
-            <CardTitle className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-indigo-500" />
-              Income Statement
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-6 pb-6 space-y-0">
+        <div className="card p-6">
+          <div className="flex items-center justify-between pb-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-[#2563EB]" />
+              <h3 className="text-sm font-bold font-display text-slate-900 dark:text-white">Income Statement</h3>
+            </div>
+            <span className="text-[11px] font-mono text-slate-400">Values in SLE</span>
+          </div>
+          <div className="divide-y divide-slate-100 dark:divide-slate-800/80 mt-2">
             {[
-              {
-                label: "Revenue",
-                value: data.totalRevenue,
-                style: "font-bold text-slate-800 dark:text-slate-200",
-                bg: "",
-              },
-              {
-                label: "− Cost of Goods Sold (COGS)",
-                value: -data.totalCOGS,
-                style: "text-amber-700 dark:text-amber-400",
-                bg: "",
-              },
-              {
-                label: "Gross Profit",
-                value: data.grossProfit,
-                style: "font-black text-slate-900 dark:text-white",
-                bg: "bg-slate-50 dark:bg-slate-800/60 rounded-xl",
-                divider: true,
-              },
-              {
-                label: "− Operating Expenses",
-                value: -data.operatingExpenses,
-                style: "text-rose-600 dark:text-rose-400",
-                bg: "",
-              },
-              {
-                label: "Net Profit",
-                value: data.netProfit,
-                style: cn(
-                  "font-black text-lg",
-                  data.netProfit >= 0
-                    ? "text-indigo-600 dark:text-indigo-400"
-                    : "text-rose-600 dark:text-rose-400"
-                ),
-                bg: cn(
-                  "rounded-xl",
-                  data.netProfit >= 0
-                    ? "bg-indigo-50 dark:bg-indigo-950/40"
-                    : "bg-rose-50 dark:bg-rose-950/40"
-                ),
-                divider: true,
-              },
+              { label: "Revenue (Turnover)", value: data.totalRevenue, bold: false, type: "revenue" },
+              { label: "Cost of Goods Sold (COGS)", value: -data.totalCOGS, bold: false, type: "cost" },
+              { label: "Gross Profit", value: data.grossProfit, bold: true, type: "gross", margin: `${grossMarginPct}%` },
+              { label: "Operating Expenses (Opex)", value: -data.operatingExpenses, bold: false, type: "exp" },
+              { label: "Net Operating Profit", value: data.netProfit, bold: true, type: "net", margin: `${marginPct}%` },
             ].map((row, i) => (
-              <div key={i}>
-                {row.divider && (
-                  <div className="border-t border-slate-100 dark:border-slate-800 my-2" />
+              <div
+                key={i}
+                className={cn(
+                  "flex items-center justify-between py-3 px-3 rounded-lg my-1 transition-colors",
+                  row.type === "gross" ? "bg-emerald-50/80 dark:bg-emerald-950/30 font-semibold" :
+                  row.type === "net" ? "bg-blue-50/80 dark:bg-blue-950/30 font-semibold" :
+                  "hover:bg-slate-50/60 dark:hover:bg-slate-800/40"
                 )}
-                <div
+              >
+                <div className="flex items-center gap-2">
+                  <span className={cn("text-xs", row.bold ? "font-bold text-slate-900 dark:text-white" : "text-slate-600 dark:text-slate-400")}>
+                    {row.label}
+                  </span>
+                  {row.margin && (
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400">
+                      {row.margin}
+                    </span>
+                  )}
+                </div>
+                <span
                   className={cn(
-                    "flex items-center justify-between py-2.5 px-3",
-                    row.bg
+                    "text-xs font-mono tabular-nums",
+                    row.type === "net" ? (data.netProfit >= 0 ? "text-[#2563EB] font-bold" : "text-rose-600 font-bold") :
+                    row.type === "gross" ? "text-emerald-700 dark:text-emerald-400 font-bold" :
+                    row.value < 0 ? "text-rose-600 dark:text-rose-400" :
+                    "text-slate-900 dark:text-white"
                   )}
                 >
-                  <span className={cn("text-sm", row.style)}>{row.label}</span>
-                  <span className={cn("text-sm tabular-nums", row.style)}>
-                    {row.value < 0 ? "−" : ""} Le{" "}
-                    {Math.round(Math.abs(row.value)).toLocaleString()}
-                  </span>
-                </div>
+                  {row.value < 0 ? `-Le ${Math.abs(row.value).toLocaleString()}` : `Le ${row.value.toLocaleString()}`}
+                </span>
               </div>
             ))}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Margin Analysis */}
-        <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-slate-900">
-          <CardHeader className="px-6 pt-6 pb-4">
-            <CardTitle className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-indigo-500" />
-              Margin Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-6 pb-6 space-y-5">
-            {[
-              {
-                label: "Gross Margin",
-                pct: Number(grossMarginPct),
-                color: "bg-sky-500",
-                trackColor: "bg-sky-100 dark:bg-sky-900/40",
-              },
-              {
-                label: "Net Profit Margin",
-                pct: Math.max(0, Number(marginPct)),
-                color: data.netProfit >= 0 ? "bg-indigo-500" : "bg-rose-500",
-                trackColor:
-                  data.netProfit >= 0
-                    ? "bg-indigo-100 dark:bg-indigo-900/40"
-                    : "bg-rose-100 dark:bg-rose-900/40",
-              },
-              {
-                label: "COGS as % of Revenue",
-                pct:
-                  data.totalRevenue > 0
-                    ? Math.min(
-                        100,
-                        (data.totalCOGS / data.totalRevenue) * 100
-                      )
-                    : 0,
-                color: "bg-amber-500",
-                trackColor: "bg-amber-100 dark:bg-amber-900/40",
-              },
-            ].map((bar, i) => (
-              <div key={i} className="space-y-1.5">
-                <div className="flex justify-between text-sm">
-                  <span className="font-semibold text-slate-700 dark:text-slate-300">
-                    {bar.label}
-                  </span>
-                  <span className="font-black tabular-nums text-slate-900 dark:text-white">
-                    {bar.pct.toFixed(1)}%
-                  </span>
-                </div>
-                <div
-                  className={cn(
-                    "h-2.5 rounded-full overflow-hidden",
-                    bar.trackColor
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "h-full rounded-full transition-all duration-700",
-                      bar.color
-                    )}
-                    style={{ width: `${Math.min(100, bar.pct)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-
-            {/* Quick stats */}
-            <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-3">
+        <div className="card p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center gap-2 pb-4 border-b border-slate-100 dark:border-slate-800">
+              <BarChart3 className="h-4 w-4 text-[#2563EB]" />
+              <h3 className="text-sm font-bold font-display text-slate-900 dark:text-white">Margin Analysis</h3>
+            </div>
+            <div className="space-y-4 mt-4">
               {[
                 {
-                  label: "Break-Even Sales",
-                  value:
-                    data.operatingExpenses > 0
-                      ? `Le ${Math.round(data.totalCOGS + data.operatingExpenses).toLocaleString()}`
-                      : "N/A",
+                  label: "Gross Margin",
+                  pct: Number(grossMarginPct),
+                  color: "bg-[#2563EB]",
+                  trackColor: "bg-blue-50 dark:bg-blue-950/40",
                 },
                 {
-                  label: "Products Sold",
-                  value: productData.reduce((s, p) => s + p.quantity, 0),
+                  label: "Net Profit Margin",
+                  pct: Math.max(0, Number(marginPct)),
+                  color: data.netProfit >= 0 ? "bg-[#10B981]" : "bg-rose-500",
+                  trackColor: data.netProfit >= 0 ? "bg-emerald-50 dark:bg-emerald-950/40" : "bg-rose-50 dark:bg-rose-950/40",
                 },
                 {
-                  label: "Avg Revenue/Product",
-                  value:
-                    productData.length > 0
-                      ? `Le ${Math.round(data.totalRevenue / productData.length).toLocaleString()}`
-                      : "N/A",
+                  label: "COGS as % of Revenue",
+                  pct: data.totalRevenue > 0 ? Math.min(100, (data.totalCOGS / data.totalRevenue) * 100) : 0,
+                  color: "bg-[#F59E0B]",
+                  trackColor: "bg-amber-50 dark:bg-amber-950/40",
                 },
-                {
-                  label: "Period",
-                  value: "Last 30 days",
-                },
-              ].map((stat, i) => (
-                <div
-                  key={i}
-                  className="bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3"
-                >
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">
-                    {stat.label}
-                  </p>
-                  <p className="text-sm font-black text-slate-900 dark:text-white">
-                    {stat.value}
-                  </p>
+              ].map((bar, i) => (
+                <div key={i} className="space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-medium text-slate-600 dark:text-slate-400">{bar.label}</span>
+                    <span className="font-bold font-mono text-slate-900 dark:text-white">{bar.pct.toFixed(1)}%</span>
+                  </div>
+                  <div className={cn("h-2 rounded-full overflow-hidden", bar.trackColor)}>
+                    <div
+                      className={cn("h-full rounded-full transition-all duration-500", bar.color)}
+                      style={{ width: `${Math.min(100, bar.pct)}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          {/* Quick stats bottom row */}
+          <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[
+              {
+                label: "Break-Even Sales",
+                value: data.operatingExpenses > 0 ? `Le ${Math.round(data.totalCOGS + data.operatingExpenses).toLocaleString()}` : "N/A",
+              },
+              {
+                label: "Units Sold",
+                value: productData.reduce((s, p) => s + p.quantity, 0),
+              },
+              {
+                label: "Avg Rev / Item",
+                value: productData.length > 0 ? `Le ${Math.round(data.totalRevenue / productData.length).toLocaleString()}` : "N/A",
+              },
+              {
+                label: "Reporting Period",
+                value: "Last 30 Days",
+              },
+            ].map((stat, i) => (
+              <div key={i} className="bg-slate-50 dark:bg-slate-800/60 rounded-lg p-2.5">
+                <p className="text-[10px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">{stat.label}</p>
+                <p className="text-xs font-bold font-mono text-slate-900 dark:text-white truncate mt-0.5">{stat.value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* Product Profitability Table */}
-      <Card className="border-0 shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-slate-900">
-        <CardHeader className="px-6 pt-6 pb-4">
-          <CardTitle className="text-lg font-black text-slate-900 dark:text-white flex items-center gap-2">
-            <Package className="h-5 w-5 text-indigo-500" />
-            Product Profitability
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="px-0 pb-6">
+      <div className="card overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Package className="h-4 w-4 text-[#2563EB]" />
+            <h3 className="text-sm font-bold font-display text-slate-900 dark:text-white">Product Profitability</h3>
+          </div>
+          <span className="text-xs text-slate-400 dark:text-slate-500">{productData.length} items sold</span>
+        </div>
+        <div>
           {productData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
-              <Package className="h-12 w-12 opacity-20" />
-              <p className="text-sm font-medium">
-                No product sales found in this period.
-              </p>
+            <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-2">
+              <Package className="h-10 w-10 text-slate-300 dark:text-slate-600" />
+              <p className="text-xs font-medium">No product sales recorded in this period.</p>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-slate-50 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800">
-                  <TableHead className="pl-6 font-black text-[10px] uppercase tracking-widest text-slate-400">
-                    Product
-                  </TableHead>
-                  <TableHead className="text-right font-black text-[10px] uppercase tracking-widest text-slate-400">
-                    Qty Sold
-                  </TableHead>
-                  <TableHead className="text-right font-black text-[10px] uppercase tracking-widest text-slate-400">
-                    Revenue
-                  </TableHead>
-                  <TableHead className="text-right font-black text-[10px] uppercase tracking-widest text-slate-400">
-                    COGS
-                  </TableHead>
-                  <TableHead className="text-right pr-6 font-black text-[10px] uppercase tracking-widest text-slate-400">
-                    Profit
-                  </TableHead>
-                  <TableHead className="text-right pr-6 font-black text-[10px] uppercase tracking-widest text-slate-400">
-                    Margin
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {productData.map((p) => {
-                  const margin =
-                    p.totalRevenue > 0
-                      ? ((p.profit / p.totalRevenue) * 100).toFixed(1)
-                      : "0.0";
-                  return (
-                    <TableRow
-                      key={p.id}
-                      className="border-slate-50 dark:border-slate-800/60 hover:bg-slate-50/60 dark:hover:bg-slate-800/30 transition-colors"
-                    >
-                      <TableCell className="pl-6 font-bold flex items-center gap-3 py-4">
-                        <div className="h-8 w-8 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center">
-                          <Package className="h-4 w-4 text-indigo-400" />
-                        </div>
-                        <span className="text-slate-900 dark:text-white">
-                          {p.name}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-right font-black text-slate-700 dark:text-slate-300">
-                        {p.quantity}
-                      </TableCell>
-                      <TableCell className="text-right text-slate-600 dark:text-slate-400 tabular-nums">
-                        Le {Math.round(p.totalRevenue).toLocaleString()}
-                      </TableCell>
-                      <TableCell className="text-right text-amber-600 dark:text-amber-400 tabular-nums font-medium">
-                        Le {Math.round(p.totalCost).toLocaleString()}
-                      </TableCell>
-                      <TableCell
-                        className={cn(
-                          "text-right pr-6 font-black tabular-nums",
-                          p.profit >= 0
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : "text-rose-600 dark:text-rose-400"
-                        )}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-slate-50 dark:bg-slate-800/60 border-slate-100 dark:border-slate-800">
+                    <TableHead className="pl-5 font-semibold text-xs text-slate-600 dark:text-slate-400">Product</TableHead>
+                    <TableHead className="text-right font-semibold text-xs text-slate-600 dark:text-slate-400">Qty Sold</TableHead>
+                    <TableHead className="text-right font-semibold text-xs text-slate-600 dark:text-slate-400">Revenue</TableHead>
+                    <TableHead className="text-right font-semibold text-xs text-slate-600 dark:text-slate-400">COGS</TableHead>
+                    <TableHead className="text-right pr-5 font-semibold text-xs text-slate-600 dark:text-slate-400">Profit</TableHead>
+                    <TableHead className="text-right pr-5 font-semibold text-xs text-slate-600 dark:text-slate-400">Margin</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {productData.map((p) => {
+                    const margin = p.totalRevenue > 0 ? ((p.profit / p.totalRevenue) * 100).toFixed(1) : "0.0";
+                    return (
+                      <TableRow
+                        key={p.id}
+                        className="border-slate-100 dark:border-slate-800 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition-colors"
                       >
-                        Le {Math.round(Math.abs(p.profit)).toLocaleString()}
-                        {p.profit < 0 && (
-                          <span className="text-xs ml-1">(Loss)</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right pr-6">
-                        <span
+                        <TableCell className="pl-5 font-medium text-xs text-slate-900 dark:text-white py-3">
+                          {p.name}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs text-slate-700 dark:text-slate-300">
+                          {p.quantity}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs text-slate-600 dark:text-slate-400">
+                          Le {Math.round(p.totalRevenue).toLocaleString()}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs text-amber-600 dark:text-amber-400">
+                          Le {Math.round(p.totalCost).toLocaleString()}
+                        </TableCell>
+                        <TableCell
                           className={cn(
-                            "text-xs font-black px-2 py-1 rounded-lg",
-                            p.profit >= 0
-                              ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
-                              : "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"
+                            "text-right pr-5 font-mono text-xs font-semibold",
+                            p.profit >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                           )}
                         >
-                          {margin}%
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                          Le {Math.round(Math.abs(p.profit)).toLocaleString()}
+                          {p.profit < 0 && <span className="text-[10px] ml-1">(Loss)</span>}
+                        </TableCell>
+                        <TableCell className="text-right pr-5">
+                          <span
+                            className={cn(
+                              "text-[10px] font-semibold font-mono px-2 py-0.5 rounded",
+                              p.profit >= 0
+                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                                : "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"
+                            )}
+                          >
+                            {margin}%
+                          </span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
