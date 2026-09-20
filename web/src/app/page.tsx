@@ -69,7 +69,7 @@ export default function ProtechCloudHomepage() {
 
       {/* ── 1. GLOBAL NAVIGATION ───────────────────────────────────── */}
       <header className="sticky top-0 w-full z-[100] bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl border-b border-slate-200/80 dark:border-slate-800/80 transition-all duration-300">
-        <nav className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-1.5 sm:gap-4">
+        <nav className="max-w-[1480px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
           {/* Brand Logo & Tagline */}
           <Link className="flex items-center gap-1.5 sm:gap-3 shrink-0 group min-w-0" href="/">
             <div className="relative h-8 w-8 sm:h-11 sm:w-11 overflow-hidden rounded-xl shadow-md border border-slate-200 dark:border-slate-800 bg-white group-hover:scale-105 transition-transform shrink-0">
@@ -86,7 +86,7 @@ export default function ProtechCloudHomepage() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden xl:flex items-center gap-6">
+          <div className="hidden xl:flex items-center gap-1 2xl:gap-2.5">
             {[
               { label: "AI Store", href: "#ai-store", isNew: true },
               { label: "Capabilities", href: "#capabilities" },
@@ -100,7 +100,7 @@ export default function ProtechCloudHomepage() {
               <Link 
                 key={item.label} 
                 href={item.href} 
-                className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors py-2 flex items-center gap-1.5"
+                className="px-2.5 2xl:px-3.5 py-1.5 rounded-xl text-xs 2xl:text-[13px] font-bold text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-slate-100/90 dark:hover:bg-slate-800/80 transition-all flex items-center gap-1.5 whitespace-nowrap"
               >
                 {item.isNew && (
                   <span className="px-1.5 py-0.5 rounded-md bg-indigo-600 text-[9px] font-black text-white uppercase tracking-wider shadow-xs">
@@ -214,7 +214,7 @@ export default function ProtechCloudHomepage() {
               { label: "ROI Calculator", href: "#roi-calculator" },
               { label: "Security", href: "#security" },
               { label: "Pricing", href: "#pricing" },
-              { label: "Corporate Services", href: "#services" },
+              { label: "Company", href: "#services" },
             ].map((item) => (
               <Link 
                 key={item.label} 
