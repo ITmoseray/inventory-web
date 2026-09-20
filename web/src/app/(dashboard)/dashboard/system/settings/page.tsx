@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { 
   Settings, Search, X, Building, Users, ShieldCheck, 
-  Globe, CreditCard, Layout, Zap, Bell, FileText, 
+  Globe, CreditCard, Layout, Brain, Bell, FileText, 
   ShoppingCart, Package, Truck, MessageSquare, Database, 
   Smartphone, Share2, Code2, Calculator, Percent, Clock,
   ArrowRight, Landmark, Briefcase, Plus, Menu,
@@ -34,7 +34,7 @@ const SETTINGS_GROUPS = [
       { name: "Organization Profile", icon: Building, url: "/dashboard/system/settings/business" },
       { name: "Branding", icon: Palette },
       { name: "Locations", icon: MapPin },
-      { name: "AI Integration", icon: Zap },
+      { name: "AI Integration", icon: Brain },
       { name: "Manage Subscription", icon: CreditCard, url: "/dashboard/billing" }
     ]
   },
@@ -80,7 +80,7 @@ const SETTINGS_GROUPS = [
   },
   {
     title: "Automation",
-    icon: Zap,
+    icon: Activity,
     items: [
       { name: "Workflow Rules", icon: Settings },
       { name: "Workflow Actions", icon: Play },
@@ -120,7 +120,7 @@ const SETTINGS_GROUPS = [
     icon: Code2,
     items: [
       { name: "Widgets & SDK", icon: Code2 },
-      { name: "Incoming Webhooks", icon: Zap },
+      { name: "Incoming Webhooks", icon: Code2 },
       { name: "API Usage", icon: Activity },
       { name: "Signals", icon: Bell }
     ]

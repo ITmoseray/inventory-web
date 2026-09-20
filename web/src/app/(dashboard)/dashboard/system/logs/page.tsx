@@ -1,25 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
-  Shield, 
-  Search, 
-  Filter, 
-  History, 
-  User, 
-  Activity, 
-  Clock, 
-  AlertCircle, 
-  CheckCircle2, 
-  Eye,
-  ArrowRight,
-  Database,
-  Lock,
-  RefreshCw,
-  FileJson
+  Shield, Search, Filter, History, User, 
+  Activity, Clock, AlertCircle, CheckCircle2, 
+  Eye, ArrowRight, Database, Lock, RefreshCw, 
+  FileJson, Download, ShieldCheck
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -38,9 +27,10 @@ import {
 } from "@/components/ui/dialog";
 import { getAuditLogs } from "@/lib/actions/audit";
 import { format } from "date-fns";
-import { cn, getIndustryColor } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { EnterpriseKpiCard, EnterpriseBadge } from "@/components/enterprise";
 
 export default function AuditLogsPage() {
   const { data: session } = useSession();
@@ -50,9 +40,6 @@ export default function AuditLogsPage() {
   const [selectedLog, setSelectedLog] = useState<any>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
-  const businessType = session?.user?.businessType || "SHOP";
-  const colors = getIndustryColor(businessType);
-
   useEffect(() => {
     fetchData();
   }, []);
@@ -61,190 +48,272 @@ export default function AuditLogsPage() {
     try {
       setLoading(true);
       const data = await getAuditLogs();
-      setLogs(data);
+      setLogs(data || []);
     } catch (error: any) {
-      toast.error("Failed to sync neural security stream.");
+      toast.error("Failed to sync audit logs stream.");
     } finally {
       setLoading(false);
     }
   }
 
   const filteredLogs = logs.filter(l => 
-    l.action.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.entity.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    l.userName.toLowerCase().includes(searchQuery.toLowerCase())
+    l.action?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.entity?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    l.userName?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const exportLogsCSV = () => {
+    if (filteredLogs.length === 0) return toast.error("No logs to export.");
+    const headers = ["ID,Action,Entity,EntityID,User,Timestamp"];
+    const rows = filteredLogs.map(l => 
+      `"${l.id}","${l.action}","${l.entity}","${l.entityId || ''}","${l.userName || ''}","${format(new Date(l.createdAt), "yyyy-MM-dd HH:mm:ss")}"`
+    );
+    const blob = new Blob([[...headers, ...rows].join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `audit-logs-${format(new Date(), "yyyyMMdd-HHmmss")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Audit log report exported.");
+  };
+
   return (
-    <div className="space-y-8 p-6 md:p-10">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto pb-20 font-sans">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
         <div>
-           <div className="flex items-center gap-2 mb-2">
-              <div className={cn("p-1.5 rounded-lg text-white shadow-lg", colors.primary)}>
-                 <Shield className="h-4 w-4" />
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Security Intelligence</span>
-           </div>
-           <h1 className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tight">Audit Logs</h1>
-           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-1">High-fidelity stream of system mutations and authorized node interactions.</p>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-lg bg-[#2563EB] text-white shadow-sm">
+              <Shield className="h-4 w-4" />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Security Intelligence &amp; Governance
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white tracking-tight">
+            Audit Logs
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Enterprise-grade activity tracking, authorized node mutations, and immutable compliance records.
+          </p>
         </div>
 
-        <Button onClick={fetchData} variant="outline" className="h-12 px-6 rounded-xl border-slate-200 font-bold uppercase text-[10px] tracking-widest gap-2">
-           <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} /> Re-Sync Stream
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={fetchData} 
+            variant="outline" 
+            size="sm"
+            className="h-10 px-3.5 rounded-xl border-slate-200 dark:border-slate-800 text-xs font-semibold gap-2"
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5 text-slate-400", loading && "animate-spin")} />
+            Sync Stream
+          </Button>
+          <Button 
+            onClick={exportLogsCSV}
+            size="sm"
+            className="h-10 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-500/20 gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-         {[
-           { label: "Total Events", value: logs.length.toString().padStart(2, '0'), icon: Database, color: "text-blue-500" },
-           { label: "Critical Actions", value: logs.filter(l => l.action === 'DELETE' || l.action === 'TERMINATE').length.toString().padStart(2, '0'), icon: AlertCircle, color: "text-rose-500" },
-           { label: "System Uptime", value: "99.9%", icon: Activity, color: "text-emerald-500" },
-           { label: "Encrypted State", value: "Verified", icon: Lock, color: "text-indigo-500" }
-         ].map((stat, i) => (
-           <Card key={i} className="border-slate-200 dark:border-slate-800 p-6 rounded-[2rem] shadow-sm">
-              <stat.icon className={cn("h-5 w-5 mb-4", stat.color)} />
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">{stat.label}</p>
-              <h2 className="text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter">{stat.value}</h2>
-           </Card>
-         ))}
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <EnterpriseKpiCard
+          label="Total Logged Events"
+          value={logs.length.toString().padStart(2, "0")}
+          change="Immutable Record"
+          trend="neutral"
+          tone="blue"
+          icon={<Database className="h-5 w-5" />}
+        />
+        <EnterpriseKpiCard
+          label="Critical Mutations"
+          value={logs.filter(l => l.action === "DELETE" || l.action === "TERMINATE").length.toString().padStart(2, "0")}
+          change="Deletions & Revocations"
+          trend="neutral"
+          tone="rose"
+          icon={<AlertCircle className="h-5 w-5" />}
+        />
+        <EnterpriseKpiCard
+          label="System Health"
+          value="99.9%"
+          change="Operational"
+          trend="up"
+          tone="emerald"
+          icon={<Activity className="h-5 w-5" />}
+        />
+        <EnterpriseKpiCard
+          label="Security Protocol"
+          value="RBAC Tier 1"
+          change="Verified"
+          trend="neutral"
+          tone="indigo"
+          icon={<Lock className="h-5 w-5" />}
+        />
       </div>
 
-      <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden">
-        <CardHeader className="p-8 border-b border-slate-100/50 dark:border-slate-800/50 flex flex-col md:flex-row justify-between gap-4">
-           <div className="relative flex-1 max-w-md group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-              <Input 
-                placeholder="Search actions, entities, or users..." 
-                className="h-12 pl-12 rounded-2xl border-slate-200 bg-slate-50/50"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-              />
-           </div>
-           <Button variant="outline" className="h-12 rounded-2xl border-slate-200 px-6 font-bold text-[10px] uppercase tracking-widest text-slate-500">
-              Live Stream <Activity className="ml-2 h-3 w-3 animate-pulse text-emerald-500" />
-           </Button>
+      {/* Main Table Card (Figma Make Specification) */}
+      <Card className="border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-xs overflow-hidden">
+        <CardHeader className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input 
+              placeholder="Search by action, module, or user..." 
+              className="h-10 pl-9 rounded-xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-xs"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Live Stream Active
+            </div>
+          </div>
         </CardHeader>
+
         <CardContent className="p-0">
-           <Table>
-             <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
-                <TableRow className="hover:bg-transparent border-none">
-                   <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Operation Node</TableHead>
-                   <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Target Entity</TableHead>
-                   <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Authorized User</TableHead>
-                   <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Timestamp</TableHead>
-                   <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Context</TableHead>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-slate-50/70 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-11 font-bold text-xs text-slate-500 px-6">User</TableHead>
+                  <TableHead className="h-11 font-bold text-xs text-slate-500">Action</TableHead>
+                  <TableHead className="h-11 font-bold text-xs text-slate-500">Module</TableHead>
+                  <TableHead className="h-11 font-bold text-xs text-slate-500">Description / Target</TableHead>
+                  <TableHead className="h-11 font-bold text-xs text-slate-500">Date &amp; Time</TableHead>
+                  <TableHead className="h-11 font-bold text-xs text-slate-500 text-right pr-6">Detail</TableHead>
                 </TableRow>
-             </TableHeader>
-             <TableBody>
+              </TableHeader>
+              <TableBody>
                 {loading ? (
-                   Array.from({ length: 5 }).map((_, i) => <TableRow key={i} className="h-20 border-b border-slate-50 animate-pulse"><TableCell colSpan={5} /></TableRow>)
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i} className="h-16 border-b animate-pulse"><TableCell colSpan={6} /></TableRow>
+                  ))
                 ) : filteredLogs.length === 0 ? (
-                   <TableRow>
-                      <TableCell colSpan={5} className="h-64 text-center">
-                         <History className="h-8 w-8 text-slate-200 mx-auto mb-4" />
-                         <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest italic">No activity nodes recorded</p>
-                      </TableCell>
-                   </TableRow>
+                  <TableRow>
+                    <TableCell colSpan={6} className="h-48 text-center text-slate-500">
+                      <History className="h-8 w-8 text-slate-300 mx-auto mb-2" />
+                      <p className="text-xs font-medium">No audit log records match your filter.</p>
+                    </TableCell>
+                  </TableRow>
                 ) : (
-                   filteredLogs.map((log) => (
-                     <TableRow key={log.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800/50 h-20">
-                        <TableCell className="px-8">
-                           <div className="flex items-center gap-3">
-                              <div className={cn("px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border shadow-sm", 
-                                 log.action === 'CREATE' ? "bg-emerald-500/10 text-emerald-600 border-emerald-200/50" :
-                                 log.action === 'UPDATE' ? "bg-blue-500/10 text-blue-600 border-blue-200/50" :
-                                 "bg-rose-500/10 text-rose-600 border-rose-200/50")}>
-                                 {log.action}
-                              </div>
-                           </div>
+                  filteredLogs.map((log) => {
+                    const initials = log.userName
+                      ? log.userName.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                      : "SYS";
+                    return (
+                      <TableRow key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 border-b border-slate-100 dark:border-slate-800/80 transition-colors h-16">
+                        <TableCell className="px-6">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1B3F6E] to-[#2563EB] text-white flex items-center justify-center text-[11px] font-bold shrink-0 shadow-xs">
+                              {initials}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-xs text-slate-900 dark:text-white">{log.userName || "System"}</div>
+                              <div className="text-[10px] text-slate-400">Node Operator</div>
+                            </div>
+                          </div>
                         </TableCell>
                         <TableCell>
-                           <div className="font-black text-slate-900 dark:text-white tracking-tight uppercase text-xs">{log.entity}</div>
-                           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">ID: {log.entityId?.substring(0, 12)}...</div>
+                          <span className={cn(
+                            "px-2 py-0.5 rounded-md text-[11px] font-bold uppercase tracking-wider",
+                            log.action === "CREATE" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400" :
+                            log.action === "UPDATE" ? "bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400" :
+                            "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400"
+                          )}>
+                            {log.action}
+                          </span>
                         </TableCell>
                         <TableCell>
-                           <div className="flex items-center gap-2">
-                              <User size={12} className="text-slate-400" />
-                              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{log.userName}</span>
-                           </div>
+                          <span className="bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 font-semibold text-xs px-2.5 py-1 rounded-full border border-blue-100 dark:border-blue-900/40">
+                            {log.entity}
+                          </span>
                         </TableCell>
                         <TableCell>
-                           <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400">
-                              <Clock size={12} className="text-primary" />
-                              {format(new Date(log.createdAt), "HH:mm:ss")}
-                           </div>
+                          <div className="text-xs text-slate-600 dark:text-slate-300 max-w-xs truncate font-mono">
+                            {log.entityId ? `ID: ${log.entityId}` : "Operational Mutation"}
+                          </div>
                         </TableCell>
-                        <TableCell className="text-right pr-8">
-                           <Button 
-                             variant="ghost" 
-                             size="sm" 
-                             className="h-9 w-9 rounded-xl text-slate-400 hover:text-primary transition-all"
-                             onClick={() => {
-                                setSelectedLog(log);
-                                setIsDetailsOpen(true);
-                             }}
-                           >
-                              <Eye size={16} />
-                           </Button>
+                        <TableCell>
+                          <div className="font-mono text-xs text-slate-500 dark:text-slate-400">
+                            {format(new Date(log.createdAt), "MMM dd, yyyy HH:mm:ss")}
+                          </div>
                         </TableCell>
-                     </TableRow>
-                   ))
+                        <TableCell className="text-right pr-6">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-8 w-8 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-all p-0"
+                            onClick={() => {
+                              setSelectedLog(log);
+                              setIsDetailsOpen(true);
+                            }}
+                          >
+                            <Eye size={15} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
-             </TableBody>
-           </Table>
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 
-      {/* NEURAL DATA DIALOG */}
+      {/* Log Detail Dialog */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[600px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden bg-white text-slate-900 dark:bg-slate-950">
-           <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-10">
-                 <Shield size={120} />
-              </div>
-              <div className="relative z-10 space-y-1">
-                 <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Security Node Insight</div>
-                 <h3 className="text-2xl font-[1000] tracking-tighter uppercase italic">{selectedLog?.action} {selectedLog?.entity}</h3>
-                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedLog && format(new Date(selectedLog.createdAt), "PPPP p")}</p>
-              </div>
-           </div>
+        <DialogContent className="sm:max-w-[600px] rounded-2xl p-0 overflow-hidden bg-white text-slate-900 dark:bg-slate-950">
+          <div className="bg-[#0B1629] p-6 text-white relative">
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Audit Log Details</span>
+              <h3 className="text-xl font-bold font-display">{selectedLog?.action} {selectedLog?.entity}</h3>
+              <p className="text-xs font-mono text-slate-400">
+                {selectedLog && format(new Date(selectedLog.createdAt), "PPPP p")}
+              </p>
+            </div>
+          </div>
 
-           <div className="p-8 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-2 gap-4">
-                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Old Data State</p>
-                    <pre className="text-[10px] font-mono text-slate-600 overflow-hidden text-ellipsis">{selectedLog?.oldData ? JSON.stringify(selectedLog.oldData, null, 2) : "NULL STATE"}</pre>
-                 </div>
-                 <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
-                    <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-1">New Data Mutation</p>
-                    <pre className="text-[10px] font-mono text-emerald-700 overflow-hidden text-ellipsis">{selectedLog?.newData ? JSON.stringify(selectedLog.newData, null, 2) : "NULL STATE"}</pre>
-                 </div>
+          <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Previous State</p>
+                <pre className="text-xs font-mono text-slate-600 dark:text-slate-400 overflow-x-auto max-h-36">
+                  {selectedLog?.oldData ? JSON.stringify(selectedLog.oldData, null, 2) : "NULL STATE"}
+                </pre>
               </div>
-
-              <div className="p-6 rounded-2xl border border-slate-100 flex items-center justify-between">
-                 <div className="flex items-center gap-4">
-                    <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center">
-                       <User size={20} className="text-slate-400" />
-                    </div>
-                    <div>
-                       <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Authorized By</p>
-                       <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedLog?.userName}</p>
-                    </div>
-                 </div>
-                 <Button variant="outline" className="h-10 rounded-xl border-slate-200 font-black text-[9px] uppercase tracking-widest">
-                    <ArrowRight className="h-3.5 w-3.5 mr-2" /> View User Profile
-                 </Button>
+              <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30">
+                <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1">New State Mutation</p>
+                <pre className="text-xs font-mono text-emerald-700 dark:text-emerald-300 overflow-x-auto max-h-36">
+                  {selectedLog?.newData ? JSON.stringify(selectedLog.newData, null, 2) : "NULL STATE"}
+                </pre>
               </div>
-           </div>
+            </div>
 
-           <div className="p-8 pt-0 flex gap-3">
-              <Button className="flex-1 h-12 rounded-xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white">
-                 <FileJson className="h-4 w-4 mr-2" /> Export Raw JSON
-              </Button>
-              <Button variant="outline" className="flex-1 h-12 rounded-xl font-black uppercase text-[10px] tracking-widest" onClick={() => setIsDetailsOpen(false)}>
-                 Close Detail
-              </Button>
-           </div>
+            <div className="p-4 rounded-xl border border-slate-100 dark:border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500">
+                  <User size={18} />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Authorized Operator</p>
+                  <p className="text-sm font-bold text-slate-900 dark:text-white">{selectedLog?.userName || "System Operator"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+            <Button variant="outline" size="sm" onClick={() => setIsDetailsOpen(false)} className="rounded-xl text-xs">
+              Close
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -92,14 +92,23 @@ export default function RolesPage() {
 
   return (
     <>
-    <div className="p-6 md:p-10 space-y-8 max-w-6xl mx-auto">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div className="p-4 sm:p-6 md:p-8 space-y-6 max-w-6xl mx-auto pb-20 font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-3">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-            Roles & Permissions
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-lg bg-[#2563EB] text-white shadow-sm">
+              <ShieldCheck className="h-4 w-4" />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Access Control &amp; Governance
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white tracking-tight">
+            Roles &amp; Permissions
           </h1>
-          <p className="text-slate-500 mt-1">Configure access control policies and define exactly what your staff can see.</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Configure access control policies and define exactly what modules and data each role can access.
+          </p>
         </div>
         
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
