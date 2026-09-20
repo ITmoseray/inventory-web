@@ -9,7 +9,7 @@ import {
   ArrowUpRight, 
   ArrowDownRight,
   Activity,
-  Zap,
+  Brain,
   Target,
   Globe,
   PieChart as PieChartIcon
@@ -89,15 +89,7 @@ export default function AnalyticsPage() {
     return acc;
   }, []).sort((a, b) => b.value - a.value).slice(0, 5);
 
-  // Map primary Tailwind class to hex for chart compatibility
-  const getPrimaryHex = (tailwindClass: string) => {
-    if (tailwindClass.includes('indigo')) return '#4f46e5';
-    if (tailwindClass.includes('rose')) return '#e11d48';
-    if (tailwindClass.includes('emerald')) return '#059669';
-    return '#2563eb'; // Default blue
-  };
-
-  const PIE_COLORS = [getPrimaryHex(colors.primary), '#6366f1', '#8b5cf6', '#ec4899', '#f43f5e'];
+  const PIE_COLORS = ['#2563EB', '#10B981', '#F59E0B', '#8B5CF6', '#0EA5E9'];
 
   // 3. Top Moving Products (Bar Chart)
   const productPerformance = products
@@ -132,241 +124,211 @@ export default function AnalyticsPage() {
   };
 
   const handleDeploy = () => {
-    console.log("Tactical deployment sequence engaged...");
-    // Auto-scroll to Neural Analyst
     const element = document.getElementById('neural-analyst-node');
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
     
-    toast("Syncing with African Trade Nodes...", {
-      description: "Establishing neural link with regional hubs.",
+    toast("Syncing with Trade Nodes...", {
+      description: "Establishing link with regional intelligence hubs.",
     });
 
     setTimeout(() => {
       toast.success("Insights deployed to all operational units.", {
         description: "System velocity optimized across Sierra Leone, Nigeria, and Ghana.",
       });
-      console.log("Deployment node synchronization complete.");
-    }, 2500);
+    }, 2000);
   };
 
   if (loading) {
     return (
-      <div className="p-10 space-y-8 animate-pulse">
-        <div className="h-20 w-1/3 bg-slate-100 dark:bg-slate-900 rounded-[2rem]" />
-        <div className="grid grid-cols-3 gap-6">
-           <div className="h-64 bg-slate-100 dark:bg-slate-900 rounded-[2.5rem]" />
-           <div className="h-64 bg-slate-100 dark:bg-slate-900 rounded-[2.5rem]" />
-           <div className="h-64 bg-slate-100 dark:bg-slate-900 rounded-[2.5rem]" />
+      <div className="p-6 space-y-6 animate-pulse">
+        <div className="h-14 w-1/3 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="h-48 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+          <div className="h-48 bg-slate-100 dark:bg-slate-800 rounded-xl" />
+          <div className="h-48 bg-slate-100 dark:bg-slate-800 rounded-xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-10 space-y-10 relative overflow-hidden bg-slate-50/30 dark:bg-slate-950/50 pb-20">
-      {/* Background Glows */}
-      <div className={cn("absolute -top-24 -right-24 w-96 h-96 blur-[120px] opacity-[0.07] rounded-full pointer-events-none", colors.primary)} />
-      <div className="absolute top-1/2 -left-24 w-96 h-96 bg-indigo-500/5 blur-[120px] rounded-full pointer-events-none" />
-
+    <div className="p-4 sm:p-6 space-y-6 max-w-7xl mx-auto pb-20">
       {/* Header Intelligence */}
-      <motion.div 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-6"
-      >
-        <div className="space-y-4">
-           <div className="flex items-center gap-3">
-              <div className={cn("p-2.5 rounded-2xl text-white shadow-xl", colors.primary)}>
-                 <Activity className="h-6 w-6" />
-              </div>
-              <div className="h-px w-12 bg-slate-200 dark:bg-slate-800" />
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">Node: Analytics Intelligence</span>
-           </div>
-           <div className="space-y-1">
-              <h1 className="text-4xl md:text-6xl font-[1000] text-slate-900 dark:text-white tracking-tight leading-none">Business Velocity</h1>
-              <p className="text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-[10px]">Real-time operational performance & trend analysis</p>
-           </div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-lg bg-[#2563EB] text-white shadow-sm">
+              <Activity className="h-4 w-4" />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Analytics Intelligence
+            </span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white tracking-tight">
+            Business Velocity
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Real-time operational performance, revenue trends, and catalog distribution.
+          </p>
         </div>
 
-        <div className="flex items-center gap-3">
-           <Button 
-             variant="outline" 
-             className="h-12 rounded-xl border-slate-200 font-black text-[10px] uppercase tracking-widest"
-             onClick={handleExport}
-           >
-              Export Audit
-           </Button>
-           <Button 
-             className={cn("h-12 rounded-xl text-white font-black text-[10px] uppercase tracking-[0.2em] shadow-xl", colors.primary)}
-             onClick={handleDeploy}
-           >
-              Deploy Insights
-           </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="h-9 px-3.5 rounded-lg border-slate-200 dark:border-slate-800 font-medium text-xs"
+            onClick={handleExport}
+          >
+            Export Audit
+          </Button>
+          <Button 
+            className="h-9 px-4 rounded-lg text-white font-semibold text-xs bg-[#2563EB] hover:bg-[#1D4ED8] shadow-sm gap-1.5"
+            onClick={handleDeploy}
+          >
+            <Brain className="h-3.5 w-3.5" /> Deploy Insights
+          </Button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Neural Analyst Hub */}
       <div id="neural-analyst-node">
-         <NeuralAnalyst />
+        <NeuralAnalyst />
       </div>
 
       {/* Primary Intelligence Row */}
-      <div className="grid gap-8 lg:grid-cols-3">
-         <motion.div 
-           initial={{ opacity: 0, x: -20 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ delay: 0.2 }}
-           className="lg:col-span-2"
-         >
-            <TrendChart 
-              data={revenueTrend} 
-              title="Revenue Velocity" 
-              description="Systemized daily revenue tracking (14 day cycle)"
-              dataKey="value"
-              categoryKey="name"
-              color={getPrimaryHex(colors.primary)}
-            />
-         </motion.div>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <TrendChart 
+            data={revenueTrend} 
+            title="Revenue Velocity" 
+            description="Systemized daily revenue tracking (14 day cycle)"
+            dataKey="value"
+            categoryKey="name"
+            color="#2563EB"
+          />
+        </div>
 
-         <motion.div 
-           initial={{ opacity: 0, x: 20 }}
-           animate={{ opacity: 1, x: 0 }}
-           transition={{ delay: 0.3 }}
-         >
-            <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
-              <CardHeader className="p-8 pb-0">
-                <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Catalog Spread</CardTitle>
-                <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Inventory Distribution</CardDescription>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="h-[280px] w-full">
-                   <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                         <Pie
-                           data={categoryData}
-                           cx="50%"
-                           cy="50%"
-                           innerRadius={60}
-                           outerRadius={80}
-                           paddingAngle={8}
-                           dataKey="value"
-                           animationBegin={500}
-                           animationDuration={1500}
-                         >
-                           {categoryData.map((entry, index) => (
-                             <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} stroke="none" />
-                           ))}
-                         </Pie>
-                         <Tooltip 
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="bg-slate-900 text-white p-3 rounded-xl shadow-2xl border border-white/10">
-                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-50">{payload[0].name}</p>
-                                    <p className="text-sm font-black">{payload[0].value} Items</p>
-                                  </div>
-                                );
-                              }
-                              return null;
-                            }}
-                         />
-                      </PieChart>
-                   </ResponsiveContainer>
+        <div>
+          <div className="card p-6 h-full flex flex-col justify-between">
+            <div>
+              <div className="pb-3 border-b border-slate-100 dark:border-slate-800 mb-2">
+                <h3 className="text-sm font-bold font-display text-slate-900 dark:text-white">Catalog Spread</h3>
+                <p className="text-[11px] text-slate-400">Inventory Distribution by Category</p>
+              </div>
+              <div className="h-[220px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={75}
+                      paddingAngle={6}
+                      dataKey="value"
+                      animationBegin={200}
+                      animationDuration={1000}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} stroke="none" />
+                      ))}
+                    </Pie>
+                    <Tooltip 
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-slate-900 text-white p-2.5 rounded-lg shadow-xl text-xs">
+                              <p className="opacity-70">{payload[0].name}</p>
+                              <p className="font-bold font-mono">{payload[0].value} Items</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+            <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+              {categoryData.map((cat, i) => (
+                <div key={cat.name} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
+                    <span className="text-slate-600 dark:text-slate-400 truncate">{cat.name}</span>
+                  </div>
+                  <span className="font-bold font-mono text-slate-900 dark:text-white">{cat.value}</span>
                 </div>
-                <div className="px-8 pb-8 space-y-3">
-                   {categoryData.map((cat, i) => (
-                     <div key={cat.name} className="flex items-center justify-between group cursor-default">
-                        <div className="flex items-center gap-3">
-                           <div className="h-2 w-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                           <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-white dark:group-hover:text-white transition-colors">{cat.name}</span>
-                        </div>
-                        <span className="text-xs font-black text-slate-900 dark:text-white">{cat.value}</span>
-                     </div>
-                   ))}
-                </div>
-              </CardContent>
-            </Card>
-         </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Secondary Intelligence Row */}
-      <div className="grid gap-8 lg:grid-cols-2">
-         <motion.div 
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.4 }}
-         >
-            <Card className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm overflow-hidden h-full">
-              <CardHeader className="p-8 pb-4">
-                <CardTitle className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">High-Value Assets</CardTitle>
-                <CardDescription className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Unit value performance analysis</CardDescription>
-              </CardHeader>
-              <CardContent className="px-8 pb-8">
-                <div className="h-[300px] w-full mt-4">
-                   <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={productPerformance} layout="vertical" margin={{ left: 0, right: 40 }}>
-                        <XAxis type="number" hide />
-                        <YAxis 
-                          dataKey="name" 
-                          type="category" 
-                          axisLine={false} 
-                          tickLine={false} 
-                          tick={{ fontSize: 10, fontWeight: 900, fill: '#94a3b8' }}
-                          width={100}
-                        />
-                        <Tooltip 
-                           content={({ active, payload }) => {
-                             if (active && payload && payload.length) {
-                               return (
-                                 <div className="bg-slate-900 text-white p-3 rounded-xl shadow-2xl">
-                                   <p className="text-sm font-black">Le {Math.round(Number(payload[0].value) || 0).toLocaleString()}</p>
-                                 </div>
-                               );
-                             }
-                             return null;
-                           }}
-                        />
-                        <Bar 
-                          dataKey="value" 
-                          radius={[0, 10, 10, 0]} 
-                          barSize={32}
-                          animationDuration={2000}
-                        >
-                           {productPerformance.map((entry, index) => (
-                             <Cell key={`cell-${index}`} fill={index % 2 === 0 ? getPrimaryHex(colors.primary) : '#6366f1'} fillOpacity={0.8} />
-                           ))}
-                        </Bar>
-                      </BarChart>
-                   </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-         </motion.div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="card p-6">
+          <div className="pb-3 border-b border-slate-100 dark:border-slate-800 mb-2">
+            <h3 className="text-sm font-bold font-display text-slate-900 dark:text-white">High-Value Assets</h3>
+            <p className="text-[11px] text-slate-400">Unit value performance analysis</p>
+          </div>
+          <div className="h-[260px] w-full mt-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={productPerformance} layout="vertical" margin={{ left: 0, right: 30 }}>
+                <XAxis type="number" hide />
+                <YAxis 
+                  dataKey="name" 
+                  type="category" 
+                  axisLine={false} 
+                  tickLine={false} 
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  width={90}
+                />
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-slate-900 text-white p-2.5 rounded-lg shadow-xl text-xs font-mono">
+                          Le {Math.round(Number(payload[0].value) || 0).toLocaleString()}
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+                <Bar 
+                  dataKey="value" 
+                  radius={[0, 6, 6, 0]} 
+                  barSize={24}
+                  animationDuration={1200}
+                >
+                  {productPerformance.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={index % 2 === 0 ? '#2563EB' : '#10B981'} fillOpacity={0.85} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-         <motion.div 
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
-           transition={{ delay: 0.5 }}
-           className="grid grid-cols-2 gap-6"
-         >
-            {[
-              { label: "Predictive Health", val: "94%", sub: "System Accuracy", icon: Target, color: "text-emerald-500", bg: "bg-emerald-50 dark:bg-emerald-950/20" },
-              { label: "Market Velocity", val: "+18%", sub: "Growth Node", icon: Zap, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/20" },
-              { label: "Global Reach", val: "SL / NG", sub: "Operational Context", icon: Globe, color: "text-blue-500", bg: "bg-blue-50 dark:bg-blue-950/20" },
-              { label: "System Uptime", val: "99.9", sub: "Offline-First Core", icon: Activity, color: "text-rose-500", bg: "bg-rose-50 dark:bg-rose-950/20" },
-            ].map((node, i) => (
-              <Card key={i} className="border-slate-200/60 dark:border-slate-800/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-[2.5rem] shadow-sm p-8 flex flex-col justify-center items-center text-center group hover:scale-[1.03] transition-all hover:shadow-xl">
-                 <div className={cn("p-4 rounded-3xl mb-4 group-hover:rotate-12 transition-transform", node.bg)}>
-                    <node.icon className={cn("h-6 w-6", node.color)} />
-                 </div>
-                 <h4 className="text-3xl font-[1000] text-slate-900 dark:text-white tracking-tighter mb-1">{node.val}</h4>
-                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-0.5">{node.label}</p>
-                 <p className="text-[8px] font-bold text-slate-400/60 uppercase tracking-tighter">{node.sub}</p>
-              </Card>
-            ))}
-         </motion.div>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { label: "Predictive Health", val: "94%", sub: "System Accuracy", icon: Target, color: "#10B981", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+            { label: "Market Velocity", val: "+18%", sub: "Growth Node", icon: TrendingUp, color: "#F59E0B", bg: "bg-amber-50 dark:bg-amber-950/30" },
+            { label: "Regional Reach", val: "SL / NG", sub: "Operational Context", icon: Globe, color: "#2563EB", bg: "bg-blue-50 dark:bg-blue-950/30" },
+            { label: "System Uptime", val: "99.9%", sub: "Offline-First Core", icon: Activity, color: "#8B5CF6", bg: "bg-purple-50 dark:bg-purple-950/30" },
+          ].map((node, i) => (
+            <div key={i} className="card p-5 flex flex-col justify-center items-center text-center">
+              <div className={cn("w-10 h-10 rounded-xl mb-3 flex items-center justify-center", node.bg)}>
+                <node.icon className="h-5 w-5" style={{ color: node.color }} />
+              </div>
+              <h4 className="text-2xl font-bold font-mono text-slate-900 dark:text-white tracking-tight mb-0.5">{node.val}</h4>
+              <p className="text-[11px] font-semibold text-slate-700 dark:text-slate-300">{node.label}</p>
+              <p className="text-[10px] text-slate-400">{node.sub}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

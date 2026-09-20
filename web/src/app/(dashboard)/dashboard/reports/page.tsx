@@ -16,7 +16,10 @@ import {
   ShieldCheck,
   Printer,
   FileText,
-  CheckCircle2
+  CheckCircle2,
+  Truck,
+  Users,
+  ArrowRight
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -49,7 +52,34 @@ import { getProducts } from "@/lib/actions/product";
 import { getCurrentBusiness } from "@/lib/actions/business";
 import { format, startOfMonth, endOfMonth, subMonths } from "date-fns";
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+const COLORS = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+
+const reportCategories = [
+  {
+    icon: TrendingUp, title: 'Sales Reports', color: '#2563EB', bg: 'bg-blue-50 dark:bg-blue-950/30',
+    reports: ['Daily Sales Summary', 'Monthly Sales Report', 'Sales by Product', 'Sales by Category', 'Sales by Customer', 'Sales by Staff'],
+  },
+  {
+    icon: Package, title: 'Inventory Reports', color: '#10B981', bg: 'bg-emerald-50 dark:bg-emerald-950/30',
+    reports: ['Current Stock Level', 'Stock Valuation', 'Low Stock Report', 'Expiry Report', 'Dead Stock Report', 'Stock Movement'],
+  },
+  {
+    icon: Truck, title: 'Purchase Reports', color: '#F59E0B', bg: 'bg-amber-50 dark:bg-amber-950/30',
+    reports: ['Purchase History', 'Supplier Summary', 'Purchase by Product', 'Pending Orders', 'Payment Status'],
+  },
+  {
+    icon: Users, title: 'Customer Reports', color: '#8B5CF6', bg: 'bg-purple-50 dark:bg-purple-950/30',
+    reports: ['Customer List', 'Customer Purchases', 'Credit Report', 'Top Customers', 'Customer Activity'],
+  },
+  {
+    icon: DollarSign, title: 'Financial Reports', color: '#EF4444', bg: 'bg-rose-50 dark:bg-rose-950/30',
+    reports: ['Profit & Loss', 'Income Statement', 'Expense Report', 'Cash Flow', 'Balance Summary'],
+  },
+  {
+    icon: BarChart3, title: 'Performance Reports', color: '#0EA5E9', bg: 'bg-sky-50 dark:bg-sky-950/30',
+    reports: ['Product Performance', 'Staff Performance', 'Warehouse Report', 'Business Overview', 'Growth Analysis'],
+  },
+];
 
 import { ResponsiveTable } from "@/components/shared/responsive-table";
 import { EnterprisePageHeader, EnterpriseKpiCard, EnterpriseBadge, PaymentStatusBadge } from "@/components/enterprise";
@@ -148,67 +178,110 @@ export default function ReportsPage() {
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8 p-4 sm:p-6 md:p-8 animate-in fade-in duration-700 pb-20">
-      <EnterprisePageHeader
-        title="Executive Reports & Fiscal Audit"
-        subtitle="Deep-dive into business profitability, gross margin yields, GST compliance, and audit trails."
-        badge={
-          <EnterpriseBadge variant="primary" size="sm">
-            <BarChart3 className="h-3 w-3 mr-1" /> Financial Analytics
-          </EnterpriseBadge>
-        }
-        actions={
-          <div className="flex flex-col sm:flex-row gap-2.5 w-full xl:w-auto">
-            <Button variant="outline" onClick={() => window.print()} className="h-11 px-5 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-bold text-xs bg-white dark:bg-slate-900 shadow-sm transition-all">
-              <Download className="h-4 w-4 text-indigo-600" /> Export PDF Vault
-            </Button>
-            <Button onClick={() => toast.success("Current cycle synchronized.", { description: "Displaying analytics for the current operational cycle." })} className="h-11 px-5 rounded-2xl bg-slate-900 dark:bg-indigo-600 text-white font-bold text-xs shadow-md transition-all gap-2">
-              <Calendar className="h-4 w-4" /> Current Cycle
-            </Button>
+    <div className="space-y-6 p-4 sm:p-6 max-w-7xl mx-auto pb-20">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200/80 dark:border-slate-800">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="p-1.5 rounded-lg bg-[#2563EB] text-white shadow-sm">
+              <BarChart3 className="h-4 w-4" />
+            </div>
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+              Executive Analytics &amp; Compliance
+            </span>
           </div>
-        }
-      />
+          <h1 className="text-2xl sm:text-3xl font-bold font-display text-slate-900 dark:text-white tracking-tight">
+            Reports Center
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            Generate, analyze, and export executive business reports, NRA compliance, and audit trails.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={() => window.print()} className="h-9 px-3.5 rounded-lg border-slate-200 dark:border-slate-800 gap-1.5 font-medium text-xs">
+            <Download className="h-3.5 w-3.5 text-slate-500" />
+            <span>Export PDF</span>
+          </Button>
+          <Button onClick={() => toast.success("Current cycle synchronized.")} className="h-9 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs gap-1.5 shadow-sm">
+            <Calendar className="h-3.5 w-3.5" />
+            <span>Current Cycle</span>
+          </Button>
+        </div>
+      </div>
 
       {/* Primary KPIs Grid */}
-      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <EnterpriseKpiCard
-          title="Net Revenue Yield"
-          value={Math.round(totalRevenue)}
-          currency="SLE"
-          change={12.5}
-          changeLabel="vs last cycle"
-          icon={DollarSign}
-          iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Cost of Goods (COGS)"
-          value={Math.round(analytics.totalCost)}
-          currency="SLE"
-          subtitle="Direct asset expense"
-          icon={Package}
-          iconColor="text-rose-600 bg-rose-50 dark:bg-rose-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Gross Profit Margin"
-          value={Math.round(grossProfit)}
-          currency="SLE"
-          subtitle={`${margin.toFixed(1)}% efficiency`}
-          icon={TrendingUp}
-          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Transaction Velocity"
-          value={sales.length}
-          subtitle={`Avg Ticket: SLE ${Math.round(totalRevenue / (sales.length || 1)).toLocaleString()}`}
-          icon={ShoppingCart}
-          iconColor="text-blue-600 bg-blue-50 dark:bg-blue-950/40"
-        />
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {[
+          { label: "Net Revenue Yield", value: `Le ${Math.round(totalRevenue).toLocaleString()}`, sub: "+12.5% vs last cycle", icon: DollarSign, color: "#2563EB", bg: "bg-blue-50 dark:bg-blue-950/30" },
+          { label: "Cost of Goods (COGS)", value: `Le ${Math.round(analytics.totalCost).toLocaleString()}`, sub: "Direct asset expense", icon: Package, color: "#EF4444", bg: "bg-rose-50 dark:bg-rose-950/30" },
+          { label: "Gross Profit Margin", value: `Le ${Math.round(grossProfit).toLocaleString()}`, sub: `${margin.toFixed(1)}% efficiency`, icon: TrendingUp, color: "#10B981", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+          { label: "Transaction Velocity", value: sales.length, sub: `Avg: Le ${Math.round(totalRevenue / (sales.length || 1)).toLocaleString()}`, icon: ShoppingCart, color: "#0EA5E9", bg: "bg-sky-50 dark:bg-sky-950/30" },
+        ].map((kpi, i) => (
+          <div key={i} className="card p-4 flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider">{kpi.label}</span>
+              <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", kpi.bg)}>
+                <kpi.icon className="h-4 w-4" style={{ color: kpi.color }} />
+              </div>
+            </div>
+            <div>
+              <div className="text-xl font-bold font-mono text-slate-900 dark:text-white tracking-tight">
+                {kpi.value}
+              </div>
+              <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">{kpi.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Report Categories Grid (from Figma Make) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {reportCategories.map(cat => (
+          <div key={cat.title} className="card p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0", cat.bg)}>
+                  <cat.icon className="h-5 w-5" style={{ color: cat.color }} />
+                </div>
+                <div>
+                  <h3 className="font-bold font-display text-sm text-slate-900 dark:text-white">{cat.title}</h3>
+                  <p className="text-[11px] text-slate-400">{cat.reports.length} report templates</p>
+                </div>
+              </div>
+              <div className="space-y-1">
+                {cat.reports.map(r => (
+                  <div
+                    key={r}
+                    className="flex items-center justify-between py-1.5 px-2 rounded-lg text-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer"
+                    onClick={() => toast.info(`Generating ${r}...`, { description: "Report export initialized." })}
+                  >
+                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300">
+                      <FileText className="h-3.5 w-3.5 shrink-0" style={{ color: cat.color }} />
+                      <span className="truncate">{r}</span>
+                    </div>
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Download">
+                        <Download className="h-3 w-3" />
+                      </button>
+                      <button className="p-1 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" title="Print">
+                        <Printer className="h-3 w-3" />
+                      </button>
+                      <button className="p-1" style={{ color: cat.color }} title="View">
+                        <ArrowRight className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* NRA 15% GST FISCAL TAX & Z-REPORT CARD (SmartPay / ECR Standard) */}
       {(() => {
         const rawSettings = (business?.receiptSettings as any) || {};
-        const isNraMode = rawSettings.enableNraFiscalMode ?? false;
         const tin = rawSettings.taxIdentificationNumber || business?.taxId || "1002934-8";
         const ecrId = rawSettings.nraDeviceId || "CIS-TNSD-001";
         const gstRate = rawSettings.gstRate ?? 15;
@@ -217,158 +290,152 @@ export default function ReportsPage() {
         const totalGstCollected = totalRevenue - taxableBase;
 
         return (
-          <Card className="border-none shadow-lg rounded-[2.5rem] bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white overflow-hidden border border-indigo-500/20">
-            <CardContent className="p-6 sm:p-8">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                      <ShieldCheck className="h-4 w-4" />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.25em] text-emerald-400">
-                      NRA Fiscal &amp; Tax Compliance (EBITAS / ECR Standard)
-                    </span>
+          <div className="card p-6 bg-gradient-to-br from-[#0F1E38] via-[#152747] to-[#0F1E38] text-white border-slate-800">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="h-7 w-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <ShieldCheck className="h-4 w-4" />
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight">
-                    NRA 15% GST Collection &amp; Daily Fiscal Status
-                  </h3>
-                  <p className="text-xs text-slate-300 font-medium max-w-xl">
-                    Real-time GST calculation and sales data signature for National Revenue Authority compliance and monthly tax filing.
-                  </p>
-                  <div className="flex items-center gap-4 text-xs font-mono text-slate-400 pt-1">
-                    <span>TIN: <b className="text-white">{tin}</b></span>
-                    <span>•</span>
-                    <span>CIS Device ID: <b className="text-white">{ecrId}</b></span>
-                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-emerald-400">
+                    NRA Fiscal &amp; Tax Compliance (EBITAS / ECR Standard)
+                  </span>
                 </div>
-
-                <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/10 min-w-[150px]">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-indigo-300">Taxable Net Base</p>
-                    <p className="text-lg font-black font-mono mt-0.5">Le {Math.round(taxableBase).toLocaleString()}</p>
-                  </div>
-                  <div className="bg-emerald-500/20 backdrop-blur-md rounded-2xl p-4 border border-emerald-500/30 min-w-[150px]">
-                    <p className="text-[9px] font-black uppercase tracking-widest text-emerald-300">GST 15% Collected</p>
-                    <p className="text-lg font-black font-mono text-emerald-400 mt-0.5">Le {Math.round(totalGstCollected).toLocaleString()}</p>
-                  </div>
-                  <Button
-                    onClick={() => setIsZReportOpen(true)}
-                    className="h-14 px-6 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs uppercase tracking-widest shadow-xl gap-2 cursor-pointer w-full sm:w-auto"
-                  >
-                    <Printer className="h-4 w-4" /> Print NRA Z-Report
-                  </Button>
+                <h3 className="text-xl font-bold font-display tracking-tight">
+                  NRA 15% GST Collection &amp; Daily Fiscal Status
+                </h3>
+                <p className="text-xs text-slate-300 max-w-xl leading-relaxed">
+                  Real-time GST calculation and sales data signature for National Revenue Authority compliance and monthly tax filing.
+                </p>
+                <div className="flex items-center gap-3 text-xs font-mono text-slate-400 pt-1">
+                  <span>TIN: <b className="text-white">{tin}</b></span>
+                  <span>•</span>
+                  <span>CIS Device ID: <b className="text-white">{ecrId}</b></span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                <div className="bg-white/10 rounded-xl p-3.5 border border-white/10 min-w-[140px]">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-indigo-300">Taxable Net Base</p>
+                  <p className="text-base font-bold font-mono mt-0.5">Le {Math.round(taxableBase).toLocaleString()}</p>
+                </div>
+                <div className="bg-emerald-500/20 rounded-xl p-3.5 border border-emerald-500/30 min-w-[140px]">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-emerald-300">GST 15% Collected</p>
+                  <p className="text-base font-bold font-mono text-emerald-400 mt-0.5">Le {Math.round(totalGstCollected).toLocaleString()}</p>
+                </div>
+                <Button
+                  onClick={() => setIsZReportOpen(true)}
+                  className="h-10 px-5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs gap-2 shadow-md cursor-pointer w-full sm:w-auto"
+                >
+                  <Printer className="h-3.5 w-3.5" /> Print NRA Z-Report
+                </Button>
+              </div>
+            </div>
+          </div>
         );
       })()}
 
-      <div className="grid gap-6 lg:gap-8 lg:grid-cols-7">
-         {/* Sales Trend Chart */}
-         <Card className="lg:col-span-4 border-none shadow-sm bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden">
-            <CardHeader className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800">
-               <CardTitle className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Sales Velocity Trend</CardTitle>
-               <CardDescription className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Revenue trends over recent sessions</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4 sm:p-8 pt-6">
-               <div className="h-[300px] w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                     <AreaChart data={chartData}>
-                        <defs>
-                           <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15}/>
-                              <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                           </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
-                        <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 900, fill: '#94a3b8'}} dy={10} />
-                        <YAxis axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 900, fill: '#94a3b8'}} />
-                        <Tooltip 
-                           contentStyle={{ borderRadius: '1.5rem', border: 'none', background: '#0f172a', color: '#fff', boxShadow: '0 25px 50px -12px rgb(0 0 0 / 0.5)' }}
-                           itemStyle={{ fontWeight: 900, color: '#818cf8', fontSize: '10px', textTransform: 'uppercase' }}
-                        />
-                        <Area type="monotone" dataKey="revenue" stroke="#6366f1" strokeWidth={5} fillOpacity={1} fill="url(#colorRev)" animationDuration={2000} />
-                     </AreaChart>
-                  </ResponsiveContainer>
-               </div>
-            </CardContent>
-         </Card>
+      <div className="grid gap-6 lg:grid-cols-7">
+        {/* Sales Trend Chart */}
+        <div className="lg:col-span-4 card p-6">
+          <div className="pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
+            <h3 className="text-base font-bold font-display text-slate-900 dark:text-white">Sales Velocity Trend</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Revenue trends over recent sessions</p>
+          </div>
+          <div className="h-[260px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#2563EB" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#2563EB" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.15)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} dy={10} />
+                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#94a3b8'}} tickFormatter={(v) => `Le ${v >= 1000 ? (v/1000).toFixed(0) + 'k' : v}`} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '10px', border: '1px solid var(--border)', background: 'var(--card)', color: 'var(--foreground)' }}
+                  formatter={(v: any) => [`Le ${Number(v).toLocaleString()}`, 'Revenue']}
+                />
+                <Area type="monotone" dataKey="revenue" stroke="#2563EB" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
 
-         {/* Top Products */}
-         <Card className="lg:col-span-3 border-none shadow-sm bg-white dark:bg-slate-900 rounded-[2.5rem] overflow-hidden flex flex-col">
-            <CardHeader className="p-6 sm:p-8 border-b border-slate-50 dark:border-slate-800">
-               <CardTitle className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Node Ranking</CardTitle>
-               <CardDescription className="font-bold text-slate-400 uppercase text-[10px] tracking-widest">Best performing inventory items</CardDescription>
-            </CardHeader>
-            <CardContent className="p-6 sm:p-8 flex-1 flex flex-col justify-center">
-               <div className="space-y-8">
-                  {topProducts.map((p: any, i) => (
-                     <div key={i} className="flex items-center justify-between group cursor-pointer">
-                        <div className="flex items-center gap-4">
-                           <div className={cn("h-11 w-11 rounded-2xl flex items-center justify-center font-black text-xs text-white shadow-xl shadow-black/5 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-6", COLORS[i % COLORS.length])}>
-                              #{i+1}
-                           </div>
-                           <div className="flex flex-col">
-                              <span className="font-black text-slate-800 dark:text-white text-sm uppercase tracking-tight line-clamp-1">{p.name}</span>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{p.qty} UNITS DISPATCHED</span>
-                           </div>
-                        </div>
-                        <div className="text-right">
-                           <div className="font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(p.revenue).toLocaleString()}</div>
-                           <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-2 overflow-hidden shadow-inner ml-auto">
-                              <motion.div 
-                                 initial={{ width: 0 }}
-                                 animate={{ width: `${(p.revenue / (topProducts[0] as any).revenue) * 100}%` }}
-                                 transition={{ duration: 1.5, delay: i * 0.1 }}
-                                 className={cn("h-full rounded-full", COLORS[i % COLORS.length])} 
-                              />
-                           </div>
-                        </div>
-                     </div>
-                  ))}
-               </div>
-            </CardContent>
-         </Card>
+        {/* Top Products */}
+        <div className="lg:col-span-3 card p-6 flex flex-col justify-between">
+          <div>
+            <div className="pb-4 border-b border-slate-100 dark:border-slate-800 mb-4">
+              <h3 className="text-base font-bold font-display text-slate-900 dark:text-white">Top Performing Products</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Best performing items by revenue yield</p>
+            </div>
+            <div className="space-y-4">
+              {topProducts.map((p: any, i) => (
+                <div key={i} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={cn("w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs text-white shrink-0", COLORS[i % COLORS.length])}>
+                      #{i+1}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-slate-900 dark:text-white truncate">{p.name}</p>
+                      <p className="text-[10px] text-slate-400">{p.qty} units dispatched</p>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-bold font-mono text-slate-900 dark:text-white">Le {Math.round(p.revenue).toLocaleString()}</p>
+                    <div className="w-20 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full mt-1.5 overflow-hidden ml-auto">
+                      <div 
+                        style={{ width: `${Math.min(100, (p.revenue / ((topProducts[0] as any)?.revenue || 1)) * 100)}%` }}
+                        className={cn("h-full rounded-full", COLORS[i % COLORS.length])} 
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Audit Log Preview */}
-      <div className="space-y-6">
-         <div className="flex items-center justify-between px-4 sm:px-0">
-            <div>
-               <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white italic">Session <span className="text-indigo-600">Log</span></h3>
-               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">Raw transaction history for compliance</p>
-            </div>
-            <Button variant="ghost" size="sm" className="rounded-xl font-black text-indigo-600 text-[10px] uppercase tracking-widest hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-all">View Full Ledger</Button>
-         </div>
+      <div className="card overflow-hidden">
+        <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold font-display text-slate-900 dark:text-white">Session Audit Ledger</h3>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Raw transaction history for compliance &amp; reconciliation</p>
+          </div>
+          <Button variant="ghost" size="sm" className="h-8 rounded-lg font-semibold text-[#2563EB] text-xs hover:bg-blue-50 dark:hover:bg-blue-950/30">
+            View Full Ledger
+          </Button>
+        </div>
 
-         <ResponsiveTable 
-            data={sales.slice(0, 8)}
-            columns={auditColumns}
-            loading={loading}
-            emptyState={
-               <div className="h-64 flex flex-col items-center justify-center text-center space-y-4 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-inner">
-                  <div className="h-16 w-16 bg-slate-50 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto">
-                     <BarChart3 className="h-8 w-8 text-slate-200 dark:text-slate-600" />
-                  </div>
-                  <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">No Intelligence Entries Identified</p>
-               </div>
-            }
-         />
+        <ResponsiveTable 
+          data={sales.slice(0, 8)}
+          columns={auditColumns}
+          loading={loading}
+          emptyState={
+            <div className="h-48 flex flex-col items-center justify-center text-center space-y-2">
+              <BarChart3 className="h-8 w-8 text-slate-300 dark:text-slate-600" />
+              <p className="text-slate-400 text-xs font-medium">No transaction records found</p>
+            </div>
+          }
+        />
       </div>
 
       {/* NRA FISCAL Z-REPORT PRINT MODAL */}
       <Dialog open={isZReportOpen} onOpenChange={setIsZReportOpen}>
-        <DialogContent className="sm:max-w-[440px] rounded-[2rem] border-none shadow-2xl p-6 bg-white dark:bg-slate-900 max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[440px] rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 bg-white dark:bg-[#0F1E38] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center gap-2 text-emerald-600 mb-1">
-              <ShieldCheck className="h-5 w-5" />
-              <span className="text-[10px] font-black uppercase tracking-widest">NRA EBITAS / ECR Compliance</span>
+              <ShieldCheck className="h-4 w-4" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider">NRA EBITAS / ECR Compliance</span>
             </div>
-            <DialogTitle className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">
+            <DialogTitle className="text-lg font-bold font-display text-slate-900 dark:text-white">
               Official Fiscal Z-Report
             </DialogTitle>
-            <DialogDescription className="text-xs text-slate-400 font-bold uppercase tracking-wider">
+            <DialogDescription className="text-xs text-slate-400 font-medium">
               End-of-day tax collection &amp; fiscal reconciliation
             </DialogDescription>
           </DialogHeader>
@@ -389,12 +456,12 @@ export default function ReportsPage() {
             return (
               <div className="space-y-4 pt-2">
                 {/* Thermal Preview Paper Container */}
-                <div id="nra-z-report-paper" className="p-4 bg-slate-50 dark:bg-slate-950 border border-dashed border-slate-300 dark:border-slate-800 rounded-2xl font-mono text-[11px] space-y-2 text-slate-900 dark:text-white">
+                <div id="nra-z-report-paper" className="p-4 bg-slate-50 dark:bg-slate-950 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl font-mono text-[11px] space-y-2 text-slate-900 dark:text-white">
                   <div className="text-center border-b border-dashed border-slate-300 dark:border-slate-800 pb-2 space-y-0.5">
-                    <p className="font-black text-sm uppercase">{business?.name || "Enterprise OS"}</p>
+                    <p className="font-bold text-sm uppercase">{business?.name || "Enterprise OS"}</p>
                     <p className="text-[9px] text-slate-500">{business?.address || "Freetown, Sierra Leone"}</p>
-                    <p className="text-[9px] font-bold text-emerald-600 uppercase mt-1">*** NRA DAILY FISCAL Z-REPORT ***</p>
-                    <p className="text-[9px] font-bold">REPORT NO: {zNum}</p>
+                    <p className="text-[9px] font-semibold text-emerald-600 uppercase mt-1">*** NRA DAILY FISCAL Z-REPORT ***</p>
+                    <p className="text-[9px] font-semibold">REPORT NO: {zNum}</p>
                     <p className="text-[9px] text-slate-500">PRINT DATE: {new Date().toLocaleString()}</p>
                   </div>
 
@@ -406,7 +473,7 @@ export default function ReportsPage() {
                   </div>
 
                   <div className="space-y-1 border-b border-dashed border-slate-300 dark:border-slate-800 pb-2">
-                    <p className="font-black text-[10px] uppercase text-slate-500">TAX CATEGORY BREAKDOWN</p>
+                    <p className="font-semibold text-[10px] uppercase text-slate-500">TAX CATEGORY BREAKDOWN</p>
                     <div className="flex justify-between">
                       <span>Standard Rate A (15%):</span>
                       <span className="font-bold">Le {Math.round(taxableBase).toLocaleString()}</span>
@@ -426,7 +493,7 @@ export default function ReportsPage() {
                   </div>
 
                   <div className="space-y-1 border-b border-dashed border-slate-300 dark:border-slate-800 pb-2">
-                    <p className="font-black text-[10px] uppercase text-slate-500">SETTLEMENT SUMMARY</p>
+                    <p className="font-semibold text-[10px] uppercase text-slate-500">SETTLEMENT SUMMARY</p>
                     <div className="flex justify-between">
                       <span>CASH PAYMENTS:</span>
                       <span className="font-bold">Le {Math.round(cashTotal).toLocaleString()}</span>
@@ -441,36 +508,36 @@ export default function ReportsPage() {
                     </div>
                   </div>
 
-                  <div className="flex justify-between items-center text-sm font-black pt-1">
+                  <div className="flex justify-between items-center text-sm font-bold pt-1">
                     <span>GROSS FISCAL TOTAL:</span>
-                    <span className="text-indigo-600 dark:text-indigo-400 font-mono">
+                    <span className="text-[#2563EB] dark:text-blue-400 font-mono">
                       Le {Math.round(totalRevenue).toLocaleString()}
                     </span>
                   </div>
 
                   <div className="pt-2 text-[8px] text-center text-slate-400 border-t border-dashed border-slate-300 dark:border-slate-800 font-mono">
-                    <p className="font-bold">SDC FISCAL SIGNATURE</p>
+                    <p className="font-semibold">SDC FISCAL SIGNATURE</p>
                     <p className="break-all font-mono text-[7.5px]">SIG: 8E4A-21CD-98BF-44E1-NRA2026</p>
                     <p className="mt-0.5">NATIONAL REVENUE AUTHORITY • SIERRA LEONE</p>
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-3 pt-2">
+                <div className="flex gap-2.5 pt-2">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setIsZReportOpen(false)}
-                    className="flex-1 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest cursor-pointer"
+                    className="flex-1 h-9 rounded-lg font-medium text-xs border-slate-200 dark:border-slate-700 cursor-pointer"
                   >
                     Close
                   </Button>
                   <Button
                     type="button"
                     onClick={() => window.print()}
-                    className="flex-1 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg cursor-pointer"
+                    className="flex-1 h-9 rounded-lg font-semibold text-xs bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5 shadow-md cursor-pointer"
                   >
-                    <Printer className="h-4 w-4" /> Print Z-Report
+                    <Printer className="h-3.5 w-3.5" /> Print Z-Report
                   </Button>
                 </div>
               </div>
