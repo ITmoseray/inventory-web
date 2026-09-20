@@ -14,7 +14,7 @@ import {
   CheckCircle2, 
   Quote, 
   ShieldCheck, 
-  Zap, 
+  Brain, 
   Smartphone,
   Globe,
   Lock,
@@ -256,7 +256,7 @@ export default function RegisterPage() {
          
          <div className="max-w-md w-full p-6 sm:p-8 md:p-10 rounded-[2rem] bg-white/80 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 backdrop-blur-xl shadow-2xl text-center space-y-6 sm:space-y-8 relative overflow-hidden group my-auto">
             <div className="h-20 w-20 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg shadow-amber-500/5 group-hover:scale-105 transition-transform duration-500">
-               <Zap className="h-10 w-10 animate-pulse" />
+               <Lock className="h-10 w-10 animate-pulse" />
             </div>
             
             <div className="space-y-3">
@@ -437,7 +437,7 @@ export default function RegisterPage() {
               <span className="text-[9px] font-black uppercase tracking-wider">256-Bit Encrypted</span>
            </div>
            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-indigo-400" />
+              <Clock className="h-4 w-4 text-indigo-400" />
               <span className="text-[9px] font-black uppercase tracking-wider">Instant Setup</span>
            </div>
            <div className="flex items-center gap-2">

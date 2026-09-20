@@ -9,7 +9,7 @@ import {
   Network, Cloud, Headphones, ExternalLink, Utensils, Quote, Store, PlusSquare,
   ChevronDown, Globe, MessageSquare, BarChart3, Layers, Menu, X, FileText,
   Briefcase, Stethoscope, Play, Phone, Mail, MapPin, ShieldCheck,
-  CheckCircle2, AlertTriangle, Activity, Lock, Cpu, DollarSign, RefreshCw, Zap
+  CheckCircle2, AlertTriangle, Activity, Lock, Cpu, DollarSign, RefreshCw, Brain
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
@@ -428,7 +428,7 @@ export default function ProtechCloudHomepage() {
                     <div className="lg:col-span-4 rounded-2xl bg-gradient-to-br from-indigo-900/40 via-purple-900/30 to-slate-900 border border-indigo-500/30 p-5 space-y-4 text-white">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-xl bg-indigo-600 flex items-center justify-center">
-                          <Zap className="w-4 h-4 text-white" />
+                          <Brain className="w-4 h-4 text-white" />
                         </div>
                         <span className="font-black text-sm">AI Executive Copilot</span>
                       </div>
@@ -471,7 +471,7 @@ export default function ProtechCloudHomepage() {
                 { title: "Customer Credit & Ledgers", desc: "Detailed customer purchasing histories, credit limits, payment terms, and automated reminders.", icon: Users },
                 { title: "Suppliers & Purchasing", desc: "Purchase orders, supplier directories, goods receipt notes, and automated replenishment.", icon: Truck },
                 { title: "Expenses & Profit/Loss", desc: "Track business operating costs, category tagging, cash flow, and real-time net profit.", icon: TrendingUp },
-                { title: "AI Business Assistant", desc: "Proactive commercial intelligence: reorder warnings, sales velocity, and executive summaries.", icon: Zap },
+                { title: "AI Business Assistant", desc: "Proactive commercial intelligence: reorder warnings, sales velocity, and executive summaries.", icon: Brain },
                 { title: "Stock Forecasting", desc: "Machine-learning demand prediction to prevent costly overstock and stockouts.", icon: BarChart3 },
                 { title: "Multi-Warehouse Control", desc: "Transfer goods between locations with transit tracking and loss reconciliation.", icon: Building2 },
                 { title: "Batches & Expiry Dates", desc: "FIFO batch tracking, serial numbers, and automatic expiry date quarantine.", icon: Clock },
