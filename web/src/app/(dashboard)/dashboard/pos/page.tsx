@@ -82,7 +82,6 @@ import { CategorySidebar } from "@/components/pos/CategorySidebar";
 const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) => void }) => {
   const isOutOfStock = p.stockQuantity <= 0;
   const isLowStock = !isOutOfStock && p.stockQuantity <= p.minStockLevel;
-  const stockPercentage = isOutOfStock ? 0 : Math.min((p.stockQuantity / (p.minStockLevel * 5)) * 100, 100);
 
   const handleClick = () => {
     if (isOutOfStock) {
@@ -98,71 +97,33 @@ const ProductCard = React.memo(({ p, addItem }: { p: any, addItem: (item: any) =
       whileTap={isOutOfStock ? {} : { scale: 0.97 }}
       onClick={handleClick}
       className={cn(
-        "bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 p-3 sm:p-4 flex flex-col items-center transition-all shadow-lg",
+        "pos-product-card flex flex-col items-center justify-between transition-all",
         isOutOfStock 
-          ? "opacity-60 grayscale cursor-not-allowed bg-slate-50/50 dark:bg-slate-950/40" 
-          : "hover:border-primary/40 cursor-pointer"
+          ? "opacity-50 grayscale cursor-not-allowed" 
+          : "cursor-pointer"
       )}
+      style={{ minHeight: 180 }}
     >
-      <div className="relative aspect-square w-full rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden mb-3 sm:mb-4 shadow-inner border border-slate-100 dark:border-slate-800">
+      <div className="relative aspect-square w-full rounded-xl bg-slate-50 dark:bg-slate-950 overflow-hidden mb-2.5 flex items-center justify-center">
         {p.imageUrl ? (
-          <Image src={p.imageUrl} alt={p.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700 ease-out" unoptimized />
+          <Image src={p.imageUrl} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform" unoptimized />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center">
-             <Package className="h-10 w-10 text-slate-100 dark:text-slate-800 group-hover:scale-110 transition-transform" />
-          </div>
+          <Package className="h-10 w-10 text-slate-300 dark:text-slate-700" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
-        {/* Dynamic Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-           {isOutOfStock ? (
-             <div className="px-2 py-1 rounded-lg bg-rose-600 text-white text-[8px] font-black uppercase tracking-widest shadow-lg">OUT OF STOCK</div>
-           ) : isLowStock ? (
-             <div className="px-2 py-1 rounded-lg bg-rose-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg animate-pulse">Low Stock</div>
-           ) : null}
-           {p.requiresPrescription && (
-             <div className="px-2 py-1 rounded-lg bg-indigo-600 text-white text-[8px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
-               <ShieldCheck size={10} /> RX REQ
-             </div>
-           )}
-           {p.genericAlternative && (
-             <div className="px-2 py-1 rounded-lg bg-emerald-500 text-white text-[8px] font-black uppercase tracking-widest shadow-lg max-w-[100px] truncate" title={p.genericAlternative}>
-               ALT: {p.genericAlternative}
-             </div>
-           )}
-        </div>
-        
-        {!isOutOfStock && (
-          <div className="absolute bottom-3 right-3 flex items-center justify-center h-12 w-12 rounded-2xl bg-slate-900 dark:bg-primary text-white dark:text-primary-foreground shadow-2xl opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all">
-            <Plus size={24} />
-          </div>
-        )}
+        {isOutOfStock ? (
+          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-rose-600 text-white text-[8px] font-bold uppercase">OUT</div>
+        ) : isLowStock ? (
+          <div className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-amber-500 text-white text-[8px] font-bold uppercase">LOW</div>
+        ) : null}
       </div>
       
-      <div className="w-full space-y-3">
-        <div className="flex flex-col gap-0.5">
-           <span className="text-[11px] sm:text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight line-clamp-1 group-hover:text-primary transition-colors">{p.name}</span>
-           <span className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em]">{p.category?.name || "CORE ASSET"}</span>
+      <div className="w-full space-y-1 text-center">
+        <div className="text-[12.5px] font-semibold text-slate-900 dark:text-white line-clamp-1">{p.name}</div>
+        <div className="font-mono text-[14px] font-extrabold text-[#2563EB]">
+          Le {Math.round(p.unitPrice).toLocaleString()}
         </div>
-
-        <div className="flex items-center justify-between gap-4">
-           <div className="flex flex-col">
-              <span className="text-[12px] sm:text-sm font-[1000] text-primary tracking-tighter">Le {Math.round(p.unitPrice).toLocaleString()}</span>
-           </div>
-           <div className="flex-1 flex flex-col items-end gap-1.5">
-              <div className="flex items-center gap-1.5">
-                 <span className={cn("text-[10px] font-black tracking-tighter", isOutOfStock ? "text-rose-600 font-bold" : isLowStock ? "text-rose-500" : "text-slate-700 dark:text-slate-300")}>{p.stockQuantity}</span>
-                 <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Nodes</span>
-              </div>
-              <div className="w-full h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden shadow-inner">
-                 <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: `${stockPercentage}%` }}
-                    className={cn("h-full rounded-full transition-all duration-1000", isOutOfStock ? "bg-rose-600" : isLowStock ? "bg-rose-500" : "bg-emerald-500")}
-                 />
-              </div>
-           </div>
+        <div className={cn("text-[10.5px]", isOutOfStock ? "text-rose-600 font-bold" : isLowStock ? "text-amber-600 font-bold" : "text-slate-400")}>
+          {isOutOfStock ? "Out of stock" : `${p.stockQuantity} in stock`}
         </div>
       </div>
     </motion.div>
@@ -1106,59 +1067,62 @@ export default function POSPage() {
           ) : null;
         })()}
 
-        <div className="p-4 sm:p-6 space-y-4 shrink-0 bg-transparent z-20">
-           <div className="relative group max-w-4xl mx-auto w-full">
-              <div className="absolute left-5 top-1/2 -translate-y-1/2 flex items-center gap-3">
-                 <Search className="h-5 w-5 text-slate-400 group-focus-within:text-primary transition-colors" />
-                 <div className="h-4 w-px bg-slate-200 dark:bg-slate-700 hidden sm:block" />
-              </div>
-              <Input 
-                id="pos-search-input"
-                placeholder="Scan identification or search assets by name/SKU..." 
-                className="h-16 pl-16 pr-8 rounded-[1.5rem] border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 focus:bg-white dark:focus:bg-slate-800 font-black text-sm uppercase tracking-widest shadow-sm focus:shadow-md transition-all"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
-              <div 
-                className="absolute right-3 sm:right-5 top-1/2 -translate-y-1/2 flex items-center gap-2 px-2 sm:px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm hover:shadow-md"
-                onClick={() => setShowScanner(true)}
-              >
-                 <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse hidden sm:block" />
-                 <ScanLine className="h-4 w-4 text-indigo-500 sm:hidden" />
-                 <span className="hidden sm:inline text-[8px] font-black text-slate-400 uppercase tracking-widest group-hover:text-indigo-500 transition-colors">Tap to Scan</span>
-              </div>
-           </div>
-           {/* Mobile / Tablet Horizontal Category Pills */}
-           <div className="lg:hidden flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2 -mx-1 px-1">
+        <div className="p-4 sm:p-6 space-y-3 shrink-0 bg-transparent z-20">
+          {/* Search bar with scan button */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center", background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 14px" }}>
+            <Search size={16} color="var(--muted-foreground)" />
+            <input
+              id="pos-search-input"
+              placeholder="Search products or scan barcode..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ border: "none", background: "transparent", outline: "none", fontSize: 13.5, color: "var(--foreground)", flex: 1 }}
+              autoFocus
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} style={{ border: "none", background: "transparent", cursor: "pointer", color: "var(--muted-foreground)", fontSize: 12 }}>✕</button>
+            )}
+            <button
+              type="button"
+              onClick={() => setShowScanner(true)}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--card)", border: "1px solid var(--border)", borderRadius: 8, padding: "5px 10px", cursor: "pointer" }}
+              title="Scan Barcode"
+            >
+              <ScanLine size={14} color="#2563EB" />
+              <span style={{ fontSize: 11, fontWeight: 700, color: "var(--foreground)" }}>Scan</span>
+            </button>
+          </div>
+
+          {/* Horizontal Category Pills */}
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 2 }} className="custom-scrollbar">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              style={{
+                padding: "6px 14px", borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "none",
+                background: selectedCategory === null ? "#2563EB" : "var(--muted)",
+                color: selectedCategory === null ? "#fff" : "var(--muted-foreground)",
+                whiteSpace: "nowrap",
+                transition: "all 0.15s ease",
+              }}
+            >
+              All Assets
+            </button>
+            {categories?.map((cat) => (
               <button
-                onClick={() => setSelectedCategory(null)}
-                className={cn(
-                  "px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0",
-                  selectedCategory === null
-                    ? "bg-primary text-white shadow-md shadow-primary/25 scale-[1.02]"
-                    : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                )}
+                key={cat.id}
+                onClick={() => setSelectedCategory(cat.id)}
+                style={{
+                  padding: "6px 14px", borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: "none",
+                  background: selectedCategory === cat.id ? "#2563EB" : "var(--muted)",
+                  color: selectedCategory === cat.id ? "#fff" : "var(--muted-foreground)",
+                  whiteSpace: "nowrap",
+                  transition: "all 0.15s ease",
+                }}
               >
-                <LayoutGrid size={13} />
-                <span>All Assets</span>
+                {cat.name}
               </button>
-              {categories?.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setSelectedCategory(cat.id)}
-                  className={cn(
-                    "px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0",
-                    selectedCategory === cat.id
-                      ? "bg-primary text-white shadow-md shadow-primary/25 scale-[1.02]"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                  )}
-                >
-                  <Package size={13} />
-                  <span>{cat.name}</span>
-                </button>
-              ))}
-           </div>
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto px-3 sm:px-5 lg:px-6 pb-36 lg:pb-8 custom-scrollbar bg-slate-50/50 dark:bg-slate-950/50">
@@ -1297,73 +1261,69 @@ export default function POSPage() {
         </div>
 
         {/* Ledger Items (Receipt Style) */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-10 space-y-6 bg-transparent custom-scrollbar relative">
-           <div className="absolute top-0 left-10 right-10 h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-slate-800 to-transparent" />
-           
+        <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3 bg-transparent custom-scrollbar relative">
            <AnimatePresence mode="popLayout" initial={false}>
              {cart.length === 0 ? (
-               <div className="h-full flex flex-col items-center justify-center text-center p-10 space-y-6 opacity-30">
-                  <Activity className="h-16 w-16 text-slate-400 animate-pulse" />
-                  <div className="space-y-2">
-                     <p className="text-[11px] font-black text-slate-500 uppercase tracking-[0.4em]">Your cart is empty.</p>
-                     <p className="text-[9px] font-bold text-slate-400 uppercase">Add products to begin checkout</p>
+               <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 opacity-40">
+                  <ShoppingBag className="h-12 w-12 text-slate-400" />
+                  <div className="space-y-1">
+                     <p style={{ fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 700 }} className="text-slate-600 dark:text-slate-300">Your cart is empty</p>
+                     <p className="text-xs text-slate-400">Click a product to add to cart</p>
                   </div>
                </div>
              ) : (
-               cart.map((item, idx) => (
+               cart.map((item) => (
                  <motion.div 
                    key={item.id}
-                   initial={{ opacity: 0, x: 30, scale: 0.95 }}
-                   animate={{ opacity: 1, x: 0, scale: 1 }}
-                   exit={{ opacity: 0, x: -30, scale: 0.95 }}
-                   transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                   className="flex items-center gap-6 bg-white/50 dark:bg-slate-900/50 p-5 rounded-[2rem] shadow-xl shadow-black/[0.02] border border-slate-100/50 dark:border-white/10 relative group"
+                   initial={{ opacity: 0, y: 10 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   exit={{ opacity: 0, y: -10 }}
+                   transition={{ duration: 0.15 }}
+                   style={{ background: "var(--muted)", borderRadius: 10, border: "1px solid var(--border)", padding: "10px 12px" }}
+                   className="flex items-center gap-3 relative group"
                  >
-                    <div className="relative h-20 w-20 rounded-3xl bg-slate-50 dark:bg-slate-950 overflow-hidden shrink-0 border border-slate-100 dark:border-slate-800 shadow-inner group-hover:scale-105 transition-transform duration-300">
-                        {item.imageUrl ? <Image src={item.imageUrl} alt={item.name} fill className="object-cover" unoptimized /> : <Package size={28} className="text-slate-100 dark:text-slate-800 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />}
+                    <div className="relative h-12 w-12 rounded-lg bg-white dark:bg-slate-900 overflow-hidden shrink-0 border border-slate-200 dark:border-slate-800 flex items-center justify-center">
+                        {item.imageUrl ? <Image src={item.imageUrl} alt={item.name} fill className="object-cover" unoptimized /> : <Package size={20} className="text-slate-400" />}
                     </div>
-                    <div className="flex-1 min-w-0 space-y-3">
-                        <div className="flex flex-col gap-0.5">
-                           <div className="font-black text-xs sm:text-sm text-slate-900 dark:text-white uppercase truncate tracking-tight group-hover:text-primary transition-colors">{item.name}</div>
-                           <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest italic">Node: {item.id.toString().slice(-6)}</div>
+                    <div className="flex-1 min-w-0 space-y-1">
+                        <div style={{ fontSize: 12.5, fontWeight: 600, color: "var(--foreground)" }} className="truncate">{item.name}</div>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, color: "#2563EB", fontWeight: 700 }}>
+                          Le {Math.round(item.price).toLocaleString()}
                         </div>
-                        <div className="flex items-center gap-4">
-                           <div className="flex items-center bg-slate-50 dark:bg-slate-950 rounded-2xl p-1 shadow-inner border border-slate-100 dark:border-slate-800">
-                              <button 
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                  className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-all shadow-sm"
-                              >
-                                  <Minus size={16} />
-                              </button>
-                              <span className="text-[12px] font-black w-10 text-center text-slate-900 dark:text-white">{item.quantity}</span>
-                              <button 
-                                   onClick={() => {
-                                      const matchedProd = products?.find(p => p.id === item.id);
-                                      const maxStock = matchedProd?.stockQuantity ?? 99999;
-                                      if (item.quantity + 1 > maxStock) {
-                                         toast.error(`Cannot exceed available stock (${maxStock} available).`);
-                                         return;
-                                      }
-                                      updateQuantity(item.id, item.quantity + 1);
-                                   }}
-                                   className="h-10 w-10 rounded-xl bg-white dark:bg-slate-900 flex items-center justify-center text-slate-400 hover:text-primary hover:bg-indigo-50 dark:hover:bg-indigo-950/20 transition-all shadow-sm"
-                               >
-                                   <Plus size={16} />
-                               </button>
-                           </div>
-                           <div className="flex flex-col">
-                              <span className="text-[12px] font-black text-slate-900 dark:text-white tracking-tighter">Le {Math.round(item.price * item.quantity).toLocaleString()}</span>
-                              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Le {Math.round(item.price).toLocaleString()} / UNIT</span>
-                           </div>
-                        </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                        <button 
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            style={{ width: 24, height: 24, borderRadius: 6, border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >
+                            <Minus size={12} />
+                        </button>
+                        <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 13, minWidth: 20, textAlign: "center" }}>{item.quantity}</span>
+                        <button 
+                            onClick={() => {
+                                const matchedProd = products?.find(p => p.id === item.id);
+                                const maxStock = matchedProd?.stockQuantity ?? 99999;
+                                if (item.quantity + 1 > maxStock) {
+                                   toast.error(`Cannot exceed available stock (${maxStock} available).`);
+                                   return;
+                                }
+                                updateQuantity(item.id, item.quantity + 1);
+                            }}
+                            style={{ width: 24, height: 24, borderRadius: 6, border: "1px solid var(--border)", background: "var(--card)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                        >
+                            <Plus size={12} />
+                        </button>
+                    </div>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 800, minWidth: 60, textAlign: "right" }} className="shrink-0 text-slate-900 dark:text-white">
+                      Le {Math.round(item.price * item.quantity).toLocaleString()}
                     </div>
                     <button 
                        type="button"
                        onClick={() => removeItem(item.id)} 
-                       className="absolute top-3 right-3 sm:top-4 sm:right-4 h-8 w-8 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-rose-600 hover:bg-rose-100 dark:hover:bg-rose-950/50 transition-all opacity-100 flex items-center justify-center shadow-sm cursor-pointer z-10"
+                       style={{ background: "none", border: "none", cursor: "pointer", color: "#94A3B8", padding: 2 }}
                        title="Remove this product"
                     >
-                       <X size={18} />
+                       <X size={14} />
                     </button>
                  </motion.div>
                ))
@@ -1372,38 +1332,37 @@ export default function POSPage() {
         </div>
 
         {/* Professional Settlement Summary */}
-        <div className="p-4 sm:p-8 xl:p-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border-t border-slate-200 dark:border-white/10 space-y-4 sm:space-y-6 shrink-0 shadow-[0_-20px_50px_rgba(0,0,0,0.08)] xl:rounded-bl-[3rem]">
-           <div className="space-y-2 sm:space-y-4">
-              <div className="flex justify-between items-center text-xs sm:text-sm">
-                 <span className="text-[10px] sm:text-xs font-black text-slate-400 uppercase tracking-widest">Subtotal</span>
-                 <span className="text-xs sm:text-sm font-[1000] text-slate-700 dark:text-slate-300">Le {Math.round(total).toLocaleString()}</span>
+        <div style={{ borderTop: "1px solid var(--border)", padding: "16px 20px", background: "var(--card)" }} className="space-y-4 shrink-0">
+           <div className="space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                 <span style={{ color: "var(--muted-foreground)" }}>Subtotal</span>
+                 <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600, color: "var(--foreground)" }}>Le {Math.round(total).toLocaleString()}</span>
               </div>
             
-              <div className="h-px bg-slate-100 dark:bg-slate-800 w-full" />
-              <div className="flex justify-between items-end relative">
-                 <div>
-                    <p className="text-[10px] sm:text-[11px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.3em] leading-none mb-1.5 sm:mb-2">Grand Total</p>
-                    <p className="text-2xl sm:text-4xl xl:text-5xl font-[1000] text-slate-900 dark:text-white tracking-tighter leading-none">
-                       Le {Math.round(grandTotal).toLocaleString()}
-                    </p>
-                 </div>
-                 <div className="flex flex-col items-end gap-1">
-                    <div className="flex items-center gap-1.5">
-                       <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
-                       <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">Ready to Pay</span>
-                    </div>
-                 </div>
+              <div style={{ borderTop: "1px solid var(--border)", paddingTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                 <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 15 }}>TOTAL</span>
+                 <span style={{ fontFamily: "var(--font-mono)", fontWeight: 800, fontSize: 20, color: "#2563EB" }}>
+                    Le {Math.round(grandTotal).toLocaleString()}
+                 </span>
               </div>
            </div>
 
-           <Button 
+           <button 
               onClick={() => setIsCheckoutOpen(true)}
               disabled={cart.length === 0}
-              className="w-full h-14 sm:h-18 xl:h-20 rounded-2xl sm:rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 text-white font-[1000] text-xs sm:text-sm xl:text-base uppercase tracking-[0.2em] sm:tracking-[0.3em] shadow-xl shadow-indigo-600/30 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2 sm:gap-3"
+              style={{
+                width: "100%", padding: "12px", borderRadius: 10, border: "none", cursor: cart.length === 0 ? "not-allowed" : "pointer",
+                background: cart.length > 0 ? "linear-gradient(135deg, #1B3F6E, #2563EB)" : "var(--muted)",
+                color: cart.length > 0 ? "#fff" : "var(--muted-foreground)",
+                fontFamily: "var(--font-display)", fontSize: 14, fontWeight: 700, letterSpacing: "0.02em",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                boxShadow: cart.length > 0 ? "0 4px 14px rgba(37, 99, 235, 0.3)" : "none",
+                transition: "all 0.15s ease",
+              }}
            >
               <span>Proceed to Checkout</span>
-              <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5" />
-           </Button>
+              <ArrowRight size={16} />
+           </button>
         </div>
       </div>
       
