@@ -5,8 +5,8 @@ import {
   Plus, Minus, Pencil, Trash2, MoreVertical, Package, Search, Filter, 
   Download, ArrowUpDown, ShoppingCart, Tag, Calculator, ChevronDown, 
   ChevronUp, Info, Boxes, Layers, LayoutGrid, List, Eye, BarChart3, 
-  TrendingUp, AlertCircle, CheckCircle2, QrCode, ExternalLink, 
-  DollarSign, Activity, Star, ArrowUpRight, ShieldCheck, Box, RefreshCw,
+  TrendingUp, AlertCircle, CheckCircle2, CheckCircle, Clock, XCircle, AlertTriangle,
+  QrCode, ExternalLink, DollarSign, Activity, Star, ArrowUpRight, ShieldCheck, Box, RefreshCw,
   Percent, Check, ArrowRight, ShieldAlert, FileText, Image as ImageIcon,
   Laptop, Pill, ShoppingBag, Wine, Hammer
 } from "lucide-react";
@@ -87,6 +87,33 @@ function calcMargin(sellingPrice: string, costPerUnit: number): number {
   const sell = parseFloat(sellingPrice);
   if (!sell || !costPerUnit) return 0;
   return ((sell - costPerUnit) / sell) * 100;
+}
+
+const statusConfig = {
+  in_stock: { label: "In Stock", bg: "#DCFCE7", color: "#15803D", icon: CheckCircle },
+  low_stock: { label: "Low Stock", bg: "#FEF9C3", color: "#A16207", icon: AlertTriangle },
+  out_of_stock: { label: "Out of Stock", bg: "#FEE2E2", color: "#B91C1C", icon: XCircle },
+  expiring: { label: "Expiring", bg: "#FFEDD5", color: "#C2410C", icon: Clock },
+  expired: { label: "Expired", bg: "#F3E8FF", color: "#7E22CE", icon: XCircle },
+};
+
+function getProductStatus(p: any): "in_stock" | "low_stock" | "out_of_stock" | "expiring" | "expired" {
+  const stock = Number(p.stockQuantity) || 0;
+  const min = Number(p.minStockLevel) || 10;
+  
+  if (p.metadata?.expiryDate) {
+    const exp = new Date(p.metadata.expiryDate);
+    const now = new Date();
+    if (!isNaN(exp.getTime())) {
+      if (exp < now) return "expired";
+      const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+      if (exp.getTime() - now.getTime() < thirtyDays) return "expiring";
+    }
+  }
+
+  if (stock <= 0) return "out_of_stock";
+  if (stock <= min) return "low_stock";
+  return "in_stock";
 }
 
 // ─── Main Super Graphical Products Page ───────────────────────────────────────
@@ -207,14 +234,21 @@ export default function ProductsPage() {
         return false;
       }
 
-      // 3. Stock filter
+      // 3. Stock & Status filter
       if (filterStock !== "all") {
+        const s = getProductStatus(p);
+        if (filterStock === "in_stock" && s !== "in_stock") return false;
+        if (filterStock === "low_stock" && s !== "low_stock") return false;
+        if (filterStock === "out_of_stock" && s !== "out_of_stock") return false;
+        if (filterStock === "expiring" && s !== "expiring") return false;
+        if (filterStock === "expired" && s !== "expired") return false;
+        if (filterStock === "fav" && !p.isFavorite) return false;
+        // Backward compatibility
         const stock = Number(p.stockQuantity) || 0;
         const minLevel = Number(p.minStockLevel) || 10;
         if (filterStock === "low" && (stock > minLevel || stock <= 0)) return false;
         if (filterStock === "out" && stock > 0) return false;
         if (filterStock === "in" && stock <= minLevel) return false;
-        if (filterStock === "fav" && !p.isFavorite) return false;
       }
 
       // 4. Product Type filter
@@ -435,484 +469,412 @@ export default function ProductsPage() {
   return (
     <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-16">
       
-      {/* 1. TOP HEADER & COMMAND CONTROLS */}
-      <EnterprisePageHeader
-        title={`${isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} Catalog`}
-        subtitle="Manage product catalog, real-time stock levels, profit margins, and packaging units."
-        badge={
-          <EnterpriseBadge variant="primary" size="sm">
-             Catalog Manager
-          </EnterpriseBadge>
-        }
-        actions={
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* View Mode Switcher */}
-            <div className="bg-slate-100 dark:bg-slate-800/80 p-1 rounded-2xl flex items-center border border-slate-200 dark:border-slate-700 shadow-xs">
-              <button
-                onClick={() => setViewMode("grid")}
-                className={cn(
-                  "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
-                  viewMode === "grid" 
-                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm" 
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                )}
-                title="Visual Cards View"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                <span className="hidden md:inline text-[11px] uppercase tracking-wider">Cards</span>
-              </button>
-              <button
-                onClick={() => setViewMode("table")}
-                className={cn(
-                  "px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5",
-                  viewMode === "table" 
-                    ? "bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm" 
-                    : "text-slate-500 hover:text-slate-900 dark:hover:text-white"
-                )}
-                title="Table View"
-              >
-                <List className="h-4 w-4" />
-                <span className="hidden md:inline text-[11px] uppercase tracking-wider">Table</span>
-              </button>
-            </div>
-
-            <Button 
-              variant="outline" 
-              onClick={() => toast.success("Catalog exported to CSV format.")}
-              className="rounded-2xl border-slate-200 dark:border-slate-800 font-bold gap-2 h-11 px-4 text-xs hover:bg-white dark:hover:bg-slate-900 transition-all"
-            >
-              <Download className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /> 
-              <span className="hidden sm:inline">Export</span>
-            </Button>
-
-            <Button 
-              onClick={() => {
-                setEditingProduct(null);
-                resetForm();
-                setIsDialogOpen(true);
+      {/* 1. TOP HEADER & ACTIONS */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }}>
+        <div>
+          <h1 className="page-title" style={{ margin: 0 }}>
+            {isBar ? "Bar Stock" : isPharmacy ? "Pharmacy" : "Inventory"} Catalog
+          </h1>
+          <p className="section-label" style={{ margin: "4px 0 0 0" }}>
+            Manage product catalog, real-time stock levels, profit margins, and packaging units.
+          </p>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {/* View Mode Switcher */}
+          <div style={{ display: "flex", background: "var(--muted)", padding: 3, borderRadius: 8, border: "1px solid var(--border)" }}>
+            <button
+              onClick={() => setViewMode("table")}
+              style={{
+                padding: "6px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+                background: viewMode === "table" ? "#2563EB" : "transparent",
+                color: viewMode === "table" ? "#fff" : "var(--muted-foreground)",
+                display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600
               }}
-              className="h-11 px-6 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider gap-2 shadow-lg shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
+              title="Table View"
             >
-              <Plus className="h-4 w-4" /> Add Product
-            </Button>
+              <List size={13} /> Table
+            </button>
+            <button
+              onClick={() => setViewMode("grid")}
+              style={{
+                padding: "6px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+                background: viewMode === "grid" ? "#2563EB" : "transparent",
+                color: viewMode === "grid" ? "#fff" : "var(--muted-foreground)",
+                display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600
+              }}
+              title="Cards View"
+            >
+              <LayoutGrid size={13} /> Cards
+            </button>
           </div>
-        }
-      />
 
-      {/* 2. TOP GRAPHICAL KPI ANALYTICS BAR */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <EnterpriseKpiCard
-          title="Total Products"
-          value={products.length}
-          subtitle={`${totalStockCount.toLocaleString()} units in inventory`}
-          icon={Package}
-          iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
-        />
+          <button
+            className="btn-secondary"
+            onClick={() => {
+              let csv = "Name,SKU,Category,Stock,Cost,Price\n";
+              filteredProducts.forEach(p => {
+                csv += `"${p.name}","${p.sku || ""}","${p.category?.name || ""}","${p.stockQuantity}","${p.costPrice || 0}","${p.unitPrice}"\n`;
+              });
+              const blob = new Blob([csv], { type: "text/csv" });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `products_catalog_${new Date().toISOString().slice(0, 10)}.csv`;
+              a.click();
+              toast.success("Catalog exported to CSV format.");
+            }}
+            style={{ padding: "7px 12px", fontSize: 12.5 }}
+          >
+            <Download size={13} /> Export
+          </button>
 
-        <EnterpriseKpiCard
-          title="Total Stock Value"
-          value={Math.round(totalRetailValuation)}
-          currency="SLE"
-          subtitle={`Cost: SLE ${Math.round(totalCostValuation).toLocaleString()}`}
-          icon={DollarSign}
-          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
-        />
-
-        <EnterpriseKpiCard
-          title="Avg Profit Margin"
-          value={`+${avgMargin.toFixed(1)}%`}
-          subtitle="Healthy Retail Yield"
-          icon={TrendingUp}
-          iconColor="text-purple-600 bg-purple-50 dark:bg-purple-950/40"
-        />
-
-        <EnterpriseKpiCard
-          title="Stock Alerts"
-          value={lowStockCount}
-          subtitle={lowStockCount > 0 ? "Requires restock action" : "All stock counts optimal"}
-          icon={AlertCircle}
-          iconColor={lowStockCount > 0 ? "text-rose-600 bg-rose-50 dark:bg-rose-950/40" : "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"}
-          badge={lowStockCount > 0 ? <EnterpriseBadge variant="danger" size="sm" pulse>Action</EnterpriseBadge> : undefined}
-        />
+          <button
+            className="btn-primary"
+            onClick={() => {
+              setEditingProduct(null);
+              resetForm();
+              setIsDialogOpen(true);
+            }}
+            style={{ padding: "7px 16px", fontSize: 12.5 }}
+          >
+            <Plus size={14} /> Add Product
+          </button>
+        </div>
       </div>
 
-      {/* 3. VISUAL CATEGORY FILTER RIBBON & SEARCH BAR */}
-      <Card className="border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-sm space-y-4">
-        
-        {/* Search & Main Filter Controls */}
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="relative flex-1 group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-            <Input
-              placeholder="Search by product name, SKU, or category..."
-              className="pl-11 h-12 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 font-bold text-xs focus:bg-white dark:focus:bg-slate-900"
+      {/* 2. 4 TOP KPI CARDS */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 14 }}>
+        {[
+          { label: "Total Products", value: products.length, sub: `${totalStockCount.toLocaleString()} total units`, color: "#2563EB" },
+          { label: "In Stock", value: products.filter(p => getProductStatus(p) === "in_stock").length, sub: "Optimal stock levels", color: "#10B981" },
+          { label: "Low Stock", value: products.filter(p => getProductStatus(p) === "low_stock").length, sub: "Requires replenishment", color: "#F59E0B" },
+          { label: "Out of Stock", value: products.filter(p => getProductStatus(p) === "out_of_stock").length, sub: "0 units remaining", color: "#EF4444" },
+        ].map(s => (
+          <div key={s.label} className="kpi-card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <div style={{ fontSize: 12, color: "var(--muted-foreground)", fontWeight: 500, marginBottom: 4 }}>{s.label}</div>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: 26, fontWeight: 800 }}>{s.value}</div>
+              <div style={{ fontSize: 11, color: "var(--muted-foreground)", marginTop: 2 }}>{s.sub}</div>
+            </div>
+            <div style={{ width: 40, height: 40, borderRadius: 10, background: s.color + "15", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Package size={18} color={s.color} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 3. MAIN CARD (TOOLBAR + TABLE / CARDS) */}
+      <div className="card" style={{ overflow: "hidden" }}>
+        {/* Toolbar */}
+        <div style={{ padding: "16px 20px", borderBottom: "1px solid var(--border)", display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: 7, alignItems: "center", background: "var(--muted)", borderRadius: 8, padding: "7px 12px", flex: 1, minWidth: 200, maxWidth: 320, border: "1px solid var(--border)" }}>
+            <Search size={14} color="var(--muted-foreground)" />
+            <input
+              placeholder="Search products, SKU..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{ border: "none", background: "transparent", outline: "none", fontSize: 13, color: "var(--foreground)", width: "100%" }}
             />
             {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xs font-bold"
-              >
-                Clear
-              </button>
+              <button onClick={() => setSearchQuery("")} style={{ border: "none", background: "transparent", cursor: "pointer", color: "var(--muted-foreground)", fontSize: 12 }}>✕</button>
             )}
           </div>
 
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 md:pb-0 shrink-0">
-            {/* Stock Level Switcher Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger render={
-                <Button variant="outline" className={cn("rounded-2xl gap-2 font-bold text-xs h-12 px-4 border-slate-200 dark:border-slate-800", filterStock !== "all" && "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-600 border-indigo-200")}>
-                  <Filter className="h-3.5 w-3.5" />
-                  <span>{filterStock === "all" ? "All Stocks" : filterStock === "in" ? "In Stock" : filterStock === "low" ? "Low Stock" : filterStock === "out" ? "Out of Stock" : "Favorites"}</span>
-                  <ChevronDown className="h-3 w-3 opacity-60" />
-                </Button>
-              } />
-              <DropdownMenuContent className="w-48 rounded-2xl p-1.5 shadow-xl border-slate-200 dark:border-slate-800">
-                <DropdownMenuItem onClick={() => setFilterStock("all")} className="rounded-xl font-bold text-xs">All Stock Levels</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterStock("in")} className="rounded-xl font-bold text-xs text-emerald-600">In Stock</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterStock("low")} className="rounded-xl font-bold text-xs text-rose-600">Low Stock Alert</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterStock("out")} className="rounded-xl font-bold text-xs text-slate-500">Out of Stock (0)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFilterStock("fav")} className="rounded-xl font-bold text-xs text-amber-500">⭐ Favorites Only</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {/* Sort Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger render={
-                <Button variant="outline" className="rounded-2xl gap-2 font-bold text-xs h-12 px-4 border-slate-200 dark:border-slate-800">
-                  <ArrowUpDown className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Sort: </span>
-                  <span>{sortBy === "name_asc" ? "A-Z" : sortBy === "price_desc" ? "Highest Price" : sortBy === "price_asc" ? "Lowest Price" : sortBy === "stock_desc" ? "Max Stock" : "Min Stock"}</span>
-                  <ChevronDown className="h-3 w-3 opacity-60" />
-                </Button>
-              } />
-              <DropdownMenuContent className="w-52 rounded-2xl p-1.5 shadow-xl border-slate-200 dark:border-slate-800">
-                <DropdownMenuItem onClick={() => setSortBy("name_asc")} className="rounded-xl font-bold text-xs">Name (A → Z)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("name_desc")} className="rounded-xl font-bold text-xs">Name (Z → A)</DropdownMenuItem>
-                <DropdownMenuSeparator className="my-1" />
-                <DropdownMenuItem onClick={() => setSortBy("price_desc")} className="rounded-xl font-bold text-xs">Price (High to Low)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("price_asc")} className="rounded-xl font-bold text-xs">Price (Low to High)</DropdownMenuItem>
-                <DropdownMenuSeparator className="my-1" />
-                <DropdownMenuItem onClick={() => setSortBy("stock_desc")} className="rounded-xl font-bold text-xs">Stock Volume (Highest)</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setSortBy("stock_asc")} className="rounded-xl font-bold text-xs">Stock Volume (Lowest)</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        {/* Visual Category Chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 custom-scrollbar">
-          <button
-            onClick={() => setFilterCategory("all")}
-            className={cn(
-              "px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0",
-              filterCategory === "all"
-                ? "bg-slate-900 text-white dark:bg-indigo-600 border-slate-900 dark:border-indigo-500 shadow-xs"
-                : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200"
-            )}
+          <select
+            value={filterStock}
+            onChange={e => setFilterStock(e.target.value)}
+            style={{ background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 12px", fontSize: 12.5, color: "var(--foreground)", cursor: "pointer", outline: "none" }}
           >
-            All Categories ({products.length})
-          </button>
-          {categories.map((c) => {
-            const count = products.filter(p => p.categoryId === c.id).length;
-            const isSelected = filterCategory === c.id;
-            return (
-              <button
-                key={c.id}
-                onClick={() => setFilterCategory(c.id)}
-                className={cn(
-                  "px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border shrink-0",
-                  isSelected
-                    ? "bg-indigo-600 text-white border-indigo-500 shadow-xs"
-                    : "bg-slate-100 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300 border-transparent hover:bg-slate-200 dark:hover:bg-slate-700"
-                )}
-              >
-                {c.name} ({count})
-              </button>
-            );
-          })}
+            <option value="all">All Statuses</option>
+            <option value="in_stock">In Stock</option>
+            <option value="low_stock">Low Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+            <option value="expiring">Expiring</option>
+            <option value="expired">Expired</option>
+            <option value="fav">⭐ Favorites</option>
+          </select>
+
+          <select
+            value={filterCategory}
+            onChange={e => setFilterCategory(e.target.value)}
+            style={{ background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 12px", fontSize: 12.5, color: "var(--foreground)", cursor: "pointer", outline: "none" }}
+          >
+            <option value="all">All Categories</option>
+            {categories.map((c: any) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            style={{ background: "var(--muted)", border: "1px solid var(--border)", borderRadius: 8, padding: "7px 12px", fontSize: 12.5, color: "var(--foreground)", cursor: "pointer", outline: "none" }}
+          >
+            <option value="name_asc">Name (A → Z)</option>
+            <option value="name_desc">Name (Z → A)</option>
+            <option value="price_desc">Price (High to Low)</option>
+            <option value="price_asc">Price (Low to High)</option>
+            <option value="stock_desc">Stock Volume (Highest)</option>
+            <option value="stock_asc">Stock Volume (Lowest)</option>
+          </select>
         </div>
 
-      </Card>
+        {/* 4. MAIN CONTENT: TABLE OR CARDS VIEW */}
+        {loading ? (
+          <div style={{ padding: "48px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 16 }}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} style={{ height: 180, borderRadius: 12, background: "var(--muted)", opacity: 0.6 }} className="animate-pulse" />
+            ))}
+          </div>
+        ) : filteredProducts.length === 0 ? (
+          <div style={{ padding: "64px 24px", textAlign: "center", color: "var(--muted-foreground)" }}>
+            <Package size={44} style={{ margin: "0 auto 12px", opacity: 0.3 }} />
+            <div style={{ fontFamily: "var(--font-display)", fontSize: 16, fontWeight: 700, color: "var(--foreground)" }}>No products match filters</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>Try adjusting your search term or selecting another category.</div>
+            <button
+              className="btn-secondary"
+              onClick={() => {
+                setSearchQuery("");
+                setFilterCategory("all");
+                setFilterStock("all");
+              }}
+              style={{ marginTop: 16, padding: "7px 16px", fontSize: 12.5 }}
+            >
+              Clear Filters
+            </button>
+          </div>
+        ) : viewMode === "grid" ? (
+          /* ─── 4A: CARDS VIEW (FIGMA MAKE STYLED) ─── */
+          <div style={{ padding: "20px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+            {filteredProducts.map((product) => {
+              const stock = Number(product.stockQuantity) || 0;
+              const minStock = Number(product.minStockLevel) || 10;
+              const sellPrice = parseFloat(product.unitPrice) || 0;
+              const costPrice = parseFloat(product.costPrice) || 0;
+              const margin = sellPrice > 0 && costPrice > 0 ? ((sellPrice - costPrice) / sellPrice) * 100 : 0;
+              const skuTag = product.sku || `SKU-${product.id.slice(-4).toUpperCase()}`;
+              const sKey = getProductStatus(product);
+              const s = statusConfig[sKey];
+              const Icon = s.icon;
 
-      {/* 4. MAIN CONTENT: SUPER GRAPHICAL GRID OR ADVANCED DATA TABLE */}
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-72 rounded-3xl bg-slate-100 dark:bg-slate-800 animate-pulse" />
-          ))}
-        </div>
-      ) : filteredProducts.length === 0 ? (
-        <EmptyState
-          icon={Package}
-          title="No Products Match Filters"
-          description="Try broadening your search term or selecting another category."
-          actionLabel="Clear Filters"
-          onAction={() => {
-            setSearchQuery("");
-            setFilterCategory("all");
-            setFilterStock("all");
-          }}
-        />
-      ) : viewMode === "grid" ? (
-        /* ─── 4A: SUPER GRAPHICAL VISUAL CARDS GRID ─── */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-          {filteredProducts.map((product) => {
-            const stock = Number(product.stockQuantity) || 0;
-            const minStock = Number(product.minStockLevel) || 10;
-            const isLowStock = stock <= minStock && stock > 0;
-            const isOutOfStock = stock <= 0;
-            const sellPrice = parseFloat(product.unitPrice) || 0;
-            const costPrice = parseFloat(product.costPrice) || 0;
-            const margin = sellPrice > 0 && costPrice > 0 ? ((sellPrice - costPrice) / sellPrice) * 100 : 0;
-            const skuTag = product.sku || `SKU-${product.id.slice(-4).toUpperCase()}`;
-
-            return (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                whileHover={{ y: -4 }}
-                transition={{ duration: 0.2 }}
-                className="group relative rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-xs hover:shadow-xl hover:border-indigo-500/40 transition-all flex flex-col overflow-hidden"
-              >
-                {/* Top Image Showcase */}
-                <div className="relative aspect-[4/3] w-full bg-slate-100 dark:bg-slate-800/80 overflow-hidden flex items-center justify-center p-4">
-                  {product.imageUrl ? (
-                    <Image
-                      src={product.imageUrl}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                      unoptimized
-                    />
-                  ) : (
-                    <Package className="h-16 w-16 text-slate-300 dark:text-slate-700 group-hover:scale-110 group-hover:text-indigo-500 transition-all duration-300" />
-                  )}
-
-                  {/* Stock Status Badge */}
-                  <div className="absolute top-3 left-3">
-                    <span className={cn(
-                      "px-2.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase shadow-sm flex items-center gap-1.5 backdrop-blur-md",
-                      isOutOfStock
-                        ? "bg-rose-500/90 text-white"
-                        : isLowStock
-                        ? "bg-amber-500/90 text-white animate-pulse"
-                        : "bg-emerald-600/90 text-white"
-                    )}>
-                      <span className="h-1.5 w-1.5 rounded-full bg-white animate-ping" />
-                      {isOutOfStock ? "Out of Stock" : isLowStock ? `Low (${stock})` : `${stock} in stock`}
-                    </span>
-                  </div>
-
-                  {/* Favorite / Menu Trigger */}
-                  <div className="absolute top-3 right-3 flex items-center gap-1">
+              return (
+                <div
+                  key={product.id}
+                  className="card table-row-hover"
+                  style={{ borderRadius: 14, overflow: "hidden", display: "flex", flexDirection: "column", border: "1px solid var(--border)" }}
+                >
+                  {/* Card Thumbnail / Header */}
+                  <div style={{ position: "relative", height: 140, background: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+                    {product.imageUrl ? (
+                      <Image src={product.imageUrl} alt={product.name} fill style={{ objectFit: "cover" }} unoptimized />
+                    ) : (
+                      <Package size={48} color="var(--muted-foreground)" style={{ opacity: 0.4 }} />
+                    )}
+                    <div style={{ position: "absolute", top: 10, left: 10 }}>
+                      <span className="status-badge" style={{ background: s.bg, color: s.color, display: "inline-flex", gap: 4, backdropFilter: "blur(4px)" }}>
+                        <Icon size={11} /> {s.label}
+                      </span>
+                    </div>
                     {product.isFavorite && (
-                      <span className="h-7 w-7 rounded-full bg-amber-400 text-slate-950 flex items-center justify-center shadow-md">
-                        <Star className="h-3.5 w-3.5 fill-current" />
-                      </span>
-                    )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEdit(product);
-                      }}
-                      className="h-7 w-7 rounded-full bg-white/90 dark:bg-slate-900/90 text-slate-600 dark:text-slate-300 hover:text-indigo-600 flex items-center justify-center shadow-md backdrop-blur-md transition-colors"
-                      title="Edit Product"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[10px] font-mono">
-                      <span className="text-slate-400 font-bold uppercase truncate max-w-[120px]">
-                        {product.category?.name || "General Catalog"}
-                      </span>
-                      <span className="text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/40 px-2 py-0.5 rounded-md border border-indigo-500/20">
-                        {skuTag}
-                      </span>
-                    </div>
-
-                    <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white line-clamp-1 group-hover:text-indigo-600 transition-colors">
-                      {product.name}
-                    </h4>
-
-                    {/* Packaging Units Indicator */}
-                    {product.units && product.units.length > 0 && (
-                      <div className="flex items-center gap-1.5 text-[10px] text-indigo-600 dark:text-indigo-400 font-medium">
-                        <Boxes className="h-3 w-3" />
-                        <span>Bulk packaging configured ({product.units.length} units)</span>
+                      <div style={{ position: "absolute", top: 10, right: 10, width: 24, height: 24, borderRadius: "50%", background: "#F59E0B", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11 }}>
+                        ★
                       </div>
                     )}
                   </div>
 
-                  {/* Pricing Matrix & Margin */}
-                  <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-end justify-between">
+                  {/* Card Body */}
+                  <div style={{ padding: "16px", flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 12 }}>
                     <div>
-                      <span className="text-[10px] font-mono text-slate-400 block uppercase">Sell Cost</span>
-                      <span className="text-lg font-black font-mono text-slate-900 dark:text-white">
-                        Le {Math.round(sellPrice).toLocaleString()}
-                      </span>
-                      {costPrice > 0 && (
-                        <span className="text-[10px] font-mono text-slate-400 block">
-                          Buy: Le {Math.round(costPrice).toLocaleString()}
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+                        <span style={{ fontSize: 11, color: "var(--muted-foreground)", textTransform: "uppercase", fontWeight: 600 }}>
+                          {product.category?.name || "General"}
                         </span>
-                      )}
+                        <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--muted-foreground)" }}>
+                          {skuTag}
+                        </span>
+                      </div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: 15, fontWeight: 700, color: "var(--foreground)" }} className="line-clamp-1">
+                        {product.name}
+                      </div>
                     </div>
 
-                    {margin > 0 && (
-                      <span className="px-2 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-mono font-bold border border-emerald-500/20">
-                        +{margin.toFixed(0)}% Margin
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Card Action Controls */}
-                  <div className="grid grid-cols-2 gap-2 pt-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setInspectProduct(product)}
-                      className="h-9 rounded-xl text-xs font-bold border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center gap-1.5"
-                    >
-                      <Eye className="h-3.5 w-3.5 text-indigo-500" /> View Info
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => router.push(`/dashboard/pos?search=${encodeURIComponent(product.name)}`)}
-                      className="h-9 rounded-xl bg-slate-900 text-white dark:bg-indigo-600 hover:bg-slate-800 text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
-                    >
-                      <ShoppingCart className="h-3.5 w-3.5" /> Sell POS
-                    </Button>
-                  </div>
-
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-      ) : (
-        /* ─── 4B: ADVANCED INTERACTIVE DATA TABLE ─── */
-        <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm overflow-hidden">
-          <Table>
-            <TableHeader className="bg-slate-50 dark:bg-slate-950/50">
-              <TableRow className="border-b border-slate-200 dark:border-slate-800">
-                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Product</TableHead>
-                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Category</TableHead>
-                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Stock Count</TableHead>
-                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500">Sell Cost / Purchase Cost</TableHead>
-                <TableHead className="font-mono font-bold text-[10px] uppercase tracking-wider text-slate-500 text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="divide-y divide-slate-100 dark:divide-slate-800">
-              {filteredProducts.map((product) => {
-                const stock = Number(product.stockQuantity) || 0;
-                const minStock = Number(product.minStockLevel) || 10;
-                const isLow = stock <= minStock;
-                const sellPrice = parseFloat(product.unitPrice) || 0;
-                const costPrice = parseFloat(product.costPrice) || 0;
-                const margin = sellPrice > 0 && costPrice > 0 ? ((sellPrice - costPrice) / sellPrice) * 100 : 0;
-                const skuTag = product.sku || `SKU-${product.id.slice(-4).toUpperCase()}`;
-
-                return (
-                  <TableRow
-                    key={product.id}
-                    onClick={() => setInspectProduct(product)}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer transition-colors"
-                  >
-                    {/* Column 1: Image & Name */}
-                    <TableCell className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="relative h-11 w-11 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0 flex items-center justify-center">
-                          {product.imageUrl ? (
-                            <Image src={product.imageUrl} alt={product.name} fill className="object-cover" unoptimized />
-                          ) : (
-                            <Package className="h-5 w-5 text-slate-400" />
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">{product.name}</p>
-                          <div className="flex items-center gap-2 mt-0.5 text-[10px] font-mono text-slate-400">
-                            <span>ID: {skuTag}</span>
-                            {product.units && product.units.length > 0 && (
-                              <span className="text-indigo-500 font-bold">• {product.units.length} packaging units</span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-
-                    {/* Column 2: Category */}
-                    <TableCell className="p-4">
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase">
-                        {product.category?.name || "General"}
-                      </span>
-                    </TableCell>
-
-                    {/* Column 3: Stock Count */}
-                    <TableCell className="p-4">
-                      <div className="space-y-1.5">
-                        <StockStatusBadge stock={stock} minStock={minStock} />
-                        <div className="w-24 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-                          <div
-                            className={cn("h-full", isLow ? "bg-rose-500" : "bg-emerald-500")}
-                            style={{ width: `${Math.min((stock / (minStock * 3)) * 100, 100)}%` }}
-                          />
-                        </div>
-                      </div>
-                    </TableCell>
-
-                    {/* Column 4: Pricing */}
-                    <TableCell className="p-4">
+                    <div style={{ paddingTop: 10, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                       <div>
-                        <span className="font-mono font-black text-slate-900 dark:text-white text-sm">
+                        <div style={{ fontSize: 10.5, color: "var(--muted-foreground)", textTransform: "uppercase" }}>Price</div>
+                        <div style={{ fontFamily: "var(--font-mono)", fontSize: 16, fontWeight: 800, color: "var(--foreground)" }}>
                           Le {Math.round(sellPrice).toLocaleString()}
-                        </span>
+                        </div>
+                        {costPrice > 0 && (
+                          <div style={{ fontSize: 10.5, color: "var(--muted-foreground)", fontFamily: "var(--font-mono)" }}>
+                            Cost: Le {Math.round(costPrice).toLocaleString()}
+                          </div>
+                        )}
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 10.5, color: "var(--muted-foreground)", textTransform: "uppercase" }}>In Stock</div>
+                        <div style={{
+                          fontFamily: "var(--font-mono)", fontSize: 15, fontWeight: 700,
+                          color: stock <= minStock ? "#EF4444" : "var(--foreground)"
+                        }}>
+                          {stock}
+                        </div>
                         {margin > 0 && (
-                          <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 block font-bold">
-                            Cost: Le {Math.round(costPrice).toLocaleString()} (+{margin.toFixed(0)}% profit)
+                          <span style={{ fontSize: 10, color: "#10B981", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                            +{margin.toFixed(0)}%
                           </span>
                         )}
                       </div>
-                    </TableCell>
+                    </div>
 
-                    {/* Column 5: Action Menu */}
-                    <TableCell className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1" onClick={(e) => e.stopPropagation()}>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEdit(product)}
-                          className="h-8 w-8 p-0 rounded-xl"
-                          title="Edit"
-                        >
-                          <Pencil className="h-3.5 w-3.5 text-slate-500" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeleteModal({ open: true, id: product.id, name: product.name })}
-                          className="h-8 w-8 p-0 rounded-xl text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30"
-                          title="Delete"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, paddingTop: 6 }}>
+                      <button
+                        onClick={() => setInspectProduct(product)}
+                        className="btn-secondary"
+                        style={{ padding: "6px 10px", fontSize: 11.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 4 }}
+                      >
+                        <Eye size={12} /> View
+                      </button>
+                      <button
+                        onClick={() => handleEdit(product)}
+                        style={{
+                          background: "#EFF6FF", border: "none", borderRadius: 8, padding: "6px 10px",
+                          fontSize: 11.5, color: "#2563EB", fontWeight: 600, cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "center", gap: 4
+                        }}
+                      >
+                        <Pencil size={12} /> Edit
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* ─── 4B: TABLE VIEW (FIGMA MAKE STYLED) ─── */
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "var(--muted)" }}>
+                  {["Product", "SKU", "Category", "Warehouse", "Qty", "Cost", "Price", "Stock Value", "Status", "Actions"].map(h => (
+                    <th key={h} style={{
+                      textAlign: "left", fontSize: 11, fontWeight: 700, color: "var(--muted-foreground)",
+                      padding: "10px 14px", textTransform: "uppercase", letterSpacing: "0.06em",
+                      whiteSpace: "nowrap",
+                    }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.map(product => {
+                  const stock = Number(product.stockQuantity) || 0;
+                  const minStock = Number(product.minStockLevel) || 10;
+                  const sellPrice = parseFloat(product.unitPrice) || 0;
+                  const costPrice = parseFloat(product.costPrice) || 0;
+                  const stockValue = stock * (costPrice > 0 ? costPrice : sellPrice);
+                  const skuTag = product.sku || `SKU-${product.id.slice(-4).toUpperCase()}`;
+                  const sKey = getProductStatus(product);
+                  const s = statusConfig[sKey];
+                  const Icon = s.icon;
+                  const expiry = product.metadata?.expiryDate;
 
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+                  return (
+                    <tr
+                      key={product.id}
+                      className="table-row-hover"
+                      style={{ borderTop: "1px solid var(--border)", cursor: "pointer" }}
+                      onClick={() => setInspectProduct(product)}
+                    >
+                      <td style={{ padding: "12px 14px" }}>
+                        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                          <div style={{ width: 36, height: 36, borderRadius: 8, background: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+                            {product.imageUrl ? (
+                              <Image src={product.imageUrl} alt={product.name} width={36} height={36} style={{ objectFit: "cover" }} unoptimized />
+                            ) : (
+                              <Package size={18} color="var(--muted-foreground)" />
+                            )}
+                          </div>
+                          <div style={{ minWidth: 0 }}>
+                            <div style={{ fontSize: 13.5, fontWeight: 600, color: "var(--foreground)" }} className="truncate">{product.name}</div>
+                            {expiry && <div style={{ fontSize: 11, color: "var(--muted-foreground)" }}>Exp: {expiry}</div>}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ padding: "12px 14px", fontFamily: "var(--font-mono)", fontSize: 11.5, color: "var(--muted-foreground)", whiteSpace: "nowrap" }}>
+                        {skuTag}
+                      </td>
+                      <td style={{ padding: "12px 14px", fontSize: 12.5, color: "var(--foreground)" }}>
+                        {product.category?.name || "General"}
+                      </td>
+                      <td style={{ padding: "12px 14px", fontSize: 12.5, color: "var(--muted-foreground)" }}>
+                        Main Store
+                      </td>
+                      <td style={{ padding: "12px 14px" }}>
+                        <span style={{
+                          fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700,
+                          color: stock <= minStock ? "#EF4444" : "var(--foreground)",
+                        }}>{stock}</span>
+                        <div style={{ fontSize: 10.5, color: "var(--muted-foreground)" }}>Min: {minStock}</div>
+                      </td>
+                      <td style={{ padding: "12px 14px", fontFamily: "var(--font-mono)", fontSize: 13, color: "var(--muted-foreground)" }}>
+                        Le {Math.round(costPrice).toLocaleString()}
+                      </td>
+                      <td style={{ padding: "12px 14px", fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "var(--foreground)" }}>
+                        Le {Math.round(sellPrice).toLocaleString()}
+                      </td>
+                      <td style={{ padding: "12px 14px", fontFamily: "var(--font-mono)", fontSize: 13, fontWeight: 700, color: "#10B981" }}>
+                        Le {Math.round(stockValue).toLocaleString()}
+                      </td>
+                      <td style={{ padding: "12px 14px" }}>
+                        <span className="status-badge" style={{ background: s.bg, color: s.color, display: "inline-flex", gap: 4 }}>
+                          <Icon size={11} /> {s.label}
+                        </span>
+                      </td>
+                      <td style={{ padding: "12px 14px" }} onClick={e => e.stopPropagation()}>
+                        <div style={{ display: "flex", gap: 6 }}>
+                          <button
+                            onClick={() => handleEdit(product)}
+                            style={{ background: "#EFF6FF", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11.5, color: "#2563EB", fontWeight: 600, cursor: "pointer" }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => setInspectProduct(product)}
+                            style={{ background: "var(--muted)", border: "none", borderRadius: 6, padding: "5px 10px", fontSize: 11.5, color: "var(--muted-foreground)", fontWeight: 600, cursor: "pointer" }}
+                          >
+                            View
+                          </button>
+                          <button
+                            onClick={() => setDeleteModal({ open: true, id: product.id, name: product.name })}
+                            style={{ background: "#FEE2E2", border: "none", borderRadius: 6, padding: "5px 8px", fontSize: 11.5, color: "#B91C1C", fontWeight: 600, cursor: "pointer" }}
+                            title="Delete"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        <div style={{ padding: "14px 20px", borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 10 }}>
+          <div style={{ fontSize: 12.5, color: "var(--muted-foreground)" }}>
+            Showing {filteredProducts.length} of {products.length} products
+          </div>
+          <div style={{ display: "flex", gap: 4 }}>
+            <button style={{
+              width: 30, height: 30, border: "1px solid #2563EB",
+              borderRadius: 6, background: "#2563EB", color: "#fff",
+              fontSize: 12.5, cursor: "pointer", fontWeight: 700
+            }}>1</button>
+          </div>
         </div>
-      )}
+      </div>
 
       {/* 5. SUPER GRAPHICAL PRODUCT INTELLIGENCE INSPECTION MODAL */}
       <AnimatePresence>
