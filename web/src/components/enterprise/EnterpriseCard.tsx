@@ -63,12 +63,15 @@ export function EnterpriseCard({
 }
 
 interface EnterpriseKpiCardProps {
-  title: string;
+  title?: string;
+  label?: string; // alias for title
   value: string | number;
   subtitle?: string;
-  change?: number; // percentage change, e.g. +12.5 or -4.2
+  change?: number | string; // percentage change or status label (e.g. +12.5, -4.2, "+12%", "Operational")
   changeLabel?: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  trend?: "up" | "down" | "neutral";
+  tone?: "blue" | "emerald" | "indigo" | "rose" | "amber" | "purple";
+  icon?: React.ComponentType<{ className?: string }> | React.ReactNode;
   iconColor?: string;
   currency?: string;
   badge?: React.ReactNode;
@@ -78,20 +81,60 @@ interface EnterpriseKpiCardProps {
 
 export function EnterpriseKpiCard({
   title,
+  label,
   value,
   subtitle,
   change,
-  changeLabel = "vs last period",
-  icon: Icon,
+  changeLabel,
+  trend,
+  tone,
+  icon,
   iconColor = "text-primary bg-primary/10",
   currency,
   badge,
   className,
   onClick,
 }: EnterpriseKpiCardProps) {
-  const isPositive = change !== undefined && change > 0;
-  const isNegative = change !== undefined && change < 0;
-  const isNeutral = change !== undefined && change === 0;
+  const displayTitle = title || label || "";
+
+  const toneMap: Record<string, string> = {
+    blue: "text-blue-600 dark:text-blue-400 bg-blue-500/10 border-blue-500/20",
+    emerald: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/20",
+    indigo: "text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
+    rose: "text-rose-600 dark:text-rose-400 bg-rose-500/10 border-rose-500/20",
+    amber: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20",
+    purple: "text-purple-600 dark:text-purple-400 bg-purple-500/10 border-purple-500/20",
+  };
+  const resolvedIconColor = tone ? toneMap[tone] || iconColor : iconColor;
+
+  let isPositive = false;
+  let isNegative = false;
+  let isNeutral = true;
+
+  if (trend) {
+    isPositive = trend === "up";
+    isNegative = trend === "down";
+    isNeutral = trend === "neutral";
+  } else if (typeof change === "number") {
+    isPositive = change > 0;
+    isNegative = change < 0;
+    isNeutral = change === 0;
+  } else if (typeof change === "string") {
+    if (change.startsWith("+")) isPositive = true;
+    else if (change.startsWith("-")) isNegative = true;
+    else isNeutral = true;
+  }
+
+  let formattedChange = "";
+  if (typeof change === "number") {
+    formattedChange = change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`;
+  } else if (typeof change === "string") {
+    formattedChange = change;
+  }
+
+  const displayChangeLabel = changeLabel !== undefined 
+    ? changeLabel 
+    : (typeof change === "number" ? "vs last period" : undefined);
 
   return (
     <div
@@ -105,7 +148,7 @@ export function EnterpriseKpiCard({
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block truncate">
-            {title}
+            {displayTitle}
           </span>
           <div className="flex items-baseline gap-1.5 flex-wrap">
             {currency && (
@@ -119,15 +162,19 @@ export function EnterpriseKpiCard({
           </div>
         </div>
 
-        {Icon && (
-          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm", iconColor)}>
-            <Icon className="w-5 h-5" />
+        {icon && (
+          <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-transparent", resolvedIconColor)}>
+            {React.isValidElement(icon) ? (
+              icon
+            ) : typeof icon === "function" ? (
+              React.createElement(icon as React.ComponentType<{ className?: string }>, { className: "w-5 h-5" })
+            ) : null}
           </div>
         )}
       </div>
 
       <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs font-medium">
-        {change !== undefined ? (
+        {change !== undefined && change !== null && formattedChange !== "" ? (
           <div className="flex items-center gap-1.5">
             <span
               className={cn(
@@ -140,9 +187,9 @@ export function EnterpriseKpiCard({
               {isPositive && <TrendingUp className="w-3 h-3" />}
               {isNegative && <TrendingDown className="w-3 h-3" />}
               {isNeutral && <Minus className="w-3 h-3" />}
-              {change > 0 ? `+${change.toFixed(1)}%` : `${change.toFixed(1)}%`}
+              {formattedChange}
             </span>
-            <span className="text-slate-400 text-[11px] truncate">{changeLabel}</span>
+            {displayChangeLabel && <span className="text-slate-400 text-[11px] truncate">{displayChangeLabel}</span>}
           </div>
         ) : subtitle ? (
           <span className="text-slate-500 dark:text-slate-400 text-[11px] font-medium truncate">{subtitle}</span>
