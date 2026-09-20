@@ -34,7 +34,13 @@ export async function getDashboardStats() {
       yesterdayDebtPaymentData,
       staffCount,
       topItems,
-      topStaffSales
+      topStaffSales,
+      customerCount,
+      outstandingCreditData,
+      monthlyExpensesData,
+      monthlyRevenueData,
+      categoryDistributionData,
+      lowStockProductsData
     ] = await Promise.all([
       // Total Revenue (All-time Paid Sales)
       prisma.sale.aggregate({
@@ -186,8 +192,8 @@ export async function getDashboardStats() {
       }),
       // Outstanding Credit (Pending Debts)
       prisma.debt.aggregate({
-        where: { businessId, status: "PENDING" },
-        _sum: { amount: true }
+        where: { businessId, status: "PENDING", deletedAt: null },
+        _sum: { totalAmount: true, paidAmount: true }
       }),
       // Monthly Expenses
       prisma.expense.aggregate({
@@ -259,7 +265,7 @@ export async function getDashboardStats() {
     const monthlyExpenses = Number(monthlyExpensesData._sum.amount?.toString() || 0);
     const netProfit = monthlyRevenue - monthlyExpenses;
     const profitMargin = monthlyRevenue > 0 ? ((netProfit / monthlyRevenue) * 100).toFixed(1) : "0.0";
-    const totalOutstandingCredit = Number(outstandingCreditData._sum.amount?.toString() || 0);
+    const totalOutstandingCredit = Math.max(0, Number(outstandingCreditData._sum.totalAmount?.toString() || 0) - Number(outstandingCreditData._sum.paidAmount?.toString() || 0));
 
     // Calculate category percentages
     const totalCategoryProducts = categoryDistributionData.reduce((acc, c) => acc + c._count.products, 0);
