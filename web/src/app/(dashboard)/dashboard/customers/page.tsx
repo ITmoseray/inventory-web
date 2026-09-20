@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { 
   Plus, Pencil, Trash2, MoreVertical, Users, Search, Phone, Mail, MapPin,
   ChevronDown, UserPlus, FileDown, Globe, Database, CreditCard, Clock,
-  ArrowRight, CheckCircle2, MessageSquare, Briefcase, Zap, Info, ShieldCheck
+  ArrowRight, CheckCircle2, MessageSquare, Briefcase, Info, ShieldCheck, X
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -65,6 +65,7 @@ export default function CustomersPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
   const [viewFilter, setViewFilter] = useState("all");
   const [viewSearch, setViewSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -199,73 +200,327 @@ export default function CustomersPage() {
     setIsDialogOpen(true);
   }
 
-  return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-20">
-      <EnterprisePageHeader
-        title="Customer Directory & CRM"
-        subtitle="Manage customer relationships, contact credentials, lifetime sales value, and payment history."
-        badge={
-          <EnterpriseBadge variant="primary" size="sm">
-            <Users className="h-3 w-3 mr-1" /> CRM Module
-          </EnterpriseBadge>
-        }
-        actions={
-          <div className="flex items-center gap-2.5">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              className="hidden"
-              onChange={handleImport}
-            />
-            <Button 
-              variant="outline" 
-              onClick={() => fileInputRef.current?.click()}
-              disabled={importing}
-              className="h-11 px-4 rounded-2xl border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 font-bold text-xs hover:bg-white dark:hover:bg-slate-800 transition-all gap-2"
-            >
-              <FileDown className="h-4 w-4" /> {importing ? "Importing..." : "Import CSV"}
-            </Button>
-            <Button 
-              onClick={() => {
-                setEditingCustomer(null);
-                resetForm();
-                setIsDialogOpen(true);
-              }}
-              className="h-11 px-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase tracking-wider gap-2 shadow-md shadow-indigo-600/20 transition-all"
-            >
-              <Plus className="h-4 w-4" /> New Customer
-            </Button>
-          </div>
-        }
-      />
+  const totalLTV = customers.reduce((sum, c) => sum + (Number(c.totalSpend) || 0), 0);
+  const activeCustomers = customers.filter(c => (Number(c.totalSpend) || 0) > 0).length;
+  const highValueCustomers = customers.filter(c => (Number(c.totalSpend) || 0) > 1000).length;
 
-      {/* Enterprise KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <EnterpriseKpiCard
-          title="Total Customers"
-          value={customers.length}
-          subtitle="Registered client nodes"
-          icon={Users}
-          iconColor="text-indigo-600 bg-indigo-50 dark:bg-indigo-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Total Lifetime Value"
-          value={Math.round(customers.reduce((sum, c) => sum + (c.totalSpend || 0), 0))}
-          currency="SLE"
-          subtitle="Cumulative gross sales"
-          icon={CreditCard}
-          iconColor="text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40"
-        />
-        <EnterpriseKpiCard
-          title="Active Accounts"
-          value={customers.filter(c => (c.totalSpend || 0) > 0).length}
-          subtitle="Repeat purchasing clients"
-          icon={CheckCircle2}
-          iconColor="text-purple-600 bg-purple-50 dark:bg-purple-950/40"
-        />
+  return (
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto animate-in fade-in duration-500 pb-20">
+      {/* ── Top Header ── */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="page-title text-2xl sm:text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
+            Customer Directory & CRM
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1">
+            Manage customer relationships, contact credentials, lifetime sales value, and payment history
+          </p>
+        </div>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv"
+            className="hidden"
+            onChange={handleImport}
+          />
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            disabled={importing}
+            className="btn-secondary flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-semibold py-2.5 px-4"
+          >
+            <FileDown size={14} className="text-[#2563EB]" /> {importing ? "Importing..." : "Import CSV"}
+          </button>
+          <button
+            onClick={() => {
+              setEditingCustomer(null);
+              resetForm();
+              setIsDialogOpen(true);
+            }}
+            className="btn-primary flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-semibold py-2.5 px-4"
+          >
+            <Plus size={14} /> New Customer
+          </button>
+        </div>
       </div>
 
+      {/* ── KPI Cards ── */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">Total Customers</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#2563EB]/10 text-[#2563EB]">
+              <Users size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[var(--foreground)] tracking-tight">
+            {customers.length}
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">Active Customers</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#10B981]/10 text-[#10B981]">
+              <CheckCircle2 size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[#10B981] tracking-tight">
+            {activeCustomers}
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">Lifetime Value (LTV)</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#8B5CF6]/10 text-[#8B5CF6]">
+              <CreditCard size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[#8B5CF6] tracking-tight">
+            Le {Math.round(totalLTV).toLocaleString()}
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">High-Value Clients</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#F59E0B]/10 text-[#F59E0B]">
+              <Briefcase size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[#F59E0B] tracking-tight">
+            {highValueCustomers}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Toolbar: Search ── */}
+      <div className="card p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="relative flex-1 w-full max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+          <input
+            placeholder="Search by customer name, phone, or email..."
+            className="input-field pl-10 w-full text-xs font-medium"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* ── Main Customers Table & Side Profile Panel ── */}
+      <div className="flex gap-6 items-start">
+        {/* Table */}
+        <div className="card overflow-hidden flex-1">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                  <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Customer</th>
+                  <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Contact</th>
+                  <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Location</th>
+                  <th className="text-right text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Lifetime Value</th>
+                  <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Status</th>
+                  <th className="w-10 px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="border-b border-[var(--border)]">
+                      <td colSpan={6} className="px-4 py-6 text-center">
+                        <div className="h-4 bg-[var(--muted)] rounded animate-pulse w-1/3 mx-auto" />
+                      </td>
+                    </tr>
+                  ))
+                ) : filteredCustomers.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-16 text-center text-[var(--muted-foreground)]">
+                      <Users size={36} className="mx-auto mb-3 opacity-30" />
+                      <p className="font-semibold text-sm">No customers found</p>
+                      <p className="text-xs text-[var(--muted-foreground)] mt-1">Register your first customer to get started.</p>
+                    </td>
+                  </tr>
+                ) : (
+                  filteredCustomers.map((customer) => {
+                    const spend = customer.totalSpend || 0;
+                    return (
+                      <tr
+                        key={customer.id}
+                        onClick={() => setSelectedCustomer(customer)}
+                        className="table-row-hover border-b border-[var(--border)] cursor-pointer text-xs group"
+                      >
+                        {/* Customer Avatar & Name */}
+                        <td className="px-4 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#1B3F6E] to-[#2563EB] flex items-center justify-center font-bold text-white text-xs shrink-0">
+                              {customer.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
+                            </div>
+                            <div>
+                              <div className="font-semibold text-[var(--foreground)]">{customer.name}</div>
+                              <div className="text-[10px] text-[var(--muted-foreground)]">
+                                Est: {new Date(customer.createdAt).toLocaleDateString()}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Contact */}
+                        <td className="px-4 py-3.5">
+                          {customer.phone && (
+                            <div className="text-[11px] font-mono text-[var(--foreground)] flex items-center gap-1.5">
+                              <Phone size={11} className="text-[var(--muted-foreground)]" /> {customer.phone}
+                            </div>
+                          )}
+                          {customer.email && (
+                            <div className="text-[10px] text-[var(--muted-foreground)] flex items-center gap-1.5 mt-0.5">
+                              <Mail size={11} /> {customer.email}
+                            </div>
+                          )}
+                        </td>
+
+                        {/* Location */}
+                        <td className="px-4 py-3.5 text-[var(--muted-foreground)]">
+                          {customer.address ? (
+                            <span className="flex items-center gap-1">
+                              <MapPin size={11} className="text-rose-500 shrink-0" /> {customer.address}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] italic">Unmapped</span>
+                          )}
+                        </td>
+
+                        {/* LTV */}
+                        <td className="px-4 py-3.5 text-right font-mono font-extrabold text-sm text-[var(--foreground)]">
+                          Le {Math.round(spend).toLocaleString()}
+                        </td>
+
+                        {/* Status */}
+                        <td className="px-4 py-3.5">
+                          {spend > 5000 ? (
+                            <span className="status-badge" style={{ background: "#FEF3C7", color: "#D97706" }}>Gold Tier</span>
+                          ) : spend > 1000 ? (
+                            <span className="status-badge" style={{ background: "#F1F5F9", color: "#475569" }}>Silver Tier</span>
+                          ) : (
+                            <span className="status-badge" style={{ background: "#EFF6FF", color: "#2563EB" }}>Standard</span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-4 py-3.5 text-right" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[#2563EB] hover:bg-[var(--muted)] transition-all">
+                                <MoreVertical size={16} />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44 rounded-xl border border-[var(--border)] shadow-xl p-1 bg-[var(--card)]">
+                              <DropdownMenuItem
+                                onClick={() => setSelectedCustomer(customer)}
+                                className="rounded-lg cursor-pointer text-xs font-medium gap-2"
+                              >
+                                <Users size={14} className="text-[#2563EB]" /> View Profile
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => handleEdit(customer)}
+                                className="rounded-lg cursor-pointer text-xs font-medium gap-2"
+                              >
+                                <Pencil size={14} /> Edit Customer
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => setDeleteModal({ open: true, id: customer.id, name: customer.name })}
+                                className="rounded-lg cursor-pointer text-xs font-medium gap-2 text-rose-600 focus:text-rose-700"
+                              >
+                                <Trash2 size={14} /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* ── Customer Profile Side Panel (Figma Make layout) ── */}
+        {selectedCustomer && (
+          <div className="w-80 card p-5 shrink-0 animate-in slide-in-from-right duration-300">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-display font-bold text-sm text-[var(--foreground)]">Customer Profile</h3>
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[var(--muted-foreground)] hover:bg-[var(--muted)] text-sm"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="text-center mb-5">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1B3F6E] to-[#2563EB] flex items-center justify-center text-xl font-extrabold text-white mx-auto mb-2 shadow-md">
+                {selectedCustomer.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase()}
+              </div>
+              <div className="font-display font-extrabold text-base text-[var(--foreground)]">{selectedCustomer.name}</div>
+              <span className="status-badge inline-block mt-1" style={{ background: "#DCFCE7", color: "#15803D" }}>
+                Active Client
+              </span>
+            </div>
+
+            <div className="space-y-2.5 p-3.5 bg-[var(--muted)] rounded-xl mb-4 text-xs">
+              <div className="flex justify-between">
+                <span className="text-[var(--muted-foreground)]">Phone</span>
+                <span className="font-mono font-semibold text-[var(--foreground)]">{selectedCustomer.phone || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--muted-foreground)]">Email</span>
+                <span className="font-medium text-[var(--foreground)] truncate max-w-[150px]">{selectedCustomer.email || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--muted-foreground)]">Address</span>
+                <span className="font-medium text-[var(--foreground)] truncate max-w-[150px]">{selectedCustomer.address || "—"}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[var(--muted-foreground)]">Member Since</span>
+                <span className="font-mono text-[var(--foreground)]">{new Date(selectedCustomer.createdAt).toLocaleDateString()}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <div className="p-3 rounded-xl bg-[#2563EB]/10 border border-[#2563EB]/20 text-center">
+                <div className="text-[10px] font-semibold text-[var(--muted-foreground)] mb-1">Total Spent</div>
+                <div className="font-mono font-extrabold text-sm text-[#2563EB]">
+                  Le {Math.round(selectedCustomer.totalSpend || 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-[#10B981]/10 border border-[#10B981]/20 text-center">
+                <div className="text-[10px] font-semibold text-[var(--muted-foreground)] mb-1">Account Status</div>
+                <div className="font-mono font-extrabold text-sm text-[#10B981]">
+                  Clear
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleEdit(selectedCustomer)}
+                className="btn-secondary flex-1 py-2 text-xs font-semibold"
+              >
+                Edit Profile
+              </button>
+              <button
+                onClick={() => setSelectedCustomer(null)}
+                className="btn-primary flex-1 py-2 text-xs font-semibold"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── Add / Edit Customer Dialog ── */}
       <Dialog open={isDialogOpen} onOpenChange={(open) => {
         setIsDialogOpen(open);
         if (!open) {
@@ -273,259 +528,79 @@ export default function CustomersPage() {
           resetForm();
         }
       }}>
-        <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
-               <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-4 opacity-10">
-                     <Users size={120} />
-                  </div>
-                  <div className="relative z-10 space-y-1">
-                     <p className="text-[10px] font-black uppercase tracking-[0.4em] text-indigo-400 italic">CRM Intelligence</p>
-                     <DialogTitle className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none">
-                       {editingCustomer ? "Edit Profile" : "Register Customer"}
-                     </DialogTitle>
-                  </div>
-               </div>
-               <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white dark:bg-slate-950 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                 <div className="space-y-6">
-                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Full Identity / Company Name</Label>
-                     <Input
-                       value={formData.name}
-                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                       placeholder="e.g. Tech Enterprise"
-                       className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 focus:ring-4 focus:ring-indigo-600/10 font-bold dark:text-white"
-                       required
-                     />
-                   </div>
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div className="space-y-2">
-                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Phone Number</Label>
-                       <Input
-                         value={formData.phone}
-                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                         placeholder="+232..."
-                         className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold dark:text-white"
-                       />
-                     </div>
-                     <div className="space-y-2">
-                       <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email Node</Label>
-                       <Input
-                         type="email"
-                         value={formData.email}
-                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                         placeholder="intelligence@nexus.com"
-                         className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold dark:text-white"
-                       />
-                     </div>
-                   </div>
-                   <div className="space-y-2">
-                     <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Physical Node Address</Label>
-                     <Input
-                       value={formData.address}
-                       onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                       placeholder="Location details..."
-                       className="h-14 rounded-2xl border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-bold dark:text-white"
-                     />
-                   </div>
-                 </div>
-                 <div className="flex gap-3 pt-8">
-                   <Button type="button" variant="outline" className="flex-1 h-14 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 border-slate-100 dark:border-slate-800 dark:hover:bg-slate-900" onClick={() => setIsDialogOpen(false)}>
-                     Terminate
-                   </Button>
-                   <Button type="submit" className="flex-1 h-14 bg-slate-900 dark:bg-indigo-600 text-white hover:bg-slate-800 dark:hover:bg-indigo-700 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-xl">
-                     {editingCustomer ? "Update Profile" : "Initialize Link"}
-                   </Button>
-                 </div>
-               </form>
-             </DialogContent>
-           </Dialog>
-
-      {loading ? (
-        <div className="flex flex-col items-center justify-center p-20 gap-6 animate-pulse">
-           <div className="h-20 w-20 bg-slate-100 rounded-[2rem] flex items-center justify-center">
-              <Users className="h-10 w-10 text-slate-300" />
-           </div>
-           <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Establishing CRM Sync...</p>
-        </div>
-      ) : customers.length === 0 ? (
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col items-center justify-center py-20 px-8 bg-white dark:bg-slate-900 rounded-[3rem] shadow-sm border border-slate-50 dark:border-slate-800 text-center space-y-16"
-        >
-           <div className="space-y-8">
-              <div className="relative mx-auto w-32 h-32">
-                 <div className="absolute inset-0 bg-indigo-600 rounded-[2.5rem] rotate-12 opacity-10" />
-                 <div className="relative h-full w-full bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl flex items-center justify-center overflow-hidden">
-                    <UserPlus className="h-12 w-12 text-indigo-600" />
-                 </div>
-              </div>
-              <div className="space-y-2">
-                 <h2 className="text-4xl font-[1000] text-slate-900 dark:text-white uppercase tracking-tighter italic leading-none">Every sales starts <span className="text-indigo-600 text-5xl">with a customer</span></h2>
-                 <p className="text-slate-500 font-medium text-lg leading-relaxed max-w-md mx-auto italic">Create and manage your customers and their contact persons, all in one place.</p>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                 <Button 
-                   onClick={() => setIsDialogOpen(true)}
-                   className="h-18 px-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-[0.3em] text-xs shadow-2xl shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95 group"
-                 >
-                    <Plus className="mr-4 h-6 w-6 group-hover:scale-125 transition-transform" />
-                    New Customer
-                 </Button>
-                 <Button 
-                   variant="outline"
-                   onClick={() => toast.info("Initializing secure file import...")}
-                   className="h-18 px-12 rounded-2xl border-slate-200 text-slate-500 font-black uppercase tracking-widest text-xs hover:bg-white transition-all"
-                 >
-                    <FileDown className="mr-4 h-6 w-6" />
-                    Import File
-                 </Button>
-              </div>
-           </div>
-
-           <div className="space-y-8 w-full max-w-xl border-t border-slate-50 dark:border-slate-800 pt-16">
-              <div className="flex items-center justify-center gap-6">
-                 <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
-                 <span className="text-[10px] font-black text-slate-300 uppercase tracking-[0.3em] italic">or import using</span>
-                 <div className="h-px flex-1 bg-slate-100 dark:bg-slate-800" />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                 {[
-                   { name: "Protech CRM", icon: Database, color: "text-indigo-600", bg: "bg-indigo-50" },
-                   { name: "Google Node", icon: Globe, color: "text-rose-600", bg: "bg-rose-50" },
-                   { name: "Nexus 365", icon: Briefcase, color: "text-blue-600", bg: "bg-blue-50" },
-                 ].map(source => (
-                   <button key={source.name} className="flex flex-col items-center gap-3 p-6 rounded-3xl bg-slate-50/50 dark:bg-slate-800/30 border border-transparent hover:border-slate-200 transition-all group">
-                      <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform", source.bg)}>
-                         <source.icon className={cn("h-6 w-6", source.color)} />
-                      </div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 group-hover:text-slate-900 dark:text-white transition-colors">{source.name}</span>
-                   </button>
-                 ))}
-              </div>
-           </div>
-
-           <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pt-12 border-t border-slate-50 dark:border-slate-800">
-              {[
-                { title: "Stay connected", desc: "Manage multiple contact persons per company.", icon: MessageSquare },
-                { title: "Node Mapping", desc: "Handle multiple addresses effortlessly.", icon: MapPin },
-                { title: "Portal Access", desc: "Provide dedicated node access to customers.", icon: ShieldCheck },
-                { title: "Multi-Currency", desc: "Initialize transactions in any global currency.", icon: CreditCard },
-              ].map(benefit => (
-                <div key={benefit.title} className="text-left space-y-3 group">
-                   <div className="h-10 w-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-300 group-hover:text-indigo-600 transition-colors">
-                      <benefit.icon className="h-5 w-5" />
-                   </div>
-                   <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-900 dark:text-white italic">{benefit.title}</h4>
-                   <p className="text-[10px] text-slate-500 font-bold uppercase tracking-tight leading-relaxed">{benefit.desc}</p>
-                </div>
-              ))}
-           </div>
-        </motion.div>
-      ) : (
-        <div className="space-y-6">
-          {/* Active Data List View */}
-          <Card className="border-none shadow-sm bg-white dark:bg-slate-900 p-4 rounded-3xl">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-600 transition-colors" />
-              <Input 
-                placeholder="Search across customer nodes..." 
-                className="pl-12 h-12 rounded-2xl border-none bg-slate-50 dark:bg-slate-800 focus:ring-4 focus:ring-indigo-600/10 transition-all font-bold"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+        <DialogContent className="sm:max-w-[500px] rounded-2xl border border-[var(--border)] shadow-2xl p-0 overflow-hidden bg-[var(--card)] text-[var(--foreground)]">
+          <div className="bg-[#0B1629] p-6 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <Users size={100} />
             </div>
-          </Card>
-
-          <div className="rounded-[3rem] border-none bg-white dark:bg-slate-900 shadow-xl shadow-slate-100/50 dark:shadow-none overflow-hidden border border-slate-50 dark:border-slate-800">
-                        <Table>
-              <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50">
-                <TableRow className="hover:bg-transparent border-slate-100 dark:border-slate-800">
-                  <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest pl-8 h-16">Client Intelligence Node</TableHead>
-                  <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest h-16">Contact Credentials</TableHead>
-                  <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest h-16">Deployment Location</TableHead>
-                  <TableHead className="font-black text-slate-400 uppercase text-[10px] tracking-widest text-center h-16">Sync Status</TableHead>
-                  <TableHead className="w-[100px] pr-8 h-16"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="divide-y divide-slate-50 dark:divide-slate-800">
-                {filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id} className="hover:bg-indigo-50/20 dark:hover:bg-indigo-950/10 border-none group transition-all">
-                    <TableCell className="pl-8 py-6">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 font-[1000] text-xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-sm">
-                          {customer.name.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="flex flex-col items-start">
-                          <div className="flex items-center gap-3">
-                            <span className="font-black text-slate-900 dark:text-white text-lg tracking-tight uppercase italic">{customer.name}</span>
-                            {(() => {
-                              const spend = customer.totalSpend || 0;
-                              if (spend > 5000) return <Badge className="bg-gradient-to-r from-yellow-300 to-yellow-500 text-yellow-950 border-none shadow-lg uppercase font-[1000] text-[8px] tracking-widest px-2 py-0.5 animate-pulse">Gold</Badge>;
-                              if (spend > 1000) return <Badge className="bg-gradient-to-r from-slate-200 to-slate-400 text-slate-900 border-none shadow-md uppercase font-[1000] text-[8px] tracking-widest px-2 py-0.5">Silver</Badge>;
-                              return <Badge className="bg-gradient-to-r from-amber-600/20 to-amber-700/30 text-amber-700 dark:text-amber-500 border-none uppercase font-[1000] text-[8px] tracking-widest px-2 py-0.5">Bronze</Badge>;
-                            })()}
-                          </div>
-                          <div className="flex items-center gap-2 mt-1">
-                             <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Est: {new Date(customer.createdAt).toLocaleDateString()}</span>
-                             <span className="text-slate-300">•</span>
-                             <span className="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">LTV: Le {Math.round(customer.totalSpend || 0).toLocaleString()}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-col gap-2">
-                        {customer.phone && (
-                          <div className="text-xs font-black text-slate-600 dark:text-slate-400 flex items-center gap-2 uppercase tracking-tight">
-                             <Phone className="h-3 w-3 text-indigo-400" /> {customer.phone}
-                          </div>
-                        )}
-                        {customer.email && (
-                          <div className="text-[10px] font-bold text-slate-400 flex items-center gap-2 lowercase tracking-tight">
-                             <Mail className="h-3 w-3 text-slate-300" /> {customer.email}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-[11px] font-black text-slate-600 dark:text-slate-400 flex items-center gap-2 uppercase tracking-widest italic">
-                        <MapPin className="h-3.5 w-3.5 text-rose-400" />
-                        {customer.address || "Zone Unmapped"}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-500 text-[9px] font-[1000] uppercase tracking-widest">
-                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Active Sync
-                      </div>
-                    </TableCell>
-                    <TableCell className="pr-8 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger
-                          render={
-                            <button className="h-10 w-10 p-0 rounded-xl hover:bg-white dark:hover:bg-slate-800 shadow-sm border border-transparent hover:border-slate-100 inline-flex items-center justify-center">
-                              <MoreVertical className="h-5 w-5 text-slate-400" />
-                            </button>
-                          }
-                        />
-                        <DropdownMenuContent align="end" className="rounded-2xl border-slate-100 shadow-2xl p-2 w-48 bg-white dark:bg-slate-900">
-                          <DropdownMenuItem onClick={() => handleEdit(customer)} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] gap-3">
-                            <Pencil className="h-4 w-4 text-indigo-600" /> Edit Node
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setDeleteModal({ open: true, id: customer.id, name: customer.name })} className="rounded-xl h-11 font-black uppercase tracking-widest text-[10px] text-rose-600 focus:bg-rose-50 focus:text-rose-700 dark:focus:bg-rose-950 gap-3 cursor-pointer">
-                            <Trash2 className="h-4 w-4" /> Delete Customer
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="relative z-10 space-y-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#94A3B8]">Customer Relationship Management</div>
+              <DialogTitle className="text-xl font-extrabold font-display">
+                {editingCustomer ? "Edit Customer Profile" : "Register New Customer"}
+              </DialogTitle>
+            </div>
           </div>
-        </div>
-      )}
+          <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="space-y-3">
+              <div>
+                <label className="text-xs font-semibold text-[var(--muted-foreground)] mb-1 block">Full Name / Company Name *</label>
+                <input
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="e.g. Tech Enterprise"
+                  className="input-field w-full text-xs font-medium"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-[var(--muted-foreground)] mb-1 block">Phone Number</label>
+                  <input
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+232..."
+                    className="input-field w-full text-xs font-medium font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[var(--muted-foreground)] mb-1 block">Email Address</label>
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="client@company.com"
+                    className="input-field w-full text-xs font-medium"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-[var(--muted-foreground)] mb-1 block">Physical Address / Location</label>
+                <input
+                  value={formData.address}
+                  onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                  placeholder="Street, City, Zone..."
+                  className="input-field w-full text-xs font-medium"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 pt-4">
+              <button
+                type="button"
+                className="btn-secondary flex-1 py-2.5 text-xs font-semibold"
+                onClick={() => setIsDialogOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="btn-primary flex-1 py-2.5 text-xs font-semibold"
+              >
+                {editingCustomer ? "Update Customer" : "Save Customer"}
+              </button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmModal
         open={deleteModal.open}
