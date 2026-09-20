@@ -84,116 +84,135 @@ export default function InvoicesPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <ModuleHeader 
-        title="Invoices" 
-        description="Create and share professional invoices for your B2B customers and wholesale orders."
-        icon={FileText}
-      />
-
-      <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
-        <div className="flex flex-1 w-full sm:w-auto items-center gap-3">
-          <div className="relative w-full max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input 
-              placeholder="Search by invoice # or customer..." 
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-9 h-10 w-full rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50"
-            />
-          </div>
-          <Button variant="outline" size="icon" className="h-10 w-10 shrink-0 rounded-xl">
-             <Filter className="h-4 w-4 text-slate-600" />
-          </Button>
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto animate-in fade-in duration-500 pb-20">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="page-title text-2xl sm:text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
+            Invoices
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1">
+            Create and track professional B2B invoices and customer billing records
+          </p>
         </div>
-        
         <Link href="/dashboard/sales/invoices/new">
-          <Button className="w-full sm:w-auto h-10 px-6 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm">
-             <Plus className="h-4 w-4 mr-2" />
-             Create Invoice
-          </Button>
+          <button className="btn-primary flex items-center gap-2 text-xs font-semibold py-2.5 px-5">
+            <Plus size={15} /> Create Invoice
+          </button>
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-sm">
-        <Table>
-          <TableHeader className="bg-slate-50 dark:bg-slate-800/50">
-            <TableRow>
-              <TableHead className="font-semibold text-slate-900 dark:text-slate-100">Invoice</TableHead>
-              <TableHead className="font-semibold text-slate-900 dark:text-slate-100">Customer</TableHead>
-              <TableHead className="font-semibold text-slate-900 dark:text-slate-100">Date Issued</TableHead>
-              <TableHead className="font-semibold text-slate-900 dark:text-slate-100">Due Date</TableHead>
-              <TableHead className="font-semibold text-slate-900 dark:text-slate-100">Status</TableHead>
-              <TableHead className="text-right font-semibold text-slate-900 dark:text-slate-100">Amount</TableHead>
-              <TableHead className="text-right font-semibold text-slate-900 dark:text-slate-100">Balance Due</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="h-24 text-center">Loading invoices...</TableCell>
-              </TableRow>
-            ) : filteredInvoices.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="h-48 text-center">
-                  <div className="flex flex-col items-center justify-center">
-                    <FileText className="h-10 w-10 text-slate-300 mb-4" />
-                    <p className="text-slate-500 font-medium">No invoices found</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredInvoices.map((invoice) => (
-                <TableRow key={invoice.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
-                  <TableCell className="font-medium text-slate-900 dark:text-slate-100">
-                    <Link href={`/dashboard/sales/invoices/${invoice.id}`} className="hover:underline">
-                      {invoice.invoiceNumber}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {invoice.customer ? (
-                       <div className="font-medium text-slate-700 dark:text-slate-300">{invoice.customer.name}</div>
-                    ) : (
-                       <span className="text-slate-400 italic">Walk-in Customer</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-slate-500">{format(new Date(invoice.issueDate), 'MMM d, yyyy')}</TableCell>
-                  <TableCell className="text-slate-500">{format(new Date(invoice.dueDate), 'MMM d, yyyy')}</TableCell>
-                  <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                  <TableCell className="text-right font-bold text-slate-900 dark:text-white">
-                    Le {Number(invoice.totalAmount).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-right font-semibold text-rose-600">
-                    Le {Number(invoice.balanceDue).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <span className="sr-only">Open menu</span>
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-40 rounded-xl border-slate-200 dark:border-slate-800 shadow-xl">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                           <Link href={`/dashboard/sales/invoices/${invoice.id}`} className="cursor-pointer">
-                             <Eye className="mr-2 h-4 w-4" /> View Invoice
-                           </Link>
-                        </DropdownMenuItem>
-                         <DropdownMenuItem className="text-rose-600 focus:text-rose-700 focus:bg-rose-50 cursor-pointer" onClick={() => setDeleteModal({ open: true, id: invoice.id, invoiceNumber: invoice.invoiceNumber })}>
-                          <Trash className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      {/* Toolbar: Search */}
+      <div className="card p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="relative flex-1 w-full max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+          <input
+            placeholder="Search by invoice # or customer..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="input-field pl-10 w-full text-xs font-medium"
+          />
+        </div>
+      </div>
+
+      {/* Invoices Table */}
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Invoice</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Customer</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Date Issued</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Due Date</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Status</th>
+                <th className="text-right text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Amount</th>
+                <th className="text-right text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Balance Due</th>
+                <th className="w-10 px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-[var(--border)]">
+                    <td colSpan={8} className="px-4 py-6 text-center">
+                      <div className="h-4 bg-[var(--muted)] rounded animate-pulse w-1/3 mx-auto" />
+                    </td>
+                  </tr>
+                ))
+              ) : filteredInvoices.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-16 text-center text-[var(--muted-foreground)]">
+                    <FileText size={36} className="mx-auto mb-3 opacity-30" />
+                    <p className="font-semibold text-sm">No invoices found</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                      Create your first invoice to start tracking receivables.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredInvoices.map((invoice) => (
+                  <tr
+                    key={invoice.id}
+                    className="table-row-hover border-b border-[var(--border)] text-xs group"
+                  >
+                    <td className="px-4 py-3.5 font-mono font-bold text-[#2563EB]">
+                      <Link href={`/dashboard/sales/invoices/${invoice.id}`} className="hover:underline">
+                        {invoice.invoiceNumber}
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3.5 font-semibold text-[var(--foreground)]">
+                      {invoice.customer ? (
+                        invoice.customer.name
+                      ) : (
+                        <span className="text-[var(--muted-foreground)] italic">Walk-in Customer</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3.5 font-mono text-[var(--muted-foreground)]">
+                      {format(new Date(invoice.issueDate), "MMM d, yyyy")}
+                    </td>
+                    <td className="px-4 py-3.5 font-mono text-[var(--muted-foreground)]">
+                      {format(new Date(invoice.dueDate), "MMM d, yyyy")}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      {getStatusBadge(invoice.status)}
+                    </td>
+                    <td className="px-4 py-3.5 text-right font-mono font-extrabold text-sm text-[var(--foreground)]">
+                      Le {Number(invoice.totalAmount).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3.5 text-right font-mono font-bold text-sm text-[#EF4444]">
+                      Le {Number(invoice.balanceDue).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--muted-foreground)] hover:text-[#2563EB] hover:bg-[var(--muted)] transition-all">
+                            <MoreHorizontal size={16} />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40 rounded-xl border border-[var(--border)] shadow-xl bg-[var(--card)]">
+                          <DropdownMenuLabel className="text-[10px] font-bold uppercase tracking-wider text-[var(--muted-foreground)] px-2 py-1">Actions</DropdownMenuLabel>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem asChild>
+                            <Link href={`/dashboard/sales/invoices/${invoice.id}`} className="cursor-pointer text-xs font-medium flex items-center gap-2">
+                              <Eye size={14} /> View Invoice
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-rose-600 focus:text-rose-700 cursor-pointer text-xs font-medium flex items-center gap-2"
+                            onClick={() => setDeleteModal({ open: true, id: invoice.id, invoiceNumber: invoice.invoiceNumber })}
+                          >
+                            <Trash size={14} /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <ConfirmModal

@@ -226,102 +226,210 @@ export default function SalesHistoryPage() {
   ];
 
   return (
-    <div className="space-y-6 sm:space-y-8 animate-in fade-in duration-700 pb-20">
-      <EnterprisePageHeader
-        title={`${copy.titlePrefix} ${copy.titleHighlight}`}
-        subtitle={copy.subtitle}
-        badge={
-          <EnterpriseBadge variant="primary" size="sm">
-            <ShoppingCart className="h-3 w-3 mr-1" /> {copy.intelligence}
-          </EnterpriseBadge>
-        }
-        actions={
-          <div className="flex flex-col sm:flex-row gap-2.5 w-full xl:w-auto">
-            <Button variant="outline" className="h-11 px-5 rounded-2xl border-slate-200 dark:border-slate-800 gap-2 font-bold text-xs" onClick={handleExportCSV}>
-              <FileDown className="h-4 w-4 text-primary" /> Export CSV
-            </Button>
-            <Button className={cn("h-11 px-5 rounded-2xl text-white font-bold text-xs shadow-md", colors.primary)} onClick={handlePrint}>
-              <Printer className="h-4 w-4 mr-2" /> Print Report
-            </Button>
-          </div>
-        }
-      />
-
-      <Card className="border border-slate-200/80 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-4 sm:p-5 rounded-3xl shadow-sm">
-        <div className="flex flex-col md:flex-row gap-4 justify-between">
-            <div className="relative flex-1 group">
-               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-               <Input 
-                 placeholder={`Search ${isBar ? "tab or guest" : "invoice or customer"}...`} 
-                 className="h-12 pl-11 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50/80 dark:bg-slate-950/50 focus:bg-white transition-all font-bold text-xs"
-                 value={searchQuery}
-                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
-               />
-            </div>
-            <div className="flex gap-2">
-               <Select value={filterRange} onValueChange={(val: string | null) => setFilterRange(val ?? "TODAY")}>
-                 <SelectTrigger className="h-12 rounded-2xl w-full md:w-[220px] border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 font-bold text-xs text-slate-700 dark:text-slate-300 shadow-sm">
-                   <SelectValue />
-                 </SelectTrigger>
-                 <SelectContent className="rounded-2xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-2xl">
-                   {ranges.map((r: any) => <SelectItem key={r.value} value={r.value} className="font-bold py-2.5 text-xs">{r.label}</SelectItem>)}
-                 </SelectContent>
-               </Select>
-            </div>
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto animate-in fade-in duration-500 pb-20">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="page-title text-2xl sm:text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
+            {copy.titlePrefix} {copy.titleHighlight}
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1">
+            {copy.subtitle}
+          </p>
         </div>
-      </Card>
+        <div className="flex items-center gap-2.5 w-full sm:w-auto">
+          <button
+            onClick={handleExportCSV}
+            className="btn-secondary flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-semibold py-2.5 px-4"
+          >
+            <FileDown size={14} className="text-[#2563EB]" /> Export CSV
+          </button>
+          <button
+            onClick={handlePrint}
+            className="btn-primary flex-1 sm:flex-none flex items-center justify-center gap-2 text-xs font-semibold py-2.5 px-4"
+          >
+            <Printer size={14} /> Print Report
+          </button>
+        </div>
+      </div>
 
-      <ResponsiveTable 
-        data={filteredSales}
-        columns={columns}
-        loading={loading}
-        onRowClick={(sale) => {
-          setSelectedSale(sale);
-          setIsDetailsOpen(true);
-        }}
-        emptyState={
-          <EnterpriseEmptyState
-            title={copy.emptyState}
-            description="No transactions found for the selected time range. Try selecting a broader period or changing search keywords."
-            icon={Receipt}
+      {/* Toolbar: Search and Filter */}
+      <div className="card p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="relative flex-1 w-full">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+          <input
+            placeholder={`Search ${isBar ? "tab or guest" : "invoice or customer"}...`}
+            className="input-field pl-10 w-full text-xs font-medium"
+            value={searchQuery}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
           />
-        }
-      />
+        </div>
+        <div className="w-full sm:w-auto flex items-center gap-2">
+          <select
+            value={filterRange}
+            onChange={(e) => setFilterRange(e.target.value)}
+            className="h-10 px-3.5 rounded-lg border border-[var(--border)] bg-[var(--card)] text-xs font-semibold text-[var(--foreground)] outline-none focus:ring-2 focus:ring-[#2563EB]/20"
+          >
+            {ranges.map((r: any) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* Sales Table */}
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  {copy.idLabel}
+                </th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  Date / Time
+                </th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  {copy.customerLabel}
+                </th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  Items
+                </th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  Total Yield
+                </th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  Method
+                </th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="w-10 px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-[var(--border)]">
+                    <td colSpan={8} className="px-4 py-6 text-center">
+                      <div className="h-4 bg-[var(--muted)] rounded animate-pulse w-1/3 mx-auto" />
+                    </td>
+                  </tr>
+                ))
+              ) : filteredSales.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-16 text-center text-[var(--muted-foreground)]">
+                    <Receipt size={36} className="mx-auto mb-3 opacity-30" />
+                    <p className="font-semibold text-sm">{copy.emptyState}</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1">
+                      No transactions found for the selected period.
+                    </p>
+                  </td>
+                </tr>
+              ) : (
+                filteredSales.map((sale) => {
+                  const isPaid = sale.paymentStatus === "PAID";
+                  return (
+                    <tr
+                      key={sale.id}
+                      onClick={() => {
+                        setSelectedSale(sale);
+                        setIsDetailsOpen(true);
+                      }}
+                      className="table-row-hover border-b border-[var(--border)] cursor-pointer text-xs"
+                    >
+                      <td className="px-4 py-3.5 font-mono font-bold text-[#2563EB]">
+                        {sale.invoiceNumber}
+                        <div className="text-[10px] font-normal text-[var(--muted-foreground)] flex items-center gap-1 mt-0.5">
+                          <User size={10} /> {sale.userName}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 text-[var(--foreground)]">
+                        <div className="font-semibold">{format(new Date(sale.createdAt), "MMM dd, yyyy")}</div>
+                        <div className="text-[10px] font-mono text-[var(--muted-foreground)]">
+                          {format(new Date(sale.createdAt), "HH:mm")}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 font-semibold text-[var(--foreground)]">
+                        {sale.customerName}
+                        <div className="text-[10px] font-normal text-[var(--muted-foreground)]">
+                          {copy.customerSub}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3.5 font-mono text-[var(--foreground)]">
+                        {sale.items?.length ?? 0} item{(sale.items?.length ?? 0) !== 1 ? "s" : ""}
+                      </td>
+                      <td className="px-4 py-3.5 font-mono font-extrabold text-sm text-[var(--foreground)]">
+                        Le {Math.round(sale.totalAmount).toLocaleString()}
+                      </td>
+                      <td className="px-4 py-3.5 text-[var(--muted-foreground)]">
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-[var(--muted)] text-[10.5px] font-medium">
+                          {sale.paymentMethod === "CASH" ? <Wallet size={11} /> : <SmartphoneIcon size={11} />}
+                          {sale.paymentMethod}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span
+                          className="status-badge"
+                          style={{
+                            background: isPaid ? "#DCFCE7" : "#FEF3C7",
+                            color: isPaid ? "#15803D" : "#D97706",
+                          }}
+                        >
+                          {sale.paymentStatus}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3.5 text-right">
+                        <span className="p-1 rounded text-[var(--muted-foreground)] hover:text-[#2563EB] inline-block">
+                          <ChevronRight size={14} />
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* DETAIL VIEW MODAL */}
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
-        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-[3rem] border-none shadow-2xl p-0 overflow-hidden bg-white dark:bg-slate-950">
-           <div className="bg-slate-900 p-8 text-white relative overflow-hidden shrink-0">
+        <DialogContent className="sm:max-w-[550px] w-[95vw] rounded-2xl border border-[var(--border)] shadow-2xl p-0 overflow-hidden bg-[var(--card)]">
+           <div className="bg-[#0B1629] p-6 text-white relative overflow-hidden shrink-0">
               <div className="absolute top-0 right-0 p-4 opacity-10 rotate-12">
-                 <Receipt size={180} />
+                 <Receipt size={140} />
               </div>
               <div className="relative z-10 space-y-1">
-                 <div className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">{copy.modalIntel}</div>
-                 <h3 className="text-3xl font-[1000] tracking-tighter uppercase italic leading-none">{selectedSale?.invoiceNumber}</h3>
-                 <div className="flex items-center gap-3 pt-4">
-                    <div className={cn("px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest", 
-                       selectedSale?.paymentStatus === 'PAID' ? "bg-emerald-500 text-white" : "bg-amber-500 text-white")}>
+                 <div className="text-[10px] font-bold uppercase tracking-widest text-[#94A3B8]">{copy.modalIntel}</div>
+                 <h3 className="text-2xl font-extrabold tracking-tight font-display">{selectedSale?.invoiceNumber}</h3>
+                 <div className="flex items-center gap-3 pt-3">
+                    <span className="status-badge" style={{
+                       background: selectedSale?.paymentStatus === 'PAID' ? "#DCFCE7" : "#FEF3C7",
+                       color: selectedSale?.paymentStatus === 'PAID' ? "#15803D" : "#D97706"
+                    }}>
                        {selectedSale?.paymentStatus}
-                    </div>
-                    <div className="h-1 w-1 rounded-full bg-slate-700" />
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{selectedSale && format(new Date(selectedSale.createdAt), "PPP p")}</span>
+                    </span>
+                    <span className="text-xs text-[#94A3B8] font-mono">{selectedSale && format(new Date(selectedSale.createdAt), "PPP p")}</span>
                  </div>
               </div>
            </div>
 
-           <div className="p-8 space-y-8 bg-white dark:bg-slate-950 max-h-[60vh] overflow-y-auto custom-scrollbar">
-              <div className="space-y-4">
-                 <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100 dark:border-slate-800 pb-2">Line Item Breakdown</h4>
-                 <div className="space-y-4">
+           <div className="p-6 space-y-6 max-h-[60vh] overflow-y-auto custom-scrollbar">
+              <div className="space-y-3">
+                 <h4 className="text-[11px] font-bold text-[var(--muted-foreground)] uppercase tracking-wider border-b border-[var(--border)] pb-2">Line Item Breakdown</h4>
+                 <div className="space-y-3">
                     {selectedSale?.items.map((item: any, i: number) => (
-                       <div key={i} className="flex justify-between items-start group">
+                       <div key={i} className="flex justify-between items-start">
                           <div className="flex-1">
-                             <div className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight mb-1">{item.name}</div>
-                             <div className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">
+                             <div className="text-xs font-semibold text-[var(--foreground)]">{item.name}</div>
+                             <div className="text-[10px] text-[var(--muted-foreground)] font-mono">
                                 {item.quantity} x Le {Math.round(item.unitPrice).toLocaleString()}
                              </div>
                           </div>
-                          <div className="text-sm font-[1000] text-slate-900 dark:text-white tracking-tighter">
+                          <div className="text-xs font-mono font-bold text-[var(--foreground)]">
                              Le {Math.round(item.total).toLocaleString()}
                           </div>
                        </div>
@@ -329,27 +437,27 @@ export default function SalesHistoryPage() {
                  </div>
               </div>
 
-              <div className="pt-6 border-t border-slate-100 dark:border-slate-800 space-y-3">
-                 <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <div className="pt-4 border-t border-[var(--border)] space-y-2 text-xs">
+                 <div className="flex justify-between text-[var(--muted-foreground)]">
                     <span>Transaction Subtotal</span>
-                    <span className="text-slate-900 dark:text-white font-black">Le {Math.round(selectedSale?.totalAmount || 0).toLocaleString()}</span>
+                    <span className="text-[var(--foreground)] font-mono font-semibold">Le {Math.round(selectedSale?.totalAmount || 0).toLocaleString()}</span>
                  </div>
                  {Number(selectedSale?.tax) > 0 && (
-                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                   <div className="flex justify-between text-[var(--muted-foreground)]">
                       <span>Tax Amount</span>
-                      <span className="text-slate-900 dark:text-white">Le {Math.round(Number(selectedSale.tax)).toLocaleString()}</span>
+                      <span className="text-[var(--foreground)] font-mono">Le {Math.round(Number(selectedSale.tax)).toLocaleString()}</span>
                    </div>
                  )}
-                 <div className="h-px bg-slate-100 dark:bg-slate-800 w-full my-2" />
-                 <div className="flex justify-between items-end pt-2">
-                    <div className="space-y-1">
-                       <span className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em]">Final Settlement</span>
-                       <div className="text-4xl font-[1000] text-slate-900 dark:text-white tracking-tighter">Le {Math.round(selectedSale?.totalAmount).toLocaleString()}</div>
+                 <div className="h-px bg-[var(--border)] w-full my-2" />
+                 <div className="flex justify-between items-end pt-1">
+                    <div>
+                       <span className="text-[10px] font-bold text-[#2563EB] uppercase tracking-wider block">Final Settlement</span>
+                       <div className="text-2xl font-extrabold font-mono text-[var(--foreground)] tracking-tight">Le {Math.round(selectedSale?.totalAmount).toLocaleString()}</div>
                     </div>
-                    <div className="flex flex-col items-end gap-1">
-                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Method</span>
-                       <div className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
-                          {selectedSale?.paymentMethod === 'CASH' ? <Wallet size={12} className="text-blue-500" /> : <SmartphoneIcon size={12} className="text-emerald-500" />}
+                    <div className="text-right">
+                       <span className="text-[10px] font-medium text-[var(--muted-foreground)] block">Method</span>
+                       <div className="px-2.5 py-1 rounded bg-[var(--muted)] text-xs font-semibold text-[var(--foreground)] inline-flex items-center gap-1.5 mt-0.5">
+                          {selectedSale?.paymentMethod === 'CASH' ? <Wallet size={12} className="text-[#2563EB]" /> : <SmartphoneIcon size={12} className="text-[#10B981]" />}
                           {selectedSale?.paymentMethod}
                        </div>
                     </div>
@@ -357,13 +465,13 @@ export default function SalesHistoryPage() {
               </div>
            </div>
 
-           <div className="p-8 pt-0 flex gap-4 bg-white dark:bg-slate-950 relative z-10">
-              <Button variant="outline" className="flex-1 h-16 rounded-2xl font-black uppercase text-[10px] tracking-widest text-slate-400 border-slate-200 dark:border-slate-800 transition-all flex gap-2" onClick={handlePrint}>
-                 <Printer className="h-4 w-4" /> Print Copy
-              </Button>
-              <Button onClick={() => setIsDetailsOpen(false)} className="flex-1 h-16 rounded-2xl font-black uppercase text-[10px] tracking-widest bg-slate-900 text-white hover:bg-slate-800 shadow-xl transition-all">
+           <div className="p-6 pt-0 flex gap-3">
+              <button onClick={handlePrint} className="btn-secondary flex-1 flex items-center justify-center gap-2 text-xs font-semibold py-2.5">
+                 <Printer size={14} /> Print Copy
+              </button>
+              <button onClick={() => setIsDetailsOpen(false)} className="btn-primary flex-1 flex items-center justify-center gap-2 text-xs font-semibold py-2.5">
                  Close View
-              </Button>
+              </button>
            </div>
         </DialogContent>
       </Dialog>

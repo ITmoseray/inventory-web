@@ -101,113 +101,196 @@ export default function CreditSalesPage() {
     d.sale?.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const totalOutstanding = debts.reduce((sum, d) => sum + (Number(d.totalAmount) - Number(d.paidAmount)), 0);
+  const totalPaid = debts.reduce((sum, d) => sum + Number(d.paidAmount), 0);
+  const activeDebtors = debts.filter(d => d.status !== 'PAID').length;
+
   return (
-    <div className="space-y-8 p-6 md:p-10">
-      {/* ... header and stats cards remain the same ... */}
-      <CardContent className="p-0">
-         <div className="overflow-x-auto">
-            <Table>
-              <TableHeader className="bg-slate-50/50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
-                <TableRow className="hover:bg-transparent border-none">
-                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 px-8">Debtor Identity</TableHead>
-                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Total Liability</TableHead>
-                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Current Balance</TableHead>
-                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400">Cycle Status</TableHead>
-                  <TableHead className="h-14 font-black uppercase text-[10px] tracking-widest text-slate-400 text-right pr-8">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <TableRow key={i} className="border-b border-slate-50 dark:border-slate-800 h-20">
-                      <TableCell colSpan={5} className="text-center animate-pulse">
-                         <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-1/3 mx-auto" />
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : filteredDebts.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="h-64 text-center">
-                       <div className="space-y-4">
-                          <div className="h-16 w-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto">
-                             <Receipt className="h-8 w-8 text-slate-200" />
-                          </div>
-                          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-widest">Clear Ledger Detected</p>
-                       </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredDebts.map((debt) => (
-                    <TableRow key={debt.id} className="group hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800/50">
-                      <TableCell className="px-8 h-20">
-                        <div className="font-black text-slate-900 dark:text-white tracking-tight">{debt.customer?.name}</div>
-                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5 mt-0.5">
-                           <Receipt size={10} className="text-primary" /> {debt.sale?.invoiceNumber}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-xs font-black text-slate-600 dark:text-slate-400">Le {Math.round(debt.totalAmount).toLocaleString()}</div>
-                        <div className="text-[9px] font-medium text-slate-400 uppercase">Initialized {format(new Date(debt.createdAt), "MMM dd")}</div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-lg font-[1000] text-rose-600 tracking-tighter">Le {Math.round(debt.totalAmount - debt.paidAmount).toLocaleString()}</div>
-                        <div className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Le {Math.round(debt.paidAmount).toLocaleString()} Paid</div>
-                      </TableCell>
-                      <TableCell>
-                         <div className={cn("inline-flex items-center px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm", 
-                          debt.status === 'PAID' ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400")}>
-                          {debt.status}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right pr-8">
-                         <Button variant="ghost" size="sm" className="h-10 px-4 rounded-xl font-black uppercase text-[10px] tracking-widest text-slate-500 hover:bg-white hover:text-primary transition-all"
-                           onClick={() => {
-                              setSelectedDebt(debt);
-                              setPaymentAmount(debt.totalAmount - debt.paidAmount);
-                              setIsPaymentDialogOpen(true);
-                           }}
-                         >
-                            Settle Node <ChevronRight className="ml-2 h-3.5 w-3.5" />
-                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-         </div>
-      </CardContent>
+    <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto animate-in fade-in duration-500 pb-20">
+      {/* Top Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="page-title text-2xl sm:text-3xl font-extrabold text-[var(--foreground)] tracking-tight">
+            Credit Sales & Receivables
+          </h1>
+          <p className="text-xs sm:text-sm text-[var(--muted-foreground)] mt-1">
+            Track customer liabilities, credit balances, and debt recovery
+          </p>
+        </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">Total Outstanding</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#EF4444]/10 text-[#EF4444]">
+              <AlertCircle size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[#EF4444] tracking-tight">
+            Le {Math.round(totalOutstanding).toLocaleString()}
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">Total Collected</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#10B981]/10 text-[#10B981]">
+              <CheckCircle2 size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[#10B981] tracking-tight">
+            Le {Math.round(totalPaid).toLocaleString()}
+          </div>
+        </div>
+
+        <div className="kpi-card">
+          <div className="flex justify-between items-center mb-2.5">
+            <span className="text-xs text-[var(--muted-foreground)] font-medium">Active Debtors</span>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#F59E0B]/10 text-[#F59E0B]">
+              <User size={16} />
+            </div>
+          </div>
+          <div className="font-display text-2xl font-extrabold text-[var(--foreground)] tracking-tight">
+            {activeDebtors}
+          </div>
+        </div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="card p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="relative flex-1 w-full max-w-md">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+          <input
+            placeholder="Search debtor or invoice #..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="input-field pl-10 w-full text-xs font-medium"
+          />
+        </div>
+      </div>
+
+      {/* Debts Table */}
+      <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-[var(--muted)] border-b border-[var(--border)]">
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Debtor Identity</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Total Liability</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Current Balance</th>
+                <th className="text-left text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Cycle Status</th>
+                <th className="text-right text-[11px] font-bold text-[var(--muted-foreground)] px-4 py-3 uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="border-b border-[var(--border)]">
+                    <td colSpan={5} className="px-4 py-6 text-center">
+                      <div className="h-4 bg-[var(--muted)] rounded animate-pulse w-1/3 mx-auto" />
+                    </td>
+                  </tr>
+                ))
+              ) : filteredDebts.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center text-[var(--muted-foreground)]">
+                    <Receipt size={36} className="mx-auto mb-3 opacity-30" />
+                    <p className="font-semibold text-sm">Clear Ledger Detected</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1">No outstanding debt records found.</p>
+                  </td>
+                </tr>
+              ) : (
+                filteredDebts.map((debt) => (
+                  <tr key={debt.id} className="table-row-hover border-b border-[var(--border)] text-xs">
+                    <td className="px-4 py-3.5">
+                      <div className="font-semibold text-[var(--foreground)]">{debt.customer?.name}</div>
+                      <div className="text-[10px] font-mono text-[var(--muted-foreground)] flex items-center gap-1 mt-0.5">
+                        <Receipt size={10} className="text-[#2563EB]" /> {debt.sale?.invoiceNumber}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="font-mono font-semibold text-[var(--foreground)]">Le {Math.round(debt.totalAmount).toLocaleString()}</div>
+                      <div className="text-[10px] font-mono text-[var(--muted-foreground)]">{format(new Date(debt.createdAt), "MMM dd, yyyy")}</div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="font-mono font-extrabold text-sm text-[#EF4444]">
+                        Le {Math.round(debt.totalAmount - debt.paidAmount).toLocaleString()}
+                      </div>
+                      <div className="text-[10px] font-mono text-[#10B981] font-semibold">
+                        Le {Math.round(debt.paidAmount).toLocaleString()} Paid
+                      </div>
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <span
+                        className="status-badge"
+                        style={{
+                          background: debt.status === 'PAID' ? "#DCFCE7" : "#FEE2E2",
+                          color: debt.status === 'PAID' ? "#15803D" : "#DC2626",
+                        }}
+                      >
+                        {debt.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 text-right">
+                      {debt.status !== 'PAID' && (
+                        <button
+                          className="btn-secondary text-xs font-semibold py-1.5 px-3"
+                          onClick={() => {
+                            setSelectedDebt(debt);
+                            setPaymentAmount(debt.totalAmount - debt.paidAmount);
+                            setIsPaymentDialogOpen(true);
+                          }}
+                        >
+                          Settle <ChevronRight size={12} className="inline ml-1" />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
       {/* Payment Dialog */}
       <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
-        <DialogContent className="sm:max-w-md rounded-3xl p-8 bg-white dark:bg-slate-950 border-none">
+        <DialogContent className="sm:max-w-md rounded-2xl p-6 bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)]">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-black dark:text-white">Settle Node</DialogTitle>
-            <DialogDescription className="text-slate-450 dark:text-slate-400 font-bold text-sm">Recording payment for {selectedDebt?.customer?.name}</DialogDescription>
+            <DialogTitle className="text-xl font-extrabold font-display">Record Settlement</DialogTitle>
+            <DialogDescription className="text-xs text-[var(--muted-foreground)]">
+              Recording payment for {selectedDebt?.customer?.name}
+            </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-750 dark:text-slate-300">Payment Amount (Le)</Label>
-              <Input 
-                type="number" 
+          <div className="space-y-4 py-3">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[var(--muted-foreground)] block">Payment Amount (Le)</label>
+              <input
+                type="number"
                 value={paymentAmount}
                 onChange={(e) => setPaymentAmount(parseFloat(e.target.value) || 0)}
-                className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                className="input-field w-full text-xs font-mono font-bold"
               />
             </div>
-            <div className="space-y-2">
-              <Label className="font-bold text-slate-750 dark:text-slate-300">Payment Note</Label>
-              <Input 
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-[var(--muted-foreground)] block">Payment Note</label>
+              <input
                 value={paymentNote}
                 onChange={(e) => setPaymentNote(e.target.value)}
-                className="h-12 rounded-xl border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
-                placeholder="Optional payment note..."
+                className="input-field w-full text-xs"
+                placeholder="Optional note..."
               />
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="ghost" className="font-bold text-slate-400" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
-            <Button className="rounded-xl px-8 h-12 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-black" onClick={handlePayment}>Confirm Payment</Button>
+            <button className="btn-secondary py-2 px-4 text-xs font-semibold" onClick={() => setIsPaymentDialogOpen(false)}>
+              Cancel
+            </button>
+            <button className="btn-primary py-2 px-4 text-xs font-semibold" onClick={handlePayment}>
+              Confirm Payment
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
