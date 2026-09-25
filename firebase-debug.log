@@ -1,29 +1,22 @@
-[debug] [2026-07-13T22:14:19.746Z] ----------------------------------------------------------------------
-[debug] [2026-07-13T22:14:19.755Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js login --reauth
-[debug] [2026-07-13T22:14:19.757Z] CLI Version:   15.22.3
-[debug] [2026-07-13T22:14:19.757Z] Platform:      win32
-[debug] [2026-07-13T22:14:19.757Z] Node Version:  v24.12.0
-[debug] [2026-07-13T22:14:19.758Z] Detected Agent: unknown
-[debug] [2026-07-13T22:14:19.759Z] Time:          Mon Jul 13 2026 22:14:19 GMT+0000 (Greenwich Mean Time)
-[debug] [2026-07-13T22:14:19.759Z] ----------------------------------------------------------------------
+[debug] [2026-09-25T18:47:38.297Z] ----------------------------------------------------------------------
+[debug] [2026-09-25T18:47:38.299Z] Command:       C:\Program Files\nodejs\node.exe C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\bin\firebase.js apphosting:backends:list --project protech-website-38a37 --debug
+[debug] [2026-09-25T18:47:38.299Z] CLI Version:   15.22.3
+[debug] [2026-09-25T18:47:38.299Z] Platform:      win32
+[debug] [2026-09-25T18:47:38.300Z] Node Version:  v24.12.0
+[debug] [2026-09-25T18:47:38.300Z] Detected Agent: antigravity
+[debug] [2026-09-25T18:47:38.300Z] Time:          Fri Sep 25 2026 18:47:38 GMT+0000 (Greenwich Mean Time)
+[debug] [2026-09-25T18:47:38.300Z] ----------------------------------------------------------------------
 [debug] 
-[debug] [2026-07-13T22:14:19.763Z] >>> [apiv2][query] GET https://firebase-public.firebaseio.com/cli.json [none]
-[info] 
-[info] Visit this URL on this device to log in:
-[info] https://accounts.google.com/o/oauth2/auth?client_id=563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com&scope=email%20openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloudplatformprojects.readonly%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Ffirebase%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fcloud-platform&response_type=code&state=408307070&redirect_uri=http%3A%2F%2Flocalhost%3A9005&login_hint=strangesteven001%40gmail.com
-[info] 
-[info] Waiting for authentication...
-[debug] [2026-07-13T22:14:21.281Z] <<< [apiv2][status] GET https://firebase-public.firebaseio.com/cli.json 200
-[debug] [2026-07-13T22:14:21.281Z] <<< [apiv2][body] GET https://firebase-public.firebaseio.com/cli.json {"cloudBuildErrorAfter":1594252800000,"cloudBuildWarnAfter":1590019200000,"defaultNode10After":1594252800000,"minVersion":"3.0.5","node8DeploysDisabledAfter":1613390400000,"node8RuntimeDisabledAfter":1615809600000,"node8WarnAfter":1600128000000}
-[debug] [2026-07-13T22:14:34.880Z] >>> [apiv2][query] POST https://accounts.google.com/o/oauth2/token [none]
-[debug] [2026-07-13T22:14:34.880Z] >>> [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
-[debug] [2026-07-13T22:14:36.749Z] <<< [apiv2][status] POST https://accounts.google.com/o/oauth2/token 200
-[debug] [2026-07-13T22:14:36.750Z] <<< [apiv2][body] POST https://accounts.google.com/o/oauth2/token [omitted]
-[info] 
-[info] +  Success! Logged in as strangesteven001@gmail.com 
-[debug] [2026-07-13T22:14:44.294Z] Error: Timed out.
-    at Timeout._onTimeout (C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\utils.js:313:49)
-    at listOnTimeout (node:internal/timers:605:17)
-    at process.processTimers (node:internal/timers:541:7)
+[debug] [2026-09-25T18:47:38.316Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-09-25T18:47:38.317Z] > authorizing via signed-in user (strangesteven001@gmail.com)
+[debug] [2026-09-25T18:47:38.321Z] Checked if tokens are valid: true, expires at: 1790363913128
+[debug] [2026-09-25T18:47:38.321Z] Checked if tokens are valid: true, expires at: 1790363913128
+[debug] [2026-09-25T18:47:38.324Z] >>> [apiv2][query] GET https://firebaseapphosting.googleapis.com/v1beta/projects/protech-website-38a37/locations/-/backends 
+[debug] [2026-09-25T18:47:38.939Z] <<< [apiv2][status] GET https://firebaseapphosting.googleapis.com/v1beta/projects/protech-website-38a37/locations/-/backends 403
+[debug] [2026-09-25T18:47:38.939Z] <<< [apiv2][body] GET https://firebaseapphosting.googleapis.com/v1beta/projects/protech-website-38a37/locations/-/backends {"error":{"code":403,"message":"Firebase App Hosting API has not been used in project protech-website-38a37 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/firebaseapphosting.googleapis.com/overview?project=protech-website-38a37 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.","status":"PERMISSION_DENIED","details":[{"@type":"type.googleapis.com/google.rpc.ErrorInfo","reason":"SERVICE_DISABLED","domain":"googleapis.com","metadata":{"consumer":"projects/protech-website-38a37","service":"firebaseapphosting.googleapis.com","activationUrl":"https://console.developers.google.com/apis/api/firebaseapphosting.googleapis.com/overview?project=protech-website-38a37","containerInfo":"protech-website-38a37","serviceTitle":"Firebase App Hosting API"}},{"@type":"type.googleapis.com/google.rpc.LocalizedMessage","locale":"en-US","message":"Firebase App Hosting API has not been used in project protech-website-38a37 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/firebaseapphosting.googleapis.com/overview?project=protech-website-38a37 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry."},{"@type":"type.googleapis.com/google.rpc.Help","links":[{"description":"Google developers console API activation","url":"https://console.developers.google.com/apis/api/firebaseapphosting.googleapis.com/overview?project=protech-website-38a37"}]}]}}
+[debug] [2026-09-25T18:47:39.541Z] FirebaseError: Request to https://firebaseapphosting.googleapis.com/v1beta/projects/protech-website-38a37/locations/-/backends had HTTP Error: 403, Firebase App Hosting API has not been used in project protech-website-38a37 before or it is disabled. Enable it by visiting https://console.developers.google.com/apis/api/firebaseapphosting.googleapis.com/overview?project=protech-website-38a37 then retry. If you enabled this API recently, wait a few minutes for the action to propagate to our systems and retry.
+    at responseToError (C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\responseToError.js:53:12)
+    at RetryOperation._fn (C:\Users\ProTech\AppData\Roaming\npm\node_modules\firebase-tools\lib\apiv2.js:381:77)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
 [error] 
-[error] Error: An unexpected error has occurred.
+[error] Error: Unable to list backends present for project: protech-website-38a37. Please check the parameters you have provided.
