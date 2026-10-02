@@ -3,6 +3,8 @@
 import { getTenantPrisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { recordAffiliateConversion } from "@/lib/actions/affiliate-tracking";
+
 
 async function getTenantContext() {
   const session = await auth();
@@ -123,6 +125,31 @@ export async function recordPayment(invoiceId: string, data: { amount: number; p
       where: { id: invoiceId },
       data: { status: "PAID", balanceDue: 0 },
     });
+
+    // ─── Affiliate Conversion Tracking ────────────────────────────────────────
+    // When an invoice is fully paid, check if the business was referred by an
+    // affiliate. If so, record a commission for that affiliate.
+    try {
+      const business = await prisma.business.findUnique({
+        where: { id: businessId },
+        select: { affiliateRef: true, affiliateClickId: true, id: true },
+      });
+      if ((business as any)?.affiliateRef) {
+        await recordAffiliateConversion({
+          referralCode: (business as any).affiliateRef,
+          clickId: (business as any).affiliateClickId || undefined,
+          orderId: invoiceId,
+          orderAmount: Number(invoice.totalAmount?.toString() || 0),
+          orderType: "SUBSCRIPTION",
+          productSlug: "enterprise-os",
+          customerId: businessId,
+        });
+      }
+    } catch (err) {
+      // Non-fatal — log but don't break the payment flow
+      console.error("[Affiliate] Invoice conversion recording failed:", err);
+    }
+    // ─────────────────────────────────────────────────────────────────────────
   } else if (invoice) {
     await prisma.invoice.update({
       where: { id: invoiceId },

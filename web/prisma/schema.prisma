@@ -33,6 +33,8 @@ model Business {
   referralSource          String?
   customReferralSource    String?
   flutterwaveRef          String?
+  affiliateRef            String?   // PA-AFF-XXXXX code of referring affiliate
+  affiliateClickId        String?   // pa_click_id for conversion attribution
   subscriptionStatus      String                   @default("INACTIVE")
   requestedBillingPeriod  String                   @default("monthly")
   attendance              Attendance[]
