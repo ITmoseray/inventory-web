@@ -28,7 +28,16 @@ export default auth((req) => {
   }
 
   // 3. Handle Protected Routes
-  const protectedRoutes = ["/dashboard", "/super-admin", "/setup-organization"];
+  const protectedRoutes = [
+    "/dashboard", 
+    "/super-admin", 
+    "/setup-organization",
+    "/affiliate/dashboard",
+    "/affiliate/links",
+    "/affiliate/marketing",
+    "/affiliate/commissions",
+    "/affiliate/payouts"
+  ];
   const isProtectedRoute = protectedRoutes.some(r => path.startsWith(r));
 
   if (!session && isProtectedRoute) {
@@ -40,6 +49,13 @@ export default auth((req) => {
   if (session) {
     if (path.startsWith('/super-admin') && role !== 'SUPERADMIN') {
       return injectCORS(NextResponse.redirect(new URL('/access-denied', req.url)));
+    }
+
+    if (role === 'AFFILIATE') {
+      if (path.startsWith('/dashboard') || path.startsWith('/setup-organization')) {
+        return injectCORS(NextResponse.redirect(new URL('/affiliate/dashboard', req.url)));
+      }
+      return injectCORS(NextResponse.next());
     }
 
     const isSuperAdminImpersonating = session.user?.originalRole === 'SUPERADMIN';

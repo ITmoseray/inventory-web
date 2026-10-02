@@ -84,7 +84,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               },
               include: { 
                 business: true,
-                role: { include: { permissions: true } }
+                role: { include: { permissions: true } },
+                affiliate: true
               }
             });
             
@@ -140,8 +141,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               trialEndDate: user.business?.trialEndDate || null,
               plan: user.business?.plan || "STANDALONE_STORE",
               subscriptionEndDate: (user.business as any)?.subscriptionEndDate || null,
-              role: user.role?.name || "STORE_OWNER",
-              permissions: user.role?.permissions?.map(p => p.key) || ["VIEW_STORE_BUILDER"],
+              role: user.role?.name || (user.affiliate ? "AFFILIATE" : "STORE_OWNER"),
+              permissions: user.role?.permissions?.map(p => p.key) || (user.affiliate ? ["AFFILIATE_PORTAL"] : ["VIEW_STORE_BUILDER"]),
               emailVerified: user.emailVerified,
             };
           } catch (error) {
@@ -415,21 +416,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           if (orConditions.length > 0) {
             const dbUser = await prisma.user.findFirst({
               where: { OR: orConditions },
-              include: { role: { include: { permissions: true } }, business: true }
+              include: { role: { include: { permissions: true } }, business: true, affiliate: true }
             });
             
             if (dbUser) {
               token.sub = dbUser.id;
-              token.role = dbUser.role.name;
-              token.permissions = dbUser.role.permissions.map(p => p.key);
-              token.businessType = dbUser.business.type;
-              token.businessManagementMode = (dbUser.business as any).businessManagementMode || "FULL_INVENTORY";
-              token.institutionType = dbUser.business.institutionType;
-              token.businessName = dbUser.business.name;
+              token.role = dbUser.role?.name || (dbUser.affiliate ? "AFFILIATE" : "STORE_OWNER");
+              token.permissions = dbUser.role?.permissions?.map(p => p.key) || (dbUser.affiliate ? ["AFFILIATE_PORTAL"] : []);
+              token.businessType = dbUser.business?.type;
+              token.businessManagementMode = (dbUser.business as any)?.businessManagementMode || "FULL_INVENTORY";
+              token.institutionType = dbUser.business?.institutionType;
+              token.businessName = dbUser.business?.name;
               token.businessId = dbUser.businessId;
-              token.trialEndDate = dbUser.business.trialEndDate;
-              token.plan = dbUser.business.plan;
-              token.subscriptionEndDate = (dbUser.business as any).subscriptionEndDate || null;
+              token.trialEndDate = dbUser.business?.trialEndDate;
+              token.plan = dbUser.business?.plan;
+              token.subscriptionEndDate = (dbUser.business as any)?.subscriptionEndDate || null;
               token.picture = dbUser.imageUrl;
             } else {
               console.error(`SERVER AUTH: DB User not found for sub: ${token.sub}, email: ${token.email}`);
