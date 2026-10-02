@@ -7,7 +7,7 @@ import {
   ShieldCheck, Globe, Zap, Database, Server, Terminal, 
   LogOut, Activity, MessageSquare, AlertTriangle, Cpu, Crown,
   BarChart3, Users, Briefcase, RefreshCw, Send, Download, Trash2, Shield,
-  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star, FileSignature, Store
+  Search, KeyRound, Settings, Megaphone, FileText, Eye, Copy, Building2, Mail, RotateCcw, Upload, ClipboardCheck, Star, FileSignature, Store, Share2
 } from "lucide-react";
 import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 import { Button } from "@/components/ui/button";
@@ -858,6 +858,11 @@ export default function NexusSuperControl() {
                      <Store className="h-4 w-4 text-emerald-500" /> AI Storefronts Hub
                   </Button>
                </Link>
+                <Link href="/super-admin/affiliates" className="w-full sm:w-auto">
+                   <Button variant="outline" className="w-full sm:w-auto h-10 px-4 rounded-xl font-black text-[10px] uppercase tracking-widest gap-2 shadow-sm text-teal-600 dark:text-teal-400 border-teal-500/30 hover:bg-teal-500/10">
+                      <Share2 className="h-4 w-4 text-teal-500" /> Affiliate &amp; Referral Platform
+                   </Button>
+                </Link>
              </div>
 
             {/* Real-time Online Presence Indicators */}
