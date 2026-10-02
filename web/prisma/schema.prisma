@@ -165,6 +165,7 @@ model User {
   chatMessages            ChatMessage[]
   staffAgreements         StaffAgreement[]
   simpleDailyEntries      SimpleDailyEntry[]
+  affiliate               Affiliate?
 
   @@index([businessId])
   @@index([roleId])
@@ -2303,4 +2304,280 @@ model StoreTemplate {
   @@index([style])
   @@index([status])
 }
+
+// =================================================================
+// PROTECH ASSIST AFFILIATE & REFERRAL MARKETING PLATFORM
+// =================================================================
+
+enum AffiliateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum CommissionType {
+  PERCENTAGE
+  FIXED
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PAID
+  CANCELLED
+  REVERSED
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+enum PayoutMethod {
+  ORANGE_MONEY
+  AFRIMONEY
+  BANK_TRANSFER
+  CASH
+}
+
+enum AttributionModel {
+  FIRST_TOUCH
+  LAST_TOUCH
+}
+
+model Affiliate {
+  id                      String                  @id @default(cuid())
+  userId                  String                  @unique
+  affiliateCode           String                  @unique // e.g. PA-AFF-00001
+  status                  AffiliateStatus         @default(PENDING)
+  
+  // Contact & Demographics
+  fullName                String
+  email                   String
+  phone                   String
+  whatsappPhone           String?
+  country                 String                  @default("Sierra Leone")
+  city                    String?
+  
+  // Marketing Experience & Channels
+  marketingChannels       String[]                @default([])
+  websiteOrSocial         String?
+  preferredMethod         String?
+  experienceLevel         String?
+  notes                   String?                 @db.Text
+  rejectionReason         String?
+  
+  // Payment Details Setup
+  payoutMethod            PayoutMethod?
+  mobileMoneyNumber       String?                 // Orange Money / Afrimoney number
+  mobileMoneyName         String?
+  bankName                String?
+  bankAccountNumber       String?
+  bankAccountName         String?
+  bankSwiftOrBranch       String?
+  
+  // Override Commission Rate (Optional)
+  commissionRateOverride  Decimal?                @db.Decimal(5, 2)
+  
+  // Agreement
+  agreedToTerms           Boolean                 @default(true)
+  agreedAt                DateTime                @default(now())
+  
+  // Audit & Timestamps
+  approvedAt              DateTime?
+  approvedBy              String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+
+  user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  links                   AffiliateLink[]
+  clicks                  AffiliateClick[]
+  conversions             AffiliateConversion[]
+  commissions             Commission[]
+  payouts                 Payout[]
+
+  @@index([affiliateCode])
+  @@index([status])
+  @@index([email])
+}
+
+model AffiliateLink {
+  id                String            @id @default(cuid())
+  affiliateId       String
+  code              String            @unique // slug or specific campaign code
+  targetUrl         String            // e.g. /pricing, /courses/full-stack, /register
+  productSlug       String?           // e.g. "enterprise-os", "full-stack-dev"
+  title             String?           // e.g. "Campaign for Facebook"
+  clicksCount       Int               @default(0)
+  conversionsCount  Int               @default(0)
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  affiliate         Affiliate         @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  clicks            AffiliateClick[]
+
+  @@index([affiliateId])
+  @@index([code])
+}
+
+model AffiliateClick {
+  id              String                @id @default(cuid())
+  affiliateId     String
+  linkId          String?
+  ipHash          String?               // SHA256 hashed IP for privacy/anti-fraud
+  userAgent       String?               @db.Text
+  referrer        String?
+  landingPage     String
+  visitorId       String                // Cookie or session GUID
+  createdAt       DateTime              @default(now())
+
+  affiliate       Affiliate             @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  link            AffiliateLink?        @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  conversions     AffiliateConversion[]
+
+  @@index([affiliateId])
+  @@index([visitorId])
+  @@index([createdAt])
+}
+
+model AffiliateConversion {
+  id                  String            @id @default(cuid())
+  affiliateId         String
+  clickId             String?
+  visitorId           String?
+  customerEmail       String?
+  customerName        String?
+  customerUserId      String?           // If registered user
+  businessId          String?           // If Enterprise OS tenant created
+  
+  // Transaction Reference
+  orderType           String            // "SUBSCRIPTION", "COURSE", "SERVICE", "ENTERPRISE_OS"
+  orderId             String?           // Reference to invoice/payment/subscription
+  orderAmount         Decimal           @db.Decimal(12, 2)
+  currency            String            @default("NLe")
+  
+  status              CommissionStatus  @default(PENDING)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  affiliate           Affiliate         @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  click               AffiliateClick?   @relation(fields: [clickId], references: [id], onDelete: SetNull)
+  commission          Commission?
+
+  @@index([affiliateId])
+  @@index([customerEmail])
+  @@index([orderId])
+  @@index([businessId])
+}
+
+model Commission {
+  id                  String              @id @default(cuid())
+  affiliateId         String
+  conversionId        String              @unique
+  payoutId            String?
+  
+  amount              Decimal             @db.Decimal(12, 2) // In NLe
+  currency            String              @default("NLe")
+  rateType            CommissionType      @default(PERCENTAGE)
+  rateApplied         Decimal             @db.Decimal(5, 2) // e.g. 10.00 (%) or fixed amount
+  
+  status              CommissionStatus    @default(PENDING)
+  notes               String?             @db.Text
+  approvedAt          DateTime?
+  approvedBy          String?
+  paidAt              DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  affiliate           Affiliate           @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  conversion          AffiliateConversion @relation(fields: [conversionId], references: [id], onDelete: Cascade)
+  payout              Payout?             @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+
+  @@index([affiliateId])
+  @@index([status])
+  @@index([payoutId])
+}
+
+model CommissionRule {
+  id                  String          @id @default(cuid())
+  productSlug         String          @unique // "default", "enterprise-os", "web-dev", "training-fullstack", etc.
+  productName         String
+  category            String?         // "SOFTWARE", "TRAINING", "SERVICE"
+  type                CommissionType  @default(PERCENTAGE)
+  rate                Decimal         @db.Decimal(10, 2) // e.g. 10 (%) or 100 (NLe fixed)
+  currency            String          @default("NLe")
+  isActive            Boolean         @default(true)
+  description         String?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([productSlug])
+  @@index([isActive])
+}
+
+model Payout {
+  id                  String          @id @default(cuid())
+  affiliateId         String
+  amount              Decimal         @db.Decimal(12, 2)
+  currency            String          @default("NLe")
+  method              PayoutMethod
+  
+  // Destination snapshot
+  accountDetails      Json            // Snapshot of phone/bank info at time of payout
+  
+  status              PayoutStatus    @default(PENDING)
+  transactionRef      String?         // Mobile money or bank confirmation reference
+  proofReceiptUrl     String?
+  notes               String?         @db.Text
+  processedBy         String?         // Super Admin user ID
+  processedAt         DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  affiliate           Affiliate       @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  commissions         Commission[]
+
+  @@index([affiliateId])
+  @@index([status])
+}
+
+model AffiliateMarketingMaterial {
+  id              String      @id @default(cuid())
+  title           String
+  category        String      // "BANNERS", "FLYERS", "SOCIAL_MEDIA", "SCRIPTS", "DOCS"
+  productSlug     String?     // Associated product if specific
+  description     String?     @db.Text
+  fileUrl         String?     // Image/PDF download URL
+  fileType        String?     // "IMAGE", "PDF", "ZIP", "TEXT"
+  textContent     String?     @db.Text // WhatsApp scripts or promotional copy
+  dimensions      String?     // e.g. "1080x1080", "1200x630"
+  downloadCount   Int         @default(0)
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([category])
+  @@index([productSlug])
+}
+
+model AffiliateSettings {
+  id                      String            @id @default("global")
+  attributionWindowDays   Int               @default(30)
+  defaultCommissionType   CommissionType    @default(PERCENTAGE)
+  defaultCommissionRate   Decimal           @default(10.00) @db.Decimal(5, 2)
+  minPayoutThreshold      Decimal           @default(100.00) @db.Decimal(10, 2)
+  attributionModel        AttributionModel  @default(LAST_TOUCH)
+  allowSelfReferrals      Boolean           @default(false)
+  requireApproval         Boolean           @default(true)
+  payoutTermsDays         Int               @default(14) // Grace/refund holding period
+  termsContent            String?           @db.Text
+  updatedAt               DateTime          @updatedAt
+}
+
 
