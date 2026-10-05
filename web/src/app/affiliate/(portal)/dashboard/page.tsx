@@ -113,16 +113,16 @@ export default function AffiliateDashboardPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Link
               href="/affiliate/links"
-              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-xs font-semibold text-slate-200 border border-slate-700 transition flex items-center gap-1.5"
+              className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-slate-800 hover:bg-slate-750 text-xs font-semibold text-slate-200 border border-slate-700 transition flex items-center gap-1.5"
             >
               Custom Links <ExternalLink className="w-3.5 h-3.5" />
             </Link>
             <Link
               href="/affiliate/marketing"
-              className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white shadow-md shadow-emerald-950 transition flex items-center gap-1.5"
+              className="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white shadow-md shadow-emerald-950 transition flex items-center gap-1.5"
             >
               Marketing Resources <ArrowRight className="w-3.5 h-3.5" />
             </Link>
@@ -131,26 +131,47 @@ export default function AffiliateDashboardPage() {
 
         {/* Big Link Box */}
         <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-          <div className="space-y-1 overflow-hidden">
-            <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-              Your Primary Referral Link
-            </span>
-            <div className="font-mono text-sm sm:text-base font-bold text-emerald-400 truncate select-all">
-              {referralUrl}
+          <div className="space-y-1 overflow-hidden min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                Your Primary Referral Link
+              </span>
+              <span className="text-[10px] text-emerald-400/80 font-mono hidden sm:inline">
+                Tap to open in new tab
+              </span>
             </div>
+            <a
+              href={referralUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-mono text-xs sm:text-base font-bold text-emerald-400 hover:text-emerald-300 hover:underline flex items-center gap-1.5 truncate group"
+              title="Click to visit your referral link"
+            >
+              <span className="truncate">{referralUrl}</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0 opacity-70 group-hover:opacity-100" />
+            </a>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 shrink-0">
             <button
               onClick={copyToClipboard}
-              className="flex-1 md:flex-none px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center justify-center gap-2 shadow-md shadow-emerald-950"
+              className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950"
             >
               {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
               {copied ? "Copied Link!" : "Copy Link"}
             </button>
+            <a
+              href={referralUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              Test Link
+            </a>
             <button
               onClick={shareOnWhatsApp}
-              className="px-4 py-2.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-semibold text-xs transition flex items-center gap-2"
+              className="flex-1 sm:flex-none px-3.5 sm:px-4 py-2.5 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-semibold text-xs transition flex items-center justify-center gap-1.5"
             >
               <Share2 className="w-4 h-4" />
               WhatsApp
@@ -160,9 +181,9 @@ export default function AffiliateDashboardPage() {
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {/* Total Clicks */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-2">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 space-y-2">
           <div className="flex items-center justify-between text-slate-400">
             <span className="text-xs font-medium">Total Link Clicks</span>
             <MousePointerClick className="w-4 h-4 text-emerald-400" />

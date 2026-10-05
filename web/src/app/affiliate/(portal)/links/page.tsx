@@ -197,73 +197,172 @@ export default function AffiliateLinksPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
-                <tr>
-                  <th className="py-3 px-4">Campaign & Target</th>
-                  <th className="py-3 px-4">Tracking URL</th>
-                  <th className="py-3 px-4 text-center">Clicks</th>
-                  <th className="py-3 px-4 text-center">Conversions</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {links.map((l) => {
-                  const fullUrl = `${baseUrl}/ref/${l.code}`;
-                  const isCopied = copiedId === l.id;
+        ) : (
+          <div>
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {links.map((l) => {
+                const fullUrl = `${baseUrl}/ref/${l.code}`;
+                const isCopied = copiedId === l.id;
 
-                  return (
-                    <tr key={l.id} className="hover:bg-slate-800/40 transition">
-                      <td className="py-3.5 px-4 space-y-0.5">
-                        <div className="font-bold text-white text-xs">{l.title || "Referral Link"}</div>
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                return (
+                  <div
+                    key={l.id}
+                    className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="space-y-1 min-w-0">
+                        <h4 className="font-bold text-white text-xs truncate">
+                          {l.title || "Referral Link"}
+                        </h4>
+                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
                           <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-emerald-400 font-mono text-[10px]">
                             {l.productSlug || "all"}
                           </span>
-                          <span>&bull;</span>
-                          <span>{l.targetUrl}</span>
+                          <span className="truncate max-w-[160px] text-slate-500">
+                            {l.targetUrl}
+                          </span>
                         </div>
-                      </td>
+                      </div>
 
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-300 select-all max-w-xs truncate">
-                        {fullUrl}
-                      </td>
-
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950 text-slate-200 font-semibold border border-slate-800">
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-slate-300 text-[10px] font-semibold border border-slate-800">
                           <MousePointerClick className="w-3 h-3 text-emerald-400" /> {l.clicksCount}
                         </span>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950 text-emerald-400 font-semibold border border-emerald-950">
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-emerald-400 text-[10px] font-semibold border border-emerald-950">
                           <Users className="w-3 h-3 text-emerald-400" /> {l.conversionsCount}
                         </span>
-                      </td>
+                      </div>
+                    </div>
 
-                      <td className="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
-                        <button
-                          onClick={() => copyLink(l.code, l.id)}
-                          className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] transition inline-flex items-center gap-1"
-                        >
-                          {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                          {isCopied ? "Copied" : "Copy"}
-                        </button>
+                    <a
+                      href={fullUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block font-mono text-[11px] text-emerald-400 hover:underline truncate bg-slate-900/60 p-2 rounded-lg border border-slate-800/80"
+                      title="Tap to open link"
+                    >
+                      {fullUrl}
+                    </a>
 
-                        <button
-                          onClick={() => shareWhatsApp(l.code, l.title)}
-                          className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 transition inline-flex items-center gap-1"
-                          title="Share on WhatsApp"
-                        >
-                          <Share2 className="w-3 h-3" />
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                    <div className="flex items-center gap-2 pt-1">
+                      <button
+                        onClick={() => copyLink(l.code, l.id)}
+                        className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950"
+                      >
+                        {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {isCopied ? "Copied" : "Copy"}
+                      </button>
+                      <a
+                        href={fullUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                        Test Link
+                      </a>
+                      <button
+                        onClick={() => shareWhatsApp(l.code, l.title)}
+                        className="py-2 px-3 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-semibold text-xs transition flex items-center justify-center gap-1"
+                        title="Share on WhatsApp"
+                      >
+                        <Share2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-4">Campaign & Target</th>
+                    <th className="py-3 px-4">Tracking URL</th>
+                    <th className="py-3 px-4 text-center">Clicks</th>
+                    <th className="py-3 px-4 text-center">Conversions</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {links.map((l) => {
+                    const fullUrl = `${baseUrl}/ref/${l.code}`;
+                    const isCopied = copiedId === l.id;
+
+                    return (
+                      <tr key={l.id} className="hover:bg-slate-800/40 transition">
+                        <td className="py-3.5 px-4 space-y-0.5">
+                          <div className="font-bold text-white text-xs">{l.title || "Referral Link"}</div>
+                          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-emerald-400 font-mono text-[10px]">
+                              {l.productSlug || "all"}
+                            </span>
+                            <span>&bull;</span>
+                            <span>{l.targetUrl}</span>
+                          </div>
+                        </td>
+
+                        <td className="py-3.5 px-4 font-mono text-[11px] text-slate-300 max-w-xs">
+                          <a
+                            href={fullUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-emerald-400 hover:underline flex items-center gap-1 truncate"
+                            title="Click to visit link"
+                          >
+                            <span className="truncate">{fullUrl}</span>
+                            <ExternalLink className="w-3 h-3 shrink-0 opacity-70" />
+                          </a>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950 text-slate-200 font-semibold border border-slate-800">
+                            <MousePointerClick className="w-3 h-3 text-emerald-400" /> {l.clicksCount}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-center">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950 text-emerald-400 font-semibold border border-emerald-950">
+                            <Users className="w-3 h-3 text-emerald-400" /> {l.conversionsCount}
+                          </span>
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
+                          <button
+                            onClick={() => copyLink(l.code, l.id)}
+                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] transition inline-flex items-center gap-1"
+                          >
+                            {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                            {isCopied ? "Copied" : "Copy"}
+                          </button>
+
+                          <a
+                            href={fullUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition inline-flex items-center gap-1 text-[11px]"
+                            title="Test Link"
+                          >
+                            <ExternalLink className="w-3 h-3" />
+                          </a>
+
+                          <button
+                            onClick={() => shareWhatsApp(l.code, l.title)}
+                            className="px-2.5 py-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 transition inline-flex items-center gap-1"
+                            title="Share on WhatsApp"
+                          >
+                            <Share2 className="w-3 h-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

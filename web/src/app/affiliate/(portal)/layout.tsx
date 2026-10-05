@@ -13,7 +13,6 @@ import {
   Clock,
   LogOut,
   ExternalLink,
-  Award,
 } from "lucide-react";
 
 export default async function AffiliatePortalLayout({
@@ -44,12 +43,20 @@ export default async function AffiliatePortalLayout({
   const status = affiliate?.status || "APPROVED";
   const code = affiliate?.affiliateCode || "PA-ADMIN";
 
+  const navLinks = [
+    { href: "/affiliate/dashboard", label: "Overview", Icon: LayoutDashboard },
+    { href: "/affiliate/links",     label: "Links",    Icon: Link2 },
+    { href: "/affiliate/marketing", label: "Promo",    Icon: FileText },
+    { href: "/affiliate/commissions", label: "Earnings", Icon: DollarSign },
+    { href: "/affiliate/payouts",   label: "Payouts",  Icon: Wallet },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       {/* Top Notification Banner for non-approved states */}
       {status === "PENDING" && (
-        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2.5 text-xs text-amber-300 flex items-center justify-center gap-2">
-          <Clock className="w-4 h-4 text-amber-400 shrink-0" />
+        <div className="bg-amber-500/15 border-b border-amber-500/30 px-4 py-2.5 text-xs text-amber-300 flex items-start sm:items-center justify-center gap-2">
+          <Clock className="w-4 h-4 text-amber-400 shrink-0 mt-0.5 sm:mt-0" />
           <span>
             <strong>Application Under Review:</strong> Your affiliate profile is pending verification by ProTech Assist administration. Tracking links and payout requests activate once approved.
           </span>
@@ -57,8 +64,8 @@ export default async function AffiliatePortalLayout({
       )}
 
       {status === "SUSPENDED" && (
-        <div className="bg-rose-500/15 border-b border-rose-500/30 px-4 py-2.5 text-xs text-rose-300 flex items-center justify-center gap-2">
-          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+        <div className="bg-rose-500/15 border-b border-rose-500/30 px-4 py-2.5 text-xs text-rose-300 flex items-start sm:items-center justify-center gap-2">
+          <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5 sm:mt-0" />
           <span>
             <strong>Account Suspended:</strong> Your affiliate privileges are temporarily paused. Reason: {affiliate?.rejectionReason || "Under administrative review"}. Please contact ProTech support.
           </span>
@@ -78,7 +85,7 @@ export default async function AffiliatePortalLayout({
                 <span className="font-extrabold text-white text-base tracking-tight block">
                   ProTech <span className="text-emerald-400">Affiliate</span>
                 </span>
-                <span className="text-[10px] text-slate-400 block -mt-1">
+                <span className="text-[10px] text-slate-400 block -mt-1 hidden sm:block">
                   Empowering Businesses Through Technology
                 </span>
               </div>
@@ -91,39 +98,18 @@ export default async function AffiliatePortalLayout({
 
           {/* Desktop Nav Links */}
           <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href="/affiliate/dashboard"
-              className="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
-            >
-              <LayoutDashboard className="w-4 h-4 text-slate-400" /> Dashboard
-            </Link>
-            <Link
-              href="/affiliate/links"
-              className="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
-            >
-              <Link2 className="w-4 h-4 text-slate-400" /> Referral Links
-            </Link>
-            <Link
-              href="/affiliate/marketing"
-              className="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
-            >
-              <FileText className="w-4 h-4 text-slate-400" /> Marketing Resources
-            </Link>
-            <Link
-              href="/affiliate/commissions"
-              className="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
-            >
-              <DollarSign className="w-4 h-4 text-slate-400" /> Commissions
-            </Link>
-            <Link
-              href="/affiliate/payouts"
-              className="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
-            >
-              <Wallet className="w-4 h-4 text-slate-400" /> Payouts
-            </Link>
+            {navLinks.map(({ href, label, Icon }) => (
+              <Link
+                key={href}
+                href={href}
+                className="px-3 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition flex items-center gap-1.5"
+              >
+                <Icon className="w-4 h-4 text-slate-400" /> {label === "Promo" ? "Marketing Resources" : label === "Earnings" ? "Commissions" : label}
+              </Link>
+            ))}
           </nav>
 
-          {/* User Profile & Actions */}
+          {/* User Profile & Sign Out */}
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
               <p className="text-xs font-semibold text-white">{affiliate?.fullName || session.user.name}</p>
@@ -146,39 +132,15 @@ export default async function AffiliatePortalLayout({
             </form>
           </div>
         </div>
-
-        {/* Mobile Navigation bar */}
-        <div className="md:hidden border-t border-slate-800/80 bg-slate-900/90 px-2 py-2 flex items-center justify-around text-xs">
-          <Link href="/affiliate/dashboard" className="p-2 text-slate-300 hover:text-white flex flex-col items-center gap-1">
-            <LayoutDashboard className="w-4 h-4" />
-            <span className="text-[10px]">Overview</span>
-          </Link>
-          <Link href="/affiliate/links" className="p-2 text-slate-300 hover:text-white flex flex-col items-center gap-1">
-            <Link2 className="w-4 h-4" />
-            <span className="text-[10px]">Links</span>
-          </Link>
-          <Link href="/affiliate/marketing" className="p-2 text-slate-300 hover:text-white flex flex-col items-center gap-1">
-            <FileText className="w-4 h-4" />
-            <span className="text-[10px]">Promo</span>
-          </Link>
-          <Link href="/affiliate/commissions" className="p-2 text-slate-300 hover:text-white flex flex-col items-center gap-1">
-            <DollarSign className="w-4 h-4" />
-            <span className="text-[10px]">Earnings</span>
-          </Link>
-          <Link href="/affiliate/payouts" className="p-2 text-slate-300 hover:text-white flex flex-col items-center gap-1">
-            <Wallet className="w-4 h-4" />
-            <span className="text-[10px]">Payouts</span>
-          </Link>
-        </div>
       </header>
 
-      {/* Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Main Body — extra pb-20 on mobile to avoid content behind bottom nav */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 pb-24 md:pb-8">
         {children}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-slate-950">
+      {/* Footer — hidden on mobile (replaced by bottom nav) */}
+      <footer className="hidden md:block border-t border-slate-800 py-6 text-center text-xs text-slate-500 bg-slate-950">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <span>&copy; {new Date().getFullYear()} ProTech Assist SL Limited. All rights reserved.</span>
           <div className="flex gap-4 text-slate-400">
@@ -191,6 +153,22 @@ export default async function AffiliatePortalLayout({
           </div>
         </div>
       </footer>
+
+      {/* Sticky Bottom Mobile Navigation Bar */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 safe-b">
+        <div className="flex items-stretch justify-around">
+          {navLinks.map(({ href, label, Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex-1 flex flex-col items-center justify-center gap-1 py-3 px-1 text-slate-400 hover:text-emerald-400 active:bg-slate-800/60 transition text-[10px] font-semibold"
+            >
+              <Icon className="w-5 h-5" />
+              <span>{label}</span>
+            </Link>
+          ))}
+        </div>
+      </nav>
     </div>
   );
 }

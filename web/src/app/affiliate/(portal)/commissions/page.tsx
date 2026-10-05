@@ -111,72 +111,138 @@ export default function AffiliateCommissionsPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
-                <tr>
-                  <th className="py-3 px-4">Date</th>
-                  <th className="py-3 px-4">Product / Service</th>
-                  <th className="py-3 px-4">Customer Ref</th>
-                  <th className="py-3 px-4 text-right">Order Total</th>
-                  <th className="py-3 px-4 text-center">Rate</th>
-                  <th className="py-3 px-4 text-right">Commission Earned</th>
-                  <th className="py-3 px-4 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {commissions.map((c) => (
-                  <tr key={c.id} className="hover:bg-slate-800/40 transition">
-                    <td className="py-3.5 px-4 whitespace-nowrap text-slate-400 font-mono text-[11px]">
-                      {new Date(c.createdAt).toLocaleDateString([], {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </td>
+        ) : (
+          <div>
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {commissions.map((c) => (
+                <div
+                  key={c.id}
+                  className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h4 className="font-bold text-white text-xs uppercase tracking-wide">
+                        {c.orderType?.replace("_", " ")}
+                      </h4>
+                      <p className="text-[11px] text-slate-400 font-mono">
+                        Ref: {c.customerMasked} &bull; {new Date(c.createdAt).toLocaleDateString([], {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
 
-                    <td className="py-3.5 px-4 font-bold text-white uppercase text-xs">
-                      {c.orderType?.replace("_", " ")}
-                    </td>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
+                        c.status === "PAID"
+                          ? "bg-emerald-950 text-emerald-400 border-emerald-800"
+                          : c.status === "APPROVED"
+                          ? "bg-blue-950 text-blue-400 border-blue-800"
+                          : c.status === "PENDING"
+                          ? "bg-amber-950 text-amber-400 border-amber-800"
+                          : "bg-rose-950 text-rose-400 border-rose-800"
+                      }`}
+                    >
+                      {c.status}
+                    </span>
+                  </div>
 
-                    <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
-                      {c.customerMasked}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right font-medium text-slate-300">
-                      NLe {c.orderAmount.toFixed(2)}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center">
-                      <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-emerald-400 font-semibold">
-                        {c.rateApplied}
-                        {c.rateType === "PERCENTAGE" ? "%" : " NLe"}
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-xs">
+                    <div className="space-y-0.5">
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
+                        Order Total
                       </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right font-bold text-emerald-400 text-sm">
-                      + NLe {c.amount.toFixed(2)}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                          c.status === "PAID"
-                            ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                            : c.status === "APPROVED"
-                            ? "bg-blue-950 text-blue-400 border-blue-800"
-                            : c.status === "PENDING"
-                            ? "bg-amber-950 text-amber-400 border-amber-800"
-                            : "bg-rose-950 text-rose-400 border-rose-800"
-                        }`}
-                      >
-                        {c.status}
+                      <span className="font-semibold text-slate-300">
+                        NLe {c.orderAmount.toFixed(2)}
                       </span>
-                    </td>
+                      <span className="ml-1.5 px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
+                        {c.rateApplied}{c.rateType === "PERCENTAGE" ? "%" : " NLe"}
+                      </span>
+                    </div>
+
+                    <div className="text-right space-y-0.5">
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
+                        Commission
+                      </span>
+                      <span className="text-sm font-extrabold text-emerald-400">
+                        + NLe {c.amount.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Product / Service</th>
+                    <th className="py-3 px-4">Customer Ref</th>
+                    <th className="py-3 px-4 text-right">Order Total</th>
+                    <th className="py-3 px-4 text-center">Rate</th>
+                    <th className="py-3 px-4 text-right">Commission Earned</th>
+                    <th className="py-3 px-4 text-center">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {commissions.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-800/40 transition">
+                      <td className="py-3.5 px-4 whitespace-nowrap text-slate-400 font-mono text-[11px]">
+                        {new Date(c.createdAt).toLocaleDateString([], {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </td>
+
+                      <td className="py-3.5 px-4 font-bold text-white uppercase text-xs">
+                        {c.orderType?.replace("_", " ")}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
+                        {c.customerMasked}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right font-medium text-slate-300">
+                        NLe {c.orderAmount.toFixed(2)}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center">
+                        <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-emerald-400 font-semibold">
+                          {c.rateApplied}
+                          {c.rateType === "PERCENTAGE" ? "%" : " NLe"}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right font-bold text-emerald-400 text-sm">
+                        + NLe {c.amount.toFixed(2)}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                            c.status === "PAID"
+                              ? "bg-emerald-950 text-emerald-400 border-emerald-800"
+                              : c.status === "APPROVED"
+                              ? "bg-blue-950 text-blue-400 border-blue-800"
+                              : c.status === "PENDING"
+                              ? "bg-amber-950 text-amber-400 border-amber-800"
+                              : "bg-rose-950 text-rose-400 border-rose-800"
+                          }`}
+                        >
+                          {c.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
 

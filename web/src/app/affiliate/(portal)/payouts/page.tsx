@@ -444,68 +444,121 @@ export default function AffiliatePayoutsPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
-                <tr>
-                  <th className="py-3 px-4">Date Requested</th>
-                  <th className="py-3 px-4">Amount</th>
-                  <th className="py-3 px-4">Method</th>
-                  <th className="py-3 px-4">Reference / Receipt</th>
-                  <th className="py-3 px-4 text-center">Status</th>
-                  <th className="py-3 px-4 text-right">Processed Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {payouts.map((p) => (
-                  <tr key={p.id} className="hover:bg-slate-800/40 transition">
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                      {new Date(p.createdAt).toLocaleDateString([], {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
-                    </td>
+          <div>
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {payouts.map((p) => (
+                <div
+                  key={p.id}
+                  className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="text-base font-extrabold text-white">
+                        NLe {p.amount.toFixed(2)}
+                      </div>
+                      <p className="text-[11px] text-slate-400">
+                        {p.method.replace("_", " ")} &bull; {new Date(p.createdAt).toLocaleDateString([], {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                    </div>
 
-                    <td className="py-3.5 px-4 font-bold text-white text-sm">
-                      NLe {p.amount.toFixed(2)}
-                    </td>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
+                        p.status === "COMPLETED"
+                          ? "bg-emerald-950 text-emerald-400 border-emerald-800"
+                          : p.status === "PROCESSING"
+                          ? "bg-blue-950 text-blue-400 border-blue-800"
+                          : p.status === "PENDING"
+                          ? "bg-amber-950 text-amber-400 border-amber-800"
+                          : "bg-rose-950 text-rose-400 border-rose-800"
+                      }`}
+                    >
+                      {p.status}
+                    </span>
+                  </div>
 
-                    <td className="py-3.5 px-4">
-                      <span className="font-semibold text-slate-200">
-                        {p.method.replace("_", " ")}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                      {p.transactionRef || "Pending confirmation"}
-                    </td>
-
-                    <td className="py-3.5 px-4 text-center">
-                      <span
-                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                          p.status === "COMPLETED"
-                            ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                            : p.status === "PROCESSING"
-                            ? "bg-blue-950 text-blue-400 border-blue-800"
-                            : p.status === "PENDING"
-                            ? "bg-amber-950 text-amber-400 border-amber-800"
-                            : "bg-rose-950 text-rose-400 border-rose-800"
-                        }`}
-                      >
-                        {p.status}
-                      </span>
-                    </td>
-
-                    <td className="py-3.5 px-4 text-right text-slate-400 text-[11px]">
+                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-[11px] text-slate-400">
+                    <span className="font-mono truncate max-w-[170px]">
+                      Ref: {p.transactionRef || "Pending"}
+                    </span>
+                    <span>
                       {p.processedAt
-                        ? new Date(p.processedAt).toLocaleDateString()
+                        ? `Paid: ${new Date(p.processedAt).toLocaleDateString()}`
                         : "Awaiting Finance"}
-                    </td>
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-slate-300">
+                <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
+                  <tr>
+                    <th className="py-3 px-4">Date Requested</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4">Method</th>
+                    <th className="py-3 px-4">Reference / Receipt</th>
+                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3 px-4 text-right">Processed Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60">
+                  {payouts.map((p) => (
+                    <tr key={p.id} className="hover:bg-slate-800/40 transition">
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                        {new Date(p.createdAt).toLocaleDateString([], {
+                          year: "numeric",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </td>
+
+                      <td className="py-3.5 px-4 font-bold text-white text-sm">
+                        NLe {p.amount.toFixed(2)}
+                      </td>
+
+                      <td className="py-3.5 px-4">
+                        <span className="font-semibold text-slate-200">
+                          {p.method.replace("_", " ")}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
+                        {p.transactionRef || "Pending confirmation"}
+                      </td>
+
+                      <td className="py-3.5 px-4 text-center">
+                        <span
+                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                            p.status === "COMPLETED"
+                              ? "bg-emerald-950 text-emerald-400 border-emerald-800"
+                              : p.status === "PROCESSING"
+                              ? "bg-blue-950 text-blue-400 border-blue-800"
+                              : p.status === "PENDING"
+                              ? "bg-amber-950 text-amber-400 border-amber-800"
+                              : "bg-rose-950 text-rose-400 border-rose-800"
+                          }`}
+                        >
+                          {p.status}
+                        </span>
+                      </td>
+
+                      <td className="py-3.5 px-4 text-right text-slate-400 text-[11px]">
+                        {p.processedAt
+                          ? new Date(p.processedAt).toLocaleDateString()
+                          : "Awaiting Finance"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
