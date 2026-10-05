@@ -197,7 +197,6 @@ export default function AffiliateLinksPage() {
             </p>
           </div>
         ) : (
-        ) : (
           <div>
             {/* Mobile Card View */}
             <div className="md:hidden space-y-3">
