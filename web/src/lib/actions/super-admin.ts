@@ -29,36 +29,39 @@ try {
   console.warn("Failed to initialize Web Push VAPID keys. Push notifications will be disabled.");
 }
 
-async function checkSuperAdmin() {
+async function checkSuperAdmin(): Promise<boolean> {
   const session = await auth();
   const isSuper = session?.user?.role === "SUPERADMIN" || (session?.user as any)?.originalRole === "SUPERADMIN";
-  if (!isSuper) {
-    throw new Error("Unauthorized: Super Admin access required");
-  }
+  return isSuper;
 }
 
 export async function getAllBusinesses() {
-  await checkSuperAdmin();
-  const businesses = await prisma.business.findMany({
-    include: {
-      _count: {
-        select: {
-          users: true,
-          products: true,
-          sales: true,
+  try {
+    if (!await checkSuperAdmin()) return [];
+    const businesses = await prisma.business.findMany({
+      include: {
+        _count: {
+          select: {
+            users: true,
+            products: true,
+            sales: true,
+          }
         }
-      }
-    },
-    orderBy: { createdAt: "desc" },
-  });
+      },
+      orderBy: { createdAt: "desc" },
+    });
 
-  return businesses.map(b => ({
-    ...b,
-    createdAt: b.createdAt.toISOString(),
-    updatedAt: b.updatedAt.toISOString(),
-    trialStartDate: b.trialStartDate?.toISOString() || null,
-    trialEndDate: b.trialEndDate?.toISOString() || null,
-  }));
+    return businesses.map(b => ({
+      ...b,
+      createdAt: b.createdAt.toISOString(),
+      updatedAt: b.updatedAt.toISOString(),
+      trialStartDate: b.trialStartDate?.toISOString() || null,
+      trialEndDate: b.trialEndDate?.toISOString() || null,
+    }));
+  } catch (err: any) {
+    console.error("getAllBusinesses error:", err?.message);
+    return [];
+  }
 }
 
 export async function updateBusinessPlan(businessId: string, plan: any) {
@@ -224,54 +227,63 @@ export async function resetTenantAdminPassword(businessId: string) {
 }
 
 export async function getAuditLogs() {
-  await checkSuperAdmin();
-  
-  const logs = await prisma.auditLog.findMany({
-    include: {
-      user: { select: { name: true, email: true } },
-      business: { select: { name: true } },
-    },
-    orderBy: { createdAt: "desc" },
-    take: 50,
-  });
+  try {
+    if (!await checkSuperAdmin()) return [];
+    const logs = await prisma.auditLog.findMany({
+      include: {
+        user: { select: { name: true, email: true } },
+        business: { select: { name: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 50,
+    });
 
-  return logs.map(log => ({
-    ...log,
-    createdAt: log.createdAt.toISOString(),
-  }));
+    return logs.map(log => ({
+      ...log,
+      createdAt: log.createdAt.toISOString(),
+    }));
+  } catch (err: any) {
+    console.error("getAuditLogs error:", err?.message);
+    return [];
+  }
 }
 
 export async function getSystemStats() {
-  await checkSuperAdmin();
-  const [businessCount, userCount, totalSales, activeSubscriptions, pendingApprovals] = await Promise.all([
-    prisma.business.count(),
-    prisma.user.count(),
-    prisma.sale.aggregate({
-      _sum: { totalAmount: true }
-    }),
-    prisma.subscription.count({
-        where: { status: 'active' }
-    }),
-    prisma.business.count({
-      where: {
-        OR: [
-          { status: "PENDING" },
-          { 
-            trialEndDate: { lt: new Date() },
-            subscriptionStatus: "INACTIVE"
-          }
-        ]
-      }
-    })
-  ]);
+  try {
+    if (!await checkSuperAdmin()) return { businessCount: 0, userCount: 0, revenue: 0, activeSubscriptions: 0, pendingApprovals: 0 };
+    const [businessCount, userCount, totalSales, activeSubscriptions, pendingApprovals] = await Promise.all([
+      prisma.business.count(),
+      prisma.user.count(),
+      prisma.sale.aggregate({
+        _sum: { totalAmount: true }
+      }),
+      prisma.subscription.count({
+          where: { status: 'active' }
+      }),
+      prisma.business.count({
+        where: {
+          OR: [
+            { status: "PENDING" },
+            { 
+              trialEndDate: { lt: new Date() },
+              subscriptionStatus: "INACTIVE"
+            }
+          ]
+        }
+      })
+    ]);
 
-  return {
-    businessCount,
-    userCount,
-    revenue: Number(totalSales._sum.totalAmount) || 0,
-    activeSubscriptions,
-    pendingApprovals
-  };
+    return {
+      businessCount,
+      userCount,
+      revenue: Number(totalSales._sum.totalAmount) || 0,
+      activeSubscriptions,
+      pendingApprovals
+    };
+  } catch (err: any) {
+    console.error("getSystemStats error:", err?.message);
+    return { businessCount: 0, userCount: 0, revenue: 0, activeSubscriptions: 0, pendingApprovals: 0 };
+  }
 }
 
 export async function getPendingTrialApprovals() {
@@ -311,28 +323,32 @@ export async function getPendingTrialApprovals() {
 }
 
 export async function getEcosystemHealth() {
-  await checkSuperAdmin();
-  
-  // Mock data for trends
-  return {
-    growth: [
-      { name: "Jan", tenants: 10 },
-      { name: "Feb", tenants: 25 },
-      { name: "Mar", tenants: 45 },
-      { name: "Apr", tenants: 80 },
-      { name: "May", tenants: 120 },
-      { name: "Jun", tenants: 180 },
-    ],
-    revenue: [
-      { name: "Mon", value: 4000 },
-      { name: "Tue", value: 3000 },
-      { name: "Wed", value: 2000 },
-      { name: "Thu", value: 2780 },
-      { name: "Fri", value: 1890 },
-      { name: "Sat", value: 2390 },
-      { name: "Sun", value: 3490 },
-    ]
-  };
+  try {
+    if (!await checkSuperAdmin()) return { growth: [], revenue: [] };
+    // Mock data for trends
+    return {
+      growth: [
+        { name: "Jan", tenants: 10 },
+        { name: "Feb", tenants: 25 },
+        { name: "Mar", tenants: 45 },
+        { name: "Apr", tenants: 80 },
+        { name: "May", tenants: 120 },
+        { name: "Jun", tenants: 180 },
+      ],
+      revenue: [
+        { name: "Mon", value: 4000 },
+        { name: "Tue", value: 3000 },
+        { name: "Wed", value: 2000 },
+        { name: "Thu", value: 2780 },
+        { name: "Fri", value: 1890 },
+        { name: "Sat", value: 2390 },
+        { name: "Sun", value: 3490 },
+      ]
+    };
+  } catch (err: any) {
+    console.error("getEcosystemHealth error:", err?.message);
+    return { growth: [], revenue: [] };
+  }
 }
 
 export async function globalBroadcast(message: string) {
@@ -429,7 +445,7 @@ export async function restoreBackupFromUpload(rawJson: string, filename: string)
 }
 
 export async function getBackupsList() {
-  await checkSuperAdmin();
+  if (!await checkSuperAdmin()) return [];
 
   try {
     // 1. Fetch persistent cloud backups from Neon database
@@ -505,47 +521,51 @@ export async function deleteBackupFile(filename: string) {
 }
 
 export async function getAllSystemUsers() {
-  await checkSuperAdmin();
-  
-  const threshold = new Date(Date.now() - 3 * 60 * 1000);
+  try {
+    if (!await checkSuperAdmin()) return [];
+    const threshold = new Date(Date.now() - 3 * 60 * 1000);
 
-  const users = await prisma.user.findMany({
-    include: {
-      business: { select: { name: true, type: true, slug: true } },
-      role: { select: { name: true } },
-      auditLogs: {
-        select: { createdAt: true, action: true },
-        orderBy: { createdAt: "desc" },
-        take: 1
-      }
-    },
-    orderBy: [
-      { lastActiveAt: "desc" },
-      { createdAt: "desc" }
-    ]
-  });
+    const users = await prisma.user.findMany({
+      include: {
+        business: { select: { name: true, type: true, slug: true } },
+        role: { select: { name: true } },
+        auditLogs: {
+          select: { createdAt: true, action: true },
+          orderBy: { createdAt: "desc" },
+          take: 1
+        }
+      },
+      orderBy: [
+        { lastActiveAt: "desc" },
+        { createdAt: "desc" }
+      ]
+    });
 
-  return users.map(user => {
-    const lastLog = user.auditLogs[0];
-    const effectiveLastActive = user.lastActiveAt || lastLog?.createdAt || user.updatedAt;
-    const isActuallyOnline = user.lastActiveAt ? user.lastActiveAt >= threshold : false;
+    return users.map(user => {
+      const lastLog = user.auditLogs[0];
+      const effectiveLastActive = user.lastActiveAt || lastLog?.createdAt || user.updatedAt;
+      const isActuallyOnline = user.lastActiveAt ? user.lastActiveAt >= threshold : false;
 
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      username: user.username,
-      status: user.status,
-      createdAt: user.createdAt.toISOString(),
-      role: user.role.name,
-      business: user.business.name,
-      businessType: user.business.type,
-      lastLoginAt: user.lastLoginAt ? user.lastLoginAt.toISOString() : null,
-      lastActiveAt: effectiveLastActive ? effectiveLastActive.toISOString() : null,
-      isOnline: isActuallyOnline,
-      lastAction: lastLog?.action || (isActuallyOnline ? "Active in Dashboard" : "Offline")
-    };
-  });
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        status: user.status,
+        createdAt: user.createdAt.toISOString(),
+        role: user.role.name,
+        business: user.business?.name ?? "—",
+        businessType: user.business?.type ?? "SYSTEM",
+        lastLoginAt: user.lastLoginAt ? user.lastLoginAt.toISOString() : null,
+        lastActiveAt: effectiveLastActive ? effectiveLastActive.toISOString() : null,
+        isOnline: isActuallyOnline,
+        lastAction: lastLog?.action || (isActuallyOnline ? "Active in Dashboard" : "Offline")
+      };
+    });
+  } catch (err: any) {
+    console.error("getAllSystemUsers error:", err?.message);
+    return [];
+  }
 }
 
 export async function changeUserPassword(userId: string, newPasswordStr: string) {
@@ -790,40 +810,45 @@ export async function clearSystemUpdateBroadcasts() {
 
 
 export async function getInactiveBusinesses() {
-  await checkSuperAdmin();
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  try {
+    if (!await checkSuperAdmin()) return [];
+    const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-  const inactive = await prisma.business.findMany({
-    where: {
-      createdAt: { lt: oneDayAgo },
-      sales: { none: {} },
-    },
-    include: {
-      users: {
-        select: {
-          name: true,
-          email: true,
+    const inactive = await prisma.business.findMany({
+      where: {
+        createdAt: { lt: oneDayAgo },
+        sales: { none: {} },
+      },
+      include: {
+        users: {
+          select: {
+            name: true,
+            email: true,
+          }
+        },
+        _count: {
+          select: {
+            products: true
+          }
         }
       },
-      _count: {
-        select: {
-          products: true
-        }
-      }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+      orderBy: { createdAt: "desc" }
+    });
 
-  return inactive.map(b => ({
-    id: b.id,
-    name: b.name,
-    email: b.email,
-    phone: b.phone,
-    createdAt: b.createdAt.toISOString(),
-    ownerName: b.users[0]?.name || "N/A",
-    ownerEmail: b.users[0]?.email || "N/A",
-    productCount: b._count.products,
-  }));
+    return inactive.map(b => ({
+      id: b.id,
+      name: b.name,
+      email: b.email,
+      phone: b.phone,
+      createdAt: b.createdAt.toISOString(),
+      ownerName: b.users[0]?.name || "N/A",
+      ownerEmail: b.users[0]?.email || "N/A",
+      productCount: b._count.products,
+    }));
+  } catch (err: any) {
+    console.error("getInactiveBusinesses error:", err?.message);
+    return [];
+  }
 }
 
 

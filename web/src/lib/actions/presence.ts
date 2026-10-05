@@ -60,129 +60,152 @@ export async function recordUserOffline() {
 
 // 3. Super Admin Real-time Ecosystem Online Presence
 export async function getEcosystemOnlinePresence() {
-  const session = await auth();
-  const role = (session?.user as any)?.originalRole || session?.user?.role;
-  if (!session || role !== "SUPERADMIN") {
-    throw new Error("Unauthorized: Super Admin access required.");
-  }
+  try {
+    const session = await auth();
+    const role = (session?.user as any)?.originalRole || session?.user?.role;
+    if (!session || role !== "SUPERADMIN") {
+      return {
+        onlineUsersCount: 0,
+        onlineBusinessesCount: 0,
+        onlineBusinesses: [],
+        onlineUsers: [],
+        recentLogins: [],
+        totalBusinessesCount: 0,
+        serverTime: new Date().toISOString(),
+        error: "Unauthorized"
+      };
+    }
 
-  const threshold = new Date(Date.now() - 3 * 60 * 1000); // Active in last 3 minutes
+    const threshold = new Date(Date.now() - 3 * 60 * 1000); // Active in last 3 minutes
 
-  const [activeUsers, recentLoginAudits, allBusinesses] = await Promise.all([
-    // Active users
-    prisma.user.findMany({
-      where: {
-        deletedAt: null,
-        status: "active",
-        lastActiveAt: { gte: threshold },
-      },
-      include: {
-        business: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-            type: true,
-            plan: true,
-            logoUrl: true,
-          }
+    const [activeUsers, recentLoginAudits, allBusinesses] = await Promise.all([
+      // Active users
+      prisma.user.findMany({
+        where: {
+          deletedAt: null,
+          status: "active",
+          lastActiveAt: { gte: threshold },
         },
-        role: { select: { name: true } }
-      },
-      orderBy: { lastActiveAt: "desc" }
-    }),
+        include: {
+          business: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              type: true,
+              plan: true,
+              logoUrl: true,
+            }
+          },
+          role: { select: { name: true } }
+        },
+        orderBy: { lastActiveAt: "desc" }
+      }),
 
-    // Recent logins in last 24h
-    prisma.auditLog.findMany({
-      where: {
-        action: { contains: "LOGGED IN", mode: "insensitive" },
-        createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
-      },
-      include: {
-        user: { select: { name: true, email: true } },
-        business: { select: { name: true, slug: true, type: true } }
-      },
-      orderBy: { createdAt: "desc" },
-      take: 20
-    }),
+      // Recent logins in last 24h
+      prisma.auditLog.findMany({
+        where: {
+          action: { contains: "LOGGED IN", mode: "insensitive" },
+          createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }
+        },
+        include: {
+          user: { select: { name: true, email: true } },
+          business: { select: { name: true, slug: true, type: true } }
+        },
+        orderBy: { createdAt: "desc" },
+        take: 20
+      }),
 
-    // Total businesses with their user counts
-    prisma.business.findMany({
-      where: { status: "ACTIVE" },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        type: true,
-        plan: true,
-        lastActiveAt: true,
-        _count: { select: { users: true } }
+      // Total businesses with their user counts
+      prisma.business.findMany({
+        where: { status: "ACTIVE" },
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+          type: true,
+          plan: true,
+          lastActiveAt: true,
+          _count: { select: { users: true } }
+        }
+      })
+    ]);
+
+    // Aggregate active businesses from active users
+    const onlineBusinessesMap = new Map<string, any>();
+
+    for (const u of activeUsers) {
+      if (!u.business) continue;
+      const bId = u.business.id;
+      if (!onlineBusinessesMap.has(bId)) {
+        onlineBusinessesMap.set(bId, {
+          id: u.business.id,
+          name: u.business.name,
+          slug: u.business.slug,
+          type: u.business.type,
+          plan: u.business.plan,
+          logoUrl: u.business.logoUrl,
+          activeUsersCount: 0,
+          activeUsers: []
+        });
       }
-    })
-  ]);
 
-  // Aggregate active businesses from active users
-  const onlineBusinessesMap = new Map<string, any>();
-
-  for (const u of activeUsers) {
-    if (!u.business) continue;
-    const bId = u.business.id;
-    if (!onlineBusinessesMap.has(bId)) {
-      onlineBusinessesMap.set(bId, {
-        id: u.business.id,
-        name: u.business.name,
-        slug: u.business.slug,
-        type: u.business.type,
-        plan: u.business.plan,
-        logoUrl: u.business.logoUrl,
-        activeUsersCount: 0,
-        activeUsers: []
+      const b = onlineBusinessesMap.get(bId);
+      b.activeUsersCount += 1;
+      b.activeUsers.push({
+        id: u.id,
+        name: u.name || "Unnamed Staff",
+        email: u.email,
+        role: u.role.name,
+        lastActiveAt: u.lastActiveAt?.toISOString() || null
       });
     }
 
-    const b = onlineBusinessesMap.get(bId);
-    b.activeUsersCount += 1;
-    b.activeUsers.push({
+    const onlineBusinesses = Array.from(onlineBusinessesMap.values());
+
+    const formattedUsers = activeUsers.map(u => ({
       id: u.id,
-      name: u.name || "Unnamed Staff",
+      name: u.name || "Unnamed Operator",
       email: u.email,
+      username: u.username,
       role: u.role.name,
-      lastActiveAt: u.lastActiveAt?.toISOString() || null
-    });
+      businessId: u.business?.id,
+      businessName: u.business?.name || "Global / Nexus",
+      businessType: u.business?.type || "SYSTEM",
+      lastActiveAt: u.lastActiveAt?.toISOString() || null,
+      isOnline: true
+    }));
+
+    const formattedLogins = recentLoginAudits.map(log => ({
+      id: log.id,
+      action: log.action,
+      userName: log.user?.name || log.user?.email || "Unknown User",
+      userEmail: log.user?.email || "",
+      businessName: log.business?.name || "Independent",
+      businessType: log.business?.type || "SHOP",
+      timestamp: log.createdAt.toISOString()
+    }));
+
+    return {
+      onlineUsersCount: activeUsers.length,
+      onlineBusinessesCount: onlineBusinesses.length,
+      onlineBusinesses,
+      onlineUsers: formattedUsers,
+      recentLogins: formattedLogins,
+      totalBusinessesCount: allBusinesses.length,
+      serverTime: new Date().toISOString()
+    };
+  } catch (err: any) {
+    console.error("getEcosystemOnlinePresence error:", err?.message ?? err);
+    return {
+      onlineUsersCount: 0,
+      onlineBusinessesCount: 0,
+      onlineBusinesses: [],
+      onlineUsers: [],
+      recentLogins: [],
+      totalBusinessesCount: 0,
+      serverTime: new Date().toISOString(),
+      error: err?.message ?? "Unknown error"
+    };
   }
-
-  const onlineBusinesses = Array.from(onlineBusinessesMap.values());
-
-  const formattedUsers = activeUsers.map(u => ({
-    id: u.id,
-    name: u.name || "Unnamed Operator",
-    email: u.email,
-    username: u.username,
-    role: u.role.name,
-    businessId: u.business?.id,
-    businessName: u.business?.name || "Global / Nexus",
-    businessType: u.business?.type || "SYSTEM",
-    lastActiveAt: u.lastActiveAt?.toISOString() || null,
-    isOnline: true
-  }));
-
-  const formattedLogins = recentLoginAudits.map(log => ({
-    id: log.id,
-    action: log.action,
-    userName: log.user?.name || log.user?.email || "Unknown User",
-    userEmail: log.user?.email || "",
-    businessName: log.business?.name || "Independent",
-    businessType: log.business?.type || "SHOP",
-    timestamp: log.createdAt.toISOString()
-  }));
-
-  return {
-    onlineUsersCount: activeUsers.length,
-    onlineBusinessesCount: onlineBusinesses.length,
-    onlineBusinesses,
-    onlineUsers: formattedUsers,
-    recentLogins: formattedLogins,
-    totalBusinessesCount: allBusinesses.length,
-    serverTime: new Date().toISOString()
-  };
 }
