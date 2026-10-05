@@ -12,7 +12,6 @@ import {
   Layers,
   Smartphone,
   Globe,
-  Sparkles,
   MessageSquare,
   Image as ImageIcon,
 } from "lucide-react";
