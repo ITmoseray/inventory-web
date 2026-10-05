@@ -300,8 +300,8 @@ export default function SuperAdminAffiliatesSuite() {
       } else {
         toast.error(res.error || "Failed to save material");
       }
-    } catch (e) {
-      toast.error("Error saving resource");
+    } catch (e: any) {
+      toast.error(e?.message || "Error saving resource");
     }
   };
 
@@ -1420,14 +1420,38 @@ export default function SuperAdminAffiliatesSuite() {
                   <p className="text-xs text-slate-500">{m.description}</p>
                 </div>
 
-                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                   <span className="text-[10px] text-slate-400">Downloads: {m.downloadCount}</span>
-                  <button
-                    onClick={() => handleDeleteMaterial(m.id)}
-                    className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-rose-50 text-rose-500"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        setMaterialForm({
+                          id: m.id,
+                          title: m.title,
+                          category: m.category,
+                          productSlug: m.productSlug || "",
+                          description: m.description || "",
+                          fileUrl: m.fileUrl || "",
+                          fileType: m.fileType || "IMAGE",
+                          textContent: m.textContent || "",
+                          dimensions: m.dimensions || "",
+                          isActive: m.isActive,
+                        });
+                        setMaterialModalOpen(true);
+                      }}
+                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-blue-50 text-blue-500"
+                      title="Edit"
+                    >
+                      <Edit className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteMaterial(m.id)}
+                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-800 hover:bg-rose-50 text-rose-500"
+                      title="Delete"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -1438,8 +1462,10 @@ export default function SuperAdminAffiliatesSuite() {
       {/* Material Modal */}
       {materialModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-4">
-            <h3 className="font-bold text-slate-900 dark:text-white text-base">Add Marketing Asset</h3>
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 sm:p-8 max-w-md w-full shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <h3 className="font-bold text-slate-900 dark:text-white text-base">
+              {materialForm.id ? "Edit Marketing Asset" : "Add Marketing Asset"}
+            </h3>
 
             <form onSubmit={handleSaveMaterial} className="space-y-4">
               <div>
@@ -1456,7 +1482,7 @@ export default function SuperAdminAffiliatesSuite() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Category
@@ -1490,6 +1516,22 @@ export default function SuperAdminAffiliatesSuite() {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                  File Type
+                </label>
+                <select
+                  value={materialForm.fileType}
+                  onChange={(e) => setMaterialForm({ ...materialForm, fileType: e.target.value })}
+                  className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-900 dark:text-white focus:outline-none"
+                >
+                  <option value="IMAGE">Image (PNG / JPG / WebP)</option>
+                  <option value="PDF">PDF Document</option>
+                  <option value="ZIP">ZIP Archive</option>
+                  <option value="TEXT">Text / Script</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                   File Download URL (CDN / Public Link)
                 </label>
                 <input
@@ -1512,6 +1554,19 @@ export default function SuperAdminAffiliatesSuite() {
                   onChange={(e) => setMaterialForm({ ...materialForm, description: e.target.value })}
                   className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl px-4 py-2 text-xs text-slate-900 dark:text-white focus:outline-none"
                 />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="mat-active"
+                  checked={materialForm.isActive}
+                  onChange={(e) => setMaterialForm({ ...materialForm, isActive: e.target.checked })}
+                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
+                />
+                <label htmlFor="mat-active" className="text-xs font-semibold text-slate-700 dark:text-slate-300 cursor-pointer">
+                  Active (visible to affiliates)
+                </label>
               </div>
 
               <div className="flex gap-2 pt-2">

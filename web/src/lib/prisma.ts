@@ -19,8 +19,10 @@ const createPrismaClient = () => {
   console.log(`🔌 Initializing Prisma with connection: ${maskedUrl}`);
 
   const isLocal = connectionString.includes("localhost") || connectionString.includes("127.0.0.1");
+  // Strip channel_binding param — not supported by pg driver, causes connection failures
+  const pgConnectionString = connectionString.replace(/&?channel_binding=[^&]*/g, "").replace(/\?$/, "");
   const pool = new PgPool({
-    connectionString,
+    connectionString: pgConnectionString,
     ssl: isLocal ? false : { rejectUnauthorized: false },
     // Prevent "Connection terminated unexpectedly" from Neon idle timeouts:
     // Neon drops idle connections after ~5 min; we evict them at 4 min to avoid stale sockets.

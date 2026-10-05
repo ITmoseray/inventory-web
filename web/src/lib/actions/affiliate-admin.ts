@@ -723,53 +723,62 @@ export async function saveAdminMarketingMaterial(data: {
   dimensions?: string;
   isActive: boolean;
 }) {
-  await checkSuperAdmin();
+  try {
+    await checkSuperAdmin();
 
-  if (!data.title || !data.category) {
-    return { success: false, error: "Title and Category are required." };
+    if (!data.title || !data.category) {
+      return { success: false, error: "Title and Category are required." };
+    }
+
+    if (data.id) {
+      await prisma.affiliateMarketingMaterial.update({
+        where: { id: data.id },
+        data: {
+          title: data.title.trim(),
+          category: data.category,
+          productSlug: data.productSlug || null,
+          description: data.description?.trim() || null,
+          fileUrl: data.fileUrl?.trim() || null,
+          fileType: data.fileType || "IMAGE",
+          textContent: data.textContent?.trim() || null,
+          dimensions: data.dimensions?.trim() || null,
+          isActive: data.isActive,
+        },
+      });
+    } else {
+      await prisma.affiliateMarketingMaterial.create({
+        data: {
+          title: data.title.trim(),
+          category: data.category,
+          productSlug: data.productSlug || null,
+          description: data.description?.trim() || null,
+          fileUrl: data.fileUrl?.trim() || null,
+          fileType: data.fileType || "IMAGE",
+          textContent: data.textContent?.trim() || null,
+          dimensions: data.dimensions?.trim() || null,
+          isActive: data.isActive,
+        },
+      });
+    }
+
+    revalidatePath("/super-admin/affiliates/marketing");
+    return { success: true, message: "Marketing resource saved." };
+  } catch (err: any) {
+    console.error("saveAdminMarketingMaterial error:", err);
+    return { success: false, error: err?.message ?? "Failed to save marketing resource." };
   }
-
-  if (data.id) {
-    await prisma.affiliateMarketingMaterial.update({
-      where: { id: data.id },
-      data: {
-        title: data.title.trim(),
-        category: data.category,
-        productSlug: data.productSlug || null,
-        description: data.description?.trim() || null,
-        fileUrl: data.fileUrl?.trim() || null,
-        fileType: data.fileType || "IMAGE",
-        textContent: data.textContent?.trim() || null,
-        dimensions: data.dimensions?.trim() || null,
-        isActive: data.isActive,
-      },
-    });
-  } else {
-    await prisma.affiliateMarketingMaterial.create({
-      data: {
-        title: data.title.trim(),
-        category: data.category,
-        productSlug: data.productSlug || null,
-        description: data.description?.trim() || null,
-        fileUrl: data.fileUrl?.trim() || null,
-        fileType: data.fileType || "IMAGE",
-        textContent: data.textContent?.trim() || null,
-        dimensions: data.dimensions?.trim() || null,
-        isActive: data.isActive,
-      },
-    });
-  }
-
-  revalidatePath("/super-admin/affiliates/marketing");
-  return { success: true, message: "Marketing resource saved." };
 }
 
 export async function deleteAdminMarketingMaterial(id: string) {
-  await checkSuperAdmin();
-
-  await prisma.affiliateMarketingMaterial.delete({ where: { id } });
-  revalidatePath("/super-admin/affiliates/marketing");
-  return { success: true, message: "Resource deleted." };
+  try {
+    await checkSuperAdmin();
+    await prisma.affiliateMarketingMaterial.delete({ where: { id } });
+    revalidatePath("/super-admin/affiliates/marketing");
+    return { success: true, message: "Resource deleted." };
+  } catch (err: any) {
+    console.error("deleteAdminMarketingMaterial error:", err);
+    return { success: false, error: err?.message ?? "Failed to delete resource." };
+  }
 }
 
 /**
