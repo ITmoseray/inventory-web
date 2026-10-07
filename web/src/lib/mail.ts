@@ -305,3 +305,152 @@ export const sendReferralNotification = async (options: {
     console.error(`❌ Failed to send referral notification (${event}):`, error);
   }
 };
+
+/**
+ * Sends an email notification to the affiliate when their application is approved
+ */
+export const sendAffiliateApprovalNotification = async (options: {
+  email: string;
+  fullName: string;
+  affiliateCode: string;
+}) => {
+  const transporter = getTransporter();
+  if (!transporter) {
+    console.warn("⚠️ Cannot send affiliate approval email: SMTP not configured.");
+    return;
+  }
+
+  const domain = process.env.NEXTAUTH_URL || "https://inventory-web--protech-website-38a37.us-east4.hosted.app";
+  const loginUrl = `${domain}/login?callbackUrl=/affiliate/dashboard`;
+  const referralLink = `${domain}/ref/${options.affiliateCode}`;
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || '"ProTech Assist SL" <no-reply@protechassist.com>',
+    to: options.email,
+    subject: `🎉 Congratulations! Your ProTech Assist Partner Account is Approved (${options.affiliateCode})`,
+    html: `
+      <!DOCTYPE html>
+      <html>
+      <body style="margin:0;padding:0;background:#0f172a;font-family:'Segoe UI',Arial,sans-serif;color:#f8fafc;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;padding:40px 20px;">
+          <tr><td align="center">
+            <table width="600" cellpadding="0" cellspacing="0" style="background:#1e293b;border:1px solid #334155;border-radius:20px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+              
+              <!-- Header -->
+              <tr>
+                <td style="background:linear-gradient(135deg,#059669 0%,#0d9488 100%);padding:36px 40px;text-align:center;">
+                  <p style="margin:0;color:rgba(255,255,255,0.8);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:3px;">ProTech Assist SL Limited</p>
+                  <h1 style="margin:8px 0 0;color:#ffffff;font-size:24px;font-weight:900;letter-spacing:-0.5px;">Welcome to the Partner Network!</h1>
+                </td>
+              </tr>
+
+              <!-- Content Body -->
+              <tr>
+                <td style="padding:36px 40px;">
+                  <p style="margin:0 0 16px;color:#cbd5e1;font-size:15px;line-height:1.6;">
+                    Dear <strong>${options.fullName}</strong>,
+                  </p>
+                  <p style="margin:0 0 24px;color:#94a3b8;font-size:14px;line-height:1.6;">
+                    Congratulations! Your application to become an official affiliate partner of <strong>ProTech Assist SL Limited</strong> has been reviewed and <span style="color:#34d399;font-weight:bold;">officially approved</span>.
+                  </p>
+
+                  <!-- Credentials Card -->
+                  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f172a;border:1px solid #334155;border-radius:14px;overflow:hidden;margin-bottom:28px;">
+                    <tr>
+                      <td style="padding:20px 24px;">
+                        <p style="margin:0;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;letter-spacing:1px;">Assigned Permanent Partner Code</p>
+                        <p style="margin:6px 0 0;font-size:22px;font-weight:900;font-family:monospace;color:#34d399;">${options.affiliateCode}</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:16px 24px;background:#141f32;border-top:1px solid #1e293b;">
+                        <p style="margin:0;font-size:11px;color:#94a3b8;text-transform:uppercase;font-weight:700;letter-spacing:1px;">Your Primary Referral Link</p>
+                        <p style="margin:6px 0 0;font-size:13px;font-family:monospace;color:#38bdf8;word-break:break-all;">${referralLink}</p>
+                      </td>
+                    </tr>
+                  </table>
+
+                  <!-- What's Next -->
+                  <h3 style="margin:0 0 12px;font-size:14px;font-weight:800;color:#f8fafc;text-transform:uppercase;letter-spacing:1px;">Quick Start Guide:</h3>
+                  <ul style="margin:0 0 28px;padding-left:20px;color:#94a3b8;font-size:13px;line-height:1.8;">
+                    <li><strong>Share Your Link:</strong> Post on WhatsApp status, Facebook, or pitch directly to retail shops and pharmacies for Enterprise OS POS.</li>
+                    <li><strong>Earn up to 15%:</strong> Earn guaranteed single-level commissions on software subscriptions and student training cohorts.</li>
+                    <li><strong>30-Day Attribution:</strong> Visitors clicking your link are locked to your account for 30 full days.</li>
+                    <li><strong>Withdraw Earnings:</strong> Request payouts directly to Orange Money, Afrimoney, or Bank Transfer from your dashboard.</li>
+                  </ul>
+
+                  <!-- CTA Button -->
+                  <div style="text-align:center;margin:32px 0 16px;">
+                    <a href="${loginUrl}" style="background:linear-gradient(135deg,#059669 0%,#0d9488 100%);color:#ffffff;padding:14px 32px;text-decoration:none;border-radius:12px;font-weight:bold;font-size:14px;display:inline-block;box-shadow:0 4px 16px rgba(5,150,105,0.4);">
+                      Sign In to Partner Portal →
+                    </a>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- Footer -->
+              <tr>
+                <td style="padding:24px 40px;background:#0f172a;border-top:1px solid #334155;text-align:center;">
+                  <p style="margin:0;color:#64748b;font-size:11px;">
+                    ProTech Assist SL Limited &bull; Empowering Businesses Through Technology<br/>
+                    Freetown, Sierra Leone
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td></tr>
+        </table>
+      </body>
+      </html>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Affiliate approval email sent to ${options.email}`);
+  } catch (error) {
+    console.error("❌ Failed to send affiliate approval email:", error);
+  }
+};
+
+/**
+ * Sends an email notification to the affiliate when their application is rejected
+ */
+export const sendAffiliateRejectionNotification = async (options: {
+  email: string;
+  fullName: string;
+  reason?: string;
+}) => {
+  const transporter = getTransporter();
+  if (!transporter) return;
+
+  const mailOptions = {
+    from: process.env.SMTP_FROM || '"ProTech Assist SL" <no-reply@protechassist.com>',
+    to: options.email,
+    subject: "Update Regarding Your ProTech Assist Partner Application",
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background: #0f172a; color: #f8fafc; border-radius: 16px; border: 1px solid #334155;">
+        <h2 style="color: #f8fafc; margin-top: 0;">Partner Application Status Update</h2>
+        <p style="color: #cbd5e1; line-height: 1.6;">Dear <strong>${options.fullName}</strong>,</p>
+        <p style="color: #94a3b8; line-height: 1.6;">
+          Thank you for your interest in the ProTech Assist SL Affiliate Partner Program. After careful review of your application, our team is unable to approve your account at this time.
+        </p>
+        ${options.reason ? `
+        <div style="background: #1e293b; border-left: 4px solid #ef4444; padding: 12px 16px; border-radius: 8px; margin: 20px 0;">
+          <p style="margin: 0; font-size: 13px; color: #fca5a5;"><strong>Reason provided:</strong> ${options.reason}</p>
+        </div>` : ''}
+        <p style="color: #94a3b8; line-height: 1.6;">
+          If you believe this was in error or if your circumstances have changed, please contact ProTech Assist support or reply to this email.
+        </p>
+        <hr style="border: 0; border-top: 1px solid #334155; margin: 24px 0;" />
+        <p style="color: #64748b; font-size: 11px; margin: 0;">ProTech Assist SL Limited &bull; Empowering Businesses Through Technology</p>
+      </div>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error("❌ Failed to send affiliate rejection email:", error);
+  }
+};

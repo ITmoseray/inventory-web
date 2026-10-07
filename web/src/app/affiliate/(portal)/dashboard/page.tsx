@@ -94,6 +94,57 @@ export default function AffiliateDashboardPage() {
 
   return (
     <div className="space-y-8 selection:bg-emerald-500 selection:text-white">
+      {/* Dynamic Status Alert Banner */}
+      {affiliate?.status === "PENDING" && (
+        <div className="bg-amber-950/40 border border-amber-800/80 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-lg">
+          <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 shrink-0">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div className="space-y-1 text-xs">
+            <h3 className="font-bold text-amber-200 text-sm">
+              Application Under Super Admin Verification
+            </h3>
+            <p className="text-amber-300/80 leading-relaxed">
+              Your partner application is being verified by ProTech Assist SL management. Once approved, you will automatically receive an official confirmation email with your permanent credentials, and your live commission withdrawals will be unlocked. You may still test and share your referral link below.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {affiliate?.status === "REJECTED" && (
+        <div className="bg-rose-950/40 border border-rose-800/80 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-lg">
+          <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400 shrink-0">
+            <AlertCircle className="w-5 h-5" />
+          </div>
+          <div className="space-y-1 text-xs">
+            <h3 className="font-bold text-rose-200 text-sm">
+              Partner Application Status: Not Approved
+            </h3>
+            <p className="text-rose-300/80 leading-relaxed">
+              {affiliate?.rejectionReason
+                ? `Reason: ${affiliate.rejectionReason}`
+                : "Your application could not be approved at this time. Please contact ProTech Assist support to update your information."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {affiliate?.status === "SUSPENDED" && (
+        <div className="bg-rose-950/40 border border-rose-800/80 rounded-2xl p-4 sm:p-5 flex items-start gap-3.5 shadow-lg">
+          <div className="p-2 rounded-xl bg-rose-500/20 text-rose-400 shrink-0">
+            <AlertCircle className="w-5 h-5" />
+          </div>
+          <div className="space-y-1 text-xs">
+            <h3 className="font-bold text-rose-200 text-sm">
+              Partner Account Suspended
+            </h3>
+            <p className="text-rose-300/80 leading-relaxed">
+              Your affiliate account is currently suspended. Please contact partner support at support@protechassist.com to reactivate your account.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Executive Welcome & Primary Referral Link Banner */}
       <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-900/95 to-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
         {/* Subtle decorative glow */}

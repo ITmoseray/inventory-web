@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import {
+  sendAffiliateApprovalNotification,
+  sendAffiliateRejectionNotification,
+} from "@/lib/mail";
+import {
   AffiliateStatus,
   CommissionStatus,
   PayoutStatus,
@@ -166,13 +170,27 @@ export async function getAdminAffiliatesList(options?: {
         status: a.status,
         experienceLevel: a.experienceLevel,
         marketingChannels: a.marketingChannels,
+        websiteOrSocial: a.websiteOrSocial,
+        preferredMethod: a.preferredMethod,
+        notes: a.notes,
+        rejectionReason: a.rejectionReason,
         payoutMethod: a.payoutMethod,
+        mobileMoneyNumber: a.mobileMoneyNumber,
+        mobileMoneyName: a.mobileMoneyName,
+        bankName: a.bankName,
+        bankAccountNumber: a.bankAccountNumber,
+        bankAccountName: a.bankAccountName,
+        bankSwiftOrBranch: a.bankSwiftOrBranch,
+        commissionRateOverride: a.commissionRateOverride ? Number(a.commissionRateOverride) : null,
+        agreedToTerms: a.agreedToTerms,
+        agreedAt: a.agreedAt,
         clicksCount: a._count.clicks,
         conversionsCount: a._count.conversions,
         totalEarned,
         pendingEarned,
         createdAt: a.createdAt,
         approvedAt: a.approvedAt,
+        approvedBy: a.approvedBy,
       };
     }),
   };
@@ -249,6 +267,21 @@ export async function updateAdminAffiliateStatus(
     where: { id: affiliateId },
     data: updateData,
   });
+
+  // Asynchronously dispatch email notification
+  if (status === AffiliateStatus.APPROVED) {
+    sendAffiliateApprovalNotification({
+      email: affiliate.email,
+      fullName: affiliate.fullName,
+      affiliateCode: affiliate.affiliateCode,
+    }).catch((err) => console.error("Error sending approval email:", err));
+  } else if (status === AffiliateStatus.REJECTED) {
+    sendAffiliateRejectionNotification({
+      email: affiliate.email,
+      fullName: affiliate.fullName,
+      reason: updateData.rejectionReason,
+    }).catch((err) => console.error("Error sending rejection email:", err));
+  }
 
   revalidatePath("/super-admin/affiliates");
   return {

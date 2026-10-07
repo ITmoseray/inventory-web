@@ -28,6 +28,18 @@ import {
   Eye,
   Smartphone,
   Building,
+  Mail,
+  Phone,
+  MapPin,
+  Globe,
+  Calendar,
+  UserCheck,
+  UserX,
+  MessageSquare,
+  Award,
+  CreditCard,
+  ChevronRight,
+  Info,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -63,6 +75,11 @@ export default function SuperAdminAffiliatesSuite() {
   const [affiliateStatusFilter, setAffiliateStatusFilter] = useState("ALL");
   const [affiliateSearch, setAffiliateSearch] = useState("");
   const [selectedAffiliateDetail, setSelectedAffiliateDetail] = useState<any>(null);
+  const [detailModalOpen, setDetailModalOpen] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [rejectionReasonInput, setRejectionReasonInput] = useState("");
+  const [showRejectForm, setShowRejectForm] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [rateOverrideModalOpen, setRateOverrideModalOpen] = useState(false);
   const [targetAffiliateForRate, setTargetAffiliateForRate] = useState<any>(null);
   const [newRateOverride, setNewRateOverride] = useState<string>("");
@@ -167,24 +184,53 @@ export default function SuperAdminAffiliatesSuite() {
     }
   }, [commissionStatusFilter, commissionSearch, activeTab]);
 
+  // Handler: Open Affiliate Detail Review Modal
+  const handleOpenDetailModal = async (affiliate: any) => {
+    setSelectedAffiliateDetail(affiliate);
+    setDetailModalOpen(true);
+    setShowRejectForm(false);
+    setRejectionReasonInput("");
+    try {
+      setLoadingDetail(true);
+      const res = await getAdminAffiliateDetails(affiliate.id);
+      if (res.success && res.affiliate) {
+        setSelectedAffiliateDetail(res.affiliate);
+      }
+    } catch (err) {
+      console.error("Failed to load affiliate full details:", err);
+    } finally {
+      setLoadingDetail(false);
+    }
+  };
+
   // Handler: Affiliate Status Update
   const handleUpdateStatus = async (
     affiliateId: string,
-    status: "APPROVED" | "REJECTED" | "SUSPENDED" | "DEACTIVATED"
+    status: "APPROVED" | "REJECTED" | "SUSPENDED" | "DEACTIVATED",
+    reason?: string
   ) => {
     try {
-      const res = await updateAdminAffiliateStatus(affiliateId, status);
+      setIsUpdatingStatus(true);
+      const res = await updateAdminAffiliateStatus(affiliateId, status as any, reason);
       if (res.success) {
         toast.success(res.message);
         loadAllData();
-        if (selectedAffiliateDetail) {
-          setSelectedAffiliateDetail((prev: any) => ({ ...prev, status }));
+        if (selectedAffiliateDetail && selectedAffiliateDetail.id === affiliateId) {
+          setSelectedAffiliateDetail((prev: any) => ({
+            ...prev,
+            status,
+            rejectionReason: status === "REJECTED" ? (reason || "Application did not meet requirements.") : null,
+            approvedAt: status === "APPROVED" ? new Date() : prev?.approvedAt,
+          }));
+          setShowRejectForm(false);
         }
       } else {
         toast.error(res.error || "Status update failed");
       }
     } catch (e: any) {
       toast.error("Failed to update status");
+    } finally {
+      setIsUpdatingStatus(false);
     }
   };
 
@@ -687,7 +733,12 @@ export default function SuperAdminAffiliatesSuite() {
                     affiliates.map((a) => (
                       <tr key={a.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
                         <td className="py-3.5 px-4 space-y-0.5">
-                          <div className="font-bold text-slate-900 dark:text-white">{a.fullName}</div>
+                          <button
+                            onClick={() => handleOpenDetailModal(a)}
+                            className="text-left font-bold text-slate-900 dark:text-white hover:text-emerald-500 hover:underline block"
+                          >
+                            {a.fullName}
+                          </button>
                           <div className="font-mono text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">
                             {a.affiliateCode}
                           </div>
@@ -725,6 +776,15 @@ export default function SuperAdminAffiliatesSuite() {
                         </td>
 
                         <td className="py-3.5 px-4 text-right space-x-1 whitespace-nowrap">
+                          <button
+                            onClick={() => handleOpenDetailModal(a)}
+                            className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-[11px] inline-flex items-center gap-1 border border-slate-700"
+                            title="View all details, marketing info & banking details"
+                          >
+                            <Eye className="w-3 h-3" />
+                            {a.status === "PENDING" ? "Review Application" : "View Details"}
+                          </button>
+
                           {a.status === "PENDING" && (
                             <>
                               <button
@@ -732,12 +792,6 @@ export default function SuperAdminAffiliatesSuite() {
                                 className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-[11px]"
                               >
                                 Approve
-                              </button>
-                              <button
-                                onClick={() => handleUpdateStatus(a.id, "REJECTED")}
-                                className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-semibold text-[11px]"
-                              >
-                                Reject
                               </button>
                             </>
                           )}
@@ -776,6 +830,401 @@ export default function SuperAdminAffiliatesSuite() {
                   )}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Full Affiliate Details & Review Modal */}
+      {detailModalOpen && selectedAffiliateDetail && (
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-8 max-w-3xl w-full shadow-2xl space-y-6 my-auto max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span
+                    className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold border ${
+                      selectedAffiliateDetail.status === "APPROVED"
+                        ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                        : selectedAffiliateDetail.status === "PENDING"
+                        ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                        : "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30"
+                    }`}
+                  >
+                    {selectedAffiliateDetail.status === "APPROVED"
+                      ? "● APPROVED PARTNER"
+                      : selectedAffiliateDetail.status === "PENDING"
+                      ? "● PENDING REVIEW"
+                      : `● ${selectedAffiliateDetail.status}`}
+                  </span>
+                  <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2.5 py-0.5 rounded-full border border-emerald-200 dark:border-emerald-800">
+                    {selectedAffiliateDetail.affiliateCode}
+                  </span>
+                  {selectedAffiliateDetail.experienceLevel && (
+                    <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2.5 py-0.5 rounded-full font-medium">
+                      {selectedAffiliateDetail.experienceLevel}
+                    </span>
+                  )}
+                  {loadingDetail && (
+                    <span className="text-[10px] text-slate-400 animate-pulse">
+                      Refreshing details...
+                    </span>
+                  )}
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+                  {selectedAffiliateDetail.fullName}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Registered on{" "}
+                  {new Date(selectedAffiliateDetail.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                  {selectedAffiliateDetail.approvedAt && (
+                    <span className="ml-2 text-emerald-600 dark:text-emerald-400 font-semibold">
+                      &bull; Approved on {new Date(selectedAffiliateDetail.approvedAt).toLocaleDateString()}
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setDetailModalOpen(false);
+                  setShowRejectForm(false);
+                }}
+                className="p-2 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Quick KPI Overview */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="text-[10px] uppercase font-bold text-slate-400">Total Clicks</p>
+                <p className="text-lg font-black text-slate-900 dark:text-white">
+                  {selectedAffiliateDetail.clicksCount ?? selectedAffiliateDetail._count?.clicks ?? 0}
+                </p>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="text-[10px] uppercase font-bold text-slate-400">Conversions</p>
+                <p className="text-lg font-black text-blue-600 dark:text-blue-400">
+                  {selectedAffiliateDetail.conversionsCount ?? selectedAffiliateDetail._count?.conversions ?? 0}
+                </p>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="text-[10px] uppercase font-bold text-slate-400">Total Earned</p>
+                <p className="text-lg font-black text-emerald-600 dark:text-emerald-400">
+                  NLe {(selectedAffiliateDetail.totalEarned || 0).toFixed(2)}
+                </p>
+              </div>
+              <div className="bg-slate-50 dark:bg-slate-950 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-1">
+                <p className="text-[10px] uppercase font-bold text-slate-400">Rate Override</p>
+                <p className="text-lg font-black text-indigo-600 dark:text-indigo-400">
+                  {selectedAffiliateDetail.commissionRateOverride
+                    ? `${selectedAffiliateDetail.commissionRateOverride}%`
+                    : "Standard"}
+                </p>
+              </div>
+            </div>
+
+            {/* Grid: Demographics, Contact, Payout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Contact & Location */}
+              <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5 text-emerald-500" /> Contact & Demographics
+                </h4>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                    <span className="text-slate-500">Email Address:</span>
+                    <a
+                      href={`mailto:${selectedAffiliateDetail.email}`}
+                      className="font-semibold text-slate-900 dark:text-slate-100 hover:text-emerald-500"
+                    >
+                      {selectedAffiliateDetail.email}
+                    </a>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                    <span className="text-slate-500">Primary Phone:</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {selectedAffiliateDetail.phone || "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                    <span className="text-slate-500">WhatsApp:</span>
+                    {selectedAffiliateDetail.whatsappPhone ? (
+                      <a
+                        href={`https://wa.me/${selectedAffiliateDetail.whatsappPhone.replace(/[^0-9]/g, "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-emerald-600 dark:text-emerald-400 hover:underline flex items-center gap-1"
+                      >
+                        {selectedAffiliateDetail.whatsappPhone}
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : (
+                      <span className="text-slate-400">Not provided</span>
+                    )}
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-slate-500">Location:</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-100">
+                      {selectedAffiliateDetail.city ? `${selectedAffiliateDetail.city}, ` : ""}
+                      {selectedAffiliateDetail.country || "Sierra Leone"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payout & Banking Details */}
+              <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5 text-emerald-500" /> Payout & Banking Setup
+                </h4>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                    <span className="text-slate-500">Payout Method:</span>
+                    <span className="font-bold text-slate-900 dark:text-white uppercase">
+                      {selectedAffiliateDetail.payoutMethod || "Not Configured"}
+                    </span>
+                  </div>
+
+                  {selectedAffiliateDetail.payoutMethod === "MOBILE_MONEY" ||
+                  selectedAffiliateDetail.mobileMoneyNumber ? (
+                    <>
+                      <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                        <span className="text-slate-500">Mobile Money No:</span>
+                        <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                          {selectedAffiliateDetail.mobileMoneyNumber || "—"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-slate-500">Registered Name:</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                          {selectedAffiliateDetail.mobileMoneyName || selectedAffiliateDetail.fullName}
+                        </span>
+                      </div>
+                    </>
+                  ) : selectedAffiliateDetail.payoutMethod === "BANK_TRANSFER" ||
+                    selectedAffiliateDetail.bankAccountNumber ? (
+                    <>
+                      <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                        <span className="text-slate-500">Bank Name:</span>
+                        <span className="font-bold text-slate-900 dark:text-slate-100">
+                          {selectedAffiliateDetail.bankName || "—"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-1 border-b border-slate-200/60 dark:border-slate-800/60">
+                        <span className="text-slate-500">Account No:</span>
+                        <span className="font-mono font-bold text-slate-900 dark:text-slate-100">
+                          {selectedAffiliateDetail.bankAccountNumber || "—"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-1">
+                        <span className="text-slate-500">Account Name:</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
+                          {selectedAffiliateDetail.bankAccountName || selectedAffiliateDetail.fullName}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-slate-400 italic py-2">
+                      No bank or mobile money account entered during registration.
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Marketing Channels & Experience */}
+            <div className="bg-slate-50 dark:bg-slate-950 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                <Share2 className="w-3.5 h-3.5 text-emerald-500" /> Promotion Channels & Strategy
+              </h4>
+
+              <div className="space-y-3 text-xs">
+                <div>
+                  <span className="text-slate-500 block mb-1.5 font-semibold">
+                    Selected Marketing Channels:
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {selectedAffiliateDetail.marketingChannels &&
+                    selectedAffiliateDetail.marketingChannels.length > 0 ? (
+                      selectedAffiliateDetail.marketingChannels.map((ch: string) => (
+                        <span
+                          key={ch}
+                          className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-[11px]"
+                        >
+                          ✓ {ch}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-slate-400 italic">No specific channels selected</span>
+                    )}
+                  </div>
+                </div>
+
+                {selectedAffiliateDetail.websiteOrSocial && (
+                  <div className="flex items-center gap-2 pt-1 border-t border-slate-200/60 dark:border-slate-800/60">
+                    <span className="text-slate-500 font-semibold">Website / Social:</span>
+                    <a
+                      href={
+                        selectedAffiliateDetail.websiteOrSocial.startsWith("http")
+                          ? selectedAffiliateDetail.websiteOrSocial
+                          : `https://${selectedAffiliateDetail.websiteOrSocial}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-600 dark:text-emerald-400 font-semibold hover:underline flex items-center gap-1 truncate"
+                    >
+                      {selectedAffiliateDetail.websiteOrSocial}
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  </div>
+                )}
+
+                {selectedAffiliateDetail.notes && (
+                  <div className="pt-2 border-t border-slate-200/60 dark:border-slate-800/60 space-y-1">
+                    <span className="text-slate-500 font-semibold block">
+                      Applicant Promotion Pitch / Notes:
+                    </span>
+                    <div className="p-3 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 leading-relaxed italic text-xs">
+                      &ldquo;{selectedAffiliateDetail.notes}&rdquo;
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Rejection notice if previously rejected */}
+            {selectedAffiliateDetail.rejectionReason && (
+              <div className="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900 p-4 rounded-2xl text-xs space-y-1">
+                <span className="font-bold text-rose-600 dark:text-rose-400 block">
+                  Previous Rejection Reason:
+                </span>
+                <p className="text-rose-700 dark:text-rose-300">
+                  {selectedAffiliateDetail.rejectionReason}
+                </p>
+              </div>
+            )}
+
+            {/* Rejection Form Drawer if toggled */}
+            {showRejectForm && (
+              <div className="bg-slate-50 dark:bg-slate-950 border border-rose-300 dark:border-rose-900 p-4 rounded-2xl space-y-3">
+                <label className="block text-xs font-bold text-rose-600 dark:text-rose-400">
+                  Reason for Rejection (will be included in email to applicant):
+                </label>
+                <textarea
+                  rows={2}
+                  value={rejectionReasonInput}
+                  onChange={(e) => setRejectionReasonInput(e.target.value)}
+                  placeholder="e.g. Incomplete payment details, invalid phone number, or does not meet partner criteria..."
+                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-rose-500"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowRejectForm(false)}
+                    className="px-3 py-1.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isUpdatingStatus}
+                    onClick={() =>
+                      handleUpdateStatus(selectedAffiliateDetail.id, "REJECTED", rejectionReasonInput)
+                    }
+                    className="px-4 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5"
+                  >
+                    <UserX className="w-3.5 h-3.5" /> Confirm Rejection & Send Email
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Decision Actions Bar */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
+              <div className="text-[11px] text-slate-500">
+                {selectedAffiliateDetail.status === "PENDING"
+                  ? "⚡ Approving will automatically dispatch the official approval email with partner credentials."
+                  : selectedAffiliateDetail.status === "APPROVED"
+                  ? "Active Partner. 30-day attribution active."
+                  : `Status: ${selectedAffiliateDetail.status}`}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {selectedAffiliateDetail.status === "PENDING" && !showRejectForm && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowRejectForm(true)}
+                      className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition flex items-center gap-1.5"
+                    >
+                      <UserX className="w-3.5 h-3.5" /> Reject Application
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isUpdatingStatus}
+                      onClick={() => handleUpdateStatus(selectedAffiliateDetail.id, "APPROVED")}
+                      className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-emerald-950"
+                    >
+                      <CheckCircle2 className="w-4 h-4" /> Approve & Send Email
+                    </button>
+                  </>
+                )}
+
+                {selectedAffiliateDetail.status === "APPROVED" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTargetAffiliateForRate(selectedAffiliateDetail);
+                        setRateOverrideModalOpen(true);
+                      }}
+                      className="px-3.5 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-semibold"
+                    >
+                      Set Override Rate %
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isUpdatingStatus}
+                      onClick={() => handleUpdateStatus(selectedAffiliateDetail.id, "SUSPENDED")}
+                      className="px-4 py-2 rounded-xl border border-rose-300 dark:border-rose-900 text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-bold"
+                    >
+                      Suspend Account
+                    </button>
+                  </>
+                )}
+
+                {selectedAffiliateDetail.status === "SUSPENDED" && (
+                  <button
+                    type="button"
+                    disabled={isUpdatingStatus}
+                    onClick={() => handleUpdateStatus(selectedAffiliateDetail.id, "APPROVED")}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
+                  >
+                    Reactivate Partner
+                  </button>
+                )}
+
+                {selectedAffiliateDetail.status === "REJECTED" && (
+                  <button
+                    type="button"
+                    disabled={isUpdatingStatus}
+                    onClick={() => handleUpdateStatus(selectedAffiliateDetail.id, "APPROVED")}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold"
+                  >
+                    Re-Approve Partner
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
