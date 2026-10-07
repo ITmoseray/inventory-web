@@ -10,6 +10,8 @@ import {
   ArrowUpDown,
   Search,
   Users,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getAffiliateCommissions } from "@/lib/actions/affiliate";
@@ -50,26 +52,29 @@ export default function AffiliateCommissionsPage() {
 
   const statusTabs = [
     { id: "ALL", label: "All Commissions" },
-    { id: "PENDING", label: "Pending" },
+    { id: "PENDING", label: "Pending Verification" },
     { id: "APPROVED", label: "Approved" },
     { id: "PAID", label: "Paid Out" },
     { id: "CANCELLED", label: "Cancelled / Reversed" },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 selection:bg-emerald-500 selection:text-white">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Commissions Ledger
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-2">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide">
+          <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> Transparent Earnings Breakdown
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          Commissions Ledger & Statement
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Detailed breakdown of all verified commissions earned through your referrals.
+        <p className="text-xs sm:text-sm text-slate-600 max-w-3xl leading-relaxed">
+          Detailed financial audit of every customer conversion, recurring license subscription, or student cohort credited to your partner account.
         </p>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2">
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
         {statusTabs.map((tab) => (
           <button
             key={tab.id}
@@ -77,10 +82,10 @@ export default function AffiliateCommissionsPage() {
               setStatusFilter(tab.id);
               setPage(1);
             }}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition cursor-pointer ${
               statusFilter === tab.id
-                ? "bg-emerald-600 text-white shadow-md shadow-emerald-950"
-                : "bg-slate-900 border border-slate-800 text-slate-300 hover:border-slate-700"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "bg-white border border-slate-200 text-slate-700 hover:border-slate-300 hover:bg-slate-50"
             }`}
           >
             {tab.label}
@@ -89,152 +94,92 @@ export default function AffiliateCommissionsPage() {
       </div>
 
       {/* Table Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <span className="text-xs font-semibold text-slate-400">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <span className="text-xs font-bold text-slate-500">
             Showing {commissions.length} of {totalCount} records
           </span>
         </div>
 
         {loading ? (
-          <div className="py-12 text-center text-xs text-slate-500 animate-pulse">
+          <div className="py-12 text-center text-xs text-slate-400 animate-pulse">
             Loading commissions ledger...
           </div>
         ) : commissions.length === 0 ? (
-          <div className="py-16 text-center space-y-2">
-            <DollarSign className="w-12 h-12 text-slate-600 mx-auto" />
-            <p className="text-sm font-semibold text-slate-300">
-              No commission records found in this category
-            </p>
-            <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              When a referred customer completes a qualifying purchase, your commission will appear here automatically.
+          <div className="py-16 text-center space-y-3 bg-slate-50 rounded-2xl border border-slate-200">
+            <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 text-slate-400 flex items-center justify-center mx-auto shadow-sm">
+              <DollarSign className="w-6 h-6" />
+            </div>
+            <p className="text-xs font-bold text-slate-700">No commissions found matching this filter</p>
+            <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+              Share your referral link on WhatsApp or pitch in-person to retail stores to start recording earnings.
             </p>
           </div>
         ) : (
-          <div>
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3">
-              {commissions.map((c) => (
-                <div
-                  key={c.id}
-                  className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <h4 className="font-bold text-white text-xs uppercase tracking-wide">
-                        {c.orderType?.replace("_", " ")}
-                      </h4>
-                      <p className="text-[11px] text-slate-400 font-mono">
-                        Ref: {c.customerMasked} &bull; {new Date(c.createdAt).toLocaleDateString([], {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
-                        c.status === "PAID"
-                          ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                          : c.status === "APPROVED"
-                          ? "bg-blue-950 text-blue-400 border-blue-800"
-                          : c.status === "PENDING"
-                          ? "bg-amber-950 text-amber-400 border-amber-800"
-                          : "bg-rose-950 text-rose-400 border-rose-800"
-                      }`}
-                    >
-                      {c.status}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-xs">
-                    <div className="space-y-0.5">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                        Order Total
-                      </span>
-                      <span className="font-semibold text-slate-300">
-                        NLe {c.orderAmount.toFixed(2)}
-                      </span>
-                      <span className="ml-1.5 px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-[10px] font-mono text-emerald-400">
-                        {c.rateApplied}{c.rateType === "PERCENTAGE" ? "%" : " NLe"}
-                      </span>
-                    </div>
-
-                    <div className="text-right space-y-0.5">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                        Commission
-                      </span>
-                      <span className="text-sm font-extrabold text-emerald-400">
-                        + NLe {c.amount.toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop Table View */}
+          <>
+            {/* Desktop Table */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
+              <table className="w-full text-left text-xs text-slate-700">
+                <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
                   <tr>
-                    <th className="py-3 px-4">Date</th>
-                    <th className="py-3 px-4">Product / Service</th>
-                    <th className="py-3 px-4">Customer Ref</th>
-                    <th className="py-3 px-4 text-right">Order Total</th>
-                    <th className="py-3 px-4 text-center">Rate</th>
-                    <th className="py-3 px-4 text-right">Commission Earned</th>
-                    <th className="py-3 px-4 text-center">Status</th>
+                    <th className="py-3.5 px-4 rounded-l-xl">Date & ID</th>
+                    <th className="py-3.5 px-4">Solution / Product</th>
+                    <th className="py-3.5 px-4">Order Value</th>
+                    <th className="py-3.5 px-4">Rate</th>
+                    <th className="py-3.5 px-4 text-right">Commission</th>
+                    <th className="py-3.5 px-4 text-center rounded-r-xl">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {commissions.map((c) => (
-                    <tr key={c.id} className="hover:bg-slate-800/40 transition">
-                      <td className="py-3.5 px-4 whitespace-nowrap text-slate-400 font-mono text-[11px]">
-                        {new Date(c.createdAt).toLocaleDateString([], {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                <tbody className="divide-y divide-slate-100">
+                  {commissions.map((comm) => (
+                    <tr key={comm.id} className="hover:bg-slate-50/80 transition">
+                      <td className="py-4 px-4 space-y-0.5">
+                        <div className="font-bold text-slate-900">
+                          {new Date(comm.createdAt).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </div>
+                        <div className="font-mono text-[10px] text-slate-400">
+                          {comm.id.slice(0, 12)}...
+                        </div>
                       </td>
 
-                      <td className="py-3.5 px-4 font-bold text-white uppercase text-xs">
-                        {c.orderType?.replace("_", " ")}
+                      <td className="py-4 px-4">
+                        <div className="font-bold text-slate-900">
+                          {comm.conversion?.productName || "ProTech Solution"}
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Customer: {comm.conversion?.customerName || "Customer"}
+                        </div>
                       </td>
 
-                      <td className="py-3.5 px-4 text-slate-400 font-mono text-[11px]">
-                        {c.customerMasked}
+                      <td className="py-4 px-4 font-mono font-semibold text-slate-700">
+                        NLe {(Number(comm.baseAmount) || 0).toFixed(2)}
                       </td>
 
-                      <td className="py-3.5 px-4 text-right font-medium text-slate-300">
-                        NLe {c.orderAmount.toFixed(2)}
+                      <td className="py-4 px-4 font-mono text-slate-600">
+                        {comm.rateApplied ? `${comm.rateApplied}%` : "Standard"}
                       </td>
 
-                      <td className="py-3.5 px-4 text-center">
-                        <span className="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-[10px] font-mono text-emerald-400 font-semibold">
-                          {c.rateApplied}
-                          {c.rateType === "PERCENTAGE" ? "%" : " NLe"}
-                        </span>
+                      <td className="py-4 px-4 text-right font-mono font-black text-emerald-700 text-sm">
+                        +NLe {(Number(comm.amount) || 0).toFixed(2)}
                       </td>
 
-                      <td className="py-3.5 px-4 text-right font-bold text-emerald-400 text-sm">
-                        + NLe {c.amount.toFixed(2)}
-                      </td>
-
-                      <td className="py-3.5 px-4 text-center">
+                      <td className="py-4 px-4 text-center">
                         <span
                           className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                            c.status === "PAID"
-                              ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                              : c.status === "APPROVED"
-                              ? "bg-blue-950 text-blue-400 border-blue-800"
-                              : c.status === "PENDING"
-                              ? "bg-amber-950 text-amber-400 border-amber-800"
-                              : "bg-rose-950 text-rose-400 border-rose-800"
+                            comm.status === "PAID"
+                              ? "bg-blue-50 text-blue-800 border-blue-200"
+                              : comm.status === "APPROVED"
+                              ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                              : comm.status === "PENDING"
+                              ? "bg-amber-50 text-amber-800 border-amber-200"
+                              : "bg-rose-50 text-rose-800 border-rose-200"
                           }`}
                         >
-                          {c.status}
+                          {comm.status}
                         </span>
                       </td>
                     </tr>
@@ -242,30 +187,48 @@ export default function AffiliateCommissionsPage() {
                 </tbody>
               </table>
             </div>
-          </div>
-        )}
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-4 border-t border-slate-800 text-xs">
-            <button
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-slate-400">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
+            {/* Mobile Cards */}
+            <div className="md:hidden space-y-3">
+              {commissions.map((comm) => (
+                <div
+                  key={comm.id}
+                  className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-slate-900 text-xs">
+                        {comm.conversion?.productName || "ProTech Solution"}
+                      </p>
+                      <p className="text-[10px] text-slate-500">
+                        {new Date(comm.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                        comm.status === "PAID"
+                          ? "bg-blue-50 text-blue-800 border-blue-200"
+                          : comm.status === "APPROVED"
+                          ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                          : comm.status === "PENDING"
+                          ? "bg-amber-50 text-amber-800 border-amber-200"
+                          : "bg-rose-50 text-rose-800 border-rose-200"
+                      }`}
+                    >
+                      {comm.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-200">
+                    <span className="text-slate-500">Commission Earned:</span>
+                    <span className="font-black text-emerald-700 font-mono text-sm">
+                      +NLe {(Number(comm.amount) || 0).toFixed(2)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>

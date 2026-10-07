@@ -14,6 +14,7 @@ import {
   Brain,
   Package,
   Layers,
+  Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getAffiliateLinks, createAffiliateLink } from "@/lib/actions/affiliate";
@@ -24,7 +25,7 @@ const PRODUCT_PRESETS = [
   { slug: "ai-masterclass", name: "ProTech AI & Prompt Engineering Masterclass", targetUrl: "/services" },
   { slug: "website-dev", name: "Custom Website & Portal Development", targetUrl: "/services" },
   { slug: "mobile-app-dev", name: "Mobile Application Development (iOS & Android)", targetUrl: "/services" },
-  { slug: "ms-office-training", name: "Microsoft Office Suite Training", targetUrl: "/services" },
+  { slug: "school-system", name: "School, College & University Management System", targetUrl: "/school" },
   { slug: "all", name: "ProTech Assist General Platform (All Services)", targetUrl: "/" },
 ];
 
@@ -71,7 +72,7 @@ export default function AffiliateLinksPage() {
       const res = await createAffiliateLink({
         targetUrl: selectedProduct.targetUrl,
         productSlug: selectedProduct.slug,
-        title: campaignTitle.trim() || `${selectedProduct.name} Promo`,
+        title: campaignTitle.trim() || `${selectedProduct.name} Campaign`,
       });
 
       if (res.success) {
@@ -98,272 +99,242 @@ export default function AffiliateLinksPage() {
 
   const shareWhatsApp = (code: string, title: string) => {
     const fullUrl = `${baseUrl}/ref/${code}`;
-    const text = encodeURIComponent(
-      `Check out ${title} from ProTech Assist SL: ${fullUrl}`
-    );
-    window.open(`https://api.whatsapp.com/send?text=${text}`, "_blank");
+    const message = `🚀 ${title} by ProTech Assist SL!\n\n👉 Learn more & get started: ${fullUrl}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 selection:bg-emerald-500 selection:text-white">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Referral Link Generator
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-2">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide">
+          <Link2 className="w-3.5 h-3.5 text-emerald-600" /> Dynamic Campaign Generator
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          Custom Referral Links & Campaigns
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Create product-specific links to track your campaigns on WhatsApp, Facebook, TikTok, or client pitches.
+        <p className="text-xs sm:text-sm text-slate-600 max-w-3xl leading-relaxed">
+          Create product-targeted referral links for specific social media posts, WhatsApp groups, or email newsletters. Every custom link locks the lead to your account for <strong>30 full days</strong>.
         </p>
       </div>
 
       {/* Generator Card */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-            <Plus className="w-5 h-5" />
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex items-center gap-2.5 border-b border-slate-100 pb-4">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
+            <Plus className="w-4 h-4" />
           </div>
-          <div>
-            <h2 className="text-base font-bold text-white">Generate Custom Campaign Link</h2>
-            <p className="text-xs text-slate-400">Target a specific product, training cohort, or service</p>
-          </div>
+          <h2 className="text-base sm:text-lg font-black text-slate-900">
+            Generate New Campaign Link
+          </h2>
         </div>
 
-        <form onSubmit={handleCreateLink} className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="md:col-span-1">
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Select Product or Service
-            </label>
-            <select
-              value={selectedProduct.slug}
-              onChange={(e) => {
-                const found = PRODUCT_PRESETS.find((p) => p.slug === e.target.value);
-                if (found) setSelectedProduct(found);
-              }}
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-            >
-              {PRODUCT_PRESETS.map((p) => (
-                <option key={p.slug} value={p.slug}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
+        <form onSubmit={handleCreateLink} className="space-y-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Target Solution / Landing Destination
+              </label>
+              <select
+                value={selectedProduct.slug}
+                onChange={(e) => {
+                  const found = PRODUCT_PRESETS.find((p) => p.slug === e.target.value);
+                  if (found) setSelectedProduct(found);
+                }}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15 transition shadow-sm"
+              >
+                {PRODUCT_PRESETS.map((p) => (
+                  <option key={p.slug} value={p.slug}>
+                    {p.name} ({p.targetUrl})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Campaign Label / Title (Optional)
+              </label>
+              <input
+                type="text"
+                value={campaignTitle}
+                onChange={(e) => setCampaignTitle(e.target.value)}
+                placeholder="e.g. Pharmacy WhatsApp Group Promo"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15 transition shadow-sm"
+              />
+            </div>
           </div>
 
-          <div className="md:col-span-1">
-            <label className="block text-xs font-medium text-slate-300 mb-1">
-              Campaign Label (Optional)
-            </label>
-            <input
-              type="text"
-              value={campaignTitle}
-              onChange={(e) => setCampaignTitle(e.target.value)}
-              placeholder="e.g. WhatsApp Status Promo, Bo Tech Group"
-              className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
-            />
-          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-2">
+            <div className="text-xs text-slate-500">
+              Destination URL: <span className="font-mono text-emerald-700 font-bold">{selectedProduct.targetUrl}</span>
+            </div>
 
-          <div className="md:col-span-1 flex items-end">
             <button
               type="submit"
               disabled={creating}
-              className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-md shadow-emerald-950 disabled:opacity-50"
+              className="py-3 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20 disabled:opacity-50"
             >
-              <Link2 className="w-4 h-4" />
-              {creating ? "Generating..." : "Generate Referral Link"}
+              <Plus className="w-4 h-4" />
+              {creating ? "Creating Link..." : "Create Campaign Link"}
             </button>
           </div>
         </form>
       </div>
 
-      {/* Existing Links List */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-          <div>
-            <h2 className="text-base font-bold text-white">Your Active Tracking Links</h2>
-            <p className="text-xs text-slate-400">Total {links.length} active links</p>
-          </div>
+      {/* Links List */}
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <h2 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+            <Layers className="w-4 h-4 text-emerald-600" /> Active Referral Links ({links.length})
+          </h2>
+          <span className="text-xs font-mono font-bold text-slate-500">
+            Partner Code: {affiliateCode}
+          </span>
         </div>
 
-        {loading ? (
-          <div className="py-8 text-center text-xs text-slate-500 animate-pulse">
-            Loading your tracking links...
-          </div>
-        ) : links.length === 0 ? (
-          <div className="py-12 text-center space-y-2">
-            <Link2 className="w-10 h-10 text-slate-600 mx-auto" />
-            <p className="text-sm font-semibold text-slate-300">No custom links created yet</p>
-            <p className="text-xs text-slate-500">
-              Use the generator above to create customized referral links for specific campaigns.
-            </p>
-          </div>
-        ) : (
-          <div>
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3">
-              {links.map((l) => {
-                const fullUrl = `${baseUrl}/ref/${l.code}`;
-                const isCopied = copiedId === l.id;
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+              <tr>
+                <th className="py-3.5 px-4 rounded-l-xl">Campaign Name</th>
+                <th className="py-3.5 px-4">Tracking URL</th>
+                <th className="py-3.5 px-4">Target Route</th>
+                <th className="py-3.5 px-4 text-center">Clicks</th>
+                <th className="py-3.5 px-4 text-center">Conversions</th>
+                <th className="py-3.5 px-4 text-right rounded-r-xl">Share & Copy</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {links.map((link) => {
+                const fullUrl = `${baseUrl}/ref/${link.code}`;
+                const isCopied = copiedId === link.id;
 
                 return (
-                  <div
-                    key={l.id}
-                    className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3"
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="space-y-1 min-w-0">
-                        <h4 className="font-bold text-white text-xs truncate">
-                          {l.title || "Referral Link"}
-                        </h4>
-                        <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-400">
-                          <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-emerald-400 font-mono text-[10px]">
-                            {l.productSlug || "all"}
-                          </span>
-                          <span className="truncate max-w-[160px] text-slate-500">
-                            {l.targetUrl}
-                          </span>
-                        </div>
+                  <tr key={link.id} className="hover:bg-slate-50/80 transition">
+                    <td className="py-4 px-4 font-bold text-slate-900">
+                      <div>{link.title || "Default Campaign"}</div>
+                      <div className="text-[10px] font-mono text-slate-400 font-normal">
+                        Created {new Date(link.createdAt).toLocaleDateString()}
                       </div>
+                    </td>
 
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-slate-300 text-[10px] font-semibold border border-slate-800">
-                          <MousePointerClick className="w-3 h-3 text-emerald-400" /> {l.clicksCount}
-                        </span>
-                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-emerald-400 text-[10px] font-semibold border border-emerald-950">
-                          <Users className="w-3 h-3 text-emerald-400" /> {l.conversionsCount}
-                        </span>
-                      </div>
-                    </div>
-
-                    <a
-                      href={fullUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block font-mono text-[11px] text-emerald-400 hover:underline truncate bg-slate-900/60 p-2 rounded-lg border border-slate-800/80"
-                      title="Tap to open link"
-                    >
-                      {fullUrl}
-                    </a>
-
-                    <div className="flex items-center gap-2 pt-1">
-                      <button
-                        onClick={() => copyLink(l.code, l.id)}
-                        className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-950"
-                      >
-                        {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                        {isCopied ? "Copied" : "Copy"}
-                      </button>
+                    <td className="py-4 px-4 font-mono font-bold text-emerald-700">
                       <a
                         href={fullUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex-1 py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5"
+                        className="hover:underline flex items-center gap-1 group"
+                        title="Open tracking link in new tab"
                       >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        Test Link
+                        <span>{fullUrl}</span>
+                        <ExternalLink className="w-3 h-3 opacity-60 group-hover:opacity-100" />
                       </a>
+                    </td>
+
+                    <td className="py-4 px-4 text-slate-600 font-mono text-[11px]">
+                      {link.targetUrl}
+                    </td>
+
+                    <td className="py-4 px-4 text-center font-bold text-slate-900">
+                      {link.clicksCount}
+                    </td>
+
+                    <td className="py-4 px-4 text-center font-bold text-blue-600">
+                      {link.conversionsCount}
+                    </td>
+
+                    <td className="py-4 px-4 text-right space-x-2 whitespace-nowrap">
                       <button
-                        onClick={() => shareWhatsApp(l.code, l.title)}
-                        className="py-2 px-3 rounded-xl bg-emerald-950 hover:bg-emerald-900 border border-emerald-800 text-emerald-300 font-semibold text-xs transition flex items-center justify-center gap-1"
+                        onClick={() => copyLink(link.code, link.id)}
+                        className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition inline-flex items-center gap-1 shadow-sm"
+                      >
+                        {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                        {isCopied ? "Copied" : "Copy"}
+                      </button>
+
+                      <button
+                        onClick={() => shareWhatsApp(link.code, link.title || "ProTech Solution")}
+                        className="px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold text-xs transition inline-flex items-center gap-1"
                         title="Share on WhatsApp"
                       >
-                        <Share2 className="w-3.5 h-3.5" />
+                        <Share2 className="w-3.5 h-3.5 text-emerald-600" />
+                        WhatsApp
                       </button>
-                    </div>
-                  </div>
+                    </td>
+                  </tr>
                 );
               })}
-            </div>
+            </tbody>
+          </table>
+        </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
-                  <tr>
-                    <th className="py-3 px-4">Campaign & Target</th>
-                    <th className="py-3 px-4">Tracking URL</th>
-                    <th className="py-3 px-4 text-center">Clicks</th>
-                    <th className="py-3 px-4 text-center">Conversions</th>
-                    <th className="py-3 px-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {links.map((l) => {
-                    const fullUrl = `${baseUrl}/ref/${l.code}`;
-                    const isCopied = copiedId === l.id;
+        {/* Mobile Card View */}
+        <div className="md:hidden space-y-3">
+          {links.map((link) => {
+            const fullUrl = `${baseUrl}/ref/${link.code}`;
+            const isCopied = copiedId === link.id;
 
-                    return (
-                      <tr key={l.id} className="hover:bg-slate-800/40 transition">
-                        <td className="py-3.5 px-4 space-y-0.5">
-                          <div className="font-bold text-white text-xs">{l.title || "Referral Link"}</div>
-                          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                            <span className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-emerald-400 font-mono text-[10px]">
-                              {l.productSlug || "all"}
-                            </span>
-                            <span>&bull;</span>
-                            <span>{l.targetUrl}</span>
-                          </div>
-                        </td>
+            return (
+              <div
+                key={link.id}
+                className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-900 text-sm">
+                    {link.title || "Default Campaign"}
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-mono">
+                    {new Date(link.createdAt).toLocaleDateString()}
+                  </span>
+                </div>
 
-                        <td className="py-3.5 px-4 font-mono text-[11px] text-slate-300 max-w-xs">
-                          <a
-                            href={fullUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-emerald-400 hover:underline flex items-center gap-1 truncate"
-                            title="Click to visit link"
-                          >
-                            <span className="truncate">{fullUrl}</span>
-                            <ExternalLink className="w-3 h-3 shrink-0 opacity-70" />
-                          </a>
-                        </td>
+                <div className="space-y-1">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+                    Tracking URL
+                  </span>
+                  <a
+                    href={fullUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-xs font-bold text-emerald-700 break-all flex items-center gap-1 hover:underline"
+                  >
+                    <span>{fullUrl}</span>
+                    <ExternalLink className="w-3 h-3 shrink-0" />
+                  </a>
+                </div>
 
-                        <td className="py-3.5 px-4 text-center">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950 text-slate-200 font-semibold border border-slate-800">
-                            <MousePointerClick className="w-3 h-3 text-emerald-400" /> {l.clicksCount}
-                          </span>
-                        </td>
+                <div className="grid grid-cols-2 gap-2 text-center text-xs py-2 bg-white rounded-xl border border-slate-200">
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Clicks</span>
+                    <span className="font-bold text-slate-900">{link.clicksCount}</span>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-slate-400 uppercase font-bold block">Conversions</span>
+                    <span className="font-bold text-blue-600">{link.conversionsCount}</span>
+                  </div>
+                </div>
 
-                        <td className="py-3.5 px-4 text-center">
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-950 text-emerald-400 font-semibold border border-emerald-950">
-                            <Users className="w-3 h-3 text-emerald-400" /> {l.conversionsCount}
-                          </span>
-                        </td>
-
-                        <td className="py-3.5 px-4 text-right space-x-2 whitespace-nowrap">
-                          <button
-                            onClick={() => copyLink(l.code, l.id)}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-[11px] transition inline-flex items-center gap-1"
-                          >
-                            {isCopied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                            {isCopied ? "Copied" : "Copy"}
-                          </button>
-
-                          <a
-                            href={fullUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition inline-flex items-center gap-1 text-[11px]"
-                            title="Test Link"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                          </a>
-
-                          <button
-                            onClick={() => shareWhatsApp(l.code, l.title)}
-                            className="px-2.5 py-1.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-800 transition inline-flex items-center gap-1"
-                            title="Share on WhatsApp"
-                          >
-                            <Share2 className="w-3 h-3" />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={() => copyLink(link.code, link.id)}
+                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-sm"
+                  >
+                    {isCopied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {isCopied ? "Copied!" : "Copy Link"}
+                  </button>
+                  <button
+                    onClick={() => shareWhatsApp(link.code, link.title || "ProTech Solution")}
+                    className="flex-1 py-2 px-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold text-xs transition flex items-center justify-center gap-1.5"
+                  >
+                    <Share2 className="w-3.5 h-3.5 text-emerald-600" /> WhatsApp
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

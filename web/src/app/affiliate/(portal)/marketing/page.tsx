@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   FileText,
   Copy,
@@ -14,6 +15,12 @@ import {
   Globe,
   MessageSquare,
   Image as ImageIcon,
+  ExternalLink,
+  Laptop,
+  GraduationCap,
+  Building2,
+  Sparkles,
+  Send,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getAffiliateProfile, getAffiliateMarketingMaterials } from "@/lib/actions/affiliate";
@@ -21,6 +28,7 @@ import { getAffiliateProfile, getAffiliateMarketingMaterials } from "@/lib/actio
 export default function AffiliateMarketingPage() {
   const [affiliateCode, setAffiliateCode] = useState<string>("PA-AFF-00001");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [copiedBannerId, setCopiedBannerId] = useState<string | null>(null);
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [baseUrl, setBaseUrl] = useState("https://protechassist.com");
@@ -53,18 +61,20 @@ export default function AffiliateMarketingPage() {
 
   const promoScripts = [
     {
+      id: "script-enterprise-os",
       title: "Enterprise OS / Retail Inventory Pitch (WhatsApp Status & Groups)",
       category: "Software",
       product: "Enterprise OS",
+      targetSlug: "enterprise-os",
       description: "Ideal for retail shop owners, supermarkets, pharmacies, electronics stores, and restaurant managers.",
       text: `🚀 Tired of missing stock, manual paper receipts, or untracked profit in your shop?
 
 ProTech Assist Enterprise OS is Sierra Leone's #1 modern business management software!
 ✅ Barcode POS & Fast Thermal Receipt Printing
-✅ Automatic Stock Alerts & Expiry Tracking
-✅ Multi-Store Branch Management
-✅ Daily Profit & Loss Reports
-✅ Works smoothly on phones, tablets & laptops
+✅ Automatic Stock Alerts & Expiry Tracking for Pharmacies
+✅ Multi-Store Branch & Warehouse Synchronization
+✅ Daily Profit & Loss Reports straight to your phone
+✅ Works on mobile phones, tablets, POS terminals & laptops
 
 Try the free trial today or request a live demo:
 👉 ${baseUrl}/ref/${affiliateCode}?product=enterprise-os
@@ -72,25 +82,29 @@ Try the free trial today or request a live demo:
 Contact ProTech Assist for installation support across Sierra Leone! 🇸🇱`,
     },
     {
+      id: "script-ai",
       title: "ProTech AI Masterclass & Prompt Engineering Pitch",
       category: "Training",
       product: "AI Masterclass",
+      targetSlug: "ai-masterclass",
       description: "Ideal for young professionals, university students, corporate employees, and creative freelancers.",
       text: `🤖 Master Artificial Intelligence in 2026 with ProTech Assist SL!
 
 Learn how to use AI tools, ChatGPT, Claude, Automation, and Prompt Engineering to multiply your productivity and earn globally.
 
 🎓 Hands-on practical masterclass
-📜 Official ProTech Certification
+📜 Official ProTech Certification of Completion
 💼 Career & freelance portfolio guidance
 
 Reserve your seat now before registration closes:
 👉 ${baseUrl}/ref/${affiliateCode}?product=ai-masterclass`,
     },
     {
+      id: "script-coding",
       title: "Software Engineering & Full-Stack Development Cohort Pitch",
       category: "Training",
       product: "Full-Stack Cohort",
+      targetSlug: "software-engineering",
       description: "Ideal for tech enthusiasts, school leavers, and university grads looking for high-paying software engineering jobs.",
       text: `💻 Want to become a certified Full-Stack Software Engineer right here in Sierra Leone?
 
@@ -104,27 +118,68 @@ Apply today through my referral link:
 👉 ${baseUrl}/ref/${affiliateCode}?product=software-engineering`,
     },
     {
-      title: "Corporate Website & Custom Software Services Pitch",
-      category: "Services",
-      product: "Web & Mobile Development",
-      description: "Ideal for business executives, NGOs, schools, hospitals, and founders needing digital transformation.",
-      text: `🌐 Upgrade your company or institution with custom enterprise technology from ProTech Assist SL Limited!
+      id: "script-school",
+      title: "School, College & University Management System Pitch",
+      category: "Institutions",
+      product: "School Management",
+      targetSlug: "school-system",
+      description: "Ideal for school principals, headmasters, university registrars, and education administrators.",
+      text: `🏫 Modernize your school or college with ProTech Assist Educational OS!
 
-Specialized in:
-✨ Modern Responsive Websites & Web Portals
-✨ Android & iOS Mobile Applications
-✨ School & Hospital Management Systems
-✨ Secure Cloud Database Solutions & Cybersecurity
+Comprehensive institution management:
+✅ Student Admissions & Digital Registration
+✅ Automated Fee Tracking & Orange/Afrimoney Payment Receipts
+✅ Report Cards, Exams & Transcript Generation
+✅ Staff & Teacher Payroll Management
 
-Get a custom project quote today:
-👉 ${baseUrl}/ref/${affiliateCode}?product=website-dev`,
+Book an institutional consultation and live system demo:
+👉 ${baseUrl}/ref/${affiliateCode}?to=/school`,
     },
   ];
+
+  // Default visual assets if database list is empty or complements
+  const defaultVisualAssets = [
+    {
+      id: "def-school",
+      title: "School, College & University System",
+      category: "BANNERS",
+      dimensions: "1080x1080",
+      description: "Square promotional graphic designed for school heads, universities, and education boards.",
+      fileUrl: "/flyer.html",
+      productSlug: "school-system",
+      targetUrl: "/school",
+      caption: `🏫 Upgrade your school or university administration with ProTech Assist Educational OS! Digital admissions, instant student fee receipts, and automated report card generation. Learn more: ${baseUrl}/ref/${affiliateCode}?to=/school`,
+    },
+    {
+      id: "def-enterprise",
+      title: "Enterprise OS for Retail Shops & Pharmacies",
+      category: "FLYERS",
+      dimensions: "1080x1080",
+      description: "High-impact retail promotional flyer for supermarkets, pharmacies, and wholesale shops.",
+      fileUrl: "/images/Sales_and_POS.png",
+      productSlug: "enterprise-os",
+      targetUrl: "/register",
+      caption: `🛒 Run your retail shop or pharmacy like a pro! Barcode POS scanning, thermal receipt printing, stock alerts & profit tracking. Start 14-day free trial: ${baseUrl}/ref/${affiliateCode}?product=enterprise-os`,
+    },
+    {
+      id: "def-ai",
+      title: "ProTech AI & Prompt Engineering Masterclass",
+      category: "BANNERS",
+      dimensions: "1080x1080",
+      description: "Official masterclass poster for students, creatives, and corporate professionals.",
+      fileUrl: "/images/AI_Copilot.png",
+      productSlug: "ai-masterclass",
+      targetUrl: "/services",
+      caption: `🤖 Master Artificial Intelligence in 2026! Practical hands-on training with ChatGPT, Claude, and workflow automation. Enroll now: ${baseUrl}/ref/${affiliateCode}?product=ai-masterclass`,
+    },
+  ];
+
+  const allAssets = materials && materials.length > 0 ? materials : defaultVisualAssets;
 
   const copyScript = (text: string, index: number) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(index);
-    toast.success("Promotional script copied to clipboard!");
+    toast.success("Promotional text copied with your referral link!");
     setTimeout(() => setCopiedIndex(null), 2500);
   };
 
@@ -132,28 +187,136 @@ Get a custom project quote today:
     window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, "_blank");
   };
 
+  const shareBannerWhatsApp = (asset: any) => {
+    const trackingUrl = `${baseUrl}/ref/${affiliateCode}${
+      asset.targetUrl ? `?to=${encodeURIComponent(asset.targetUrl)}` : `?product=${encodeURIComponent(asset.productSlug || "all")}`
+    }`;
+    const caption = asset.caption || `🚀 Check out ${asset.title} from ProTech Assist SL!\n\n👉 Learn more & get started: ${trackingUrl}`;
+    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(caption)}`, "_blank");
+  };
+
+  const handleDownloadAndCopyCaption = (asset: any) => {
+    const trackingUrl = `${baseUrl}/ref/${affiliateCode}${
+      asset.targetUrl ? `?to=${encodeURIComponent(asset.targetUrl)}` : `?product=${encodeURIComponent(asset.productSlug || "all")}`
+    }`;
+    const caption = asset.caption || `🚀 ${asset.title} - ProTech Assist SL\n\n👉 Inquire or Register: ${trackingUrl}`;
+    
+    // Copy caption to clipboard
+    navigator.clipboard.writeText(caption);
+    setCopiedBannerId(asset.id);
+    toast.success("Caption & referral link copied to clipboard! File download started.");
+    setTimeout(() => setCopiedBannerId(null), 3000);
+
+    // Trigger download if fileUrl exists
+    if (asset.fileUrl) {
+      const link = document.createElement("a");
+      link.href = asset.fileUrl;
+      link.target = "_blank";
+      link.download = `${asset.title.toLowerCase().replace(/\s+/g, "-")}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 selection:bg-emerald-500 selection:text-white">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Marketing Resources & Copy Scripts
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-2">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide">
+          <Sparkles className="w-3.5 h-3.5 text-emerald-600" /> Media Kit & Social Toolkit
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          Marketing Resources & Promotional Kit
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Use these high-converting, pre-approved promotional texts, WhatsApp messages, and marketing assets to share with your audience.
+        <p className="text-xs sm:text-sm text-slate-600 max-w-3xl leading-relaxed">
+          Share these pre-written messages, marketing flyers, and social banners with your audience. Your unique tracking code (<span className="font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">{affiliateCode}</span>) is automatically embedded in every share!
         </p>
       </div>
 
+      {/* Visual Banners & Flyers Section */}
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-100 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
+              <ImageIcon className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-slate-900">Promotional Banners & Media Kit</h2>
+              <p className="text-xs text-slate-500">
+                1080x1080 graphics ready for WhatsApp status, Facebook posts, and Instagram stories.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {allAssets.map((asset) => {
+            const isCopied = copiedBannerId === asset.id;
+            return (
+              <div
+                key={asset.id}
+                className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-emerald-300 hover:shadow-md transition group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-[10px] font-bold">
+                    <span className="uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white border border-slate-200 text-slate-700">
+                      {asset.category || "BANNER"} &bull; {asset.dimensions || "1080x1080"}
+                    </span>
+                    <span className="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-mono border border-emerald-200">
+                      Active Asset
+                    </span>
+                  </div>
+
+                  {/* Thumbnail / Graphic Placeholder */}
+                  <div className="h-40 rounded-xl bg-white border border-slate-200 flex flex-col items-center justify-center text-center p-4 relative overflow-hidden group-hover:border-emerald-300 transition">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2 border border-emerald-100">
+                      <Layers className="w-6 h-6" />
+                    </div>
+                    <span className="font-bold text-xs text-slate-900 line-clamp-1">{asset.title}</span>
+                    <span className="text-[10px] text-slate-500 mt-0.5">High-Res Brand Graphic</span>
+                  </div>
+
+                  <div>
+                    <h3 className="font-bold text-slate-900 text-sm">{asset.title}</h3>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed line-clamp-2">
+                      {asset.description}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-2 border-t border-slate-200/80">
+                  <button
+                    onClick={() => shareBannerWhatsApp(asset)}
+                    className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
+                  >
+                    <Share2 className="w-3.5 h-3.5" /> Share on WhatsApp with My Link
+                  </button>
+
+                  <button
+                    onClick={() => handleDownloadAndCopyCaption(asset)}
+                    className="w-full py-2 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-700 font-semibold text-xs transition flex items-center justify-center gap-1.5 border border-slate-200 shadow-sm"
+                  >
+                    {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Download className="w-3.5 h-3.5" />}
+                    {isCopied ? "Caption & Link Copied!" : "Download + Copy Link Caption"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Copy Scripts Section */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex items-center gap-3 border-b border-slate-100 pb-5">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200">
             <MessageSquare className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Pre-Written WhatsApp & Social Scripts</h2>
-            <p className="text-xs text-slate-400">
-              Your unique referral link (<code>{affiliateCode}</code>) is automatically inserted into every script!
+            <h2 className="text-lg font-black text-slate-900">Pre-Written WhatsApp & Social Scripts</h2>
+            <p className="text-xs text-slate-500">
+              Copy and paste these proven scripts into your WhatsApp statuses, broadcasts, and DM conversations.
             </p>
           </div>
         </div>
@@ -164,23 +327,23 @@ Get a custom project quote today:
 
             return (
               <div
-                key={idx}
-                className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl flex flex-col justify-between space-y-4 hover:border-slate-700 transition"
+                key={script.id}
+                className="bg-slate-50 border border-slate-200 rounded-2xl p-5 sm:p-6 flex flex-col justify-between space-y-4 hover:border-emerald-300 transition shadow-sm"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-slate-950 text-emerald-400 border border-slate-800">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-white text-emerald-700 border border-slate-200 font-mono">
                       {script.category} &bull; {script.product}
                     </span>
                   </div>
-                  <h3 className="font-bold text-white text-base leading-snug">
+                  <h3 className="font-bold text-slate-900 text-base leading-snug">
                     {script.title}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-600">
                     {script.description}
                   </p>
 
-                  <div className="mt-3 p-4 rounded-2xl bg-slate-950 border border-slate-800 font-mono text-xs text-slate-300 whitespace-pre-wrap leading-relaxed select-all max-h-56 overflow-y-auto">
+                  <div className="mt-3 p-4 rounded-xl bg-white border border-slate-200 font-mono text-xs text-slate-800 whitespace-pre-wrap leading-relaxed select-all max-h-56 overflow-y-auto shadow-inner">
                     {script.text}
                   </div>
                 </div>
@@ -188,18 +351,18 @@ Get a custom project quote today:
                 <div className="pt-2 flex items-center gap-2">
                   <button
                     onClick={() => copyScript(script.text, idx)}
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center justify-center gap-2 shadow-md shadow-emerald-950"
+                    className="flex-1 py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-md shadow-emerald-600/20"
                   >
                     {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                    {isCopied ? "Copied Script!" : "Copy Full Text"}
+                    {isCopied ? "Copied with Link!" : "Copy Text with Link"}
                   </button>
 
                   <button
                     onClick={() => shareScriptWhatsApp(script.text)}
-                    className="py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold text-xs border border-slate-700 transition flex items-center gap-1.5"
+                    className="py-2.5 px-4 rounded-xl bg-white hover:bg-slate-100 text-emerald-700 font-bold text-xs border border-slate-200 transition flex items-center gap-1.5 shadow-sm"
                     title="Send straight to WhatsApp"
                   >
-                    <Share2 className="w-4 h-4" />
+                    <Share2 className="w-4 h-4 text-emerald-600" />
                     WhatsApp
                   </button>
                 </div>
@@ -207,61 +370,6 @@ Get a custom project quote today:
             );
           })}
         </div>
-      </div>
-
-      {/* Brand Flyers & Graphics */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center">
-            <ImageIcon className="w-5 h-5" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">Promotional Graphics & Flyers</h2>
-            <p className="text-xs text-slate-400">
-              Download approved visual assets to post on Instagram stories, Facebook banners, and WhatsApp statuses.
-            </p>
-          </div>
-        </div>
-
-        {materials && materials.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {materials.map((mat) => (
-              <div
-                key={mat.id}
-                className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3 flex flex-col justify-between"
-              >
-                <div className="space-y-1">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                    {mat.category}
-                  </span>
-                  <h4 className="font-bold text-white text-sm">{mat.title}</h4>
-                  <p className="text-xs text-slate-400">{mat.description}</p>
-                </div>
-
-                {mat.fileUrl && (
-                  <a
-                    href={mat.fileUrl}
-                    target="_blank"
-                    download
-                    className="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold text-xs transition flex items-center justify-center gap-2 border border-slate-700"
-                  >
-                    <Download className="w-3.5 h-3.5" /> Download Asset
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-8 rounded-2xl bg-slate-950/60 border border-slate-800 text-center space-y-2">
-            <ImageIcon className="w-10 h-10 text-slate-600 mx-auto" />
-            <p className="text-sm font-semibold text-slate-300">
-              Official Media Kit & Banners
-            </p>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
-              Our graphic design team regularly uploads updated promotional banners, brochures, and course flyers here. You can also request custom branded materials from ProTech admin.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );

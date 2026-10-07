@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Save,
   Send,
+  Sparkles,
+  CreditCard,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -99,40 +101,22 @@ export default function AffiliatePayoutsPage() {
 
   const handleRequestPayout = async (e: React.FormEvent) => {
     e.preventDefault();
-    const amount = Number(payoutAmount);
-    const available = dashboardData?.kpis?.availableBalance || 0;
-    const minThreshold = dashboardData?.kpis?.minPayout || 100;
-
-    if (!amount || amount <= 0) {
-      toast.error("Please enter a valid payout amount.");
-      return;
-    }
-
-    if (amount < minThreshold) {
-      toast.error(`Minimum withdrawal amount is NLe ${minThreshold}.`);
-      return;
-    }
-
-    if (amount > available) {
-      toast.error(`Requested amount exceeds available balance of NLe ${available.toFixed(2)}.`);
+    const amount = parseFloat(payoutAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast.error("Please enter a valid amount to withdraw");
       return;
     }
 
     setRequesting(true);
     try {
-      const res = await requestPayout({
-        amount,
-        method: paymentSettings.payoutMethod as any,
-        accountDetails: paymentSettings,
-      });
-
+      const res = await requestPayout(amount);
       if (res.success) {
         toast.success(res.message);
         setShowRequestModal(false);
         setPayoutAmount("");
         loadData();
       } else {
-        toast.error(res.error || "Failed to submit payout request");
+        toast.error(res.error || "Payout request failed");
       }
     } catch (e: any) {
       toast.error("Failed to request payout");
@@ -142,202 +126,133 @@ export default function AffiliatePayoutsPage() {
   };
 
   const availableBalance = dashboardData?.kpis?.availableBalance || 0;
-  const minPayout = dashboardData?.kpis?.minPayout || 100;
-  const isApproved = dashboardData?.affiliate?.status === "APPROVED";
+  const pendingAmount = dashboardData?.kpis?.pendingAmount || 0;
+  const paidAmount = dashboardData?.kpis?.paidAmount || 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 selection:bg-emerald-500 selection:text-white">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Payouts & Earnings Withdrawal
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-2">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold tracking-wide">
+          <Wallet className="w-3.5 h-3.5 text-emerald-600" /> Fast Local Withdrawals
+        </div>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+          Earnings Payouts & Banking Setup
         </h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Withdraw your approved commission earnings directly to Orange Money, Afrimoney, or your commercial bank.
+        <p className="text-xs sm:text-sm text-slate-600 max-w-3xl leading-relaxed">
+          Request commission withdrawals directly to your Orange Money, Afrimoney, or Commercial Bank BBAN account. Payouts are verified and disbursed promptly.
         </p>
       </div>
 
-      {/* Balance Card & Quick Request */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-950 border border-emerald-900/60 rounded-3xl p-6 sm:p-8 shadow-xl space-y-4">
+      {/* 3 Financial Balance Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Available for Withdrawal */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-sm hover:border-emerald-300 transition">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
-              Available Withdrawable Balance
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Available to Withdraw
             </span>
-            <Wallet className="w-5 h-5 text-emerald-400" />
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+              <Wallet className="w-4 h-4" />
+            </div>
           </div>
-
-          <div className="text-3xl sm:text-5xl font-black text-white">
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
             NLe {availableBalance.toFixed(2)}
           </div>
-
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2 border-t border-slate-800">
-            <div className="text-xs text-slate-400 space-y-0.5">
-              <p>Minimum payout threshold: <strong className="text-slate-200">NLe {minPayout}.00</strong></p>
-              <p>Disbursement: Orange Money, Afrimoney, Bank, or Cash</p>
-            </div>
-
-            <button
-              onClick={() => {
-                if (!isApproved) {
-                  toast.error("Your affiliate profile must be approved to request payouts.");
-                  return;
-                }
-                if (availableBalance < minPayout) {
-                  toast.error(`Minimum payout balance is NLe ${minPayout}. You currently have NLe ${availableBalance.toFixed(2)}.`);
-                  return;
-                }
-                setPayoutAmount(String(availableBalance));
-                setShowRequestModal(true);
-              }}
-              className="px-6 py-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg shadow-emerald-950/60 transition flex items-center justify-center gap-2"
-            >
-              <Send className="w-4 h-4" /> Request Payout
-            </button>
-          </div>
+          <button
+            onClick={() => setShowRequestModal(true)}
+            disabled={availableBalance <= 0}
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 disabled:opacity-40 cursor-pointer"
+          >
+            <Send className="w-3.5 h-3.5" /> Request Cashout
+          </button>
         </div>
 
-        {/* Lifetime Earnings Metric */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl flex flex-col justify-between space-y-4">
-          <div className="space-y-1">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Total Lifetime Paid
+        {/* Pending Verification */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-sm hover:border-emerald-300 transition">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Pending Admin Verification
             </span>
-            <div className="text-2xl sm:text-3xl font-bold text-emerald-400">
-              NLe {(dashboardData?.kpis?.paidCommission || 0).toFixed(2)}
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+              <Clock className="w-4 h-4" />
             </div>
           </div>
+          <div className="text-2xl sm:text-3xl font-black text-amber-700 font-mono">
+            NLe {pendingAmount.toFixed(2)}
+          </div>
+          <p className="text-[11px] text-slate-500 font-medium">
+            Lock-in period for order verification
+          </p>
+        </div>
 
-          <div className="space-y-1 border-t border-slate-800 pt-3">
-            <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              Pending Verification
+        {/* Total Paid Out */}
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-3 shadow-sm hover:border-emerald-300 transition">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              Total Withdrawn (All-Time)
             </span>
-            <div className="text-lg font-bold text-amber-400">
-              NLe {(dashboardData?.kpis?.pendingCommission || 0).toFixed(2)}
+            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
-            <p className="text-[10px] text-slate-500">Subject to 14-day clearance terms</p>
           </div>
+          <div className="text-2xl sm:text-3xl font-black text-slate-900 font-mono">
+            NLe {paidAmount.toFixed(2)}
+          </div>
+          <p className="text-[11px] text-slate-500 font-medium">
+            Successfully disbursed to your mobile/bank
+          </p>
         </div>
       </div>
 
-      {/* Payout Request Modal */}
-      {showRequestModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-xl font-bold text-white">Submit Payout Request</h2>
-              <p className="text-xs text-slate-400">
-                Specify the amount you wish to withdraw to your configured payment method.
-              </p>
-            </div>
-
-            <form onSubmit={handleRequestPayout} className="space-y-4">
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Withdrawal Amount (NLe)
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-2.5 text-sm text-slate-500 font-semibold">NLe</span>
-                  <input
-                    type="number"
-                    step="1"
-                    min={minPayout}
-                    max={availableBalance}
-                    required
-                    value={payoutAmount}
-                    onChange={(e) => setPayoutAmount(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white font-bold focus:outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                  <span>Min: NLe {minPayout}</span>
-                  <button
-                    type="button"
-                    onClick={() => setPayoutAmount(String(availableBalance))}
-                    className="text-emerald-400 font-semibold hover:underline"
-                  >
-                    Withdraw All (NLe {availableBalance.toFixed(2)})
-                  </button>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-xs">
-                <span className="text-slate-400 block font-medium">Selected Destination:</span>
-                <p className="font-bold text-white">
-                  {paymentSettings.payoutMethod.replace("_", " ")}
-                </p>
-                {paymentSettings.payoutMethod === "ORANGE_MONEY" || paymentSettings.payoutMethod === "AFRIMONEY" ? (
-                  <p className="text-slate-300 font-mono text-[11px]">
-                    {paymentSettings.mobileMoneyNumber || "No number configured"} ({paymentSettings.mobileMoneyName || "Unspecified"})
-                  </p>
-                ) : (
-                  <p className="text-slate-300 font-mono text-[11px]">
-                    {paymentSettings.bankName} - {paymentSettings.bankAccountNumber}
-                  </p>
-                )}
-              </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowRequestModal(false)}
-                  className="flex-1 py-3 px-4 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-semibold text-xs transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={requesting}
-                  className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-950 transition disabled:opacity-50"
-                >
-                  {requesting ? "Submitting..." : "Confirm Withdrawal"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Payment Destination Settings */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
-        <div className="flex items-center gap-3 border-b border-slate-800 pb-4">
-          <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center">
-            <Smartphone className="w-5 h-5" />
+      {/* Payment Destination Setup Form */}
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+        <div className="flex items-center gap-2.5 border-b border-slate-100 pb-4">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200">
+            <CreditCard className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-white">Payout Destination Details</h2>
-            <p className="text-xs text-slate-400">Configure where your approved earnings will be sent</p>
+            <h2 className="text-base sm:text-lg font-black text-slate-900">
+              Payout Destination Account Settings
+            </h2>
+            <p className="text-xs text-slate-500">
+              Update where your requested earnings are sent across Sierra Leone.
+            </p>
           </div>
         </div>
 
         <form onSubmit={handleSaveSettings} className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { id: "ORANGE_MONEY", label: "Orange Money" },
-              { id: "AFRIMONEY", label: "Afrimoney" },
-              { id: "BANK_TRANSFER", label: "Bank Transfer" },
-              { id: "CASH", label: "Head Office Cash" },
+              { id: "ORANGE_MONEY", label: "Orange Money", badge: "Most Popular" },
+              { id: "AFRIMONEY", label: "Afrimoney", badge: "Instant" },
+              { id: "BANK_TRANSFER", label: "Bank Transfer", badge: "Commercial Bank" },
+              { id: "CASH", label: "Head Office Cash", badge: "Freetown" },
             ].map((m) => (
               <button
                 key={m.id}
                 type="button"
                 onClick={() => setPaymentSettings({ ...paymentSettings, payoutMethod: m.id as any })}
-                className={`p-3 rounded-xl border text-xs font-semibold text-center transition ${
+                className={`p-3.5 rounded-2xl border text-center transition flex flex-col items-center justify-between gap-2 cursor-pointer ${
                   paymentSettings.payoutMethod === m.id
-                    ? "bg-emerald-600 border-emerald-500 text-white shadow-md shadow-emerald-950"
-                    : "bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700"
+                    ? "bg-white border-emerald-600 text-emerald-950 ring-2 ring-emerald-500/20 shadow-md"
+                    : "bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-900"
                 }`}
               >
-                {m.label}
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-600">
+                  {m.badge}
+                </span>
+                <span className="text-xs font-bold text-slate-900">{m.label}</span>
               </button>
             ))}
           </div>
 
-          {(paymentSettings.payoutMethod === "ORANGE_MONEY" || paymentSettings.payoutMethod === "AFRIMONEY") && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {(paymentSettings.payoutMethod === "ORANGE_MONEY" ||
+            paymentSettings.payoutMethod === "AFRIMONEY") && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Mobile Money Registered Number
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  {paymentSettings.payoutMethod === "ORANGE_MONEY" ? "Orange Money" : "Afrimoney"} Number
                 </label>
                 <input
                   type="tel"
@@ -347,12 +262,11 @@ export default function AffiliatePayoutsPage() {
                     setPaymentSettings({ ...paymentSettings, mobileMoneyNumber: e.target.value })
                   }
                   placeholder="e.g. 076 123456"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
                   Registered Account Holder Name
                 </label>
                 <input
@@ -363,30 +277,27 @@ export default function AffiliatePayoutsPage() {
                     setPaymentSettings({ ...paymentSettings, mobileMoneyName: e.target.value })
                   }
                   placeholder="e.g. Mohamed Sesay"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15"
                 />
               </div>
             </div>
           )}
 
           {paymentSettings.payoutMethod === "BANK_TRANSFER" && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5 rounded-2xl bg-slate-50 border border-slate-200">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Commercial Bank</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Commercial Bank Name</label>
                 <input
                   type="text"
                   required
                   value={paymentSettings.bankName}
-                  onChange={(e) =>
-                    setPaymentSettings({ ...paymentSettings, bankName: e.target.value })
-                  }
-                  placeholder="e.g. Rokel Commercial Bank"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  onChange={(e) => setPaymentSettings({ ...paymentSettings, bankName: e.target.value })}
+                  placeholder="e.g. Rokel Commercial Bank, Ecobank, UBA"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15"
                 />
               </div>
-
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Account Number (BBAN)</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Account Number (BBAN)</label>
                 <input
                   type="text"
                   required
@@ -395,12 +306,11 @@ export default function AffiliatePayoutsPage() {
                     setPaymentSettings({ ...paymentSettings, bankAccountNumber: e.target.value })
                   }
                   placeholder="e.g. 003001..."
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15"
                 />
               </div>
-
-              <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Account Name</label>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Account Holder Name</label>
                 <input
                   type="text"
                   required
@@ -408,160 +318,146 @@ export default function AffiliatePayoutsPage() {
                   onChange={(e) =>
                     setPaymentSettings({ ...paymentSettings, bankAccountName: e.target.value })
                   }
-                  placeholder="e.g. Mohamed Sesay"
-                  className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                  placeholder="Full legal name on bank statement"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15"
                 />
               </div>
             </div>
           )}
 
-          <div>
+          <div className="flex justify-end">
             <button
               type="submit"
               disabled={savingSettings}
-              className="py-2.5 px-6 rounded-xl bg-slate-800 hover:bg-slate-750 text-white font-semibold text-xs border border-slate-700 transition inline-flex items-center gap-2"
+              className="py-2.5 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition flex items-center gap-2 shadow-sm"
             >
-              <Save className="w-4 h-4 text-emerald-400" />
-              {savingSettings ? "Saving Settings..." : "Save Payout Settings"}
+              <Save className="w-3.5 h-3.5" />
+              {savingSettings ? "Saving..." : "Save Payout Settings"}
             </button>
           </div>
         </form>
       </div>
 
-      {/* Payouts History Table */}
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-        <div className="border-b border-slate-800 pb-4">
-          <h2 className="text-base font-bold text-white">Withdrawal History</h2>
-          <p className="text-xs text-slate-400">All past withdrawal requests and disbursements</p>
-        </div>
+      {/* Payout History Ledger */}
+      <div className="bg-white border border-slate-200/80 rounded-3xl p-6 sm:p-8 shadow-sm space-y-4">
+        <h2 className="text-base sm:text-lg font-black text-slate-900 border-b border-slate-100 pb-4">
+          Withdrawal Requests History
+        </h2>
 
         {payouts.length === 0 ? (
-          <div className="py-12 text-center space-y-2">
-            <Wallet className="w-10 h-10 text-slate-600 mx-auto" />
-            <p className="text-sm font-semibold text-slate-300">No payout requests yet</p>
-            <p className="text-xs text-slate-500">
-              When you submit a withdrawal, the disbursement status and transaction reference will appear here.
+          <div className="py-12 text-center space-y-2 bg-slate-50 rounded-2xl border border-slate-200">
+            <Wallet className="w-10 h-10 text-slate-400 mx-auto" />
+            <p className="text-xs font-bold text-slate-700">No withdrawal requests yet</p>
+            <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+              Once your commissions are approved and exceed the minimum threshold, click &quot;Request Cashout&quot; above.
             </p>
           </div>
         ) : (
-          <div>
-            {/* Mobile Card View */}
-            <div className="md:hidden space-y-3">
-              {payouts.map((p) => (
-                <div
-                  key={p.id}
-                  className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-2.5"
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <div>
-                      <div className="text-base font-extrabold text-white">
-                        NLe {p.amount.toFixed(2)}
-                      </div>
-                      <p className="text-[11px] text-slate-400">
-                        {p.method.replace("_", " ")} &bull; {new Date(p.createdAt).toLocaleDateString([], {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </p>
-                    </div>
-
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 ${
-                        p.status === "COMPLETED"
-                          ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                          : p.status === "PROCESSING"
-                          ? "bg-blue-950 text-blue-400 border-blue-800"
-                          : p.status === "PENDING"
-                          ? "bg-amber-950 text-amber-400 border-amber-800"
-                          : "bg-rose-950 text-rose-400 border-rose-800"
-                      }`}
-                    >
-                      {p.status}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-2 border-t border-slate-900 text-[11px] text-slate-400">
-                    <span className="font-mono truncate max-w-[170px]">
-                      Ref: {p.transactionRef || "Pending"}
-                    </span>
-                    <span>
-                      {p.processedAt
-                        ? `Paid: ${new Date(p.processedAt).toLocaleDateString()}`
-                        : "Awaiting Finance"}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-300">
-                <thead className="bg-slate-950/70 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-800">
-                  <tr>
-                    <th className="py-3 px-4">Date Requested</th>
-                    <th className="py-3 px-4">Amount</th>
-                    <th className="py-3 px-4">Method</th>
-                    <th className="py-3 px-4">Reference / Receipt</th>
-                    <th className="py-3 px-4 text-center">Status</th>
-                    <th className="py-3 px-4 text-right">Processed Date</th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-slate-500 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                <tr>
+                  <th className="py-3.5 px-4 rounded-l-xl">Request Date</th>
+                  <th className="py-3.5 px-4">Amount</th>
+                  <th className="py-3.5 px-4">Destination</th>
+                  <th className="py-3.5 px-4">Transaction Ref</th>
+                  <th className="py-3.5 px-4 text-center rounded-r-xl">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {payouts.map((p) => (
+                  <tr key={p.id} className="hover:bg-slate-50/80 transition">
+                    <td className="py-4 px-4 font-bold text-slate-900">
+                      {new Date(p.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-4 px-4 font-mono font-black text-slate-900 text-sm">
+                      NLe {(Number(p.amount) || 0).toFixed(2)}
+                    </td>
+                    <td className="py-4 px-4 font-semibold text-slate-600 uppercase">
+                      {p.method}
+                    </td>
+                    <td className="py-4 px-4 font-mono text-[11px] text-slate-500">
+                      {p.transactionRef || "—"}
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                      <span
+                        className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                          p.status === "COMPLETED"
+                            ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                            : p.status === "PENDING"
+                            ? "bg-amber-50 text-amber-800 border-amber-200"
+                            : "bg-rose-50 text-rose-800 border-rose-200"
+                        }`}
+                      >
+                        {p.status}
+                      </span>
+                    </td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60">
-                  {payouts.map((p) => (
-                    <tr key={p.id} className="hover:bg-slate-800/40 transition">
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                        {new Date(p.createdAt).toLocaleDateString([], {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
-                      </td>
-
-                      <td className="py-3.5 px-4 font-bold text-white text-sm">
-                        NLe {p.amount.toFixed(2)}
-                      </td>
-
-                      <td className="py-3.5 px-4">
-                        <span className="font-semibold text-slate-200">
-                          {p.method.replace("_", " ")}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">
-                        {p.transactionRef || "Pending confirmation"}
-                      </td>
-
-                      <td className="py-3.5 px-4 text-center">
-                        <span
-                          className={`inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
-                            p.status === "COMPLETED"
-                              ? "bg-emerald-950 text-emerald-400 border-emerald-800"
-                              : p.status === "PROCESSING"
-                              ? "bg-blue-950 text-blue-400 border-blue-800"
-                              : p.status === "PENDING"
-                              ? "bg-amber-950 text-amber-400 border-amber-800"
-                              : "bg-rose-950 text-rose-400 border-rose-800"
-                          }`}
-                        >
-                          {p.status}
-                        </span>
-                      </td>
-
-                      <td className="py-3.5 px-4 text-right text-slate-400 text-[11px]">
-                        {p.processedAt
-                          ? new Date(p.processedAt).toLocaleDateString()
-                          : "Awaiting Finance"}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>
+
+      {/* Cashout Request Modal in White */}
+      {showRequestModal && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl space-y-5 animate-in fade-in">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="font-black text-slate-900 text-lg">Request Commission Cashout</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Available Balance: <strong className="text-emerald-700 font-mono">NLe {availableBalance.toFixed(2)}</strong>
+                </p>
+              </div>
+            </div>
+
+            <form onSubmit={handleRequestPayout} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  Withdrawal Amount (NLe)
+                </label>
+                <input
+                  type="number"
+                  step="1"
+                  min="1"
+                  max={availableBalance}
+                  required
+                  value={payoutAmount}
+                  onChange={(e) => setPayoutAmount(e.target.value)}
+                  placeholder={`Max: ${availableBalance.toFixed(0)}`}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-mono text-slate-900 focus:bg-white focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/15"
+                />
+              </div>
+
+              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                <span className="font-bold text-slate-700 block">Payout Destination:</span>
+                <p className="text-slate-600 font-mono font-semibold">
+                  {paymentSettings.payoutMethod} &bull; {paymentSettings.mobileMoneyNumber || paymentSettings.bankAccountNumber || "Saved Account"}
+                </p>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowRequestModal(false)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={requesting}
+                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-md shadow-emerald-600/20"
+                >
+                  {requesting ? "Submitting..." : "Confirm Cashout"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
