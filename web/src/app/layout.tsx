@@ -1,7 +1,6 @@
 import { SplashScreenWrapper } from "@/components/shared/splash-screen-wrapper";
 import { VersionRecoveryListener } from "@/components/shared/version-recovery-listener";
 import type { Metadata } from "next";
-import { Outfit, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
@@ -40,27 +39,6 @@ export const viewport: import("next").Viewport = {
   themeColor: "#4f46e5",
 };
 
-const outfit = Outfit({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-display",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
-  display: "swap",
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -73,6 +51,9 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="apple-touch-icon" href="/images/logo-192.png" />
         <link rel="apple-touch-icon" sizes="180x180" href="/images/logo-192.png" />
         <link rel="apple-touch-icon" sizes="192x192" href="/images/logo-192.png" />
@@ -101,7 +82,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} ${inter.className} min-h-full w-full max-w-full overflow-x-hidden flex flex-col antialiased relative`}>
+      <body className="min-h-full w-full max-w-full overflow-x-hidden flex flex-col antialiased relative font-sans">
         <VersionRecoveryListener />
         <SplashScreenWrapper />
         <ThemeProvider
