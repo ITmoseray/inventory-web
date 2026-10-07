@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth, signOut } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Link2,
@@ -78,8 +79,14 @@ export default async function AffiliatePortalLayout({
           {/* Logo & ID */}
           <div className="flex items-center gap-3">
             <Link href="/affiliate/dashboard" className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white font-bold shadow-md shadow-emerald-950">
-                PA
+              <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center p-1 shadow-md">
+                <Image
+                  src="/images/logo-192.png"
+                  alt="ProTech Logo"
+                  width={28}
+                  height={28}
+                  className="object-contain"
+                />
               </div>
               <div>
                 <span className="font-extrabold text-white text-base tracking-tight block">
