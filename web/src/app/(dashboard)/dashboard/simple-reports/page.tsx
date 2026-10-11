@@ -69,6 +69,69 @@ export default function SimpleReportsPage() {
     }
   };
 
+  const handleExportPDF = async () => {
+    if (!report) return;
+    try {
+      const { jsPDF } = await import("jspdf");
+      const autoTable = (await import("jspdf-autotable")).default || (await import("jspdf-autotable"));
+      const doc = new jsPDF();
+
+      doc.setFillColor(15, 23, 42);
+      doc.rect(0, 0, 210, 26, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+      doc.text("EXECUTIVE FINANCIAL REPORT", 14, 12);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Timeframe: ${timeframe.toUpperCase()} | Generated: ${format(new Date(), "MMM dd, yyyy HH:mm")}`, 14, 19);
+
+      const scoreRows = [
+        ["Total Sales Revenue", `${currency} ${s.totalSales.toLocaleString()}`],
+        ["Stock Restock Purchases", `${currency} ${s.totalPurchases.toLocaleString()}`],
+        ["Operating Expenses", `${currency} ${s.totalExpenses.toLocaleString()}`],
+        ["Gross Operating Profit", `${currency} ${s.grossProfit.toLocaleString()}`],
+        ["Net Operating Profit", `${currency} ${s.netProfit.toLocaleString()}`],
+      ];
+
+      (autoTable as any)(doc, {
+        startY: 32,
+        head: [["Financial Dimension", `Amount (${currency})`]],
+        body: scoreRows,
+        theme: "striped",
+        headStyles: { fillColor: [79, 70, 229], fontStyle: "bold" },
+        bodyStyles: { fontSize: 9 },
+        margin: { left: 14, right: 14 },
+      });
+
+      if (report.chartData && report.chartData.length > 0) {
+        const periodData = report.chartData.map((d: any) => [
+          d.label,
+          `${currency} ${(d.sales || 0).toLocaleString()}`,
+          `${currency} ${(d.purchases || 0).toLocaleString()}`,
+          `${currency} ${(d.expenses || 0).toLocaleString()}`,
+          `${currency} ${(d.netProfit || 0).toLocaleString()}`,
+        ]);
+
+        (autoTable as any)(doc, {
+          startY: (doc as any).lastAutoTable.finalY + 8,
+          head: [["Period Interval", "Sales", "Purchases", "Expenses", "Net Profit"]],
+          body: periodData,
+          theme: "grid",
+          headStyles: { fillColor: [15, 23, 42], fontStyle: "bold" },
+          bodyStyles: { fontSize: 8.5 },
+          margin: { left: 14, right: 14 },
+        });
+      }
+
+      doc.save(`Financial_Report_${timeframe}_${format(new Date(), "yyyyMMdd")}.pdf`);
+      toast.success("PDF report downloaded successfully!");
+    } catch (err: any) {
+      toast.error("PDF export failed: " + err.message);
+    }
+  };
+
   useEffect(() => {
     if (timeframe !== "custom") {
       fetchReport();
@@ -90,12 +153,15 @@ export default function SimpleReportsPage() {
             Period performance, gross/net margins, and visual charts.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button onClick={handleExportPDF} className="rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-sm">
+            <FileText className="w-4 h-4 mr-1.5" /> Download PDF
+          </Button>
           <Button onClick={handleExportExcel} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">
             <FileSpreadsheet className="w-4 h-4 mr-1.5" /> Export Excel
           </Button>
           <Button onClick={() => window.print()} variant="outline" size="sm" className="rounded-xl border-white/20 text-white hover:bg-white/10">
-            <Download className="w-4 h-4 mr-1.5" /> Print PDF
+            <Download className="w-4 h-4 mr-1.5" /> Print
           </Button>
           <Button onClick={fetchReport} variant="outline" size="sm" className="rounded-xl border-white/20 text-white hover:bg-white/10">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />

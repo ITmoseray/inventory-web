@@ -69,6 +69,10 @@ import {
   exportMasterEnterpriseExcel,
   exportCategoryExcel,
 } from "@/lib/utils/export-advanced-report";
+import {
+  exportEnterpriseReportPDF,
+  exportCategoryPDF,
+} from "@/lib/utils/export-advanced-pdf";
 import { getSales } from "@/lib/actions/sale";
 import { getCurrentBusiness } from "@/lib/actions/business";
 import { ResponsiveTable } from "@/components/shared/responsive-table";
@@ -176,6 +180,7 @@ export default function ReportsPage() {
   const [loading, setLoading] = useState(true);
   const [reportLoading, setReportLoading] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [isZReportOpen, setIsZReportOpen] = useState(false);
 
   // ── Period state ──────────────────────────────────────────────────────────
@@ -254,6 +259,20 @@ export default function ReportsPage() {
     }
   }
 
+  async function handleExportPDF() {
+    if (!report) return;
+    try {
+      setExportingPdf(true);
+      toast.info("Compiling executive PDF audit report...");
+      await exportEnterpriseReportPDF(report);
+      toast.success("Executive PDF report downloaded successfully!");
+    } catch (err: any) {
+      toast.error("PDF export failed: " + err.message);
+    } finally {
+      setExportingPdf(false);
+    }
+  }
+
   async function handleCategoryExport(catKey: string, reportName?: string) {
     if (!report) return;
     try {
@@ -262,6 +281,17 @@ export default function ReportsPage() {
       toast.success(`${reportName || catKey} exported to Excel!`);
     } catch (err: any) {
       toast.error("Export failed: " + err.message);
+    }
+  }
+
+  async function handleCategoryPDF(catKey: string, reportName?: string) {
+    if (!report) return;
+    try {
+      toast.info(`Generating ${reportName || catKey} PDF report...`);
+      await exportCategoryPDF(catKey, report);
+      toast.success(`${reportName || catKey} exported to PDF!`);
+    } catch (err: any) {
+      toast.error("PDF export failed: " + err.message);
     }
   }
 
@@ -331,13 +361,14 @@ export default function ReportsPage() {
         </div>
 
         <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Direct Executive PDF Download Button */}
           <Button
-            variant="outline"
-            onClick={() => window.print()}
-            className="h-9 px-3.5 rounded-xl border-slate-200 dark:border-slate-800 gap-1.5 font-bold text-xs"
+            onClick={handleExportPDF}
+            disabled={!report || reportLoading || exportingPdf}
+            className="h-9 px-4 rounded-xl bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold text-xs gap-2 shadow-md shadow-rose-600/20 disabled:opacity-50 transition"
           >
-            <Printer className="h-3.5 w-3.5 text-slate-500" />
-            <span>Print PDF</span>
+            <FileText className={cn("h-4 w-4", exportingPdf && "animate-spin")} />
+            <span>{exportingPdf ? "Generating PDF…" : "Download PDF Report"}</span>
           </Button>
 
           {/* Master Admin Excel Export Button */}
@@ -348,6 +379,15 @@ export default function ReportsPage() {
           >
             <FileSpreadsheet className={cn("h-4 w-4", exporting && "animate-spin")} />
             <span>{exporting ? "Generating Excel…" : "Export Master Excel (Admin)"}</span>
+          </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => window.print()}
+            className="h-9 px-3.5 rounded-xl border-slate-200 dark:border-slate-800 gap-1.5 font-bold text-xs text-slate-700 dark:text-slate-300"
+          >
+            <Printer className="h-3.5 w-3.5 text-slate-500" />
+            <span>Print</span>
           </Button>
 
           <Button
@@ -1096,34 +1136,64 @@ export default function ReportsPage() {
                     <p className="text-[11px] text-slate-400">{cat.reports.length} report templates</p>
                   </div>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleCategoryExport(cat.key, cat.title)}
-                  className="h-8 px-2.5 rounded-lg text-xs font-bold gap-1 text-emerald-700 border-emerald-300 hover:bg-emerald-50"
-                  title="Download Category Excel"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  Excel
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleCategoryPDF(cat.key, cat.title)}
+                    className="h-7 px-2 rounded-lg text-[11px] font-bold gap-1 text-rose-700 dark:text-rose-400 border-rose-300 dark:border-rose-800 hover:bg-rose-50"
+                    title="Download Category PDF"
+                  >
+                    <FileText className="w-3 h-3 text-rose-600" />
+                    PDF
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleCategoryExport(cat.key, cat.title)}
+                    className="h-7 px-2 rounded-lg text-[11px] font-bold gap-1 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800 hover:bg-emerald-50"
+                    title="Download Category Excel"
+                  >
+                    <FileSpreadsheet className="w-3 h-3 text-emerald-600" />
+                    Excel
+                  </Button>
+                </div>
               </div>
 
               <div className="space-y-1">
                 {cat.reports.map((r) => (
                   <div
                     key={r}
-                    onClick={() => handleCategoryExport(cat.key, r)}
                     className="flex items-center justify-between py-2 px-2.5 rounded-xl text-xs hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors group cursor-pointer"
                   >
-                    <div className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium">
+                    <div
+                      onClick={() => handleCategoryPDF(cat.key, r)}
+                      className="flex items-center gap-2 text-slate-700 dark:text-slate-300 font-medium truncate flex-1"
+                    >
                       <FileText className="h-3.5 w-3.5 shrink-0" style={{ color: cat.color }} />
                       <span className="truncate">{r}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                      <span className="text-[10px] font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition">
-                        Export .xlsx
-                      </span>
-                      <Download className="h-3.5 w-3.5 text-slate-400 group-hover:text-emerald-600 transition" />
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCategoryPDF(cat.key, r);
+                        }}
+                        className="p-1 rounded-md text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition"
+                        title="Download PDF"
+                      >
+                        <FileText className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCategoryExport(cat.key, r);
+                        }}
+                        className="p-1 rounded-md text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition"
+                        title="Download Excel"
+                      >
+                        <Download className="h-3.5 w-3.5" />
+                      </button>
                     </div>
                   </div>
                 ))}

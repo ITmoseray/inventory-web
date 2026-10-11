@@ -391,9 +391,27 @@
   }
 
 @media print {
-  /* Hide everything except the invoice */
-  body > *:not(#invoice-print-root) { display: none !important; }
-  .print\:hidden { display: none !important; }
-  @page { margin: 0; size: A4; }
-  body { background: white !important; }
+  /* Hide non-printable navigation, sidebars, headers, and floating widgets */
+  aside,
+  nav,
+  header,
+  .print\:hidden,
+  .no-print,
+  button:not(.print\:show) {
+    display: none !important;
+  }
+  @page {
+    margin: 10mm;
+    size: A4 portrait;
+  }
+  body {
+    background: white !important;
+    color: #0F172A !important;
+  }
+  .card, .bg-card {
+    box-shadow: none !important;
+    border: 1px solid #E2E8F0 !important;
+    background: white !important;
+    color: #0F172A !important;
+  }
 }
