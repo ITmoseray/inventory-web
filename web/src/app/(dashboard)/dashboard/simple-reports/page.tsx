@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
-import { FileText, RefreshCw, Calendar, Download, BarChart3, TrendingUp, DollarSign } from "lucide-react";
+import { FileText, RefreshCw, Calendar, Download, BarChart3, TrendingUp, DollarSign, FileSpreadsheet } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,43 @@ export default function SimpleReportsPage() {
     }
   };
 
+  const handleExportExcel = async () => {
+    if (!report) return;
+    try {
+      const XLSX = await import("xlsx");
+      const wb = XLSX.utils.book_new();
+      const rows = [
+        ["Financial Performance Report"],
+        [`Timeframe: ${timeframe.toUpperCase()}`],
+        [`Generated: ${format(new Date(), "yyyy-MM-dd HH:mm")}`],
+        [],
+        ["METRIC", `AMOUNT (${currency})`],
+        ["Total Sales Revenue", s.totalSales],
+        ["Stock Purchases", s.totalPurchases],
+        ["Total Expenses", s.totalExpenses],
+        ["Gross Profit", s.grossProfit],
+        ["Net Profit", s.netProfit],
+        [],
+        ["PERIOD DATA", ""],
+        ["Period", `Sales (${currency})`, `Purchases (${currency})`, `Expenses (${currency})`, `Net Profit (${currency})`],
+        ...(report.chartData || []).map((d: any) => [
+          d.label,
+          d.sales || 0,
+          d.purchases || 0,
+          d.expenses || 0,
+          d.netProfit || 0,
+        ]),
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      ws["!cols"] = [{ wch: 25 }, { wch: 20 }, { wch: 20 }, { wch: 20 }, { wch: 20 }];
+      XLSX.utils.book_append_sheet(wb, ws, "Financial Report");
+      XLSX.writeFile(wb, `Financial_Report_${timeframe}_${format(new Date(), "yyyyMMdd")}.xlsx`);
+      toast.success("Excel report exported successfully!");
+    } catch (err: any) {
+      toast.error("Export failed: " + err.message);
+    }
+  };
+
   useEffect(() => {
     if (timeframe !== "custom") {
       fetchReport();
@@ -54,8 +91,11 @@ export default function SimpleReportsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button onClick={handleExportExcel} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm">
+            <FileSpreadsheet className="w-4 h-4 mr-1.5" /> Export Excel
+          </Button>
           <Button onClick={() => window.print()} variant="outline" size="sm" className="rounded-xl border-white/20 text-white hover:bg-white/10">
-            <Download className="w-4 h-4 mr-1.5" /> Export / Print
+            <Download className="w-4 h-4 mr-1.5" /> Print PDF
           </Button>
           <Button onClick={fetchReport} variant="outline" size="sm" className="rounded-xl border-white/20 text-white hover:bg-white/10">
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
