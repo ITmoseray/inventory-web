@@ -31,6 +31,20 @@ import {
 import { toast } from "sonner";
 import { getAffiliateDashboardStats } from "@/lib/actions/affiliate";
 
+function formatReferrerSource(referrer?: string | null): string {
+  if (!referrer || referrer.trim() === "" || referrer === "null" || referrer === "undefined") {
+    return "Direct / WhatsApp";
+  }
+  try {
+    if (referrer.startsWith("http://") || referrer.startsWith("https://")) {
+      return new URL(referrer).hostname;
+    }
+    return referrer;
+  } catch {
+    return referrer;
+  }
+}
+
 export default function AffiliateDashboardPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -490,8 +504,8 @@ export default function AffiliateDashboardPage() {
                     <p className="font-semibold text-slate-900 truncate font-mono">
                       {click.landingPage || "/"}
                     </p>
-                    <p className="text-[11px] text-slate-500">
-                      {click.referrer ? new URL(click.referrer).hostname : "Direct / WhatsApp"}
+                    <p className="text-[11px] text-slate-500 truncate">
+                      {formatReferrerSource(click.referrer)}
                     </p>
                   </div>
                   <div className="text-right text-[11px] text-slate-500 font-mono">
