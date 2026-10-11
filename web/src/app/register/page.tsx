@@ -138,6 +138,8 @@ export default function RegisterPage() {
     referralSource: "",
     customReferralSource: "",
     referralCode: typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("ref") || "" : "",
+    affiliateRef: "",
+    affiliateClickId: "",
     businessType: "SHOP",
     businessManagementMode: "FULL_INVENTORY" as "FULL_INVENTORY" | "SIMPLE_SALES_PROFIT",
     institutionType: "",
@@ -147,6 +149,35 @@ export default function RegisterPage() {
     currency: "SLL",
     timezone: "Africa/Freetown",
   });
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      let ref = params.get("ref");
+      let clickId = "";
+
+      const refMatch = document.cookie.match(new RegExp("(^| )pa_ref=([^;]+)"));
+      if (!ref && refMatch) {
+        ref = refMatch[2];
+      }
+
+      const clickMatch = document.cookie.match(new RegExp("(^| )pa_click_id=([^;]+)"));
+      if (clickMatch) {
+        clickId = clickMatch[2];
+      }
+
+      if (ref || clickId) {
+        setFormData((prev: any) => ({
+          ...prev,
+          referralCode: ref || prev.referralCode,
+          affiliateRef: ref || prev.referralCode,
+          affiliateClickId: clickId || prev.affiliateClickId,
+        }));
+      }
+    } catch (e) {
+      // Ignore in non-browser env
+    }
+  }, []);
 
   useEffect(() => {
     getSystemSettings()

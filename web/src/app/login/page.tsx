@@ -152,7 +152,11 @@ export default function LoginPage() {
           session = await getSession();
         }
         
-        if (session?.user?.role === "SUPERADMIN") {
+        const callbackUrl = searchParams.get("callbackUrl");
+        if (callbackUrl && callbackUrl.startsWith("/") && !callbackUrl.startsWith("//")) {
+          toast.success("Login successful");
+          window.location.href = callbackUrl;
+        } else if (session?.user?.role === "SUPERADMIN") {
           toast.success("Welcome, Super Admin");
           window.location.href = "/super-admin";
         } else {

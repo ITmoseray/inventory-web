@@ -27,6 +27,7 @@ import {
   Sparkles,
   Layers,
   Laptop,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getAffiliateDashboardStats } from "@/lib/actions/affiliate";
@@ -256,6 +257,140 @@ export default function AffiliateDashboardPage() {
               <Share2 className="w-4 h-4 text-emerald-600" />
               WhatsApp
             </button>
+          </div>
+        </div>
+
+        {/* Quick Product-Targeted Share Options */}
+        <div className="pt-2 border-t border-slate-100 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+              Direct Solution Referral Links
+            </span>
+            <span className="text-[11px] text-slate-400">
+              One-click specialized landing pages
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {/* 1. Website & Mobile App Dev */}
+            <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between gap-3 hover:border-emerald-300 transition shadow-sm">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+                    Bespoke IT & Apps
+                  </span>
+                  <Globe className="w-4 h-4 text-amber-600" />
+                </div>
+                <h4 className="text-xs font-bold text-slate-900">Website & Mobile App Dev</h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Lands directly on Custom Tech proposal form with verified referral code pre-filled for WhatsApp quotes.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-2 border-t border-slate-200/60">
+                <button
+                  onClick={() => {
+                    if (!data?.affiliate?.affiliateCode) return;
+                    const u = `${baseUrl}/ref/${data.affiliate.affiliateCode}?product=website-dev`;
+                    navigator.clipboard.writeText(u);
+                    toast.success("Website & App Dev referral link copied!");
+                  }}
+                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-800 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-slate-200 shadow-sm"
+                >
+                  <Copy className="w-3 h-3" /> Copy Link
+                </button>
+                <button
+                  onClick={() => {
+                    if (!data?.affiliate?.affiliateCode) return;
+                    const u = `${baseUrl}/ref/${data.affiliate.affiliateCode}?product=website-dev`;
+                    const msg = `🌐 Need a high-performance corporate website, university portal, or iOS/Android mobile app in Sierra Leone? Check out ProTech Assist Solutions:\n\n👉 Request a project proposal: ${u}`;
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, "_blank");
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-emerald-200"
+                >
+                  <Share2 className="w-3 h-3 text-emerald-600" /> Share
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Enterprise OS / Inventory POS */}
+            <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between gap-3 hover:border-emerald-300 transition shadow-sm">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                    Retail & Pharmacy
+                  </span>
+                  <Laptop className="w-4 h-4 text-emerald-600" />
+                </div>
+                <h4 className="text-xs font-bold text-slate-900">Inventory & POS (Enterprise OS)</h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Lands on registration page; locks referral attribution to store account for all monthly/annual renewals.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-2 border-t border-slate-200/60">
+                <button
+                  onClick={() => {
+                    if (!data?.affiliate?.affiliateCode) return;
+                    const u = `${baseUrl}/ref/${data.affiliate.affiliateCode}?product=enterprise-os`;
+                    navigator.clipboard.writeText(u);
+                    toast.success("Inventory & POS referral link copied!");
+                  }}
+                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-800 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-slate-200 shadow-sm"
+                >
+                  <Copy className="w-3 h-3" /> Copy Link
+                </button>
+                <button
+                  onClick={() => {
+                    if (!data?.affiliate?.affiliateCode) return;
+                    const u = `${baseUrl}/ref/${data.affiliate.affiliateCode}?product=enterprise-os`;
+                    const msg = `⚡ Streamline your supermarket, pharmacy, or boutique with ProTech Enterprise OS! Thermal POS printing, barcodes, and real-time profits:\n\n👉 Start 14-day free trial: ${u}`;
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, "_blank");
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-emerald-200"
+                >
+                  <Share2 className="w-3 h-3 text-emerald-600" /> Share
+                </button>
+              </div>
+            </div>
+
+            {/* 3. AI & Full-Stack Academy */}
+            <div className="bg-slate-50/70 border border-slate-200/80 rounded-2xl p-4 flex flex-col justify-between gap-3 hover:border-emerald-300 transition shadow-sm">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded-md border border-purple-200">
+                    Tech Academy
+                  </span>
+                  <Brain className="w-4 h-4 text-purple-600" />
+                </div>
+                <h4 className="text-xs font-bold text-slate-900">AI Masterclass & Full-Stack</h4>
+                <p className="text-[11px] text-slate-500 leading-relaxed">
+                  Lands on academy enrollment; prospective students inquire via WhatsApp with your code pre-attached.
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 pt-2 border-t border-slate-200/60">
+                <button
+                  onClick={() => {
+                    if (!data?.affiliate?.affiliateCode) return;
+                    const u = `${baseUrl}/ref/${data.affiliate.affiliateCode}?product=ai-masterclass`;
+                    navigator.clipboard.writeText(u);
+                    toast.success("AI Masterclass referral link copied!");
+                  }}
+                  className="flex-1 py-1.5 px-2.5 rounded-lg bg-white hover:bg-slate-100 text-slate-800 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-slate-200 shadow-sm"
+                >
+                  <Copy className="w-3 h-3" /> Copy Link
+                </button>
+                <button
+                  onClick={() => {
+                    if (!data?.affiliate?.affiliateCode) return;
+                    const u = `${baseUrl}/ref/${data.affiliate.affiliateCode}?product=ai-masterclass`;
+                    const msg = `🚀 Accelerate your career with the ProTech Assist AI & Prompt Engineering Masterclass! Practical training with official certification:\n\n👉 Learn more & enroll: ${u}`;
+                    window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, "_blank");
+                  }}
+                  className="py-1.5 px-2.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-[11px] font-bold transition flex items-center justify-center gap-1 border border-emerald-200"
+                >
+                  <Share2 className="w-3 h-3 text-emerald-600" /> Share
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

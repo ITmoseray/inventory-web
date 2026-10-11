@@ -172,6 +172,67 @@ export async function registerAffiliate(input: AffiliateRegistrationInput) {
 }
 
 /**
+ * Helper to resolve the authenticated affiliate profile with email fallback and Super Admin preview
+ */
+async function resolveSessionAffiliate(session: any) {
+  if (!session?.user?.id) return null;
+
+  let affiliate = await prisma.affiliate.findUnique({
+    where: { userId: session.user.id },
+  });
+
+  if (!affiliate && session.user.email) {
+    affiliate = await prisma.affiliate.findFirst({
+      where: { email: session.user.email.toLowerCase().trim() },
+    });
+    if (affiliate && !affiliate.userId) {
+      await prisma.affiliate.update({
+        where: { id: affiliate.id },
+        data: { userId: session.user.id },
+      }).catch(console.error);
+    }
+  }
+
+  // Super Admin preview auto-bootstrap
+  const isSuperAdmin =
+    session.user.role === "SUPERADMIN" ||
+    (session.user as any)?.originalRole === "SUPERADMIN";
+
+  if (!affiliate && isSuperAdmin) {
+    let master = await prisma.affiliate.findFirst({
+      where: { affiliateCode: "PA-ADMIN" },
+    });
+    if (!master) {
+      master = await prisma.affiliate.create({
+        data: {
+          userId: session.user.id,
+          affiliateCode: "PA-ADMIN",
+          status: AffiliateStatus.APPROVED,
+          fullName: session.user.name || "Super Admin",
+          email: session.user.email || "admin@protechassist.com",
+          phone: "+23276000000",
+          country: "Sierra Leone",
+          agreedToTerms: true,
+          agreedAt: new Date(),
+        },
+      });
+      await prisma.affiliateLink.create({
+        data: {
+          affiliateId: master.id,
+          code: "PA-ADMIN",
+          targetUrl: "/",
+          productSlug: "all",
+          title: "Admin Master Referral Link",
+        },
+      }).catch(console.error);
+    }
+    return master;
+  }
+
+  return affiliate;
+}
+
+/**
  * Get authenticated affiliate profile
  */
 export async function getAffiliateProfile() {
@@ -180,19 +241,7 @@ export async function getAffiliateProfile() {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-    include: {
-      user: {
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          imageUrl: true,
-        },
-      },
-    },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "No affiliate profile found for this user." };
@@ -210,9 +259,7 @@ export async function getAffiliateDashboardStats() {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };
@@ -346,9 +393,7 @@ export async function getAffiliateLinks() {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };
@@ -389,9 +434,7 @@ export async function createAffiliateLink(data: {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };
@@ -432,9 +475,7 @@ export async function getAffiliateCommissions(options?: {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };
@@ -499,9 +540,7 @@ export async function getAffiliatePayouts() {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };
@@ -547,9 +586,7 @@ export async function requestPayout(data: {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };
@@ -646,9 +683,7 @@ export async function updateAffiliatePayoutSettings(data: {
     return { success: false, error: "Not authenticated" };
   }
 
-  const affiliate = await prisma.affiliate.findUnique({
-    where: { userId: session.user.id },
-  });
+  const affiliate = await resolveSessionAffiliate(session);
 
   if (!affiliate) {
     return { success: false, error: "Affiliate profile not found" };

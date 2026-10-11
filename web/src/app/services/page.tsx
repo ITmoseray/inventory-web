@@ -203,7 +203,8 @@ export default function PublicServicesPage() {
             return (
               <div
                 key={srv.id}
-                className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 flex flex-col justify-between space-y-6 hover:border-emerald-300 transition"
+                id={srv.id}
+                className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-xl shadow-slate-200/50 flex flex-col justify-between space-y-6 hover:border-emerald-300 transition scroll-mt-24"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">

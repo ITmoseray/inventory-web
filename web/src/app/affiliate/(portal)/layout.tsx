@@ -28,17 +28,30 @@ export default async function AffiliatePortalLayout({
   }
 
   // Fetch affiliate profile
-  const affiliate = await prisma.affiliate.findUnique({
+  let affiliate = await prisma.affiliate.findUnique({
     where: { userId: session.user.id },
   });
+
+  // Fallback lookup by user email if not linked by ID yet
+  if (!affiliate && session.user.email) {
+    affiliate = await prisma.affiliate.findFirst({
+      where: { email: session.user.email.toLowerCase().trim() },
+    });
+    if (affiliate && !affiliate.userId) {
+      await prisma.affiliate.update({
+        where: { id: affiliate.id },
+        data: { userId: session.user.id },
+      }).catch(console.error);
+    }
+  }
 
   const isSuperAdmin =
     session.user.role === "SUPERADMIN" ||
     (session.user as any)?.originalRole === "SUPERADMIN";
 
-  // If user is not an affiliate and not super admin, redirect to general dashboard
+  // If user is not an affiliate and not super admin, redirect to partner registration
   if (!affiliate && !isSuperAdmin) {
-    redirect("/dashboard");
+    redirect("/affiliate/register");
   }
 
   const status = affiliate?.status || "APPROVED";

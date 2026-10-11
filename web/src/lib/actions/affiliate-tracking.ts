@@ -155,7 +155,18 @@ export async function recordAffiliateConversion(params: {
       }
     }
 
-    // If no click by visitorId, try by referralCode directly
+    // Try finding by explicit clickId if provided
+    if (!affiliate && (params as any).clickId) {
+      click = await prisma.affiliateClick.findUnique({
+        where: { id: (params as any).clickId },
+        include: { affiliate: true, link: true },
+      });
+      if (click?.affiliate) {
+        affiliate = click.affiliate;
+      }
+    }
+
+    // If no click by visitorId or clickId, try by referralCode directly
     if (!affiliate && params.referralCode) {
       const code = params.referralCode.trim();
       const link = await prisma.affiliateLink.findUnique({
@@ -235,8 +246,8 @@ export async function recordAffiliateConversion(params: {
           visitorId: params.visitorId || null,
           customerEmail: params.customerEmail?.toLowerCase().trim() || null,
           customerName: params.customerName?.trim() || null,
-          customerUserId: params.customerUserId || null,
-          businessId: params.businessId || null,
+          customerUserId: params.customerUserId || (params as any).customerId || null,
+          businessId: params.businessId || (params as any).customerId || null,
           orderType: params.orderType,
           orderId: params.orderId,
           orderAmount: params.orderAmount,

@@ -9,7 +9,30 @@ import { getDefaultPermissionsForRole } from "@/lib/actions/user";
 import { processReferral, getOrCreateReferralCode } from "@/lib/actions/referral";
 
 export async function registerBusiness(data: any) {
-  const { businessName, email, password, businessType, businessManagementMode, institutionType, plan, logoUrl, phone, address, currency, timezone, businessEmail, referralSource, customReferralSource } = data;
+  const { 
+    businessName, 
+    email, 
+    password, 
+    businessType, 
+    businessManagementMode, 
+    institutionType, 
+    plan, 
+    logoUrl, 
+    phone, 
+    address, 
+    currency, 
+    timezone, 
+    businessEmail, 
+    referralSource, 
+    customReferralSource,
+    referralCode,
+    affiliateRef,
+    affiliateClickId
+  } = data;
+
+  // Resolve affiliate attribution
+  const effectiveAffiliateRef = affiliateRef || (referralCode?.startsWith("PA-") ? referralCode : null);
+  const effectiveAffiliateClickId = affiliateClickId || null;
 
   // Hash password
   const passwordHash = await bcrypt.hash(password, 10);
@@ -44,6 +67,8 @@ export async function registerBusiness(data: any) {
         timezone: timezone || "UTC",
         referralSource: referralSource || null,
         customReferralSource: customReferralSource || null,
+        affiliateRef: effectiveAffiliateRef || null,
+        affiliateClickId: effectiveAffiliateClickId || null,
         slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
         type: dbBusinessType,
         businessManagementMode: businessManagementMode === "SIMPLE_SALES_PROFIT" ? "SIMPLE_SALES_PROFIT" : "FULL_INVENTORY",
@@ -143,8 +168,8 @@ export async function registerBusiness(data: any) {
       reason: 'NEW_REGISTRATION',
     }).catch(console.error);
 
-    // Process Referral if code provided
-    if (data.referralCode) {
+    // Process Business Referral if code provided (non-affiliate)
+    if (data.referralCode && !data.referralCode.startsWith("PA-")) {
       processReferral(data.referralCode, result.business.id).catch(console.error);
     }
 

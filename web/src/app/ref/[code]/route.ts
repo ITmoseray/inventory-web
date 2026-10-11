@@ -51,17 +51,35 @@ export async function GET(
 
     if (explicitTo && explicitTo.startsWith("/")) {
       destination = explicitTo;
-    } else if (productParam) {
-      const slug = productParam.toLowerCase();
-      if (slug === "enterprise-os" || slug === "inventory") {
-        destination = "/register";
-      } else if (slug.includes("training") || slug.includes("course") || slug.includes("full-stack") || slug.includes("ai")) {
-        destination = "/services";
-      } else {
-        destination = `/?product=${encodeURIComponent(productParam)}`;
-      }
     } else if (trackingResult?.success && trackingResult.targetUrl && trackingResult.targetUrl !== "/") {
       destination = trackingResult.targetUrl;
+    } else if (productParam) {
+      const slug = productParam.toLowerCase();
+      if (slug === "enterprise-os" || slug === "inventory" || slug === "pos" || slug === "stock") {
+        destination = "/register";
+      } else if (
+        slug.includes("website") ||
+        slug.includes("web") ||
+        slug.includes("app") ||
+        slug.includes("mobile") ||
+        slug.includes("custom")
+      ) {
+        destination = "/services#custom-development";
+      } else if (slug.includes("ai") || slug.includes("prompt")) {
+        destination = "/services#ai-masterclass";
+      } else if (
+        slug.includes("training") ||
+        slug.includes("course") ||
+        slug.includes("software") ||
+        slug.includes("full-stack") ||
+        slug.includes("cohort")
+      ) {
+        destination = "/services#software-engineering";
+      } else if (slug.includes("school")) {
+        destination = "/school";
+      } else {
+        destination = "/services";
+      }
     }
 
     // Determine the true public origin behind reverse proxies (Firebase App Hosting, Cloud Run)
