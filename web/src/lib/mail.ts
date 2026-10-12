@@ -12,8 +12,10 @@ const getTransporter = () => {
   const pass = process.env.SMTP_PASSWORD;
 
   if (!host || !user || !pass) {
-    console.warn("⚠️ SMTP configuration is incomplete. Verification emails will fail.");
-    console.log(`Current config - Host: ${host || 'MISSING'}, Port: ${port}, User: ${user ? 'SET' : 'MISSING'}`);
+    console.error("❌ SMTP NOT CONFIGURED — missing env vars:");
+    console.error(`   SMTP_HOST   = ${host || "❌ MISSING"}`);
+    console.error(`   SMTP_USER   = ${user || "❌ MISSING"}`);
+    console.error(`   SMTP_PASSWORD = ${pass ? "✅ SET" : "❌ MISSING"}`);
     return null;
   }
 

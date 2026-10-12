@@ -268,19 +268,27 @@ export async function updateAdminAffiliateStatus(
     data: updateData,
   });
 
-  // Asynchronously dispatch email notification
-  if (status === AffiliateStatus.APPROVED) {
-    sendAffiliateApprovalNotification({
-      email: affiliate.email,
-      fullName: affiliate.fullName,
-      affiliateCode: affiliate.affiliateCode,
-    }).catch((err) => console.error("Error sending approval email:", err));
-  } else if (status === AffiliateStatus.REJECTED) {
-    sendAffiliateRejectionNotification({
-      email: affiliate.email,
-      fullName: affiliate.fullName,
-      reason: updateData.rejectionReason,
-    }).catch((err) => console.error("Error sending rejection email:", err));
+  // Send email notification
+  try {
+    if (status === AffiliateStatus.APPROVED) {
+      console.log(`📧 Sending approval email to: ${affiliate.email} (${affiliate.fullName})`);
+      await sendAffiliateApprovalNotification({
+        email: affiliate.email,
+        fullName: affiliate.fullName,
+        affiliateCode: affiliate.affiliateCode,
+      });
+      console.log(`✅ Approval email sent successfully to ${affiliate.email}`);
+    } else if (status === AffiliateStatus.REJECTED) {
+      console.log(`📧 Sending rejection email to: ${affiliate.email} (${affiliate.fullName})`);
+      await sendAffiliateRejectionNotification({
+        email: affiliate.email,
+        fullName: affiliate.fullName,
+        reason: updateData.rejectionReason,
+      });
+      console.log(`✅ Rejection email sent successfully to ${affiliate.email}`);
+    }
+  } catch (emailErr: any) {
+    console.error(`❌ Failed to send ${status} email to ${affiliate.email}:`, emailErr?.message || emailErr);
   }
 
   revalidatePath("/super-admin/affiliates");
