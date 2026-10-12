@@ -56,15 +56,34 @@ export async function registerBusiness(data: any) {
     // maybe we only set trial if they are truly new?
     // For now, let's keep it as is, as registration is the start of the journey.
     
-    const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 30 }));
-    const defaultDays = (settings as any)?.defaultTrialDays ?? 30;
-    const trialEndDate = new Date(Date.now() + defaultDays * 24 * 60 * 60 * 1000);
-
     const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL", "OFFICE", "SCHOOL"];
     const dbBusinessType = allowedTypes.includes(businessType) ? (businessType as BusinessType) : BusinessType.SHOP;
 
     const allowedPlans = ["FREE", "BASIC", "STANDARD", "BUSINESS", "ENTERPRISE"];
     const dbPlan = allowedPlans.includes(plan) ? plan : "BASIC";
+
+    // Adapt enabled modules based on business type and subscription tier
+    const modulesByType: Record<string, string[]> = {
+      SHOP: ["POS", "INVENTORY", "SALES", "PURCHASES", "CUSTOMERS", "SUPPLIERS", "REPORTS"],
+      SUPERMARKET: ["POS", "INVENTORY", "SALES", "PURCHASES", "CUSTOMERS", "SUPPLIERS", "REPORTS", "BARCODE"],
+      PHARMACY: ["POS", "INVENTORY", "PHARMACY", "BATCHES", "EXPIRY", "PURCHASES", "SUPPLIERS", "REPORTS"],
+      CLINIC: ["CLINIC", "PATIENTS", "CONSULTATIONS", "APPOINTMENTS", "LAB", "BILLING", "REPORTS"],
+      HOSPITAL: ["HOSPITAL", "CLINIC", "PATIENTS", "CONSULTATIONS", "APPOINTMENTS", "LAB", "PHARMACY", "BILLING", "REPORTS"],
+      RESTAURANT: ["RESTAURANT", "POS", "TABLES", "KITCHEN", "INVENTORY", "SALES", "REPORTS"],
+      BAR: ["BAR", "POS", "TABS", "INVENTORY", "SALES", "REPORTS"],
+      SCHOOL: ["SCHOOL", "STUDENTS", "ACADEMICS", "ATTENDANCE", "FEES", "PAYROLL", "REPORTS"],
+      OFFICE: ["OFFICE", "EXPENSES", "INVOICES", "CRM", "ATTENDANCE", "PAYROLL", "REPORTS"],
+    };
+
+    const baseModules = modulesByType[dbBusinessType] || ["POS", "INVENTORY", "SALES", "REPORTS"];
+    const extraModules: string[] = [];
+    if (dbPlan === "STANDARD" || dbPlan === "ENTERPRISE") {
+      extraModules.push("ANALYTICS", "INTELLIGENCE");
+    }
+    if (dbPlan === "ENTERPRISE") {
+      extraModules.push("MULTI_BRANCH", "AUDIT_LOGS");
+    }
+    const businessModules = Array.from(new Set([...baseModules, ...extraModules]));
 
     const business = await tx.business.create({
       data: {
@@ -84,10 +103,11 @@ export async function registerBusiness(data: any) {
         institutionType: institutionType || null,
         plan: dbPlan,
         status: "ACTIVE",
+        subscriptionStatus: "ACTIVE",
         logoUrl: logoUrl || null,
-        enabledModules: ["POS", "INVENTORY"],
-        trialStartDate: new Date(),
-        trialEndDate: trialEndDate,
+        enabledModules: businessModules,
+        trialStartDate: null,
+        trialEndDate: null,
         requestedBillingPeriod: billing || requestedBillingPeriod || "monthly",
       },
     });
@@ -95,10 +115,14 @@ export async function registerBusiness(data: any) {
     // 2. Create Default roles for the business
     const defaultRolesToCreate = ['ADMIN', 'MANAGER', 'EMPLOYEE'];
     
-    if (businessType === 'CLINIC') {
+    if (businessType === 'CLINIC' || businessType === 'HOSPITAL') {
       defaultRolesToCreate.push('DOCTOR', 'NURSE', 'LAB_TECH', 'RECEPTIONIST');
     } else if (businessType === 'PHARMACY') {
       defaultRolesToCreate.push('PHARMACIST', 'CASHIER');
+    } else if (businessType === 'RESTAURANT' || businessType === 'BAR') {
+      defaultRolesToCreate.push('WAITER', 'CHEF', 'CASHIER');
+    } else if (businessType === 'SCHOOL') {
+      defaultRolesToCreate.push('TEACHER', 'ACCOUNTANT', 'LIBRARIAN');
     } else {
       defaultRolesToCreate.push('CASHIER', 'STOCK_KEEPER');
     }

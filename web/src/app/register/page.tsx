@@ -27,6 +27,19 @@ import {
 import { Lock, ShieldCheck } from "lucide-react";
 import "./register.css";
 
+export type PlanTier = "BASIC" | "STANDARD" | "ENTERPRISE";
+
+export type PlanDefinition = {
+  id: PlanTier;
+  name: string;
+  monthly: number;
+  annual: number;
+  savings: number;
+  popular?: boolean;
+  description: string;
+  features: string[];
+};
+
 type FormData = {
   // Step 1: Business Profile
   businessName: string;
@@ -61,7 +74,7 @@ type FormData = {
   // Step 3: Workspace & Subscription
   workspace: "inventory" | "totals";
   billing: "monthly" | "annual";
-  plan: "Shop Starter" | "Growth Business" | "Scale Pro";
+  planTier: PlanTier;
   currency: string;
   timezone: string;
 };
@@ -96,7 +109,7 @@ const initialForm: FormData = {
   affiliateClickId: "",
   workspace: "inventory",
   billing: "annual",
-  plan: "Growth Business",
+  planTier: "STANDARD",
   currency: "SLL",
   timezone: "Africa/Freetown",
 };
@@ -212,56 +225,413 @@ const REFERRAL_OPTIONS = [
   { value: "Other", label: "Other Source" },
 ];
 
-const plans = [
-  {
-    name: "Shop Starter" as const,
-    id: "BASIC" as const,
-    monthly: 60,
-    annual: 600,
-    savings: 120,
-    description: "For small shops & solo businesses starting out",
-    features: [
-      "1 business location & staff",
-      "Up to 500 catalog items",
-      "Core inventory & sales tracking",
-      "Point-of-Sale (POS) register",
-      "30-Day Free Trial included",
-    ],
-  },
-  {
-    name: "Growth Business" as const,
-    id: "STANDARD" as const,
-    monthly: 150,
-    annual: 1500,
-    savings: 300,
-    popular: true,
-    description: "For growing retail & service operations",
-    features: [
-      "Up to 3 branch locations",
-      "Up to 5 team members",
-      "Up to 5,000 catalog items",
-      "Advanced reports & live POS",
-      "Low stock smart alerts & suppliers",
-      "30-Day Free Trial included",
-    ],
-  },
-  {
-    name: "Scale Pro" as const,
-    id: "ENTERPRISE" as const,
-    monthly: 300,
-    annual: 3000,
-    savings: 600,
-    description: "For established operations requiring full control",
-    features: [
-      "Unlimited branch locations",
-      "Unlimited team members",
-      "Unlimited catalog items",
-      "Full CRM, credits & profit-loss",
-      "Priority support & multi-branch sync",
-      "30-Day Free Trial included",
-    ],
-  },
-];
+/**
+ * Adapts plans specifically for each business type so each business gets its own
+ * specialized plans with all corresponding features included on that tier.
+ */
+export function getPlansForBusinessType(businessType: string): PlanDefinition[] {
+  switch (businessType) {
+    case "PHARMACY":
+      return [
+        {
+          id: "BASIC",
+          name: "Pharmacy Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For community dispensaries & single-store pharmacies",
+          features: [
+            "1 dispensary location & 1 cashier account",
+            "Up to 500 drug items with dosage units",
+            "Batch number & expiry date tracking",
+            "Point-of-Sale (POS) counter dispensing",
+            "Standard pharmacy sales receipts",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Growth Pharmacy",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For busy retail pharmacies & chemist shops",
+          features: [
+            "Up to 3 pharmacy branches & 5 staff accounts",
+            "Up to 5,000 pharmaceutical items",
+            "Automated near-expiry alerts & stock quarantine",
+            "Supplier price lists & restock orders",
+            "Controlled drug register & tax compliance reports",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Pharmacy Enterprise",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For pharmacy chains, wholesale distributors & institutional suppliers",
+          features: [
+            "Unlimited pharmacy branches & staff accounts",
+            "Unlimited pharmaceutical items & formulations",
+            "Inter-branch drug transfers & batch tracking",
+            "Institutional client accounts & hospital billing",
+            "Comprehensive pharmaceutical audit trail & P&L",
+          ],
+        },
+      ];
+
+    case "CLINIC":
+      return [
+        {
+          id: "BASIC",
+          name: "Clinic Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For private outpatient clinics & medical practices",
+          features: [
+            "1 consultation room & 1 clinical practitioner",
+            "Patient registry & digital triage queue",
+            "Clinical consultation notes & vital signs",
+            "Consultation fee billing & patient receipts",
+            "Daily patient attendance & revenue summary",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Growth Clinic",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For multi-practitioner polyclinics & specialist health centers",
+          features: [
+            "Up to 3 consultation suites & 5 clinical staff",
+            "Integrated dispensary & prescription routing",
+            "Laboratory test orders & diagnostic results entry",
+            "Patient appointment calendar & follow-ups",
+            "Clinical revenue breakdown & medical audit reports",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Medical Center Pro",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For multi-specialty clinics & medical complexes",
+          features: [
+            "Unlimited clinical suites, doctors & nurses",
+            "Day-patient bed observation & procedure tracking",
+            "Comprehensive lab diagnostics & imaging records",
+            "Corporate medical retainers & insurance claims",
+            "Complete healthcare operations ledger & P&L",
+          ],
+        },
+      ];
+
+    case "HOSPITAL":
+      return [
+        {
+          id: "BASIC",
+          name: "Hospital Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For cottage hospitals & emergency health posts",
+          features: [
+            "OPD patient registry & triage assessment",
+            "Up to 2 ward rooms & bed registry",
+            "Doctor consultation records & prescriptions",
+            "Cashier treatment billing & patient receipts",
+            "Daily admission log & OPD summary",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Hospital Growth",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For community hospitals & district health centers",
+          features: [
+            "Up to 3 clinical departments & 10 inpatient beds",
+            "Inpatient admission, ward transfers & discharge",
+            "Hospital pharmacy dispensing & surgical supplies",
+            "Diagnostic lab test management & reports",
+            "Departmental revenue & consumable inventory",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Hospital Enterprise",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For referral hospitals & multi-ward medical complexes",
+          features: [
+            "Unlimited wards, beds & hospital staff accounts",
+            "Full surgical, ICU & emergency room logs",
+            "Consolidated multi-department billing & insurance",
+            "Central medical warehouse & ward stock requisitions",
+            "Complete institutional financial ledger & audit",
+          ],
+        },
+      ];
+
+    case "RESTAURANT":
+      return [
+        {
+          id: "BASIC",
+          name: "Restaurant Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For cafes, fast food spots & casual eateries",
+          features: [
+            "1 cashier station & up to 10 dining tables",
+            "Menu catalog with categories & price modifiers",
+            "Dine-in table orders & takeaway orders",
+            "Printed kitchen order tickets (KOT)",
+            "End-of-shift cash drawer balancing",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Growth Restaurant",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For full-service dining restaurants & food lounges",
+          features: [
+            "Up to 3 dining sections & 5 staff logins",
+            "Live Kitchen Order Display (KOD) routing",
+            "Table transfers, split bills & service charges",
+            "Recipe raw ingredient stock depletion",
+            "Detailed food cost analysis & shift variance reports",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Hospitality Enterprise",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For multi-branch restaurants, franchises & culinary groups",
+          features: [
+            "Unlimited restaurant branches, bars & staff accounts",
+            "Central commissary & bulk food supply transfers",
+            "VIP guest profiles, reservations & loyalty perks",
+            "Multi-unit gross profit & food wastage tracking",
+            "Consolidated hospitality group financial ledger",
+          ],
+        },
+      ];
+
+    case "BAR":
+      return [
+        {
+          id: "BASIC",
+          name: "Bar Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For neighborhood bars, pub counters & drink kiosks",
+          features: [
+            "1 bar register & 1 bartender account",
+            "Beverage menu with bottles, cans & tot measures",
+            "Rapid counter checkout & mobile money",
+            "Bottle stock counts & low-stock alerts",
+            "Daily drinks sales & cash handover summary",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Lounge Growth",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For cocktail lounges, sports bars & night venues",
+          features: [
+            "Up to 3 bar stations & 5 bartenders/waitstaff",
+            "Customer open tabs & table bottle service",
+            "Drink variants, mixes & liquor wastage logging",
+            "Shift-by-shift bartender cash & stock balancing",
+            "Peak-hour revenue reports & beverage margin analysis",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Nightlife Enterprise",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For multi-bar clubs, hotel lounges & event venues",
+          features: [
+            "Unlimited bar stations, VIP areas & event venues",
+            "VIP bottle locker management & guest credits",
+            "Multi-venue inventory transfer & loss prevention",
+            "Live promoter & event revenue tracking",
+            "Consolidated nightlife group profit & loss",
+          ],
+        },
+      ];
+
+    case "SCHOOL":
+      return [
+        {
+          id: "BASIC",
+          name: "School Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For nurseries, primary schools & local academies",
+          features: [
+            "Single campus & up to 100 enrolled students",
+            "Student admission register & profile records",
+            "Tuition fee collection & printed receipts",
+            "Daily class attendance recording",
+            "Termly fee collection & arrears summary",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Academy Growth",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For junior & senior secondary schools & modern academies",
+          features: [
+            "Single campus & up to 500 enrolled students",
+            "Automated termly fee billing & installment tracking",
+            "Subject grading, exam marks & term report cards",
+            "Parent communication notices (SMS / email)",
+            "Teacher attendance & basic payroll logging",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Institution Enterprise",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For large colleges, multi-campus schools & universities",
+          features: [
+            "Unlimited campuses & unlimited students",
+            "Full hostel / dorm allocation & dining management",
+            "School library catalog & book checkout system",
+            "Complete staff HR, attendance & payroll disbursements",
+            "Institutional financial ledger, fee reconciliation & audit",
+          ],
+        },
+      ];
+
+    case "OFFICE":
+      return [
+        {
+          id: "BASIC",
+          name: "Office Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For startups, consultancies & small professional offices",
+          features: [
+            "1 admin account & office workspace",
+            "Client directory & contact CRM",
+            "Professional client invoice & quotation generation",
+            "Daily office expense & receipt logging",
+            "Monthly cashflow & revenue summary",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Corporate Growth",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For expanding agencies, law firms & service companies",
+          features: [
+            "Up to 5 employee logins & role permissions",
+            "Employee clock-in/out attendance tracking",
+            "Monthly payroll calculations & payslips",
+            "Project & service milestone invoicing",
+            "Advanced expense tagging & departmental budgets",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Enterprise Office",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For corporate headquarters, conglomerates & multi-division firms",
+          features: [
+            "Unlimited divisions, departments & staff accounts",
+            "Full HR management, leave requests & payroll",
+            "Multi-currency transactions & bank reconciliations",
+            "Role-based granular permissions & security audit logs",
+            "Executive dynamic profit & loss and balance sheet",
+          ],
+        },
+      ];
+
+    default: // SHOP & SUPERMARKET
+      return [
+        {
+          id: "BASIC",
+          name: "Shop Starter",
+          monthly: 60,
+          annual: 600,
+          savings: 120,
+          description: "For small shops & solo retail stores starting out",
+          features: [
+            "1 business location & staff account",
+            "Up to 500 catalog items",
+            "Point-of-Sale (POS) register checkout",
+            "Core inventory stock management",
+            "Sales recording & customer receipts",
+          ],
+        },
+        {
+          id: "STANDARD",
+          name: "Growth Business",
+          monthly: 150,
+          annual: 1500,
+          savings: 300,
+          popular: true,
+          description: "For growing retail businesses & supermarkets",
+          features: [
+            "Up to 3 branch locations & 5 staff accounts",
+            "Up to 5,000 catalog items",
+            "Supplier purchase orders & receivables",
+            "Low-stock smart alerts & barcode scanning",
+            "Sales, inventory & gross profit reports",
+          ],
+        },
+        {
+          id: "ENTERPRISE",
+          name: "Scale Pro",
+          monthly: 300,
+          annual: 3000,
+          savings: 600,
+          description: "For established operations requiring full control",
+          features: [
+            "Unlimited branch locations & staff accounts",
+            "Unlimited catalog items",
+            "Customer CRM & debt credit management",
+            "Dynamic profit & loss and multi-branch reports",
+            "Priority support & multi-branch synchronization",
+          ],
+        },
+      ];
+  }
+}
 
 function Icon({
   name,
@@ -501,9 +871,15 @@ export default function RegisterPage() {
     };
   }, [logoUrl]);
 
+  // Dynamic plans adapted specifically to the chosen business type
+  const currentPlans = useMemo(
+    () => getPlansForBusinessType(form.businessType),
+    [form.businessType]
+  );
+
   const selectedPlan = useMemo(
-    () => plans.find((plan) => plan.name === form.plan) ?? plans[1],
-    [form.plan]
+    () => currentPlans.find((plan) => plan.id === form.planTier) ?? currentPlans[1],
+    [currentPlans, form.planTier]
   );
 
   const selectedBusinessTypeObj = useMemo(
@@ -589,8 +965,8 @@ export default function RegisterPage() {
       if (!form.workspace) {
         nextErrors.workspace = "Select a workspace workflow mode";
       }
-      if (!form.plan) {
-        nextErrors.plan = "Select a subscription plan";
+      if (!form.planTier) {
+        nextErrors.planTier = "Select a subscription plan";
       }
     }
 
@@ -655,7 +1031,7 @@ export default function RegisterPage() {
         }
       }
 
-      // 3. Register Business in database
+      // 3. Register Business in database with selected plan
       const payload = {
         businessName: form.businessName.trim(),
         legalName: form.legalName.trim() || undefined,
@@ -682,7 +1058,7 @@ export default function RegisterPage() {
         affiliateRef: form.affiliateRef || undefined,
         affiliateClickId: form.affiliateClickId || undefined,
         businessManagementMode: form.workspace === "inventory" ? "FULL_INVENTORY" : "SIMPLE_SALES_PROFIT",
-        plan: selectedPlan.id, // "BASIC", "STANDARD", "ENTERPRISE"
+        plan: selectedPlan.id, // "BASIC", "STANDARD", or "ENTERPRISE"
         billing: form.billing, // "monthly" or "annual"
         requestedBillingPeriod: form.billing,
         logoUrl: uploadedLogoUrl || undefined,
@@ -698,7 +1074,7 @@ export default function RegisterPage() {
 
       setSubmitted(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
-      toast.success("Workspace provisioned successfully! Check your email to verify.", {
+      toast.success("Workspace provisioned and activated successfully! Check your email to verify.", {
         duration: 15000,
       });
     } catch (error: any) {
@@ -758,11 +1134,11 @@ export default function RegisterPage() {
             <div className="success-mark">
               <Icon name="check" size={36} strokeWidth={2.4} />
             </div>
-            <p className="eyebrow">Workspace ready</p>
+            <p className="eyebrow">Workspace activated</p>
             <h1>Welcome to ProTech Assist</h1>
             <p>
               <strong>{form.businessName}</strong> is ready to go. Your{" "}
-              {form.plan} workspace has been provisioned with a 30-day trial period.
+              {selectedPlan.name} workspace has been provisioned with all {selectedPlan.name} features active.
             </p>
             <div className="success-details">
               <span>Workspace</span>
@@ -775,7 +1151,7 @@ export default function RegisterPage() {
               <strong>{selectedBusinessTypeObj.label}</strong>
               <span>Billing Plan</span>
               <strong>
-                {form.plan} · {form.billing === "annual" ? "Annual" : "Monthly"}
+                {selectedPlan.name} · {form.billing === "annual" ? "Annual" : "Monthly"}
               </strong>
               <span>Administrator</span>
               <strong>{form.ownerEmail}</strong>
@@ -1342,7 +1718,7 @@ export default function RegisterPage() {
                     <p className="eyebrow">Shape your experience</p>
                     <h1>Set up your workspace</h1>
                     <p>
-                      Choose your preferred operational workflow and a plan that fits your business scale.
+                      Choose your preferred operational workflow and a plan tailored for your {selectedBusinessTypeObj.label.toLowerCase()}.
                     </p>
                   </div>
                 </header>
@@ -1368,9 +1744,9 @@ export default function RegisterPage() {
                       <Icon name="store" size={25} />
                     </span>
                     <span>
-                      <strong>Full Inventory &amp; POS</strong>
+                      <strong>Full Operations &amp; POS</strong>
                       <small>
-                        Track stock, barcodes, live sales, suppliers, and reports in one place.
+                        Track stock, barcodes, live sales, suppliers, and departmental reports in one place.
                       </small>
                     </span>
                     <span className="radio">
@@ -1408,7 +1784,9 @@ export default function RegisterPage() {
                 <div className="plan-heading">
                   <div className="choice-heading">
                     <h2>Choose your plan</h2>
-                    <p>All prices in Sierra Leonean Leone (NLe). 30-day trial included on activation.</p>
+                    <p>
+                      All prices in Sierra Leonean Leone (NLe). Full feature access included immediately on activation.
+                    </p>
                   </div>
                   <div className="billing-toggle">
                     <button
@@ -1440,8 +1818,8 @@ export default function RegisterPage() {
                 </div>
 
                 <div className="plan-grid">
-                  {plans.map((plan) => {
-                    const selected = form.plan === plan.name;
+                  {currentPlans.map((plan) => {
+                    const selected = form.planTier === plan.id;
                     const amount =
                       form.billing === "monthly" ? plan.monthly : plan.annual;
                     return (
@@ -1449,11 +1827,11 @@ export default function RegisterPage() {
                         className={`plan-card ${selected ? "selected" : ""} ${
                           plan.popular ? "popular" : ""
                         }`}
-                        key={plan.name}
+                        key={plan.id}
                         onClick={() =>
                           setForm((previous) => ({
                             ...previous,
-                            plan: plan.name,
+                            planTier: plan.id,
                           }))
                         }
                         type="button"
@@ -1615,11 +1993,11 @@ export default function RegisterPage() {
                       <div>
                         <strong>
                           {form.workspace === "inventory"
-                            ? "Full Inventory & POS"
+                            ? "Full Operations & POS"
                             : "Fast Totals"}
                         </strong>
                         <span>
-                          {form.plan} plan ·{" "}
+                          {selectedPlan.name} ·{" "}
                           {form.billing === "annual"
                             ? "Annual billing (2 months free)"
                             : "Monthly billing"}
@@ -1646,7 +2024,7 @@ export default function RegisterPage() {
                   <p>
                     By creating your workspace, you agree to ProTech Assist’s{" "}
                     <Link href="/terms" target="_blank">Terms of Service</Link> and{" "}
-                    <Link href="/privacy" target="_blank">Privacy Policy</Link>. All new registrations include a 30-day trial on activation.
+                    <Link href="/privacy" target="_blank">Privacy Policy</Link>. All plan features are activated immediately upon account creation.
                   </p>
                 </div>
 
