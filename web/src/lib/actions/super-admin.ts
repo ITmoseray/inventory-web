@@ -542,28 +542,27 @@ export async function getAllSystemUsers() {
     });
 
     return users.map(user => {
-      const lastLog = user.auditLogs[0];
+      const lastLog = user.auditLogs?.[0];
       const effectiveLastActive = user.lastActiveAt || lastLog?.createdAt || user.updatedAt;
       const isActuallyOnline = user.lastActiveAt ? user.lastActiveAt >= threshold : false;
-
       return {
         id: user.id,
-        name: user.name,
+        name: user.name ?? "Unnamed User",
         email: user.email,
-        username: user.username,
-        status: user.status,
-        createdAt: user.createdAt.toISOString(),
-        role: user.role.name,
+        username: user.username ?? null,
+        status: user.status ?? "ACTIVE",
+        createdAt: user.createdAt?.toISOString() ?? new Date().toISOString(),
+        role: user.role?.name ?? "STORE_OWNER",
         business: user.business?.name ?? "—",
         businessType: user.business?.type ?? "SYSTEM",
         lastLoginAt: user.lastLoginAt ? user.lastLoginAt.toISOString() : null,
-        lastActiveAt: effectiveLastActive ? effectiveLastActive.toISOString() : null,
+        lastActiveAt: effectiveLastActive ? new Date(effectiveLastActive).toISOString() : null,
         isOnline: isActuallyOnline,
-        lastAction: lastLog?.action || (isActuallyOnline ? "Active in Dashboard" : "Offline")
+        lastAction: lastLog?.action ?? (isActuallyOnline ? "Active in Dashboard" : "Offline")
       };
     });
   } catch (err: any) {
-    console.error("getAllSystemUsers error:", err?.message);
+    console.error("getAllSystemUsers error:", err?.message, err?.stack);
     return [];
   }
 }
