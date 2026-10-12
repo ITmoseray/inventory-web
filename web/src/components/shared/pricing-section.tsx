@@ -182,8 +182,8 @@ const collegePlans = [
 
 const faqs = [
   {
-    q: 'How does the 30-day free trial work?',
-    a: 'You can sign up and use all features of the selected plan free for 30 days. We do not require a card upfront. You can upgrade, downgrade, or cancel at any time during the trial.',
+    q: 'How does subscription billing work?',
+    a: 'Once you register, you can choose from monthly or annual billing. Annual billing gives you 2 months free (saving 17%). Your subscription starts immediately on account creation with full access to all features in your selected plan.',
   },
   {
     q: 'Can I change plans later?',
@@ -341,7 +341,7 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
                       : "bg-slate-900 hover:bg-slate-800 text-white dark:bg-indigo-600 dark:text-white dark:hover:bg-indigo-700"
                   )}
                 >
-                  {isTrialExpired || hasUsedTrial ? "Upgrade Now" : plan.cta}
+                  {isTrialExpired || hasUsedTrial ? "Upgrade Now" : "Subscribe Now"}
                 </Button>
               </CardFooter>
             </Card>
@@ -366,16 +366,12 @@ export function PricingSection({ selectedCountry }: { selectedCountry?: { code: 
             viewport={{ once: true }}
             className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-100/80 dark:border-indigo-500/20 text-indigo-700 dark:text-indigo-400 font-bold text-xs uppercase tracking-widest shadow-md"
           >
-            
-            <span>30-Day Free Trial available on all plans</span>
+            <span>Premium Enterprise Retail Intelligence</span>
           </motion.div>
           
           <h2 className="text-3xl sm:text-5xl lg:text-7xl font-[1000] tracking-tight text-slate-900 dark:text-white leading-tight sm:leading-none">
             Choose your <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">growth plan</span>
           </h2>
-          <p className="text-slate-500 font-black uppercase tracking-[0.15em] sm:tracking-[0.25em] text-[10px] sm:text-xs leading-relaxed max-w-2xl mx-auto">
-            Premium Enterprise Retail Intelligence
-          </p>
 
           {/* Billing Switcher Toggle */}
           <div className="pt-4 flex justify-center items-center gap-3">

@@ -225,7 +225,7 @@ export function RoiCalculatorSection() {
                 href="/register"
                 className="w-full h-11 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-indigo-500 hover:from-emerald-400 hover:to-indigo-400 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all"
               >
-                Claim Your Free 14-Day Trial <ArrowRight className="h-4 w-4" />
+                Start Using Enterprise OS <ArrowRight className="h-4 w-4" />
               </Link>
               <p className="text-[10px] text-center text-indigo-300/80">
                 No credit card required • Instant setup in 2 minutes

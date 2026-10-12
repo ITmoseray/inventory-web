@@ -57,11 +57,9 @@ export default function ProtechCloudHomepage() {
   const [previewFeature, setPreviewFeature] = useState<any | null>(null);
   const [selectedCountry, setSelectedCountry] = useState(countries[0]);
 
-  const hasUsedTrial = !!session?.user?.trialEndDate;
-  const isTrialExpired = hasUsedTrial && new Date(session?.user?.trialEndDate || 0) < new Date();
-
-  const ctaText = isTrialExpired || hasUsedTrial ? "Upgrade to Pro" : "Start Free Trial";
-  const ctaHref = isTrialExpired || hasUsedTrial ? "/pricing" : "/register";
+  const hasActiveSub = !!(session?.user as any)?.plan && (session?.user as any)?.plan !== 'FREE';
+  const ctaText = hasActiveSub ? "Go to Dashboard" : "Get Started";
+  const ctaHref = hasActiveSub ? "/dashboard" : "/register";
 
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-600 selection:text-white">
@@ -176,7 +174,7 @@ export default function ProtechCloudHomepage() {
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
 
-            {/* Mobile Stacked Actions: Login directly on top of Start Free Trial */}
+            {/* Mobile Stacked Actions: Login directly on top of CTA */}
             <div className="sm:hidden flex flex-col items-stretch gap-0.5 shrink-0">
               <Link 
                 href="/login" 
@@ -274,11 +272,11 @@ export default function ProtechCloudHomepage() {
 
             {/* Primary Action Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-2">
-              <Link 
+                <Link 
                 href={ctaHref}
                 className="w-full sm:w-auto h-13 px-8 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm uppercase tracking-wider shadow-xl shadow-indigo-600/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
-                <span>Start Free Trial</span>
+                <span>{ctaText}</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
 

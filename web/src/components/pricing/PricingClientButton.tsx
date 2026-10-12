@@ -21,18 +21,9 @@ export function PricingClientButton({ planName, showTrial }: { planName: string,
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      {showTrial && (
-        <Button 
-          onClick={() => router.push('/register')}
-          className="w-full h-12 font-bold bg-indigo-600 hover:bg-indigo-700"
-        >
-          Start Free Trial
-        </Button>
-      )}
       <Button 
         onClick={() => router.push('/register')}
-        variant={showTrial ? "outline" : "default"}
-        className={cn("w-full h-12 font-bold", !showTrial && "bg-indigo-600 hover:bg-indigo-700")}
+        className={cn("w-full h-12 font-bold bg-indigo-600 hover:bg-indigo-700")}
       >
         Subscribe Now
       </Button>

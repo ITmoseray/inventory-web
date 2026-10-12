@@ -301,7 +301,7 @@ export function DemoDashboard() {
               href="/register"
               className="h-7 px-3.5 rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-1"
             >
-              Start Free Trial <ArrowRight className="h-3 w-3" />
+              Get Started <ArrowRight className="h-3 w-3" />
             </Link>
           </div>
         </div>

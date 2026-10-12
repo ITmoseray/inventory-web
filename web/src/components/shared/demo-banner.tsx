@@ -24,7 +24,7 @@ export function DemoBanner() {
             <h4 className="text-sm font-black uppercase tracking-widest">Demo Account</h4>
             <p className="text-xs font-medium text-indigo-100 max-w-2xl leading-snug">
               Experience how Protech Inventory OS works before you sign up. Actions in this account are limited. 
-              <span className="hidden sm:inline"> Sign up for a free trial to access all enterprise features.</span>
+              <span className="hidden sm:inline"> Create an account to access all enterprise features.</span>
             </p>
           </div>
         </div>
@@ -32,7 +32,7 @@ export function DemoBanner() {
         <div className="flex items-center gap-4">
           <Link href="/register">
             <Button variant="secondary" className="h-10 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] shadow-lg hover:scale-105 transition-all">
-              Start Free Trial
+              Create Account
             </Button>
           </Link>
           <button 

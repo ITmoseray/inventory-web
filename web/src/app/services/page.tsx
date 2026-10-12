@@ -57,7 +57,7 @@ export default function PublicServicesPage() {
         "Multi-Store & Multi-Warehouse Synchronization",
         "Daily, Weekly & Monthly Profit & Loss Ledger",
       ],
-      ctaText: "Start 14-Day Free Trial",
+      ctaText: "Get Started",
       ctaHref: registerHref,
     },
     {
