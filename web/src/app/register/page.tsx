@@ -24,7 +24,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Lock, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck, ArrowLeft } from "lucide-react";
 import "./register.css";
 
 export type PlanTier = "BASIC" | "STANDARD" | "ENTERPRISE";
@@ -1178,15 +1178,39 @@ export default function RegisterPage() {
         {/* DESKTOP SIDEBAR */}
         <aside className="sidebar">
           <div>
-            <div className="brand">
-              <span className="brand-mark brand-logo">
-                <img src="/enterprise-os-logo.png" alt="ProTech Assist" />
-              </span>
-              <span>
-                <strong>ProTech Assist</strong>
-                <small>Enterprise Inventory OS</small>
-              </span>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+              <Link href="/" className="brand" style={{ textDecoration: "none" }}>
+                <span className="brand-mark brand-logo">
+                  <img src="/enterprise-os-logo.png" alt="ProTech Assist" />
+                </span>
+                <span>
+                  <strong>ProTech Assist</strong>
+                  <small>Enterprise Inventory OS</small>
+                </span>
+              </Link>
             </div>
+
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#94a3b8",
+                fontSize: "12px",
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                background: "rgba(255, 255, 255, 0.06)",
+                border: "1px solid rgba(255, 255, 255, 0.1)",
+                marginBottom: "24px",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to Home</span>
+            </Link>
 
             <div className="sidebar-intro">
               <p className="eyebrow">Business registration</p>
@@ -1235,7 +1259,7 @@ export default function RegisterPage() {
 
         {/* MOBILE HEADER */}
         <div className="mobile-header">
-          <div className="brand">
+          <Link href="/" className="brand" style={{ textDecoration: "none" }}>
             <span className="brand-mark brand-logo">
               <img src="/enterprise-os-logo.png" alt="ProTech Assist" />
             </span>
@@ -1243,8 +1267,29 @@ export default function RegisterPage() {
               <strong>ProTech Assist</strong>
               <small>Enterprise Inventory OS</small>
             </span>
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "5px",
+                color: "#64748b",
+                fontSize: "12px",
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "5px 10px",
+                borderRadius: "7px",
+                border: "1px solid #e2e8f0",
+                background: "#ffffff",
+              }}
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Home</span>
+            </Link>
+            <span className="mobile-step">Step {currentStep + 1} of 4</span>
           </div>
-          <span className="mobile-step">Step {currentStep + 1} of 4</span>
         </div>
 
         {/* MAIN FORM PANEL */}
@@ -1256,6 +1301,52 @@ export default function RegisterPage() {
                 key={step.title}
               />
             ))}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              maxWidth: "900px",
+              margin: "0 auto 16px",
+              padding: "0 4px",
+            }}
+          >
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#64748b",
+                fontSize: "13px",
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "6px 14px",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+                background: "#ffffff",
+                boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+                transition: "all 0.15s ease",
+              }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }}>
+              <span style={{ color: "#64748b" }}>Already registered?</span>
+              <Link
+                href="/login"
+                style={{
+                  fontWeight: 700,
+                  color: "#2563eb",
+                  textDecoration: "none",
+                }}
+              >
+                Sign in →
+              </Link>
+            </div>
           </div>
 
           <form className="form-card" onSubmit={handleSubmit} noValidate>
@@ -2046,7 +2137,7 @@ export default function RegisterPage() {
             {/* FOOTER ACTIONS */}
             <footer className="form-actions">
               <div>
-                {currentStep > 0 && (
+                {currentStep > 0 ? (
                   <button
                     className="back-button"
                     onClick={previousStep}
@@ -2055,6 +2146,15 @@ export default function RegisterPage() {
                     <Icon name="back" size={18} />
                     Back
                   </button>
+                ) : (
+                  <Link
+                    href="/"
+                    className="back-button"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Icon name="back" size={18} />
+                    Back to Home
+                  </Link>
                 )}
               </div>
               <div className="step-caption">

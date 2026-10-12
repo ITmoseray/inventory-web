@@ -1215,6 +1215,7 @@
   border: 0;
   color: #5e6a7e;
   background: transparent;
+  text-decoration: none;
 }
 
 .register-page .back-button:hover {

@@ -3,6 +3,7 @@
 import { useState, useEffect, FormEvent, ReactNode } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { resendVerificationEmail } from "@/lib/actions/verification";
@@ -31,10 +32,10 @@ import "./login.css";
 
 function ProTechLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <div className={`brand ${compact ? "brand--compact" : ""}`}>
+    <Link href="/" className={`brand ${compact ? "brand--compact" : ""}`} title="Return to ProTech Home">
       <img src="/protech-assist-logo.png" alt="ProTech Assist — Innovate, Develop, Deliver" />
       <span className="brand__product">Enterprise OS</span>
-    </div>
+    </Link>
   );
 }
 
@@ -398,7 +399,28 @@ export default function LoginPage() {
     <main className="login-page">
       {/* ─── LEFT BRAND PANEL ─── */}
       <section className="brand-panel">
-        <ProTechLogo />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%", zIndex: 3 }}>
+          <ProTechLogo />
+          <Link
+            href="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              color: "#94a3b8",
+              fontSize: "12px",
+              fontWeight: 600,
+              textDecoration: "none",
+              padding: "6px 12px",
+              borderRadius: "8px",
+              background: "rgba(255, 255, 255, 0.06)",
+              border: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back to Home</span>
+          </Link>
+        </div>
 
         <div className="brand-panel__content">
           <div className="brand-copy">
@@ -418,11 +440,63 @@ export default function LoginPage() {
 
       {/* ─── RIGHT FORM PANEL ─── */}
       <section className="form-panel">
-        <div className="mobile-brand">
+        <div className="mobile-brand" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <ProTechLogo compact />
+          <Link
+            href="/"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              color: "#64748b",
+              fontSize: "12px",
+              fontWeight: 600,
+              textDecoration: "none",
+              padding: "6px 12px",
+              borderRadius: "8px",
+              border: "1px solid #e2e8f0",
+              background: "#ffffff",
+            }}
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Home</span>
+          </Link>
         </div>
 
         <div className="form-wrap">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <Link
+              href="/"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "8px",
+                color: "#64748b",
+                fontSize: "13px",
+                fontWeight: 600,
+                textDecoration: "none",
+                padding: "6px 12px",
+                borderRadius: "8px",
+                border: "1px solid #e2e8f0",
+                background: "#ffffff",
+              }}
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Home</span>
+            </Link>
+            <Link
+              href="/register"
+              style={{
+                fontSize: "12px",
+                fontWeight: 700,
+                color: "#2563eb",
+                textDecoration: "none",
+              }}
+            >
+              Register business →
+            </Link>
+          </div>
+
           <div className="form-heading">
             <h2>Welcome back</h2>
             <p>Sign in to your Enterprise OS account to continue.</p>
