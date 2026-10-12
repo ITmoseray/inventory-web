@@ -3,7 +3,6 @@
 import { useState, useEffect, FormEvent, ReactNode } from "react";
 import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
 import { resendVerificationEmail } from "@/lib/actions/verification";
@@ -32,10 +31,10 @@ import "./login.css";
 
 function ProTechLogo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className={`brand ${compact ? "brand--compact" : ""}`} title="Return to ProTech Home">
+    <div className={`brand ${compact ? "brand--compact" : ""}`}>
       <img src="/protech-assist-logo.png" alt="ProTech Assist — Innovate, Develop, Deliver" />
       <span className="brand__product">Enterprise OS</span>
-    </Link>
+    </div>
   );
 }
 
