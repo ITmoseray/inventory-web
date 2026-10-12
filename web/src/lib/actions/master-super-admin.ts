@@ -119,18 +119,24 @@ export async function getMasterSuperAdminTelemetry() {
     const weekStart = new Date();
     weekStart.setDate(weekStart.getDate() - 7);
 
-    // 1. Fetch all Super Admins safely
+    // 1. Fetch all Super Admins:
+    //    - The master email user (no businessId needed)
+    //    - Any user whose role has businessId=null AND name="SUPERADMIN" (global roles)
     let allSuperAdmins: any[] = [];
     try {
       allSuperAdmins = await prisma.user.findMany({
         where: {
           OR: [
-            { role: { name: "SUPERADMIN" } },
-            { email: { equals: MASTER_SUPER_ADMIN_EMAIL, mode: "insensitive" } }
+            // Master user by email
+            { email: { equals: MASTER_SUPER_ADMIN_EMAIL, mode: "insensitive" } },
+            // Global SUPERADMIN role (businessId is null = platform-level role)
+            { role: { name: "SUPERADMIN", businessId: null } },
+            // Also catch users explicitly flagged as super admin via role name without businessId filter
+            { role: { name: { in: ["SUPERADMIN", "SUPER_ADMIN", "SuperAdmin"] } } },
           ]
         },
         include: {
-          role: { select: { name: true } },
+          role: { select: { name: true, businessId: true } },
           business: { select: { name: true, type: true } },
           _count: {
             select: { auditLogs: true }
@@ -146,50 +152,58 @@ export async function getMasterSuperAdminTelemetry() {
             }
           }
         },
-        orderBy: [
-          { createdAt: "desc" }
-        ]
+        orderBy: [{ createdAt: "desc" }]
+      });
+
+      // Deduplicate by id
+      const seen = new Set<string>();
+      allSuperAdmins = allSuperAdmins.filter(a => {
+        if (seen.has(a.id)) return false;
+        seen.add(a.id);
+        return true;
       });
     } catch (e) {
       console.error("Failed to query super admins:", e);
     }
 
-    // 2. Fetch comprehensive Super Admin audit logs stream safely
+    const superAdminIds = allSuperAdmins.map(a => a.id);
+
+    // 2. Fetch audit logs for all identified super admin user IDs
     let superAdminLogs: any[] = [];
     try {
-      superAdminLogs = await prisma.auditLog.findMany({
-        where: {
-          OR: [
-            { user: { role: { name: "SUPERADMIN" } } },
-            { user: { email: { equals: MASTER_SUPER_ADMIN_EMAIL, mode: "insensitive" } } }
-          ]
-        },
-        include: {
-          user: {
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              username: true,
-              imageUrl: true,
-              role: { select: { name: true } }
+      if (superAdminIds.length > 0) {
+        superAdminLogs = await prisma.auditLog.findMany({
+          where: {
+            userId: { in: superAdminIds }
+          },
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                username: true,
+                imageUrl: true,
+                role: { select: { name: true } }
+              }
+            },
+            business: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+                type: true
+              }
             }
           },
-          business: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              type: true
-            }
-          }
-        },
-        orderBy: { createdAt: "desc" },
-        take: 200
-      });
+          orderBy: { createdAt: "desc" },
+          take: 200
+        });
+      }
     } catch (e) {
       console.error("Failed to query super admin audit logs:", e);
     }
+
 
     // 3. Format super admin operators
     const formattedOperators = allSuperAdmins.map((admin) => {
