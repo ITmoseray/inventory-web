@@ -27,7 +27,12 @@ export async function registerBusiness(data: any) {
     customReferralSource,
     referralCode,
     affiliateRef,
-    affiliateClickId
+    affiliateClickId,
+    ownerName,
+    ownerPhone,
+    businessPhone,
+    billing,
+    requestedBillingPeriod
   } = data;
 
   // Resolve affiliate attribution
@@ -52,15 +57,19 @@ export async function registerBusiness(data: any) {
     // For now, let's keep it as is, as registration is the start of the journey.
     
     const settings = await getSystemSettings().catch(() => ({ defaultTrialDays: 30 }));
-    const trialEndDate = plan === 'FREE' ? new Date(Date.now() + settings.defaultTrialDays * 24 * 60 * 60 * 1000) : null;
+    const defaultDays = (settings as any)?.defaultTrialDays ?? 30;
+    const trialEndDate = new Date(Date.now() + defaultDays * 24 * 60 * 60 * 1000);
 
     const allowedTypes = ["SHOP", "RESTAURANT", "BAR", "PHARMACY", "SUPERMARKET", "CLINIC", "HOSPITAL", "OFFICE", "SCHOOL"];
     const dbBusinessType = allowedTypes.includes(businessType) ? (businessType as BusinessType) : BusinessType.SHOP;
 
+    const allowedPlans = ["FREE", "BASIC", "STANDARD", "BUSINESS", "ENTERPRISE"];
+    const dbPlan = allowedPlans.includes(plan) ? plan : "BASIC";
+
     const business = await tx.business.create({
       data: {
         name: businessName,
-        phone: phone,
+        phone: phone || businessPhone || ownerPhone || null,
         address: address,
         email: businessEmail || email,
         currency: currency || "SLL",
@@ -69,16 +78,17 @@ export async function registerBusiness(data: any) {
         customReferralSource: customReferralSource || null,
         affiliateRef: effectiveAffiliateRef || null,
         affiliateClickId: effectiveAffiliateClickId || null,
-        slug: businessName.toLowerCase().replace(/ /g, "-") + "-" + Math.random().toString(36).substring(7),
+        slug: businessName.toLowerCase().replace(/[^a-z0-9]/g, "-").replace(/-+/g, "-") + "-" + Math.random().toString(36).substring(7),
         type: dbBusinessType,
         businessManagementMode: businessManagementMode === "SIMPLE_SALES_PROFIT" ? "SIMPLE_SALES_PROFIT" : "FULL_INVENTORY",
         institutionType: institutionType || null,
-        plan: plan,
+        plan: dbPlan,
         status: "ACTIVE",
-        logoUrl: logoUrl,
+        logoUrl: logoUrl || null,
         enabledModules: ["POS", "INVENTORY"],
-        trialStartDate: plan === 'FREE' ? new Date() : null,
+        trialStartDate: new Date(),
         trialEndDate: trialEndDate,
+        requestedBillingPeriod: billing || requestedBillingPeriod || "monthly",
       },
     });
 
@@ -129,7 +139,8 @@ export async function registerBusiness(data: any) {
       data: {
         email,
         passwordHash,
-        name: "Admin",
+        name: ownerName || data.name || "Admin",
+        phone: ownerPhone || phone || null,
         roleId: adminRole ? adminRole.id : createdRoles[0].id,
         businessId: business.id,
         verificationToken,
@@ -162,9 +173,9 @@ export async function registerBusiness(data: any) {
       businessName: result.business.name,
       businessType: result.business.type,
       email: email,
-      phone: data.phone || null,
-      plan: data.plan || 'FREE',
-      billingPeriod: 'monthly',
+      phone: phone || businessPhone || ownerPhone || null,
+      plan: result.business.plan || 'BASIC',
+      billingPeriod: billing || requestedBillingPeriod || 'monthly',
       reason: 'NEW_REGISTRATION',
     }).catch(console.error);
 
