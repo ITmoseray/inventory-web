@@ -7,7 +7,7 @@ import {
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
   Crown, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare, Star,
   Brain, Boxes, TrendingUp, UserCog, Shield, PieChart, Receipt, Warehouse, ClipboardList, HelpCircle, AlertCircle, Tag,
-  Sparkles
+  Sparkles, GraduationCap
 } from "lucide-react";
 import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 
@@ -433,6 +433,10 @@ const SidebarContentRenderer = ({
                      <DropdownMenuItem render={<Link href="/super-admin/testimonials" className="flex items-center w-full text-xs text-amber-500 font-bold" />}>
                          <Star className="mr-2 size-3.5 text-amber-500 fill-amber-500" />
                          Testimonials Moderation
+                     </DropdownMenuItem>
+                     <DropdownMenuItem render={<Link href="/super-admin/examinations" className="flex items-center w-full text-xs text-indigo-500 font-bold" />}>
+                         <GraduationCap className="mr-2 size-3.5 text-indigo-500" />
+                         Online Examination Centre
                      </DropdownMenuItem>
                    </>
                 )}

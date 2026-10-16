@@ -33,8 +33,8 @@ model Business {
   referralSource          String?
   customReferralSource    String?
   flutterwaveRef          String?
-  affiliateRef            String?   // PA-AFF-XXXXX code of referring affiliate
-  affiliateClickId        String?   // pa_click_id for conversion attribution
+  affiliateRef            String? // PA-AFF-XXXXX code of referring affiliate
+  affiliateClickId        String? // pa_click_id for conversion attribution
   subscriptionStatus      String                   @default("INACTIVE")
   requestedBillingPeriod  String                   @default("monthly")
   attendance              Attendance[]
@@ -161,8 +161,8 @@ model User {
   labTests                LabTest[]                 @relation("LabTechnician")
   requestedLabTests       LabTest[]                 @relation("DoctorLabTests")
   salesDrafts             SalesDraft[]
-  assignedImplementations ClientImplementation[]   @relation("AssignedImplementations")
-  createdImplementations  ClientImplementation[]   @relation("CreatedImplementations")
+  assignedImplementations ClientImplementation[]    @relation("AssignedImplementations")
+  createdImplementations  ClientImplementation[]    @relation("CreatedImplementations")
   conversationMemberships ConversationMember[]
   chatMessages            ChatMessage[]
   staffAgreements         StaffAgreement[]
@@ -247,36 +247,36 @@ model Category {
 }
 
 model Product {
-  id                    String           @id @default(cuid())
+  id                    String              @id @default(cuid())
   name                  String
   sku                   String?
   description           String?
   barcode               String?
-  unitPrice             Decimal          @db.Decimal(10, 2)
-  costPrice             Decimal?         @db.Decimal(10, 2)
-  stockQuantity         Decimal          @default(0) @db.Decimal(10, 2)
-  minStockLevel         Int              @default(10)
+  unitPrice             Decimal             @db.Decimal(10, 2)
+  costPrice             Decimal?            @db.Decimal(10, 2)
+  stockQuantity         Decimal             @default(0) @db.Decimal(10, 2)
+  minStockLevel         Int                 @default(10)
   maxStockLevel         Int?
-  isFavorite            Boolean          @default(false)
-  status                String           @default("active")
+  isFavorite            Boolean             @default(false)
+  status                String              @default("active")
   metadata              Json?
   businessId            String
   categoryId            String?
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
   deletedAt             DateTime?
-  isNetworkAvailable    Boolean          @default(false)
-  requiresPrescription  Boolean          @default(false)
+  isNetworkAvailable    Boolean             @default(false)
+  requiresPrescription  Boolean             @default(false)
   genericAlternative    String?
-  isControlledSubstance Boolean          @default(false)
+  isControlledSubstance Boolean             @default(false)
   originalBusinessId    String?
   originalProductId     String?
-  type                  ProductType      @default(PRODUCT)
+  type                  ProductType         @default(PRODUCT)
   imageUrl              String?
-  baseUnit              String           @default("Unit")
+  baseUnit              String              @default("Unit")
   batches               Batch[]
-  business              Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  category              Category?        @relation(fields: [categoryId], references: [id])
+  business              Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  category              Category?           @relation(fields: [categoryId], references: [id])
   units                 ProductUnit[]
   purchaseItems         PurchaseItem[]
   saleItems             SaleItem[]
@@ -374,7 +374,7 @@ model Sale {
   discount      Decimal              @default(0) @db.Decimal(10, 2)
   tax           Decimal              @default(0) @db.Decimal(10, 2)
   paymentMethod String               @default("CASH") // Keep for backward compatibility, or "SPLIT"
-  splitPayments Json?                // [{ method: "CASH", amount: 100 }, { method: "CARD", amount: 50 }]
+  splitPayments Json? // [{ method: "CASH", amount: 100 }, { method: "CARD", amount: 50 }]
   paymentStatus String               @default("PAID")
   status        String               @default("COMPLETED")
   businessId    String
@@ -525,51 +525,51 @@ model SaleItem {
 }
 
 model Supplier {
-  id           String            @id @default(cuid())
+  id           String              @id @default(cuid())
   name         String
   contact      String?
   email        String?
   phone        String?
   address      String?
   taxId        String?
-  paymentTerms String?           @default("Net 30")
+  paymentTerms String?             @default("Net 30")
   notes        String?
   businessId   String
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
   deletedAt    DateTime?
   purchases    Purchase[]
   payments     SupplierPayment[]
   priceLists   SupplierPriceList[]
   goods        SupplierGood[]
-  business     Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business     Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([businessId, deletedAt])
 }
 
 model SupplierGood {
-  id             String    @id @default(cuid())
-  supplierId     String
-  itemName       String
-  category       String?
-  unit           String?   @default("pcs")
-  quantity       Decimal   @default(1) @db.Decimal(10, 2)
-  unitCost       Decimal   @default(0) @db.Decimal(10, 2)
-  totalCost      Decimal   @default(0) @db.Decimal(10, 2)
-  invoiceNumber  String?
-  deliveryDate   DateTime  @default(now())
-  paymentStatus  String    @default("PAID") // PAID, PARTIAL, UNPAID
-  paidAmount     Decimal   @default(0) @db.Decimal(10, 2)
-  dueDate        DateTime?
-  notes          String?
-  businessId     String
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
+  id            String    @id @default(cuid())
+  supplierId    String
+  itemName      String
+  category      String?
+  unit          String?   @default("pcs")
+  quantity      Decimal   @default(1) @db.Decimal(10, 2)
+  unitCost      Decimal   @default(0) @db.Decimal(10, 2)
+  totalCost     Decimal   @default(0) @db.Decimal(10, 2)
+  invoiceNumber String?
+  deliveryDate  DateTime  @default(now())
+  paymentStatus String    @default("PAID") // PAID, PARTIAL, UNPAID
+  paidAmount    Decimal   @default(0) @db.Decimal(10, 2)
+  dueDate       DateTime?
+  notes         String?
+  businessId    String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
-  supplier       Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([supplierId])
@@ -578,10 +578,10 @@ model SupplierGood {
 
 model TaxRecord {
   id              String    @id @default(cuid())
-  taxType         String    // GST_15, PAYE_PAYROLL, WITHHOLDING_TAX, CORPORATE_INCOME_TAX, CUSTOMS_DUTY, CITY_COUNCIL_RATES, TRADE_LICENSE, STAMP_DUTY, OTHER
+  taxType         String // GST_15, PAYE_PAYROLL, WITHHOLDING_TAX, CORPORATE_INCOME_TAX, CUSTOMS_DUTY, CITY_COUNCIL_RATES, TRADE_LICENSE, STAMP_DUTY, OTHER
   taxName         String
   taxAuthority    String    @default("National Revenue Authority (NRA)") // NRA, FCC, Local Council, Customs, etc.
-  taxPeriod       String    // e.g. "August 2026", "Q3 2026", "Annual 2025/2026"
+  taxPeriod       String // e.g. "August 2026", "Q3 2026", "Annual 2025/2026"
   taxableAmount   Decimal   @default(0) @db.Decimal(12, 2)
   taxRate         Decimal   @default(0) @db.Decimal(5, 2)
   taxAmount       Decimal   @default(0) @db.Decimal(12, 2)
@@ -590,9 +590,9 @@ model TaxRecord {
   paymentDate     DateTime? @default(now())
   dueDate         DateTime?
   paymentMethod   String?   @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, CHEQUE, ORANGE_MONEY, AFRIMONEY
-  referenceNumber String?   // Assessment # / Receipt # / Cheque #
-  tinNumber       String?   // TIN used for filing
-  receiptFileUrl  String?   // Proof attachment URL
+  referenceNumber String? // Assessment # / Receipt # / Cheque #
+  tinNumber       String? // TIN used for filing
+  receiptFileUrl  String? // Proof attachment URL
   notes           String?
   recordedById    String?
   businessId      String
@@ -600,7 +600,7 @@ model TaxRecord {
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  business        Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([businessId, taxType])
@@ -856,21 +856,21 @@ model Payment {
 }
 
 model Expense {
-  id            String    @id @default(cuid())
+  id            String           @id @default(cuid())
   description   String
-  amount        Decimal   @db.Decimal(10, 2)
+  amount        Decimal          @db.Decimal(10, 2)
   category      String
-  date          DateTime  @default(now())
-  paymentMethod String    @default("CASH")
+  date          DateTime         @default(now())
+  paymentMethod String           @default("CASH")
   businessId    String
   userId        String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
   deletedAt     DateTime?
-  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user          User      @relation(fields: [userId], references: [id])
+  business      Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user          User             @relation(fields: [userId], references: [id])
   tags          TransactionTag[]
-  attachments   String[]  @default([])
+  attachments   String[]         @default([])
 
   @@index([businessId])
 }
@@ -1550,55 +1550,55 @@ enum QuoteStatus {
 }
 
 model TransactionTag {
-  id         String    @id @default(cuid())
+  id         String   @id @default(cuid())
   name       String
-  color      String    @default("#4F46E5")
+  color      String   @default("#4F46E5")
   businessId String
-  business   Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  createdAt  DateTime  @default(now())
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
 
   // Implicit many-to-many relations
-  expenses   Expense[]
-  sales      Sale[]
-  purchases  Purchase[]
+  expenses  Expense[]
+  sales     Sale[]
+  purchases Purchase[]
 
   @@unique([businessId, name])
   @@index([businessId])
 }
 
 model BankTransaction {
-  id            String    @id @default(cuid())
+  id            String   @id @default(cuid())
   businessId    String
   date          DateTime
   description   String
-  amount        Decimal   @db.Decimal(10, 2)
-  type          String    // CREDIT or DEBIT
-  status        String    @default("PENDING") // PENDING, RECONCILED, IGNORED
+  amount        Decimal  @db.Decimal(10, 2)
+  type          String // CREDIT or DEBIT
+  status        String   @default("PENDING") // PENDING, RECONCILED, IGNORED
   reference     String?
-  matchedWithId String?   // ID of the matched Sale or Expense
+  matchedWithId String? // ID of the matched Sale or Expense
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
 }
 
 model CashRegisterSession {
-  id                  String    @id @default(cuid())
-  businessId          String
-  userId              String    // The cashier
-  openedAt            DateTime  @default(now())
-  closedAt            DateTime?
-  startingCash        Decimal   @db.Decimal(10, 2) // Float
-  actualEndingCash    Decimal?  @db.Decimal(10, 2)
-  expectedEndingCash  Decimal?  @db.Decimal(10, 2)
-  status              String    @default("OPEN") // "OPEN" | "CLOSED"
-  notes               String?
-  
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id                 String    @id @default(cuid())
+  businessId         String
+  userId             String // The cashier
+  openedAt           DateTime  @default(now())
+  closedAt           DateTime?
+  startingCash       Decimal   @db.Decimal(10, 2) // Float
+  actualEndingCash   Decimal?  @db.Decimal(10, 2)
+  expectedEndingCash Decimal?  @db.Decimal(10, 2)
+  status             String    @default("OPEN") // "OPEN" | "CLOSED"
+  notes              String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([businessId])
   @@index([userId])
@@ -1608,24 +1608,24 @@ model CashRegisterSession {
 // PROMOTIONS & DISCOUNTS ENGINE
 // ─────────────────────────────────────────────────────────────────
 model Promotion {
-  id           String    @id @default(cuid())
-  name         String
-  description  String?
-  type         String    // PERCENTAGE | FIXED | BUY_X_GET_Y
-  value        Decimal   @db.Decimal(10, 2)
-  minQty       Int?      // Minimum qty to trigger (BUY_X_GET_Y)
-  freeQty      Int?      // Free qty awarded (BUY_X_GET_Y)
-  minAmount    Decimal?  @db.Decimal(10, 2) // Minimum cart value
-  startDate    DateTime
-  endDate      DateTime
-  status       String    @default("ACTIVE") // ACTIVE | INACTIVE | EXPIRED
-  appliesTo    String    @default("ALL")    // ALL | CATEGORY | PRODUCT
-  categoryId   String?
-  productId    String?
-  businessId   String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  business     Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  type        String // PERCENTAGE | FIXED | BUY_X_GET_Y
+  value       Decimal  @db.Decimal(10, 2)
+  minQty      Int? // Minimum qty to trigger (BUY_X_GET_Y)
+  freeQty     Int? // Free qty awarded (BUY_X_GET_Y)
+  minAmount   Decimal? @db.Decimal(10, 2) // Minimum cart value
+  startDate   DateTime
+  endDate     DateTime
+  status      String   @default("ACTIVE") // ACTIVE | INACTIVE | EXPIRED
+  appliesTo   String   @default("ALL") // ALL | CATEGORY | PRODUCT
+  categoryId  String?
+  productId   String?
+  businessId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([businessId, status])
@@ -1635,20 +1635,20 @@ model Promotion {
 // WASTAGE / SPOILAGE TRACKING
 // ─────────────────────────────────────────────────────────────────
 model Wastage {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   productId   String
   productName String
-  quantity    Decimal   @db.Decimal(10, 2)
-  unit        String    @default("Unit")
-  reason      String    // EXPIRED | DAMAGED | THEFT | SPOILED | OTHER
-  costValue   Decimal   @db.Decimal(10, 2)
+  quantity    Decimal  @db.Decimal(10, 2)
+  unit        String   @default("Unit")
+  reason      String // EXPIRED | DAMAGED | THEFT | SPOILED | OTHER
+  costValue   Decimal  @db.Decimal(10, 2)
   notes       String?
   businessId  String
   recordedBy  String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  business    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([businessId])
   @@index([businessId, reason])
@@ -1659,17 +1659,17 @@ model Wastage {
 // GIFT CARDS & VOUCHERS
 // ─────────────────────────────────────────────────────────────────
 model GiftCard {
-  id             String              @id @default(cuid())
-  code           String              @unique
-  originalAmount Decimal             @db.Decimal(10, 2)
-  balance        Decimal             @db.Decimal(10, 2)
+  id             String                @id @default(cuid())
+  code           String                @unique
+  originalAmount Decimal               @db.Decimal(10, 2)
+  balance        Decimal               @db.Decimal(10, 2)
   expiryDate     DateTime?
-  status         String              @default("ACTIVE") // ACTIVE | USED | EXPIRED | VOIDED
-  issuedTo       String?             // Customer name or email
+  status         String                @default("ACTIVE") // ACTIVE | USED | EXPIRED | VOIDED
+  issuedTo       String? // Customer name or email
   businessId     String
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  business       Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  business       Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
   transactions   GiftCardTransaction[]
 
   @@index([businessId])
@@ -1677,14 +1677,14 @@ model GiftCard {
 }
 
 model GiftCardTransaction {
-  id          String    @id @default(cuid())
-  giftCardId  String
-  amount      Decimal   @db.Decimal(10, 2)
-  type        String    // ISSUE | REDEEM | REFUND | VOID
-  saleRef     String?   // Reference to sale/invoice
-  notes       String?
-  createdAt   DateTime  @default(now())
-  giftCard    GiftCard  @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  giftCardId String
+  amount     Decimal  @db.Decimal(10, 2)
+  type       String // ISSUE | REDEEM | REFUND | VOID
+  saleRef    String? // Reference to sale/invoice
+  notes      String?
+  createdAt  DateTime @default(now())
+  giftCard   GiftCard @relation(fields: [giftCardId], references: [id], onDelete: Cascade)
 
   @@index([giftCardId])
 }
@@ -1693,19 +1693,19 @@ model GiftCardTransaction {
 // SUPPLIER PRICE LIST
 // ─────────────────────────────────────────────────────────────────
 model SupplierPriceList {
-  id            String    @id @default(cuid())
-  supplierId    String
-  productId     String
-  unitCost      Decimal   @db.Decimal(10, 2)
-  minOrderQty   Int       @default(1)
-  leadTimeDays  Int?      @default(1)
-  notes         String?
-  businessId    String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  business      Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  supplier      Supplier  @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  supplierId   String
+  productId    String
+  unitCost     Decimal  @db.Decimal(10, 2)
+  minOrderQty  Int      @default(1)
+  leadTimeDays Int?     @default(1)
+  notes        String?
+  businessId   String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  business     Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier     Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  product      Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@unique([supplierId, productId])
   @@index([businessId])
@@ -1760,18 +1760,18 @@ model ActivationTier {
 }
 
 model LicenseVoucher {
-  id             String          @id @default(cuid())
-  code           String          @unique
-  type           String          // TRIAL | SUBSCRIPTION
-  tierId         String
-  durationDays   Int             // e.g., 30
-  status         String          @default("ACTIVE") // ACTIVE | REDEEMED | EXPIRED | REVOKED
-  redeemedById   String?
-  redeemedAt     DateTime?
-  tier           ActivationTier  @relation(fields: [tierId], references: [id])
-  redeemedBy     Business?       @relation("RedeemedByBusiness", fields: [redeemedById], references: [id])
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  id           String         @id @default(cuid())
+  code         String         @unique
+  type         String // TRIAL | SUBSCRIPTION
+  tierId       String
+  durationDays Int // e.g., 30
+  status       String         @default("ACTIVE") // ACTIVE | REDEEMED | EXPIRED | REVOKED
+  redeemedById String?
+  redeemedAt   DateTime?
+  tier         ActivationTier @relation(fields: [tierId], references: [id])
+  redeemedBy   Business?      @relation("RedeemedByBusiness", fields: [redeemedById], references: [id])
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
 
   @@index([tierId])
   @@index([code])
@@ -1809,142 +1809,140 @@ model Referral {
 }
 
 model SystemBackup {
-  id          String   @id @default(cuid())
-  filename    String   @unique
-  sizeBytes   Int
-  type        String   @default("MANUAL") // MANUAL | AUTO | SAFETY
-  data        String   @db.Text
-  createdAt   DateTime @default(now())
+  id        String   @id @default(cuid())
+  filename  String   @unique
+  sizeBytes Int
+  type      String   @default("MANUAL") // MANUAL | AUTO | SAFETY
+  data      String   @db.Text
+  createdAt DateTime @default(now())
 
   @@index([createdAt])
 }
 
 model ClientImplementation {
-  id                          String    @id @default(cuid())
-  implementationNumber        String    @unique
-  businessId                  String
-  assignedStaffId             String?
-  createdById                 String?
-  status                      String    @default("REGISTRATION_PENDING") // REGISTRATION_PENDING | REGISTRATION_COMPLETED | INVENTORY_PENDING | INVENTORY_IN_PROGRESS | INVENTORY_VERIFICATION | AWAITING_CLIENT_APPROVAL | COMPLETED | AMENDED
-  currentStep                 Int       @default(1)
-  isLocked                    Boolean   @default(false)
-  registrationCompleted       Boolean   @default(false)
-  registrationCompletedAt     DateTime?
-  inventoryCompleted          Boolean   @default(false)
-  inventoryCompletedAt        DateTime?
-  inventoryVerified           Boolean   @default(false)
-  inventoryVerifiedAt         DateTime?
-  clientApproved              Boolean   @default(false)
-  clientApprovedAt            DateTime?
+  id                      String    @id @default(cuid())
+  implementationNumber    String    @unique
+  businessId              String
+  assignedStaffId         String?
+  createdById             String?
+  status                  String    @default("REGISTRATION_PENDING") // REGISTRATION_PENDING | REGISTRATION_COMPLETED | INVENTORY_PENDING | INVENTORY_IN_PROGRESS | INVENTORY_VERIFICATION | AWAITING_CLIENT_APPROVAL | COMPLETED | AMENDED
+  currentStep             Int       @default(1)
+  isLocked                Boolean   @default(false)
+  registrationCompleted   Boolean   @default(false)
+  registrationCompletedAt DateTime?
+  inventoryCompleted      Boolean   @default(false)
+  inventoryCompletedAt    DateTime?
+  inventoryVerified       Boolean   @default(false)
+  inventoryVerifiedAt     DateTime?
+  clientApproved          Boolean   @default(false)
+  clientApprovedAt        DateTime?
 
   // Client / Business Snapshot
-  clientName                  String?
-  ownerName                   String?
-  contactPhone                String?
-  contactWhatsapp             String?
-  contactEmail                String?
-  businessAddress             String?
-  city                        String?
-  district                    String?
-  businessType                String?
-  assignedStaffName           String?
-  assignedStaffRole           String?
-  subscriptionPlan            String?
-  trialStartDate              DateTime?
-  accountStatus               String?
+  clientName        String?
+  ownerName         String?
+  contactPhone      String?
+  contactWhatsapp   String?
+  contactEmail      String?
+  businessAddress   String?
+  city              String?
+  district          String?
+  businessType      String?
+  assignedStaffName String?
+  assignedStaffRole String?
+  subscriptionPlan  String?
+  trialStartDate    DateTime?
+  accountStatus     String?
 
   // Calculated Inventory Snapshot (JSON)
-  inventorySummary            Json?
+  inventorySummary Json?
 
   // Verification Checklist (JSON)
-  verificationChecklist       Json?
+  verificationChecklist Json?
 
   // Notes & Remarks
-  notes                       String?
-  verificationNotes           String?
+  notes             String?
+  verificationNotes String?
 
   // Staff Digital Signature
-  staffSignature              String?   @db.Text
-  staffSignerName             String?
-  staffSignerRole             String?
-  staffSignedAt               DateTime?
+  staffSignature  String?   @db.Text
+  staffSignerName String?
+  staffSignerRole String?
+  staffSignedAt   DateTime?
 
   // Client Representative Digital Signature
-  clientSignature             String?   @db.Text
-  clientSignerName            String?
-  clientSignerRole            String?
-  clientSignerPhone           String?
-  clientSignedAt              DateTime?
+  clientSignature   String?   @db.Text
+  clientSignerName  String?
+  clientSignerRole  String?
+  clientSignerPhone String?
+  clientSignedAt    DateTime?
 
   // Completion
-  completedAt                 DateTime?
-  completedBy                 String?
+  completedAt DateTime?
+  completedBy String?
 
   // Revisions & Amendments Audit Trail (JSON array)
-  revisions                   Json?
+  revisions Json?
 
-  createdAt                   DateTime  @default(now())
-  updatedAt                   DateTime  @updatedAt
-  deletedAt                   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  business                    Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  assignedStaff               User?     @relation("AssignedImplementations", fields: [assignedStaffId], references: [id], onDelete: SetNull)
-  createdBy                   User?     @relation("CreatedImplementations", fields: [createdById], references: [id], onDelete: SetNull)
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  assignedStaff User?    @relation("AssignedImplementations", fields: [assignedStaffId], references: [id], onDelete: SetNull)
+  createdBy     User?    @relation("CreatedImplementations", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([businessId])
   @@index([status])
   @@index([implementationNumber])
 }
 
-
-
 model TeamConversation {
-  id                  String               @id @default(cuid())
-  businessId          String
-  type                String               @default("DIRECT") // "DIRECT" | "CHANNEL" | "ANNOUNCEMENT"
-  title               String?              // e.g. "#general", "#cashiers", or null for DMs
-  description         String?
-  lastMessageAt       DateTime?
-  lastMessagePreview  String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  deletedAt           DateTime?
+  id                 String    @id @default(cuid())
+  businessId         String
+  type               String    @default("DIRECT") // "DIRECT" | "CHANNEL" | "ANNOUNCEMENT"
+  title              String? // e.g. "#general", "#cashiers", or null for DMs
+  description        String?
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
-  business            Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  members             ConversationMember[]
-  messages            ChatMessage[]
+  business Business             @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  members  ConversationMember[]
+  messages ChatMessage[]
 
   @@index([businessId])
   @@index([lastMessageAt])
 }
 
 model ConversationMember {
-  id             String           @id @default(cuid())
+  id             String    @id @default(cuid())
   conversationId String
   userId         String
   lastReadAt     DateTime?
-  joinedAt       DateTime         @default(now())
+  joinedAt       DateTime  @default(now())
 
-  conversation   TeamConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversation TeamConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([conversationId, userId])
   @@index([userId])
 }
 
 model ChatMessage {
-  id             String           @id @default(cuid())
+  id             String    @id @default(cuid())
   conversationId String
   senderId       String
-  content        String           @db.Text
+  content        String    @db.Text
   attachmentUrl  String?
-  attachmentType String?          // "IMAGE" | "DOCUMENT" | "AUDIO" | null
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  attachmentType String? // "IMAGE" | "DOCUMENT" | "AUDIO" | null
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  conversation   TeamConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  sender         User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  conversation TeamConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User             @relation(fields: [senderId], references: [id], onDelete: Cascade)
 
   @@index([conversationId, createdAt])
   @@index([senderId])
@@ -1958,23 +1956,23 @@ enum TestimonialStatus {
 }
 
 model Testimonial {
-  id           String            @id @default(cuid())
-  authorName   String
-  roleTitle    String?
-  companyName  String
-  industry     String?
-  rating       Int               @default(5)
-  content      String            @db.Text
-  avatarUrl    String?
-  location     String?           @default("Freetown, Sierra Leone")
-  status       TestimonialStatus @default(PENDING)
-  isVerified   Boolean           @default(false)
-  source       String?           @default("LOGOUT_FEEDBACK") // "LOGOUT_FEEDBACK", "LANDING_PAGE", "IN_APP", "MANUAL"
-  businessId   String?
-  userId       String?
-  authorEmail  String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  id          String            @id @default(cuid())
+  authorName  String
+  roleTitle   String?
+  companyName String
+  industry    String?
+  rating      Int               @default(5)
+  content     String            @db.Text
+  avatarUrl   String?
+  location    String?           @default("Freetown, Sierra Leone")
+  status      TestimonialStatus @default(PENDING)
+  isVerified  Boolean           @default(false)
+  source      String?           @default("LOGOUT_FEEDBACK") // "LOGOUT_FEEDBACK", "LANDING_PAGE", "IN_APP", "MANUAL"
+  businessId  String?
+  userId      String?
+  authorEmail String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
 
   @@index([status])
   @@index([rating])
@@ -1985,19 +1983,19 @@ model Testimonial {
 }
 
 model StaffAgreement {
-  id                    String    @id @default(cuid())
-  agreementNumber       String    @unique
-  businessId            String
-  userId                String?
-  status                String    @default("PENDING") // PENDING | SIGNED | VERIFIED | REVOKED
-  
+  id              String  @id @default(cuid())
+  agreementNumber String  @unique
+  businessId      String
+  userId          String?
+  status          String  @default("PENDING") // PENDING | SIGNED | VERIFIED | REVOKED
+
   // Staff Information
   fullName              String
   jobTitle              String
   department            String?
   phone                 String
   email                 String?
-  nationalId            String?   // NIN / Voter ID / Passport
+  nationalId            String? // NIN / Voter ID / Passport
   address               String?
   dateOfBirth           DateTime?
   emergencyContactName  String?
@@ -2006,26 +2004,26 @@ model StaffAgreement {
   startDate             DateTime? @default(now())
 
   // Agreement Content & Terms
-  agreementType         String    @default("EMPLOYMENT_COMPLIANCE") // EMPLOYMENT_COMPLIANCE | CODE_OF_CONDUCT | NDA | CASHIER_ACCOUNTABILITY
-  termsContent          String?   @db.Text
-  customClauses         Json?
+  agreementType String  @default("EMPLOYMENT_COMPLIANCE") // EMPLOYMENT_COMPLIANCE | CODE_OF_CONDUCT | NDA | CASHIER_ACCOUNTABILITY
+  termsContent  String? @db.Text
+  customClauses Json?
 
   // Digital Signature & Verification
-  signatureData         String?   @db.Text
-  signerFullName        String?
-  signedAt              DateTime?
-  ipAddress             String?
-  userAgent             String?
-  verifiedByAdmin       Boolean   @default(false)
-  verifiedAt            DateTime?
-  adminNotes            String?
+  signatureData   String?   @db.Text
+  signerFullName  String?
+  signedAt        DateTime?
+  ipAddress       String?
+  userAgent       String?
+  verifiedByAdmin Boolean   @default(false)
+  verifiedAt      DateTime?
+  adminNotes      String?
 
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  deletedAt             DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
-  business              Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user                  User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([businessId])
   @@index([userId])
@@ -2054,8 +2052,8 @@ model SimpleDailyEntry {
   updatedAt      DateTime  @updatedAt
   deletedAt      DateTime?
 
-  business       Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  user           User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  user     User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([businessId, date])
   @@index([businessId, deletedAt])
@@ -2083,46 +2081,46 @@ enum StorePlan {
 }
 
 model Store {
-  id                   String              @id @default(cuid())
-  businessId           String?             @unique
-  ownerId              String?
-  storeType            StoreType           @default(ENTERPRISE_CONNECTED)
-  name                 String
-  slug                 String              @unique
-  description          String?             @db.Text
-  logoUrl              String?
-  bannerUrl            String?
-  faviconUrl           String?
-  templateId           String?
-  plan                 StorePlan           @default(FREE)
-  aiGenerationsUsed    Int                 @default(0)
-  aiGenerationsLimit   Int                 @default(5)
-  productsLimit        Int                 @default(10)
-  customDomainAllowed  Boolean             @default(false)
-  planExpiresAt        DateTime?
-  status               StoreStatus         @default(DRAFT)
-  currency             String              @default("SLE")
-  whatsappPhone        String?
-  contactEmail         String?
-  contactPhone         String?
-  location             String?
-  socialLinks          Json?               // { facebook?: string, instagram?: string, twitter?: string, tiktok?: string }
-  themeConfig          Json                // { style, colors: { primary, secondary, accent, background, surface, text, mutedText }, fonts: { heading, body }, borderRadius, headerLayout, heroLayout }
-  navigation           Json?               // { header: [{ id, label, url }], footer: [{ id, label, url }] }
-  settings             Json?               // { deliveryFee, freeDeliveryThreshold, minOrder, allowCashOnDelivery, allowOnlinePayment, seo: { title, description } }
-  customDomain         String?             @unique
-  publishedAt          DateTime?
-  createdAt            DateTime            @default(now())
-  updatedAt            DateTime            @updatedAt
+  id                  String      @id @default(cuid())
+  businessId          String?     @unique
+  ownerId             String?
+  storeType           StoreType   @default(ENTERPRISE_CONNECTED)
+  name                String
+  slug                String      @unique
+  description         String?     @db.Text
+  logoUrl             String?
+  bannerUrl           String?
+  faviconUrl          String?
+  templateId          String?
+  plan                StorePlan   @default(FREE)
+  aiGenerationsUsed   Int         @default(0)
+  aiGenerationsLimit  Int         @default(5)
+  productsLimit       Int         @default(10)
+  customDomainAllowed Boolean     @default(false)
+  planExpiresAt       DateTime?
+  status              StoreStatus @default(DRAFT)
+  currency            String      @default("SLE")
+  whatsappPhone       String?
+  contactEmail        String?
+  contactPhone        String?
+  location            String?
+  socialLinks         Json? // { facebook?: string, instagram?: string, twitter?: string, tiktok?: string }
+  themeConfig         Json // { style, colors: { primary, secondary, accent, background, surface, text, mutedText }, fonts: { heading, body }, borderRadius, headerLayout, heroLayout }
+  navigation          Json? // { header: [{ id, label, url }], footer: [{ id, label, url }] }
+  settings            Json? // { deliveryFee, freeDeliveryThreshold, minOrder, allowCashOnDelivery, allowOnlinePayment, seo: { title, description } }
+  customDomain        String?     @unique
+  publishedAt         DateTime?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
 
-  business             Business?           @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  owner                User?               @relation("StoreOwner", fields: [ownerId], references: [id], onDelete: SetNull)
-  pages                StorePage[]
-  products             StoreProduct[]
-  salesOrders          SalesOrder[]
-  standaloneOrders     StoreOrder[]
-  analytics            StoreAnalytics[]
-  subscriptions        StoreSubscription[]
+  business         Business?           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  owner            User?               @relation("StoreOwner", fields: [ownerId], references: [id], onDelete: SetNull)
+  pages            StorePage[]
+  products         StoreProduct[]
+  salesOrders      SalesOrder[]
+  standaloneOrders StoreOrder[]
+  analytics        StoreAnalytics[]
+  subscriptions    StoreSubscription[]
 
   @@index([businessId])
   @@index([ownerId])
@@ -2133,23 +2131,23 @@ model Store {
 }
 
 model StoreSubscription {
-  id              String           @id @default(cuid())
-  storeId         String
-  userId          String
-  plan            StorePlan
-  amount          Decimal          @db.Decimal(10, 2)
-  currency        String           @default("SLE")
-  billingCycle    String           @default("monthly") // monthly | yearly
-  status          String           @default("active")  // active | canceled | expired
-  paymentMethod   String?          // orange_money | afrimoney | card | bank_transfer | manual
-  paymentRef      String?
-  startDate       DateTime         @default(now())
-  endDate         DateTime
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id            String    @id @default(cuid())
+  storeId       String
+  userId        String
+  plan          StorePlan
+  amount        Decimal   @db.Decimal(10, 2)
+  currency      String    @default("SLE")
+  billingCycle  String    @default("monthly") // monthly | yearly
+  status        String    @default("active") // active | canceled | expired
+  paymentMethod String? // orange_money | afrimoney | card | bank_transfer | manual
+  paymentRef    String?
+  startDate     DateTime  @default(now())
+  endDate       DateTime
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  user            User             @relation("UserStoreSubscriptions", fields: [userId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  user  User  @relation("UserStoreSubscriptions", fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([storeId])
   @@index([userId])
@@ -2157,53 +2155,53 @@ model StoreSubscription {
 }
 
 model StorePage {
-  id              String           @id @default(cuid())
-  storeId         String
-  title           String
-  slug            String           // "home", "about", "contact", "products", "faq"
-  isHome          Boolean          @default(false)
-  sections        Json             // Array of typed section configs [{ id, type, order, visible, settings, content }]
-  seoTitle        String?
-  seoDescription  String?
-  published       Boolean          @default(true)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id             String   @id @default(cuid())
+  storeId        String
+  title          String
+  slug           String // "home", "about", "contact", "products", "faq"
+  isHome         Boolean  @default(false)
+  sections       Json // Array of typed section configs [{ id, type, order, visible, settings, content }]
+  seoTitle       String?
+  seoDescription String?
+  published      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@unique([storeId, slug])
   @@index([storeId])
 }
 
 model StoreProduct {
-  id              String           @id @default(cuid())
-  storeId         String
-  productId       String?          // Nullable for STANDALONE products
-  
+  id        String  @id @default(cuid())
+  storeId   String
+  productId String? // Nullable for STANDALONE products
+
   // Standalone product properties (used when productId is null)
-  name            String?
-  description     String?          @db.Text
-  sku             String?
-  category        String?
-  price           Decimal?         @db.Decimal(10, 2)
-  salePrice       Decimal?         @db.Decimal(10, 2)
-  images          String[]         @default([])
-  stockQuantity   Int?
-  status          String           @default("active")
-  variants        Json?            // [{ name: string, options: string[] }]
-  specifications  Json?            // [{ key: string, value: string }]
+  name           String?
+  description    String?  @db.Text
+  sku            String?
+  category       String?
+  price          Decimal? @db.Decimal(10, 2)
+  salePrice      Decimal? @db.Decimal(10, 2)
+  images         String[] @default([])
+  stockQuantity  Int?
+  status         String   @default("active")
+  variants       Json? // [{ name: string, options: string[] }]
+  specifications Json? // [{ key: string, value: string }]
 
   // Shared storefront display & merchandising properties
-  isFeatured      Boolean          @default(false)
-  displayOrder    Int              @default(0)
-  customBadge     String?          // "NEW", "HOT", "SALE", "TRENDING"
-  customPrice     Decimal?         @db.Decimal(10, 2)
-  isVisible       Boolean          @default(true)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  isFeatured   Boolean  @default(false)
+  displayOrder Int      @default(0)
+  customBadge  String? // "NEW", "HOT", "SALE", "TRENDING"
+  customPrice  Decimal? @db.Decimal(10, 2)
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  product         Product?         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  store   Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
 
   @@index([storeId])
   @@index([productId])
@@ -2211,26 +2209,26 @@ model StoreProduct {
 }
 
 model StoreOrder {
-  id              String           @id @default(cuid())
-  orderNumber     String           @unique
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
   storeId         String
   customerName    String
   customerPhone   String
   customerEmail   String?
   deliveryAddress String
-  deliveryMethod  String           @default("DELIVERY") // "DELIVERY" | "PICKUP"
-  paymentMethod   String           @default("CASH_ON_DELIVERY") // "CASH_ON_DELIVERY" | "ONLINE"
-  paymentStatus   String           @default("PENDING") // "PENDING" | "PAID" | "FAILED"
-  status          String           @default("PENDING") // "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED"
-  subtotal        Decimal          @db.Decimal(10, 2)
-  deliveryFee     Decimal          @default(0) @db.Decimal(10, 2)
-  totalAmount     Decimal          @db.Decimal(10, 2)
-  notes           String?          @db.Text
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  deliveryMethod  String   @default("DELIVERY") // "DELIVERY" | "PICKUP"
+  paymentMethod   String   @default("CASH_ON_DELIVERY") // "CASH_ON_DELIVERY" | "ONLINE"
+  paymentStatus   String   @default("PENDING") // "PENDING" | "PAID" | "FAILED"
+  status          String   @default("PENDING") // "PENDING" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED"
+  subtotal        Decimal  @db.Decimal(10, 2)
+  deliveryFee     Decimal  @default(0) @db.Decimal(10, 2)
+  totalAmount     Decimal  @db.Decimal(10, 2)
+  notes           String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
-  items           StoreOrderItem[]
+  store Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  items StoreOrderItem[]
 
   @@index([storeId])
   @@index([status])
@@ -2238,32 +2236,32 @@ model StoreOrder {
 }
 
 model StoreOrderItem {
-  id              String           @id @default(cuid())
-  orderId         String
-  storeProductId  String?
-  productName     String
-  quantity        Int              @default(1)
-  unitPrice       Decimal          @db.Decimal(10, 2)
-  total           Decimal          @db.Decimal(10, 2)
-  imageUrl        String?
+  id             String  @id @default(cuid())
+  orderId        String
+  storeProductId String?
+  productName    String
+  quantity       Int     @default(1)
+  unitPrice      Decimal @db.Decimal(10, 2)
+  total          Decimal @db.Decimal(10, 2)
+  imageUrl       String?
 
-  order           StoreOrder       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order StoreOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 
   @@index([orderId])
 }
 
 model StoreAnalytics {
-  id              String           @id @default(cuid())
-  storeId         String
-  date            DateTime         @db.Date
-  visitors        Int              @default(0)
-  pageViews       Int              @default(0)
-  ordersCount     Int              @default(0)
-  revenue         Decimal          @default(0) @db.Decimal(10, 2)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  id          String   @id @default(cuid())
+  storeId     String
+  date        DateTime @db.Date
+  visitors    Int      @default(0)
+  pageViews   Int      @default(0)
+  ordersCount Int      @default(0)
+  revenue     Decimal  @default(0) @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  store           Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
 
   @@unique([storeId, date])
   @@index([storeId])
@@ -2353,60 +2351,60 @@ enum AttributionModel {
 }
 
 model Affiliate {
-  id                      String                  @id @default(cuid())
-  userId                  String                  @unique
-  affiliateCode           String                  @unique // e.g. PA-AFF-00001
-  status                  AffiliateStatus         @default(PENDING)
-  
-  // Contact & Demographics
-  fullName                String
-  email                   String
-  phone                   String
-  whatsappPhone           String?
-  country                 String                  @default("Sierra Leone")
-  city                    String?
-  
-  // Marketing Experience & Channels
-  marketingChannels       String[]                @default([])
-  websiteOrSocial         String?
-  preferredMethod         String?
-  experienceLevel         String?
-  notes                   String?                 @db.Text
-  rejectionReason         String?
-  
-  // Payment Details Setup
-  payoutMethod            PayoutMethod?
-  mobileMoneyNumber       String?                 // Orange Money / Afrimoney number
-  mobileMoneyName         String?
-  bankName                String?
-  bankAccountNumber       String?
-  bankAccountName         String?
-  bankSwiftOrBranch       String?
-  
-  // Override Commission Rate (Optional)
-  commissionRateOverride  Decimal?                @db.Decimal(5, 2)
-  
-  // Agreement
-  agreedToTerms           Boolean                 @default(true)
-  agreedAt                DateTime                @default(now())
-  
-  // Audit & Timestamps
-  approvedAt              DateTime?
-  approvedBy              String?
-  createdAt               DateTime                @default(now())
-  updatedAt               DateTime                @updatedAt
+  id            String          @id @default(cuid())
+  userId        String          @unique
+  affiliateCode String          @unique // e.g. PA-AFF-00001
+  status        AffiliateStatus @default(PENDING)
 
-  user                    User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  links                   AffiliateLink[]
-  clicks                  AffiliateClick[]
-  conversions             AffiliateConversion[]
-  commissions             Commission[]
-  payouts                 Payout[]
-  trainingLinks           TrainingLink[]
-  demoClicks              DemoClick[]
-  demoOrders              DemoOrder[]
-  demoCommissions         DemoCommission[]
-  demoNotifications       DemoNotification[]
+  // Contact & Demographics
+  fullName      String
+  email         String
+  phone         String
+  whatsappPhone String?
+  country       String  @default("Sierra Leone")
+  city          String?
+
+  // Marketing Experience & Channels
+  marketingChannels String[] @default([])
+  websiteOrSocial   String?
+  preferredMethod   String?
+  experienceLevel   String?
+  notes             String?  @db.Text
+  rejectionReason   String?
+
+  // Payment Details Setup
+  payoutMethod      PayoutMethod?
+  mobileMoneyNumber String? // Orange Money / Afrimoney number
+  mobileMoneyName   String?
+  bankName          String?
+  bankAccountNumber String?
+  bankAccountName   String?
+  bankSwiftOrBranch String?
+
+  // Override Commission Rate (Optional)
+  commissionRateOverride Decimal? @db.Decimal(5, 2)
+
+  // Agreement
+  agreedToTerms Boolean  @default(true)
+  agreedAt      DateTime @default(now())
+
+  // Audit & Timestamps
+  approvedAt DateTime?
+  approvedBy String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  links             AffiliateLink[]
+  clicks            AffiliateClick[]
+  conversions       AffiliateConversion[]
+  commissions       Commission[]
+  payouts           Payout[]
+  trainingLinks     TrainingLink[]
+  demoClicks        DemoClick[]
+  demoOrders        DemoOrder[]
+  demoCommissions   DemoCommission[]
+  demoNotifications DemoNotification[]
 
   @@index([affiliateCode])
   @@index([status])
@@ -2414,39 +2412,39 @@ model Affiliate {
 }
 
 model AffiliateLink {
-  id                String            @id @default(cuid())
-  affiliateId       String
-  code              String            @unique // slug or specific campaign code
-  targetUrl         String            // e.g. /pricing, /courses/full-stack, /register
-  productSlug       String?           // e.g. "enterprise-os", "full-stack-dev"
-  title             String?           // e.g. "Campaign for Facebook"
-  clicksCount       Int               @default(0)
-  conversionsCount  Int               @default(0)
-  isActive          Boolean           @default(true)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
+  id               String   @id @default(cuid())
+  affiliateId      String
+  code             String   @unique // slug or specific campaign code
+  targetUrl        String // e.g. /pricing, /courses/full-stack, /register
+  productSlug      String? // e.g. "enterprise-os", "full-stack-dev"
+  title            String? // e.g. "Campaign for Facebook"
+  clicksCount      Int      @default(0)
+  conversionsCount Int      @default(0)
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  affiliate         Affiliate         @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
-  clicks            AffiliateClick[]
+  affiliate Affiliate        @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  clicks    AffiliateClick[]
 
   @@index([affiliateId])
   @@index([code])
 }
 
 model AffiliateClick {
-  id              String                @id @default(cuid())
-  affiliateId     String
-  linkId          String?
-  ipHash          String?               // SHA256 hashed IP for privacy/anti-fraud
-  userAgent       String?               @db.Text
-  referrer        String?
-  landingPage     String
-  visitorId       String                // Cookie or session GUID
-  createdAt       DateTime              @default(now())
+  id          String   @id @default(cuid())
+  affiliateId String
+  linkId      String?
+  ipHash      String? // SHA256 hashed IP for privacy/anti-fraud
+  userAgent   String?  @db.Text
+  referrer    String?
+  landingPage String
+  visitorId   String // Cookie or session GUID
+  createdAt   DateTime @default(now())
 
-  affiliate       Affiliate             @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
-  link            AffiliateLink?        @relation(fields: [linkId], references: [id], onDelete: SetNull)
-  conversions     AffiliateConversion[]
+  affiliate   Affiliate             @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  link        AffiliateLink?        @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  conversions AffiliateConversion[]
 
   @@index([affiliateId])
   @@index([visitorId])
@@ -2454,28 +2452,28 @@ model AffiliateClick {
 }
 
 model AffiliateConversion {
-  id                  String            @id @default(cuid())
-  affiliateId         String
-  clickId             String?
-  visitorId           String?
-  customerEmail       String?
-  customerName        String?
-  customerUserId      String?           // If registered user
-  businessId          String?           // If Enterprise OS tenant created
-  
-  // Transaction Reference
-  orderType           String            // "SUBSCRIPTION", "COURSE", "SERVICE", "ENTERPRISE_OS"
-  orderId             String?           // Reference to invoice/payment/subscription
-  orderAmount         Decimal           @db.Decimal(12, 2)
-  currency            String            @default("NLe")
-  
-  status              CommissionStatus  @default(PENDING)
-  createdAt           DateTime          @default(now())
-  updatedAt           DateTime          @updatedAt
+  id             String  @id @default(cuid())
+  affiliateId    String
+  clickId        String?
+  visitorId      String?
+  customerEmail  String?
+  customerName   String?
+  customerUserId String? // If registered user
+  businessId     String? // If Enterprise OS tenant created
 
-  affiliate           Affiliate         @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
-  click               AffiliateClick?   @relation(fields: [clickId], references: [id], onDelete: SetNull)
-  commission          Commission?
+  // Transaction Reference
+  orderType   String // "SUBSCRIPTION", "COURSE", "SERVICE", "ENTERPRISE_OS"
+  orderId     String? // Reference to invoice/payment/subscription
+  orderAmount Decimal @db.Decimal(12, 2)
+  currency    String  @default("NLe")
+
+  status    CommissionStatus @default(PENDING)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  affiliate  Affiliate       @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  click      AffiliateClick? @relation(fields: [clickId], references: [id], onDelete: SetNull)
+  commission Commission?
 
   @@index([affiliateId])
   @@index([customerEmail])
@@ -2484,27 +2482,27 @@ model AffiliateConversion {
 }
 
 model Commission {
-  id                  String              @id @default(cuid())
-  affiliateId         String
-  conversionId        String              @unique
-  payoutId            String?
-  
-  amount              Decimal             @db.Decimal(12, 2) // In NLe
-  currency            String              @default("NLe")
-  rateType            CommissionType      @default(PERCENTAGE)
-  rateApplied         Decimal             @db.Decimal(5, 2) // e.g. 10.00 (%) or fixed amount
-  
-  status              CommissionStatus    @default(PENDING)
-  notes               String?             @db.Text
-  approvedAt          DateTime?
-  approvedBy          String?
-  paidAt              DateTime?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  id           String  @id @default(cuid())
+  affiliateId  String
+  conversionId String  @unique
+  payoutId     String?
 
-  affiliate           Affiliate           @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
-  conversion          AffiliateConversion @relation(fields: [conversionId], references: [id], onDelete: Cascade)
-  payout              Payout?             @relation(fields: [payoutId], references: [id], onDelete: SetNull)
+  amount      Decimal        @db.Decimal(12, 2) // In NLe
+  currency    String         @default("NLe")
+  rateType    CommissionType @default(PERCENTAGE)
+  rateApplied Decimal        @db.Decimal(5, 2) // e.g. 10.00 (%) or fixed amount
+
+  status     CommissionStatus @default(PENDING)
+  notes      String?          @db.Text
+  approvedAt DateTime?
+  approvedBy String?
+  paidAt     DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  affiliate  Affiliate           @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  conversion AffiliateConversion @relation(fields: [conversionId], references: [id], onDelete: Cascade)
+  payout     Payout?             @relation(fields: [payoutId], references: [id], onDelete: SetNull)
 
   @@index([affiliateId])
   @@index([status])
@@ -2512,79 +2510,79 @@ model Commission {
 }
 
 model CommissionRule {
-  id                  String          @id @default(cuid())
-  productSlug         String          @unique // "default", "enterprise-os", "web-dev", "training-fullstack", etc.
-  productName         String
-  category            String?         // "SOFTWARE", "TRAINING", "SERVICE"
-  type                CommissionType  @default(PERCENTAGE)
-  rate                Decimal         @db.Decimal(10, 2) // e.g. 10 (%) or 100 (NLe fixed)
-  currency            String          @default("NLe")
-  isActive            Boolean         @default(true)
-  description         String?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id          String         @id @default(cuid())
+  productSlug String         @unique // "default", "enterprise-os", "web-dev", "training-fullstack", etc.
+  productName String
+  category    String? // "SOFTWARE", "TRAINING", "SERVICE"
+  type        CommissionType @default(PERCENTAGE)
+  rate        Decimal        @db.Decimal(10, 2) // e.g. 10 (%) or 100 (NLe fixed)
+  currency    String         @default("NLe")
+  isActive    Boolean        @default(true)
+  description String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 
   @@index([productSlug])
   @@index([isActive])
 }
 
 model Payout {
-  id                  String          @id @default(cuid())
-  affiliateId         String
-  amount              Decimal         @db.Decimal(12, 2)
-  currency            String          @default("NLe")
-  method              PayoutMethod
-  
-  // Destination snapshot
-  accountDetails      Json            // Snapshot of phone/bank info at time of payout
-  
-  status              PayoutStatus    @default(PENDING)
-  transactionRef      String?         // Mobile money or bank confirmation reference
-  proofReceiptUrl     String?
-  notes               String?         @db.Text
-  processedBy         String?         // Super Admin user ID
-  processedAt         DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id          String       @id @default(cuid())
+  affiliateId String
+  amount      Decimal      @db.Decimal(12, 2)
+  currency    String       @default("NLe")
+  method      PayoutMethod
 
-  affiliate           Affiliate       @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
-  commissions         Commission[]
+  // Destination snapshot
+  accountDetails Json // Snapshot of phone/bank info at time of payout
+
+  status          PayoutStatus @default(PENDING)
+  transactionRef  String? // Mobile money or bank confirmation reference
+  proofReceiptUrl String?
+  notes           String?      @db.Text
+  processedBy     String? // Super Admin user ID
+  processedAt     DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  affiliate   Affiliate    @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  commissions Commission[]
 
   @@index([affiliateId])
   @@index([status])
 }
 
 model AffiliateMarketingMaterial {
-  id              String      @id @default(cuid())
-  title           String
-  category        String      // "BANNERS", "FLYERS", "SOCIAL_MEDIA", "SCRIPTS", "DOCS"
-  productSlug     String?     // Associated product if specific
-  description     String?     @db.Text
-  fileUrl         String?     // Image/PDF download URL
-  fileType        String?     // "IMAGE", "PDF", "ZIP", "TEXT"
-  textContent     String?     @db.Text // WhatsApp scripts or promotional copy
-  dimensions      String?     // e.g. "1080x1080", "1200x630"
-  downloadCount   Int         @default(0)
-  isActive        Boolean     @default(true)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id            String   @id @default(cuid())
+  title         String
+  category      String // "BANNERS", "FLYERS", "SOCIAL_MEDIA", "SCRIPTS", "DOCS"
+  productSlug   String? // Associated product if specific
+  description   String?  @db.Text
+  fileUrl       String? // Image/PDF download URL
+  fileType      String? // "IMAGE", "PDF", "ZIP", "TEXT"
+  textContent   String?  @db.Text // WhatsApp scripts or promotional copy
+  dimensions    String? // e.g. "1080x1080", "1200x630"
+  downloadCount Int      @default(0)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([category])
   @@index([productSlug])
 }
 
 model AffiliateSettings {
-  id                      String            @id @default("global")
-  attributionWindowDays   Int               @default(30)
-  defaultCommissionType   CommissionType    @default(PERCENTAGE)
-  defaultCommissionRate   Decimal           @default(10.00) @db.Decimal(5, 2)
-  minPayoutThreshold      Decimal           @default(100.00) @db.Decimal(10, 2)
-  attributionModel        AttributionModel  @default(LAST_TOUCH)
-  allowSelfReferrals      Boolean           @default(false)
-  requireApproval         Boolean           @default(true)
-  payoutTermsDays         Int               @default(14) // Grace/refund holding period
-  termsContent            String?           @db.Text
-  updatedAt               DateTime          @updatedAt
+  id                    String           @id @default("global")
+  attributionWindowDays Int              @default(30)
+  defaultCommissionType CommissionType   @default(PERCENTAGE)
+  defaultCommissionRate Decimal          @default(10.00) @db.Decimal(5, 2)
+  minPayoutThreshold    Decimal          @default(100.00) @db.Decimal(10, 2)
+  attributionModel      AttributionModel @default(LAST_TOUCH)
+  allowSelfReferrals    Boolean          @default(false)
+  requireApproval       Boolean          @default(true)
+  payoutTermsDays       Int              @default(14) // Grace/refund holding period
+  termsContent          String?          @db.Text
+  updatedAt             DateTime         @updatedAt
 }
 
 // ==========================================
@@ -2593,26 +2591,26 @@ model AffiliateSettings {
 // ==========================================
 
 model TrainingProduct {
-  id                  String             @id @default(cuid())
-  name                String
-  slug                String             @unique
-  description         String?            @db.Text
-  imageUrl            String?
-  category            String?            // "LAPTOPS", "SMARTPHONES", "ACCESSORIES", "ELECTRONICS"
-  price               Decimal            @db.Decimal(10, 2) // In NLe (Sierra Leone New Leones)
-  demoStock           Int                @default(100)
-  commissionPct       Decimal            @db.Decimal(5, 2) // e.g. 10.00 (%)
-  specifications      Json?              // Optional technical specifications
-  status              String             @default("published") // "draft" | "published" | "archived"
-  campaignId          String?
-  createdById         String?
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  slug           String   @unique
+  description    String?  @db.Text
+  imageUrl       String?
+  category       String? // "LAPTOPS", "SMARTPHONES", "ACCESSORIES", "ELECTRONICS"
+  price          Decimal  @db.Decimal(10, 2) // In NLe (Sierra Leone New Leones)
+  demoStock      Int      @default(100)
+  commissionPct  Decimal  @db.Decimal(5, 2) // e.g. 10.00 (%)
+  specifications Json? // Optional technical specifications
+  status         String   @default("published") // "draft" | "published" | "archived"
+  campaignId     String?
+  createdById    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  demoOrders          DemoOrder[]
-  demoClicks          DemoClick[]
-  links               TrainingLink[]
+  campaign   TrainingCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  demoOrders DemoOrder[]
+  demoClicks DemoClick[]
+  links      TrainingLink[]
 
   @@index([status])
   @@index([category])
@@ -2620,40 +2618,40 @@ model TrainingProduct {
 }
 
 model TrainingCampaign {
-  id                  String             @id @default(cuid())
-  name                String
-  description         String?            @db.Text
-  startDate           DateTime           @default(now())
-  endDate             DateTime?
-  status              String             @default("active") // "active" | "completed" | "draft"
-  targetGroup         String?            // e.g. "Class Oct 2026", "Cohort 3"
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id          String    @id @default(cuid())
+  name        String
+  description String?   @db.Text
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  status      String    @default("active") // "active" | "completed" | "draft"
+  targetGroup String? // e.g. "Class Oct 2026", "Cohort 3"
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
-  products            TrainingProduct[]
-  demoOrders          DemoOrder[]
-  demoClicks          DemoClick[]
-  links               TrainingLink[]
+  products   TrainingProduct[]
+  demoOrders DemoOrder[]
+  demoClicks DemoClick[]
+  links      TrainingLink[]
 
   @@index([status])
 }
 
 model TrainingLink {
-  id                  String             @id @default(cuid())
-  code                String             @unique // Unique short code e.g. "SIM-STUD01-LAPTOP" or custom
-  affiliateId         String             // Links to existing Affiliate model
-  productId           String
-  campaignId          String?
-  clicksCount         Int                @default(0)
-  conversionsCount    Int                @default(0)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id               String   @id @default(cuid())
+  code             String   @unique // Unique short code e.g. "SIM-STUD01-LAPTOP" or custom
+  affiliateId      String // Links to existing Affiliate model
+  productId        String
+  campaignId       String?
+  clicksCount      Int      @default(0)
+  conversionsCount Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  affiliate           Affiliate          @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
-  product             TrainingProduct    @relation(fields: [productId], references: [id], onDelete: Cascade)
-  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  clicks              DemoClick[]
-  orders              DemoOrder[]
+  affiliate Affiliate         @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  product   TrainingProduct   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaign  TrainingCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  clicks    DemoClick[]
+  orders    DemoOrder[]
 
   @@unique([affiliateId, productId])
   @@index([code])
@@ -2661,24 +2659,24 @@ model TrainingLink {
 }
 
 model DemoClick {
-  id                  String             @id @default(cuid())
-  linkId              String?
-  productId           String?
-  affiliateId         String?
-  campaignId          String?
-  visitorId           String             // unique visitor token/uuid
-  ipHash              String?
-  userAgent           String?            @db.Text
-  referrer            String?
-  landingPage         String
-  checkoutAttempted   Boolean            @default(false)
-  createdAt           DateTime           @default(now())
+  id                String   @id @default(cuid())
+  linkId            String?
+  productId         String?
+  affiliateId       String?
+  campaignId        String?
+  visitorId         String // unique visitor token/uuid
+  ipHash            String?
+  userAgent         String?  @db.Text
+  referrer          String?
+  landingPage       String
+  checkoutAttempted Boolean  @default(false)
+  createdAt         DateTime @default(now())
 
-  link                TrainingLink?      @relation(fields: [linkId], references: [id], onDelete: SetNull)
-  product             TrainingProduct?   @relation(fields: [productId], references: [id], onDelete: SetNull)
-  affiliate           Affiliate?         @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
-  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  orders              DemoOrder[]
+  link      TrainingLink?     @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  product   TrainingProduct?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  affiliate Affiliate?        @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  campaign  TrainingCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  orders    DemoOrder[]
 
   @@index([linkId])
   @@index([affiliateId])
@@ -2687,34 +2685,34 @@ model DemoClick {
 }
 
 model DemoOrder {
-  id                  String             @id @default(cuid())
-  orderRef            String             @unique // e.g. "DEMO-ORD-XXXX"
-  customerName        String
-  customerPhone       String
-  customerEmail       String?
-  productId           String
-  affiliateId         String?
-  linkId              String?
-  clickId             String?
-  campaignId          String?
-  quantity            Int                @default(1)
-  unitPrice           Decimal            @db.Decimal(10, 2)
-  totalAmount         Decimal            @db.Decimal(10, 2)
-  status              String             @default("CONFIRMED") // "PENDING" | "CONFIRMED" | "CANCELLED"
-  paymentMethod       String             @default("ORANGE_MONEY_DEMO")
-  paymentStatus       String             @default("DEMO_CONFIRMED") // "DEMO_PENDING" | "DEMO_CONFIRMED" | "DEMO_CANCELLED"
-  paymentRef          String             // e.g. "DEMO-OM-2026-0001"
-  notes               String?            @db.Text
-  idempotencyKey      String?            @unique
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id             String   @id @default(cuid())
+  orderRef       String   @unique // e.g. "DEMO-ORD-XXXX"
+  customerName   String
+  customerPhone  String
+  customerEmail  String?
+  productId      String
+  affiliateId    String?
+  linkId         String?
+  clickId        String?
+  campaignId     String?
+  quantity       Int      @default(1)
+  unitPrice      Decimal  @db.Decimal(10, 2)
+  totalAmount    Decimal  @db.Decimal(10, 2)
+  status         String   @default("CONFIRMED") // "PENDING" | "CONFIRMED" | "CANCELLED"
+  paymentMethod  String   @default("ORANGE_MONEY_DEMO")
+  paymentStatus  String   @default("DEMO_CONFIRMED") // "DEMO_PENDING" | "DEMO_CONFIRMED" | "DEMO_CANCELLED"
+  paymentRef     String // e.g. "DEMO-OM-2026-0001"
+  notes          String?  @db.Text
+  idempotencyKey String?  @unique
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  product             TrainingProduct    @relation(fields: [productId], references: [id], onDelete: Restrict)
-  affiliate           Affiliate?         @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
-  link                TrainingLink?      @relation(fields: [linkId], references: [id], onDelete: SetNull)
-  click               DemoClick?         @relation(fields: [clickId], references: [id], onDelete: SetNull)
-  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
-  commission          DemoCommission?
+  product    TrainingProduct   @relation(fields: [productId], references: [id], onDelete: Restrict)
+  affiliate  Affiliate?        @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  link       TrainingLink?     @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  click      DemoClick?        @relation(fields: [clickId], references: [id], onDelete: SetNull)
+  campaign   TrainingCampaign? @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  commission DemoCommission?
 
   @@index([orderRef])
   @@index([affiliateId])
@@ -2724,24 +2722,24 @@ model DemoOrder {
 }
 
 model DemoCommission {
-  id                  String             @id @default(cuid())
-  orderId             String             @unique
-  affiliateId         String
-  productId           String
-  saleAmount          Decimal            @db.Decimal(10, 2)
-  commissionPct       Decimal            @db.Decimal(5, 2)
-  commissionAmount    Decimal            @db.Decimal(10, 2)
-  status              String             @default("APPROVED") // "PENDING" | "APPROVED" | "CANCELLED"
-  approvedBy          String?            // Admin user email or ID
-  approvedAt          DateTime?          @default(now())
-  cancelledBy         String?
-  cancelledAt         DateTime?
-  cancelReason        String?            @db.Text
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
+  id               String    @id @default(cuid())
+  orderId          String    @unique
+  affiliateId      String
+  productId        String
+  saleAmount       Decimal   @db.Decimal(10, 2)
+  commissionPct    Decimal   @db.Decimal(5, 2)
+  commissionAmount Decimal   @db.Decimal(10, 2)
+  status           String    @default("APPROVED") // "PENDING" | "APPROVED" | "CANCELLED"
+  approvedBy       String? // Admin user email or ID
+  approvedAt       DateTime? @default(now())
+  cancelledBy      String?
+  cancelledAt      DateTime?
+  cancelReason     String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  order               DemoOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  affiliate           Affiliate          @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  order     DemoOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   @@index([affiliateId])
   @@index([status])
@@ -2749,20 +2747,238 @@ model DemoCommission {
 }
 
 model DemoNotification {
-  id                  String             @id @default(cuid())
-  affiliateId         String
-  title               String
-  message             String             @db.Text
-  type                String             @default("DEMO_SALE") // "DEMO_SALE" | "DEMO_COMMISSION_APPROVED" | "DEMO_COMMISSION_CANCELLED" | "SYSTEM"
-  orderRef            String?
-  isRead              Boolean            @default(false)
-  createdAt           DateTime           @default(now())
+  id          String   @id @default(cuid())
+  affiliateId String
+  title       String
+  message     String   @db.Text
+  type        String   @default("DEMO_SALE") // "DEMO_SALE" | "DEMO_COMMISSION_APPROVED" | "DEMO_COMMISSION_CANCELLED" | "SYSTEM"
+  orderRef    String?
+  isRead      Boolean  @default(false)
+  createdAt   DateTime @default(now())
 
-  affiliate           Affiliate          @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  affiliate Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
 
   @@index([affiliateId])
   @@index([isRead])
   @@index([createdAt])
 }
 
+// =========================================================================
+// ONLINE EXAMINATION MANAGEMENT SYSTEM (PROTECH ONLINE ACADEMY)
+// =========================================================================
 
+model ExamCourse {
+  id          String   @id @default(cuid())
+  title       String // e.g. "Affiliate Marketing Course", "AI Masterclass"
+  code        String   @unique // e.g. "AFFILIATE-MKT", "AI-MASTER"
+  description String?  @db.Text
+  badge       String? // e.g. "Academy Flagship"
+  icon        String? // e.g. "Megaphone", "Brain"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  examinations Examination[]
+
+  @@index([isActive])
+}
+
+model Examination {
+  id                        String    @id @default(cuid())
+  publicId                  String    @unique // Unique slug / shareable code e.g. "AFF-EXAM-2026-01"
+  title                     String
+  courseId                  String
+  description               String?   @db.Text
+  instructions              String?   @db.Text
+  coverImageUrl             String?
+  durationMinutes           Int       @default(45)
+  passMarkPercentage        Decimal   @default(70.00) @db.Decimal(5, 2)
+  maxAttempts               Int       @default(1)
+  status                    String    @default("draft") // "draft" | "published" | "archived"
+  startDate                 DateTime?
+  endDate                   DateTime?
+  gracePeriodSeconds        Int       @default(60) // Grace period for network reconnect
+  randomizeQuestions        Boolean   @default(false)
+  randomizeOptions          Boolean   @default(false)
+  allowNavigation           Boolean   @default(true) // Free jump between questions
+  allowChangeAnswer         Boolean   @default(true)
+  allowBookmarks            Boolean   @default(true)
+  allowUnansweredSubmission Boolean   @default(true)
+  negativeMarking           Boolean   @default(false)
+  negativeMarkValue         Decimal   @default(0.00) @db.Decimal(5, 2)
+  resultReleaseMode         String    @default("immediate") // "immediate" | "manual"
+  allowAnswerReview         Boolean   @default(true) // Review questions after publication
+  accessMode                String    @default("open_verified") // "open_verified" | "restricted"
+  createdById               String?
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  course       ExamCourse        @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  questions    ExamQuestion[]
+  participants ExamParticipant[]
+  attempts     ExamAttempt[]
+  auditEvents  ExamAuditEvent[]
+
+  @@index([courseId])
+  @@index([status])
+  @@index([publicId])
+}
+
+model ExamQuestion {
+  id           String   @id @default(cuid())
+  examId       String
+  questionText String   @db.Text
+  questionType String   @default("single_choice") // "single_choice" | "multiple_select"
+  imageUrl     String?
+  marks        Decimal  @default(1.00) @db.Decimal(5, 2)
+  explanation  String?  @db.Text // Shown during answer review
+  category     String? // Topic / Category e.g. "Prompt Engineering"
+  orderIndex   Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  examination Examination    @relation(fields: [examId], references: [id], onDelete: Cascade)
+  options     ExamOption[]
+  answers     ExamAnswer[]
+  bookmarks   ExamBookmark[]
+
+  @@index([examId])
+  @@index([isActive])
+}
+
+model ExamOption {
+  id         String  @id @default(cuid())
+  questionId String
+  label      String // "A", "B", "C", "D", "E"
+  optionText String  @db.Text
+  isCorrect  Boolean @default(false) // Answer key (Never exposed to student APIs before submission)
+  orderIndex Int     @default(0)
+
+  question ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+}
+
+model ExamParticipant {
+  id           String   @id @default(cuid())
+  examId       String
+  studentName  String
+  studentEmail String
+  studentPhone String?
+  studentId    String? // Roll number / Academy Student ID
+  verified     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  examination Examination   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  attempts    ExamAttempt[]
+
+  @@unique([examId, studentEmail])
+  @@index([examId])
+  @@index([studentEmail])
+}
+
+model ExamAttempt {
+  id               String    @id @default(cuid())
+  examId           String
+  participantId    String
+  attemptNumber    Int       @default(1)
+  status           String    @default("IN_PROGRESS") // "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "MARKED"
+  startedAt        DateTime  @default(now())
+  serverDeadline   DateTime // Server authoritative deadline
+  submittedAt      DateTime?
+  timeSpentSeconds Int       @default(0)
+  ipAddress        String?
+  userAgent        String?   @db.Text
+  idempotencyKey   String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  examination Examination     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  participant ExamParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  answers     ExamAnswer[]
+  bookmarks   ExamBookmark[]
+  result      ExamResult?
+
+  @@unique([examId, participantId, attemptNumber])
+  @@index([examId])
+  @@index([participantId])
+  @@index([status])
+}
+
+model ExamAnswer {
+  id                String   @id @default(cuid())
+  attemptId         String
+  questionId        String
+  selectedOptionIds String[] // Array of selected option IDs
+  isCorrect         Boolean? // Graded server-side
+  marksAwarded      Decimal  @default(0.00) @db.Decimal(5, 2)
+  savedAt           DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  attempt  ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+  @@index([questionId])
+}
+
+model ExamBookmark {
+  id         String   @id @default(cuid())
+  attemptId  String
+  questionId String
+  createdAt  DateTime @default(now())
+
+  attempt  ExamAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question ExamQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+  @@index([attemptId])
+}
+
+model ExamResult {
+  id                  String    @id @default(cuid())
+  attemptId           String    @unique
+  examId              String
+  participantId       String
+  totalQuestions      Int
+  questionsAnswered   Int
+  questionsUnanswered Int
+  correctAnswers      Int
+  incorrectAnswers    Int
+  scoreObtained       Decimal   @db.Decimal(6, 2)
+  maxScore            Decimal   @db.Decimal(6, 2)
+  percentage          Decimal   @db.Decimal(5, 2)
+  passed              Boolean
+  isPublished         Boolean   @default(true) // Immediate or manual
+  publishedAt         DateTime?
+  remarkNotes         String?   @db.Text
+  remarkedBy          String?
+  remarkedAt          DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  attempt ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([examId])
+  @@index([participantId])
+  @@index([passed])
+  @@index([isPublished])
+}
+
+model ExamAuditEvent {
+  id         String   @id @default(cuid())
+  examId     String
+  action     String // "CREATED" | "PUBLISHED" | "UNPUBLISHED" | "ATTEMPT_STARTED" | "ATTEMPT_SUBMITTED" | "RESULT_RELEASED" | "CSV_EXPORTED" | "REMARKED"
+  actorEmail String
+  actorRole  String
+  details    Json?
+  timestamp  DateTime @default(now())
+
+  examination Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@index([examId])
+  @@index([timestamp])
+}
