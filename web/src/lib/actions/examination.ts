@@ -1935,19 +1935,8 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
         highestScore,
         averageScore,
       },
-      submissions: filtered.map((a) => ({
-        id: a.id,
-        participantId: a.participantId,
-        studentName: a.participant.studentName,
-        studentEmail: a.participant.studentEmail,
-        studentPhone: a.participant.studentPhone,
-        studentId: a.participant.studentId,
-        attemptNumber: a.attemptNumber,
-        status: a.status,
-        startedAt: a.startedAt.toISOString(),
-        submittedAt: a.submittedAt?.toISOString() || null,
-        timeSpentSeconds: a.timeSpentSeconds,
-        result: a.result
+      submissions: filtered.map((a) => {
+        const resultData = a.result
           ? {
               scoreObtained: Number(a.result.scoreObtained),
               maxScore: Number(a.result.maxScore),
@@ -1957,8 +1946,63 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
               questionsAnswered: a.result.questionsAnswered,
               questionsUnanswered: a.result.questionsUnanswered,
             }
-          : null,
-      })),
+          : null;
+
+        return {
+          id: a.id,
+          attemptId: a.id,
+          participantId: a.participantId,
+          studentName: a.participant.studentName,
+          studentEmail: a.participant.studentEmail,
+          studentPhone: a.participant.studentPhone,
+          studentId: a.participant.studentId,
+          attemptNumber: a.attemptNumber,
+          status: a.status,
+          startedAt: a.startedAt.toISOString(),
+          submittedAt: a.submittedAt?.toISOString() || null,
+          timeSpentSeconds: a.timeSpentSeconds,
+          result: resultData,
+          scoreObtained: resultData ? resultData.scoreObtained : null,
+          maxScore: resultData ? resultData.maxScore : null,
+          percentage: resultData ? resultData.percentage : null,
+          passed: resultData ? resultData.passed : null,
+          isPublished: resultData ? resultData.isPublished : false,
+        };
+      }),
+      results: filtered.map((a) => {
+        const resultData = a.result
+          ? {
+              scoreObtained: Number(a.result.scoreObtained),
+              maxScore: Number(a.result.maxScore),
+              percentage: Number(a.result.percentage),
+              passed: a.result.passed,
+              isPublished: a.result.isPublished,
+              questionsAnswered: a.result.questionsAnswered,
+              questionsUnanswered: a.result.questionsUnanswered,
+            }
+          : null;
+
+        return {
+          id: a.id,
+          attemptId: a.id,
+          participantId: a.participantId,
+          studentName: a.participant.studentName,
+          studentEmail: a.participant.studentEmail,
+          studentPhone: a.participant.studentPhone,
+          studentId: a.participant.studentId,
+          attemptNumber: a.attemptNumber,
+          status: a.status,
+          startedAt: a.startedAt.toISOString(),
+          submittedAt: a.submittedAt?.toISOString() || null,
+          timeSpentSeconds: a.timeSpentSeconds,
+          result: resultData,
+          scoreObtained: resultData ? resultData.scoreObtained : null,
+          maxScore: resultData ? resultData.maxScore : null,
+          percentage: resultData ? resultData.percentage : null,
+          passed: resultData ? resultData.passed : null,
+          isPublished: resultData ? resultData.isPublished : false,
+        };
+      }),
     };
   } catch (error: any) {
     console.error("[getSuperAdminExamResults error]:", error);

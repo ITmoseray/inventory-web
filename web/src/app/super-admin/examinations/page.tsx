@@ -213,10 +213,14 @@ export default function SuperAdminExaminationsPage() {
         status: resultsStatusFilter,
       }).then((res) => {
         if (res.success) {
-          setResultsData(res.results);
+          setResultsData(res.results || res.submissions || []);
         } else {
+          setResultsData([]);
           toast.error(res.error || "Failed to load results");
         }
+        setLoadingResults(false);
+      }).catch(() => {
+        setResultsData([]);
         setLoadingResults(false);
       });
     }
@@ -450,7 +454,7 @@ export default function SuperAdminExaminationsPage() {
       if (res.success) {
         toast.success(res.message);
         const rRes = await getSuperAdminExamResults(selectedExamForResults);
-        if (rRes.success) setResultsData(rRes.results);
+        if (rRes.success) setResultsData(rRes.results || rRes.submissions || []);
       } else {
         toast.error(res.error || "Failed to publish results");
       }
@@ -1129,7 +1133,7 @@ export default function SuperAdminExaminationsPage() {
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-500" />
               Loading submissions...
             </div>
-          ) : resultsData.length === 0 ? (
+          ) : (!resultsData || resultsData.length === 0) ? (
             <div className="p-12 text-center rounded-2xl border border-dashed border-slate-300 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50">
               <Award className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto mb-3" />
               <h3 className="text-base font-bold text-slate-700 dark:text-slate-300">
@@ -1156,12 +1160,15 @@ export default function SuperAdminExaminationsPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                    {resultsData.map((row: any) => {
-                      const isPass = row.passed;
+                    {(resultsData || []).map((row: any) => {
+                      const isPass = row.passed ?? row.result?.passed;
                       const isInProgress = row.status === "IN_PROGRESS";
+                      const finalScore = row.scoreObtained ?? row.result?.scoreObtained ?? 0;
+                      const maxScore = row.maxScore ?? row.result?.maxScore ?? 0;
+                      const percentage = row.percentage ?? row.result?.percentage ?? 0;
 
                       return (
-                        <tr key={row.attemptId} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
+                        <tr key={row.attemptId || row.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition">
                           <td className="py-3 px-4 font-bold text-slate-900 dark:text-white">
                             <div>{row.studentName}</div>
                             <div className="text-[10px] text-slate-400 font-normal">{row.studentEmail}</div>
@@ -1188,7 +1195,7 @@ export default function SuperAdminExaminationsPage() {
                               <span className="text-amber-500">Evaluating...</span>
                             ) : (
                               <span>
-                                {row.scoreObtained}/{row.maxScore} ({row.percentage}%)
+                                {finalScore}/{maxScore} ({percentage}%)
                               </span>
                             )}
                           </td>
@@ -1862,7 +1869,7 @@ export default function SuperAdminExaminationsPage() {
 
               <div className="pt-2">
                 <Link
-                  href={`/examinations/${exams.find((e) => e.id === selectedExamForResults)?.publicId}/result/${selectedAttemptForInspection.attemptId}`}
+                  href={`/examinations/${exams.find((e) => e.id === selectedExamForResults)?.publicId}/result/${selectedAttemptForInspection.attemptId || selectedAttemptForInspection.id}`}
                   target="_blank"
                   className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl flex items-center justify-center gap-1.5 transition shadow-sm"
                 >
