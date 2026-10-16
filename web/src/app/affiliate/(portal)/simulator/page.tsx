@@ -28,6 +28,10 @@ import {
   Calendar,
   Zap,
   Info,
+  Smartphone,
+  MessageSquare,
+  Send,
+  X,
 } from "lucide-react";
 import { toast } from "sonner";
 import { SimulatorNoticeBanner } from "@/components/affiliate/SimulatorNoticeBanner";
@@ -54,6 +58,7 @@ export default function StudentSimulatorHubPage() {
   const [generatingProductId, setGeneratingProductId] = useState<string | null>(null);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [baseUrl, setBaseUrl] = useState("https://protechassist.com");
+  const [phoneModalNotification, setPhoneModalNotification] = useState<any | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -809,6 +814,53 @@ export default function StudentSimulatorHubPage() {
                       <p className="text-xs text-slate-600 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                         {n.message}
                       </p>
+
+                      {/* Phone Actions Bar */}
+                      <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPhoneModalNotification(n);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 font-bold text-[11px] transition-colors cursor-pointer"
+                        >
+                          <Smartphone className="h-3.5 w-3.5" />
+                          📱 View Phone SMS
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const text = `🎉 *ProTech Demo Sale Alert*\n\n${n.message}`;
+                            const phone = statsData?.affiliate?.phone || "";
+                            const cleanPhone = phone.replace(/[^0-9]/g, "");
+                            const url = cleanPhone
+                              ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(text)}`
+                              : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+                            window.open(url, "_blank");
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-bold text-[11px] transition-colors cursor-pointer"
+                        >
+                          <Share2 className="h-3.5 w-3.5" />
+                          💬 Send to My WhatsApp
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const text = `ProTech Alert: Demo sale credited! ${n.title}. Ref: ${n.orderRef || 'DEMO'}. (Simulation - No Real Money)`;
+                            const phone = statsData?.affiliate?.phone || "";
+                            window.open(`sms:${phone}?body=${encodeURIComponent(text)}`, "_self");
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-500/10 hover:bg-blue-500/20 text-blue-700 dark:text-blue-300 font-bold text-[11px] transition-colors cursor-pointer"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" />
+                          ✉️ Open SMS App
+                        </button>
+                      </div>
                     </div>
                     <span className="text-[10px] text-slate-400 font-bold shrink-0">
                       {new Date(n.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -818,6 +870,88 @@ export default function StudentSimulatorHubPage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {/* PHONE SMS SIMULATOR MODAL */}
+      {phoneModalNotification && (
+        <div className="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="relative w-full max-w-sm rounded-[42px] p-5 bg-slate-950 border-4 border-slate-700 shadow-2xl space-y-4 text-white">
+            {/* Top speaker notch */}
+            <div className="flex items-center justify-between px-4 pt-1">
+              <span className="text-[10px] font-black tracking-widest text-slate-400">Orange SL 4G</span>
+              <div className="h-4 w-24 bg-slate-800 rounded-full mx-auto" />
+              <span className="text-[10px] font-bold text-slate-400">100% 🔋</span>
+            </div>
+
+            {/* Mobile Header */}
+            <div className="flex items-center justify-between px-2 pt-2 border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-slate-950 font-black text-xs">
+                  PA
+                </div>
+                <div>
+                  <h4 className="font-black text-xs text-white">ProTech-Alert</h4>
+                  <p className="text-[10px] text-slate-400">Messages &bull; SMS Notification</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setPhoneModalNotification(null)}
+                className="p-1 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* SMS Message Bubble */}
+            <div className="p-1 space-y-3 min-h-[220px]">
+              <div className="text-center">
+                <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-slate-400 text-[9px] font-bold">
+                  Today {new Date(phoneModalNotification.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              </div>
+
+              <div className="max-w-[95%] bg-slate-800/90 text-slate-100 rounded-2xl rounded-tl-sm p-4 text-xs space-y-2 border border-slate-700 shadow-md">
+                <div className="flex items-center gap-1.5 text-amber-400 font-black text-[10px] uppercase tracking-wider">
+                  <span>📱 ProTech Training Simulation</span>
+                </div>
+                <p className="font-black text-white text-xs">
+                  {phoneModalNotification.title}
+                </p>
+                <p className="text-[11px] text-slate-300 whitespace-pre-line leading-relaxed">
+                  {phoneModalNotification.message}
+                </p>
+                <div className="pt-2 border-t border-slate-700/80 text-[10px] text-amber-300 font-bold flex items-center justify-between">
+                  <span>Sender: PROTECH-SL</span>
+                  <span>SIMULATED SMS</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Actions */}
+            <div className="space-y-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => {
+                  const text = `🎉 ProTech Demo Sale Alert!\n${phoneModalNotification.message}`;
+                  const phone = statsData?.affiliate?.phone || "";
+                  window.open(`sms:${phone}?body=${encodeURIComponent(text)}`, "_self");
+                }}
+                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+              >
+                <MessageSquare className="h-4 w-4" />
+                Open In Real Phone Messages App
+              </button>
+              <button
+                type="button"
+                onClick={() => setPhoneModalNotification(null)}
+                className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-colors cursor-pointer"
+              >
+                Close Phone Screen
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
