@@ -37,7 +37,10 @@ import {
   Megaphone,
   AlertTriangle,
   Download,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
   getSuperAdminExamStats,
@@ -59,6 +62,8 @@ import {
 } from "@/lib/actions/examination";
 
 export default function SuperAdminExaminationsPage() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"exams" | "questions" | "results" | "courses">("exams");
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -171,6 +176,7 @@ export default function SuperAdminExaminationsPage() {
   };
 
   useEffect(() => {
+    setMounted(true);
     loadInitialData();
   }, []);
 
@@ -521,6 +527,22 @@ export default function SuperAdminExaminationsPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          {mounted && (
+            <button
+              type="button"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 transition"
+              title="Toggle Light / Dark Mode"
+              aria-label="Toggle Light / Dark Mode"
+            >
+              {theme === "dark" ? (
+                <Sun className="w-4 h-4 text-amber-400" />
+              ) : (
+                <Moon className="w-4 h-4 text-indigo-600" />
+              )}
+            </button>
+          )}
+
           <button
             onClick={loadInitialData}
             className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-900 text-slate-700 dark:text-slate-300 transition"

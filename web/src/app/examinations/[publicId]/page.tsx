@@ -17,7 +17,10 @@ import {
   FileText,
   HelpCircle,
   Sparkles,
+  Sun,
+  Moon,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import {
   getPublicExamByPublicId,
@@ -28,6 +31,9 @@ import {
 export default function ExaminationEntryPage() {
   const params = useParams();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
   const publicId = typeof params.publicId === "string" ? params.publicId : "";
 
   const [exam, setExam] = useState<any>(null);
@@ -40,6 +46,10 @@ export default function ExaminationEntryPage() {
   const [studentPhone, setStudentPhone] = useState("");
   const [studentId, setStudentId] = useState("");
   const [starting, setStarting] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (!publicId) return;
@@ -110,10 +120,10 @@ export default function ExaminationEntryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors duration-300">
         <div className="text-center space-y-4">
-          <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-sm font-bold text-slate-300">
+          <div className="w-12 h-12 border-4 border-indigo-600 dark:border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto" />
+          <p className="text-sm font-bold text-slate-600 dark:text-slate-300">
             Connecting to ProTech Online Academy Examination Vault...
           </p>
         </div>
@@ -123,16 +133,16 @@ export default function ExaminationEntryPage() {
 
   if (error || !exam) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-        <div className="max-w-md w-full p-8 rounded-3xl bg-slate-800/80 border border-slate-700 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors duration-300">
+        <div className="max-w-md w-full p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center space-y-4 shadow-xl">
+          <div className="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto">
             <AlertTriangle className="w-6 h-6" />
           </div>
-          <h2 className="text-xl font-black text-white">Examination Unavailable</h2>
-          <p className="text-xs text-slate-400">{error || "The requested examination could not be loaded."}</p>
+          <h2 className="text-xl font-black text-slate-900 dark:text-white">Examination Unavailable</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400">{error || "The requested examination could not be loaded."}</p>
           <Link
             href="/"
-            className="inline-block px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition"
+            className="inline-block px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20"
           >
             Return to Homepage
           </Link>
@@ -142,116 +152,139 @@ export default function ExaminationEntryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
-      {/* Background Glows */}
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white transition-colors duration-300">
+      {/* Background Ambient Glows */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-indigo-600/10 blur-[150px] rounded-full" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full" />
+        <div className="absolute top-0 right-1/4 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px] bg-indigo-500/5 dark:bg-indigo-600/10 blur-[140px] rounded-full" />
+        <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] sm:w-[600px] sm:h-[600px] bg-purple-500/5 dark:bg-purple-600/10 blur-[140px] rounded-full" />
       </div>
 
       {/* Top Header */}
-      <header className="relative z-10 border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-xl px-6 py-4">
-        <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
+      <header className="relative z-10 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl px-4 sm:px-8 py-3.5 sm:py-4 transition-colors">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-500/25">
               <GraduationCap className="w-5 h-5" />
             </div>
-            <div>
-              <div className="text-xs font-mono font-bold text-indigo-400 tracking-wider uppercase">
+            <div className="min-w-0">
+              <div className="text-[10px] sm:text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 tracking-wider uppercase truncate">
                 ProTech Online Academy
               </div>
-              <div className="text-sm font-black text-white tracking-tight">
+              <div className="text-xs sm:text-sm font-black text-slate-900 dark:text-white tracking-tight truncate">
                 Examination &amp; Assessment Centre
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live Examination Node
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Dark/Light Mode Toggle */}
+            {mounted && (
+              <button
+                type="button"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="p-2 sm:px-3 sm:py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex items-center gap-1.5 shadow-sm text-xs font-bold cursor-pointer"
+                title="Toggle Dark / Light Mode"
+                aria-label="Toggle Dark / Light Mode"
+              >
+                {theme === "dark" ? (
+                  <>
+                    <Sun className="w-4 h-4 text-amber-400" />
+                    <span className="hidden sm:inline">Light</span>
+                  </>
+                ) : (
+                  <>
+                    <Moon className="w-4 h-4 text-indigo-600" />
+                    <span className="hidden sm:inline">Dark</span>
+                  </>
+                )}
+              </button>
+            )}
+
+            <span className="hidden md:flex px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Verified Node
             </span>
           </div>
         </div>
       </header>
 
       {/* Main Body */}
-      <main className="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:py-12 w-full space-y-8">
+      <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-12 w-full space-y-6 sm:space-y-8 flex-1">
         {/* Examination Title & Program Banner */}
-        <div className="p-6 sm:p-10 rounded-3xl bg-slate-900/80 border border-slate-800 backdrop-blur-xl shadow-2xl space-y-6">
+        <div className="p-6 sm:p-10 rounded-3xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 shadow-xl dark:shadow-2xl space-y-6 transition-colors">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">
+            <span className="px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 dark:bg-indigo-500/15 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30">
               {exam.courseBadge || exam.courseTitle}
             </span>
-            <span className="px-3 py-1 rounded-full text-[11px] font-mono font-bold bg-slate-800 text-slate-400">
+            <span className="px-3 py-1 rounded-full text-[10px] sm:text-[11px] font-mono font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
               {exam.publicId}
             </span>
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
               {exam.title}
             </h1>
             {exam.description && (
-              <p className="text-sm text-slate-400 leading-relaxed max-w-3xl">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
                 {exam.description}
               </p>
             )}
           </div>
 
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center shrink-0">
-                <Clock className="w-5 h-5" />
+          {/* Quick Stats Grid - Fully Responsive (2 Cols on mobile, 4 on laptop) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 pt-2">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3 transition">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Duration</span>
-                <span className="text-base font-black text-white">{exam.durationMinutes} Minutes</span>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center shrink-0">
-                <FileText className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total Questions</span>
-                <span className="text-base font-black text-white">{exam.totalQuestions} Questions</span>
+              <div className="min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block truncate">Duration</span>
+                <span className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate block">{exam.durationMinutes} Minutes</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-                <Award className="w-5 h-5" />
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3 transition">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pass Threshold</span>
-                <span className="text-base font-black text-emerald-400">{exam.passMarkPercentage}%</span>
+              <div className="min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block truncate">Total Questions</span>
+                <span className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate block">{exam.totalQuestions} Questions</span>
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-800/60 border border-slate-700/60 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
-                <ShieldCheck className="w-5 h-5" />
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3 transition">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                <Award className="w-4 h-4 sm:w-5 sm:h-5" />
               </div>
-              <div>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Allowed Attempts</span>
-                <span className="text-base font-black text-white">{exam.maxAttempts} Attempt{exam.maxAttempts > 1 ? "s" : ""}</span>
+              <div className="min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block truncate">Pass Threshold</span>
+                <span className="text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400 truncate block">{exam.passMarkPercentage}%</span>
+              </div>
+            </div>
+
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-center gap-3 transition">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block truncate">Max Attempts</span>
+                <span className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate block">{exam.maxAttempts} Attempt{exam.maxAttempts > 1 ? "s" : ""}</span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* 2-Column Section: Instructions & Registration */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* 2-Column Section: Instructions & Verification Form (Stacked on mobile, split on laptop) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-start">
           {/* Instructions Column */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900/60 border border-slate-800 space-y-4">
-              <h3 className="text-base font-black text-white flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-indigo-400" /> Candidate Examination Instructions
+          <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm transition">
+              <h3 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" /> Candidate Examination Instructions
               </h3>
 
-              <div className="text-xs text-slate-300 space-y-3 leading-relaxed whitespace-pre-line font-medium">
+              <div className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 space-y-3 leading-relaxed whitespace-pre-line font-medium">
                 {exam.instructions || (
                   <>
                     1. Read every question scenario thoroughly before choosing an option.
@@ -270,7 +303,7 @@ export default function ExaminationEntryPage() {
               </div>
 
               {exam.negativeMarking && (
-                <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2.5">
+                <div className="p-3.5 rounded-2xl bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2.5">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>
                     <strong>Negative Marking Active:</strong> Incorrect answers incur a deduction of {exam.negativeMarkValue} marks. Unanswered questions do not deduct marks.
@@ -282,56 +315,56 @@ export default function ExaminationEntryPage() {
 
           {/* Student Verification / Start Exam Form */}
           <div className="lg:col-span-5">
-            <div className="p-6 sm:p-8 rounded-3xl bg-slate-900 border border-indigo-500/30 shadow-2xl shadow-indigo-500/10 space-y-6">
+            <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/5 space-y-5 transition">
               <div>
-                <span className="text-[10px] font-mono font-bold text-indigo-400 uppercase tracking-widest block">
+                <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block">
                   Identity Verification
                 </span>
-                <h3 className="text-lg font-black text-white mt-0.5">
+                <h3 className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
                   Start Candidate Attempt
                 </h3>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   Enter your student credentials to initialize your proctored assessment session.
                 </p>
               </div>
 
               <form onSubmit={handleStartExam} className="space-y-4 text-xs">
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     Full Legal Name *
                   </label>
                   <div className="relative">
-                    <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <User className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
                       required
                       placeholder="e.g. Fatmata Koroma"
                       value={studentName}
                       onChange={(e) => setStudentName(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     Registered Email Address *
                   </label>
                   <div className="relative">
-                    <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="email"
                       required
                       placeholder="e.g. fatmata@example.com"
                       value={studentEmail}
                       onChange={(e) => setStudentEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     Academy Student ID (Optional)
                   </label>
                   <input
@@ -339,22 +372,22 @@ export default function ExaminationEntryPage() {
                     placeholder="e.g. PRO-STU-8821"
                     value={studentId}
                     onChange={(e) => setStudentId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white font-mono uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white font-mono uppercase focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-bold text-slate-300 mb-1.5">
+                  <label className="block font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     WhatsApp / Phone Number (Optional)
                   </label>
                   <div className="relative">
-                    <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <Phone className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                     <input
                       type="tel"
                       placeholder="e.g. +232 78 000 000"
                       value={studentPhone}
                       onChange={(e) => setStudentPhone(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 bg-slate-800/80 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-10 pr-4 py-2.5 sm:py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 text-xs sm:text-sm"
                     />
                   </div>
                 </div>
@@ -362,7 +395,7 @@ export default function ExaminationEntryPage() {
                 <button
                   type="submit"
                   disabled={starting}
-                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-sm shadow-lg shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-black text-xs sm:text-sm shadow-lg shadow-indigo-500/25 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                 >
                   {starting ? (
                     <>
@@ -382,7 +415,7 @@ export default function ExaminationEntryPage() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 border-t border-slate-800/80 bg-slate-900/60 backdrop-blur-xl py-6 px-6 text-center text-xs text-slate-500">
+      <footer className="relative z-10 border-t border-slate-200/80 dark:border-slate-800/80 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl py-6 px-6 text-center text-xs text-slate-500">
         <p>ProTech Assist Enterprise OS &bull; Online Examination Centre &bull; All Rights Reserved.</p>
       </footer>
     </div>
