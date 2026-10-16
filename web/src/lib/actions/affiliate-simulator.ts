@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import * as crypto from "crypto";
+import { sendDemoSaleNotification } from "@/lib/mail";
 
 /**
  * Hash IP address for privacy & duplicate filtering
@@ -829,6 +830,25 @@ export async function processSimulatedCheckout(data: {
 
       return { order, commission };
     });
+
+    // Send educational demonstration email alert if affiliate has an email
+    if (affiliateId) {
+      prisma.affiliate.findUnique({
+        where: { id: affiliateId },
+        select: { email: true, fullName: true },
+      }).then((aff) => {
+        if (aff?.email) {
+          sendDemoSaleNotification({
+            email: aff.email,
+            fullName: aff.fullName,
+            productName: product.name,
+            orderRef,
+            orderTotal: totalAmount,
+            commissionAmount: calculatedCommission,
+          }).catch(console.error);
+        }
+      }).catch(console.error);
+    }
 
     try {
       revalidatePath("/affiliate/simulator");

@@ -60,6 +60,38 @@ export default function StudentSimulatorHubPage() {
       setBaseUrl(window.location.origin);
     }
     loadAllData();
+
+    // Auto-poll telemetry every 12 seconds so students get live alerts during practical sessions
+    const interval = setInterval(async () => {
+      try {
+        const [statsRes, linksRes] = await Promise.all([
+          getStudentSimulatorStats(),
+          getMyTrainingLinks(),
+        ]);
+        if (linksRes.success) setMyLinks(linksRes.links || []);
+        if (statsRes.success) {
+          setStatsData((prev: any) => {
+            const prevUnread = prev?.recentNotifications?.filter((n: any) => !n.isRead).length || 0;
+            const newUnread = statsRes.recentNotifications?.filter((n: any) => !n.isRead).length || 0;
+            if (newUnread > prevUnread) {
+              const latest = statsRes.recentNotifications?.[0];
+              toast.success(
+                latest?.title || "🎉 New Demo Sale! Simulated Commission Credited!",
+                {
+                  description: "A customer just completed a simulated purchase using your link!",
+                  duration: 8000,
+                }
+              );
+            }
+            return statsRes;
+          });
+        }
+      } catch (err) {
+        // Silent background polling
+      }
+    }, 12000);
+
+    return () => clearInterval(interval);
   }, []);
 
   async function loadAllData() {
