@@ -2402,6 +2402,11 @@ model Affiliate {
   conversions             AffiliateConversion[]
   commissions             Commission[]
   payouts                 Payout[]
+  trainingLinks           TrainingLink[]
+  demoClicks              DemoClick[]
+  demoOrders              DemoOrder[]
+  demoCommissions         DemoCommission[]
+  demoNotifications       DemoNotification[]
 
   @@index([affiliateCode])
   @@index([status])
@@ -2580,6 +2585,184 @@ model AffiliateSettings {
   payoutTermsDays         Int               @default(14) // Grace/refund holding period
   termsContent            String?           @db.Text
   updatedAt               DateTime          @updatedAt
+}
+
+// ==========================================
+// AFFILIATE PRACTICAL TRAINING SIMULATOR
+// (For ProTech Online Academy practical sessions)
+// ==========================================
+
+model TrainingProduct {
+  id                  String             @id @default(cuid())
+  name                String
+  slug                String             @unique
+  description         String?            @db.Text
+  imageUrl            String?
+  category            String?            // "LAPTOPS", "SMARTPHONES", "ACCESSORIES", "ELECTRONICS"
+  price               Decimal            @db.Decimal(10, 2) // In NLe (Sierra Leone New Leones)
+  demoStock           Int                @default(100)
+  commissionPct       Decimal            @db.Decimal(5, 2) // e.g. 10.00 (%)
+  specifications      Json?              // Optional technical specifications
+  status              String             @default("published") // "draft" | "published" | "archived"
+  campaignId          String?
+  createdById         String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  demoOrders          DemoOrder[]
+  demoClicks          DemoClick[]
+  links               TrainingLink[]
+
+  @@index([status])
+  @@index([category])
+  @@index([slug])
+}
+
+model TrainingCampaign {
+  id                  String             @id @default(cuid())
+  name                String
+  description         String?            @db.Text
+  startDate           DateTime           @default(now())
+  endDate             DateTime?
+  status              String             @default("active") // "active" | "completed" | "draft"
+  targetGroup         String?            // e.g. "Class Oct 2026", "Cohort 3"
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  products            TrainingProduct[]
+  demoOrders          DemoOrder[]
+  demoClicks          DemoClick[]
+  links               TrainingLink[]
+
+  @@index([status])
+}
+
+model TrainingLink {
+  id                  String             @id @default(cuid())
+  code                String             @unique // Unique short code e.g. "SIM-STUD01-LAPTOP" or custom
+  affiliateId         String             // Links to existing Affiliate model
+  productId           String
+  campaignId          String?
+  clicksCount         Int                @default(0)
+  conversionsCount    Int                @default(0)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  affiliate           Affiliate          @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  product             TrainingProduct    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  clicks              DemoClick[]
+  orders              DemoOrder[]
+
+  @@unique([affiliateId, productId])
+  @@index([code])
+  @@index([affiliateId])
+}
+
+model DemoClick {
+  id                  String             @id @default(cuid())
+  linkId              String?
+  productId           String?
+  affiliateId         String?
+  campaignId          String?
+  visitorId           String             // unique visitor token/uuid
+  ipHash              String?
+  userAgent           String?            @db.Text
+  referrer            String?
+  landingPage         String
+  checkoutAttempted   Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+
+  link                TrainingLink?      @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  product             TrainingProduct?   @relation(fields: [productId], references: [id], onDelete: SetNull)
+  affiliate           Affiliate?         @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  orders              DemoOrder[]
+
+  @@index([linkId])
+  @@index([affiliateId])
+  @@index([visitorId])
+  @@index([createdAt])
+}
+
+model DemoOrder {
+  id                  String             @id @default(cuid())
+  orderRef            String             @unique // e.g. "DEMO-ORD-XXXX"
+  customerName        String
+  customerPhone       String
+  customerEmail       String?
+  productId           String
+  affiliateId         String?
+  linkId              String?
+  clickId             String?
+  campaignId          String?
+  quantity            Int                @default(1)
+  unitPrice           Decimal            @db.Decimal(10, 2)
+  totalAmount         Decimal            @db.Decimal(10, 2)
+  status              String             @default("CONFIRMED") // "PENDING" | "CONFIRMED" | "CANCELLED"
+  paymentMethod       String             @default("ORANGE_MONEY_DEMO")
+  paymentStatus       String             @default("DEMO_CONFIRMED") // "DEMO_PENDING" | "DEMO_CONFIRMED" | "DEMO_CANCELLED"
+  paymentRef          String             // e.g. "DEMO-OM-2026-0001"
+  notes               String?            @db.Text
+  idempotencyKey      String?            @unique
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  product             TrainingProduct    @relation(fields: [productId], references: [id], onDelete: Restrict)
+  affiliate           Affiliate?         @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  link                TrainingLink?      @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  click               DemoClick?         @relation(fields: [clickId], references: [id], onDelete: SetNull)
+  campaign            TrainingCampaign?  @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  commission          DemoCommission?
+
+  @@index([orderRef])
+  @@index([affiliateId])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([createdAt])
+}
+
+model DemoCommission {
+  id                  String             @id @default(cuid())
+  orderId             String             @unique
+  affiliateId         String
+  productId           String
+  saleAmount          Decimal            @db.Decimal(10, 2)
+  commissionPct       Decimal            @db.Decimal(5, 2)
+  commissionAmount    Decimal            @db.Decimal(10, 2)
+  status              String             @default("APPROVED") // "PENDING" | "APPROVED" | "CANCELLED"
+  approvedBy          String?            // Admin user email or ID
+  approvedAt          DateTime?          @default(now())
+  cancelledBy         String?
+  cancelledAt         DateTime?
+  cancelReason        String?            @db.Text
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  order               DemoOrder          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  affiliate           Affiliate          @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model DemoNotification {
+  id                  String             @id @default(cuid())
+  affiliateId         String
+  title               String
+  message             String             @db.Text
+  type                String             @default("DEMO_SALE") // "DEMO_SALE" | "DEMO_COMMISSION_APPROVED" | "DEMO_COMMISSION_CANCELLED" | "SYSTEM"
+  orderRef            String?
+  isRead              Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+
+  affiliate           Affiliate          @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([affiliateId])
+  @@index([isRead])
+  @@index([createdAt])
 }
 
 

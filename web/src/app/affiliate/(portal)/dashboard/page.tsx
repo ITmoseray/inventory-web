@@ -164,6 +164,38 @@ export default function AffiliateDashboardPage() {
         </div>
       )}
 
+      {/* Academy Practical Simulator Callout Banner */}
+      <div className="relative overflow-hidden rounded-3xl border-2 border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-orange-500/10 p-5 sm:p-6 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="p-3 rounded-2xl bg-amber-500 text-white shadow-lg shadow-amber-500/25 shrink-0">
+              <Sparkles className="w-6 h-6" />
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[10px] font-black uppercase tracking-wider">
+                  ProTech Online Academy
+                </span>
+                <span className="text-xs font-bold text-amber-700">Live Class Mode</span>
+              </div>
+              <h3 className="text-lg font-black text-slate-900 tracking-tight">
+                PROTECH TRAINING SIMULATOR — NO REAL MONEY
+              </h3>
+              <p className="text-xs text-slate-600 max-w-xl">
+                Ready for your live affiliate class? Launch the interactive simulator to browse demo products (Laptop, Smartphone, Mouse), generate practice links, simulate customer mobile checkout, and watch your commissions calculate in real-time.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/affiliate/simulator"
+            className="shrink-0 px-5 py-3 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-black uppercase tracking-wider shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer self-start sm:self-auto"
+          >
+            Launch Practical Simulator
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        </div>
+      </div>
+
       {/* Executive Welcome & Primary Referral Link Banner */}
       <div className="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">

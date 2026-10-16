@@ -6,7 +6,8 @@ import {
   ChevronRight, ChevronDown, LogOut, Bell, ShieldCheck, Activity as ActivityIcon, 
   CreditCard, Wallet, UserCheck, Book, DollarSign, UserCircle, Calculator,
   Crown, ArrowRight, Trophy, Download, ClipboardCheck, Megaphone, MessageSquare, Star,
-  Brain, Boxes, TrendingUp, UserCog, Shield, PieChart, Receipt, Warehouse, ClipboardList, HelpCircle, AlertCircle, Tag
+  Brain, Boxes, TrendingUp, UserCog, Shield, PieChart, Receipt, Warehouse, ClipboardList, HelpCircle, AlertCircle, Tag,
+  Sparkles
 } from "lucide-react";
 import { useLogoutFeedback } from "@/components/providers/logout-feedback-provider";
 
@@ -683,6 +684,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Referral Program",
       url: "/dashboard/referrals",
       icon: Crown,
+      permission: "view_dashboard"
+    });
+    figmaDomainGroups["ADMIN"].items.push({
+      title: "Affiliate Simulator",
+      url: "/affiliate/simulator",
+      icon: Sparkles,
       permission: "view_dashboard"
     });
 

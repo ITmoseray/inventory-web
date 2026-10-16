@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { recordAffiliateClick } from "@/lib/actions/affiliate-tracking";
+import { recordTrainingClick } from "@/lib/actions/affiliate-simulator";
 import crypto from "crypto";
 
 export async function GET(
@@ -30,21 +31,41 @@ export async function GET(
 
     // 3. Record Click in Database safely (never crash redirect on DB failure)
     let trackingResult: any = { success: false };
-    try {
-      trackingResult = await recordAffiliateClick({
-        code,
-        ip,
-        userAgent,
-        referrer,
-        landingPage,
-        visitorId,
-      });
-    } catch (trackErr) {
-      console.error("[Affiliate Tracking Error]:", trackErr);
-    }
-
-    // 4. Determine Destination URL
     let destination = "/";
+
+    if (code.toUpperCase().startsWith("SIM-")) {
+      try {
+        const simRes = await recordTrainingClick({
+          code,
+          ip,
+          userAgent,
+          referrer,
+          visitorId,
+          landingPage,
+        });
+        if (simRes.success && simRes.productSlug) {
+          destination = `/affiliate/simulator/shop/${simRes.productSlug}`;
+        } else {
+          destination = `/affiliate/simulator`;
+        }
+      } catch (simErr) {
+        console.error("[Simulator Ref Error]:", simErr);
+        destination = `/affiliate/simulator`;
+      }
+    } else {
+      try {
+        trackingResult = await recordAffiliateClick({
+          code,
+          ip,
+          userAgent,
+          referrer,
+          landingPage,
+          visitorId,
+        });
+      } catch (trackErr) {
+        console.error("[Affiliate Tracking Error]:", trackErr);
+      }
+    }
 
     const explicitTo = searchParams.get("to") || searchParams.get("redirect");
     const productParam = searchParams.get("product");

@@ -273,7 +273,7 @@ export default function NexusSuperControl() {
   async function refreshData() {
     try {
       setLoading(true);
-      const [statsData, healthData, settingsData, backupsData, usersData, inactiveData, bData] = await Promise.all([
+      const results = await Promise.allSettled([
         getSystemStats(),
         getEcosystemHealth(),
         getSystemSettings(),
@@ -282,17 +282,22 @@ export default function NexusSuperControl() {
         getInactiveBusinesses(),
         getAllBusinesses()
       ]);
-      setStats(statsData);
-      setHealth(healthData);
-      setSettings(settingsData);
-      setBackups(backupsData);
-      setSystemUsers(usersData);
-      setInactiveBusinesses(inactiveData);
-      setBusinessesList(bData || []);
-      setIsMaintenance((statsData as any).maintenanceMode || false);
+      const [statsRes, healthRes, settingsRes, backupsRes, usersRes, inactiveRes, bRes] = results;
+      if (statsRes.status === 'fulfilled') { setStats(statsRes.value); setIsMaintenance((statsRes.value as any)?.maintenanceMode || false); }
+      if (healthRes.status === 'fulfilled') setHealth(healthRes.value);
+      if (settingsRes.status === 'fulfilled') setSettings(settingsRes.value);
+      if (backupsRes.status === 'fulfilled') setBackups(backupsRes.value);
+      if (usersRes.status === 'fulfilled') setSystemUsers(usersRes.value as any[]);
+      if (inactiveRes.status === 'fulfilled') setInactiveBusinesses(inactiveRes.value as any[]);
+      if (bRes.status === 'fulfilled') setBusinessesList((bRes.value as any[]) || []);
+      const failedCount = results.filter(r => r.status === 'rejected').length;
+      if (failedCount > 0) {
+        console.warn('refreshData: ' + failedCount + ' sub-queries failed (likely Neon wake-up delay).');
+        if (failedCount === results.length) toast.error('Failed to sync with Nexus core. Retrying in 5s...');
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to sync with Nexus core.");
+      toast.error('Failed to sync with Nexus core.');
     } finally {
       setLoading(false);
     }
@@ -463,8 +468,9 @@ export default function NexusSuperControl() {
 
   async function handleToggleUserStatus(userId: string, currentStatus: string) {
     try {
-      const newStatus = currentStatus === "active" ? "inactive" : "active";
-      await toggleUserStatus(userId, newStatus);
+      // blocked → active (unblock), active → inactive, inactive → active
+      const newStatus = currentStatus === "blocked" ? "active" : currentStatus === "active" ? "inactive" : "active";
+      await toggleUserStatus(userId, newStatus as "active" | "inactive" | "blocked");
       toast.success(`User status updated to ${newStatus.toUpperCase()}.`);
       const updatedUsers = await getAllSystemUsers();
       setSystemUsers(updatedUsers);
@@ -472,6 +478,18 @@ export default function NexusSuperControl() {
       toast.error(err.message || "Failed to update user status.");
     }
   }
+
+  async function handleUnblockUser(userId: string) {
+    try {
+      await toggleUserStatus(userId, "active");
+      toast.success("User unblocked and restored to ACTIVE.");
+      const updatedUsers = await getAllSystemUsers();
+      setSystemUsers(updatedUsers);
+    } catch (err: any) {
+      toast.error(err.message || "Failed to unblock user.");
+    }
+  }
+
 
   async function handleOverrideUserPassword(e: React.FormEvent) {
     e.preventDefault();
@@ -587,7 +605,7 @@ export default function NexusSuperControl() {
           `  Registration Status: ${settings?.registrationOpen ? "OPEN (Public)" : "CLOSED (Invite Only)"}`,
           `  Default Trial days:  ${settings?.defaultTrialDays} Days`,
           `  System Mail Alerts:  ${settings?.emailAlertsEnabled ? "ENABLED" : "DISABLED"}`,
-          `  Announcement Banner: ${settings?.announcementBanner ? `"${settings.announcementBanner}"` : "None"}`
+          `  Announcement Banner: ${settings?.announcementBanner ? `"${settings?.announcementBanner}"` : "None"}`
         ]);
         break;
       case "users":
@@ -780,7 +798,7 @@ export default function NexusSuperControl() {
     }
   }
 
-  if (status === "loading" || !stats || !health || !settings) {
+  if (status === "loading") {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center gap-6 transition-colors duration-300">
          <div className="relative h-20 w-20 border-4 border-slate-200 dark:border-slate-900 border-t-indigo-500 rounded-full animate-spin">
@@ -965,10 +983,10 @@ export default function NexusSuperControl() {
             <div className="space-y-12">
               {/* Performance Metrics */}
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 relative z-10">
-                <StatCard title="Active Stores Online" value={onlinePresence.onlineBusinessesCount} description={`of ${stats.businessCount} registered stores`} icon={Globe} delay={0.1} variant={onlinePresence.onlineBusinessesCount > 0 ? "emerald" as any : "default"} />
-                <StatCard title="Online Operators" value={onlinePresence.onlineUsersCount} description={`of ${stats.userCount} total users online now`} icon={Users} delay={0.2} />
-                <StatCard title="Global Revenue" value={`Le ${stats.revenue.toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
-                <StatCard title="Pending Approvals" value={stats.pendingApprovals} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={stats.pendingApprovals > 0 ? "warning" : "default"} />
+                <StatCard title="Active Stores Online" value={onlinePresence.onlineBusinessesCount} description={`of ${(stats?.businessCount ?? 0)} registered stores`} icon={Globe} delay={0.1} variant={onlinePresence.onlineBusinessesCount > 0 ? "emerald" as any : "default"} />
+                <StatCard title="Online Operators" value={onlinePresence.onlineUsersCount} description={`of ${(stats?.userCount ?? 0)} total users online now`} icon={Users} delay={0.2} />
+                <StatCard title="Global Revenue" value={`Le ${(stats?.revenue ?? 0).toLocaleString()}`} description="Platform-wide GMV" icon={BarChart3} delay={0.3} />
+                <StatCard title="Pending Approvals" value={(stats?.pendingApprovals ?? 0)} description="Needs Attention" icon={AlertTriangle} delay={0.4} variant={(stats?.pendingApprovals ?? 0) > 0 ? "warning" : "default"} />
               </div>
 
               {/* LIVE BUSINESSES & USERS CURRENTLY ONLINE */}
@@ -1187,14 +1205,14 @@ export default function NexusSuperControl() {
                              <Briefcase className="h-4 w-4 text-indigo-600 dark:text-indigo-500" />
                              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Store Acquisition Trend</span>
                           </div>
-                          <NexusChart data={health.growth} dataKey="tenants" category="name" color="#6366f1" />
+                          <NexusChart data={health?.growth} dataKey="tenants" category="name" color="#6366f1" />
                        </div>
                        <div className="space-y-4">
                           <div className="flex items-center gap-2">
                              <Activity className="h-4 w-4 text-emerald-600 dark:text-emerald-500" />
                              <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest">Revenue Cycle Pulse</span>
                           </div>
-                          <NexusChart data={health.revenue} dataKey="value" category="name" color="#10b981" />
+                          <NexusChart data={health?.revenue} dataKey="value" category="name" color="#10b981" />
                        </div>
                     </div>
                   </GlassCard>
@@ -1411,7 +1429,7 @@ export default function NexusSuperControl() {
                     <Link href="/super-admin/approvals">
                        <GlassCard className={cn(
                           "p-6 group transition-all duration-300",
-                          stats.pendingApprovals > 0 
+                          (stats?.pendingApprovals ?? 0) > 0 
                             ? "bg-amber-500/10 border-amber-500/20 hover:bg-amber-500 hover:border-amber-500" 
                             : "hover:bg-slate-900 dark:hover:bg-indigo-950/40 hover:border-slate-700 dark:hover:border-indigo-500/30"
                        )}>
@@ -1419,7 +1437,7 @@ export default function NexusSuperControl() {
                              <div className="flex items-center gap-4">
                                 <div className={cn(
                                    "h-10 w-10 rounded-xl flex items-center justify-center transition-colors",
-                                   stats.pendingApprovals > 0 
+                                   (stats?.pendingApprovals ?? 0) > 0 
                                      ? "bg-amber-500/20 text-amber-600 group-hover:bg-white/20 group-hover:text-white" 
                                      : "bg-indigo-500/10 text-indigo-600 dark:text-indigo-500 group-hover:bg-slate-800 dark:group-hover:bg-white/20 group-hover:text-white dark:group-hover:text-white"
                                 )}>
@@ -1427,7 +1445,7 @@ export default function NexusSuperControl() {
                                 </div>
                                 <div>
                                    <p className="text-sm font-black text-slate-900 dark:text-white group-hover:text-white transition-colors duration-300 uppercase tracking-tight">Pending Approvals</p>
-                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-widest">{stats.pendingApprovals} stores awaiting approval</p>
+                                   <p className="text-[9px] font-bold text-slate-500 group-hover:text-indigo-100 dark:group-hover:text-indigo-200 transition-colors duration-300 uppercase tracking-widest">{(stats?.pendingApprovals ?? 0)} stores awaiting approval</p>
                                 </div>
                              </div>
                              <Terminal className="h-4 w-4 text-slate-400 dark:text-slate-700 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all" />
@@ -1835,12 +1853,13 @@ export default function NexusSuperControl() {
                             </TableRow>
                          </TableHeader>
                          <TableBody>
-                            {systemUsers.filter(u => 
-                               u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                               u.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                               u.role.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                               u.business.toLowerCase().includes(userSearchQuery.toLowerCase())
-                            ).length === 0 ? (
+                            {systemUsers.filter(u => {
+                               if (operatorFilter === "ONLINE" && !u.isOnline) return false;
+                               if (operatorFilter === "OFFLINE" && u.isOnline) return false;
+                               const q = userSearchQuery.toLowerCase();
+                               if (!q) return true;
+                               return (u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || (u.role ?? "").toLowerCase().includes(q) || (u.business ?? "").toLowerCase().includes(q));
+                            }).length === 0 ? (
                                <TableRow>
                                   <TableCell colSpan={6} className="h-48 text-center">
                                      <div className="flex flex-col items-center gap-4">
@@ -1850,13 +1869,14 @@ export default function NexusSuperControl() {
                                   </TableCell>
                                </TableRow>
                             ) : (
-                               systemUsers
-                                 .filter(u => 
-                                   u.name?.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                                   u.email.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                                   u.role.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
-                                   u.business.toLowerCase().includes(userSearchQuery.toLowerCase())
-                                 )
+                                 systemUsers
+                                   .filter(u => {
+                                     if (operatorFilter === "ONLINE" && !u.isOnline) return false;
+                                     if (operatorFilter === "OFFLINE" && u.isOnline) return false;
+                                     const q = userSearchQuery.toLowerCase();
+                                     if (!q) return true;
+                                     return (u.name?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || (u.role ?? "").toLowerCase().includes(q) || (u.business ?? "").toLowerCase().includes(q));
+                                   })
                                  .map((u) => {
                                    const isSelf = u.id === session?.user?.id;
                                    return (
@@ -2128,7 +2148,7 @@ export default function NexusSuperControl() {
                             className="bg-slate-50 dark:bg-slate-950/50 border-slate-200 dark:border-slate-800 rounded-xl h-12 text-sm font-bold text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-700 focus:ring-indigo-500/20"
                          />
                          <Button 
-                            onClick={() => handleSettingUpdate("announcementBanner", settings.announcementBanner)}
+                            onClick={() => handleSettingUpdate("announcementBanner", settings?.announcementBanner)}
                             className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-[10px] uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20 flex-shrink-0"
                          >
                             Save Banner

@@ -61,10 +61,11 @@ import {
   getAdminAffiliateSettings,
   updateAdminAffiliateSettings,
 } from "@/lib/actions/affiliate-admin";
+import { AdminSimulatorManager } from "@/components/affiliate/AdminSimulatorManager";
 
 export default function SuperAdminAffiliatesSuite() {
   const [activeTab, setActiveTab] = useState<
-    "overview" | "affiliates" | "commissions" | "payouts" | "rules" | "marketing" | "settings"
+    "overview" | "affiliates" | "commissions" | "payouts" | "rules" | "marketing" | "settings" | "simulator"
   >("overview");
 
   const [stats, setStats] = useState<any>(null);
@@ -502,6 +503,7 @@ export default function SuperAdminAffiliatesSuite() {
           { id: "rules", label: "Commission Rules Catalog" },
           { id: "marketing", label: "Marketing Materials" },
           { id: "settings", label: "Global Settings" },
+          { id: "simulator", label: "🎓 Practical Training Simulator" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -2197,6 +2199,11 @@ export default function SuperAdminAffiliatesSuite() {
           </form>
         </div>
       )}
+
+      {/* ============================================================== */}
+      {/* TAB 8: PRACTICAL TRAINING SIMULATOR OPERATIONS */}
+      {/* ============================================================== */}
+      {activeTab === "simulator" && <AdminSimulatorManager />}
     </div>
   );
 }

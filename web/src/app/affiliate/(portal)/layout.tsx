@@ -14,6 +14,7 @@ import {
   Clock,
   LogOut,
   ExternalLink,
+  Sparkles,
 } from "lucide-react";
 
 export default async function AffiliatePortalLayout({
@@ -59,6 +60,7 @@ export default async function AffiliatePortalLayout({
 
   const navLinks = [
     { href: "/affiliate/dashboard", label: "Overview", Icon: LayoutDashboard },
+    { href: "/affiliate/simulator", label: "Simulator", Icon: Sparkles },
     { href: "/affiliate/links",     label: "Links",    Icon: Link2 },
     { href: "/affiliate/marketing", label: "Promo",    Icon: FileText },
     { href: "/affiliate/commissions", label: "Earnings", Icon: DollarSign },
