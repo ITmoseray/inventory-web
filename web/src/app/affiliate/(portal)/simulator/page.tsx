@@ -310,7 +310,17 @@ export default function StudentSimulatorHubPage() {
         </button>
 
         <button
-          onClick={() => setActiveTab("links")}
+          onClick={async () => {
+            setActiveTab("links");
+            // Always refresh links when switching to this tab so newly
+            // generated links appear without needing a full page reload
+            const [linksRes, statsRes] = await Promise.all([
+              getMyTrainingLinks(),
+              getStudentSimulatorStats(),
+            ]);
+            if (linksRes.success) setMyLinks(linksRes.links || []);
+            if (statsRes.success) setStatsData(statsRes);
+          }}
           className={`flex items-center gap-2 px-4 py-3 border-b-2 text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
             activeTab === "links"
               ? "border-amber-500 text-amber-600 dark:text-amber-400"

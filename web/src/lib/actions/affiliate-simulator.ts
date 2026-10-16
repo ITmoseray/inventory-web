@@ -49,7 +49,11 @@ async function checkAdminAuth() {
 }
 
 /**
- * Auth helper: get or verify current student affiliate record
+ * Auth helper: get or verify current student affiliate record.
+ * Mirrors the same dual-lookup used in the affiliate portal layout:
+ *   1. By userId  (primary)
+ *   2. By email   (fallback for affiliates registered before userId linking)
+ * Then auto-links the userId if missing, or auto-provisions a new record.
  */
 async function getAuthenticatedAffiliate() {
   const session = await auth();
@@ -57,12 +61,31 @@ async function getAuthenticatedAffiliate() {
     throw new Error("Authentication required.");
   }
 
-  // Find affiliate record linked to user
+  // 1. Primary lookup by userId
   let affiliate = await prisma.affiliate.findUnique({
     where: { userId: session.user.id },
   });
 
-  // If user is logged in but doesn't have an affiliate profile yet, auto-provision for training
+  // 2. Fallback: look up by email (affiliate registered before userId was linked)
+  if (!affiliate && session.user.email) {
+    affiliate = await prisma.affiliate.findFirst({
+      where: { email: session.user.email.toLowerCase().trim() },
+    });
+
+    // If found by email, back-link the userId so future lookups use the fast path
+    if (affiliate && !affiliate.userId) {
+      try {
+        affiliate = await prisma.affiliate.update({
+          where: { id: affiliate.id },
+          data: { userId: session.user.id },
+        });
+      } catch (_) {
+        // ignore – concurrent update or unique conflict, original record is fine
+      }
+    }
+  }
+
+  // 3. Auto-provision a new affiliate record for training if still not found
   if (!affiliate) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
