@@ -85,7 +85,18 @@ async function getAuthenticatedAffiliate() {
     }
   }
 
-  // 3. Auto-provision a new affiliate record for training if still not found
+  // 3. Super Admin fallback: if user is SUPERADMIN and still no affiliate, look up PA-ADMIN
+  const isSuperAdmin =
+    session.user.role === "SUPERADMIN" ||
+    (session.user as any)?.originalRole === "SUPERADMIN";
+
+  if (!affiliate && isSuperAdmin) {
+    affiliate = await prisma.affiliate.findFirst({
+      where: { affiliateCode: "PA-ADMIN" },
+    });
+  }
+
+  // 4. Auto-provision a new affiliate record for training if still not found
   if (!affiliate) {
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -495,16 +506,18 @@ export async function getMyTrainingLinks() {
         id: l.id,
         code: l.code,
         productId: l.productId,
-        productName: l.product.name,
-        productSlug: l.product.slug,
-        productPrice: Number(l.product.price),
-        commissionPct: Number(l.product.commissionPct),
-        calculatedCommission: Math.round((Number(l.product.price) * Number(l.product.commissionPct)) / 100 * 100) / 100,
-        imageUrl: l.product.imageUrl,
-        clicksCount: l.clicksCount,
-        ordersCount: l.orders.length,
+        productName: l.product?.name || "Training Product",
+        productSlug: l.product?.slug || "product",
+        productPrice: Number(l.product?.price || 0),
+        commissionPct: Number(l.product?.commissionPct || 0),
+        calculatedCommission: l.product
+          ? Math.round(((Number(l.product.price) * Number(l.product.commissionPct)) / 100) * 100) / 100
+          : 0,
+        imageUrl: l.product?.imageUrl || null,
+        clicksCount: l._count?.clicks ?? l.clicksCount ?? 0,
+        ordersCount: l._count?.orders ?? l.conversionsCount ?? 0,
         campaignName: l.campaign?.name || "General Training",
-        relativeUrl: `/affiliate/simulator/shop/${l.product.slug}?ref=${l.code}`,
+        relativeUrl: `/affiliate/simulator/shop/${l.product?.slug || "product"}?ref=${l.code}`,
         createdAt: l.createdAt.toISOString(),
       })),
     };
