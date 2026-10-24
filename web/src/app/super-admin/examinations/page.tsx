@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap,
   Award,
@@ -509,25 +510,37 @@ export default function SuperAdminExaminationsPage() {
     <div className="space-y-8 p-4 sm:p-8 max-w-7xl mx-auto">
       {/* Top Header & Breadcrumb */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 dark:border-slate-800 pb-6">
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Link
-              href="/super-admin"
-              className="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition"
-            >
-              <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Super Admin Center
-            </Link>
-            <span className="text-slate-400">&bull;</span>
-            <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
-              <GraduationCap className="w-3.5 h-3.5" /> ProTech Online Academy
-            </span>
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-md p-1.5 overflow-hidden mt-0.5">
+            <Image
+              src="/images/logo-192.png"
+              alt="ProTech Logo"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+              priority
+            />
           </div>
-          <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
-            Online Examination Centre
-          </h1>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
-            Schedule objective academic evaluations for Affiliate Marketing, AI Masterclass, and enterprise courses with real-time server-authoritative timer, automated proctoring, and instant certification grading.
-          </p>
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Link
+                href="/super-admin"
+                className="inline-flex items-center text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 mr-1" /> Super Admin Center
+              </Link>
+              <span className="text-slate-400">&bull;</span>
+              <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
+                ProTech Online Academy
+              </span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
+              Online Examination Centre
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
+              Schedule objective academic evaluations for Affiliate Marketing, AI Masterclass, and enterprise courses with real-time server-authoritative timer, automated proctoring, and instant certification grading.
+            </p>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">

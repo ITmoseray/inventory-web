@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import * as crypto from "crypto";
+import { AFFILIATE_50_QUESTIONS } from "@/lib/data/affiliate-exam-questions";
 
 function safeRevalidate(path: string) {
   try {
@@ -832,12 +833,12 @@ export async function seedStarterExaminationsIfEmpty() {
       const affExam = await prisma.examination.create({
         data: {
           publicId: "EXAM-AFF-OCT2026",
-          title: "ProTech Online Academy: Affiliate Marketing Certification Exam",
+          title: "Affiliate Marketing — Objective Examination",
           courseId: affCourse.id,
-          description: "Official practical certification examination testing student competencies in affiliate tracking, promotional funnel architecture, customer conversion, and mobile money checkout models.",
-          instructions: "1. Total duration: 30 minutes.\n2. Pass mark: 70% (7/10 questions minimum).\n3. Each question carries 1.0 mark.\n4. You may navigate between questions and bookmark items to review.\n5. Click Submit Examination before the timer runs out.",
-          durationMinutes: 30,
-          passMarkPercentage: 70.0,
+          description: "ProTech Assist Online Academy: Beginner Level Affiliate Marketing Objective Examination testing foundational knowledge across core principles, ethics, niche selection, performance tracking, calculations, and content strategy.",
+          instructions: "1. You have 60 minutes to complete the examination.\n2. The pass mark is 80%, equivalent to 40 out of 50 marks.\n3. Each question carries 1 mark.\n4. You may navigate between questions and bookmark items for review.\n5. Click Submit Examination before the timer runs out. When the time expires, your answers should be submitted automatically.\n6. Select only one answer for each question.\n7. Each correct answer earns 1 mark. Incorrect or unanswered questions earn 0 marks.",
+          durationMinutes: 60,
+          passMarkPercentage: 80.0,
           maxAttempts: 2,
           status: "published",
           resultReleaseMode: "immediate",
@@ -846,119 +847,7 @@ export async function seedStarterExaminationsIfEmpty() {
         },
       });
 
-      const affQuestions = [
-        {
-          questionText: "What is the primary role of an affiliate referral code or unique tracking parameter in an affiliate link?",
-          options: [
-            { label: "A", optionText: "To bypass website security firewalls", isCorrect: false },
-            { label: "B", optionText: "To attribute visitor traffic, orders, and commissions to the specific promoter", isCorrect: true },
-            { label: "C", optionText: "To grant the customer an automatic 100% price reduction", isCorrect: false },
-            { label: "D", optionText: "To delete past transaction records from the database", isCorrect: false },
-          ],
-          explanation: "Affiliate referral codes uniquely identify the promoting partner, ensuring that clicks, customer conversions, and resulting commissions are credited accurately.",
-          category: "Link Attribution",
-        },
-        {
-          questionText: "In digital marketing analytics, how is the Conversion Rate calculated for an affiliate promotion?",
-          options: [
-            { label: "A", optionText: "(Total Orders ÷ Total Clicks) × 100", isCorrect: true },
-            { label: "B", optionText: "Total Clicks ÷ Product Price", isCorrect: false },
-            { label: "C", optionText: "Total Commissions × Number of Links", isCorrect: false },
-            { label: "D", optionText: "(Total Revenue ÷ Number of Customers) + 100", isCorrect: false },
-          ],
-          explanation: "Conversion Rate measures the percentage of clicks that successfully result in a completed purchase: (Orders ÷ Clicks) × 100.",
-          category: "Performance Metrics",
-        },
-        {
-          questionText: "If a student promotes a laptop priced at NLe 8,500 with an affiliate commission rate of 10%, what demonstration commission is earned on one successful sale?",
-          options: [
-            { label: "A", optionText: "NLe 85", isCorrect: false },
-            { label: "B", optionText: "NLe 850", isCorrect: true },
-            { label: "C", optionText: "NLe 1,700", isCorrect: false },
-            { label: "D", optionText: "NLe 500", isCorrect: false },
-          ],
-          explanation: "Commission = Product Price × Rate = NLe 8,500 × 10% = NLe 850.",
-          category: "Commission Math",
-        },
-        {
-          questionText: "Which of the following channels is the most effective direct messaging platform for affiliate product sharing in Sierra Leone?",
-          options: [
-            { label: "A", optionText: "WhatsApp Groups and WhatsApp Status", isCorrect: true },
-            { label: "B", optionText: "Postal Mail Letters", isCorrect: false },
-            { label: "C", optionText: "Fax Transmission", isCorrect: false },
-            { label: "D", optionText: "Classified Newspaper Ads", isCorrect: false },
-          ],
-          explanation: "WhatsApp provides immediate, high-engagement direct reach across mobile smartphone users in Sierra Leone.",
-          category: "Promotion Strategy",
-        },
-        {
-          questionText: "What does the term 'Attribution Window' (or cookie duration) refer to in affiliate marketing?",
-          options: [
-            { label: "A", optionText: "The time of day the office window is open", isCorrect: false },
-            { label: "B", optionText: "The time period following a click during which a purchase is credited to the affiliate", isCorrect: true },
-            { label: "C", optionText: "The seconds required to load the merchant webpage", isCorrect: false },
-            { label: "D", optionText: "The maximum warranty duration of the physical product", isCorrect: false },
-          ],
-          explanation: "The attribution window establishes how long after a customer clicks a referral link their subsequent purchase will still be credited to that affiliate.",
-          category: "Affiliate Tracking",
-        },
-        {
-          questionText: "Which of the following actions protect an affiliate programme against fraudulent or duplicate orders? (Select all that apply)",
-          questionType: "multiple_select",
-          options: [
-            { label: "A", optionText: "Idempotency validation on order submission", isCorrect: true },
-            { label: "B", optionText: "IP and visitor throttling on rapid repeat clicks", isCorrect: true },
-            { label: "C", optionText: "Audit review of pending commission ledgers before payout", isCorrect: true },
-            { label: "D", optionText: "Disabling all security firewalls on the web server", isCorrect: false },
-          ],
-          explanation: "Robust affiliate platforms use idempotency keys, click throttling, and administrative commission ledger audits to maintain integrity.",
-          category: "Anti-Fraud",
-        },
-        {
-          questionText: "What is the key difference between Gross Merchandise Value (GMV) and Net Affiliate Commission?",
-          options: [
-            { label: "A", optionText: "GMV is the total retail sales value of products purchased, while Commission is the promoter's percentage earnings", isCorrect: true },
-            { label: "B", optionText: "There is no difference; they mean the exact same thing", isCorrect: false },
-            { label: "C", optionText: "Commission is always higher than GMV", isCorrect: false },
-            { label: "D", optionText: "GMV only applies to physical cash transactions", isCorrect: false },
-          ],
-          explanation: "GMV is the full customer transaction volume, whereas commission is the affiliate's agreed percentage of that transaction.",
-          category: "Financial Terminology",
-        },
-        {
-          questionText: "Why is an organic, trust-based recommendation superior to unsolicited bulk spamming?",
-          options: [
-            { label: "A", optionText: "Spamming quickly leads to banned accounts, wasted traffic, and zero customer trust", isCorrect: true },
-            { label: "B", optionText: "Spamming is encouraged by major ad networks", isCorrect: false },
-            { label: "C", optionText: "Trust-based recommendations reduce conversion rates", isCorrect: false },
-            { label: "D", optionText: "There is no difference in customer behavior", isCorrect: false },
-          ],
-          explanation: "Building authentic audience trust produces higher conversion rates and protects marketing accounts from suspensions.",
-          category: "Ethics & Compliance",
-        },
-        {
-          questionText: "In our academy simulation, how is a customer mobile money checkout completed?",
-          options: [
-            { label: "A", optionText: "By transferring real money from a bank account", isCorrect: false },
-            { label: "B", optionText: "By entering an illustrative Orange Money reference code without charging real money", isCorrect: true },
-            { label: "C", optionText: "By requesting a customer's secret ATM PIN", isCorrect: false },
-            { label: "D", optionText: "By wiring funds via Western Union", isCorrect: false },
-          ],
-          explanation: "The training simulator uses demonstration references (e.g. DEMO-OM-2026-XXXX) for zero financial risk.",
-          category: "Simulator Practical",
-        },
-        {
-          questionText: "What happens when an instructor cancels a demonstration commission in the admin audit ledger?",
-          options: [
-            { label: "A", optionText: "The status is updated to CANCELLED with an audit note, and student approved earnings adjust accordingly", isCorrect: true },
-            { label: "B", optionText: "The entire database is permanently deleted", isCorrect: false },
-            { label: "C", optionText: "The student's computer is formatted", isCorrect: false },
-            { label: "D", optionText: "Nothing happens", isCorrect: false },
-          ],
-          explanation: "Audit ledgers preserve the full transaction history while updating status to CANCELLED with instructor reason.",
-          category: "Audit Ledgers",
-        },
-      ];
+      const affQuestions = AFFILIATE_50_QUESTIONS;
 
       for (let i = 0; i < affQuestions.length; i++) {
         const q = affQuestions[i];

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap,
   Clock,
@@ -163,8 +164,15 @@ export default function ExaminationEntryPage() {
       <header className="relative z-10 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl px-4 sm:px-8 py-3.5 sm:py-4 transition-colors">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-lg shadow-indigo-500/25">
-              <GraduationCap className="w-5 h-5" />
+            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-md p-1 overflow-hidden">
+              <Image
+                src="/images/logo-192.png"
+                alt="ProTech Logo"
+                width={36}
+                height={36}
+                className="w-full h-full object-contain"
+                priority
+              />
             </div>
             <div className="min-w-0">
               <div className="text-[10px] sm:text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400 tracking-wider uppercase truncate">
@@ -316,11 +324,20 @@ export default function ExaminationEntryPage() {
           {/* Student Verification / Start Exam Form */}
           <div className="lg:col-span-5">
             <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-indigo-200 dark:border-indigo-500/30 shadow-xl shadow-indigo-500/5 space-y-5 transition">
-              <div>
-                <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block">
-                  Identity Verification
+              <div className="flex items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+                <Image
+                  src="/protech-assist-logo.png"
+                  alt="ProTech Assist"
+                  width={140}
+                  height={36}
+                  className="h-7 w-auto object-contain dark:brightness-110"
+                />
+                <span className="text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest block bg-indigo-50 dark:bg-indigo-950/60 px-2 py-0.5 rounded-md border border-indigo-200/60 dark:border-indigo-800/60">
+                  Secure Portal
                 </span>
-                <h3 className="text-lg font-black text-slate-900 dark:text-white mt-0.5">
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white mt-1">
                   Start Candidate Attempt
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">

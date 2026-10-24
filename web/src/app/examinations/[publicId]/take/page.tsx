@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap,
   Clock,
@@ -298,8 +299,15 @@ export default function ExaminationTakePage() {
           <div className="flex items-center justify-between gap-2 sm:gap-4">
             {/* Academy Brand & Exam Title */}
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-white shrink-0 shadow-md shadow-indigo-500/25">
-                <GraduationCap className="w-4 h-4 sm:w-5 sm:h-5" />
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-sm p-1 overflow-hidden">
+                <Image
+                  src="/images/logo-192.png"
+                  alt="ProTech Logo"
+                  width={32}
+                  height={32}
+                  className="w-full h-full object-contain"
+                  priority
+                />
               </div>
               <div className="min-w-0">
                 <div className="text-[9px] sm:text-[10px] font-mono font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider truncate">

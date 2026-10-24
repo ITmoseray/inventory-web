@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   GraduationCap,
   Award,
@@ -157,12 +158,24 @@ export default function StudentExamResultPage() {
       {/* Header Bar */}
       <header className="border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 backdrop-blur-xl px-4 sm:px-6 py-3.5 print:hidden">
         <div className="max-w-5xl mx-auto flex items-center justify-between gap-3">
-          <Link
-            href={`/examinations/${publicId}`}
-            className="inline-flex items-center text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1.5" /> Examination Hub
-          </Link>
+          <div className="flex items-center gap-2.5">
+            <Link
+              href={`/examinations/${publicId}`}
+              className="inline-flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition"
+            >
+              <div className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/80 flex items-center justify-center shrink-0 shadow-xs p-1">
+                <Image
+                  src="/images/logo-192.png"
+                  alt="ProTech Logo"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain"
+                  priority
+                />
+              </div>
+              <span className="hidden sm:inline">ProTech Online Academy &bull;</span> Examination Hub
+            </Link>
+          </div>
 
           <div className="flex items-center gap-2">
             {mounted && (
@@ -200,6 +213,18 @@ export default function StudentExamResultPage() {
               : "bg-gradient-to-b from-rose-50 to-white dark:from-rose-950/40 dark:to-slate-900/90 border-rose-300 dark:border-rose-500/40 shadow-rose-500/5"
           }`}
         >
+          {/* ProTech Assist Logo on Certificate */}
+          <div className="flex justify-center mb-1">
+            <Image
+              src="/protech-assist-logo.png"
+              alt="ProTech Assist Logo"
+              width={180}
+              height={48}
+              className="h-10 sm:h-12 w-auto object-contain dark:brightness-110"
+              priority
+            />
+          </div>
+
           {/* Status Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-wider mb-1">
             {isPassed ? (
