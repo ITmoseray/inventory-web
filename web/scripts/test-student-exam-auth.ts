@@ -1,8 +1,6 @@
 import { prisma } from "../src/lib/prisma";
 import {
   generateUniqueStudentExamId,
-  normalizeStudentName,
-  compareStudentNames,
   createStudent,
   updateStudent,
   reissueStudentExamId,
@@ -15,6 +13,10 @@ import {
   getSuperAdminStudents,
   getSuperAdminAuthorizations,
 } from "../src/lib/actions/student-examination";
+import {
+  normalizeStudentName,
+  compareStudentNames,
+} from "../src/lib/student-exam-utils";
 import * as crypto from "crypto";
 
 // Enable super admin bypass for automated test environment

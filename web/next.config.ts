@@ -2,8 +2,8 @@ import type { NextConfig } from "next";
 import withPWA from "next-pwa";
 
 const config: NextConfig = {
-  // Standard Next.js server-side build (not static export)
-  output: "standalone",
+  // Standard Next.js server-side build (enable standalone if NEXT_STANDALONE=true)
+  ...(process.env.NEXT_STANDALONE === "true" ? { output: "standalone" } : {}),
   turbopack: {
     root: __dirname,
   },

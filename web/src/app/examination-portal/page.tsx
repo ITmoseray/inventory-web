@@ -28,7 +28,7 @@ import { toast } from "sonner";
 import {
   verifyStudentExaminationAccess,
   launchAuthorizedExamination,
-  StudentVerificationResult,
+  type StudentVerificationResult,
 } from "@/lib/actions/student-examination";
 
 export default function StudentExaminationPortalPage() {
