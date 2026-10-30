@@ -265,6 +265,46 @@ export async function getSuperAdminStudents(filters?: {
       students: filtered.map((s) => {
         const approvedAuths = s.authorizations.filter((a) => a.status === "APPROVED");
         const completedAttempts = s.attempts.filter((a) => a.status === "SUBMITTED" || a.status === "MARKED" || a.result !== null);
+        const terminatedAttempts = s.attempts.filter((a) => a.status === "TERMINATED");
+
+        const mapAttempt = (a: (typeof s.attempts)[0]) => {
+          const res = a.result;
+          const score = res ? Number(res.scoreObtained) : null;
+          const maxScore = res ? Number(res.maxScore) : Number(a.examination.totalMarks || 50);
+          const percentage = res ? Number(res.percentage) : null;
+
+          return {
+            id: a.id,
+            attemptId: a.id,
+            attemptNumber: a.attemptNumber,
+            examId: a.examId,
+            examTitle: a.examination.title,
+            examPublicId: a.examination.publicId,
+            status: a.status,
+            startedAt: a.startedAt.toISOString(),
+            submittedAt: a.submittedAt?.toISOString() || null,
+            timeSpentSeconds: a.timeSpentSeconds,
+            score,
+            maxScore,
+            percentage,
+            passed: res ? res.passed : null,
+            correctAnswers: res ? res.correctAnswers : null,
+            incorrectAnswers: res ? res.incorrectAnswers : null,
+            questionsAnswered: res ? res.questionsAnswered : null,
+            questionsUnanswered: res ? res.questionsUnanswered : null,
+            totalQuestions: res ? res.totalQuestions : a.examination.totalQuestions || 50,
+            violationCount: a.violationCount,
+            terminationReason: a.terminationReason,
+            terminatedAt: a.terminatedAt?.toISOString() || null,
+            retakeAuthorized: a.retakeAuthorized,
+            retakeAuthorizedReason: a.retakeAuthorizedReason,
+            participantId: a.participantId,
+            canReactivate: a.status === "TERMINATED" || a.status === "TIMED_OUT",
+          };
+        };
+
+        const mappedAttempts = s.attempts.map(mapAttempt);
+        const terminatedAttempt = mappedAttempts.find((a) => a.status === "TERMINATED") || null;
 
         return {
           id: s.id,
@@ -300,16 +340,11 @@ export async function getSuperAdminStudents(filters?: {
           approvedExamsCount: approvedAuths.length,
           totalAttemptsCount: s.attempts.length,
           completedExamsCount: completedAttempts.length,
-          latestAttempt: s.attempts[0]
-            ? {
-                id: s.attempts[0].id,
-                examTitle: s.attempts[0].examination.title,
-                status: s.attempts[0].status,
-                startedAt: s.attempts[0].startedAt.toISOString(),
-                score: s.attempts[0].result ? Number(s.attempts[0].result.scoreObtained) : null,
-                passed: s.attempts[0].result ? s.attempts[0].result.passed : null,
-              }
-            : null,
+          terminatedAttemptsCount: terminatedAttempts.length,
+          hasTerminatedAttempt: terminatedAttempts.length > 0,
+          terminatedAttempt,
+          attempts: mappedAttempts,
+          latestAttempt: mappedAttempts[0] || null,
         };
       }),
       stats: {
@@ -319,6 +354,7 @@ export async function getSuperAdminStudents(filters?: {
         studentsWithApprovedExams: students.filter((s) => s.authorizations.some((a) => a.status === "APPROVED")).length,
         studentsPendingAuth: students.filter((s) => s.authorizations.some((a) => a.status === "PENDING")).length,
         studentsNoAuth: students.filter((s) => s.authorizations.length === 0).length,
+        studentsWithTerminatedSessions: students.filter((s) => s.attempts.some((a) => a.status === "TERMINATED")).length,
       },
     };
   } catch (error: any) {
@@ -745,6 +781,183 @@ export async function grantStudentExamRetake(authorizationId: string, reason: st
   } catch (error: any) {
     console.error("[grantStudentExamRetake error]:", error);
     return { success: false, error: error.message || "Failed to grant retake." };
+  }
+}
+
+export interface ReactivateSessionInput {
+  attemptId: string;
+  additionalMinutes?: number;
+  resetViolationCount?: boolean;
+  reason: string;
+}
+
+/**
+ * Super Admin: Reactivate an interrupted or terminated examination session
+ * Reopens the session back to IN_PROGRESS, resets security counters, extends server deadline,
+ * removes premature result calculation, and yields an instant resume link for the student.
+ */
+export async function reactivateStudentExamSession(input: ReactivateSessionInput) {
+  try {
+    const user = await checkSuperAdminAuth();
+
+    if (!input.attemptId) {
+      return { success: false, error: "Attempt ID is required for session reactivation." };
+    }
+
+    if (!input.reason || !input.reason.trim()) {
+      return { success: false, error: "An administrative justification reason is required to reactivate an examination session." };
+    }
+
+    const attempt = await prisma.examAttempt.findUnique({
+      where: { id: input.attemptId },
+      include: {
+        examination: {
+          include: { course: true },
+        },
+        participant: true,
+        student: true,
+        authorization: true,
+        result: true,
+      },
+    });
+
+    if (!attempt) {
+      return { success: false, error: "Examination attempt not found." };
+    }
+
+    const previousStatus = attempt.status;
+    const additionalMins = Math.max(5, input.additionalMinutes || 15);
+    const now = new Date();
+    const newDeadline = new Date(now.getTime() + additionalMins * 60 * 1000);
+
+    // If student isn't linked, let's link them
+    let studentId = attempt.studentId;
+    let student = attempt.student;
+    if (!studentId) {
+      if (attempt.participant.studentId) {
+        student = await prisma.examStudent.findUnique({
+          where: { studentId: attempt.participant.studentId.trim().toUpperCase() },
+        });
+      }
+      if (!student && attempt.participant.studentEmail) {
+        student = await prisma.examStudent.findFirst({
+          where: { email: { equals: attempt.participant.studentEmail.trim(), mode: "insensitive" } },
+        });
+      }
+      if (!student && attempt.participant.studentName) {
+        matched: {
+          student = await prisma.examStudent.findFirst({
+            where: { fullName: { equals: attempt.participant.studentName.trim(), mode: "insensitive" } },
+          });
+        }
+      }
+      if (student) {
+        studentId = student.id;
+      }
+    }
+
+    // Pre-resolve authorization before transaction to minimize interactive roundtrips
+    let authRecordToUpdate: { id: string; attemptsConsumed: number } | null = null;
+    if (studentId) {
+      const auth = await prisma.examAuthorization.findFirst({
+        where: {
+          studentId,
+          examinationId: attempt.examId,
+        },
+        select: { id: true, attemptsConsumed: true },
+      });
+      if (auth) {
+        authRecordToUpdate = auth;
+      }
+    }
+
+    // Execute atomic reactivation in transaction with cloud-safe timeout
+    await prisma.$transaction(
+      async (tx) => {
+        // 1. Delete any premature exam result so it doesn't taint grading
+        await tx.examResult.deleteMany({
+          where: { attemptId: attempt.id },
+        });
+
+        // 2. Reactivate attempt back to IN_PROGRESS with extended countdown
+        await tx.examAttempt.update({
+          where: { id: attempt.id },
+          data: {
+            status: "IN_PROGRESS",
+            serverDeadline: newDeadline,
+            studentId: studentId || attempt.studentId,
+            terminatedAt: null,
+            terminationReason: null,
+            submittedAt: null,
+            violationCount: input.resetViolationCount !== false ? 0 : attempt.violationCount,
+            retakeAuthorized: true,
+            retakeAuthorizedBy: user.email || "superadmin@protechassist.com",
+            retakeAuthorizedReason: input.reason.trim(),
+            retakeAuthorizedAt: now,
+          },
+        });
+
+        // 3. Ensure student's authorization (if any) allows resumption
+        if (authRecordToUpdate) {
+          await tx.examAuthorization.update({
+            where: { id: authRecordToUpdate.id },
+            data: {
+              status: "APPROVED",
+              attemptsConsumed: Math.max(0, authRecordToUpdate.attemptsConsumed - 1),
+            },
+          });
+        }
+
+        // 4. Ensure participant is verified
+        await tx.examParticipant.update({
+          where: { id: attempt.participantId },
+          data: { verified: true },
+        });
+
+        // 5. Audit Event
+        await tx.examAuditEvent.create({
+          data: {
+            examId: attempt.examId,
+            attemptId: attempt.id,
+            participantId: attempt.participantId,
+            action: "EXAM_ATTEMPT_REACTIVATED",
+            actorEmail: user.email || "superadmin@protechassist.com",
+            actorRole: "SUPERADMIN",
+            details: {
+              previousStatus,
+              newStatus: "IN_PROGRESS",
+              additionalMinutes: additionalMins,
+              newDeadline: newDeadline.toISOString(),
+              reason: input.reason.trim(),
+              studentName: student?.fullName || attempt.participant.studentName,
+              studentExamId: student?.studentId || attempt.participant.studentId,
+            },
+          },
+        });
+      },
+      { maxWait: 15000, timeout: 30000 }
+    );
+
+    safeRevalidate("/super-admin/examinations");
+
+    const studentName = student?.fullName || attempt.participant.studentName;
+    const studentExamId = student?.studentId || attempt.participant.studentId || "";
+    const resumeUrl = `/examinations/${attempt.examination.publicId}/take?participantId=${attempt.participantId}&attemptId=${attempt.id}${studentExamId ? `&studentExamId=${studentExamId}` : ""}`;
+
+    return {
+      success: true,
+      message: `Examination session for "${studentName}" has been successfully reactivated with +${additionalMins} minutes!`,
+      attemptId: attempt.id,
+      studentName,
+      studentExamId,
+      examTitle: attempt.examination.title,
+      additionalMinutes: additionalMins,
+      newDeadline: newDeadline.toISOString(),
+      resumeUrl,
+    };
+  } catch (error: any) {
+    console.error("[reactivateStudentExamSession error]:", error);
+    return { success: false, error: error.message || "Failed to reactivate examination session." };
   }
 }
 

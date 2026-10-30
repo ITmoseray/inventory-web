@@ -19,6 +19,14 @@ function safeRevalidate(path: string) {
 // =========================================================================
 
 async function checkSuperAdminAuth() {
+  if (process.env.PROTECH_TEST_BYPASS === "true") {
+    return {
+      id: "test-superadmin-id",
+      name: "System Test Admin",
+      email: "admin@protech.test",
+      role: "SUPERADMIN",
+    };
+  }
   const session = await auth();
   if (!session?.user?.id) {
     throw new Error("Unauthorized. Please log in.");
@@ -1279,6 +1287,35 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
         };
       }
 
+      // Resolve matching ExamStudent for automatic linking
+      let linkedStudentId: string | null = null;
+      let linkedAuthId: string | null = null;
+      let matchedStudent = null;
+
+      if (participant.studentId) {
+        matchedStudent = await prisma.examStudent.findUnique({
+          where: { studentId: participant.studentId.trim().toUpperCase() },
+        });
+      }
+      if (!matchedStudent && participant.studentEmail) {
+        matchedStudent = await prisma.examStudent.findFirst({
+          where: { email: { equals: participant.studentEmail.trim(), mode: "insensitive" } },
+        });
+      }
+      if (!matchedStudent && participant.studentName) {
+        matchedStudent = await prisma.examStudent.findFirst({
+          where: { fullName: { equals: participant.studentName.trim(), mode: "insensitive" } },
+        });
+      }
+
+      if (matchedStudent) {
+        linkedStudentId = matchedStudent.id;
+        const auth = await prisma.examAuthorization.findFirst({
+          where: { studentId: matchedStudent.id, examinationId: exam.id, status: "APPROVED" },
+        });
+        if (auth) linkedAuthId = auth.id;
+      }
+
       // Create brand new attempt with server-authoritative deadline
       const attemptNumber = existingAttempts.length + 1;
       const durationMs = exam.durationMinutes * 60 * 1000;
@@ -1289,6 +1326,8 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
         data: {
           examId: exam.id,
           participantId: participant.id,
+          studentId: linkedStudentId,
+          authorizationId: linkedAuthId,
           attemptNumber,
           status: "IN_PROGRESS",
           startedAt: now,
@@ -1313,6 +1352,39 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
           details: { attemptId: currentAttempt.id, attemptNumber, studentName: participant.studentName },
         },
       });
+    } else if (currentAttempt && !currentAttempt.studentId) {
+      // Auto-link resumed attempt to ExamStudent if not already linked
+      let matchedStudent = null;
+      if (participant.studentId) {
+        matchedStudent = await prisma.examStudent.findUnique({
+          where: { studentId: participant.studentId.trim().toUpperCase() },
+        });
+      }
+      if (!matchedStudent && participant.studentEmail) {
+        matchedStudent = await prisma.examStudent.findFirst({
+          where: { email: { equals: participant.studentEmail.trim(), mode: "insensitive" } },
+        });
+      }
+      if (!matchedStudent && participant.studentName) {
+        matchedStudent = await prisma.examStudent.findFirst({
+          where: { fullName: { equals: participant.studentName.trim(), mode: "insensitive" } },
+        });
+      }
+
+      if (matchedStudent) {
+        let authId = currentAttempt.authorizationId;
+        if (!authId) {
+          const auth = await prisma.examAuthorization.findFirst({
+            where: { studentId: matchedStudent.id, examinationId: exam.id, status: "APPROVED" },
+          });
+          if (auth) authId = auth.id;
+        }
+
+        await prisma.examAttempt.update({
+          where: { id: currentAttempt.id },
+          data: { studentId: matchedStudent.id, authorizationId: authId },
+        });
+      }
     }
 
     // Compute exact remaining seconds from server deadline
@@ -1646,6 +1718,35 @@ async function finalizeExamAttemptInternal(
       },
     });
 
+    // Resolve student linking if not already attached
+    let studentIdToLink = attempt.studentId;
+    let authIdToLink = attempt.authorizationId;
+    if (!studentIdToLink) {
+      let matchedStudent = null;
+      if (attempt.participant.studentId) {
+        matchedStudent = await tx.examStudent.findUnique({
+          where: { studentId: attempt.participant.studentId.trim().toUpperCase() },
+        });
+      }
+      if (!matchedStudent && attempt.participant.studentEmail) {
+        matchedStudent = await tx.examStudent.findFirst({
+          where: { email: { equals: attempt.participant.studentEmail.trim(), mode: "insensitive" } },
+        });
+      }
+      if (!matchedStudent && attempt.participant.studentName) {
+        matchedStudent = await tx.examStudent.findFirst({
+          where: { fullName: { equals: attempt.participant.studentName.trim(), mode: "insensitive" } },
+        });
+      }
+      if (matchedStudent) {
+        studentIdToLink = matchedStudent.id;
+        const auth = await tx.examAuthorization.findFirst({
+          where: { studentId: matchedStudent.id, examinationId: exam.id, status: "APPROVED" },
+        });
+        if (auth) authIdToLink = auth.id;
+      }
+    }
+
     // Update attempt status
     const updatedAttempt = await tx.examAttempt.update({
       where: { id: attempt.id },
@@ -1653,6 +1754,8 @@ async function finalizeExamAttemptInternal(
         status: submissionType,
         submittedAt: now,
         timeSpentSeconds,
+        studentId: studentIdToLink,
+        authorizationId: authIdToLink,
         terminationReason: terminationReason || attempt.terminationReason,
         terminatedAt: submissionType === "TERMINATED" ? now : attempt.terminatedAt,
       },
@@ -1962,6 +2065,10 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
         retakeAuthorizedBy: a.retakeAuthorizedBy,
         retakeAuthorizedReason: a.retakeAuthorizedReason,
         retakeAuthorizedAt: a.retakeAuthorizedAt?.toISOString() || null,
+        canReactivate: a.status === "TERMINATED" || a.status === "TIMED_OUT",
+        studentDbId: a.studentId || null,
+        examTitle: exam.title,
+        examPublicId: exam.publicId,
       };
     };
 

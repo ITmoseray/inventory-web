@@ -30,6 +30,9 @@ import {
   FileText,
   Sparkles,
   ExternalLink,
+  Copy,
+  Check,
+  Share2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -41,6 +44,7 @@ import {
   authorizeExaminationForStudent,
   revokeExaminationAuthorization,
   grantStudentExamRetake,
+  reactivateStudentExamSession,
   getSuperAdminAuthorizations,
   getSuperAdminStudentActivityLogs,
 } from "@/lib/actions/student-examination";
@@ -126,6 +130,66 @@ export default function StudentExaminationManagement({ courses, exams }: Student
   const [studentForStatusChange, setStudentForStatusChange] = useState<any>(null);
   const [targetStatus, setTargetStatus] = useState<StudentAccountStatus>("ACTIVE");
   const [statusReason, setStatusReason] = useState("");
+
+  // Reactivation Modal State
+  const [reactivateModalOpen, setReactivateModalOpen] = useState(false);
+  const [selectedStudentForReactivation, setSelectedStudentForReactivation] = useState<any>(null);
+  const [selectedAttemptForReactivation, setSelectedAttemptForReactivation] = useState<any>(null);
+  const [additionalMinutes, setAdditionalMinutes] = useState(15);
+  const [reactivationReason, setReactivationReason] = useState("Accidental tab closure / browser exit approved by Super Admin");
+  const [resetViolationCount, setResetViolationCount] = useState(true);
+  const [reactivating, setReactivating] = useState(false);
+  const [reactivationResult, setReactivationResult] = useState<any>(null);
+  const [copiedResumeLink, setCopiedResumeLink] = useState(false);
+
+  // Scorecard Modal State
+  const [scorecardModalOpen, setScorecardModalOpen] = useState(false);
+  const [scorecardStudent, setScorecardStudent] = useState<any>(null);
+  const [scorecardAttempt, setScorecardAttempt] = useState<any>(null);
+
+  const openReactivateModal = (student: any, attempt?: any) => {
+    setSelectedStudentForReactivation(student);
+    const targetAttempt = attempt || student.terminatedAttempt || student.latestAttempt;
+    setSelectedAttemptForReactivation(targetAttempt);
+    setAdditionalMinutes(15);
+    setReactivationReason("Accidental tab closure / browser exit approved by Super Admin");
+    setResetViolationCount(true);
+    setReactivationResult(null);
+    setCopiedResumeLink(false);
+    setReactivateModalOpen(true);
+  };
+
+  const handleReactivateSession = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedAttemptForReactivation) return;
+    setReactivating(true);
+    try {
+      const res = await reactivateStudentExamSession({
+        attemptId: selectedAttemptForReactivation.id || selectedAttemptForReactivation.attemptId,
+        additionalMinutes: Number(additionalMinutes) || 15,
+        reason: reactivationReason,
+        resetViolationCount,
+      });
+
+      if (res.success) {
+        toast.success(res.message);
+        setReactivationResult(res);
+        loadData();
+      } else {
+        toast.error(res.error || "Failed to reactivate session");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to reactivate session");
+    } finally {
+      setReactivating(false);
+    }
+  };
+
+  const openScorecardModal = (student: any, attempt?: any) => {
+    setScorecardStudent(student);
+    setScorecardAttempt(attempt || student.latestAttempt);
+    setScorecardModalOpen(true);
+  };
 
   // Load Data
   const loadData = async () => {
@@ -642,21 +706,77 @@ export default function StudentExaminationManagement({ courses, exams }: Student
                             )}
                           </td>
 
-                          {/* Attempt History */}
+                          {/* Attempt History & Grade Breakdown */}
                           <td className="py-3.5 px-4">
                             {student.latestAttempt ? (
-                              <div>
-                                <div className="flex items-center gap-1 font-bold">
-                                  <span className={student.latestAttempt.passed ? "text-emerald-600" : "text-rose-600"}>
-                                    {student.latestAttempt.passed ? "Passed" : "Below Pass"}
-                                  </span>
-                                  {student.latestAttempt.score !== null && (
-                                    <span className="text-slate-400">({student.latestAttempt.score} pts)</span>
-                                  )}
-                                </div>
-                                <span className="text-[10px] text-slate-400">
-                                  {student.completedExamsCount} of {student.totalAttemptsCount} submitted
-                                </span>
+                              <div className="space-y-1.5">
+                                {student.latestAttempt.status === "TERMINATED" ? (
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                        <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                                        <span>TERMINATED (INTERRUPTED)</span>
+                                      </span>
+                                    </div>
+                                    <p className="text-[10px] text-amber-700 dark:text-amber-300/80 line-clamp-1 max-w-[210px]" title={student.latestAttempt.terminationReason || "Accidental exit / focus lost"}>
+                                      {student.latestAttempt.terminationReason || "Browser closed or window minimized"}
+                                    </p>
+                                    <div>
+                                      <button
+                                        onClick={() => openReactivateModal(student, student.latestAttempt)}
+                                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-white font-bold text-[10px] transition shadow-xs cursor-pointer"
+                                        title="Reactivate candidate's interrupted examination session"
+                                      >
+                                        <RotateCcw className="w-3 h-3" />
+                                        <span>Reactivate Session</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : student.latestAttempt.status === "IN_PROGRESS" ? (
+                                  <div className="space-y-1">
+                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-900 dark:bg-blue-950/70 dark:text-blue-300 border border-blue-300 dark:border-blue-800 animate-pulse">
+                                      <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                                      <span>Taking Exam Active</span>
+                                    </span>
+                                    <div className="text-[10px] text-slate-400 font-mono">
+                                      Started: {new Date(student.latestAttempt.startedAt).toLocaleTimeString()}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-1.5 font-bold">
+                                      <span
+                                        className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase border ${
+                                          student.latestAttempt.passed
+                                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800"
+                                            : "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300 border-rose-300 dark:border-rose-800"
+                                        }`}
+                                      >
+                                        {student.latestAttempt.passed ? "PASSED" : "FAILED"}
+                                      </span>
+                                      <span className="font-mono text-xs font-black text-slate-900 dark:text-white">
+                                        {student.latestAttempt.score ?? 0}/{student.latestAttempt.maxScore ?? 50} pts
+                                      </span>
+                                      {student.latestAttempt.percentage !== null && (
+                                        <span className="text-[11px] text-slate-400 font-bold">
+                                          ({student.latestAttempt.percentage}%)
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <button
+                                        onClick={() => openScorecardModal(student, student.latestAttempt)}
+                                        className="text-[11px] font-bold text-indigo-600 dark:text-indigo-400 hover:underline inline-flex items-center gap-1 cursor-pointer"
+                                        title="View official candidate scorecard breakdown"
+                                      >
+                                        <Eye className="w-3 h-3" /> View Scorecard
+                                      </button>
+                                      <span className="text-[10px] text-slate-400">
+                                        • {student.completedExamsCount} of {student.totalAttemptsCount} done
+                                      </span>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             ) : (
                               <span className="text-[10px] text-slate-400 italic">No attempts yet</span>
@@ -666,6 +786,30 @@ export default function StudentExaminationManagement({ courses, exams }: Student
                           {/* Available Actions */}
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
+                              {/* Reactivate Button if student has terminated attempt */}
+                              {(student.hasTerminatedAttempt || student.latestAttempt?.status === "TERMINATED") && (
+                                <button
+                                  onClick={() => openReactivateModal(student, student.terminatedAttempt || student.latestAttempt)}
+                                  className="px-2.5 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer shadow-xs"
+                                  title="Reactivate Interrupted Examination Session"
+                                >
+                                  <RotateCcw className="w-3.5 h-3.5" />
+                                  <span>Reactivate</span>
+                                </button>
+                              )}
+
+                              {/* View Scorecard Button if student has completed attempt */}
+                              {student.latestAttempt?.score !== null && student.latestAttempt?.status !== "TERMINATED" && (
+                                <button
+                                  onClick={() => openScorecardModal(student, student.latestAttempt)}
+                                  className="px-2 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                                  title="View Candidate Scorecard"
+                                >
+                                  <Award className="w-3.5 h-3.5" />
+                                  <span>Grade</span>
+                                </button>
+                              )}
+
                               {/* Authorize Exam Button */}
                               <button
                                 onClick={() => openAuthorizeModal(student)}
@@ -1572,6 +1716,349 @@ export default function StudentExaminationManagement({ courses, exams }: Student
                 }`}
               >
                 Confirm {targetStatus}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* REACTIVATE EXAMINATION SESSION MODAL */}
+      {/* ============================================================== */}
+      {reactivateModalOpen && selectedAttemptForReactivation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                  <RotateCcw className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900 dark:text-white">
+                    Reactivate Examination Session
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Reopen interrupted session and grant extra time to finish
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setReactivateModalOpen(false);
+                  setReactivationResult(null);
+                }}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {reactivationResult ? (
+              /* Success View */
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-300">
+                  <div className="flex items-center gap-2 font-black text-sm mb-1">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <span>Session Successfully Reactivated!</span>
+                  </div>
+                  <p className="text-xs text-emerald-700 dark:text-emerald-300">
+                    Candidate <strong>{reactivationResult.studentName}</strong> has been granted <strong>+{reactivationResult.additionalMinutes} extra minutes</strong>.
+                    Their exam state has been reset to active.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    Direct Candidate Resume Link
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      readOnly
+                      value={typeof window !== "undefined" ? window.location.origin + reactivationResult.resumeUrl : reactivationResult.resumeUrl}
+                      className="flex-1 px-3 py-2 text-xs font-mono bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl select-all"
+                    />
+                    <button
+                      onClick={() => {
+                        const fullUrl = window.location.origin + reactivationResult.resumeUrl;
+                        navigator.clipboard.writeText(fullUrl);
+                        setCopiedResumeLink(true);
+                        toast.success("Resume link copied to clipboard!");
+                        setTimeout(() => setCopiedResumeLink(false), 2500);
+                      }}
+                      className="px-3.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition shrink-0 cursor-pointer"
+                    >
+                      {copiedResumeLink ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                      <span>{copiedResumeLink ? "Copied!" : "Copy Link"}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Hello ${reactivationResult.studentName},\n\nYour ProTech Assist Online Academy examination session has been reactivated with +${reactivationResult.additionalMinutes} extra minutes.\n\nClick here to resume your examination:\n${typeof window !== "undefined" ? window.location.origin + reactivationResult.resumeUrl : reactivationResult.resumeUrl}\n\nPlease remain on the examination window until you click Submit.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition shadow-sm cursor-pointer"
+                  >
+                    <Share2 className="w-4 h-4" /> Share via WhatsApp
+                  </a>
+
+                  <button
+                    onClick={() => {
+                      setReactivateModalOpen(false);
+                      setReactivationResult(null);
+                    }}
+                    className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition cursor-pointer"
+                  >
+                    Done & Close
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Reactivation Form */
+              <form onSubmit={handleReactivateSession} className="space-y-4">
+                <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">Student Candidate:</span>
+                    <span className="text-xs font-black text-slate-900 dark:text-white">
+                      {selectedStudentForReactivation?.fullName || selectedAttemptForReactivation.studentName}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">Student Exam ID:</span>
+                    <span className="text-xs font-mono font-bold text-indigo-600 dark:text-indigo-400">
+                      {selectedStudentForReactivation?.studentId || selectedAttemptForReactivation.studentId || "-"}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-slate-500">Examination:</span>
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                      {selectedAttemptForReactivation.examTitle}
+                    </span>
+                  </div>
+                  {selectedAttemptForReactivation.terminationReason && (
+                    <div className="pt-1.5 border-t border-slate-200 dark:border-slate-700/60">
+                      <span className="text-[10px] font-bold text-amber-600 uppercase block">Termination Reason:</span>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
+                        {selectedAttemptForReactivation.terminationReason}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Additional Time Selection */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                    Extra Time Allowance
+                  </label>
+                  <div className="grid grid-cols-4 gap-2 mb-2">
+                    {[15, 30, 45, 60].map((mins) => (
+                      <button
+                        key={mins}
+                        type="button"
+                        onClick={() => setAdditionalMinutes(mins)}
+                        className={`py-2 rounded-xl text-xs font-black border transition cursor-pointer ${
+                          additionalMinutes === mins
+                            ? "bg-amber-500 text-white border-amber-500 shadow-sm"
+                            : "border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                        }`}
+                      >
+                        +{mins} mins
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="number"
+                    min={5}
+                    max={180}
+                    value={additionalMinutes}
+                    onChange={(e) => setAdditionalMinutes(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-bold focus:outline-none"
+                    placeholder="Custom extra minutes (5 - 180)"
+                  />
+                </div>
+
+                {/* Reset Security Violation Counter */}
+                <label className="flex items-center gap-2 cursor-pointer p-2 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/60">
+                  <input
+                    type="checkbox"
+                    checked={resetViolationCount}
+                    onChange={(e) => setResetViolationCount(e.target.checked)}
+                    className="w-4 h-4 rounded text-amber-600 focus:ring-amber-500"
+                  />
+                  <span className="text-xs text-slate-700 dark:text-slate-300 font-medium">
+                    Reset security violation counter to 0 (Prevents immediate re-termination upon re-entry)
+                  </span>
+                </label>
+
+                {/* Administrative Justification */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Administrative Justification Reason *
+                  </label>
+                  <textarea
+                    rows={2}
+                    required
+                    value={reactivationReason}
+                    onChange={(e) => setReactivationReason(e.target.value)}
+                    placeholder="Enter reason for reactivating this session..."
+                    className="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-semibold focus:outline-none"
+                  />
+                </div>
+
+                <div className="flex items-center gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setReactivateModalOpen(false)}
+                    className="flex-1 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={reactivating}
+                    className="flex-1 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white font-black text-xs uppercase flex items-center justify-center gap-1.5 transition shadow-sm cursor-pointer"
+                  >
+                    {reactivating ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <RotateCcw className="w-4 h-4" />
+                    )}
+                    <span>{reactivating ? "Reactivating..." : `Reactivate (+${additionalMinutes}m)`}</span>
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* CANDIDATE SCORECARD MODAL */}
+      {/* ============================================================== */}
+      {scorecardModalOpen && scorecardStudent && scorecardAttempt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-6 my-8">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div>
+                <span className="text-[10px] font-black uppercase text-purple-600 dark:text-purple-400 tracking-wider">
+                  Official Examination Scorecard
+                </span>
+                <h3 className="text-lg font-black text-slate-900 dark:text-white">
+                  {scorecardStudent.fullName}
+                </h3>
+                <span className="text-xs text-slate-400 font-mono">
+                  ID: {scorecardStudent.studentId}
+                </span>
+              </div>
+              <button
+                onClick={() => setScorecardModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-sm cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-gradient-to-br from-purple-500/10 via-indigo-500/5 to-transparent border border-purple-200/50 dark:border-purple-800/30">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-bold text-slate-500 block uppercase">
+                    Examination
+                  </span>
+                  <span className="text-sm font-black text-slate-900 dark:text-white">
+                    {scorecardAttempt.examTitle}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-black uppercase ${
+                      scorecardAttempt.passed
+                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800"
+                        : "bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-400 border border-rose-300 dark:border-rose-800"
+                    }`}
+                  >
+                    {scorecardAttempt.passed ? "PASSED (HONORS)" : "BELOW PASS"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between">
+                <div>
+                  <span className="text-xs text-slate-400 font-medium">Final Score</span>
+                  <div className="text-3xl font-black text-slate-900 dark:text-white font-mono">
+                    {scorecardAttempt.score ?? 0}{" "}
+                    <span className="text-base text-slate-400 font-normal">
+                      / {scorecardAttempt.maxScore ?? 50}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <span className="text-xs text-slate-400 font-medium">Percentage</span>
+                  <div className="text-3xl font-black text-indigo-600 dark:text-indigo-400 font-mono">
+                    {scorecardAttempt.percentage ??
+                      Math.round(
+                        ((scorecardAttempt.score ?? 0) / (scorecardAttempt.maxScore ?? 50)) * 100
+                      )}
+                    %
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Performance Breakdown Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-center">
+                <span className="text-[10px] font-bold text-emerald-600 uppercase block">Correct</span>
+                <span className="text-lg font-black text-slate-900 dark:text-white mt-0.5 block font-mono">
+                  {scorecardAttempt.correctAnswers ?? scorecardAttempt.score ?? "-"}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-center">
+                <span className="text-[10px] font-bold text-rose-500 uppercase block">Incorrect</span>
+                <span className="text-lg font-black text-slate-900 dark:text-white mt-0.5 block font-mono">
+                  {scorecardAttempt.incorrectAnswers ?? "-"}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-center">
+                <span className="text-[10px] font-bold text-amber-500 uppercase block">Answered</span>
+                <span className="text-lg font-black text-slate-900 dark:text-white mt-0.5 block font-mono">
+                  {scorecardAttempt.questionsAnswered ?? "-"} / {scorecardAttempt.totalQuestions ?? 50}
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 text-center">
+                <span className="text-[10px] font-bold text-slate-400 uppercase block">Time Spent</span>
+                <span className="text-xs font-bold text-slate-700 dark:text-slate-300 mt-1 block">
+                  {Math.floor((scorecardAttempt.timeSpentSeconds || 0) / 60)}m{" "}
+                  {(scorecardAttempt.timeSpentSeconds || 0) % 60}s
+                </span>
+              </div>
+            </div>
+
+            <div className="text-[11px] text-slate-400 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-3">
+              <span>
+                Submitted:{" "}
+                {scorecardAttempt.submittedAt
+                  ? new Date(scorecardAttempt.submittedAt).toLocaleString()
+                  : "-"}
+              </span>
+              <span>Pass Requirement: 80% (40/50)</span>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                onClick={() => window.print()}
+                className="px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <FileText className="w-3.5 h-3.5" /> Print / Export
+              </button>
+              <button
+                onClick={() => setScorecardModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-xs font-bold hover:opacity-90 transition cursor-pointer"
+              >
+                Close
               </button>
             </div>
           </div>
