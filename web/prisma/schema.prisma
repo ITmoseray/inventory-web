@@ -2778,7 +2778,8 @@ model ExamCourse {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  examinations Examination[]
+  examinations       Examination[]
+  studentEnrollments ExamStudentEnrollment[]
 
   @@index([isActive])
 }
@@ -2809,15 +2810,18 @@ model Examination {
   resultReleaseMode         String    @default("immediate") // "immediate" | "manual"
   allowAnswerReview         Boolean   @default(true) // Review questions after publication
   accessMode                String    @default("open_verified") // "open_verified" | "restricted"
+  strictSecurity            Boolean   @default(true) // Enforce strict tab-switch & window blur departure auto-termination
+  maxViolationsAllowed      Int       @default(0) // 0 = immediate termination on first departure; > 0 = warnings allowed
   createdById               String?
   createdAt                 DateTime  @default(now())
   updatedAt                 DateTime  @updatedAt
 
-  course       ExamCourse        @relation(fields: [courseId], references: [id], onDelete: Restrict)
-  questions    ExamQuestion[]
-  participants ExamParticipant[]
-  attempts     ExamAttempt[]
-  auditEvents  ExamAuditEvent[]
+  course         ExamCourse          @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  questions      ExamQuestion[]
+  participants   ExamParticipant[]
+  attempts       ExamAttempt[]
+  auditEvents    ExamAuditEvent[]
+  authorizations ExamAuthorization[]
 
   @@index([courseId])
   @@index([status])
@@ -2880,31 +2884,63 @@ model ExamParticipant {
 }
 
 model ExamAttempt {
-  id               String    @id @default(cuid())
-  examId           String
-  participantId    String
-  attemptNumber    Int       @default(1)
-  status           String    @default("IN_PROGRESS") // "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "MARKED"
-  startedAt        DateTime  @default(now())
-  serverDeadline   DateTime // Server authoritative deadline
-  submittedAt      DateTime?
-  timeSpentSeconds Int       @default(0)
-  ipAddress        String?
-  userAgent        String?   @db.Text
-  idempotencyKey   String?   @unique
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                     String    @id @default(cuid())
+  examId                 String
+  participantId          String
+  attemptNumber          Int       @default(1)
+  status                 String    @default("IN_PROGRESS") // "IN_PROGRESS" | "SUBMITTED" | "TIMED_OUT" | "MARKED" | "TERMINATED"
+  terminationReason      String?   @db.Text
+  terminatedAt           DateTime?
+  violationCount         Int       @default(0)
+  retakeAuthorized       Boolean   @default(false)
+  retakeAuthorizedBy     String?
+  retakeAuthorizedReason String?   @db.Text
+  retakeAuthorizedAt     DateTime?
+  startedAt              DateTime  @default(now())
+  serverDeadline         DateTime // Server authoritative deadline
+  submittedAt            DateTime?
+  timeSpentSeconds       Int       @default(0)
+  ipAddress              String?
+  userAgent              String?   @db.Text
+  idempotencyKey         String?   @unique
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   examination Examination     @relation(fields: [examId], references: [id], onDelete: Cascade)
   participant ExamParticipant @relation(fields: [participantId], references: [id], onDelete: Cascade)
-  answers     ExamAnswer[]
-  bookmarks   ExamBookmark[]
-  result      ExamResult?
+
+  // Student Examination Access & Authorization Linkages
+  studentId       String?
+  student         ExamStudent?       @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  authorizationId String?
+  authorization   ExamAuthorization? @relation(fields: [authorizationId], references: [id], onDelete: SetNull)
+
+  answers    ExamAnswer[]
+  bookmarks  ExamBookmark[]
+  result     ExamResult?
+  violations ExamViolation[]
 
   @@unique([examId, participantId, attemptNumber])
   @@index([examId])
   @@index([participantId])
+  @@index([studentId])
+  @@index([authorizationId])
   @@index([status])
+}
+
+model ExamViolation {
+  id        String      @id @default(cuid())
+  attemptId String
+  eventType String // "TAB_HIDDEN" | "WINDOW_BLURRED" | "EXAM_PAGE_EXIT" | "DEVTOOLS_KEY_BLOCKED" | "COPY_ATTEMPT" | "TERMINATED"
+  reason    String      @db.Text
+  details   Json?
+  timestamp DateTime    @default(now())
+
+  attempt   ExamAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+
+  @@index([attemptId])
+  @@index([eventType])
+  @@index([timestamp])
 }
 
 model ExamAnswer {
@@ -2954,6 +2990,7 @@ model ExamResult {
   passed              Boolean
   isPublished         Boolean   @default(true) // Immediate or manual
   publishedAt         DateTime?
+  terminationReason   String?   @db.Text
   remarkNotes         String?   @db.Text
   remarkedBy          String?
   remarkedAt          DateTime?
@@ -2969,16 +3006,101 @@ model ExamResult {
 }
 
 model ExamAuditEvent {
-  id         String   @id @default(cuid())
-  examId     String
-  action     String // "CREATED" | "PUBLISHED" | "UNPUBLISHED" | "ATTEMPT_STARTED" | "ATTEMPT_SUBMITTED" | "RESULT_RELEASED" | "CSV_EXPORTED" | "REMARKED"
-  actorEmail String
-  actorRole  String
-  details    Json?
-  timestamp  DateTime @default(now())
+  id            String   @id @default(cuid())
+  examId        String?
+  attemptId     String?
+  participantId String?
+  action        String // "CREATED" | "PUBLISHED" | "UNPUBLISHED" | "EXAM_STARTED" | "TAB_HIDDEN" | "WINDOW_BLURRED" | "EXAM_PAGE_EXIT" | "EXAM_SUBMITTED" | "EXAM_TIME_EXPIRED" | "EXAM_TERMINATED" | "RETAKE_AUTHORIZED"
+  actorEmail    String
+  actorRole     String
+  details       Json?
+  timestamp     DateTime @default(now())
 
-  examination Examination @relation(fields: [examId], references: [id], onDelete: Cascade)
+  examination Examination? @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@index([examId])
+  @@index([attemptId])
+  @@index([action])
   @@index([timestamp])
+}
+
+// =========================================================================
+// STUDENT EXAMINATION MANAGEMENT & AUTHORIZATION MODELS
+// =========================================================================
+
+enum StudentAccountStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum ExamAuthorizationStatus {
+  PENDING
+  APPROVED
+  REVOKED
+  EXPIRED
+}
+
+model ExamStudent {
+  id             String               @id @default(cuid())
+  studentId      String               @unique // e.g. "PTA-OA-7K4M9X2Q"
+  fullName       String
+  normalizedName String               // Lowercase, trimmed, normalized whitespace for robust matching
+  email          String?
+  phone          String?
+  status         StudentAccountStatus @default(ACTIVE)
+  notes          String?              @db.Text
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  enrollments    ExamStudentEnrollment[]
+  authorizations ExamAuthorization[]
+  attempts       ExamAttempt[]
+
+  @@index([studentId])
+  @@index([normalizedName])
+  @@index([status])
+}
+
+model ExamStudentEnrollment {
+  id         String      @id @default(cuid())
+  studentId  String
+  student    ExamStudent @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId   String
+  course     ExamCourse  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt DateTime    @default(now())
+
+  @@unique([studentId, courseId])
+  @@index([studentId])
+  @@index([courseId])
+}
+
+model ExamAuthorization {
+  id                 String                  @id @default(cuid())
+  studentId          String
+  student            ExamStudent             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  examinationId      String
+  examination        Examination             @relation(fields: [examinationId], references: [id], onDelete: Cascade)
+  status             ExamAuthorizationStatus @default(PENDING)
+
+  validFrom          DateTime?
+  validUntil         DateTime?
+  maxAttemptsAllowed Int                     @default(1)
+  attemptsConsumed   Int                     @default(0)
+
+  authorizedBy       String                  // Super Admin actor email
+  authorizedAt       DateTime?
+  revokedBy          String?
+  revocationReason   String?                 @db.Text
+  revokedAt          DateTime?
+
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  attempts           ExamAttempt[]
+
+  @@unique([studentId, examinationId])
+  @@index([studentId])
+  @@index([examinationId])
+  @@index([status])
 }

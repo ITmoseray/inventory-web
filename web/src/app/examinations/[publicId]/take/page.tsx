@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,6 +19,10 @@ import {
   Sun,
   Moon,
   LayoutGrid,
+  ShieldAlert,
+  Shield,
+  Lock,
+  EyeOff,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -27,6 +31,7 @@ import {
   saveExamAnswer,
   toggleExamBookmark,
   submitExamAttempt,
+  recordExamSecurityViolation,
 } from "@/lib/actions/examination";
 
 export default function ExaminationTakePage() {
@@ -59,6 +64,17 @@ export default function ExaminationTakePage() {
   const [serverDeadline, setServerDeadline] = useState<Date | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
 
+  // Security & Anti-Cheat State
+  const [securityAgreed, setSecurityAgreed] = useState(false);
+  const [securityTermsChecked, setSecurityTermsChecked] = useState(false);
+  const [terminatedState, setTerminatedState] = useState<{
+    isTerminated: boolean;
+    reason: string;
+    eventType?: string;
+    timestamp?: string;
+  } | null>(null);
+  const departureReportedRef = useRef(false);
+
   // Submission Modal
   const [submitModalOpen, setSubmitModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -70,6 +86,56 @@ export default function ExaminationTakePage() {
     setMounted(true);
   }, []);
 
+  // Trigger Security Departure (Immediate auto-termination & log)
+  const triggerSecurityDeparture = useCallback(
+    (eventType: string, defaultReason: string) => {
+      if (departureReportedRef.current) return;
+      departureReportedRef.current = true;
+
+      const termReason = `Prohibited departure (${eventType}): ${defaultReason}`;
+      setTerminatedState({
+        isTerminated: true,
+        reason: termReason,
+        eventType,
+        timestamp: new Date().toLocaleTimeString(),
+      });
+
+      // 1. Send beacon to keepalive API immediately
+      try {
+        const payload = JSON.stringify({
+          attemptId,
+          eventType,
+          reason: termReason,
+          details: {
+            reportedVia: "client-departure-hook",
+            timestamp: new Date().toISOString(),
+          },
+        });
+
+        if (typeof navigator !== "undefined" && navigator.sendBeacon) {
+          navigator.sendBeacon("/api/examinations/security-event", payload);
+        } else {
+          fetch("/api/examinations/security-event", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: payload,
+            keepalive: true,
+          }).catch(() => {});
+        }
+      } catch (e) {
+        console.error("Failed to send departure beacon:", e);
+      }
+
+      // 2. Call Server Action
+      recordExamSecurityViolation({
+        attemptId,
+        eventType,
+        reason: termReason,
+      }).catch(() => {});
+    },
+    [attemptId]
+  );
+
   // Load Attempt
   useEffect(() => {
     if (!publicId || !participantIdParam) {
@@ -79,9 +145,18 @@ export default function ExaminationTakePage() {
     }
 
     setLoading(true);
-    startOrResumeExamAttempt(publicId, participantIdParam)
+    startOrResumeExamAttempt(publicId, participantIdParam, attemptIdParam)
       .then((res) => {
         if (!res.success) {
+          if (res.isTerminated) {
+            setTerminatedState({
+              isTerminated: true,
+              reason: res.error || "Examination attempt was terminated due to a security violation.",
+            });
+            setAttemptId(res.lastAttemptId || "");
+            setLoading(false);
+            return;
+          }
           setError(res.error || "Failed to load examination attempt.");
           setLoading(false);
           return;
@@ -93,6 +168,10 @@ export default function ExaminationTakePage() {
         setQuestions(res.questions || []);
         setSelectedAnswers(res.savedAnswers || {});
         setBookmarkedIds(new Set(res.bookmarkedQuestionIds || []));
+
+        if (!res.exam.strictSecurity) {
+          setSecurityAgreed(true);
+        }
 
         if (res.serverDeadline) {
           const deadline = new Date(res.serverDeadline);
@@ -109,9 +188,83 @@ export default function ExaminationTakePage() {
       });
   }, [publicId, participantIdParam]);
 
+  // Anti-Cheat: Visibility Change, Blur, Unload Listeners
+  useEffect(() => {
+    if (!attemptId || !examData?.strictSecurity || !securityAgreed || terminatedState?.isTerminated) return;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        triggerSecurityDeparture(
+          "TAB_HIDDEN",
+          "The candidate switched away from the examination window or opened another browser tab."
+        );
+      }
+    };
+
+    const handleWindowBlur = () => {
+      triggerSecurityDeparture(
+        "WINDOW_BLURRED",
+        "The candidate minimized the browser window or switched focus to another application."
+      );
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      triggerSecurityDeparture(
+        "EXAM_PAGE_EXIT",
+        "The candidate refreshed, closed, or navigated away from the proctored examination route."
+      );
+      e.preventDefault();
+      e.returnValue = "Leaving this examination window will immediately terminate your session.";
+      return e.returnValue;
+    };
+
+    const handlePageHide = () => {
+      triggerSecurityDeparture(
+        "EXAM_PAGE_EXIT",
+        "The examination page was hidden or unloaded."
+      );
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("pagehide", handlePageHide);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleWindowBlur);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("pagehide", handlePageHide);
+    };
+  }, [attemptId, examData, securityAgreed, terminatedState, triggerSecurityDeparture]);
+
+  // Anti-Extraction: Block Key Shortcuts (DevTools, Copy, Paste, Cut, Source, Print)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
+      if (e.key === "F12") {
+        e.preventDefault();
+        toast.error("Developer tools shortcut disabled by examination security policy.");
+        return;
+      }
+
+      if (isCtrlOrCmd) {
+        const key = e.key.toLowerCase();
+        if (["c", "x", "v", "u", "s", "p"].includes(key) || (e.shiftKey && ["i", "j", "c"].includes(key))) {
+          e.preventDefault();
+          toast.error(`Keyboard action [Ctrl+${e.key.toUpperCase()}] is prohibited during this examination.`);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   // Server-Authoritative Countdown Interval
   useEffect(() => {
-    if (!serverDeadline) return;
+    if (!serverDeadline || terminatedState?.isTerminated) return;
 
     const interval = setInterval(() => {
       const now = Date.now();
@@ -125,7 +278,7 @@ export default function ExaminationTakePage() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [serverDeadline]);
+  }, [serverDeadline, terminatedState]);
 
   // Automatic submission when timer expires
   const handleAutoSubmitOnTimeout = async () => {
@@ -250,6 +403,89 @@ export default function ExaminationTakePage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  if (terminatedState?.isTerminated) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 sm:p-6 transition-colors">
+        <div className="max-w-lg w-full p-6 sm:p-8 rounded-3xl bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-900/60 text-center space-y-6 shadow-2xl relative overflow-hidden">
+          {/* Top Warning Accent Bar */}
+          <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-rose-600 via-amber-500 to-rose-600" />
+
+          {/* Logo & Shield Icon */}
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <Image
+              src="/protech-assist-logo.png"
+              alt="ProTech Assist Logo"
+              width={160}
+              height={42}
+              className="h-9 w-auto object-contain dark:brightness-110"
+              priority
+            />
+            <div className="w-16 h-16 rounded-3xl bg-rose-500/15 border border-rose-500/30 text-rose-600 dark:text-rose-400 flex items-center justify-center shadow-lg shadow-rose-500/10">
+              <ShieldAlert className="w-8 h-8" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <span className="px-3.5 py-1 rounded-full text-[10px] font-mono font-bold uppercase tracking-widest bg-rose-100 dark:bg-rose-500/20 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
+              Session Terminated &bull; Departure Violation
+            </span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
+              Examination Session Terminated
+            </h2>
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed max-w-md mx-auto">
+              In accordance with ProTech Online Academy examination security regulations, your examination attempt was immediately terminated because the system detected a prohibited browser departure or tab switch.
+            </p>
+          </div>
+
+          {/* Violation Details Box */}
+          <div className="p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800/50 text-xs text-left space-y-2.5">
+            <div className="flex justify-between items-start gap-2">
+              <span className="text-slate-500 dark:text-slate-400 shrink-0">Violation Reason:</span>
+              <span className="font-bold text-rose-700 dark:text-rose-300 text-right">
+                {terminatedState.reason}
+              </span>
+            </div>
+            {terminatedState.timestamp && (
+              <div className="flex justify-between items-center text-[11px]">
+                <span className="text-slate-500 dark:text-slate-400">Recorded At:</span>
+                <span className="font-mono text-slate-700 dark:text-slate-300">{terminatedState.timestamp}</span>
+              </div>
+            )}
+            <div className="pt-2 border-t border-rose-200/60 dark:border-rose-800/40 text-[11px] text-slate-600 dark:text-slate-300">
+              <strong>Grading Safeguard:</strong> All answers submitted prior to departure have been securely autosaved and scored by the examination engine.
+            </div>
+          </div>
+
+          {/* Admin Retake Instructions */}
+          <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 text-xs text-slate-600 dark:text-slate-300 text-left flex items-start gap-2.5">
+            <Lock className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+            <div className="leading-relaxed text-[11px]">
+              Further attempts for this assessment are locked. If this departure was caused by an unexpected system disruption, please contact your <strong>Super Administrator</strong> to inspect your audit timeline and authorize a retake.
+            </div>
+          </div>
+
+          {/* Action CTAs */}
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            {attemptId && (
+              <Link
+                href={`/examinations/${publicId}/result/${attemptId}`}
+                className="w-full sm:flex-1 py-3 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs transition shadow-md shadow-indigo-500/20 text-center"
+              >
+                View Scored Results
+              </Link>
+            )}
+            <Link
+              href={`/examinations/${publicId}`}
+              className="w-full sm:flex-1 py-3 px-4 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-bold text-xs transition text-center"
+            >
+              Back to Exam Centre
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 transition-colors">
@@ -291,7 +527,13 @@ export default function ExaminationTakePage() {
   const isCriticalTime = remainingSeconds < 60; // < 1 min
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white transition-colors duration-300">
+    <div
+      onContextMenu={(e) => {
+        e.preventDefault();
+        toast.error("Right-click context menu is disabled for examination security.");
+      }}
+      className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col justify-between selection:bg-indigo-600 selection:text-white transition-colors duration-300 select-none"
+    >
       {/* Top Proctored Exam Header - Responsive for Mobile & Laptop */}
       <header className="sticky top-0 z-40 border-b border-slate-200/90 dark:border-slate-800/90 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl px-3 sm:px-6 lg:px-8 py-2.5 sm:py-3.5 transition-colors shadow-xs">
         <div className="max-w-7xl mx-auto flex flex-col gap-2.5">
@@ -642,6 +884,74 @@ export default function ExaminationTakePage() {
           </div>
         </div>
       </main>
+
+      {/* PRE-EXAM SECURITY & INTEGRITY AGREEMENT MODAL */}
+      {!securityAgreed && examData?.strictSecurity && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl space-y-6">
+            <div className="text-center space-y-2">
+              <div className="w-14 h-14 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto shadow-sm">
+                <Shield className="w-7 h-7" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white">
+                Examination Integrity &amp; Security Protocol
+              </h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                This examination is proctored with automated anti-cheat monitoring. Please review the rules before entering:
+              </p>
+            </div>
+
+            {/* Protocol Highlights */}
+            <div className="space-y-2.5 text-xs">
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-start gap-3">
+                <EyeOff className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-900 dark:text-white block">Strict Single-Window Policy:</strong>
+                  Switching away to another browser tab, opening another program, or minimizing this window will <strong>immediately terminate your examination</strong>.
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-start gap-3">
+                <Clock className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-900 dark:text-white block">Authoritative Server Countdown:</strong>
+                  The timer runs continuously on the server. Reloading or closing your browser will not reset or pause your time.
+                </div>
+              </div>
+
+              <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 flex items-start gap-3">
+                <Lock className="w-4 h-4 text-indigo-600 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="text-slate-900 dark:text-white block">Content Protection:</strong>
+                  Text selection, copying, pasting, developer inspection tools, and printing shortcuts are disabled.
+                </div>
+              </div>
+            </div>
+
+            {/* Agreement Checkbox */}
+            <label className="flex items-start gap-3 p-3.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/50 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={securityTermsChecked}
+                onChange={(e) => setSecurityTermsChecked(e.target.checked)}
+                className="mt-0.5 w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300"
+              />
+              <span className="text-xs text-indigo-950 dark:text-indigo-200 font-semibold leading-relaxed">
+                I confirm that I am {studentName}, and I agree to adhere to all examination integrity protocols. I acknowledge that leaving this window will terminate my session.
+              </span>
+            </label>
+
+            <button
+              type="button"
+              disabled={!securityTermsChecked}
+              onClick={() => setSecurityAgreed(true)}
+              className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:pointer-events-none text-white font-black text-xs shadow-lg shadow-indigo-500/25 transition cursor-pointer"
+            >
+              Acknowledge &amp; Enter Examination Room
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* CONFIRMATION SUBMIT MODAL */}
       {submitModalOpen && (

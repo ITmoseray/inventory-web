@@ -42,6 +42,7 @@ import {
   Moon,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import StudentExaminationManagement from "@/components/super-admin/StudentExaminationManagement";
 import { toast } from "sonner";
 import {
   getSuperAdminExamStats,
@@ -65,7 +66,7 @@ import {
 export default function SuperAdminExaminationsPage() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-  const [activeTab, setActiveTab] = useState<"exams" | "questions" | "results" | "courses">("exams");
+  const [activeTab, setActiveTab] = useState<"exams" | "students" | "questions" | "results" | "courses">("exams");
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -650,6 +651,7 @@ export default function SuperAdminExaminationsPage() {
       <div className="flex items-center gap-2 overflow-x-auto border-b border-slate-200 dark:border-slate-800 pb-2 text-xs font-bold">
         {[
           { id: "exams", label: `Examinations Catalog (${exams.length})`, icon: GraduationCap },
+          { id: "students", label: "Student Examination Management", icon: Users },
           { id: "questions", label: "Question Banks & Curricula", icon: BookOpen },
           { id: "results", label: "Submissions, Grading & Records", icon: Award },
           { id: "courses", label: `Programmes & Courses (${courses.length})`, icon: Layers },
@@ -1308,6 +1310,13 @@ export default function SuperAdminExaminationsPage() {
             ))}
           </div>
         </div>
+      )}
+
+            {/* ============================================================== */}
+      {/* TAB 5: STUDENT EXAMINATION MANAGEMENT */}
+      {/* ============================================================== */}
+      {activeTab === "students" && (
+        <StudentExaminationManagement courses={courses} exams={exams} />
       )}
 
       {/* ============================================================== */}

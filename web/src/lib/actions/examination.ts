@@ -162,6 +162,8 @@ export interface ExaminationInput {
   resultReleaseMode?: "immediate" | "manual";
   allowAnswerReview?: boolean;
   accessMode?: "open_verified" | "restricted";
+  strictSecurity?: boolean;
+  maxViolationsAllowed?: number;
   status?: "draft" | "published" | "archived";
 }
 
@@ -206,6 +208,8 @@ export async function createExamination(input: ExaminationInput) {
         resultReleaseMode: input.resultReleaseMode || "immediate",
         allowAnswerReview: input.allowAnswerReview ?? true,
         accessMode: input.accessMode || "open_verified",
+        strictSecurity: input.strictSecurity ?? true,
+        maxViolationsAllowed: input.maxViolationsAllowed !== undefined ? Math.max(0, Number(input.maxViolationsAllowed)) : 0,
         status: input.status || "draft",
         createdById: user.id,
       },
@@ -263,6 +267,8 @@ export async function updateExamination(id: string, input: Partial<ExaminationIn
     if (input.resultReleaseMode !== undefined) updateData.resultReleaseMode = input.resultReleaseMode;
     if (input.allowAnswerReview !== undefined) updateData.allowAnswerReview = input.allowAnswerReview;
     if (input.accessMode !== undefined) updateData.accessMode = input.accessMode;
+    if (input.strictSecurity !== undefined) updateData.strictSecurity = input.strictSecurity;
+    if (input.maxViolationsAllowed !== undefined) updateData.maxViolationsAllowed = Math.max(0, Number(input.maxViolationsAllowed));
     if (input.status !== undefined) updateData.status = input.status;
 
     const updated = await prisma.examination.update({
@@ -403,6 +409,8 @@ export async function getSuperAdminExams(options?: {
           resultReleaseMode: e.resultReleaseMode,
           allowAnswerReview: e.allowAnswerReview,
           accessMode: e.accessMode,
+          strictSecurity: e.strictSecurity,
+          maxViolationsAllowed: e.maxViolationsAllowed,
           negativeMarking: e.negativeMarking,
           negativeMarkValue: Number(e.negativeMarkValue),
           totalQuestions: e._count.questions,
@@ -1117,6 +1125,8 @@ export async function getPublicExamByPublicId(publicId: string) {
         negativeMarking: exam.negativeMarking,
         negativeMarkValue: Number(exam.negativeMarkValue),
         resultReleaseMode: exam.resultReleaseMode,
+        strictSecurity: exam.strictSecurity,
+        maxViolationsAllowed: exam.maxViolationsAllowed,
       },
     };
   } catch (error: any) {
@@ -1188,7 +1198,7 @@ export async function verifyOrRegisterParticipant(publicId: string, data: {
  * Start or resume examination attempt (SERVER-AUTHORITATIVE DEADLINE)
  * CRITICAL SECURITY: Questions and Options are SANITIZED — NO `isCorrect` is returned!
  */
-export async function startOrResumeExamAttempt(publicId: string, participantId: string) {
+export async function startOrResumeExamAttempt(publicId: string, participantId: string, attemptIdParam?: string) {
   try {
     const exam = await prisma.examination.findUnique({
       where: { publicId },
@@ -1223,11 +1233,14 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
         answers: true,
         bookmarks: true,
         result: true,
+        violations: true,
       },
     });
 
     const now = new Date();
-    let currentAttempt = existingAttempts.find((a) => a.status === "IN_PROGRESS");
+    let currentAttempt = attemptIdParam
+      ? existingAttempts.find((a) => a.id === attemptIdParam)
+      : existingAttempts.find((a) => a.status === "IN_PROGRESS");
 
     // Check if in-progress attempt has timed out
     if (currentAttempt) {
@@ -1238,10 +1251,26 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
       }
     }
 
+    // Check if the student has a terminated attempt that has NOT been authorized for retake
+    const blockedTerminatedAttempt = existingAttempts.find(
+      (a) => a.status === "TERMINATED" && !a.retakeAuthorized
+    );
+    if (blockedTerminatedAttempt) {
+      return {
+        success: false,
+        error: `Examination Session Terminated: A security violation was recorded on your attempt (${blockedTerminatedAttempt.terminationReason || "prohibited screen departure"}). Please contact the ProTech Online Academy Super Administrator to review your attempt.`,
+        isTerminated: true,
+        lastAttemptId: blockedTerminatedAttempt.id,
+      };
+    }
+
     // If no active attempt, check attempt limits
     if (!currentAttempt) {
-      const completedCount = existingAttempts.filter((a) => a.status !== "IN_PROGRESS").length;
-      if (completedCount >= exam.maxAttempts) {
+      const nonAuthorizedCompletedCount = existingAttempts.filter(
+        (a) => a.status !== "IN_PROGRESS" && !a.retakeAuthorized
+      ).length;
+
+      if (nonAuthorizedCompletedCount >= exam.maxAttempts) {
         return {
           success: false,
           error: `You have reached the maximum allowed attempts (${exam.maxAttempts}) for this examination.`,
@@ -1251,7 +1280,7 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
       }
 
       // Create brand new attempt with server-authoritative deadline
-      const attemptNumber = completedCount + 1;
+      const attemptNumber = existingAttempts.length + 1;
       const durationMs = exam.durationMinutes * 60 * 1000;
       const gracePeriodMs = (exam.gracePeriodSeconds || 60) * 1000;
       const serverDeadline = new Date(now.getTime() + durationMs + gracePeriodMs);
@@ -1269,13 +1298,16 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
           answers: true,
           bookmarks: true,
           result: true,
+          violations: true,
         },
       });
 
       await prisma.examAuditEvent.create({
         data: {
           examId: exam.id,
-          action: "ATTEMPT_STARTED",
+          attemptId: currentAttempt.id,
+          participantId: participant.id,
+          action: "EXAM_STARTED",
           actorEmail: participant.studentEmail,
           actorRole: "STUDENT",
           details: { attemptId: currentAttempt.id, attemptNumber, studentName: participant.studentName },
@@ -1330,6 +1362,8 @@ export async function startOrResumeExamAttempt(publicId: string, participantId: 
         allowChangeAnswer: exam.allowChangeAnswer,
         allowBookmarks: exam.allowBookmarks,
         allowUnansweredSubmission: exam.allowUnansweredSubmission,
+        strictSecurity: exam.strictSecurity,
+        maxViolationsAllowed: exam.maxViolationsAllowed,
       },
       questions: sanitizedQuestions,
       savedAnswers,
@@ -1348,17 +1382,45 @@ export async function saveExamAnswer(attemptId: string, questionId: string, sele
   try {
     const attempt = await prisma.examAttempt.findUnique({
       where: { id: attemptId },
+      include: { examination: true },
     });
     if (!attempt) return { success: false, error: "Attempt not found." };
+
+    if (attempt.status === "TERMINATED") {
+      return {
+        success: false,
+        error: "Cannot save answer: Examination has been terminated due to a security violation.",
+        isTerminated: true,
+      };
+    }
+
     if (attempt.status !== "IN_PROGRESS") {
-      return { success: false, error: "Cannot save answers: Examination has already been submitted or finalized." };
+      return {
+        success: false,
+        error: "Cannot save answers: Examination has already been submitted or finalized.",
+        isFinalized: true,
+      };
     }
 
     const now = new Date();
-    if (now > attempt.serverDeadline) {
+    const graceMs = (attempt.examination.gracePeriodSeconds || 60) * 1000;
+    if (now.getTime() > attempt.serverDeadline.getTime() + graceMs) {
       await finalizeExamAttemptInternal(attempt.id, "TIMED_OUT");
       return { success: false, error: "Time expired. Your examination has been automatically submitted.", isTimedOut: true };
     }
+
+    // Validate that the question belongs to this exam
+    const question = await prisma.examQuestion.findFirst({
+      where: { id: questionId, examId: attempt.examId, isActive: true },
+      include: { options: { select: { id: true } } },
+    });
+    if (!question) {
+      return { success: false, error: "Invalid question ID for this examination." };
+    }
+
+    // Validate selected option IDs
+    const validOptionIds = question.options.map((o) => o.id);
+    const sanitizedOptionIds = selectedOptionIds.filter((id) => validOptionIds.includes(id));
 
     // Upsert answer
     await prisma.examAnswer.upsert({
@@ -1371,11 +1433,11 @@ export async function saveExamAnswer(attemptId: string, questionId: string, sele
       create: {
         attemptId,
         questionId,
-        selectedOptionIds,
+        selectedOptionIds: sanitizedOptionIds,
         savedAt: now,
       },
       update: {
-        selectedOptionIds,
+        selectedOptionIds: sanitizedOptionIds,
         savedAt: now,
       },
     });
@@ -1422,7 +1484,11 @@ export async function toggleExamBookmark(attemptId: string, questionId: string) 
 /**
  * Internal grading and finalization worker
  */
-async function finalizeExamAttemptInternal(attemptId: string, submissionType: "SUBMITTED" | "TIMED_OUT") {
+async function finalizeExamAttemptInternal(
+  attemptId: string,
+  submissionType: "SUBMITTED" | "TIMED_OUT" | "TERMINATED",
+  terminationReason?: string
+) {
   return await prisma.$transaction(async (tx) => {
     const attempt = await tx.examAttempt.findUnique({
       where: { id: attemptId },
@@ -1439,7 +1505,7 @@ async function finalizeExamAttemptInternal(attemptId: string, submissionType: "S
     }
 
     if (attempt.status !== "IN_PROGRESS" && attempt.result !== null) {
-      return { attempt, result: null, alreadyFinalized: true };
+      return { attempt, result: attempt.result, alreadyFinalized: true };
     }
 
     const exam = attempt.examination;
@@ -1544,9 +1610,10 @@ async function finalizeExamAttemptInternal(attemptId: string, submissionType: "S
 
     const isPublished = exam.resultReleaseMode === "immediate";
 
-    // Create result
-    const result = await tx.examResult.create({
-      data: {
+    // Create or update result
+    const result = await tx.examResult.upsert({
+      where: { attemptId: attempt.id },
+      create: {
         attemptId: attempt.id,
         examId: exam.id,
         participantId: attempt.participantId,
@@ -1561,6 +1628,21 @@ async function finalizeExamAttemptInternal(attemptId: string, submissionType: "S
         passed,
         isPublished,
         publishedAt: isPublished ? now : null,
+        terminationReason: terminationReason || null,
+      },
+      update: {
+        totalQuestions: questions.length,
+        questionsAnswered: answeredCount,
+        questionsUnanswered,
+        correctAnswers: correctCount,
+        incorrectAnswers: incorrectCount,
+        scoreObtained: finalScore,
+        maxScore: maxAvailableScore,
+        percentage,
+        passed,
+        isPublished,
+        publishedAt: isPublished ? now : null,
+        terminationReason: terminationReason || null,
       },
     });
 
@@ -1571,18 +1653,31 @@ async function finalizeExamAttemptInternal(attemptId: string, submissionType: "S
         status: submissionType,
         submittedAt: now,
         timeSpentSeconds,
+        terminationReason: terminationReason || attempt.terminationReason,
+        terminatedAt: submissionType === "TERMINATED" ? now : attempt.terminatedAt,
       },
     });
+
+    const auditAction =
+      submissionType === "TERMINATED"
+        ? "EXAM_TERMINATED"
+        : submissionType === "TIMED_OUT"
+        ? "EXAM_TIME_EXPIRED"
+        : "EXAM_SUBMITTED";
 
     // Audit log
     await tx.examAuditEvent.create({
       data: {
         examId: exam.id,
-        action: submissionType === "TIMED_OUT" ? "TIMED_OUT" : "ATTEMPT_SUBMITTED",
+        attemptId: attempt.id,
+        participantId: attempt.participantId,
+        action: auditAction,
         actorEmail: attempt.participant.studentEmail,
         actorRole: "STUDENT",
         details: {
           attemptId: attempt.id,
+          submissionType,
+          terminationReason,
           score: finalScore,
           maxScore: maxAvailableScore,
           percentage,
@@ -1668,11 +1763,18 @@ export async function getStudentExamResult(attemptId: string) {
       return {
         success: true,
         isPublished: false,
+        isTerminated: attempt.status === "TERMINATED",
+        terminationReason: attempt.terminationReason || result.terminationReason || null,
+        status: attempt.status,
+        retakeAuthorized: attempt.retakeAuthorized,
         studentName: attempt.participant.studentName,
         examTitle: exam.title,
         courseTitle: exam.course.title,
         submittedAt: attempt.submittedAt?.toISOString(),
-        message: "Your examination has been submitted successfully! The results will be released by the Online Academy Super Admin shortly.",
+        message:
+          attempt.status === "TERMINATED"
+            ? "Your examination attempt was terminated due to a security policy violation."
+            : "Your examination has been submitted successfully! The results will be released by the Online Academy Super Admin shortly.",
       };
     }
 
@@ -1721,6 +1823,10 @@ export async function getStudentExamResult(attemptId: string) {
     return {
       success: true,
       isPublished: true,
+      isTerminated: attempt.status === "TERMINATED",
+      terminationReason: attempt.terminationReason || result.terminationReason || null,
+      status: attempt.status,
+      retakeAuthorized: attempt.retakeAuthorized,
       studentName: attempt.participant.studentName,
       studentEmail: attempt.participant.studentEmail,
       examTitle: exam.title,
@@ -1753,7 +1859,7 @@ export async function getStudentExamResult(attemptId: string) {
 
 export async function getSuperAdminExamResults(examId: string, filters?: {
   search?: string;
-  status?: string; // "ALL" | "PASSED" | "FAILED" | "IN_PROGRESS"
+  status?: string; // "ALL" | "PASSED" | "FAILED" | "IN_PROGRESS" | "TERMINATED"
 }) {
   try {
     await checkSuperAdminAuth();
@@ -1770,6 +1876,9 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
         participant: true,
         result: true,
         answers: true,
+        violations: {
+          orderBy: { timestamp: "asc" },
+        },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -1790,9 +1899,11 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
       if (filters.status === "PASSED") {
         filtered = filtered.filter((a) => a.result?.passed === true);
       } else if (filters.status === "FAILED") {
-        filtered = filtered.filter((a) => a.result?.passed === false);
+        filtered = filtered.filter((a) => a.result?.passed === false && a.status !== "TERMINATED");
       } else if (filters.status === "IN_PROGRESS") {
         filtered = filtered.filter((a) => a.status === "IN_PROGRESS");
+      } else if (filters.status === "TERMINATED") {
+        filtered = filtered.filter((a) => a.status === "TERMINATED");
       }
     }
 
@@ -1804,6 +1915,56 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
       ? Math.round((scores.reduce((a, b) => a + b, 0) / scores.length) * 10) / 10
       : 0;
 
+    const mapAttemptRow = (a: typeof attempts[0]) => {
+      const resultData = a.result
+        ? {
+            scoreObtained: Number(a.result.scoreObtained),
+            maxScore: Number(a.result.maxScore),
+            percentage: Number(a.result.percentage),
+            passed: a.result.passed,
+            isPublished: a.result.isPublished,
+            questionsAnswered: a.result.questionsAnswered,
+            questionsUnanswered: a.result.questionsUnanswered,
+            terminationReason: a.result.terminationReason || null,
+          }
+        : null;
+
+      return {
+        id: a.id,
+        attemptId: a.id,
+        participantId: a.participantId,
+        studentName: a.participant.studentName,
+        studentEmail: a.participant.studentEmail,
+        studentPhone: a.participant.studentPhone,
+        studentId: a.participant.studentId,
+        attemptNumber: a.attemptNumber,
+        status: a.status,
+        startedAt: a.startedAt.toISOString(),
+        submittedAt: a.submittedAt?.toISOString() || null,
+        timeSpentSeconds: a.timeSpentSeconds,
+        result: resultData,
+        scoreObtained: resultData ? resultData.scoreObtained : null,
+        maxScore: resultData ? resultData.maxScore : null,
+        percentage: resultData ? resultData.percentage : null,
+        passed: resultData ? resultData.passed : null,
+        isPublished: resultData ? resultData.isPublished : false,
+        violationCount: a.violationCount || a.violations.length,
+        violations: a.violations.map((v) => ({
+          id: v.id,
+          eventType: v.eventType,
+          reason: v.reason,
+          timestamp: v.timestamp.toISOString(),
+          details: v.details,
+        })),
+        terminationReason: a.terminationReason || a.result?.terminationReason || null,
+        terminatedAt: a.terminatedAt?.toISOString() || null,
+        retakeAuthorized: a.retakeAuthorized,
+        retakeAuthorizedBy: a.retakeAuthorizedBy,
+        retakeAuthorizedReason: a.retakeAuthorizedReason,
+        retakeAuthorizedAt: a.retakeAuthorizedAt?.toISOString() || null,
+      };
+    };
+
     return {
       success: true,
       exam: {
@@ -1814,84 +1975,21 @@ export async function getSuperAdminExamResults(examId: string, filters?: {
         durationMinutes: exam.durationMinutes,
         passMarkPercentage: Number(exam.passMarkPercentage),
         resultReleaseMode: exam.resultReleaseMode,
+        strictSecurity: exam.strictSecurity,
+        maxViolationsAllowed: exam.maxViolationsAllowed,
       },
       summary: {
         totalParticipants: attempts.length,
         completedCount: completed.length,
         passedCount,
         failedCount: completed.length - passedCount,
+        terminatedCount: attempts.filter((a) => a.status === "TERMINATED").length,
         passRate: completed.length > 0 ? Math.round((passedCount / completed.length) * 100) : 0,
         highestScore,
         averageScore,
       },
-      submissions: filtered.map((a) => {
-        const resultData = a.result
-          ? {
-              scoreObtained: Number(a.result.scoreObtained),
-              maxScore: Number(a.result.maxScore),
-              percentage: Number(a.result.percentage),
-              passed: a.result.passed,
-              isPublished: a.result.isPublished,
-              questionsAnswered: a.result.questionsAnswered,
-              questionsUnanswered: a.result.questionsUnanswered,
-            }
-          : null;
-
-        return {
-          id: a.id,
-          attemptId: a.id,
-          participantId: a.participantId,
-          studentName: a.participant.studentName,
-          studentEmail: a.participant.studentEmail,
-          studentPhone: a.participant.studentPhone,
-          studentId: a.participant.studentId,
-          attemptNumber: a.attemptNumber,
-          status: a.status,
-          startedAt: a.startedAt.toISOString(),
-          submittedAt: a.submittedAt?.toISOString() || null,
-          timeSpentSeconds: a.timeSpentSeconds,
-          result: resultData,
-          scoreObtained: resultData ? resultData.scoreObtained : null,
-          maxScore: resultData ? resultData.maxScore : null,
-          percentage: resultData ? resultData.percentage : null,
-          passed: resultData ? resultData.passed : null,
-          isPublished: resultData ? resultData.isPublished : false,
-        };
-      }),
-      results: filtered.map((a) => {
-        const resultData = a.result
-          ? {
-              scoreObtained: Number(a.result.scoreObtained),
-              maxScore: Number(a.result.maxScore),
-              percentage: Number(a.result.percentage),
-              passed: a.result.passed,
-              isPublished: a.result.isPublished,
-              questionsAnswered: a.result.questionsAnswered,
-              questionsUnanswered: a.result.questionsUnanswered,
-            }
-          : null;
-
-        return {
-          id: a.id,
-          attemptId: a.id,
-          participantId: a.participantId,
-          studentName: a.participant.studentName,
-          studentEmail: a.participant.studentEmail,
-          studentPhone: a.participant.studentPhone,
-          studentId: a.participant.studentId,
-          attemptNumber: a.attemptNumber,
-          status: a.status,
-          startedAt: a.startedAt.toISOString(),
-          submittedAt: a.submittedAt?.toISOString() || null,
-          timeSpentSeconds: a.timeSpentSeconds,
-          result: resultData,
-          scoreObtained: resultData ? resultData.scoreObtained : null,
-          maxScore: resultData ? resultData.maxScore : null,
-          percentage: resultData ? resultData.percentage : null,
-          passed: resultData ? resultData.passed : null,
-          isPublished: resultData ? resultData.isPublished : false,
-        };
-      }),
+      submissions: filtered.map(mapAttemptRow),
+      results: filtered.map(mapAttemptRow),
     };
   } catch (error: any) {
     console.error("[getSuperAdminExamResults error]:", error);
@@ -1949,6 +2047,7 @@ export async function exportExamResultsCsv(examId: string) {
       include: {
         participant: true,
         result: true,
+        violations: true,
       },
       orderBy: { createdAt: "desc" },
     });
@@ -1965,6 +2064,9 @@ export async function exportExamResultsCsv(examId: string) {
       "Percentage",
       "Pass Mark %",
       "Outcome",
+      "Violations Count",
+      "Termination Reason",
+      "Retake Authorized",
       "Time Spent (Minutes)",
       "Started At",
       "Submitted At",
@@ -1973,6 +2075,7 @@ export async function exportExamResultsCsv(examId: string) {
     const rows = attempts.map((a) => {
       const res = a.result;
       const timeSpentMins = Math.round((a.timeSpentSeconds / 60) * 10) / 10;
+      const outcome = a.status === "TERMINATED" ? "TERMINATED" : res ? (res.passed ? "PASS" : "FAIL") : "N/A";
       return [
         `"${a.participant.studentName.replace(/"/g, '""')}"`,
         `"${a.participant.studentEmail}"`,
@@ -1984,7 +2087,10 @@ export async function exportExamResultsCsv(examId: string) {
         res ? Number(res.maxScore) : "N/A",
         res ? `${Number(res.percentage)}%` : "N/A",
         `${Number(exam.passMarkPercentage)}%`,
-        res ? (res.passed ? "PASS" : "FAIL") : "N/A",
+        outcome,
+        a.violationCount || a.violations.length,
+        `"${(a.terminationReason || "").replace(/"/g, '""')}"`,
+        a.retakeAuthorized ? "YES" : "NO",
         timeSpentMins,
         a.startedAt.toISOString(),
         a.submittedAt ? a.submittedAt.toISOString() : "In Progress",
@@ -2001,5 +2107,271 @@ export async function exportExamResultsCsv(examId: string) {
     };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+// =========================================================================
+// 8. SECURITY & ANTI-CHEAT ENGINE
+// =========================================================================
+
+/**
+ * Handle incoming security violation event
+ */
+export async function handleExamSecurityViolationInternal(input: {
+  attemptId: string;
+  eventType: string;
+  reason?: string;
+  details?: any;
+}) {
+  const { attemptId, eventType, reason, details } = input;
+
+  const attempt = await prisma.examAttempt.findUnique({
+    where: { id: attemptId },
+    include: {
+      examination: true,
+      participant: true,
+    },
+  });
+
+  if (!attempt) {
+    return { success: false, error: "Attempt not found" };
+  }
+
+  // If already finalized or terminated, log violation and return current status
+  if (attempt.status !== "IN_PROGRESS") {
+    await prisma.examViolation.create({
+      data: {
+        attemptId: attempt.id,
+        eventType,
+        reason: reason || `Event logged after attempt finalized (Status: ${attempt.status})`,
+        details: details || {},
+      },
+    });
+
+    return {
+      success: true,
+      status: attempt.status,
+      terminated: attempt.status === "TERMINATED",
+      alreadyFinalized: true,
+      message: "Attempt already finalized",
+    };
+  }
+
+  // Create violation record
+  const violation = await prisma.examViolation.create({
+    data: {
+      attemptId: attempt.id,
+      eventType,
+      reason: reason || "Prohibited browser window departure or security violation detected.",
+      details: details || {},
+    },
+  });
+
+  const updatedViolationCount = (attempt.violationCount || 0) + 1;
+  const exam = attempt.examination;
+
+  // Log audit event
+  await prisma.examAuditEvent.create({
+    data: {
+      examId: exam.id,
+      attemptId: attempt.id,
+      participantId: attempt.participantId,
+      action: eventType,
+      actorEmail: attempt.participant.studentEmail,
+      actorRole: "STUDENT",
+      details: {
+        violationId: violation.id,
+        violationNumber: updatedViolationCount,
+        eventType,
+        reason,
+        details,
+      },
+    },
+  });
+
+  // Departure events that trigger termination under strictSecurity
+  const departureEvents = ["TAB_HIDDEN", "WINDOW_BLURRED", "EXAM_PAGE_EXIT", "SUSPICIOUS_UNLOAD"];
+  const isDeparture = departureEvents.includes(eventType);
+  const shouldTerminate =
+    exam.strictSecurity &&
+    (isDeparture || updatedViolationCount > exam.maxViolationsAllowed);
+
+  if (shouldTerminate) {
+    const termReason =
+      reason ||
+      (isDeparture
+        ? `Prohibited window departure (${eventType}): Candidate left the active examination window or switched browser tabs.`
+        : `Exceeded maximum allowable security violations (${updatedViolationCount}/${exam.maxViolationsAllowed}).`);
+
+    // Finalize the attempt as TERMINATED
+    const finalization = await finalizeExamAttemptInternal(attempt.id, "TERMINATED", termReason);
+
+    return {
+      success: true,
+      terminated: true,
+      status: "TERMINATED",
+      violationCount: updatedViolationCount,
+      terminationReason: termReason,
+      result: finalization.result
+        ? {
+            scoreObtained: Number(finalization.result.scoreObtained),
+            maxScore: Number(finalization.result.maxScore),
+            percentage: Number(finalization.result.percentage),
+            passed: finalization.result.passed,
+          }
+        : null,
+    };
+  } else {
+    // Non-terminating warning
+    await prisma.examAttempt.update({
+      where: { id: attempt.id },
+      data: {
+        violationCount: updatedViolationCount,
+      },
+    });
+
+    return {
+      success: true,
+      terminated: false,
+      status: "IN_PROGRESS",
+      violationCount: updatedViolationCount,
+      warning: `Security warning ${updatedViolationCount} logged. Please remain in the examination tab.`,
+    };
+  }
+}
+
+/**
+ * Public Server Action to record violation from client
+ */
+export async function recordExamSecurityViolation(input: {
+  attemptId: string;
+  eventType: string;
+  reason?: string;
+  details?: any;
+}) {
+  try {
+    return await handleExamSecurityViolationInternal(input);
+  } catch (error: any) {
+    console.error("[recordExamSecurityViolation error]:", error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * Super Admin Action: Authorize student to retake examination after termination or limit
+ */
+export async function authorizeExamRetake(attemptId: string, reason: string) {
+  try {
+    const adminUser = await checkSuperAdminAuth();
+
+    if (!reason || !reason.trim()) {
+      return { success: false, error: "Administrative justification reason is required to authorize a retake." };
+    }
+
+    const attempt = await prisma.examAttempt.findUnique({
+      where: { id: attemptId },
+      include: {
+        examination: true,
+        participant: true,
+      },
+    });
+
+    if (!attempt) {
+      return { success: false, error: "Attempt record not found." };
+    }
+
+    const updated = await prisma.examAttempt.update({
+      where: { id: attemptId },
+      data: {
+        retakeAuthorized: true,
+        retakeAuthorizedBy: adminUser.email || "Super Admin",
+        retakeAuthorizedReason: reason.trim(),
+        retakeAuthorizedAt: new Date(),
+      },
+    });
+
+    await prisma.examAuditEvent.create({
+      data: {
+        examId: attempt.examId,
+        attemptId: attempt.id,
+        participantId: attempt.participantId,
+        action: "RETAKE_AUTHORIZED",
+        actorEmail: adminUser.email || "Super Admin",
+        actorRole: "SUPER_ADMIN",
+        details: {
+          attemptId: attempt.id,
+          authorizedBy: adminUser.email,
+          reason: reason.trim(),
+          authorizedAt: new Date().toISOString(),
+        },
+      },
+    });
+
+    safeRevalidate("/super-admin/examinations");
+    return {
+      success: true,
+      message: `Retake successfully authorized for ${attempt.participant.studentName}.`,
+      attempt: {
+        id: updated.id,
+        retakeAuthorized: updated.retakeAuthorized,
+        retakeAuthorizedBy: updated.retakeAuthorizedBy,
+        retakeAuthorizedReason: updated.retakeAuthorizedReason,
+        retakeAuthorizedAt: updated.retakeAuthorizedAt?.toISOString(),
+      },
+    };
+  } catch (error: any) {
+    console.error("[authorizeExamRetake error]:", error);
+    return { success: false, error: error.message || "Failed to authorize retake." };
+  }
+}
+
+/**
+ * Super Admin Action: Fetch violation timeline for an attempt
+ */
+export async function getAttemptViolationsLog(attemptId: string) {
+  try {
+    await checkSuperAdminAuth();
+
+    const attempt = await prisma.examAttempt.findUnique({
+      where: { id: attemptId },
+      include: {
+        examination: true,
+        participant: true,
+        violations: {
+          orderBy: { timestamp: "asc" },
+        },
+      },
+    });
+
+    if (!attempt) {
+      return { success: false, error: "Attempt not found." };
+    }
+
+    return {
+      success: true,
+      attempt: {
+        id: attempt.id,
+        studentName: attempt.participant.studentName,
+        studentEmail: attempt.participant.studentEmail,
+        status: attempt.status,
+        terminationReason: attempt.terminationReason,
+        terminatedAt: attempt.terminatedAt?.toISOString() || null,
+        violationCount: attempt.violationCount,
+        retakeAuthorized: attempt.retakeAuthorized,
+        retakeAuthorizedBy: attempt.retakeAuthorizedBy,
+        retakeAuthorizedReason: attempt.retakeAuthorizedReason,
+        retakeAuthorizedAt: attempt.retakeAuthorizedAt?.toISOString() || null,
+      },
+      violations: attempt.violations.map((v) => ({
+        id: v.id,
+        eventType: v.eventType,
+        reason: v.reason,
+        timestamp: v.timestamp.toISOString(),
+        details: v.details,
+      })),
+    };
+  } catch (error: any) {
+    console.error("[getAttemptViolationsLog error]:", error);
+    return { success: false, error: error.message || "Failed to load violations log." };
   }
 }

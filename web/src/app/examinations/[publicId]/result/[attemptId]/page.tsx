@@ -22,6 +22,8 @@ import {
   Share2,
   Sun,
   Moon,
+  AlertTriangle,
+  ShieldAlert,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { toast } from "sonner";
@@ -205,6 +207,28 @@ export default function StudentExamResultPage() {
 
       {/* Main Scorecard Container */}
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full space-y-6 sm:space-y-8 flex-1">
+        {/* Security Departure Notice Banner if Terminated */}
+        {result.isTerminated && (
+          <div className="p-4 sm:p-5 rounded-3xl bg-amber-500/10 dark:bg-amber-500/15 border border-amber-300 dark:border-amber-500/40 text-left space-y-2.5 shadow-sm">
+            <div className="flex items-center gap-2.5 text-amber-800 dark:text-amber-300 font-bold text-xs sm:text-sm">
+              <ShieldAlert className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0" />
+              <span>Examination Session Terminated &bull; Security Departure Logged</span>
+            </div>
+            <p className="text-xs text-amber-700 dark:text-amber-300/90 leading-relaxed">
+              {result.terminationReason ||
+                "The examination engine detected a prohibited browser departure or tab switch during this attempt. The session was finalized immediately."}
+            </p>
+            <div className="pt-2 border-t border-amber-200 dark:border-amber-500/30 flex flex-wrap items-center justify-between gap-2 text-[11px] text-amber-800 dark:text-amber-300 font-medium">
+              <span>All answers autosaved prior to departure were included in this final score.</span>
+              <span className="font-bold">
+                {result.retakeAuthorized
+                  ? "✓ Retake Authorized by Super Administrator"
+                  : "Contact Super Administrator to request retake review"}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Outcome Banner */}
         <div
           className={`p-6 sm:p-10 rounded-3xl border text-center space-y-5 sm:space-y-6 shadow-xl relative overflow-hidden transition-colors ${
