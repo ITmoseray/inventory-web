@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { format, subDays } from "date-fns";
@@ -16,7 +17,7 @@ import {
 import Image from "next/image";
 import { 
   Plus, Box, Users, FileText, ShoppingCart, Truck, Globe, ShieldCheck, 
-  CreditCard, MapPin, Activity, History, Clock, ArrowRight, 
+  CreditCard, MapPin, Activity, History, Clock, ArrowRight, ArrowUpRight, 
   Play, MessageCircle, Wallet, Smartphone, SmartphoneIcon, Printer, Receipt, 
   DollarSign, AlertCircle, Package, Book, Cpu, UserCheck, Briefcase, Database, BrainCircuit, RefreshCw,
   TrendingUp, TrendingDown, Bell
@@ -485,7 +486,8 @@ export default function DashboardPage() {
                       up: (stats.revenueChange || 0) >= 0,
                       icon: <DollarSign size={18} />,
                       color: '#2563EB',
-                      sub: 'All-time volume'
+                      sub: 'All-time volume',
+                      href: '/dashboard/sales/history'
                     },
                     {
                       label: "Today's Sales",
@@ -494,16 +496,18 @@ export default function DashboardPage() {
                       up: (stats.ordersChange || 0) >= 0,
                       icon: <ShoppingCart size={18} />,
                       color: '#10B981',
-                      sub: `${stats.activeTransactions || stats.orders || 0} transactions`
+                      sub: `${stats.activeTransactions || stats.orders || 0} transactions`,
+                      href: '/dashboard/sales/history'
                     },
                     {
                       label: 'Total Products',
                       value: (stats.skuCount || 0).toLocaleString(),
-                      change: '+3 new',
+                      change: (stats.newSkusThisMonth || 0) > 0 ? `+${stats.newSkusThisMonth} new` : 'Catalog active',
                       up: true,
                       icon: <Package size={18} />,
                       color: '#8B5CF6',
-                      sub: 'Across catalog'
+                      sub: 'Across catalog',
+                      href: '/dashboard/inventory/products'
                     },
                     {
                       label: 'Low Stock Items',
@@ -512,16 +516,20 @@ export default function DashboardPage() {
                       up: stats.lowStock === 0,
                       icon: <AlertCircle size={18} />,
                       color: '#F59E0B',
-                      sub: 'Requires attention'
+                      sub: 'Requires attention',
+                      href: '/dashboard/inventory/low-stock'
                     },
                     {
                       label: 'Total Customers',
                       value: (stats.customerCount || stats.staffCount || 0).toLocaleString(),
-                      change: '+18 this month',
+                      change: (stats.newCustomersThisMonth || 0) > 0 
+                        ? `+${stats.newCustomersThisMonth} this month` 
+                        : `${stats.activeCustomersCount ?? 0} active`,
                       up: true,
                       icon: <Users size={18} />,
                       color: '#0EA5E9',
-                      sub: 'Active registry'
+                      sub: 'Active registry',
+                      href: '/dashboard/customers'
                     },
                     {
                       label: 'Outstanding Credit',
@@ -530,16 +538,20 @@ export default function DashboardPage() {
                       up: stats.outstandingCredit === 0,
                       icon: <CreditCard size={18} />,
                       color: '#EF4444',
-                      sub: 'From receivables'
+                      sub: 'From receivables',
+                      href: '/dashboard/sales/credit'
                     },
                     {
                       label: 'Monthly Expenses',
                       value: formatCurrency(stats.monthlyExpenses || 0),
-                      change: '-5.8%',
-                      up: true,
+                      change: stats.expensesChange !== undefined
+                        ? `${Number(stats.expensesChange) >= 0 ? '+' : ''}${Number(stats.expensesChange).toFixed(1)}%`
+                        : 'This month',
+                      up: (stats.expensesChange || 0) <= 0,
                       icon: <TrendingDown size={18} />,
                       color: '#64748B',
-                      sub: 'Operating costs'
+                      sub: 'Operating costs',
+                      href: '/dashboard/accounting/expenses'
                     },
                     {
                       label: 'Net Profit (Est.)',
@@ -548,28 +560,52 @@ export default function DashboardPage() {
                       up: true,
                       icon: <TrendingUp size={18} />,
                       color: '#10B981',
-                      sub: `${stats.profitMargin || '35.0'}% profit margin`
+                      sub: `${stats.profitMargin || '35.0'}% profit margin`,
+                      href: '/dashboard/accounting/pl'
                     },
-                  ].map((k) => (
-                    <div key={k.label} className="kpi-card">
-                      <div className="flex justify-between items-start mb-3.5">
-                        <div className="text-[12.5px] text-muted-foreground font-medium leading-snug max-w-[140px]">{k.label}</div>
-                        <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: `${k.color}15`, color: k.color }}>
-                          {k.icon}
+                  ].map((k) => {
+                    const CardInner = (
+                      <>
+                        <div className="flex justify-between items-start mb-3.5">
+                          <div className="text-[12.5px] text-muted-foreground font-medium leading-snug max-w-[140px] group-hover:text-foreground transition-colors">{k.label}</div>
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 transition-transform group-hover:scale-105" style={{ background: `${k.color}15`, color: k.color }}>
+                            {k.icon}
+                          </div>
                         </div>
+                        <div className="font-display text-2xl font-extrabold text-foreground tracking-tight mb-1.5">{k.value}</div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11.5px] font-bold font-mono px-2 py-0.5 rounded-full" style={{
+                            color: k.up ? '#10B981' : '#EF4444',
+                            background: k.up ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
+                          }}>
+                            {k.change}
+                          </span>
+                          <span className="text-[11.5px] text-muted-foreground truncate flex items-center gap-1">
+                            <span>{k.sub}</span>
+                            {k.href && <ArrowUpRight size={13} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary shrink-0" />}
+                          </span>
+                        </div>
+                      </>
+                    );
+
+                    if (k.href) {
+                      return (
+                        <Link 
+                          key={k.label} 
+                          href={k.href} 
+                          className="kpi-card block group hover:border-[#0EA5E9]/50 hover:shadow-md transition-all duration-200 cursor-pointer hover:-translate-y-0.5"
+                        >
+                          {CardInner}
+                        </Link>
+                      );
+                    }
+
+                    return (
+                      <div key={k.label} className="kpi-card">
+                        {CardInner}
                       </div>
-                      <div className="font-display text-2xl font-extrabold text-foreground tracking-tight mb-1.5">{k.value}</div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[11.5px] font-bold font-mono px-2 py-0.5 rounded-full" style={{
-                          color: k.up ? '#10B981' : '#EF4444',
-                          background: k.up ? 'rgba(16,185,129,0.12)' : 'rgba(239,68,68,0.12)',
-                        }}>
-                          {k.change}
-                        </span>
-                        <span className="text-[11.5px] text-muted-foreground truncate">{k.sub}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* 3. Charts Row */}

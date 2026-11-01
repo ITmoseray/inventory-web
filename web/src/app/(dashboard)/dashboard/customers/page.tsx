@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   Plus, Pencil, Trash2, MoreVertical, Users, Search, Phone, Mail, MapPin,
   ChevronDown, UserPlus, FileDown, Globe, Database, CreditCard, Clock,
@@ -65,11 +66,19 @@ export default function CustomersPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const searchParams = useSearchParams();
+  const urlFilter = searchParams.get("filter");
   const [selectedCustomer, setSelectedCustomer] = useState<any>(null);
-  const [viewFilter, setViewFilter] = useState("all");
+  const [viewFilter, setViewFilter] = useState(urlFilter || "all");
   const [viewSearch, setViewSearch] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importing, setImporting] = useState(false);
+
+  useEffect(() => {
+    if (urlFilter) {
+      setViewFilter(urlFilter);
+    }
+  }, [urlFilter]);
   
   const [formData, setFormData] = useState({
     name: "",
@@ -109,11 +118,31 @@ export default function CustomersPage() {
     }
   }
 
-  const filteredCustomers = customers.filter(c => 
-    c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (c.phone && c.phone.includes(searchQuery)) ||
-    (c.email && c.email.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredCustomers = customers.filter(c => {
+    // 1. Text search filter
+    const matchesSearch = 
+      !searchQuery ||
+      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (c.phone && c.phone.includes(searchQuery)) ||
+      (c.email && c.email.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    if (!matchesSearch) return false;
+
+    // 2. View / Registry filter
+    const spend = Number(c.totalSpend) || 0;
+    const orders = Number(c.ordersCount) || 0;
+    const isActive = spend > 0 || orders > 0;
+
+    if (viewFilter === "active") return isActive;
+    if (viewFilter === "inactive") return !isActive;
+    if (viewFilter === "high-value") return spend > 1000;
+    if (viewFilter === "new") {
+      const created = new Date(c.createdAt).getTime();
+      const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+      return created >= thirtyDaysAgo;
+    }
+    return true;
+  });
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -201,8 +230,9 @@ export default function CustomersPage() {
   }
 
   const totalLTV = customers.reduce((sum, c) => sum + (Number(c.totalSpend) || 0), 0);
-  const activeCustomers = customers.filter(c => (Number(c.totalSpend) || 0) > 0).length;
+  const activeCustomers = customers.filter(c => (Number(c.totalSpend) || 0) > 0 || (Number(c.ordersCount) || 0) > 0).length;
   const highValueCustomers = customers.filter(c => (Number(c.totalSpend) || 0) > 1000).length;
+  const inactiveCustomers = Math.max(0, customers.length - activeCustomers);
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-[1600px] mx-auto animate-in fade-in duration-500 pb-20">
@@ -244,9 +274,15 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {/* ── KPI Cards ── */}
+      {/* ── KPI Cards (Interactive Filters) ── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-        <div className="kpi-card">
+        <div 
+          onClick={() => setViewFilter("all")}
+          className={cn(
+            "kpi-card cursor-pointer transition-all hover:-translate-y-0.5 select-none",
+            viewFilter === "all" ? "ring-2 ring-[#2563EB] bg-[#2563EB]/5 shadow-sm" : "hover:border-[#2563EB]/40"
+          )}
+        >
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-xs text-[var(--muted-foreground)] font-medium">Total Customers</span>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#2563EB]/10 text-[#2563EB]">
@@ -256,9 +292,19 @@ export default function CustomersPage() {
           <div className="font-display text-2xl font-extrabold text-[var(--foreground)] tracking-tight">
             {customers.length}
           </div>
+          <div className="text-[11px] text-[var(--muted-foreground)] mt-1 flex items-center justify-between">
+            <span>All records</span>
+            {viewFilter === "all" && <span className="text-[10px] text-[#2563EB] font-bold">Selected</span>}
+          </div>
         </div>
 
-        <div className="kpi-card">
+        <div 
+          onClick={() => setViewFilter("active")}
+          className={cn(
+            "kpi-card cursor-pointer transition-all hover:-translate-y-0.5 select-none",
+            viewFilter === "active" ? "ring-2 ring-[#10B981] bg-[#10B981]/5 shadow-sm" : "hover:border-[#10B981]/40"
+          )}
+        >
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-xs text-[var(--muted-foreground)] font-medium">Active Customers</span>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#10B981]/10 text-[#10B981]">
@@ -268,9 +314,13 @@ export default function CustomersPage() {
           <div className="font-display text-2xl font-extrabold text-[#10B981] tracking-tight">
             {activeCustomers}
           </div>
+          <div className="text-[11px] text-[var(--muted-foreground)] mt-1 flex items-center justify-between">
+            <span>Active registry</span>
+            {viewFilter === "active" && <span className="text-[10px] text-[#10B981] font-bold">Filtering</span>}
+          </div>
         </div>
 
-        <div className="kpi-card">
+        <div className="kpi-card select-none">
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-xs text-[var(--muted-foreground)] font-medium">Lifetime Value (LTV)</span>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#8B5CF6]/10 text-[#8B5CF6]">
@@ -280,9 +330,18 @@ export default function CustomersPage() {
           <div className="font-display text-2xl font-extrabold text-[#8B5CF6] tracking-tight">
             Le {Math.round(totalLTV).toLocaleString()}
           </div>
+          <div className="text-[11px] text-[var(--muted-foreground)] mt-1">
+            <span>Cumulative revenue</span>
+          </div>
         </div>
 
-        <div className="kpi-card">
+        <div 
+          onClick={() => setViewFilter("high-value")}
+          className={cn(
+            "kpi-card cursor-pointer transition-all hover:-translate-y-0.5 select-none",
+            viewFilter === "high-value" ? "ring-2 ring-[#F59E0B] bg-[#F59E0B]/5 shadow-sm" : "hover:border-[#F59E0B]/40"
+          )}
+        >
           <div className="flex justify-between items-center mb-2.5">
             <span className="text-xs text-[var(--muted-foreground)] font-medium">High-Value Clients</span>
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#F59E0B]/10 text-[#F59E0B]">
@@ -292,19 +351,101 @@ export default function CustomersPage() {
           <div className="font-display text-2xl font-extrabold text-[#F59E0B] tracking-tight">
             {highValueCustomers}
           </div>
+          <div className="text-[11px] text-[var(--muted-foreground)] mt-1 flex items-center justify-between">
+            <span>Spend &gt; Le 1,000</span>
+            {viewFilter === "high-value" && <span className="text-[10px] text-[#F59E0B] font-bold">Filtering</span>}
+          </div>
         </div>
       </div>
 
-      {/* ── Toolbar: Search ── */}
-      <div className="card p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="relative flex-1 w-full max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
-          <input
-            placeholder="Search by customer name, phone, or email..."
-            className="input-field pl-10 w-full text-xs font-medium"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+      {/* ── Toolbar: Search & Quick Filter Chips ── */}
+      <div className="card p-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div className="relative flex-1 w-full max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+            <input
+              placeholder="Search by customer name, phone, or email..."
+              className="input-field pl-10 w-full text-xs font-medium"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+            <span className="text-xs font-medium text-[var(--muted-foreground)] flex items-center gap-1 shrink-0">
+              <Filter size={13} /> Filter:
+            </span>
+            <button
+              onClick={() => setViewFilter("all")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0",
+                viewFilter === "all"
+                  ? "bg-[#2563EB] text-white shadow-sm"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              )}
+            >
+              All ({customers.length})
+            </button>
+            <button
+              onClick={() => setViewFilter("active")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0",
+                viewFilter === "active"
+                  ? "bg-[#10B981] text-white shadow-sm"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              )}
+            >
+              Active Registry ({activeCustomers})
+            </button>
+            <button
+              onClick={() => setViewFilter("inactive")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0",
+                viewFilter === "inactive"
+                  ? "bg-slate-700 text-white shadow-sm"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              )}
+            >
+              Inactive ({inactiveCustomers})
+            </button>
+            <button
+              onClick={() => setViewFilter("high-value")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-semibold transition-all shrink-0",
+                viewFilter === "high-value"
+                  ? "bg-[#F59E0B] text-white shadow-sm"
+                  : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+              )}
+            >
+              High-Value ({highValueCustomers})
+            </button>
+            {(viewFilter !== "all" || searchQuery) && (
+              <button
+                onClick={() => {
+                  setViewFilter("all");
+                  setSearchQuery("");
+                }}
+                className="px-2.5 py-1.5 rounded-full text-xs font-semibold text-rose-500 hover:bg-rose-500/10 transition-all flex items-center gap-1 shrink-0"
+              >
+                <RotateCcw size={12} /> Reset
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Status Line */}
+        <div className="flex items-center justify-between text-[11.5px] text-[var(--muted-foreground)] pt-1 border-t border-[var(--border)]/50">
+          <div>
+            Showing <strong className="text-[var(--foreground)]">{filteredCustomers.length}</strong> of {customers.length} customer records
+            {viewFilter !== "all" && (
+              <span className="ml-1.5 px-2 py-0.5 rounded-md text-[10.5px] font-medium bg-[var(--muted)]">
+                Filter: <span className="capitalize font-semibold text-[var(--foreground)]">{viewFilter === "active" ? "Active Registry" : viewFilter}</span>
+              </span>
+            )}
+          </div>
+          {filteredCustomers.length === 0 && (
+            <span className="text-amber-500 font-medium">No matching customers for this filter</span>
+          )}
         </div>
       </div>
 

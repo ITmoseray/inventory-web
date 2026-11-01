@@ -11,7 +11,7 @@ export async function getCustomers() {
     if (!session?.user?.businessId) throw new Error("Unauthorized");
 
     const customers = await prisma.customer.findMany({
-      where: { businessId: session.user.businessId },
+      where: { businessId: session.user.businessId, deletedAt: null },
       include: { sales: { select: { totalAmount: true } } },
       orderBy: { createdAt: "desc" },
     });
@@ -22,6 +22,7 @@ export async function getCustomers() {
         ...c,
         sales: undefined, // remove raw sales array from response payload
         totalSpend,
+        ordersCount: c.sales.length,
         createdAt: c.createdAt.toISOString(),
         updatedAt: c.updatedAt.toISOString(),
       };

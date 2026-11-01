@@ -36,8 +36,12 @@ export async function getDashboardStats() {
       topItems,
       topStaffSales,
       customerCount,
+      newCustomersThisMonth,
+      activeCustomersCount,
+      newSkusThisMonth,
       outstandingCreditData,
       monthlyExpensesData,
+      lastMonthExpensesData,
       monthlyRevenueData,
       categoryDistributionData,
       lowStockProductsData
@@ -186,9 +190,32 @@ export async function getDashboardStats() {
         orderBy: { _sum: { totalAmount: 'desc' } },
         take: 5
       }),
-      // Customer Count
+      // Customer Count (Active, non-deleted)
       prisma.customer.count({
-        where: { businessId }
+        where: { businessId, deletedAt: null }
+      }),
+      // New Customers registered this month
+      prisma.customer.count({
+        where: {
+          businessId,
+          deletedAt: null,
+          createdAt: { gte: startOfMonth(today) }
+        }
+      }),
+      // Active Customers with at least 1 order/sale
+      prisma.customer.count({
+        where: {
+          businessId,
+          deletedAt: null,
+          sales: { some: {} }
+        }
+      }),
+      // New SKUs created this month
+      prisma.product.count({
+        where: {
+          businessId,
+          createdAt: { gte: startOfMonth(today) }
+        }
       }),
       // Outstanding Credit (Pending Debts)
       prisma.debt.aggregate({
@@ -198,6 +225,17 @@ export async function getDashboardStats() {
       // Monthly Expenses
       prisma.expense.aggregate({
         where: { businessId, createdAt: { gte: startOfMonth(today) } },
+        _sum: { amount: true }
+      }),
+      // Last Month's Expenses
+      prisma.expense.aggregate({
+        where: {
+          businessId,
+          createdAt: {
+            gte: startOfMonth(subDays(startOfMonth(today), 1)),
+            lt: startOfMonth(today)
+          }
+        },
         _sum: { amount: true }
       }),
       // Monthly Revenue
@@ -263,6 +301,10 @@ export async function getDashboardStats() {
     const yesterdayRevenue = Number(yesterdayRevenueData._sum.totalAmount?.toString() || 0) + Number(yesterdayDebtPaymentData._sum.amount?.toString() || 0);
     const monthlyRevenue = Number(monthlyRevenueData._sum.totalAmount?.toString() || 0);
     const monthlyExpenses = Number(monthlyExpensesData._sum.amount?.toString() || 0);
+    const lastMonthExpenses = Number(lastMonthExpensesData._sum.amount?.toString() || 0);
+    const expensesChange = lastMonthExpenses === 0
+      ? (monthlyExpenses > 0 ? 100 : 0)
+      : ((monthlyExpenses - lastMonthExpenses) / lastMonthExpenses) * 100;
     const netProfit = monthlyRevenue - monthlyExpenses;
     const profitMargin = monthlyRevenue > 0 ? ((netProfit / monthlyRevenue) * 100).toFixed(1) : "0.0";
     const totalOutstandingCredit = Math.max(0, Number(outstandingCreditData._sum.totalAmount?.toString() || 0) - Number(outstandingCreditData._sum.paidAmount?.toString() || 0));
@@ -294,14 +336,18 @@ export async function getDashboardStats() {
       orders: todayOrdersCount, // "Today's Orders" now correctly reflects today's count!
       ordersChange,
       skuCount,
+      newSkusThisMonth,
       lowStock: lowStockCount[0]?.count || 0,
       overStock: overStockCount[0]?.count || 0,
       expiringItems: expiringCount,
       activeTransactions: todayOrdersCount, // Using today's active orders
       staffCount,
       customerCount: customerCount || 0,
+      newCustomersThisMonth,
+      activeCustomersCount,
       outstandingCredit: totalOutstandingCredit,
       monthlyExpenses,
+      expensesChange,
       netProfit,
       profitMargin,
       topProducts,
