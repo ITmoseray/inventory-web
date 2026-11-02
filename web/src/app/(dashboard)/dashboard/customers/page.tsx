@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { 
   Plus, Pencil, Trash2, MoreVertical, Users, Search, Phone, Mail, MapPin,
   ChevronDown, UserPlus, FileDown, Globe, Database, CreditCard, Clock,
-  ArrowRight, CheckCircle2, MessageSquare, Briefcase, Info, ShieldCheck, X
+  ArrowRight, CheckCircle2, MessageSquare, Briefcase, Info, ShieldCheck, X,
+  Filter, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

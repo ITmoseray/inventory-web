@@ -591,13 +591,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const businessTypes = businessTypesString.split(',').filter(t => t !== "");
   const businessType = businessTypes[0] || "SHOP"; 
   
-  console.log("DEBUG Sidebar Session:", {
-     status,
-     role: session?.user?.role,
-     businessType: session?.user?.businessType,
-     permissionsCount: session?.user?.permissions?.length || 0,
-     permissionsJson: JSON.stringify(session?.user?.permissions || [])
-  });
 
   const isSimpleMode = (session?.user as any)?.businessManagementMode === "SIMPLE_SALES_PROFIT";
 
@@ -722,7 +715,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     }).filter(group => group.items.length > 0);
   }, [navGroups, canAccess, status]);
 
-  console.log("DEBUG Sidebar: Filtered Groups count:", filteredNavGroups.length);
 
   React.useEffect(() => {
     setMounted(true);

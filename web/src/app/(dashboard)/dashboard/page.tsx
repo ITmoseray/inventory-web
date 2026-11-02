@@ -167,6 +167,7 @@ export default function DashboardPage() {
     departmentDistribution: [] as any[]
   });
   const [loading, setLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Getting Started State
   const [setupProgress, setSetupProgress] = useState(0);
@@ -197,6 +198,10 @@ export default function DashboardPage() {
 
   const businessType = session?.user?.businessType || "SHOP";
   const colors = getIndustryColor(businessType);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     if (session?.user?.businessType === "SCHOOL") {
@@ -371,17 +376,17 @@ export default function DashboardPage() {
            </div>
            <div>
               <div className="flex items-center gap-2">
-                 <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-                    {activeTab === "Dashboard" ? getGreeting() : activeTab}
+                 <h1 suppressHydrationWarning className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
+                    {isMounted && activeTab === "Dashboard" ? getGreeting() : activeTab}
                  </h1>
                  <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50">
                     Live Node
                  </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 flex items-center gap-1.5">
-                 <span>{format(currentTime, "EEEE, MMMM do, yyyy")}</span>
+              <p suppressHydrationWarning className="text-xs text-slate-500 dark:text-slate-400 font-medium mt-0.5 flex items-center gap-1.5">
+                 <span suppressHydrationWarning>{format(currentTime, "EEEE, MMMM do, yyyy")}</span>
                  <span className="h-1 w-1 rounded-full bg-slate-300 dark:bg-slate-700" />
-                 <span className="font-mono text-indigo-600 dark:text-indigo-400">{format(currentTime, "hh:mm:ss a")}</span>
+                 <span suppressHydrationWarning className="font-mono text-indigo-600 dark:text-indigo-400">{format(currentTime, "hh:mm:ss a")}</span>
               </p>
            </div>
         </div>
@@ -630,8 +635,8 @@ export default function DashboardPage() {
                         ))}
                       </div>
                     </div>
-                    <div className="h-[220px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[220px] w-full min-w-0">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                         <BarChart data={[
                           { month: "Aug", revenue: Math.round((stats.monthlyRevenue || stats.revenue || 50000) * 0.75), expenses: Math.round((stats.monthlyExpenses || 25000) * 0.8), profit: Math.round((stats.monthlyRevenue || stats.revenue || 50000) * 0.75 - (stats.monthlyExpenses || 25000) * 0.8) },
                           { month: "Sep", revenue: Math.round((stats.monthlyRevenue || stats.revenue || 50000) * 0.82), expenses: Math.round((stats.monthlyExpenses || 25000) * 0.85), profit: Math.round((stats.monthlyRevenue || stats.revenue || 50000) * 0.82 - (stats.monthlyExpenses || 25000) * 0.85) },
@@ -657,8 +662,8 @@ export default function DashboardPage() {
                       <h3 className="font-display text-[15px] font-bold mb-1">Sales by Category</h3>
                       <div className="text-xs text-muted-foreground mb-4">Current distribution</div>
                     </div>
-                    <div className="h-[140px] w-full">
-                      <ResponsiveContainer width="100%" height="100%">
+                    <div className="h-[140px] w-full min-w-0">
+                      <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
                         <PieChart>
                           <Pie data={stats.categoryData?.length ? stats.categoryData : [
                             { name: 'Beverages', value: 34, color: '#2563EB' },
