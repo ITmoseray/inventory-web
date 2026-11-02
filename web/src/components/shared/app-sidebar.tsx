@@ -136,9 +136,16 @@ const SidebarContentRenderer = ({
             <Link 
               href="/dashboard" 
               title="Inventory OS — ProTech Assist"
-              className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform shrink-0"
+              className="relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-slate-900 border border-white/10 shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform shrink-0 p-1"
             >
-              <Store className="w-4 h-4 text-white" />
+              <Image 
+                src="/images/PA.png" 
+                alt="ProTech Assist Logo" 
+                width={28} 
+                height={28} 
+                className="object-contain" 
+                priority 
+              />
             </Link>
 
             {/* 2. Business Logo Badge */}
@@ -183,8 +190,15 @@ const SidebarContentRenderer = ({
                 className="flex items-center gap-2.5 min-w-0" 
                 onClick={() => setOpenMobile(false)}
               >
-                <div className="relative flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#2563EB] to-[#0EA5E9] shadow-md shadow-blue-500/20">
-                  <Store className="w-4 h-4 text-white" />
+                <div className="relative flex aspect-square size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-slate-900 border border-white/10 shadow-md shadow-blue-500/20 p-0.5">
+                  <Image 
+                    src="/images/PA.png" 
+                    alt="ProTech Assist Logo" 
+                    width={28} 
+                    height={28} 
+                    className="object-contain" 
+                    priority 
+                  />
                 </div>
                 <div className="relative flex flex-col leading-none transition-all duration-300 min-w-0">
                   <span className="font-display font-bold text-[13.5px] text-white tracking-tight truncate">
@@ -224,11 +238,13 @@ const SidebarContentRenderer = ({
                         unoptimized 
                       />
                     ) : (
-                      <div className="flex items-center justify-center h-full w-full bg-gradient-to-br from-blue-600 to-indigo-600 text-white font-bold text-xs uppercase">
-                        {(businessContext?.name && businessContext.name !== "Loading...")
-                          ? businessContext.name.charAt(0).toUpperCase()
-                          : (session?.user?.businessName ? session.user.businessName.charAt(0).toUpperCase() : <Building2 className="h-3.5 w-3.5 text-white" />)}
-                      </div>
+                      <Image 
+                        src="/images/PA.png" 
+                        alt="Logo" 
+                        fill 
+                        className="object-contain p-0.5" 
+                        unoptimized 
+                      />
                     )}
                     <div className="absolute bottom-0.5 right-0.5 h-1.5 w-1.5 rounded-full bg-emerald-500 ring-1 ring-[#0B1629] animate-pulse" />
                   </div>

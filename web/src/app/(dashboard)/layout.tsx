@@ -16,6 +16,7 @@ import { GlobalSearch } from "@/components/shared/global-search";
 import { AnnouncementBanner } from "@/components/shared/announcement-banner";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BlockScreenSignout } from "@/components/shared/block-screen-signout";
@@ -204,8 +205,18 @@ export default async function DashboardLayout({
           <TrialBanner />
           <AnnouncementBanner />
           <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-white/80 dark:bg-[#0F1E38]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-6 md:px-8 transition-all">
-            <div className="flex items-center gap-4 flex-1 min-w-0">
+            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
               <SidebarTrigger className="flex-shrink-0" />
+              <Link href="/dashboard" className="sm:hidden flex items-center gap-2 shrink-0" title="ProTech Assist">
+                <Image 
+                  src="/images/PA.png" 
+                  alt="ProTech Assist Logo" 
+                  width={28} 
+                  height={28} 
+                  className="rounded-lg object-contain" 
+                  priority 
+                />
+              </Link>
               <div className="hidden sm:block min-w-0">
                 <h1 className="font-display text-[17px] font-bold text-foreground leading-tight truncate">
                   Dashboard
