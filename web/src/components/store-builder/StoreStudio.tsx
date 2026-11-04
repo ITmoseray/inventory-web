@@ -1087,7 +1087,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
             )}
 
             {/* Live Storefront Preview */}
-            <StoreThemeWrapper theme={theme}>
+            <StoreThemeWrapper theme={theme} viewport={device}>
               <StoreHeader
                 storeName={store.name}
                 storeSlug={store.slug}

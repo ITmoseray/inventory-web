@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { StoreSection, StoreTheme, StoreNavigation } from "@/types/store-builder";
+import { useStoreViewport } from "../StoreThemeWrapper";
 
 interface Props {
   section: StoreSection;
@@ -17,17 +18,19 @@ interface Props {
 export function FooterSection({ section, theme, storeName, storeSlug, contactEmail, contactPhone }: Props) {
   const content = section.content || {};
   const currentYear = new Date().getFullYear();
+  const viewport = useStoreViewport();
+  const isMobile = viewport === "mobile";
 
   return (
     <footer 
-      className="mt-16 pt-16 pb-12 px-4 border-t"
+      className={`border-t ${isMobile ? "mt-8 pt-8 pb-10 px-3.5" : "mt-16 pt-16 pb-12 px-4"}`}
       style={{
         backgroundColor: theme.colors.footerBg || "#0F172A",
         color: theme.colors.footerText || "#F8FAFC",
         borderColor: "rgba(255,255,255,0.08)",
       }}
     >
-      <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div className={`max-w-7xl mx-auto grid gap-6 sm:gap-8 mb-8 sm:mb-12 ${isMobile ? "grid-cols-1" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"}`}>
         <div className="space-y-3">
           <h3 className="font-black text-lg tracking-tight text-white">{storeName}</h3>
           <p className="text-xs text-white/70 leading-relaxed max-w-sm">

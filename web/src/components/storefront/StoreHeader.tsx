@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ShoppingBag, MessageCircle, Menu, X, ShieldCheck } from "lucide-react";
 import { StoreTheme, StoreNavigation, normalizeStoreTheme } from "@/types/store-builder";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
+import { useStoreViewport } from "./StoreThemeWrapper";
 
 interface Props {
   storeName: string;
@@ -25,8 +26,10 @@ export function StoreHeader({
   navigation,
   viewport,
 }: Props) {
-  const isForcedMobile = viewport === "mobile";
-  const isForcedDesktop = viewport === "desktop";
+  const contextViewport = useStoreViewport();
+  const effectiveViewport = viewport || contextViewport;
+  const isForcedMobile = effectiveViewport === "mobile";
+  const isForcedDesktop = effectiveViewport === "desktop";
 
   const theme = normalizeStoreTheme(rawTheme);
   const c = theme.colors;
@@ -73,23 +76,23 @@ export function StoreHeader({
       >
         <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between gap-2.5 sm:gap-3">
           {/* Logo & Brand Name */}
-          <Link href={`/store/${storeSlug}`} className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
+          <Link href={`/store/${storeSlug}`} className="flex items-center gap-2 sm:gap-3 group min-w-0 max-w-[65%] sm:max-w-none">
             {logoUrl ? (
               <img 
                 src={logoUrl} 
                 alt={storeName} 
-                className="h-8 sm:h-11 w-auto max-w-[120px] rounded-xl object-contain shadow-sm flex-shrink-0" 
+                className={`${isForcedMobile ? "h-7 max-w-[100px]" : "h-8 sm:h-11 max-w-[120px]"} w-auto rounded-xl object-contain shadow-sm flex-shrink-0`} 
               />
             ) : (
               <div 
-                className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl flex items-center justify-center font-black text-xs sm:text-sm text-white shadow-md group-hover:scale-105 transition-transform flex-shrink-0"
+                className={`${isForcedMobile ? "w-8 h-8 text-[11px]" : "w-9 h-9 sm:w-11 sm:h-11 text-xs sm:text-sm"} rounded-xl flex items-center justify-center font-black text-white shadow-md group-hover:scale-105 transition-transform flex-shrink-0`}
                 style={{ backgroundColor: c.primary }}
               >
                 {storeName.slice(0, 2).toUpperCase()}
               </div>
             )}
             <span 
-              className="font-black text-sm sm:text-lg lg:text-xl tracking-tight leading-tight truncate max-w-[140px] xs:max-w-[200px] sm:max-w-xs md:max-w-md" 
+              className={`font-black tracking-tight leading-tight truncate ${isForcedMobile ? "text-xs xs:text-sm max-w-[140px]" : "text-sm sm:text-lg lg:text-xl max-w-[140px] xs:max-w-[200px] sm:max-w-xs md:max-w-md"}`} 
               style={{ color: c.text }}
             >
               {storeName}
@@ -113,7 +116,7 @@ export function StoreHeader({
           )}
 
           {/* Header Action Controls */}
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className={`flex items-center flex-shrink-0 ${isForcedMobile ? "gap-1.5" : "gap-2 sm:gap-3"}`}>
             {waUrl && !isForcedMobile && (
               <a
                 href={waUrl}
@@ -130,7 +133,9 @@ export function StoreHeader({
             {/* Shopping Cart Drawer Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative p-2 sm:p-2.5 rounded-xl border transition-all hover:scale-105 active:scale-95 flex items-center justify-center shadow-sm"
+              className={`relative rounded-xl border transition-all hover:scale-105 active:scale-95 flex items-center justify-center shadow-sm ${
+                isForcedMobile ? "p-1.5" : "p-2 sm:p-2.5"
+              }`}
               style={{
                 backgroundColor: c.surface,
                 borderColor: "rgba(0,0,0,0.1)",
@@ -138,7 +143,7 @@ export function StoreHeader({
               }}
               title="Open Shopping Cart"
             >
-              <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
+              <ShoppingBag className={`${isForcedMobile ? "w-4 h-4" : "w-4 h-4 sm:w-5 sm:h-5"}`} />
               {totalItems > 0 && (
                 <span 
                   className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full text-[10px] font-black flex items-center justify-center text-white shadow-md animate-in zoom-in-50 duration-200"
@@ -153,11 +158,15 @@ export function StoreHeader({
             {(isForcedMobile || !isForcedDesktop) && (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className={`${isForcedMobile ? "flex" : "md:hidden flex"} p-2 rounded-xl border items-center justify-center text-slate-700 dark:text-slate-300 transition-all`}
+                className={`${isForcedMobile ? "flex p-1.5" : "md:hidden flex p-2"} rounded-xl border items-center justify-center text-slate-700 dark:text-slate-300 transition-all`}
                 style={{ backgroundColor: c.surface, borderColor: "rgba(0,0,0,0.1)" }}
                 aria-label="Toggle navigation menu"
               >
-                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                {mobileMenuOpen ? (
+                  <X className={`${isForcedMobile ? "w-4 h-4" : "w-5 h-5"}`} />
+                ) : (
+                  <Menu className={`${isForcedMobile ? "w-4 h-4" : "w-5 h-5"}`} />
+                )}
               </button>
             )}
           </div>

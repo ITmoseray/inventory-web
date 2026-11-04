@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { ShoppingBag, Eye, Tag } from "lucide-react";
 import { StoreSection, StoreTheme, normalizeStoreProduct } from "@/types/store-builder";
+import { useStoreViewport } from "../StoreThemeWrapper";
 import { useStoreCart } from "@/lib/store-builder/cart-store";
 import { toast } from "sonner";
 
@@ -66,6 +67,9 @@ export function ProductGridSection({
     toast.success(`Added "${prod.name}" to cart!`);
   };
 
+  const viewport = useStoreViewport();
+  const isMobile = viewport === "mobile";
+
   return (
     <section id="products" className="py-10 sm:py-20 px-3.5 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
       {/* Section Header */}
@@ -124,14 +128,14 @@ export function ProductGridSection({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
+        <div className={`grid gap-2.5 sm:gap-6 ${isMobile ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`}>
           {filtered.map(prod => {
             const hasDiscount = prod.originalPrice && prod.originalPrice > prod.price;
             const discountPct = hasDiscount 
               ? Math.round(((prod.originalPrice! - prod.price) / prod.originalPrice!) * 100) 
               : null;
 
-            return (
+  return (
               <div
                 key={prod.id}
                 className="group relative rounded-2xl border transition-all duration-300 hover:shadow-xl flex flex-col justify-between overflow-hidden bg-white dark:bg-slate-900/90"

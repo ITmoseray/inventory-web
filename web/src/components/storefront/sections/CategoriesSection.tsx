@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { LayoutGrid, ArrowRight } from "lucide-react";
 import { StoreSection, StoreTheme, normalizeStoreProduct } from "@/types/store-builder";
+import { useStoreViewport } from "../StoreThemeWrapper";
 
 interface Props {
   section: StoreSection;
@@ -21,10 +22,13 @@ export function CategoriesSection({ section, theme, storeSlug, products = [] }: 
   const templateCategories: Array<{ name: string; count?: string; image?: string; imageUrl?: string }> = 
     content.categories || [];
 
+  const viewport = useStoreViewport();
+  const isMobile = viewport === "mobile";
+
   if (templateCategories.length > 0) {
     return (
-      <section id="categories" className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="text-center max-w-xl mx-auto mb-8 sm:mb-12 space-y-2">
+      <section id="categories" className="py-8 sm:py-16 px-3.5 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div className="text-center max-w-xl mx-auto mb-6 sm:mb-12 space-y-2">
           <h2 className="text-2xl sm:text-4xl font-black tracking-tight" style={{ color: theme.colors.text }}>
             {title}
           </h2>
@@ -34,7 +38,7 @@ export function CategoriesSection({ section, theme, storeSlug, products = [] }: 
         </div>
 
         {/* Editorial Visual Category Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
+        <div className={`grid gap-2.5 sm:gap-6 ${isMobile ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-2 lg:grid-cols-4"}`}>
           {templateCategories.map((cat, idx) => {
             const img = cat.image || cat.imageUrl || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&auto=format&fit=crop&q=80";
 

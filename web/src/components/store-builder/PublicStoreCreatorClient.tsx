@@ -584,7 +584,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                     : "rounded-2xl"
                 }`}
               >
-                <StoreThemeWrapper theme={normalizeStoreTheme(generatedStore.theme)}>
+                <StoreThemeWrapper theme={normalizeStoreTheme(generatedStore.theme)} viewport={viewport}>
                   <StoreHeader 
                     storeName={generatedStore.name} 
                     storeSlug={generatedStore.slug || "preview"}

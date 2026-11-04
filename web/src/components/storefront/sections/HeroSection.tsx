@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { ShoppingBag, MessageCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import { StoreSection, StoreTheme } from "@/types/store-builder";
+import { useStoreViewport } from "../StoreThemeWrapper";
 
 interface Props {
   section: StoreSection;
@@ -38,7 +39,9 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
     { label: "Customer Rating", value: "4.9 ★" },
   ];
 
-  const isSplitLayout = settings.alignment === "left" || (stats && stats.length > 0 && settings.alignment !== "center");
+  const viewport = useStoreViewport();
+  const isMobile = viewport === "mobile";
+  const isSplitLayout = !isMobile && (settings.alignment === "left" || (stats && stats.length > 0 && settings.alignment !== "center"));
 
   return (
     <section className="relative overflow-hidden min-h-[440px] sm:min-h-[580px] lg:min-h-[660px] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-24">
