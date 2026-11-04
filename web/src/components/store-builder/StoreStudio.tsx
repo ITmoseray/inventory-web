@@ -1,12 +1,12 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { 
   Laptop, Tablet, Smartphone, Save, Globe, Eye, EyeOff, 
   Trash2, ChevronUp, ChevronDown, Plus, Wand2, X, Check, ArrowRight,
   Palette, Layout, Settings, RefreshCw, ShoppingBag, Layers, ExternalLink,
   RotateCcw, RotateCw, Upload, Image as ImageIcon, FileText, Menu, Phone,
-  Tag, Sliders, CheckCircle2, Rocket, Crown
+  Tag, Sliders, CheckCircle2, Rocket, Crown, Copy
 } from "lucide-react";
 import { 
   StoreSection, 
@@ -110,6 +110,40 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
   const bgImageInputRef = useRef<HTMLInputElement>(null);
   const featureImageInputRef = useRef<HTMLInputElement>(null);
   const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const [saveStatus, setSaveStatus] = useState<"saved" | "saving" | "unsaved">("saved");
+  const isFirstRender = useRef(true);
+
+  // Autosave to cloud with debounce and local storage backup
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    setSaveStatus("unsaved");
+
+    // Persist draft to local storage for recovery
+    try {
+      localStorage.setItem(`protech_store_draft_${store.id}`, JSON.stringify({
+        sections,
+        theme,
+        timestamp: Date.now()
+      }));
+    } catch {}
+
+    const timer = setTimeout(async () => {
+      setSaveStatus("saving");
+      try {
+        await updateStoreConfig({ themeConfig: theme });
+        await updateStorePageSections("home", sections);
+        setSaveStatus("saved");
+      } catch {
+        setSaveStatus("unsaved");
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [sections, theme, store.id]);
 
   const selectedSection = sections.find((s) => s.id === selectedSectionId);
 
@@ -238,6 +272,26 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
     }
     pushState(updated, theme);
     toast.success("Section removed");
+  };
+
+  const duplicateSection = (id: string) => {
+    const index = sections.findIndex(s => s.id === id);
+    if (index === -1) return;
+    const target = sections[index];
+    const newSection: StoreSection = {
+      ...JSON.parse(JSON.stringify(target)),
+      id: `sec-${target.type}-${Date.now()}`,
+      order: index + 1
+    };
+    const updated = [
+      ...sections.slice(0, index + 1),
+      newSection,
+      ...sections.slice(index + 1)
+    ].map((s, idx) => ({ ...s, order: idx }));
+    setSections(updated);
+    setSelectedSectionId(newSection.id);
+    pushState(updated, theme);
+    toast.success(`Duplicated "${target.type}" section!`);
   };
 
   const addSection = (template: typeof SECTION_TEMPLATES[0]) => {
@@ -553,6 +607,28 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
             <span className="hidden sm:inline">Ask AI</span>
           </button>
 
+          {/* Autosave Status Pill */}
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-slate-800 bg-slate-950/80">
+            {saveStatus === "saved" && (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <span className="text-emerald-400">Saved</span>
+              </>
+            )}
+            {saveStatus === "saving" && (
+              <>
+                <RefreshCw className="w-2.5 h-2.5 text-indigo-400 animate-spin" />
+                <span className="text-indigo-400">Autosaving</span>
+              </>
+            )}
+            {saveStatus === "unsaved" && (
+              <>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+                <span className="text-amber-400">Unsaved</span>
+              </>
+            )}
+          </div>
+
           {/* Save Button */}
           <button
             onClick={handleSave}
@@ -720,6 +796,13 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                           title={sec.visible ? "Hide section" : "Show section"}
                         >
                           {sec.visible ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); duplicateSection(sec.id); }}
+                          className="p-1 hover:bg-slate-800 text-slate-300 hover:text-white rounded"
+                          title="Duplicate section"
+                        >
+                          <Copy className="w-3 h-3" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); removeSection(sec.id); }}

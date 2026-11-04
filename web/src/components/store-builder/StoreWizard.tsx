@@ -19,19 +19,16 @@ interface Props {
 }
 
 const QUICK_TEMPLATES = [
-  { id: "fashion", icon: "👗", label: "Fashion & Apparel", prompt: "I sell men's and women's fashion, shoes and handbags in Freetown. Build me a premium online store with WhatsApp ordering." },
-  { id: "electronics", icon: "📱", label: "Tech & Phones", prompt: "I sell original smartphones, laptops, audio gadgets and accessories in Freetown with authentic warranty." },
-  { id: "grocery", icon: "🛒", label: "Supermarket & Groceries", prompt: "We offer fresh farm produce, groceries, provisions and household essentials with same-day local delivery." },
-  { id: "restaurant", icon: "🍔", label: "Restaurant & Food", prompt: "We prepare hot delicious local and continental meals, pastries, and drinks for quick pickup and delivery." },
-  { id: "pharmacy", icon: "💊", label: "Pharmacy & Wellness", prompt: "Licensed pharmacy selling verified prescription medicines, vitamins, baby care and wellness products." },
-  { id: "hardware", icon: "🔨", label: "Hardware & Tools", prompt: "We supply building materials, power tools, electricals, plumbing supplies and paint across Sierra Leone." },
-  { id: "beauty", icon: "💄", label: "Beauty & Cosmetics", prompt: "Boutique selling authentic skincare, cosmetics, luxury fragrances and hair beauty products." },
-  { id: "furniture", icon: "🛋️", label: "Furniture & Decor", prompt: "Handcrafted living room sofas, dining sets, office desks and stylish home interior furnishings." },
-  { id: "services", icon: "✂️", label: "Services & Salon", prompt: "Professional salon styling, hair care treatments, and home beauty service appointments." },
-  { id: "corporate", icon: "💼", label: "Corporate & Supplies", prompt: "Enterprise office supplies, business equipment, printing stationery and corporate procurement." },
-  { id: "school", icon: "🎓", label: "School & Education", prompt: "Official school uniforms, textbooks, educational stationery and learning equipment." },
-  { id: "ngo", icon: "🤝", label: "NGO & Community", prompt: "Non-profit community foundation selling artisan craftwork and supporting local youth empowerment." },
-  { id: "general", icon: "🏬", label: "General Merchandise", prompt: "General retail store offering diverse daily goods, household items, and gifts at competitive prices." },
+  { id: "fashion", icon: "👗", label: "Women's Fashion & Bags", prompt: "A chic boutique selling elegant women's dresses, handbags, shoes, and luxury jewelry in Freetown with WhatsApp ordering." },
+  { id: "electronics", icon: "📱", label: "Phones & Tech Gadgets", prompt: "An electronics store selling brand-new smartphones, laptops, audio gadgets, smartwatches, and accessories with authentic warranty." },
+  { id: "grocery", icon: "🥦", label: "Fresh Farm Grocery", prompt: "Fresh farm market delivering local produce, fresh vegetables, rice, cooking oils, and daily groceries with same-day delivery." },
+  { id: "restaurant", icon: "🍔", label: "Restaurants & Fast Food", prompt: "A lively restaurant offering hot delicious meals, burgers, grilled chicken, fresh juices, and quick takeaway ordering." },
+  { id: "beauty", icon: "💄", label: "Beauty & Cosmetics", prompt: "A luxury cosmetics shop offering verified skincare serums, lipsticks, fragrances, wig care, and beauty essentials." },
+  { id: "pharmacy", icon: "💊", label: "Health & Pharmacy", prompt: "Licensed community pharmacy offering verified prescription medicines, vitamins, wellness products, and baby care." },
+  { id: "hardware", icon: "🔨", label: "Hardware & Tools", prompt: "Quality building materials, electrical supplies, power tools, plumbing fixtures, and paints with instant quote requests." },
+  { id: "furniture", icon: "🛋️", label: "Furniture & Home Decor", prompt: "Handcrafted modern sofas, wooden dining sets, ergonomic office desks, and stylish home interior furnishings." },
+  { id: "general", icon: "🏬", label: "General Retail", prompt: "General merchandise retail store offering diverse everyday household products, gifts, and essentials at competitive prices." },
+  { id: "other", icon: "✨", label: "Other Business Types", prompt: "A modern commercial business providing premium quality goods and bespoke client services with swift local doorstep delivery." },
 ];
 
 export function StoreWizard({ 

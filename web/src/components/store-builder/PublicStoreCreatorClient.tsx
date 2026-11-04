@@ -4,7 +4,8 @@ import React, { useState } from "react";
 import { 
   Wand2, ArrowRight, CheckCircle2, Globe, RefreshCw, 
   Laptop, Tablet, Smartphone, Check, ShoppingBag, X, Phone, Lock, 
-  Mail, User, ExternalLink, ShieldCheck, ChevronRight, Eye
+  Mail, User, ExternalLink, ShieldCheck, ChevronRight, Eye, Search,
+  Palette, SlidersHorizontal, Sparkles, AlertCircle
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -18,14 +19,104 @@ import { SectionRenderer } from "@/components/storefront/SectionRenderer";
 import { STARTER_TEMPLATES } from "@/lib/store-builder/starter-templates";
 import { StoreSection, StoreTheme, normalizeStoreTheme } from "@/types/store-builder";
 
-const INSPIRATION_CHIPS = [
-  { label: "👗 Women's Fashion & Bags", prompt: "A chic boutique selling elegant women's dresses, handbags, and heels in Freetown with WhatsApp ordering." },
-  { label: "📱 Phones & Tech Gadgets", prompt: "An electronics store selling brand-new smartphones, wireless earbuds, laptops, and chargers with warranty." },
-  { label: "🥦 Fresh Farm Grocery", prompt: "Fresh food market delivering farm produce, rice, cooking oils, and daily groceries same-day." },
-  { label: "🍔 Hot Food & Burger Bar", prompt: "A lively restaurant offering juicy burgers, grilled chicken, fresh fruit juices, and quick local delivery." },
-  { label: "💄 Luxury Beauty & Makeup", prompt: "A high-end cosmetics shop offering skincare serums, lipsticks, perfumes, and beauty consultations." },
-  { label: "💊 Health & Pharmacy", prompt: "A community pharmacy offering verified medications, vitamins, baby care items, and pharmacist advice." },
-  { label: "🔨 Hardware & Tools", prompt: "Quality building materials, electrical supplies, power tools, and paints with bulk discount quotes." },
+// ── 10 REQUIRED BUSINESS CATEGORY SHORTCUTS ────────────────────────
+const CATEGORY_SHORTCUTS = [
+  { 
+    id: "fashion", 
+    label: "Women's Fashion & Bags", 
+    icon: "👗", 
+    category: "Fashion & Apparel",
+    style: "fashion",
+    prompt: "A chic boutique selling elegant women's dresses, luxury handbags, designer heels, and fine jewelry in Freetown with WhatsApp ordering." 
+  },
+  { 
+    id: "tech", 
+    label: "Phones & Tech Gadgets", 
+    icon: "📱", 
+    category: "Electronics & Tech",
+    style: "electronics",
+    prompt: "An electronics store selling brand-new smartphones, laptops, wireless earbuds, smartwatches, and accessories with authentic warranty." 
+  },
+  { 
+    id: "grocery", 
+    label: "Fresh Farm Grocery", 
+    icon: "🥦", 
+    category: "Supermarket & Grocery",
+    style: "grocery",
+    prompt: "Fresh farm market delivering local farm produce, organic vegetables, rice, cooking oils, and daily household groceries same-day." 
+  },
+  { 
+    id: "restaurant", 
+    label: "Restaurants & Fast Food", 
+    icon: "🍔", 
+    category: "Food & Restaurant",
+    style: "restaurant",
+    prompt: "A lively restaurant offering hot delicious meals, artisanal burgers, grilled chicken, fresh tropical juices, and quick local takeaway." 
+  },
+  { 
+    id: "beauty", 
+    label: "Beauty & Cosmetics", 
+    icon: "💄", 
+    category: "Beauty & Cosmetics",
+    style: "beauty",
+    prompt: "A luxury beauty boutique offering verified skincare serums, lipsticks, perfumes, wig essentials, and beauty consultations." 
+  },
+  { 
+    id: "pharmacy", 
+    label: "Health & Pharmacy", 
+    icon: "💊", 
+    category: "Health & Pharmacy",
+    style: "pharmacy",
+    prompt: "Licensed community pharmacy offering verified prescription medicines, vitamins, wellness products, and baby care essentials." 
+  },
+  { 
+    id: "hardware", 
+    label: "Hardware & Tools", 
+    icon: "🔨", 
+    category: "Automotive & Hardware",
+    style: "hardware",
+    prompt: "Quality building materials, electrical supplies, power tools, plumbing fittings, and paints with instant bulk discount quotes." 
+  },
+  { 
+    id: "furniture", 
+    label: "Furniture & Home Decor", 
+    icon: "🛋️", 
+    category: "Home & Furniture",
+    style: "furniture",
+    prompt: "Handcrafted modern sofas, dining sets, ergonomic office desks, and stylish home interior furnishings with doorstep assembly." 
+  },
+  { 
+    id: "retail", 
+    label: "General Retail", 
+    icon: "🏬", 
+    category: "General Retail",
+    style: "general",
+    prompt: "General retail store offering diverse daily household goods, electronics accessories, and gifts at competitive prices." 
+  },
+  { 
+    id: "other", 
+    label: "Other Business Types", 
+    icon: "✨", 
+    category: "Corporate & Services",
+    style: "modern",
+    prompt: "A bespoke modern commercial enterprise providing verified quality products and dedicated customer service with doorstep delivery." 
+  },
+];
+
+const STYLE_OPTIONS = [
+  { id: "modern", label: "Modern & Clean", badge: "POPULAR" },
+  { id: "luxury", label: "Luxury & Editorial", badge: "PREMIUM" },
+  { id: "minimal", label: "Minimalist", badge: "SLEEK" },
+  { id: "vibrant", label: "Vibrant & Bold", badge: "DYNAMIC" },
+  { id: "african-contemporary", label: "African Contemporary", badge: "WARM" },
+];
+
+const COLOR_PRESETS = [
+  { label: "Indigo & Cyan", primary: "#4F46E5", secondary: "#06B6D4" },
+  { label: "Rose & Ruby", primary: "#E11D48", secondary: "#BE123C" },
+  { label: "Emerald & Mint", primary: "#059669", secondary: "#10B981" },
+  { label: "Midnight Gold", primary: "#D4AF37", secondary: "#1E293B" },
+  { label: "Sunset Amber", primary: "#EA580C", secondary: "#F59E0B" },
 ];
 
 interface Props {
@@ -34,11 +125,22 @@ interface Props {
 
 export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
   const [prompt, setPrompt] = useState(initialPrompt);
+  const [businessName, setBusinessName] = useState("");
+  const [businessCategory, setBusinessCategory] = useState("Fashion & Apparel");
+  const [preferredStyle, setPreferredStyle] = useState("modern");
+  const [selectedColor, setSelectedColor] = useState("#4F46E5");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [generatedStore, setGeneratedStore] = useState<any | null>(null);
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [activeStep, setActiveStep] = useState(0);
+
+  // Template marketplace filters
+  const [tplSearch, setTplSearch] = useState("");
+  const [tplCategory, setTplCategory] = useState("All");
 
   // Claim Modal State
   const [isClaimModalOpen, setIsClaimModalOpen] = useState(false);
@@ -50,45 +152,63 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
   const [claimedResult, setClaimedResult] = useState<any | null>(null);
 
   const PROGRESS_STEPS = [
-    "Understanding your business idea & category...",
-    "Designing your brand palette & typography...",
-    "Creating your starter product catalog & prices...",
-    "Setting up 1-click WhatsApp customer ordering...",
-    "Rendering your live multi-device preview..."
+    "Analyzing your business category & target buyers...",
+    "Selecting bespoke color palette & typography hierarchy...",
+    "Creating curated starter catalog & pricing records...",
+    "Configuring WhatsApp ordering & delivery rules...",
+    "Finalizing high-converting responsive storefront preview..."
   ];
+
+  const handleShortcutClick = (shortcut: typeof CATEGORY_SHORTCUTS[0]) => {
+    setPrompt(shortcut.prompt);
+    setBusinessCategory(shortcut.category);
+    setPreferredStyle(shortcut.style);
+    toast.info(`Selected "${shortcut.label}" shortcut`);
+  };
 
   const handleGenerate = async (customPrompt?: string, templateId?: string) => {
     const finalPrompt = customPrompt !== undefined ? customPrompt : prompt;
     if (!templateId && (!finalPrompt || finalPrompt.trim().length < 5)) {
-      toast.error("Please describe your store idea in a few words.");
+      toast.error("Please describe your store idea or select a category shortcut.");
       return;
     }
 
     setIsGenerating(true);
+    setGenerationError(null);
     setGeneratedStore(null);
     setActiveStep(0);
 
-    // Step ticker
+    // Step progression ticker
     const timer = setInterval(() => {
       setActiveStep((prev) => (prev < PROGRESS_STEPS.length - 1 ? prev + 1 : prev));
-    }, 700);
+    }, 600);
 
     try {
       const res = await generateGuestStorePreviewAction({
         prompt: finalPrompt,
-        templateId: templateId || undefined
+        templateId: templateId || undefined,
+        businessName: businessName.trim() || undefined,
+        businessType: businessCategory,
+        preferredStyle: preferredStyle,
+        brandColor: selectedColor,
+        whatsappPhone: whatsappNumber.trim() || undefined
       });
 
       clearInterval(timer);
 
       if (res.success) {
         setGeneratedStore(res);
-        toast.success(`🎉 ${res.name} generated! Scroll down to preview.`);
+        if (whatsappNumber.trim()) {
+          setClaimPhone(whatsappNumber.trim());
+        }
+        toast.success(`🎉 Store "${res.name}" generated successfully! Preview below.`);
       } else {
+        setGenerationError(res.error || "Generation failed. Please try again.");
         toast.error(res.error || "Failed to generate store. Please try again.");
       }
     } catch (err: any) {
       clearInterval(timer);
+      setGenerationError(err.message || "Failed to generate store");
       toast.error(err.message || "Failed to generate store");
     } finally {
       setIsGenerating(false);
@@ -124,14 +244,14 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
           navigation: generatedStore.navigation,
           settings: generatedStore.settings,
           sampleProducts: generatedStore.sampleProducts,
-          whatsappPhone: claimPhone,
+          whatsappPhone: claimPhone || whatsappNumber || undefined,
           templateId: selectedTemplateId || undefined
         },
         userData: {
           name: claimName,
           email: claimEmail,
           password: claimPassword,
-          phone: claimPhone
+          phone: claimPhone || whatsappNumber || undefined
         }
       });
 
@@ -148,6 +268,16 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
     }
   };
 
+  // Filter templates in the gallery
+  const filteredTemplates = STARTER_TEMPLATES.filter(tpl => {
+    const matchesCat = tplCategory === "All" || tpl.category.toLowerCase() === tplCategory.toLowerCase();
+    const matchesSearch = !tplSearch.trim() || 
+      tpl.name.toLowerCase().includes(tplSearch.toLowerCase()) ||
+      tpl.description.toLowerCase().includes(tplSearch.toLowerCase()) ||
+      tpl.tags.some(t => t.toLowerCase().includes(tplSearch.toLowerCase()));
+    return matchesCat && matchesSearch;
+  });
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
       {/* ── TOP NAV ─────────────────────────────────────────── */}
@@ -155,11 +285,11 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-black shadow-sm">
-              
+              <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <span className="font-black text-sm tracking-tight">ProTech</span>{" "}
-              <span className="text-primary font-bold text-xs">AI Store Creator</span>
+              <span className="font-black text-sm tracking-tight">ProTech Assist</span>{" "}
+              <span className="text-primary font-bold text-xs">AI Store Builder</span>
             </div>
           </Link>
 
@@ -174,7 +304,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
               href="/register"
               className="text-xs font-bold px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
             >
-              Sign Up Free
+              Create Account
             </Link>
           </div>
         </div>
@@ -186,8 +316,8 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
         {/* ── HERO HEADER ────────────────────────────────────── */}
         <div className="text-center space-y-4 max-w-3xl mx-auto">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-black uppercase tracking-wider shadow-sm">
-            
-            100% Free • No Shop Account or Credit Card Required
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            100% Free — No Shop Account or Credit Card Required
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-foreground leading-[1.1]">
@@ -195,102 +325,193 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
           </h1>
 
           <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Tell our AI what you sell. We will instantly design your brand, build your product catalog, and set up 1-click WhatsApp customer ordering.
+            Tell our AI what you sell. Create a professional storefront, customize your design, add products, and enable customer ordering.
           </p>
         </div>
 
-        {/* ── AI PROMPT & CREATION CARD ──────────────────────── */}
-        <div className="max-w-3xl mx-auto rounded-3xl border-2 border-primary/30 bg-card p-4 sm:p-7 shadow-2xl shadow-primary/10 transition-all focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10">
-          <div className="space-y-4">
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-1">
-                <Wand2 className="w-5 h-5" />
-              </div>
-              <div className="flex-1">
-                <label className="text-xs font-black uppercase tracking-wider text-muted-foreground block mb-1">
-                  Describe Your Store Idea
-                </label>
-                <textarea
-                  rows={3}
-                  value={prompt}
-                  onChange={(e) => setPrompt(e.target.value)}
-                  placeholder="e.g. A trendy sneaker and streetwear shop in Freetown with modern neon styling and fast doorstep delivery..."
-                  className="w-full bg-transparent border-0 resize-none text-sm sm:text-base font-medium text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-0 leading-relaxed"
-                />
-              </div>
+        {/* ── 10 BUSINESS CATEGORY SHORTCUTS ──────────────────── */}
+        <div className="max-w-4xl mx-auto space-y-2.5">
+          <div className="flex items-center justify-between text-xs font-bold text-muted-foreground px-1">
+            <span>Popular Business Categories (Click to auto-populate):</span>
+            <span className="text-[11px] font-normal text-muted-foreground/80">10 options</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+            {CATEGORY_SHORTCUTS.map((sc) => (
+              <button
+                key={sc.id}
+                type="button"
+                onClick={() => handleShortcutClick(sc)}
+                className="p-3 rounded-2xl border border-border/80 bg-card hover:border-primary/50 hover:bg-primary/5 transition-all flex flex-col items-center justify-center text-center gap-1.5 group cursor-pointer active:scale-95 shadow-sm"
+              >
+                <span className="text-2xl group-hover:scale-110 transition-transform">{sc.icon}</span>
+                <span className="text-xs font-bold text-foreground leading-tight">{sc.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── AI CREATION FORM CARD ──────────────────────────── */}
+        <div className="max-w-3xl mx-auto rounded-3xl border-2 border-primary/30 bg-card p-5 sm:p-8 shadow-2xl shadow-primary/10 transition-all focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 space-y-5">
+          
+          {/* Business Name & WhatsApp Phone Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground block mb-1.5">
+                Business Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={businessName}
+                onChange={(e) => setBusinessName(e.target.value)}
+                placeholder="e.g. Bella Chic Boutique"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
 
-            {/* Inspiration Chips */}
-            <div className="space-y-2 pt-2 border-t border-border/60">
-              <span className="text-[11px] font-semibold text-muted-foreground">
-                Need inspiration? Click any category below:
-              </span>
+            <div>
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground block mb-1.5">
+                WhatsApp Number for Customer Orders
+              </label>
+              <input
+                type="text"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                placeholder="e.g. +232 76 123456"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm font-semibold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+
+          {/* Large Store Description Textarea */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-black uppercase tracking-wider text-muted-foreground flex items-center justify-between">
+              <span>Tell Our AI What You Sell</span>
+              <span className="text-[11px] font-normal text-muted-foreground">Detailed description ensures superior results</span>
+            </label>
+            <div className="relative rounded-2xl border border-border bg-background p-3 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+              <textarea
+                rows={4}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe your products, target customers, location, and preferred aesthetic. e.g. A chic luxury women's boutique in Freetown selling designer dresses, handbags, and accessories with fast nationwide delivery..."
+                className="w-full bg-transparent border-0 resize-none text-sm sm:text-base font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-0 leading-relaxed"
+              />
+            </div>
+          </div>
+
+          {/* Preferred Visual Style & Color Options */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border/60">
+            <div>
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground block mb-1.5">
+                Preferred Visual Style
+              </label>
               <div className="flex flex-wrap gap-1.5">
-                {INSPIRATION_CHIPS.map((chip, idx) => (
+                {STYLE_OPTIONS.map((style) => (
                   <button
-                    key={idx}
+                    key={style.id}
                     type="button"
-                    onClick={() => {
-                      setPrompt(chip.prompt);
-                      handleGenerate(chip.prompt);
-                    }}
-                    className="px-3 py-1.5 rounded-xl border border-border/70 bg-muted/30 hover:bg-primary/10 hover:border-primary/40 text-[11px] font-bold text-foreground transition-all"
+                    onClick={() => setPreferredStyle(style.id)}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                      preferredStyle === style.id
+                        ? "bg-primary text-primary-foreground shadow-sm scale-105"
+                        : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                    }`}
                   >
-                    {chip.label}
+                    {style.label}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Bottom Generate Button */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/60">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span>Zero setup fee • Free mobile-friendly preview</span>
+            <div>
+              <label className="text-xs font-black uppercase tracking-wider text-muted-foreground block mb-1.5">
+                Brand Color Palette
+              </label>
+              <div className="flex items-center gap-2 flex-wrap">
+                {COLOR_PRESETS.map((p, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedColor(p.primary)}
+                    className={`p-1.5 rounded-xl border flex items-center gap-1.5 text-xs font-medium transition-all ${
+                      selectedColor === p.primary 
+                        ? "border-primary bg-primary/10 shadow-sm" 
+                        : "border-border/60 hover:bg-muted/40"
+                    }`}
+                  >
+                    <span className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: p.primary }} />
+                    <span className="text-[11px] font-bold text-foreground">{p.label.split(" ")[0]}</span>
+                  </button>
+                ))}
               </div>
+            </div>
+          </div>
 
+          {/* Generate Action Button & Error Box */}
+          {generationError && (
+            <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{generationError}</span>
+              </div>
               <button
                 type="button"
-                disabled={isGenerating}
                 onClick={() => handleGenerate()}
-                className="w-full sm:w-auto px-7 py-3 rounded-2xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                className="px-3 py-1 bg-rose-600 text-white rounded-lg font-bold text-[11px] hover:bg-rose-700"
               >
-                {isGenerating ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 animate-spin" />
-                    Building Store...
-                  </>
-                ) : (
-                  <>
-                    
-                    Generate My Store
-                  </>
-                )}
+                Retry
               </button>
             </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border/60">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <span>Real products • WhatsApp ordering ready • Mobile optimized</span>
+            </div>
+
+            <button
+              type="button"
+              disabled={isGenerating}
+              onClick={() => handleGenerate()}
+              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/30 hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+            >
+              {isGenerating ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  Generating Store...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  Generate Store in 30s
+                </>
+              )}
+            </button>
           </div>
         </div>
 
         {/* ── GENERATION PROGRESS INDICATOR ──────────────────── */}
         {isGenerating && (
-          <div className="max-w-xl mx-auto p-6 rounded-3xl bg-muted/40 border border-border/80 shadow-lg space-y-4 animate-in fade-in">
+          <div className="max-w-xl mx-auto p-6 rounded-3xl bg-muted/40 border border-border/80 shadow-xl space-y-4 animate-in fade-in">
             <div className="flex items-center justify-between text-xs font-bold text-foreground">
-              <span>Creating your online storefront...</span>
+              <span>Generating your online storefront...</span>
               <span className="text-primary font-black">{Math.round(((activeStep + 1) / PROGRESS_STEPS.length) * 100)}%</span>
             </div>
-            <div className="w-full h-2 rounded-full bg-border overflow-hidden">
+            <div className="w-full h-2.5 rounded-full bg-border overflow-hidden">
               <div 
-                className="h-full bg-primary rounded-full transition-all duration-500"
+                className="h-full bg-primary rounded-full transition-all duration-500 shadow-sm"
                 style={{ width: `${((activeStep + 1) / PROGRESS_STEPS.length) * 100}%` }}
               />
             </div>
-            <p className="text-xs text-center font-medium text-muted-foreground animate-pulse">
+            <p className="text-xs text-center font-bold text-foreground animate-pulse">
               {PROGRESS_STEPS[activeStep]}
             </p>
           </div>
         )}
 
-        {/* ── LIVE INTERACTIVE PREVIEW SECTION ────────────────── */}
+        {/* ── LIVE STOREFRONT PREVIEW SECTION ────────────────── */}
         {generatedStore && !isGenerating && (
           <div className="space-y-4 animate-in fade-in duration-500">
             {/* Action Bar Above Preview */}
@@ -304,12 +525,12 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                     Live Preview: <span className="text-primary font-black">{generatedStore.name}</span>
                   </h3>
                   <p className="text-xs text-muted-foreground">
-                    Test your store below. Switch devices or claim it for free to make it live.
+                    Responsive multi-device preview. Switch viewport below or claim to publish live.
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 {/* Viewport Toggles */}
                 <div className="inline-flex p-1 rounded-xl bg-muted/60 border border-border/70 text-xs font-bold">
                   <button
@@ -338,10 +559,10 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                 {/* Primary Claim Store Trigger */}
                 <button
                   onClick={() => setIsClaimModalOpen(true)}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-md shadow-emerald-600/20 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
-                  Claim & Publish Free
+                  Claim &amp; Publish Free
                 </button>
               </div>
             </div>
@@ -366,7 +587,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                   <StoreHeader 
                     storeName={generatedStore.name} 
                     storeSlug={generatedStore.slug || "preview"}
-                    whatsappNumber={generatedStore.whatsapp || "+23276000000"}
+                    whatsappNumber={generatedStore.whatsapp || whatsappNumber || "+23276000000"}
                     theme={generatedStore.theme}
                     navigation={generatedStore.navigation} 
                   />
@@ -380,7 +601,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                         storeSlug={generatedStore.slug || "preview"}
                         products={generatedStore.sampleProducts || []}
                         navigation={generatedStore.navigation}
-                        whatsappNumber={generatedStore.whatsapp || "+23276000000"}
+                        whatsappNumber={generatedStore.whatsapp || whatsappNumber || "+23276000000"}
                         currency="SLE"
                       />
                     ))}
@@ -391,45 +612,90 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
           </div>
         )}
 
-        {/* ── 20+ STARTER TEMPLATES SECTION ───────────────────── */}
+        {/* ── PROFESSIONAL TEMPLATE MARKETPLACE SECTION ──────── */}
         <div className="space-y-6 pt-12 border-t border-border/60">
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-2 max-w-2xl mx-auto">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-primary/10 text-primary">
+              <Palette className="w-3.5 h-3.5" />
+              Template Marketplace
+            </div>
             <h2 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight">
-              Or Pick from 20+ High-Converting Starter Templates
+              Commercial-Grade Starter Templates
             </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-xl mx-auto">
-              Ready-made, professionally designed layouts for every business niche.
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Browse professionally crafted e-commerce layouts. Each template includes custom typography, category-specific layouts, and WhatsApp checkout.
             </p>
           </div>
 
+          {/* Template Search and Category Bar */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 rounded-2xl bg-card border border-border">
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 text-muted-foreground absolute left-3 top-3" />
+              <input
+                type="text"
+                value={tplSearch}
+                onChange={(e) => setTplSearch(e.target.value)}
+                placeholder="Search templates..."
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-background border border-border focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+              {["All", "Fashion & Apparel", "Electronics & Tech", "Supermarket & Grocery", "Food & Restaurant", "Beauty & Cosmetics", "Health & Pharmacy"].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setTplCategory(cat)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                    tplCategory === cat 
+                      ? "bg-primary text-primary-foreground shadow-sm" 
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Template Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {STARTER_TEMPLATES.slice(0, 8).map((tpl) => (
+            {filteredTemplates.map((tpl) => (
               <div
                 key={tpl.templateId}
-                className="flex flex-col rounded-2xl border border-border bg-card p-4 hover:border-primary/50 transition-all group"
+                className="flex flex-col rounded-2xl border border-border bg-card p-4 hover:border-primary/50 transition-all hover:shadow-lg group"
               >
-                <div className="h-32 rounded-xl bg-muted/60 border border-border/60 mb-3 overflow-hidden relative flex items-center justify-center">
+                <div className="h-36 rounded-xl bg-muted/60 border border-border/60 mb-3 overflow-hidden relative flex items-center justify-center">
                   <div 
-                    className="w-full h-full p-3 flex flex-col justify-between"
+                    className="w-full h-full p-3.5 flex flex-col justify-between"
                     style={{ backgroundColor: tpl.themeConfig.colors.surface }}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold text-muted-foreground">{tpl.category}</span>
-                      <div className="flex gap-1">
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tpl.themeConfig.colors.primary }} />
-                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: tpl.themeConfig.colors.accent }} />
+                      <span className="text-[10px] font-black uppercase tracking-wider text-muted-foreground">
+                        {tpl.category}
+                      </span>
+                      <div className="flex gap-1.5">
+                        <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: tpl.themeConfig.colors.primary }} />
+                        <span className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: tpl.themeConfig.colors.accent }} />
                       </div>
                     </div>
                     <div>
-                      <p className="text-xs font-black text-foreground">{tpl.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{tpl.sections.length} store sections</p>
+                      <p className="text-sm font-black text-foreground">{tpl.name}</p>
+                      <p className="text-[11px] text-muted-foreground font-medium">{tpl.sections.length} curated sections</p>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex-1 space-y-1 mb-3">
-                  <h4 className="font-bold text-xs text-foreground">{tpl.name}</h4>
-                  <p className="text-[11px] text-muted-foreground line-clamp-2">{tpl.description}</p>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-xs text-foreground">{tpl.name}</h4>
+                    <span className="text-[10px] uppercase font-bold text-primary px-2 py-0.5 rounded-md bg-primary/10">
+                      {tpl.style}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground line-clamp-2 leading-relaxed">
+                    {tpl.description}
+                  </p>
                 </div>
 
                 <button
@@ -437,8 +703,9 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                   onClick={() => {
                     setSelectedTemplateId(tpl.templateId);
                     handleGenerate(undefined, tpl.templateId);
+                    window.scrollTo({ top: 300, behavior: "smooth" });
                   }}
-                  className="w-full py-2 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground text-xs font-bold transition-all text-center"
+                  className="w-full py-2.5 rounded-xl bg-primary/10 hover:bg-primary hover:text-primary-foreground text-primary text-xs font-bold transition-all text-center cursor-pointer"
                 >
                   Use This Template
                 </button>
@@ -457,11 +724,11 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                  
+                  <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
                   <h3 className="font-black text-sm text-foreground">Claim Your Online Store</h3>
-                  <p className="text-[11px] text-muted-foreground">Free forever • No shop account needed</p>
+                  <p className="text-[11px] text-muted-foreground">Free forever • No shop account required</p>
                 </div>
               </div>
               <button
@@ -474,10 +741,10 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
 
             {!claimedResult ? (
               <form onSubmit={handleClaimStore} className="space-y-4">
-                <div className="p-3 rounded-2xl bg-muted/40 border border-border/60 text-xs">
+                <div className="p-3.5 rounded-2xl bg-muted/40 border border-border/60 text-xs">
                   <p className="font-bold text-foreground">Store Name: {generatedStore?.name}</p>
-                  <p className="text-muted-foreground text-[11px]">
-                    Includes {generatedStore?.sampleProducts?.length || 4} sample products & WhatsApp ordering.
+                  <p className="text-muted-foreground text-[11px] mt-0.5">
+                    Includes {generatedStore?.sampleProducts?.length || 4} verified products &amp; WhatsApp ordering.
                   </p>
                 </div>
 
@@ -542,7 +809,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                       <input
                         type="text"
                         placeholder="e.g. +232 76 123 456"
-                        value={claimPhone}
+                        value={claimPhone || whatsappNumber}
                         onChange={(e) => setClaimPhone(e.target.value)}
                         className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-border bg-background text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                       />
@@ -553,7 +820,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                 <button
                   type="submit"
                   disabled={isClaiming}
-                  className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-black text-xs uppercase tracking-wider shadow-lg shadow-primary/20 hover:brightness-110 transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
                 >
                   {isClaiming ? (
                     <>
@@ -609,7 +876,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
 
       {/* ── FOOTER ─────────────────────────────────────────── */}
       <footer className="border-t border-border/60 py-6 text-center text-xs text-muted-foreground bg-muted/20">
-        <p>© {new Date().getFullYear()} ProTech Assist Enterprise OS. AI Store Creator.</p>
+        <p>© {new Date().getFullYear()} ProTech Assist Enterprise OS. AI Store Builder.</p>
       </footer>
     </div>
   );

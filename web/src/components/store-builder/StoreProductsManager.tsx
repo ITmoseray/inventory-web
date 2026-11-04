@@ -5,7 +5,7 @@ import {
   Search, Eye, EyeOff, Star, Tag, DollarSign, Check, X, Filter, 
   ShoppingBag, ArrowUpDown, RefreshCw, ExternalLink, Wand2,
   Copy, CheckCheck, FileText, ChevronRight, Plus, Trash2, Edit3, Upload,
-  Image as ImageIcon, Layers, AlertCircle
+  Image as ImageIcon, Layers, AlertCircle, FileSpreadsheet, Download, UploadCloud
 } from "lucide-react";
 import { 
   updateStoreProductLink, 
@@ -74,10 +74,15 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Bulk Add Modal State
+  // Bulk Add & Spreadsheet Import State
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
+  const [bulkImportTab, setBulkImportTab] = useState<"file" | "paste">("file");
   const [bulkInputText, setBulkInputText] = useState("");
   const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
+  const [importedRows, setImportedRows] = useState<any[]>([]);
+  const [importSummary, setImportSummary] = useState<{ total: number; valid: number; invalid: number } | null>(null);
+  const [importValidationErrors, setImportValidationErrors] = useState<string[]>([]);
+  const excelFileInputRef = useRef<HTMLInputElement>(null);
 
   // Edit badge / custom price modal
   const [editingProduct, setEditingProduct] = useState<ProductItem | null>(null);
@@ -369,39 +374,174 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
     }
   };
 
-  // Bulk Add Products Submit
-  const handleBulkAddProducts = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!bulkInputText.trim()) {
-      toast.error("Please enter at least one product row");
+  // Downloadable CSV template for products
+  const handleDownloadCsvTemplate = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + 
+      "Name,Price,SalePrice,Category,Stock,SKU,Description,ImageUrl\n" +
+      "Summer Floral Maxi Dress,450,399,Women's Fashion,15,DRS-001,Handcrafted summer dress with breathable cotton,https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800\n" +
+      "Wireless Noise Cancelling Earbuds,850,750,Phones & Tech,25,EAR-102,Crisp sound with 24hr battery life,https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=800\n" +
+      "Organic Sierra Leone Palm Oil 5L,180,,Fresh Grocery,30,OIL-505,Freshly pressed natural farm palm oil,\n";
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "protech_product_import_template.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success("Downloaded CSV template!");
+  };
+
+  // Spreadsheet file upload handler (CSV + Excel)
+  const handleSpreadsheetFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      if (file.name.endsWith(".csv")) {
+        const text = await file.text();
+        parseCsvText(text);
+      } else {
+        const XLSX = await import("xlsx");
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: "array" });
+        const firstSheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(sheet) as any[];
+
+        const mapped = jsonData.map((row: any) => ({
+          name: row.Name || row.name || row["Product Name"] || row["PRODUCT NAME"] || "",
+          price: parseFloat(row.Price || row.price || row.SellingPrice || row["Unit Price"] || 0),
+          salePrice: row.SalePrice || row.salePrice || row["Sale Price"] ? parseFloat(row.SalePrice || row.salePrice || row["Sale Price"]) : undefined,
+          category: row.Category || row.category || "General",
+          stockQuantity: parseInt(row.Stock || row.stock || row.Quantity || row["Stock Quantity"] || 20),
+          sku: row.SKU || row.sku || undefined,
+          description: row.Description || row.description || undefined,
+          imageUrl: row.ImageUrl || row.imageUrl || row.Image || undefined,
+        }));
+
+        validateAndSetImport(mapped);
+      }
+    } catch (err: any) {
+      toast.error("Failed to read spreadsheet file: " + (err.message || "Invalid format"));
+    }
+  };
+
+  const parseCsvText = (csvText: string) => {
+    const lines = csvText.split(/\r?\n/).filter(line => line.trim().length > 0);
+    if (lines.length < 2) {
+      toast.error("CSV file must have a header row and at least one product row");
       return;
     }
 
-    // Format: Name, Price, Category (one per line)
-    const lines = bulkInputText.split("\n").filter(l => l.trim().length > 0);
-    const parsedItems = lines.map(line => {
-      const parts = line.split(",").map(p => p.trim());
-      const name = parts[0] || "Item";
-      const price = parseFloat(parts[1]) || 0;
-      const category = parts[2] || "General";
-      const stockQuantity = parseInt(parts[3]) || 20;
-      return { name, price, category, stockQuantity };
+    const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/["']/g, ""));
+    const nameIdx = headers.findIndex(h => h.includes("name"));
+    const priceIdx = headers.findIndex(h => h.includes("price") && !h.includes("sale"));
+    const salePriceIdx = headers.findIndex(h => h.includes("sale") || h.includes("discount"));
+    const catIdx = headers.findIndex(h => h.includes("cat"));
+    const stockIdx = headers.findIndex(h => h.includes("stock") || h.includes("qty") || h.includes("quantity"));
+    const skuIdx = headers.findIndex(h => h.includes("sku"));
+    const descIdx = headers.findIndex(h => h.includes("desc"));
+    const imgIdx = headers.findIndex(h => h.includes("img") || h.includes("image"));
+
+    const rows: any[] = [];
+    for (let i = 1; i < lines.length; i++) {
+      const parts = lines[i].split(",").map(p => p.trim().replace(/^["']|["']$/g, ""));
+      if (parts.length === 0 || parts.every(p => !p)) continue;
+
+      const name = nameIdx !== -1 ? parts[nameIdx] : parts[0];
+      const price = priceIdx !== -1 ? parseFloat(parts[priceIdx]) : parseFloat(parts[1]) || 0;
+      const salePrice = salePriceIdx !== -1 && parts[salePriceIdx] ? parseFloat(parts[salePriceIdx]) : undefined;
+      const category = catIdx !== -1 && parts[catIdx] ? parts[catIdx] : (parts[2] || "General");
+      const stockQuantity = stockIdx !== -1 && parts[stockIdx] ? parseInt(parts[stockIdx]) : (parseInt(parts[3]) || 20);
+      const sku = skuIdx !== -1 && parts[skuIdx] ? parts[skuIdx] : undefined;
+      const description = descIdx !== -1 && parts[descIdx] ? parts[descIdx] : undefined;
+      const imageUrl = imgIdx !== -1 && parts[imgIdx] ? parts[imgIdx] : undefined;
+
+      rows.push({ name, price, salePrice, category, stockQuantity, sku, description, imageUrl });
+    }
+
+    validateAndSetImport(rows);
+  };
+
+  const validateAndSetImport = (rows: any[]) => {
+    const errs: string[] = [];
+    let validCount = 0;
+
+    rows.forEach((r, idx) => {
+      if (!r.name || r.name.trim().length === 0) {
+        errs.push(`Row ${idx + 1}: Missing product name`);
+      } else if (isNaN(r.price) || r.price < 0) {
+        errs.push(`Row ${idx + 1} ("${r.name}"): Invalid price`);
+      } else {
+        validCount++;
+      }
     });
 
-    if (parsedItems.length === 0) {
-      toast.error("No valid products detected");
+    setImportedRows(rows);
+    setImportValidationErrors(errs);
+    setImportSummary({
+      total: rows.length,
+      valid: validCount,
+      invalid: errs.length
+    });
+
+    if (validCount > 0) {
+      toast.success(`Parsed ${rows.length} rows (${validCount} valid)!`);
+    } else {
+      toast.error("No valid product rows found in file.");
+    }
+  };
+
+  // Bulk Add Products Submit (supports both uploaded spreadsheet rows & quick text paste)
+  const handleBulkAddProducts = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    let itemsToImport: any[] = [];
+
+    if (bulkImportTab === "file") {
+      itemsToImport = importedRows.filter(r => r.name && !isNaN(r.price) && r.price >= 0);
+      if (itemsToImport.length === 0) {
+        toast.error("Please upload a spreadsheet with at least one valid product");
+        return;
+      }
+    } else {
+      if (!bulkInputText.trim()) {
+        toast.error("Please enter at least one product row");
+        return;
+      }
+
+      const lines = bulkInputText.split("\n").filter(l => l.trim().length > 0);
+      itemsToImport = lines.map(line => {
+        const parts = line.split(",").map(p => p.trim());
+        const name = parts[0] || "Item";
+        const price = parseFloat(parts[1]) || 0;
+        const category = parts[2] || "General";
+        const stockQuantity = parseInt(parts[3]) || 20;
+        return { name, price, category, stockQuantity };
+      });
+    }
+
+    if (itemsToImport.length === 0) {
+      toast.error("No valid products detected for import");
       return;
     }
 
     setIsSubmittingBulk(true);
     try {
-      const res = await bulkAddStandaloneProductsAction(parsedItems);
+      const res = await bulkAddStandaloneProductsAction(itemsToImport);
       if (res.success) {
-        toast.success(`🎉 Added ${res.count} products to your storefront!`);
+        let msg = `🎉 Added ${res.count} products to your storefront!`;
+        if (res.skippedDuplicates && res.skippedDuplicates > 0) {
+          msg += ` (${res.skippedDuplicates} duplicates skipped)`;
+        }
+        toast.success(msg);
         setIsBulkModalOpen(false);
         setBulkInputText("");
-        // Reload page or refresh list
+        setImportedRows([]);
+        setImportSummary(null);
         window.location.reload();
+      } else {
+        toast.error(res.error || "Failed to import products");
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to bulk add products");
@@ -1377,65 +1517,207 @@ export function StoreProductsManager({ initialProducts = [], currency = "SLE", s
         </div>
       )}
 
-      {/* ── BULK ADD PRODUCTS MODAL ────────────────────────── */}
+      {/* ── BULK & SPREADSHEET IMPORT MODAL ────────────────── */}
       {isBulkModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-card border rounded-3xl w-full max-w-lg p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in overflow-y-auto">
+          <div className="bg-card border rounded-3xl w-full max-w-xl p-6 shadow-2xl space-y-4 my-8">
             <div className="flex items-center justify-between pb-3 border-b">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
-                  <Layers className="w-4 h-4" />
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center font-bold">
+                  <FileSpreadsheet className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-base text-foreground">Bulk Add Products</h3>
-                  <p className="text-xs text-muted-foreground">Add multiple items at once using quick comma-separated format.</p>
+                  <h3 className="font-bold text-base text-foreground">Import Product Spreadsheet</h3>
+                  <p className="text-xs text-muted-foreground">Import items via CSV or Excel with column mapping & duplicate protection.</p>
                 </div>
               </div>
               <button
-                onClick={() => setIsBulkModalOpen(false)}
-                className="p-1 rounded-xl hover:bg-muted text-muted-foreground"
+                onClick={() => {
+                  setIsBulkModalOpen(false);
+                  setImportedRows([]);
+                  setImportSummary(null);
+                  setImportValidationErrors([]);
+                }}
+                className="p-1.5 rounded-xl hover:bg-muted text-muted-foreground"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
+            {/* Mode Tabs */}
+            <div className="flex items-center gap-2 p-1 bg-muted/60 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setBulkImportTab("file")}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  bulkImportTab === "file" 
+                    ? "bg-card text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <UploadCloud className="w-3.5 h-3.5" />
+                Upload File (.csv, .xlsx)
+              </button>
+              <button
+                type="button"
+                onClick={() => setBulkImportTab("paste")}
+                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all flex items-center justify-center gap-1.5 ${
+                  bulkImportTab === "paste" 
+                    ? "bg-card text-foreground shadow-sm" 
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <FileText className="w-3.5 h-3.5" />
+                Quick Text Paste
+              </button>
+            </div>
+
             <form onSubmit={handleBulkAddProducts} className="space-y-4">
-              <div className="p-3 rounded-xl bg-muted/40 border text-xs text-muted-foreground space-y-1">
-                <p className="font-bold text-foreground">Format per line:</p>
-                <p className="font-mono text-[11px]">Product Name, Price, Category, Stock</p>
-                <p className="text-[11px] text-muted-foreground mt-1">Example:</p>
-                <p className="font-mono text-[11px] text-primary">Summer Floral Dress, 450, Fashion, 15</p>
-                <p className="font-mono text-[11px] text-primary">Leather Oxford Shoes, 850, Footwear, 8</p>
-              </div>
+              {bulkImportTab === "file" ? (
+                <div className="space-y-4">
+                  {/* Download Template Banner */}
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-indigo-500/5 border border-indigo-500/20 text-xs">
+                    <div className="space-y-0.5">
+                      <p className="font-bold text-indigo-500">Need the standard spreadsheet format?</p>
+                      <p className="text-[11px] text-muted-foreground">Download our pre-formatted CSV template with sample data.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleDownloadCsvTemplate}
+                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shrink-0 transition-transform active:scale-95 shadow-sm"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      Template
+                    </button>
+                  </div>
 
-              <div>
-                <label className="block text-xs font-bold text-foreground mb-1">
-                  Product Lines
-                </label>
-                <textarea
-                  rows={6}
-                  placeholder={`Men's Casual Shirt, 350, Fashion, 20\nClassic Leather Belt, 150, Accessories, 15\nWireless Bluetooth Earbuds, 450, Electronics, 10`}
-                  value={bulkInputText}
-                  onChange={(e) => setBulkInputText(e.target.value)}
-                  className="w-full px-3 py-2 bg-background border rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
-                />
-              </div>
+                  {/* Hidden File Input & Drop Area */}
+                  <input
+                    ref={excelFileInputRef}
+                    type="file"
+                    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+                    onChange={handleSpreadsheetFileChange}
+                    className="hidden"
+                  />
 
-              <div className="flex items-center justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  onClick={() => setIsBulkModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium rounded-xl border hover:bg-muted"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmittingBulk}
-                  className="px-5 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:brightness-110 shadow-sm disabled:opacity-50"
-                >
-                  {isSubmittingBulk ? "Importing..." : "Import All Products"}
-                </button>
+                  <div
+                    onClick={() => excelFileInputRef.current?.click()}
+                    className="p-8 border-2 border-dashed border-border hover:border-primary/60 rounded-2xl bg-muted/20 hover:bg-muted/40 transition-all text-center cursor-pointer space-y-2 group"
+                  >
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
+                      <UploadCloud className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-foreground">Click to upload product spreadsheet</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">Supports .CSV, .XLSX, and .XLS up to 10MB</p>
+                    </div>
+                  </div>
+
+                  {/* Summary & Preview Table if parsed */}
+                  {importSummary && (
+                    <div className="space-y-3 p-3.5 rounded-2xl bg-muted/40 border text-xs">
+                      <div className="flex items-center justify-between font-bold">
+                        <span>Import Preview:</span>
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span className="text-emerald-500">✓ {importSummary.valid} valid</span>
+                          {importSummary.invalid > 0 && (
+                            <span className="text-rose-500">✕ {importSummary.invalid} invalid</span>
+                          )}
+                          <span className="text-muted-foreground">({importSummary.total} total)</span>
+                        </div>
+                      </div>
+
+                      {importValidationErrors.length > 0 && (
+                        <div className="p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-500 text-[11px] space-y-1 max-h-24 overflow-y-auto">
+                          <p className="font-bold flex items-center gap-1">
+                            <AlertCircle className="w-3.5 h-3.5" /> Validation Warnings:
+                          </p>
+                          {importValidationErrors.slice(0, 5).map((err, i) => (
+                            <p key={i}>• {err}</p>
+                          ))}
+                          {importValidationErrors.length > 5 && (
+                            <p>...and {importValidationErrors.length - 5} more</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Top 4 Rows Preview */}
+                      <div className="overflow-x-auto rounded-xl border border-border">
+                        <table className="w-full text-[11px] text-left">
+                          <thead className="bg-muted text-muted-foreground font-bold">
+                            <tr>
+                              <th className="p-2">Name</th>
+                              <th className="p-2">Price</th>
+                              <th className="p-2">Category</th>
+                              <th className="p-2">Stock</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border">
+                            {importedRows.slice(0, 4).map((row, idx) => (
+                              <tr key={idx} className="hover:bg-muted/30">
+                                <td className="p-2 font-medium truncate max-w-[140px]">{row.name}</td>
+                                <td className="p-2 font-bold text-primary">{currency} {row.price}</td>
+                                <td className="p-2">{row.category}</td>
+                                <td className="p-2">{row.stockQuantity}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="p-3 rounded-xl bg-muted/40 border text-xs text-muted-foreground space-y-1">
+                    <p className="font-bold text-foreground">Format per line:</p>
+                    <p className="font-mono text-[11px]">Product Name, Price, Category, Stock</p>
+                    <p className="text-[11px] text-muted-foreground mt-1">Example:</p>
+                    <p className="font-mono text-[11px] text-primary">Summer Floral Dress, 450, Fashion, 15</p>
+                    <p className="font-mono text-[11px] text-primary">Leather Oxford Shoes, 850, Footwear, 8</p>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-foreground mb-1">
+                      Product Lines
+                    </label>
+                    <textarea
+                      rows={6}
+                      placeholder={`Men's Casual Shirt, 350, Fashion, 20\nClassic Leather Belt, 150, Accessories, 15\nWireless Bluetooth Earbuds, 450, Electronics, 10`}
+                      value={bulkInputText}
+                      onChange={(e) => setBulkInputText(e.target.value)}
+                      className="w-full px-3 py-2 bg-background border rounded-xl text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between pt-3 border-t">
+                <div className="text-[11px] text-muted-foreground">
+                  <span className="text-emerald-500 font-bold">✓</span> Automatic duplicate detection enabled
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsBulkModalOpen(false);
+                      setImportedRows([]);
+                      setImportSummary(null);
+                      setImportValidationErrors([]);
+                    }}
+                    className="px-4 py-2 text-xs font-medium rounded-xl border hover:bg-muted"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingBulk || (bulkImportTab === "file" && importedRows.length === 0)}
+                    className="px-5 py-2 text-xs font-bold rounded-xl bg-primary text-primary-foreground hover:brightness-110 shadow-sm disabled:opacity-50 cursor-pointer"
+                  >
+                    {isSubmittingBulk ? "Importing..." : "Confirm & Import Products"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

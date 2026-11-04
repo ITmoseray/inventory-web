@@ -239,6 +239,7 @@ export interface StorefrontUnifiedProduct {
   imageUrl?: string | null;
   images?: string[];
   stockQuantity?: number | null;
+  inStock: boolean;
   category: string;
   isFeatured: boolean;
   customBadge?: string | null;
@@ -256,17 +257,20 @@ export function normalizeStoreProduct(item: any): StorefrontUnifiedProduct {
       isFeatured: false,
       isStandalone: true,
       stockQuantity: 10,
+      inStock: true,
     };
   }
 
   const prod = item.product || item;
   const id = item.id || prod.id || `sp-${Math.random().toString(36).substring(2, 9)}`;
-  const name = item.name || prod.name || "Featured Product";
+  const name = item.customName || item.standaloneName || item.name || prod.name || "Featured Product";
   
   // Price extraction
   let price = 0;
   if (item.customPrice !== undefined && item.customPrice !== null) {
     price = Number(item.customPrice);
+  } else if (item.standalonePrice !== undefined && item.standalonePrice !== null) {
+    price = Number(item.standalonePrice);
   } else if (item.price !== undefined && item.price !== null) {
     price = Number(item.price);
   } else if (prod.unitPrice !== undefined && prod.unitPrice !== null) {
@@ -292,13 +296,21 @@ export function normalizeStoreProduct(item: any): StorefrontUnifiedProduct {
 
   // Category handling
   const category = (typeof item.category === "string" ? item.category : null) 
+    || item.standaloneCategory
     || (typeof prod.category === "string" ? prod.category : prod.category?.name) 
     || "General";
 
   // Stock handling
-  const stockQuantity = item.stockQuantity !== undefined 
-    ? Number(item.stockQuantity) 
-    : (prod.stockQuantity !== undefined ? Number(prod.stockQuantity) : 99);
+  let stockQuantity = 99;
+  if (item.standaloneStock !== undefined && item.standaloneStock !== null) {
+    stockQuantity = Number(item.standaloneStock);
+  } else if (item.stockQuantity !== undefined && item.stockQuantity !== null) {
+    stockQuantity = Number(item.stockQuantity);
+  } else if (prod.stockQuantity !== undefined && prod.stockQuantity !== null) {
+    stockQuantity = Number(prod.stockQuantity);
+  }
+
+  const inStock = stockQuantity > 0;
 
   // Badge & flags
   const badge = item.customBadge || item.badge || prod.customBadge || (item.isFeatured || prod.isFeatured ? "FEATURED" : null) || (prod.isFavorite ? "POPULAR" : null);
@@ -309,13 +321,14 @@ export function normalizeStoreProduct(item: any): StorefrontUnifiedProduct {
     storeProductId: String(item.id || id),
     name,
     sku: item.sku || prod.sku || null,
-    description: item.description || prod.description || null,
+    description: item.customDescription || item.description || prod.description || null,
     price,
     salePrice: item.salePrice ? Number(item.salePrice) : null,
     originalPrice,
     imageUrl,
     images: Array.isArray(rawImages) && rawImages.length > 0 ? rawImages : imageUrl ? [imageUrl] : [],
     stockQuantity,
+    inStock,
     category,
     isFeatured,
     customBadge: badge || null,

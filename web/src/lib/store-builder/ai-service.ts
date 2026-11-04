@@ -1029,11 +1029,47 @@ export async function executeAIStoreModification(
     };
   }
 
-  // Heuristic 3: Luxury / Premium makeover
-  if (lower.includes("luxury") || lower.includes("premium")) {
+  // Heuristic: Specific category aesthetics (placed before general makeover rules)
+  if (lower.includes("electronics") && (lower.includes("modern") || lower.includes("tech") || lower.includes("professional"))) {
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "electronics",
+      colors: {
+        ...normalizeStoreTheme(currentStore.themeConfig).colors,
+        primary: "#0284C7",
+        secondary: "#0369A1",
+        accent: "#38BDF8",
+        background: "#0B0F19",
+        surface: "#111827",
+        text: "#F8FAFC",
+        mutedText: "#94A3B8",
+        headerBg: "#0B0F19",
+        footerBg: "#030712",
+        footerText: "#E2E8F0"
+      },
+      fonts: {
+        heading: "Inter",
+        body: "Inter"
+      },
+      borderRadius: "lg"
+    };
+    return {
+      themeConfig: updatedTheme,
+      explanation: "Applied ultra-modern Tech & Electronics theme with cyberpunk cyan accents, dark mode surfaces, and clean sans typography."
+    };
+  }
+
+  // Heuristic 3: Luxury / Luxurious / Premium makeover
+  if (lower.includes("luxur") || lower.includes("premium")) {
     const updatedTheme: StoreTheme = {
       ...normalizeStoreTheme(currentStore.themeConfig),
       style: "luxury",
+      colors: {
+        ...normalizeStoreTheme(currentStore.themeConfig).colors,
+        primary: "#D4AF37",
+        secondary: "#1A1A1A",
+        accent: "#C5A059",
+      },
       fonts: { heading: "Playfair Display", body: "Inter" },
       borderRadius: "none",
     };
@@ -1217,6 +1253,133 @@ export async function executeAIStoreModification(
     return {
       homeSections: updatedSections,
       explanation: "Added a prominent 20% OFF promotional banner right below your hero section."
+    };
+  }
+
+  // Heuristic 12: Minimalist white background with elegant typography
+  if (lower.includes("minimalist") || (lower.includes("white background") && lower.includes("typography"))) {
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "minimal",
+      colors: {
+        ...normalizeStoreTheme(currentStore.themeConfig).colors,
+        primary: "#18181B",
+        secondary: "#27272A",
+        accent: "#71717A",
+        background: "#FFFFFF",
+        surface: "#FAFAFA",
+        text: "#0F172A",
+        mutedText: "#52525B",
+        headerBg: "#FFFFFF",
+        footerBg: "#18181B",
+        footerText: "#FAFAFA"
+      },
+      fonts: {
+        heading: "Playfair Display",
+        body: "Inter"
+      },
+      borderRadius: "sm"
+    };
+    return {
+      themeConfig: updatedTheme,
+      explanation: "Transformed storefront to a crisp minimalist white aesthetic with elegant serif typography and understated accents."
+    };
+  }
+
+  // Heuristic 13: Make product images larger
+  if (lower.includes("product image") && (lower.includes("larger") || lower.includes("bigger") || lower.includes("expand"))) {
+    const updatedSections = currentStore.homeSections.map(sec => {
+      if (sec.type === "product-grid" || sec.type === "product-carousel") {
+        return {
+          ...sec,
+          settings: {
+            ...sec.settings,
+            columns: 3,
+            columnsDesktop: 3,
+            imageRatio: "4/5",
+            cardSize: "large",
+          }
+        };
+      }
+      return sec;
+    });
+    return {
+      homeSections: updatedSections,
+      explanation: "Expanded product images to large editorial proportions (3-column layout with 4:5 portrait ratio)."
+    };
+  }
+
+  // Heuristic 14: Improve mobile layout
+  if (lower.includes("mobile layout") || lower.includes("mobile experience") || lower.includes("improve mobile")) {
+    const updatedSections = currentStore.homeSections.map(sec => {
+      if (sec.type === "hero") {
+        return {
+          ...sec,
+          settings: { ...sec.settings, compactMobile: true, mobileAlign: "center" }
+        };
+      }
+      if (sec.type === "product-grid") {
+        return {
+          ...sec,
+          settings: { ...sec.settings, columnsMobile: 2, compactCardsMobile: true }
+        };
+      }
+      return sec;
+    });
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      headerLayout: "standard",
+    };
+    return {
+      themeConfig: updatedTheme,
+      homeSections: updatedSections,
+      explanation: "Optimized mobile view with streamlined header spacing, centered hero touch targets, and a 2-column mobile product grid."
+    };
+  }
+
+  // Heuristic 15: Move featured products above promotional banner
+  if (lower.includes("products above the promotional") || lower.includes("products above the promo") || lower.includes("products above promo") || lower.includes("move featured products above")) {
+    const sections = [...currentStore.homeSections];
+    const gridIdx = sections.findIndex(s => s.type === "product-grid" || s.type === "product-carousel");
+    const promoIdx = sections.findIndex(s => s.type === "promotional-offer" || s.type === "banner");
+    if (gridIdx !== -1 && promoIdx !== -1 && gridIdx > promoIdx) {
+      const gridSec = sections.splice(gridIdx, 1)[0];
+      sections.splice(promoIdx, 0, gridSec);
+      const reordered = sections.map((s, idx) => ({ ...s, order: idx }));
+      return {
+        homeSections: reordered,
+        explanation: "Moved your Featured Products section above the Promotional Banner for direct catalog engagement."
+      };
+    }
+  }
+
+  // Heuristic 16: Modern electronics / tech aesthetic
+  if (lower.includes("electronics") && (lower.includes("modern") || lower.includes("tech") || lower.includes("professional"))) {
+    const updatedTheme: StoreTheme = {
+      ...normalizeStoreTheme(currentStore.themeConfig),
+      style: "electronics",
+      colors: {
+        ...normalizeStoreTheme(currentStore.themeConfig).colors,
+        primary: "#0284C7",
+        secondary: "#0369A1",
+        accent: "#38BDF8",
+        background: "#0B0F19",
+        surface: "#111827",
+        text: "#F8FAFC",
+        mutedText: "#94A3B8",
+        headerBg: "#0B0F19",
+        footerBg: "#030712",
+        footerText: "#E2E8F0"
+      },
+      fonts: {
+        heading: "Inter",
+        body: "Inter"
+      },
+      borderRadius: "lg"
+    };
+    return {
+      themeConfig: updatedTheme,
+      explanation: "Applied ultra-modern Tech & Electronics theme with cyberpunk cyan accents, dark mode surfaces, and clean sans typography."
     };
   }
 

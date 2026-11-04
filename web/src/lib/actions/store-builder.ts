@@ -884,34 +884,83 @@ export async function bulkAddStandaloneProductsAction(products: any[]) {
   const store = await resolveStoreForUser(session);
   if (!store) throw new Error("Store not found");
 
-  const startOrder = await prisma.storeProduct.count({ where: { storeId: store.id } });
+  if (!Array.isArray(products) || products.length === 0) {
+    return { success: false, error: "No products provided for import", count: 0, errors: [] };
+  }
 
-  const created = [];
+  // Fetch existing products in this store for duplicate detection
+  const existingProducts = await prisma.storeProduct.findMany({
+    where: { storeId: store.id },
+    select: { name: true, sku: true }
+  });
+
+  const existingNames = new Set(existingProducts.map(p => (p.name || "").toLowerCase().trim()).filter(Boolean));
+  const existingSkus = new Set(existingProducts.map(p => (p.sku || "").toLowerCase().trim()).filter(Boolean));
+
+  const startOrder = await prisma.storeProduct.count({ where: { storeId: store.id } });
+  const created: any[] = [];
+  const errors: string[] = [];
+  let skippedDuplicates = 0;
+
   for (let i = 0; i < products.length; i++) {
     const item = products[i];
-    const p = await prisma.storeProduct.create({
-      data: {
-        storeId: store.id,
-        productId: null,
-        name: item.name.trim(),
-        price: item.price || 0,
-        salePrice: item.salePrice || null,
-        description: item.description || null,
-        category: item.category || "General",
-        sku: item.sku || null,
-        images: item.images || (item.imageUrl ? [item.imageUrl] : []),
-        stockQuantity: item.stockQuantity != null ? item.stockQuantity : null,
-        isFeatured: i < 3,
-        displayOrder: startOrder + i,
-        isVisible: true
-      }
-    });
-    created.push(p);
+    const rawName = (item.name || "").toString().trim();
+    if (!rawName) {
+      errors.push(`Row ${i + 1}: Missing product name`);
+      continue;
+    }
+
+    const rawSku = item.sku ? item.sku.toString().trim() : null;
+
+    // Duplicate detection by name or SKU
+    if (existingNames.has(rawName.toLowerCase()) || (rawSku && existingSkus.has(rawSku.toLowerCase()))) {
+      skippedDuplicates++;
+      continue;
+    }
+
+    const price = Math.max(0, parseFloat(item.price) || 0);
+    const salePrice = item.salePrice ? Math.max(0, parseFloat(item.salePrice)) : null;
+    const stockQuantity = item.stockQuantity !== undefined && item.stockQuantity !== null && item.stockQuantity !== ""
+      ? Math.max(0, parseInt(item.stockQuantity) || 0)
+      : 20;
+
+    try {
+      const p = await prisma.storeProduct.create({
+        data: {
+          storeId: store.id,
+          productId: null,
+          name: rawName,
+          price,
+          salePrice,
+          description: item.description ? item.description.toString().trim() : null,
+          category: item.category ? item.category.toString().trim() : "General",
+          sku: rawSku,
+          images: Array.isArray(item.images) && item.images.length > 0 
+            ? item.images 
+            : item.imageUrl ? [item.imageUrl.toString().trim()] : [],
+          stockQuantity,
+          isFeatured: i < 3,
+          displayOrder: startOrder + created.length,
+          isVisible: true
+        }
+      });
+      created.push(p);
+      existingNames.add(rawName.toLowerCase());
+      if (rawSku) existingSkus.add(rawSku.toLowerCase());
+    } catch (err: any) {
+      errors.push(`Row ${i + 1} ("${rawName}"): ${err.message || "Failed to create product"}`);
+    }
   }
 
   revalidatePath("/dashboard/store-builder");
   revalidatePath(`/store/${store.slug}`);
-  return { success: true, count: created.length };
+  return { 
+    success: true, 
+    count: created.length, 
+    skippedDuplicates, 
+    errors,
+    totalProcessed: products.length 
+  };
 }
 
 // ─── 9. GET PUBLIC STOREFRONT DATA (NO AUTH REQUIRED) ─────────────
@@ -2290,17 +2339,29 @@ export async function seedStoreTemplatesAction() {
 export async function generateGuestStorePreviewAction(input: {
   prompt?: string;
   templateId?: string;
+  businessName?: string;
+  businessType?: string;
+  preferredStyle?: string;
+  brandColor?: string;
+  whatsappPhone?: string;
 }) {
   try {
+    const configuredPhone = input.whatsappPhone?.trim() || "";
+
     if (input.templateId) {
       const tpl = await prisma.storeTemplate.findUnique({ where: { templateId: input.templateId } }) || getStarterTemplateById(input.templateId);
       if (tpl) {
+        const theme = (tpl.themeConfig && typeof tpl.themeConfig === "object") ? { ...(tpl.themeConfig as Record<string, any>) } : {};
+        if (input.brandColor && theme.colors) {
+          theme.colors = { ...theme.colors, primary: input.brandColor };
+        }
+        const storeName = input.businessName?.trim() || tpl.name;
         return {
           success: true,
-          name: tpl.name,
+          name: storeName,
           slug: tpl.slug,
           description: tpl.description,
-          theme: tpl.themeConfig,
+          theme,
           sections: tpl.sections,
           navigation: tpl.navigation,
           settings: {
@@ -2308,30 +2369,39 @@ export async function generateGuestStorePreviewAction(input: {
             freeDeliveryThreshold: 500,
             allowCashOnDelivery: true,
             allowOnlinePayment: false,
-            seo: { title: tpl.name, description: tpl.description }
+            whatsappNumber: configuredPhone,
+            seo: { title: storeName, description: tpl.description }
           },
-          sampleProducts: generateSampleProductsForArchetype(tpl.style, tpl.name),
-          whatsapp: "+23276000000"
+          sampleProducts: generateSampleProductsForArchetype(tpl.style, storeName),
+          whatsapp: configuredPhone
         };
       }
     }
 
     const cleanPrompt = input.prompt?.trim() || "A modern online boutique in Freetown with WhatsApp ordering";
     const analysis = await analyzeStorePrompt(cleanPrompt, null);
+    const finalBusinessName = input.businessName?.trim() || analysis.suggestedName;
+    const finalCategory = input.businessType?.trim() || analysis.businessCategory;
+    const finalStyle = (input.preferredStyle as any) || analysis.styleArchetype;
+
     const aiConfig = await generateAIStoreConfiguration({
-      businessName: analysis.suggestedName,
-      businessType: analysis.businessCategory,
+      businessName: finalBusinessName,
+      businessType: finalCategory,
       description: analysis.description,
       location: analysis.location || "Freetown, Sierra Leone",
-      phone: "+23276000000",
-      whatsapp: "+23276000000",
+      phone: configuredPhone,
+      whatsapp: configuredPhone,
       email: "hello@store.sl",
-      targetCustomers: `Shoppers seeking verified ${analysis.businessCategory.toLowerCase()}`,
-      styleArchetype: analysis.styleArchetype,
+      targetCustomers: `Shoppers seeking verified ${finalCategory.toLowerCase()}`,
+      styleArchetype: finalStyle,
       productIds: [],
       storeType: "STANDALONE",
-      standaloneProducts: generateSampleProductsForArchetype(analysis.styleArchetype, analysis.suggestedName)
+      standaloneProducts: generateSampleProductsForArchetype(finalStyle, finalBusinessName)
     });
+
+    if (input.brandColor && aiConfig.theme?.colors) {
+      aiConfig.theme.colors.primary = input.brandColor;
+    }
 
     const sampleProducts = generateSampleProductsForArchetype(aiConfig.theme.style, aiConfig.name);
 
@@ -2343,9 +2413,12 @@ export async function generateGuestStorePreviewAction(input: {
       theme: aiConfig.theme,
       sections: aiConfig.homeSections,
       navigation: aiConfig.navigation,
-      settings: aiConfig.settings,
+      settings: {
+        ...aiConfig.settings,
+        whatsappNumber: configuredPhone,
+      },
       sampleProducts,
-      whatsapp: "+23276000000"
+      whatsapp: configuredPhone
     };
   } catch (error: any) {
     console.error("generateGuestStorePreviewAction error:", error);

@@ -5,7 +5,7 @@ import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { StoreCartDrawer } from "@/components/storefront/StoreCartDrawer";
 import { StoreCheckoutModal } from "@/components/storefront/StoreCheckoutModal";
-import { StoreTheme, StoreNavigation, StoreSettings } from "@/types/store-builder";
+import { StoreTheme, StoreNavigation, StoreSettings, normalizeStoreProduct } from "@/types/store-builder";
 import { ProductDetailPageClient } from "./ProductDetailPageClient";
 
 interface Props {
@@ -17,8 +17,12 @@ export async function generateMetadata({ params }: Props) {
   const store = await getPublicStorefrontData(slug);
   if (!store) return { title: "Store Not Found" };
 
-  const storeProduct = store.products?.find((sp: any) => sp.productId === productId);
-  const p = storeProduct?.product;
+  const storeProduct = store.products?.find((sp: any) => 
+    sp.id === productId || 
+    sp.productId === productId || 
+    sp.product?.id === productId
+  );
+  const p = storeProduct ? normalizeStoreProduct(storeProduct) : null;
 
   return {
     title: p ? `${p.name} | ${store.name}` : `Product | ${store.name}`,
@@ -31,7 +35,11 @@ export default async function ProductPage({ params }: Props) {
   const store = await getPublicStorefrontData(slug);
   if (!store) notFound();
 
-  const storeProduct = store.products?.find((sp: any) => sp.productId === productId);
+  const storeProduct = store.products?.find((sp: any) => 
+    sp.id === productId || 
+    sp.productId === productId || 
+    sp.product?.id === productId
+  );
   if (!storeProduct) notFound();
 
   const theme = (store.themeConfig as unknown as StoreTheme) || {};
