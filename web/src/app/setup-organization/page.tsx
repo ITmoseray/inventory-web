@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,8 @@ import {
   Receipt,
   CreditCard,
   Plus,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Sparkles
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -60,7 +61,7 @@ const CURRENCIES = [
 ];
 
 export default function SetupOrganizationPage() {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -98,6 +99,12 @@ export default function SetupOrganizationPage() {
     if (session?.user?.business?.name) {
       setFormData(prev => ({ ...prev, name: session.user.business.name }));
     }
+    // If the user already has a configured business, automatically route them to destination
+    if (session?.user?.businessId) {
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const target = params?.get("callbackUrl") || "/dashboard/store-builder";
+      window.location.href = target;
+    }
   }, [session]);
 
   const handleNext = () => {
@@ -112,13 +119,59 @@ export default function SetupOrganizationPage() {
     setCurrentStep(prev => Math.max(prev - 1, 1));
   };
 
-  const handleFinish = async () => {
+  const handleFinish = async (targetDestination?: string) => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      // 1. Save the organization to the database
+      const res = await fetch("/api/business/setup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          industry: formData.industry,
+          phone: formData.phone,
+          email: formData.email,
+          address: formData.address,
+          country: formData.country,
+          currency: formData.currency,
+          defaultWarehouse: formData.defaultWarehouse,
+          taxRate: formData.taxRate,
+          invoicePrefix: formData.invoicePrefix,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Setup failed");
+      }
+
+      // 2. Refresh the JWT token so the middleware sees the new businessId
+      if (updateSession) {
+        try {
+          await updateSession({
+            businessId: data.businessId,
+            businessType: data.businessType,
+          });
+        } catch (e) {
+          console.warn("Session update warning:", e);
+        }
+      }
+
       toast.success("Welcome to ProTech Assist Enterprise OS!");
-      router.push("/dashboard");
-    }, 1200);
+
+      // 3. Determine destination: explicit button choice -> query param callbackUrl -> store-builder
+      const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+      const target = targetDestination || params?.get("callbackUrl") || "/dashboard/store-builder";
+
+      // 4. Hard navigation guarantees fresh session cookies are sent with no stale router cache
+      setTimeout(() => {
+        window.location.href = target;
+      }, 350);
+    } catch (err: any) {
+      toast.error(err.message || "Could not complete setup. Please try again.");
+      setLoading(false);
+    }
   };
 
   const STEPS = [
@@ -591,13 +644,25 @@ export default function SetupOrganizationPage() {
                 <ArrowRight className="w-4 h-4" />
               </Button>
             ) : (
-              <Button
-                onClick={handleFinish}
-                disabled={loading}
-                className="w-full h-13 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-sm uppercase tracking-wider shadow-xl shadow-emerald-600/30 transition-transform hover:scale-105 active:scale-95"
-              >
-                {loading ? "Launching Workspace..." : "Enter Business Command Center"}
-              </Button>
+              <div className="w-full flex flex-col sm:flex-row items-center gap-3">
+                <Button
+                  onClick={() => handleFinish("/dashboard/store-builder")}
+                  disabled={loading}
+                  className="w-full sm:flex-1 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-xl shadow-emerald-600/30 transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  {loading ? "Launching..." : "🎨 Go to Store Builder Dashboard"}
+                </Button>
+                <Button
+                  onClick={() => handleFinish("/dashboard")}
+                  disabled={loading}
+                  variant="outline"
+                  className="w-full sm:flex-1 h-12 rounded-xl border-slate-300 dark:border-slate-700 font-black text-xs uppercase tracking-wider hover:bg-slate-100 dark:hover:bg-slate-800 transition-transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <Building2 className="w-4 h-4" />
+                  {loading ? "Launching..." : "⚡ Business Command Center"}
+                </Button>
+              </div>
             )}
           </div>
         </div>

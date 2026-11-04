@@ -59,6 +59,8 @@ export function StoreThemeWrapper({ theme: rawTheme, viewport = "desktop", child
               box-sizing: border-box !important;
             }
             /* Suppress desktop navigation bar collisions */
+            .is-simulator-mobile nav,
+            .is-simulator-mobile [data-desktop-nav],
             .is-simulator-mobile nav.hidden.md\\:flex,
             .is-simulator-mobile nav.md\\:flex {
               display: none !important;

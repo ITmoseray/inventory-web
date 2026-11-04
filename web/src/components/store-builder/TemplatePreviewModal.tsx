@@ -200,7 +200,7 @@ export function TemplatePreviewModal({
           </div>
 
           {/* Actual Live Store Rendering */}
-          <StoreThemeWrapper theme={template.themeConfig}>
+          <StoreThemeWrapper theme={template.themeConfig} viewport={device}>
             {/* Header */}
             <StoreHeader
               storeName={template.name}

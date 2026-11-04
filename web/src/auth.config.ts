@@ -24,13 +24,20 @@ export const authConfig: NextAuthConfig = {
       if (token.permissions && session.user) session.user.permissions = token.permissions as string[];
       return session;
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session: sessionData }) {
       if (user) {
         token.businessId = (user as any).businessId;
         token.role = (user as any).role;
         token.businessType = (user as any).businessType;
         token.trialEndDate = (user as any).trialEndDate;
         token.permissions = (user as any).permissions;
+      }
+      // Allow client-side session update() to inject new businessId after onboarding
+      if (trigger === "update" && sessionData?.businessId) {
+        token.businessId = sessionData.businessId;
+      }
+      if (trigger === "update" && sessionData?.businessType) {
+        token.businessType = sessionData.businessType;
       }
       return token;
     },

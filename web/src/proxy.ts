@@ -70,7 +70,9 @@ export default auth((req) => {
       }
 
       if (!businessId && path.startsWith('/dashboard')) {
-        return injectCORS(NextResponse.redirect(new URL('/setup-organization', req.url)));
+        const setupUrl = new URL('/setup-organization', req.url);
+        setupUrl.searchParams.set('callbackUrl', path + req.nextUrl.search);
+        return injectCORS(NextResponse.redirect(setupUrl));
       }
     }
   }

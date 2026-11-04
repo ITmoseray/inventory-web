@@ -76,7 +76,7 @@ export function StoreHeader({
       >
         <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between gap-2.5 sm:gap-3">
           {/* Logo & Brand Name */}
-          <Link href={`/store/${storeSlug}`} className="flex items-center gap-2 sm:gap-3 group min-w-0 max-w-[65%] sm:max-w-none">
+          <Link href={`/store/${storeSlug}`} className={`flex items-center gap-2 sm:gap-3 group min-w-0 ${isForcedMobile ? "max-w-[48%]" : "max-w-[65%] sm:max-w-none"}`}>
             {logoUrl ? (
               <img 
                 src={logoUrl} 
@@ -101,7 +101,7 @@ export function StoreHeader({
 
           {/* Desktop Navigation Links */}
           {!isForcedMobile && (
-            <nav className={`${isForcedDesktop ? "flex" : "hidden md:flex"} items-center gap-6 lg:gap-8`}>
+            <nav data-desktop-nav className={`${isForcedDesktop ? "flex" : "hidden md:flex"} items-center gap-6 lg:gap-8`}>
               {navItems.map((item) => (
                 <Link
                   key={item.id}
