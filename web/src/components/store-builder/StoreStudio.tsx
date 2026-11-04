@@ -371,11 +371,12 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
   };
 
   // Image Upload handler (Cloudinary via uploadProductImage server action)
-  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>, targetField: "bgImage" | "image" | "logo") => {
+  // targetField can now be "bgImage" | "imageUrl" | "image" | "logo"
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>, targetField: "bgImage" | "imageUrl" | "image" | "logo") => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setUploadingImageField(targetField);
+    setUploadingImageField(targetField as any);
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -386,9 +387,15 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
         await updateStoreConfig({ logoUrl: uploadedUrl });
         toast.success("Store logo uploaded!");
       } else {
-        updateSelectedContent(targetField, uploadedUrl);
+        // When a template uses imageUrl (hero/banners), update BOTH keys so both render correctly
+        if (targetField === "imageUrl" || targetField === "bgImage") {
+          updateSelectedContent("imageUrl", uploadedUrl);
+          updateSelectedContent("bgImage", uploadedUrl);
+        } else {
+          updateSelectedContent(targetField, uploadedUrl);
+        }
         commitContentEdit();
-        toast.success("Section image updated from Cloudinary!");
+        toast.success("Section image updated!");
       }
     } catch (err: any) {
       toast.error(err.message || "Image upload failed");
@@ -1282,27 +1289,45 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                 </div>
               )}
 
-              {/* Background Image with Cloudinary uploader */}
-              {selectedSection.content.bgImage !== undefined && (
+              {/* Background / Hero / Banner Image with Cloudinary uploader */}
+              {(selectedSection.content.bgImage !== undefined || selectedSection.content.imageUrl !== undefined) && (
                 <div className="space-y-2">
-                  <label className="text-slate-400 font-bold block">Background Image</label>
+                  <label className="text-slate-400 font-bold block">
+                    {selectedSection.type === "hero" ? "Hero Background Image" : "Banner / Section Image"}
+                  </label>
+                  {(selectedSection.content.bgImage || selectedSection.content.imageUrl) && (
+                    <div className="relative rounded-xl overflow-hidden border border-slate-800 h-28 bg-slate-950">
+                      <img 
+                        src={selectedSection.content.bgImage || selectedSection.content.imageUrl} 
+                        alt="Section Preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  )}
                   <input
                     type="text"
-                    value={selectedSection.content.bgImage || ""}
-                    onChange={(e) => updateSelectedContent("bgImage", e.target.value)}
+                    value={selectedSection.content.bgImage || selectedSection.content.imageUrl || ""}
+                    onChange={(e) => {
+                      updateSelectedContent("bgImage", e.target.value);
+                      updateSelectedContent("imageUrl", e.target.value);
+                    }}
                     onBlur={commitContentEdit}
                     className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none text-[11px] font-mono"
-                    placeholder="https://..."
+                    placeholder="https://images.unsplash.com/..."
                   />
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
                       onClick={() => bgImageInputRef.current?.click()}
-                      disabled={uploadingImageField === "bgImage"}
-                      className="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-center gap-1.5"
+                      disabled={uploadingImageField === "bgImage" || uploadingImageField === "imageUrl"}
+                      className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-500 text-xs font-bold text-white flex items-center justify-center gap-1.5 shadow-sm transition-all"
                     >
-                      {uploadingImageField === "bgImage" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                      <span>Upload to Cloudinary</span>
+                      {uploadingImageField === "bgImage" || uploadingImageField === "imageUrl" ? (
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Upload className="w-3.5 h-3.5" />
+                      )}
+                      <span>Upload Photo (Cloudinary)</span>
                     </button>
                     <input
                       ref={bgImageInputRef}
@@ -1319,6 +1344,15 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
               {selectedSection.content.image !== undefined && (
                 <div className="space-y-2">
                   <label className="text-slate-400 font-bold block">Feature Image</label>
+                  {selectedSection.content.image && (
+                    <div className="relative rounded-xl overflow-hidden border border-slate-800 h-28 bg-slate-950">
+                      <img 
+                        src={selectedSection.content.image} 
+                        alt="Feature Preview" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                  )}
                   <input
                     type="text"
                     value={selectedSection.content.image || ""}
@@ -1332,10 +1366,10 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                       type="button"
                       onClick={() => featureImageInputRef.current?.click()}
                       disabled={uploadingImageField === "image"}
-                      className="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-center gap-1.5"
+                      className="w-full py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 border border-indigo-500 text-xs font-bold text-white flex items-center justify-center gap-1.5 shadow-sm transition-all"
                     >
                       {uploadingImageField === "image" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
-                      <span>Upload to Cloudinary</span>
+                      <span>Upload Photo (Cloudinary)</span>
                     </button>
                     <input
                       ref={featureImageInputRef}
@@ -1348,19 +1382,169 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                 </div>
               )}
 
+              {/* Contact Specific Properties */}
+              {selectedSection.type === "contact" && (
+                <div className="space-y-3 pt-2 border-t border-slate-800">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-emerald-400 block">
+                    Contact Channels
+                  </span>
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">WhatsApp Direct #</label>
+                    <input
+                      type="text"
+                      value={selectedSection.content.whatsapp || ""}
+                      onChange={(e) => updateSelectedContent("whatsapp", e.target.value)}
+                      onBlur={commitContentEdit}
+                      placeholder="+232 76 000 000"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none font-mono text-[11px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Phone Call #</label>
+                    <input
+                      type="text"
+                      value={selectedSection.content.phone || ""}
+                      onChange={(e) => updateSelectedContent("phone", e.target.value)}
+                      onBlur={commitContentEdit}
+                      placeholder="+232 88 000 000"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none font-mono text-[11px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Email Address</label>
+                    <input
+                      type="email"
+                      value={selectedSection.content.email || ""}
+                      onChange={(e) => updateSelectedContent("email", e.target.value)}
+                      onBlur={commitContentEdit}
+                      placeholder="support@store.sl"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none text-[11px]"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-slate-400 font-bold">Physical Location / Address</label>
+                    <input
+                      type="text"
+                      value={selectedSection.content.location || ""}
+                      onChange={(e) => updateSelectedContent("location", e.target.value)}
+                      onBlur={commitContentEdit}
+                      placeholder="12 Wilkinson Road, Freetown"
+                      className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none text-[11px]"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* About / Footer text */}
+              {selectedSection.content.aboutText !== undefined && (
+                <div className="space-y-1 pt-2">
+                  <label className="text-slate-400 font-bold">About Brand Blurb</label>
+                  <textarea
+                    rows={3}
+                    value={selectedSection.content.aboutText || ""}
+                    onChange={(e) => updateSelectedContent("aboutText", e.target.value)}
+                    onBlur={commitContentEdit}
+                    className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white focus:outline-none"
+                  />
+                </div>
+              )}
+
               <div className="pt-4 border-t border-slate-800">
                 <button
                   onClick={() => removeSection(selectedSection.id)}
-                  className="w-full py-2.5 rounded-xl font-bold text-xs bg-rose-950/40 text-rose-400 hover:bg-rose-900/60 border border-rose-900/40 flex items-center justify-center gap-1.5"
+                  className="w-full py-2.5 rounded-xl font-bold text-xs bg-rose-950/40 text-rose-400 hover:bg-rose-900/60 border border-rose-900/40 flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Remove Section
                 </button>
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-500 space-y-2">
-              <Layers className="w-8 h-8 mx-auto stroke-[1.5]" />
-              <p className="text-xs">Click on any section in the center canvas to inspect and edit its properties.</p>
+            <div className="space-y-5 text-xs">
+              <div className="pb-3 border-b border-slate-800">
+                <span className="text-[10px] font-black uppercase tracking-wider text-indigo-400">
+                  Global Store Inspector
+                </span>
+                <h3 className="font-bold text-sm text-white mt-1">
+                  Brand &amp; Contact Overview
+                </h3>
+              </div>
+
+              {/* Store Name Quick Edit */}
+              <div className="space-y-1">
+                <label className="text-slate-400 font-bold block">Store Display Name</label>
+                <input
+                  type="text"
+                  value={store.name || ""}
+                  onChange={(e) => setStore({ ...store, name: e.target.value })}
+                  onBlur={() => updateStoreConfig({ name: store.name })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-bold focus:outline-none text-xs"
+                  placeholder="e.g. Bella Chic Boutique"
+                />
+              </div>
+
+              {/* WhatsApp Checkout Quick Edit */}
+              <div className="space-y-1">
+                <label className="text-slate-400 font-bold flex items-center justify-between">
+                  <span>WhatsApp Orders #</span>
+                  <span className="text-emerald-400 font-normal text-[10px]">Instant Checkout</span>
+                </label>
+                <input
+                  type="text"
+                  value={store.whatsappPhone || ""}
+                  onChange={(e) => setStore({ ...store, whatsappPhone: e.target.value })}
+                  onBlur={() => updateStoreConfig({ whatsappPhone: store.whatsappPhone })}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-800 text-white font-mono text-xs focus:outline-none"
+                  placeholder="+232 76 000 000"
+                />
+                <p className="text-[10px] text-slate-500">
+                  Customers' checkout carts and item summaries are automatically sent here.
+                </p>
+              </div>
+
+              {/* Store Logo Quick Edit */}
+              <div className="space-y-2 pt-2 border-t border-slate-800">
+                <label className="text-slate-400 font-bold block">Store Logo</label>
+                {store.logoUrl ? (
+                  <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-950 border border-slate-800">
+                    <img 
+                      src={store.logoUrl} 
+                      alt="Store Logo" 
+                      className="w-10 h-10 rounded-lg object-contain bg-white/5 border border-slate-800" 
+                    />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-white font-medium truncate text-[11px]">{store.name} Logo</p>
+                      <button
+                        type="button"
+                        onClick={() => logoInputRef.current?.click()}
+                        className="text-[10px] text-indigo-400 hover:underline cursor-pointer"
+                      >
+                        Change Logo Photo
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={uploadingImageField === "logo"}
+                    className="w-full py-2.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 text-xs font-bold text-slate-300 flex items-center justify-center gap-2 cursor-pointer transition-all"
+                  >
+                    {uploadingImageField === "logo" ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Upload className="w-3.5 h-3.5" />}
+                    <span>Upload Brand Logo</span>
+                  </button>
+                )}
+              </div>
+
+              {/* Quick Instructions */}
+              <div className="p-3 rounded-2xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-400 space-y-1.5">
+                <p className="font-bold text-slate-300 flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-indigo-400" />
+                  Visual Editor Tip:
+                </p>
+                <p className="leading-relaxed">
+                  Click on any section directly on the canvas preview to edit its headline text, badges, buttons, and upload custom images.
+                </p>
+              </div>
             </div>
           )}
         </div>
