@@ -24,6 +24,7 @@ export default async function StoreBuilderPage({
 
   const resolvedParams = searchParams ? await searchParams : {};
   const initialPrompt = resolvedParams?.prompt || "";
+  const initialTab = resolvedParams?.tab || (resolvedParams?.prompt ? "studio" : "analytics");
 
   const businessId = session.user.businessId;
 
@@ -78,6 +79,7 @@ export default async function StoreBuilderPage({
         analytics={analytics}
         businessName={business?.name || store?.name || session.user.name || "My Store"}
         initialPrompt={initialPrompt}
+        initialTab={initialTab}
         initialTemplates={templatesRes?.templates || []}
       />
     </div>

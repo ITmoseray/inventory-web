@@ -136,6 +136,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [generatedStore, setGeneratedStore] = useState<any | null>(null);
+  const [showQuickTweak, setShowQuickTweak] = useState(false);
   const [viewport, setViewport] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [activeStep, setActiveStep] = useState(0);
 
@@ -557,6 +558,21 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                   </button>
                 </div>
 
+                {/* Quick Edit Text & Branding Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setShowQuickTweak(!showQuickTweak)}
+                  className={`px-4 py-2.5 rounded-xl border text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                    showQuickTweak 
+                      ? "bg-primary text-primary-foreground border-primary" 
+                      : "bg-background border-border text-foreground hover:bg-muted"
+                  }`}
+                  title="Quickly edit store name, phone number, and headline"
+                >
+                  <Palette className="w-3.5 h-3.5" />
+                  <span>{showQuickTweak ? "Close Editor" : "Quick Edit Text"}</span>
+                </button>
+
                 {/* Primary Claim Store Trigger */}
                 <button
                   onClick={() => setIsClaimModalOpen(true)}
@@ -567,6 +583,61 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                 </button>
               </div>
             </div>
+
+            {/* Quick Tweak Live Editor Drawer */}
+            {showQuickTweak && (
+              <div className="p-4 sm:p-5 rounded-2xl bg-card border border-border shadow-lg grid grid-cols-1 sm:grid-cols-3 gap-3 animate-in slide-in-from-top-2 duration-200">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground block">Store Name</label>
+                  <input
+                    type="text"
+                    value={generatedStore.name}
+                    onChange={(e) => {
+                      const newName = e.target.value;
+                      setGeneratedStore((prev: any) => ({ ...prev, name: newName }));
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-background border border-border text-foreground text-xs font-bold focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Store Name"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground block">Direct WhatsApp #</label>
+                  <input
+                    type="text"
+                    value={generatedStore.whatsapp || ""}
+                    onChange={(e) => {
+                      const newPhone = e.target.value;
+                      setGeneratedStore((prev: any) => ({ ...prev, whatsapp: newPhone }));
+                      setClaimPhone(newPhone);
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-background border border-border text-foreground text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="+232 76 000 000"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-muted-foreground block">Hero Headline</label>
+                  <input
+                    type="text"
+                    value={generatedStore.sections?.[0]?.content?.title || generatedStore.sections?.[0]?.content?.headline || ""}
+                    onChange={(e) => {
+                      const newTitle = e.target.value;
+                      setGeneratedStore((prev: any) => {
+                        const updatedSecs = [...prev.sections];
+                        if (updatedSecs[0]) {
+                          updatedSecs[0] = {
+                            ...updatedSecs[0],
+                            content: { ...updatedSecs[0].content, title: newTitle, headline: newTitle }
+                          };
+                        }
+                        return { ...prev, sections: updatedSecs };
+                      });
+                    }}
+                    className="w-full px-3 py-2 rounded-xl bg-background border border-border text-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                    placeholder="Headline text"
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Viewport Frame Container */}
             <div className="flex justify-center bg-slate-950/90 backdrop-blur-md p-1.5 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl border border-border/80 shadow-2xl overflow-x-hidden w-full">

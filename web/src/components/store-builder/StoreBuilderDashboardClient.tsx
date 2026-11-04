@@ -29,6 +29,7 @@ interface Props {
   analytics: any;
   businessName: string;
   initialPrompt?: string;
+  initialTab?: string;
   initialTemplates?: StoreTemplateDTO[];
 }
 
@@ -40,10 +41,13 @@ export function StoreBuilderDashboardClient({
   analytics,
   businessName,
   initialPrompt,
+  initialTab,
   initialTemplates
 }: Props) {
   const [store, setStore] = useState(initialStore);
-  const [activeTab, setActiveTab] = useState<"analytics" | "studio" | "products" | "orders" | "templates" | "settings">("analytics");
+  const [activeTab, setActiveTab] = useState<"analytics" | "studio" | "products" | "orders" | "templates" | "settings">(
+    (initialTab as any) || "analytics"
+  );
   const [showWizard, setShowWizard] = useState(!initialStore || !!initialPrompt);
   const [wizardView, setWizardView] = useState<"ai" | "templates">("ai");
   const [copied, setCopied] = useState(false);
@@ -261,6 +265,20 @@ export function StoreBuilderDashboardClient({
               <ExternalLink className="w-3.5 h-3.5 text-muted-foreground" />
               Live Preview
             </Link>
+
+            {/* Primary Customize Storefront Studio Trigger */}
+            <button
+              onClick={() => setActiveTab("studio")}
+              title="Open Visual Studio to edit headlines, images, and brand context"
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all shadow-md ${
+                activeTab === "studio"
+                  ? "bg-indigo-600 text-white shadow-indigo-600/30 ring-2 ring-indigo-400"
+                  : "bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-600/20 hover:scale-105 active:scale-95"
+              }`}
+            >
+              <Palette className="w-3.5 h-3.5" />
+              <span>Customize Design</span>
+            </button>
 
             <button
               onClick={handleTogglePublish}

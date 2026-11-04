@@ -8,7 +8,8 @@ import { StoreCartDrawer } from "@/components/storefront/StoreCartDrawer";
 import { StoreCheckoutModal } from "@/components/storefront/StoreCheckoutModal";
 import { StoreMobileBottomNav } from "@/components/storefront/StoreMobileBottomNav";
 import { StoreSection, StoreTheme, StoreNavigation, StoreSettings } from "@/types/store-builder";
-import { Store as StoreIcon, ShieldAlert, LogIn, ArrowRight } from "lucide-react";
+import { Store as StoreIcon, ShieldAlert, LogIn, ArrowRight, Palette, Settings } from "lucide-react";
+import { auth } from "@/lib/auth";
 import Link from "next/link";
 
 interface PageProps {
@@ -117,6 +118,12 @@ export default async function StorefrontPage({ params }: PageProps) {
   const sections = (homePage?.sections as unknown as StoreSection[]) || [];
   const products = store.products || [];
 
+  const session = await auth();
+  const isOwner = Boolean(
+    session?.user?.id && 
+    (session.user.businessId === store.businessId || session.user.role === "SUPER_ADMIN" || session.user.role === "ADMIN")
+  );
+
   return (
     <StoreThemeWrapper theme={theme}>
       {/* Sticky Owner Preview Banner (if in DRAFT mode) */}
@@ -187,6 +194,30 @@ export default async function StorefrontPage({ params }: PageProps) {
         currency={store.currency || "SLE"}
         whatsappPhone={store.whatsappPhone || store.business?.whatsappPhone}
       />
+
+      {/* Floating Store Owner Customization Toolbar */}
+      {isOwner && (
+        <div className="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 flex items-center gap-2 p-1.5 pl-3.5 rounded-full bg-slate-950/95 text-white border border-indigo-500/40 shadow-2xl backdrop-blur-md animate-in slide-in-from-bottom-4 duration-300">
+          <div className="flex items-center gap-2 text-xs font-bold mr-1">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="hidden sm:inline text-slate-300">Store Owner</span>
+          </div>
+          <Link
+            href="/dashboard/store-builder?tab=studio"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-wider shadow-md transition-transform hover:scale-105 active:scale-95"
+          >
+            <Palette className="w-3.5 h-3.5" />
+            <span>Customize Store</span>
+          </Link>
+          <Link
+            href="/dashboard/store-builder"
+            className="p-1.5 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors"
+            title="Open Store Dashboard"
+          >
+            <Settings className="w-4 h-4" />
+          </Link>
+        </div>
+      )}
     </StoreThemeWrapper>
   );
 }
