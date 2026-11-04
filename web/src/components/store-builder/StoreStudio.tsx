@@ -25,6 +25,7 @@ import { uploadProductImage } from "@/lib/actions/upload";
 import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { SectionRenderer } from "@/components/storefront/SectionRenderer";
+import { StoreMobileBottomNav } from "@/components/storefront/StoreMobileBottomNav";
 import { StoreUpgradeModal } from "./StoreUpgradeModal";
 import { StoreBillingModal } from "./StoreBillingModal";
 import { TemplateGallery } from "./TemplateGallery";
@@ -1087,6 +1088,7 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                 whatsappNumber={store.whatsappPhone}
                 theme={theme}
                 navigation={store.navigation}
+                viewport={device}
               />
 
               <main>
@@ -1111,6 +1113,15 @@ export function StoreStudio({ initialStore, availableProducts = [] }: Props) {
                   </div>
                 ))}
               </main>
+
+              {device === "mobile" && (
+                <StoreMobileBottomNav
+                  storeSlug={store.slug}
+                  whatsappNumber={store.whatsappPhone}
+                  theme={theme}
+                  isSimulator={true}
+                />
+              )}
             </StoreThemeWrapper>
           </div>
 

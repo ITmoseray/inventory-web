@@ -10,9 +10,10 @@ interface Props {
   storeSlug: string;
   whatsappNumber?: string | null;
   theme?: any;
+  isSimulator?: boolean;
 }
 
-export function StoreMobileBottomNav({ storeSlug, whatsappNumber, theme: rawTheme }: Props) {
+export function StoreMobileBottomNav({ storeSlug, whatsappNumber, theme: rawTheme, isSimulator }: Props) {
   const theme = normalizeStoreTheme(rawTheme);
   const c = theme.colors;
   const { getTotalItems, setIsCartOpen } = useStoreCart();
@@ -25,7 +26,7 @@ export function StoreMobileBottomNav({ storeSlug, whatsappNumber, theme: rawThem
 
   return (
     <div 
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t backdrop-blur-lg shadow-2xl transition-all pb-[env(safe-area-inset-bottom)]"
+      className={`${isSimulator ? "block sticky" : "md:hidden fixed"} bottom-0 left-0 right-0 z-40 border-t backdrop-blur-lg shadow-2xl transition-all pb-[env(safe-area-inset-bottom)]`}
       style={{
         backgroundColor: c.background ? `${c.background}F5` : "rgba(255, 255, 255, 0.95)",
         borderColor: "rgba(0,0,0,0.08)",

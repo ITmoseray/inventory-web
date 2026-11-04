@@ -208,6 +208,7 @@ export function TemplatePreviewModal({
               whatsappNumber="+23279000000"
               theme={template.themeConfig}
               navigation={template.navigation || undefined}
+              viewport={device}
             />
 
             {/* Sections */}
@@ -228,13 +229,12 @@ export function TemplatePreviewModal({
             </div>
 
             {device === "mobile" && (
-              <div className="sticky bottom-0 z-40">
-                <StoreMobileBottomNav
-                  storeSlug={template.slug}
-                  whatsappNumber="+23279000000"
-                  theme={template.themeConfig}
-                />
-              </div>
+              <StoreMobileBottomNav
+                storeSlug={template.slug}
+                whatsappNumber="+23279000000"
+                theme={template.themeConfig}
+                isSimulator={true}
+              />
             )}
           </StoreThemeWrapper>
         </div>

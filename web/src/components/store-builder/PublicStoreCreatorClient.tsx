@@ -591,6 +591,7 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                     whatsappNumber={generatedStore.whatsapp || whatsappNumber || "+23276000000"}
                     theme={generatedStore.theme}
                     navigation={generatedStore.navigation} 
+                    viewport={viewport}
                   />
                   <div className="space-y-0 pb-16">
                     {generatedStore.sections.map((sec: StoreSection) => (
@@ -609,13 +610,14 @@ export function PublicStoreCreatorClient({ initialPrompt = "" }: Props) {
                   </div>
 
                   {/* Mobile Bottom Navigation in Mobile Preview */}
-                  <div className="sticky bottom-0 z-40">
+                  {viewport === "mobile" && (
                     <StoreMobileBottomNav
                       storeSlug={generatedStore.slug || "preview"}
                       whatsappNumber={generatedStore.whatsapp || whatsappNumber || "+23276000000"}
                       theme={generatedStore.theme}
+                      isSimulator={true}
                     />
-                  </div>
+                  )}
                 </StoreThemeWrapper>
               </div>
             </div>

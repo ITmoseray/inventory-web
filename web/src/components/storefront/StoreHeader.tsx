@@ -13,6 +13,7 @@ interface Props {
   whatsappNumber?: string | null;
   theme?: any;
   navigation?: StoreNavigation;
+  viewport?: "desktop" | "tablet" | "mobile";
 }
 
 export function StoreHeader({
@@ -22,7 +23,11 @@ export function StoreHeader({
   whatsappNumber,
   theme: rawTheme,
   navigation,
+  viewport,
 }: Props) {
+  const isForcedMobile = viewport === "mobile";
+  const isForcedDesktop = viewport === "desktop";
+
   const theme = normalizeStoreTheme(rawTheme);
   const c = theme.colors;
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -92,28 +97,30 @@ export function StoreHeader({
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.id}
-                href={item.url}
-                className="text-xs sm:text-sm font-bold tracking-wide transition-colors hover:opacity-80"
-                style={{ color: c.mutedText }}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
+          {!isForcedMobile && (
+            <nav className={`${isForcedDesktop ? "flex" : "hidden md:flex"} items-center gap-6 lg:gap-8`}>
+              {navItems.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.url}
+                  className="text-xs sm:text-sm font-bold tracking-wide transition-colors hover:opacity-80"
+                  style={{ color: c.mutedText }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          )}
 
           {/* Header Action Controls */}
           <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
-            {waUrl && (
+            {waUrl && !isForcedMobile && (
               <a
                 href={waUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 title="Chat on WhatsApp"
-                className="hidden sm:flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 transition-all hover:scale-105 border border-emerald-500/20"
+                className={`${isForcedDesktop ? "flex" : "hidden sm:flex"} items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 transition-all hover:scale-105 border border-emerald-500/20`}
               >
                 <MessageCircle className="w-4 h-4" />
                 <span>WhatsApp</span>
@@ -143,21 +150,23 @@ export function StoreHeader({
             </button>
 
             {/* Mobile Hamburger Toggle */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-xl border flex items-center justify-center text-slate-700 dark:text-slate-300 transition-all"
-              style={{ backgroundColor: c.surface, borderColor: "rgba(0,0,0,0.1)" }}
-              aria-label="Toggle navigation menu"
-            >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
+            {(isForcedMobile || !isForcedDesktop) && (
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className={`${isForcedMobile ? "flex" : "md:hidden flex"} p-2 rounded-xl border items-center justify-center text-slate-700 dark:text-slate-300 transition-all`}
+                style={{ backgroundColor: c.surface, borderColor: "rgba(0,0,0,0.1)" }}
+                aria-label="Toggle navigation menu"
+              >
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            )}
           </div>
         </div>
 
         {/* Mobile Navigation Dropdown Drawer */}
         {mobileMenuOpen && (
           <div 
-            className="md:hidden border-t px-4 py-4 space-y-3 animate-in slide-in-from-top-2 duration-200 shadow-xl"
+            className={`${isForcedMobile ? "block" : "md:hidden"} border-t px-4 py-4 space-y-3 animate-in slide-in-from-top-2 duration-200 shadow-xl`}
             style={{ backgroundColor: c.background }}
           >
             <div className="space-y-1">
