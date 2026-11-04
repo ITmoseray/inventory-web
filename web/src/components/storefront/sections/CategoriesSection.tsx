@@ -34,7 +34,7 @@ export function CategoriesSection({ section, theme, storeSlug, products = [] }: 
         </div>
 
         {/* Editorial Visual Category Cards */}
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {templateCategories.map((cat, idx) => {
             const img = cat.image || cat.imageUrl || "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&auto=format&fit=crop&q=80";
 
@@ -42,7 +42,7 @@ export function CategoriesSection({ section, theme, storeSlug, products = [] }: 
               <Link
                 key={idx}
                 href={`/store/${storeSlug}#products`}
-                className="group relative aspect-[4/3] sm:aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shadow-md transition-all hover:shadow-2xl flex flex-col justify-end p-4 sm:p-5"
+                className="group relative aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shadow-md transition-all hover:shadow-2xl flex flex-col justify-end p-3 sm:p-5"
               >
                 {/* Background Image */}
                 <img
@@ -54,18 +54,18 @@ export function CategoriesSection({ section, theme, storeSlug, products = [] }: 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent transition-opacity group-hover:opacity-90" />
 
                 {/* Content Overlay */}
-                <div className="relative z-10 space-y-1">
+                <div className="relative z-10 space-y-0.5 sm:space-y-1">
                   {cat.count && (
-                    <span className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-white/20 text-white backdrop-blur-md border border-white/20 mb-1">
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-white/20 text-white backdrop-blur-md border border-white/20 mb-0.5">
                       {cat.count}
                     </span>
                   )}
-                  <div className="flex items-center justify-between gap-2">
-                    <h3 className="font-black text-sm sm:text-lg text-white leading-tight drop-shadow-sm group-hover:text-emerald-300 transition-colors">
+                  <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                    <h3 className="font-black text-xs sm:text-lg text-white leading-tight drop-shadow-sm group-hover:text-emerald-300 transition-colors truncate">
                       {cat.name}
                     </h3>
-                    <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 flex-shrink-0">
-                      <ArrowRight className="w-3.5 h-3.5" />
+                    <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-all group-hover:translate-x-1 flex-shrink-0">
+                      <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </div>
                   </div>
                 </div>

@@ -67,9 +67,9 @@ export function ProductGridSection({
   };
 
   return (
-    <section id="products" className="py-14 sm:py-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <section id="products" className="py-10 sm:py-20 px-3.5 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
       {/* Section Header */}
-      <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2.5">
+      <div className="text-center max-w-2xl mx-auto mb-6 sm:mb-12 space-y-2">
         <h2 
           className="text-2xl sm:text-4xl font-black tracking-tight" 
           style={{ color: theme.colors.text }}
@@ -85,12 +85,12 @@ export function ProductGridSection({
 
         {/* Mobile Swipeable Category Pills */}
         {categories.length > 2 && (
-          <div className="pt-4 flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-0 flex-nowrap sm:flex-wrap">
+          <div className="pt-3 flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar py-2 px-1 flex-nowrap sm:flex-wrap touch-pan-x">
             {categories.map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap flex-shrink-0 active:scale-95 shadow-sm"
+                className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-[11px] sm:text-xs font-bold uppercase tracking-wider transition-all duration-200 whitespace-nowrap flex-shrink-0 active:scale-95 shadow-sm"
                 style={{
                   backgroundColor: selectedCategory === cat ? theme.colors.primary : theme.colors.surface,
                   color: selectedCategory === cat ? "#FFFFFF" : theme.colors.mutedText,
@@ -124,7 +124,7 @@ export function ProductGridSection({
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-6">
           {filtered.map(prod => {
             const hasDiscount = prod.originalPrice && prod.originalPrice > prod.price;
             const discountPct = hasDiscount 
@@ -153,17 +153,17 @@ export function ProductGridSection({
                   )}
 
                   {/* Floating Badges */}
-                  <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 z-10">
+                  <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 flex flex-col gap-1 sm:gap-1.5 z-10">
                     {prod.customBadge && (
                       <div 
-                        className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-white shadow-md"
+                        className="px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-white shadow-md"
                         style={{ backgroundColor: theme.colors.accent }}
                       >
                         {prod.customBadge}
                       </div>
                     )}
                     {discountPct && (
-                      <div className="px-2 py-0.5 rounded-lg text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
+                      <div className="px-1.5 sm:px-2 py-0.5 rounded-md sm:rounded-lg text-[8px] sm:text-[10px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-md">
                         {discountPct}% OFF
                       </div>
                     )}
@@ -172,7 +172,7 @@ export function ProductGridSection({
                   {/* Out of Stock Overlay */}
                   {!prod.inStock && (
                     <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px] flex items-center justify-center z-20">
-                      <span className="px-2.5 sm:px-3 py-1 rounded-full bg-rose-600 text-white text-[10px] sm:text-xs font-black uppercase tracking-widest shadow-lg">
+                      <span className="px-2 sm:px-3 py-1 rounded-full bg-rose-600 text-white text-[9px] sm:text-xs font-black uppercase tracking-widest shadow-lg">
                         Out of Stock
                       </span>
                     </div>
@@ -180,14 +180,14 @@ export function ProductGridSection({
                 </div>
 
                 {/* Product Info & Quick Buy */}
-                <div className="p-3.5 sm:p-4 flex flex-col flex-1 justify-between gap-3">
-                  <div className="space-y-1">
-                    <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 block truncate">
+                <div className="p-2.5 sm:p-4 flex flex-col flex-1 justify-between gap-2 sm:gap-3">
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 block truncate">
                       {prod.category}
                     </span>
                     <Link href={`/store/${storeSlug}/product/${prod.id}`}>
                       <h3 
-                        className="font-bold text-xs sm:text-sm line-clamp-2 leading-snug hover:underline" 
+                        className="font-bold text-[11px] sm:text-sm line-clamp-2 leading-snug hover:underline" 
                         style={{ color: theme.colors.text }}
                       >
                         {prod.name}
@@ -196,15 +196,15 @@ export function ProductGridSection({
                   </div>
 
                   {/* Price Row & Cart Trigger */}
-                  <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-end justify-between gap-2">
+                  <div className="pt-1.5 sm:pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-end justify-between gap-1.5 sm:gap-2">
                     <div className="min-w-0">
                       {hasDiscount && (
-                        <span className="text-[10px] text-slate-400 line-through block leading-none mb-0.5 font-semibold">
+                        <span className="text-[9px] sm:text-[10px] text-slate-400 line-through block leading-none mb-0.5 font-semibold truncate">
                           {currency} {prod.originalPrice!.toLocaleString()}
                         </span>
                       )}
                       <span 
-                        className="font-black text-sm sm:text-base tracking-tight truncate block" 
+                        className="font-black text-xs sm:text-base tracking-tight truncate block" 
                         style={{ color: theme.colors.primary }}
                       >
                         {currency} {prod.price.toLocaleString()}
@@ -215,7 +215,7 @@ export function ProductGridSection({
                       onClick={() => handleAddToCart(prod)}
                       disabled={!prod.inStock}
                       title="Add to Cart"
-                      className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex-shrink-0 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                      className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex-shrink-0 flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
                       style={{ backgroundColor: theme.colors.primary }}
                     >
                       <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

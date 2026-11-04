@@ -17,6 +17,7 @@ import { StoreTemplateDTO, StoreSection } from "@/types/store-builder";
 import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { SectionRenderer } from "@/components/storefront/SectionRenderer";
+import { StoreMobileBottomNav } from "@/components/storefront/StoreMobileBottomNav";
 
 interface Props {
   template: StoreTemplateDTO | null;
@@ -178,8 +179,8 @@ export function TemplatePreviewModal({
             device === "desktop"
               ? "w-full max-w-6xl rounded-2xl border border-slate-800"
               : device === "tablet"
-              ? "w-[768px] rounded-3xl border-4 sm:border-8 border-slate-800 ring-2 ring-slate-700"
-              : "w-[390px] rounded-3xl sm:rounded-[40px] border-4 sm:border-[10px] border-slate-800 ring-2 sm:ring-4 ring-slate-750"
+              ? "w-[768px] max-w-full rounded-3xl border-4 sm:border-8 border-slate-800 ring-2 ring-slate-700"
+              : "w-full max-w-[390px] rounded-3xl sm:rounded-[40px] border-4 sm:border-[10px] border-slate-800 ring-2 sm:ring-4 ring-slate-750"
           }`}
         >
           {/* Simulated Browser Bar for Device Preview */}
@@ -225,6 +226,16 @@ export function TemplatePreviewModal({
                 />
               ))}
             </div>
+
+            {device === "mobile" && (
+              <div className="sticky bottom-0 z-40">
+                <StoreMobileBottomNav
+                  storeSlug={template.slug}
+                  whatsappNumber="+23279000000"
+                  theme={template.themeConfig}
+                />
+              </div>
+            )}
           </StoreThemeWrapper>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { StoreThemeWrapper } from "@/components/storefront/StoreThemeWrapper";
 import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { StoreCartDrawer } from "@/components/storefront/StoreCartDrawer";
 import { StoreCheckoutModal } from "@/components/storefront/StoreCheckoutModal";
+import { StoreMobileBottomNav } from "@/components/storefront/StoreMobileBottomNav";
 import { StoreTheme, StoreNavigation, StoreSettings, normalizeStoreProduct } from "@/types/store-builder";
 import { ProductDetailPageClient } from "./ProductDetailPageClient";
 
@@ -57,7 +58,7 @@ export default async function ProductPage({ params }: Props) {
         navigation={navigation}
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-8 sm:py-14">
+      <main className="max-w-7xl mx-auto px-4 py-8 sm:py-14 pb-20 md:pb-14">
         <ProductDetailPageClient
           storeProduct={storeProduct}
           store={store}
@@ -65,6 +66,13 @@ export default async function ProductPage({ params }: Props) {
           settings={settings}
         />
       </main>
+
+      {/* Mobile Sticky Bottom Navigation */}
+      <StoreMobileBottomNav
+        storeSlug={store.slug}
+        whatsappNumber={store.whatsappPhone || store.business?.whatsappPhone}
+        theme={theme}
+      />
 
       <StoreCartDrawer
         theme={theme}

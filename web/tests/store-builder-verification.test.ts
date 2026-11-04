@@ -46,6 +46,18 @@ describe("ProTech Assist AI Store Builder - Verification Suite", () => {
       assert.notEqual(tech?.themeConfig.colors.primary, grocery?.themeConfig.colors.primary, "Tech and Grocery should have distinct primary colors");
       assert.notEqual(fashion?.themeConfig.style, tech?.themeConfig.style, "Fashion and Tech should have distinct style archetypes");
     });
+
+    it("should verify each template has its own dedicated thumbnail and preview image", () => {
+      const seenThumbnails = new Set<string>();
+      STARTER_TEMPLATES.forEach((tpl) => {
+        assert.ok(tpl.thumbnail, `Template ${tpl.id} must have a thumbnail image`);
+        assert.ok(tpl.thumbnail.startsWith("http"), `Template ${tpl.id} thumbnail must be a valid HTTP URL`);
+        assert.ok(!seenThumbnails.has(tpl.thumbnail), `Template ${tpl.id} thumbnail must be unique, duplicate found`);
+        seenThumbnails.add(tpl.thumbnail);
+        assert.ok(tpl.previewImage, `Template ${tpl.id} must have a previewImage`);
+      });
+      assert.equal(seenThumbnails.size, STARTER_TEMPLATES.length, "All templates must have distinct preview images");
+    });
   });
 
   // ── 2. PRODUCT NORMALIZATION & INVENTORY TESTS ────────────────────

@@ -35,13 +35,13 @@ export function AboutSection({ section, theme }: Props) {
           <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
             {content.description || "We started with a simple belief: every customer deserves genuine products, fair prices, and honest customer care."}
           </p>
-          <div className="pt-4 grid grid-cols-3 gap-3 border-t border-slate-200/60 dark:border-slate-800">
+          <div className="pt-4 grid grid-cols-3 gap-2 sm:gap-3 border-t border-slate-200/60 dark:border-slate-800">
             {stats.map((s: any, i: number) => (
-              <div key={i}>
-                <span className="text-lg sm:text-2xl font-black block" style={{ color: theme.colors.primary }}>
+              <div key={i} className="min-w-0">
+                <span className="text-base sm:text-2xl font-black block truncate" style={{ color: theme.colors.primary }}>
                   {s.value}
                 </span>
-                <span className="text-[10px] text-slate-400 font-bold uppercase block mt-0.5">
+                <span className="text-[9px] sm:text-[10px] text-slate-400 font-bold uppercase block mt-0.5 truncate">
                   {s.label}
                 </span>
               </div>

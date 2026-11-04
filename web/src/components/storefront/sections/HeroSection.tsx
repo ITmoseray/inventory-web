@@ -41,7 +41,7 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
   const isSplitLayout = settings.alignment === "left" || (stats && stats.length > 0 && settings.alignment !== "center");
 
   return (
-    <section className="relative overflow-hidden min-h-[540px] sm:min-h-[620px] lg:min-h-[680px] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-14 sm:py-20 lg:py-24">
+    <section className="relative overflow-hidden min-h-[440px] sm:min-h-[580px] lg:min-h-[660px] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-10 sm:py-16 lg:py-24">
       {/* Background Media with Dark Scrim */}
       <div 
         className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-105"
@@ -58,29 +58,29 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
       <div className="relative z-10 w-full max-w-7xl mx-auto">
         {isSplitLayout ? (
           /* Split Modern Layout */
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Left Content Column */}
-            <div className="lg:col-span-7 text-left space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="lg:col-span-7 text-left space-y-4 sm:space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
               {badge && (
-                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest bg-white/15 backdrop-blur-md border border-white/20 text-white shadow-sm">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-black uppercase tracking-widest bg-white/15 backdrop-blur-md border border-white/20 text-white shadow-sm">
+                  <span className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-emerald-400 animate-pulse" />
                   {badge}
                 </div>
               )}
 
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white drop-shadow-md">
+              <h1 className="text-2xl xs:text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.1] text-white drop-shadow-md break-words">
                 {title}
               </h1>
 
-              <p className="text-sm sm:text-base lg:text-lg text-white/90 font-medium max-w-2xl leading-relaxed drop-shadow-sm">
+              <p className="text-xs xs:text-sm sm:text-base lg:text-lg text-white/90 font-medium max-w-2xl leading-relaxed drop-shadow-sm">
                 {subtitle}
               </p>
 
               {/* Action Buttons */}
-              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3.5">
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3.5 w-full sm:w-auto">
                 <Link
                   href={primaryButtonUrl}
-                  className="px-8 py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-xl hover:scale-105 active:scale-95"
+                  className="px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 shadow-xl hover:scale-105 active:scale-95"
                   style={{
                     backgroundColor: theme.colors.primary,
                     color: "#FFFFFF",
@@ -95,7 +95,7 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
                     href={waUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-7 py-4 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:scale-105 active:scale-95"
+                    className="px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:scale-105 active:scale-95"
                   >
                     <MessageCircle className="w-4 h-4" />
                     {secondaryButtonText}
@@ -103,7 +103,7 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
                 ) : (
                   <Link
                     href={secondaryButtonUrl}
-                    className="px-7 py-4 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md hover:scale-105 active:scale-95"
+                    className="px-6 sm:px-7 py-3.5 sm:py-4 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white border border-white/20 backdrop-blur-md hover:scale-105 active:scale-95"
                   >
                     {secondaryButtonText}
                     <ArrowRight className="w-4 h-4" />
@@ -113,13 +113,13 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
 
               {/* Trust Stats Row */}
               {stats && stats.length > 0 && (
-                <div className="pt-6 border-t border-white/15 grid grid-cols-3 gap-4 max-w-lg">
+                <div className="pt-4 sm:pt-6 border-t border-white/15 grid grid-cols-3 gap-2 sm:gap-4 max-w-lg">
                   {stats.map((st, i) => (
-                    <div key={i} className="space-y-0.5">
-                      <span className="text-lg sm:text-2xl font-black text-white block tracking-tight">
+                    <div key={i} className="space-y-0.5 min-w-0">
+                      <span className="text-base sm:text-2xl font-black text-white block tracking-tight truncate">
                         {st.value}
                       </span>
-                      <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white/70 block">
+                      <span className="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-white/70 block truncate">
                         {st.label}
                       </span>
                     </div>
@@ -128,8 +128,8 @@ export function HeroSection({ section, theme, storeSlug, whatsappNumber }: Props
               )}
             </div>
 
-            {/* Right Showcase Card */}
-            <div className="lg:col-span-5 flex justify-center lg:justify-end">
+            {/* Right Showcase Card - visible on large screens */}
+            <div className="hidden lg:flex lg:col-span-5 justify-end">
               <div className="relative w-full max-w-md aspect-[4/5] sm:aspect-square lg:aspect-[4/5] rounded-3xl overflow-hidden border border-white/20 shadow-2xl bg-white/10 backdrop-blur-md group">
                 <img
                   src={bgImage}

@@ -66,7 +66,7 @@ export function StoreHeader({
           borderColor: "rgba(0, 0, 0, 0.08)",
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
+        <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 h-14 sm:h-20 flex items-center justify-between gap-2.5 sm:gap-3">
           {/* Logo & Brand Name */}
           <Link href={`/store/${storeSlug}`} className="flex items-center gap-2.5 sm:gap-3 group min-w-0">
             {logoUrl ? (
@@ -84,7 +84,7 @@ export function StoreHeader({
               </div>
             )}
             <span 
-              className="font-black text-sm sm:text-lg lg:text-xl tracking-tight leading-tight truncate max-w-[130px] xs:max-w-[190px] sm:max-w-xs md:max-w-md" 
+              className="font-black text-sm sm:text-lg lg:text-xl tracking-tight leading-tight truncate max-w-[140px] xs:max-w-[200px] sm:max-w-xs md:max-w-md" 
               style={{ color: c.text }}
             >
               {storeName}

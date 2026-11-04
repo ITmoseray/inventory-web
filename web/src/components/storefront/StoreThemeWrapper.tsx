@@ -27,7 +27,7 @@ export function StoreThemeWrapper({ theme: rawTheme, children }: Props) {
   };
 
   return (
-    <div style={styleObj} className="w-full min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
+    <div style={styleObj} className="w-full min-h-screen overflow-x-hidden relative antialiased selection:bg-indigo-500 selection:text-white">
       {children}
     </div>
   );

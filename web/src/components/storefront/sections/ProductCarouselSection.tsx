@@ -48,10 +48,10 @@ export function ProductCarouselSection({
   };
 
   return (
-    <section className="py-12 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
+    <section className="py-10 sm:py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+      <div className="flex items-center justify-between mb-4 sm:mb-8">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight" style={{ color: theme.colors.text }}>
+          <h2 className="text-xl sm:text-3xl font-black tracking-tight" style={{ color: theme.colors.text }}>
             {content.title || "Trending & Recommended"}
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
@@ -60,7 +60,7 @@ export function ProductCarouselSection({
         </div>
         <Link 
           href={`/store/${storeSlug}#products`}
-          className="text-xs sm:text-sm font-bold flex items-center gap-1 hover:underline"
+          className="text-xs sm:text-sm font-bold flex items-center gap-1 hover:underline shrink-0"
           style={{ color: theme.colors.primary }}
         >
           View All <ArrowRight className="w-3.5 h-3.5" />
@@ -68,7 +68,7 @@ export function ProductCarouselSection({
       </div>
 
       {/* Snap Scrollable Carousel */}
-      <div className="flex items-stretch gap-4 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div className="flex items-stretch gap-3 sm:gap-4 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory no-scrollbar touch-pan-x">
         {normalized.slice(0, 10).map(prod => {
           const hasDiscount = prod.originalPrice && prod.originalPrice > prod.price;
 

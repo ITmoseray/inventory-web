@@ -6,6 +6,7 @@ import { StoreHeader } from "@/components/storefront/StoreHeader";
 import { SectionRenderer } from "@/components/storefront/SectionRenderer";
 import { StoreCartDrawer } from "@/components/storefront/StoreCartDrawer";
 import { StoreCheckoutModal } from "@/components/storefront/StoreCheckoutModal";
+import { StoreMobileBottomNav } from "@/components/storefront/StoreMobileBottomNav";
 import { StoreSection, StoreTheme, StoreNavigation, StoreSettings } from "@/types/store-builder";
 import { Store as StoreIcon, ShieldAlert, LogIn, ArrowRight } from "lucide-react";
 import Link from "next/link";
@@ -144,7 +145,7 @@ export default async function StorefrontPage({ params }: PageProps) {
       />
 
       {/* Main Sections */}
-      <main className="min-h-[60vh]">
+      <main className="min-h-[60vh] pb-16 md:pb-0">
         {sections.map((section) => (
           <SectionRenderer
             key={section.id}
@@ -161,6 +162,13 @@ export default async function StorefrontPage({ params }: PageProps) {
           />
         ))}
       </main>
+
+      {/* Mobile Sticky Bottom Navigation */}
+      <StoreMobileBottomNav
+        storeSlug={store.slug}
+        whatsappNumber={store.whatsappPhone || store.business?.whatsappPhone}
+        theme={theme}
+      />
 
       {/* Interactive Cart Drawer */}
       <StoreCartDrawer
