@@ -26,7 +26,34 @@ export async function recordAffiliateClick(params: {
   try {
     const rawCode = params.code.trim();
 
-    // 1. Try finding by AffiliateLink code first
+    // 0. Check PAAN multi-merchant campaign links first
+    let paanLink = await (prisma as any).paanReferralLink.findUnique({
+      where: { trackingCode: rawCode.toUpperCase() },
+      include: { affiliate: true, campaign: true },
+    });
+
+    if (paanLink && paanLink.isActive) {
+      // Increment PAAN link and campaign click counters
+      await Promise.all([
+        (prisma as any).paanReferralLink.update({
+          where: { id: paanLink.id },
+          data: { clicks: { increment: 1 } },
+        }),
+        (prisma as any).paanCampaign.update({
+          where: { id: paanLink.campaignId },
+          data: { totalClicks: { increment: 1 } },
+        }),
+      ]).catch(console.error);
+
+      return {
+        success: true,
+        affiliateCode: paanLink.trackingCode,
+        clickId: `PAAN-CLK-${Date.now()}`,
+        targetUrl: paanLink.campaign?.targetUrl || `/marketplace?ref=${paanLink.trackingCode}`,
+      };
+    }
+
+    // 1. Try finding by AffiliateLink code
     let link = await prisma.affiliateLink.findUnique({
       where: { code: rawCode },
       include: { affiliate: true },
@@ -168,17 +195,27 @@ export async function recordAffiliateConversion(params: {
 
     // If no click by visitorId or clickId, try by referralCode directly
     if (!affiliate && params.referralCode) {
-      const code = params.referralCode.trim();
-      const link = await prisma.affiliateLink.findUnique({
-        where: { code },
-        include: { affiliate: true },
+      const code = params.referralCode.trim().toUpperCase();
+      
+      const paanLink = await (prisma as any).paanReferralLink.findUnique({
+        where: { trackingCode: code },
+        include: { affiliate: true, campaign: true },
       });
-      if (link?.affiliate) {
-        affiliate = link.affiliate;
+
+      if (paanLink?.affiliate) {
+        affiliate = paanLink.affiliate;
       } else {
-        affiliate = await prisma.affiliate.findUnique({
-          where: { affiliateCode: code.toUpperCase() },
+        const link = await prisma.affiliateLink.findUnique({
+          where: { code },
+          include: { affiliate: true },
         });
+        if (link?.affiliate) {
+          affiliate = link.affiliate;
+        } else {
+          affiliate = await prisma.affiliate.findUnique({
+            where: { affiliateCode: code },
+          });
+        }
       }
     }
 

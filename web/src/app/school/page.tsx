@@ -9,6 +9,8 @@ export const metadata = {
   description: 'Enterprise-grade school management system.',
 };
 
+export const dynamic = "force-dynamic";
+
 async function getSchoolTenants() {
   try {
     // Fetch businesses that are of type SCHOOL

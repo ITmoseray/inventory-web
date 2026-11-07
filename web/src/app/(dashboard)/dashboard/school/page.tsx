@@ -5,6 +5,8 @@ import { Users, GraduationCap, BookOpen, Clock, Banknote, Activity, UserPlus, Us
 import Image from 'next/image';
 import { AttendanceTrendChart } from './AnalyticsCharts';
 
+export const dynamic = "force-dynamic";
+
 export default async function SchoolDashboardOverview() {
   const stats = await getSchoolDashboardStats();
 

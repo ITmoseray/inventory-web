@@ -18,7 +18,7 @@ const config: NextConfig = {
       fullUrl: true,
     },
   },
-  productionBrowserSourceMaps: true, // Enabled for debugging production error
+  productionBrowserSourceMaps: false,
   images: {
     remotePatterns: [
       {

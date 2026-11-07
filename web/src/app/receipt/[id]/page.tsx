@@ -5,6 +5,8 @@ import { CheckCircle2, Download, Receipt as ReceiptIcon, Printer } from "lucide-
 import { Button } from "@/components/ui/button";
 import { ReceiptActions } from "@/components/shared/ReceiptActions";
 
+export const dynamic = "force-dynamic";
+
 export default async function PublicReceiptPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
   const receipt = await getPublicReceipt(resolvedParams.id);

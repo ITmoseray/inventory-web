@@ -431,6 +431,13 @@ export default function SuperAdminAffiliatesSuite() {
           </button>
 
           <Link
+            href="/super-admin/paan"
+            className="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md shadow-blue-500/20 transition flex items-center gap-1.5"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" /> PAAN National Network
+          </Link>
+
+          <Link
             href="/affiliate/register"
             target="_blank"
             className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition flex items-center gap-1.5"

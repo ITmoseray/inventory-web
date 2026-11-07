@@ -7,6 +7,8 @@ import Link from "next/link";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function InventoryOverviewPage() {
   const [overview, fastMoving, lowStockProducts, recentMovements] = await Promise.all([
     getInventoryOverview(),

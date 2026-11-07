@@ -59,3 +59,8 @@ web/public/videos/*.webm
 .DS_Store
 Thumbs.db
 .vercel
+
+
+# Database & logs
+*.db
+*.log

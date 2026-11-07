@@ -111,6 +111,7 @@ model Business {
   staffAgreements         StaffAgreement[]
   lastActiveAt            DateTime?
   store                   Store?
+  paanMerchant            PaanMerchantProfile?
 
   @@index([slug])
 }
@@ -290,6 +291,7 @@ model Product {
   supplierPriceLists    SupplierPriceList[]
   bundleItems           BundleItem[]
   storeProducts         StoreProduct[]
+  paanCampaignProducts  PaanCampaignProduct[]
 
   @@index([businessId, sku])
   @@index([businessId, deletedAt])
@@ -2406,6 +2408,18 @@ model Affiliate {
   demoCommissions   DemoCommission[]
   demoNotifications DemoNotification[]
 
+  // PAAN Multi-Merchant Network Extensions
+  paanCategory            PaanAffiliateCategory     @default(INDEPENDENT)
+  isAcademyGraduate       Boolean                   @default(false)
+  academyCohort           String?
+  academyStudentId        String?
+  paanApplications        PaanCampaignApplication[]
+  paanReferralLinks       PaanReferralLink[]
+  paanOfflineAttributions PaanOfflineAttribution[]
+  paanWallet              PaanAffiliateWallet?
+  paanLedgerEntries       PaanFinancialLedger[]
+  paanAcademyProgress     PaanAcademyProgress[]
+
   @@index([affiliateCode])
   @@index([status])
   @@index([email])
@@ -3103,4 +3117,356 @@ model ExamAuthorization {
   @@index([studentId])
   @@index([examinationId])
   @@index([status])
+}
+
+// =========================================================================
+// PROTECH ASSIST AFFILIATE NETWORK (PAAN)
+// MULTI-MERCHANT ENTERPRISE MARKETPLACE ARCHITECTURE
+// ==========================================
+
+enum PaanCampaignType {
+  OPEN                // Any approved affiliate can promote
+  APPLICATION         // Marketer must apply and be approved by merchant
+  PRIVATE             // Invitation only
+  SELECTED            // Merchant chooses specific affiliates
+}
+
+enum PaanCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum PaanAffiliateCategory {
+  ACADEMY_STUDENT     // ProTech Online Academy graduate
+  INDEPENDENT         // Independent digital marketer / influencer
+  SALES_AGENT         // Direct field sales representative
+  BUSINESS_TEAM       // In-house business marketing team
+}
+
+enum PaanAttributionType {
+  ONLINE_LINK         // Standard tracking URL / cookie
+  OFFLINE_CODE        // Walk-in referral code provided to cashier
+  DIRECT_ORDER        // Customer selected affiliate code at checkout
+}
+
+enum PaanLedgerEntryType {
+  COMMISSION_ACCRUAL    // Sale confirmed, commission allocated to pending
+  COMMISSION_APPROVAL   // Commission verified and moved to available balance
+  COMMISSION_REVERSAL   // Cancelled or refunded order
+  WITHDRAWAL_REQUEST    // Balance reserved for payout
+  WITHDRAWAL_COMPLETED  // Mobile money / bank payout confirmed
+  WITHDRAWAL_REJECTED   // Payout rejected, funds returned to balance
+  PLATFORM_FEE_CREDIT   // ProTech revenue earned
+  MERCHANT_SETTLEMENT   // Merchant cleared commission debt with ProTech
+  AUDIT_ADJUSTMENT      // Official admin reconciliation with signed rationale
+}
+
+// 1. Merchant Profile for PAAN Participation
+model PaanMerchantProfile {
+  id                   String              @id @default(cuid())
+  businessId           String              @unique
+  status               String              @default("PENDING") // PENDING, APPROVED, REJECTED, SUSPENDED
+  verificationDocument String?
+  contactPersonName    String
+  contactPersonPhone   String
+  contactPersonEmail   String
+  agreedToPaanTerms    Boolean             @default(true)
+  commissionAgreement  String?             // Notes on agreed commission settlement schedule
+  totalSalesAttributed Decimal             @default(0) @db.Decimal(12, 2)
+  totalCommissionsOwed Decimal             @default(0) @db.Decimal(12, 2)
+  totalSettled         Decimal             @default(0) @db.Decimal(12, 2)
+  approvedAt           DateTime?
+  approvedBy           String?             // Super admin ID
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  business             Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  campaigns            PaanCampaign[]
+  offlineAttributions  PaanOfflineAttribution[]
+  marketingAssets      PaanMarketingAsset[]
+  ledgerEntries        PaanFinancialLedger[]
+  orders               PaanMarketplaceOrder[]
+
+  @@index([businessId])
+  @@index([status])
+}
+
+// 2. Multi-Merchant Campaign Engine
+model PaanCampaign {
+  id                      String              @id @default(cuid())
+  merchantId              String
+  title                   String
+  slug                    String              @unique
+  description             String              @db.Text
+  category                String              // Electronics, Fashion, Groceries, Education, etc.
+  type                    PaanCampaignType    @default(OPEN)
+  status                  PaanCampaignStatus  @default(ACTIVE)
+  
+  // Commission Structure
+  commissionType          CommissionType      @default(PERCENTAGE)
+  totalCommissionRate     Decimal             @db.Decimal(10, 2) // e.g. 10.00% or 100 NLe
+  affiliateSharePct       Decimal             @default(70.00) @db.Decimal(5, 2) // 70% of total commission goes to Affiliate
+  platformSharePct        Decimal             @default(30.00) @db.Decimal(5, 2) // 30% goes to ProTech Assist
+
+  startDate               DateTime            @default(now())
+  endDate                 DateTime?
+  termsConditions         String?             @db.Text
+  bannerUrl               String?
+  targetUrl               String              @default("/marketplace")
+  totalClicks             Int                 @default(0)
+  totalConversions        Int                 @default(0)
+  totalRevenueGenerated   Decimal             @default(0) @db.Decimal(12, 2)
+
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  merchant                PaanMerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  products                PaanCampaignProduct[]
+  applications            PaanCampaignApplication[]
+  referralLinks           PaanReferralLink[]
+  offlineAttributions     PaanOfflineAttribution[]
+  marketingAssets         PaanMarketingAsset[]
+  orders                  PaanMarketplaceOrder[]
+
+  @@index([merchantId])
+  @@index([category])
+  @@index([status])
+}
+
+// 3. Campaign Products Mapping
+model PaanCampaignProduct {
+  id           String        @id @default(cuid())
+  campaignId   String
+  productId    String
+  customPrice  Decimal?      @db.Decimal(10, 2)
+  notes        String?
+  createdAt    DateTime      @default(now())
+
+  campaign     PaanCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  product      Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, productId])
+  @@index([campaignId])
+  @@index([productId])
+}
+
+// 4. Affiliate Campaign Application / Participation
+model PaanCampaignApplication {
+  id           String        @id @default(cuid())
+  campaignId   String
+  affiliateId  String
+  status       String        @default("APPROVED") // PENDING, APPROVED, REJECTED
+  appliedAt    DateTime      @default(now())
+  reviewedAt   DateTime?
+  reviewedBy   String?       // Merchant or Admin user
+  notes        String?
+
+  campaign     PaanCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  affiliate    Affiliate     @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, affiliateId])
+  @@index([campaignId])
+  @@index([affiliateId])
+}
+
+// 5. Campaign-Specific Tracking Link
+model PaanReferralLink {
+  id           String        @id @default(cuid())
+  campaignId   String
+  affiliateId  String
+  trackingCode String        @unique // e.g. PAAN-ELEC-0001
+  customSlug   String?
+  clicks       Int           @default(0)
+  conversions  Int           @default(0)
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+
+  campaign     PaanCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  affiliate    Affiliate     @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignId, affiliateId])
+  @@index([trackingCode])
+}
+
+// 6. Offline Physical Shop Attribution (Sierra Leone Market Focus)
+model PaanOfflineAttribution {
+  id                   String              @id @default(cuid())
+  attributionRef       String              @unique // e.g. OFFLINE-2026-0001
+  merchantId           String
+  campaignId           String?
+  affiliateId          String
+  
+  // Transaction Details
+  receiptNumber        String?             // Shop physical receipt reference
+  customerName         String?
+  customerPhone        String?
+  saleAmount           Decimal             @db.Decimal(10, 2)
+  totalCommission      Decimal             @db.Decimal(10, 2)
+  affiliateEarning     Decimal             @db.Decimal(10, 2)
+  platformRevenue      Decimal             @db.Decimal(10, 2)
+  merchantRetention    Decimal             @db.Decimal(10, 2)
+  currency             String              @default("NLe")
+  
+  verificationStatus   String              @default("CONFIRMED") // PENDING, CONFIRMED, DISPUTED, REJECTED
+  verifiedBy           String              // Cashier / Merchant User ID
+  verifiedAt           DateTime            @default(now())
+  notes                String?             @db.Text
+  createdAt            DateTime            @default(now())
+
+  merchant             PaanMerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  campaign             PaanCampaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  affiliate            Affiliate           @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+
+  @@index([merchantId])
+  @@index([affiliateId])
+  @@index([verificationStatus])
+}
+
+// 7. Immutable Financial Ledger (Zero balance edits without transactions)
+model PaanFinancialLedger {
+  id              String               @id @default(cuid())
+  transactionRef  String               @unique // e.g. LEDGER-TXN-2026-00001
+  entryType       PaanLedgerEntryType
+  affiliateId     String?
+  merchantId      String?
+  adminUserId     String?
+  
+  amount          Decimal              @db.Decimal(12, 2)
+  currency        String               @default("NLe")
+  direction       String               // DEBIT or CREDIT
+  balanceBefore   Decimal              @db.Decimal(12, 2)
+  balanceAfter    Decimal              @db.Decimal(12, 2)
+  
+  referenceType   String?              // "SALE", "OFFLINE_SALE", "PAYOUT", "REFUND"
+  referenceId     String?              // Associated ID in respective table
+  description     String               @db.Text
+  createdAt       DateTime             @default(now())
+
+  affiliate       Affiliate?           @relation(fields: [affiliateId], references: [id], onDelete: SetNull)
+  merchant        PaanMerchantProfile? @relation(fields: [merchantId], references: [id], onDelete: SetNull)
+
+  @@index([affiliateId])
+  @@index([merchantId])
+  @@index([entryType])
+  @@index([transactionRef])
+}
+
+// 8. Affiliate Wallet Structure (Backed by Ledger)
+model PaanAffiliateWallet {
+  id               String    @id @default(cuid())
+  affiliateId      String    @unique
+  pendingBalance   Decimal   @default(0) @db.Decimal(12, 2)
+  availableBalance Decimal   @default(0) @db.Decimal(12, 2)
+  totalWithdrawn   Decimal   @default(0) @db.Decimal(12, 2)
+  totalEarned      Decimal   @default(0) @db.Decimal(12, 2)
+  currency         String    @default("NLe")
+  updatedAt        DateTime  @updatedAt
+
+  affiliate        Affiliate @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+}
+
+// 9. Merchant Marketing Resources
+model PaanMarketingAsset {
+  id           String              @id @default(cuid())
+  merchantId   String
+  campaignId   String?
+  title        String
+  assetType    String              // BANNER, PHOTO, VIDEO, CAPTION, SCRIPT
+  fileUrl      String?
+  textContent  String?             @db.Text // WhatsApp script or Facebook copy
+  downloadCount Int                @default(0)
+  createdAt    DateTime            @default(now())
+
+  merchant     PaanMerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  campaign     PaanCampaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+
+  @@index([merchantId])
+  @@index([campaignId])
+}
+
+// 10. ProTech Online Academy Learning Centre
+model PaanAcademyLesson {
+  id           String   @id @default(cuid())
+  moduleTitle  String   // e.g. "Module 1: Orientation", "Module 2: WhatsApp Selling"
+  lessonNumber Int
+  title        String
+  slug         String   @unique
+  content      String   @db.Text
+  videoUrl     String?
+  keyTakeaways String[]
+  orderIndex   Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  progress     PaanAcademyProgress[]
+}
+
+model PaanAcademyProgress {
+  id          String            @id @default(cuid())
+  affiliateId String
+  lessonId    String
+  completed   Boolean           @default(false)
+  completedAt DateTime?
+
+  affiliate   Affiliate         @relation(fields: [affiliateId], references: [id], onDelete: Cascade)
+  lesson      PaanAcademyLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([affiliateId, lessonId])
+  @@index([affiliateId])
+}
+
+// 11. Customer Orders on PAAN National Marketplace
+model PaanMarketplaceOrder {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique // e.g. PAAN-ORD-2026-0001
+  merchantId      String
+  campaignId      String?
+  affiliateId     String?
+  trackingCode    String?
+  
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  deliveryAddress String?
+  deliveryCity    String   @default("Freetown")
+  paymentMethod   String   @default("CASH_ON_DELIVERY") // "ORANGE_MONEY", "AFRIMONEY", "CASH_ON_DELIVERY", "BANK_TRANSFER"
+  paymentStatus   String   @default("PENDING") // "PENDING", "CONFIRMED", "FAILED"
+  orderStatus     String   @default("PLACED") // "PLACED", "CONFIRMED", "DELIVERED", "CANCELLED", "REFUNDED"
+  
+  subtotal        Decimal  @db.Decimal(10, 2)
+  commissionTotal Decimal  @default(0) @db.Decimal(10, 2)
+  affiliateShare  Decimal  @default(0) @db.Decimal(10, 2)
+  platformShare   Decimal  @default(0) @db.Decimal(10, 2)
+  merchantShare   Decimal  @default(0) @db.Decimal(10, 2)
+  notes           String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  merchant        PaanMerchantProfile @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  campaign        PaanCampaign?       @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  items           PaanMarketplaceOrderItem[]
+
+  @@index([merchantId])
+  @@index([affiliateId])
+  @@index([orderStatus])
+  @@index([trackingCode])
+}
+
+model PaanMarketplaceOrderItem {
+  id             String  @id @default(cuid())
+  orderId        String
+  productId      String?
+  productName    String
+  quantity       Int     @default(1)
+  unitPrice      Decimal @db.Decimal(10, 2)
+  total          Decimal @db.Decimal(10, 2)
+  imageUrl       String?
+
+  order          PaanMarketplaceOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
 }

@@ -15,6 +15,8 @@ import {
   Package,
   Layers,
   Sparkles,
+  Receipt,
+  Store,
 } from "lucide-react";
 import { toast } from "sonner";
 import { getAffiliateLinks, createAffiliateLink } from "@/lib/actions/affiliate";
@@ -116,6 +118,53 @@ export default function AffiliateLinksPage() {
         <p className="text-xs sm:text-sm text-slate-600 max-w-3xl leading-relaxed">
           Create product-targeted referral links for specific social media posts, WhatsApp groups, or email newsletters. Every custom link locks the lead to your account for <strong>30 full days</strong>.
         </p>
+      </div>
+
+      {/* Sierra Leone Offline Physical Referral Code Card */}
+      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 border border-blue-900/60 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+          <div className="space-y-2 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+              <Store className="w-3.5 h-3.5" /> Sierra Leone In-Store Shopping Attribution
+            </div>
+            <h2 className="text-xl sm:text-2xl font-black text-white">
+              Your Universal Offline Referral Code
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              When recommending a merchant to customers who want to visit the physical store in town, instruct them to give this code to the cashier at checkout. The merchant will record your code on the receipt, and your commission will be credited automatically.
+            </p>
+          </div>
+
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col items-center justify-center space-y-3 shrink-0 w-full md:w-auto">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
+              Cashier Discount & Attribution Code
+            </span>
+            <div className="px-6 py-3 rounded-xl bg-white text-slate-950 font-mono text-xl sm:text-2xl font-black tracking-widest shadow-lg">
+              {affiliateCode || "PA-AFF-00001"}
+            </div>
+            <div className="flex gap-2 w-full">
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(affiliateCode);
+                  toast.success("Offline Referral Code copied!");
+                }}
+                className="flex-1 py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
+              >
+                <Copy className="w-3.5 h-3.5" /> Copy Code
+              </button>
+              <button
+                onClick={() => {
+                  const msg = `When you visit the shop, tell the cashier my referral promo code: *${affiliateCode}* to get your customer guarantee and special pricing!`;
+                  window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, "_blank");
+                }}
+                className="py-2 px-3 rounded-lg bg-[#25D366] hover:bg-[#20ba5a] text-white font-bold text-xs flex items-center justify-center gap-1.5 transition"
+                title="Send via WhatsApp"
+              >
+                <Share2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Generator Card */}

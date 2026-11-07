@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function DashboardAffiliateAliasPage() {
-  redirect("/affiliate/dashboard");
+export default function DashboardAffiliatePage() {
+  redirect("/dashboard/paan");
 }

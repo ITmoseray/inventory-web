@@ -694,6 +694,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       permission: "view_dashboard"
     });
     figmaDomainGroups["ADMIN"].items.push({
+      title: "PAAN Merchant Network",
+      url: "/dashboard/paan",
+      icon: Megaphone,
+      permission: "view_dashboard"
+    });
+    figmaDomainGroups["ADMIN"].items.push({
       title: "Referral Program",
       url: "/dashboard/referrals",
       icon: Crown,

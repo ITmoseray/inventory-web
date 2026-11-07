@@ -6,6 +6,8 @@ import { Award, FileSignature, LogIn, BrainCircuit, Globe, Rocket, Users, FlaskC
 import { prisma } from '@/lib/prisma';
 import RegistrationModal from './RegistrationModal'; // We will create this client component
 
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const school = await prisma.business.findUnique({
     where: { slug: params.slug, type: 'SCHOOL' }

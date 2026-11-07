@@ -33,6 +33,8 @@ export default auth((req) => {
     "/super-admin", 
     "/setup-organization",
     "/affiliate/dashboard",
+    "/affiliate/campaigns",
+    "/affiliate/academy",
     "/affiliate/links",
     "/affiliate/marketing",
     "/affiliate/commissions",

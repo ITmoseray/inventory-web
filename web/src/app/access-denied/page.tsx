@@ -1,7 +1,6 @@
-export const dynamic = "force-dynamic";
+"use client";
 
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { ShieldAlert } from "lucide-react";
 
 export default function AccessDeniedPage() {

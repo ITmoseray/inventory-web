@@ -1,10 +1,7 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft, ShieldCheck, CheckCircle2, AlertTriangle, FileText, Scale } from "lucide-react";
-
-export const metadata = {
-  title: "Affiliate Program Terms & Agreement | ProTech Assist SL Limited",
-  description: "Official terms and conditions for independent affiliates and referral partners of ProTech Assist SL Limited.",
-};
 
 export default function AffiliateTermsPage() {
   return (

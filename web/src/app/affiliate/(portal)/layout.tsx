@@ -15,6 +15,8 @@ import {
   LogOut,
   ExternalLink,
   Sparkles,
+  Megaphone,
+  GraduationCap,
 } from "lucide-react";
 
 export default async function AffiliatePortalLayout({
@@ -59,12 +61,14 @@ export default async function AffiliatePortalLayout({
   const code = affiliate?.affiliateCode || "PA-ADMIN";
 
   const navLinks = [
-    { href: "/affiliate/dashboard", label: "Overview", Icon: LayoutDashboard },
-    { href: "/affiliate/simulator", label: "Simulator", Icon: Sparkles },
-    { href: "/affiliate/links",     label: "Links",    Icon: Link2 },
-    { href: "/affiliate/marketing", label: "Promo",    Icon: FileText },
-    { href: "/affiliate/commissions", label: "Earnings", Icon: DollarSign },
-    { href: "/affiliate/payouts",   label: "Payouts",  Icon: Wallet },
+    { href: "/affiliate/dashboard",   label: "Overview",   Icon: LayoutDashboard },
+    { href: "/affiliate/campaigns",   label: "Campaigns",  Icon: Megaphone },
+    { href: "/affiliate/academy",     label: "Academy",    Icon: GraduationCap },
+    { href: "/affiliate/links",       label: "Links",      Icon: Link2 },
+    { href: "/affiliate/marketing",   label: "Promo",      Icon: FileText },
+    { href: "/affiliate/commissions", label: "Earnings",   Icon: DollarSign },
+    { href: "/affiliate/payouts",     label: "Payouts",    Icon: Wallet },
+    { href: "/affiliate/simulator",   label: "Simulator",  Icon: Sparkles },
   ];
 
   return (
